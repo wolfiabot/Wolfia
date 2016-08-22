@@ -1,5 +1,7 @@
 apply plugin: 'java'
+apply plugin: 'application'
 
+mainClassName = "de.npstr.wolfia.Wolfia"
 sourceCompatibility = 1.8
 version = '0.1'
 
