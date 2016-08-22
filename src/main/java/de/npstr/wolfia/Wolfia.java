@@ -18,6 +18,7 @@ public class Wolfia extends ListenerAdapter {
         try {
 
             jda = new JDABuilder().setBotToken(Sneaky.DISCORD_TOKEN).buildBlocking();
+            jda.setAutoReconnect(true);
 
         } catch (Exception e) {
             e.printStackTrace();
