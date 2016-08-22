@@ -5,4 +5,4 @@ Written in Java, using the excellent [JDA (Java Discord API)](https://github.com
 
 
 #### Notes:
-- Add Discord Token to Sneaky.java,**don't publish it**.
+- Add Discord Token to Sneaky.java, **don't publish it**.
