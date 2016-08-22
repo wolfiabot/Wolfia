@@ -4,6 +4,7 @@ apply plugin: 'application'
 mainClassName = "de.npstr.wolfia.Wolfia"
 sourceCompatibility = 1.8
 version = '0.1'
+applicationDefaultJvmArgs = ["-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"]
 
 repositories {
     mavenCentral()
