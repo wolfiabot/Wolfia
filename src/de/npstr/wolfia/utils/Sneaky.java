@@ -1,7 +1,7 @@
 package de.npstr.wolfia.utils;
 
-/*
- * Created by npstr on 22.08.2016.
+/**
+ * Created by npstr on 22.08.2016
  */
 public class Sneaky {
 
