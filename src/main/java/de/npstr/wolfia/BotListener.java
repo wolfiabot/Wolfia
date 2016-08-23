@@ -11,15 +11,19 @@ public class BotListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getMessage().getContent().startsWith("~!") && event.getMessage().getAuthor().getId() != event.getJDA().getSelfInfo().getId()) {
-            Wolfia.handleCommand(Wolfia.parser.parse(event.getMessage().getContent().toLowerCase(), event));
+
+        //bot should ignore itself
+        if (event.getMessage().getAuthor().getId().equals(event.getJDA().getSelfInfo().getId())) {
+            return;
         }
-        super.onMessageReceived(event);
+
+        if (event.getMessage().getContent().startsWith("~!")) {
+            Main.handleCommand(Main.parser.parse(event.getMessage().getContent().toLowerCase(), event));
+        }
     }
 
     @Override
     public void onReady(ReadyEvent event) {
-        //Wolfia.log("status", "Logged in as: " + event.getJDA().getSelfInfo().getUsername());
-        super.onReady(event);
+        Main.log(Main.LOG.TRACE, "Logged in as: " + event.getJDA().getSelfInfo().getUsername());
     }
 }
