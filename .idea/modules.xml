@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/wolfia.iml" filepath="$PROJECT_DIR$/wolfia.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Wolfia.iml" filepath="$PROJECT_DIR$/.idea/modules/Wolfia.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Wolfia_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Wolfia_main.iml" group="Wolfia" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Wolfia_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Wolfia_test.iml" group="Wolfia" />
     </modules>
   </component>
 </project>
