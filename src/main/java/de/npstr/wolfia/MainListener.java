@@ -5,9 +5,11 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
 
 /**
- * Created by npstr on 23.08.2016
+ * Created by npstr on 25.08.2016
  */
-public class BotListener extends ListenerAdapter {
+public class MainListener extends ListenerAdapter {
+
+    public static final String PREFIX = "!";
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -17,8 +19,8 @@ public class BotListener extends ListenerAdapter {
             return;
         }
 
-        if (event.getMessage().getContent().startsWith("~!")) {
-            Main.handleCommand(Main.parser.parse(event.getMessage().getContent().toLowerCase(), event));
+        if (event.getMessage().getContent().startsWith(PREFIX)) {
+            Main.handleCommand(Main.parser.parse(PREFIX, event.getMessage().getContent().toLowerCase(), event));
         }
     }
 

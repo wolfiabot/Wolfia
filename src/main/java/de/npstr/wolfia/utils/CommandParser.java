@@ -9,10 +9,10 @@ import java.util.ArrayList;
  */
 public class CommandParser {
 
-    public CommandContainer parse(String rw, MessageReceivedEvent e) {
+    public CommandContainer parse(String prefix, String rw, MessageReceivedEvent e) {
         ArrayList<String> split = new ArrayList<>();
         String raw = rw;
-        String beheaded = raw.replaceFirst("~!", "");
+        String beheaded = raw.replaceFirst(prefix, "");
         String[] splitBeheaded = beheaded.split(" ");
         for (String s : splitBeheaded) {
             split.add(s);

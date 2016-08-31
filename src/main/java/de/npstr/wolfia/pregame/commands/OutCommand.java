@@ -1,14 +1,23 @@
-package de.npstr.wolfia.commands;
+package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
-import de.npstr.wolfia.Main;
+import de.npstr.wolfia.game.Player;
+import de.npstr.wolfia.pregame.Pregame;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 /**
  * Created by npstr on 23.08.2016
  */
-public class PingCommand implements Command {
-    private final String HELP = "USAGE: ~!ping";
+public class OutCommand implements Command {
+
+    private final String HELP = "TODO";
+
+    private Pregame pg;
+
+    public OutCommand(Pregame pg) {
+        super();
+        this.pg = pg;
+    }
 
     @Override
     public boolean called(String[] args, MessageReceivedEvent event) {
@@ -17,7 +26,7 @@ public class PingCommand implements Command {
 
     @Override
     public void action(String[] args, MessageReceivedEvent event) {
-        Main.handleOutputMessage(event.getTextChannel(), "PONG");
+        pg.outPlayer(new Player(event.getAuthor()));
     }
 
     @Override
@@ -27,6 +36,6 @@ public class PingCommand implements Command {
 
     @Override
     public void executed(boolean success, MessageReceivedEvent event) {
-        return;
+
     }
 }
