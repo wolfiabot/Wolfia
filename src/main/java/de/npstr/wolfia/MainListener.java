@@ -3,13 +3,18 @@ package de.npstr.wolfia;
 import net.dv8tion.jda.events.ReadyEvent;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Created by npstr on 25.08.2016
  */
 public class MainListener extends ListenerAdapter {
 
-    public static final String PREFIX = "!";
+    private static final String PREFIX = "!";
+
+    private final static Logger LOG = LogManager.getLogger();
+
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
@@ -26,6 +31,6 @@ public class MainListener extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
-        Main.log(Main.LOG.TRACE, "Logged in as: " + event.getJDA().getSelfInfo().getUsername());
+        LOG.trace("Logged in as: " + event.getJDA().getSelfInfo().getUsername());
     }
 }

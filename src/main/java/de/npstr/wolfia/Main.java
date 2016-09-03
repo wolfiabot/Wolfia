@@ -15,7 +15,6 @@ import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.MessageChannel;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.hooks.ListenerAdapter;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,12 +24,12 @@ public class Main extends ListenerAdapter {
 
     public enum LOG {TRACE, DEBUG, INFO, WARN, ERROR}
 
-
-    private static JDA jda;
     public static final CommandParser parser = new CommandParser();
-    private static HashMap<String, Command> commands = new HashMap<>();
 
-    private final static Logger log = LogManager.getLogger(Main.class);
+    private static final String REDIS_URI = "redis://localhost:6379";
+    private static JDA jda;
+    private static HashMap<String, Command> commands = new HashMap<>();
+    private final static Logger LOG = LogManager.getLogger();
 
     public static void main(String[] args) {
 
@@ -82,30 +81,30 @@ public class Main extends ListenerAdapter {
         channel.sendMessage(msg);
     }
 
-    public static void log(String msg) {
-        log(LOG.DEBUG, msg);
-    }
+//    public static void log(String msg) {
+//        log(LOG.DEBUG, msg);
+//    }
 
-    public static void log(LOG level, String msg) {
-
-        Level lvl = Level.DEBUG;
-        switch (level) {
-            case ERROR:
-                lvl = Level.ERROR;
-                break;
-            case WARN:
-                lvl = Level.WARN;
-                break;
-            case INFO:
-                lvl = Level.INFO;
-                break;
-            case DEBUG:
-                lvl = Level.DEBUG;
-                break;
-            case TRACE:
-                lvl = Level.TRACE;
-                break;
-        }
-        log.log(lvl, msg);
-    }
+//    public static void log(LOG level, String msg) {
+//
+//        Level lvl = Level.DEBUG;
+//        switch (level) {
+//            case ERROR:
+//                lvl = Level.ERROR;
+//                break;
+//            case WARN:
+//                lvl = Level.WARN;
+//                break;
+//            case INFO:
+//                lvl = Level.INFO;
+//                break;
+//            case DEBUG:
+//                lvl = Level.DEBUG;
+//                break;
+//            case TRACE:
+//                lvl = Level.TRACE;
+//                break;
+//        }
+//        LOG.log(lvl, msg);
+//}
 }
