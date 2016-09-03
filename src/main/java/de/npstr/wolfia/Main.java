@@ -4,6 +4,9 @@ package de.npstr.wolfia;
  * Created by npstr on 22.08.2016
  */
 
+import com.lambdaworks.redis.RedisClient;
+import com.lambdaworks.redis.RedisConnectionException;
+import com.lambdaworks.redis.api.sync.RedisCommands;
 import de.npstr.wolfia.commands.PingCommand;
 import de.npstr.wolfia.pregame.Pregame;
 import de.npstr.wolfia.pregame.PregameListener;
@@ -33,6 +36,19 @@ public class Main extends ListenerAdapter {
 
     public static void main(String[] args) {
 
+        RedisCommands<String, String> redisSync = null;
+        //connect to DB
+        RedisClient redisClient = RedisClient.create(REDIS_URI);
+        try {
+            redisSync = redisClient.connect().sync();
+            LOG.trace("established connection to DB redis @ " + REDIS_URI);
+        } catch (RedisConnectionException e) {
+            e.printStackTrace();
+            LOG.error("could not establish connection to DB redis @ " + REDIS_URI + ", exiting");
+            return;
+        }
+
+
         //setting up JDA
         try {
             jda = new JDABuilder().addListener(new MainListener()).setBotToken(Sneaky.DISCORD_TOKEN).buildBlocking();
@@ -45,7 +61,6 @@ public class Main extends ListenerAdapter {
         commands.put("ping", new PingCommand());
 
         //start pregame
-        //TODO check if the pregame channel is up at all
         for (Guild g : jda.getGuilds()) {
             TextChannel pregameChannel = null;
             for (TextChannel txt : g.getTextChannels())
@@ -80,31 +95,4 @@ public class Main extends ListenerAdapter {
         //TODO fancy it up with color?
         channel.sendMessage(msg);
     }
-
-//    public static void log(String msg) {
-//        log(LOG.DEBUG, msg);
-//    }
-
-//    public static void log(LOG level, String msg) {
-//
-//        Level lvl = Level.DEBUG;
-//        switch (level) {
-//            case ERROR:
-//                lvl = Level.ERROR;
-//                break;
-//            case WARN:
-//                lvl = Level.WARN;
-//                break;
-//            case INFO:
-//                lvl = Level.INFO;
-//                break;
-//            case DEBUG:
-//                lvl = Level.DEBUG;
-//                break;
-//            case TRACE:
-//                lvl = Level.TRACE;
-//                break;
-//        }
-//        LOG.log(lvl, msg);
-//}
 }
