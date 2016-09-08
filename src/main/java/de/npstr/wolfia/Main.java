@@ -38,7 +38,7 @@ public class Main extends ListenerAdapter {
 
     private static final String PREGAME_ROOM_NAME = "turbo-chat";
 
-    private static final String REDIS_URI = "redis://" + Sneaky.REDIS_AUTH + "@localhost";
+    private static final String REDIS_URI = "redis://localhost";
     private static DBWrapper db;
 
     private static final Gson GSON = new Gson();
