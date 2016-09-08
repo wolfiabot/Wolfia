@@ -19,13 +19,14 @@ public class SignUpStatusCommand implements Command {
     }
 
     @Override
-    public boolean called(String[] args, MessageReceivedEvent event) {
+    public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
         return true;
     }
 
     @Override
-    public void action(String[] args, MessageReceivedEvent event) {
+    public boolean execute(String[] args, MessageReceivedEvent event) {
         pg.postSignUps();
+        return true;
     }
 
     @Override

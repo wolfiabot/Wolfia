@@ -33,10 +33,6 @@ public class PregameListener extends ListenerAdapter {
             return;
         }
 
-        //only read messages from the designated channel
-        if (event.getTextChannel() != channel)
-            return;
-
         if (event.getMessage().getContent().startsWith(PREFIX)) {
             pregame.handleCommand(Main.parser.parse(PREFIX, event.getMessage().getContent().toLowerCase(), event));
         }

@@ -13,6 +13,7 @@ dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'net.dv8tion:JDA:2.2.1_353'                                             //discord API
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.6.2'  //logging framework
-    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.2' // logging framework
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.2' //logging framework
     compile 'biz.paluch.redis:lettuce:4.2.2.Final'                                  //redis client
+    compile 'com.google.code.gson:gson:2.7'                                         //serialize all the stuff
 }

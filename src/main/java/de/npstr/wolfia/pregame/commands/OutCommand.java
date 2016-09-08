@@ -1,7 +1,6 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
-import de.npstr.wolfia.game.Player;
 import de.npstr.wolfia.pregame.Pregame;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
@@ -20,13 +19,14 @@ public class OutCommand implements Command {
     }
 
     @Override
-    public boolean called(String[] args, MessageReceivedEvent event) {
+    public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
         return true;
     }
 
     @Override
-    public void action(String[] args, MessageReceivedEvent event) {
-        pg.outPlayer(new Player(event.getAuthor()));
+    public boolean execute(String[] args, MessageReceivedEvent event) {
+        pg.outPlayer(event.getAuthor().getId());
+        return true;
     }
 
     @Override

@@ -11,13 +11,14 @@ public class PingCommand implements Command {
     private final String HELP = "USAGE: ~!ping";
 
     @Override
-    public boolean called(String[] args, MessageReceivedEvent event) {
+    public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
         return true;
     }
 
     @Override
-    public void action(String[] args, MessageReceivedEvent event) {
+    public boolean execute(String[] args, MessageReceivedEvent event) {
         Main.handleOutputMessage(event.getTextChannel(), "PONG");
+        return true;
     }
 
     @Override
