@@ -19,6 +19,6 @@ dependencies {
 }
 
 //heroku needs this
-tast stage {
+task stage {
 
 }
