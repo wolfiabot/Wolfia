@@ -80,7 +80,9 @@ public class Main extends ListenerAdapter {
         }
 
         //finding the guild aka discord server
-        activeServer = jda.getGuildById(Sneaky.DISCORD_SERVER_ID);
+        String serverId = Sneaky.DISCORD_SERVER_ID;
+        if (args.length > 0) serverId = args[0];
+        activeServer = jda.getGuildById(serverId);
 
         //adding commands
         commands.put("ping", new PingCommand());
