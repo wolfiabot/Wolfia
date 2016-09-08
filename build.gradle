@@ -17,3 +17,8 @@ dependencies {
     compile 'biz.paluch.redis:lettuce:4.2.2.Final'                                  //redis client
     compile 'com.google.code.gson:gson:2.7'                                         //serialize all the stuff
 }
+
+//heroku needs this
+tast stage {
+
+}
