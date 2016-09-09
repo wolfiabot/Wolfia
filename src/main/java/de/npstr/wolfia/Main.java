@@ -38,7 +38,7 @@ public class Main extends ListenerAdapter {
 
     private static final String PREGAME_ROOM_NAME = "turbo-chat";
 
-    private static final String REDIS_URI = "redis://localhost";
+    private static final String REDIS_URI = "redis://localhost:6379";
     private static DBWrapper db;
 
     private static final Gson GSON = new Gson();
@@ -73,14 +73,14 @@ public class Main extends ListenerAdapter {
         //setting up JDA
         MainListener mainListener = new MainListener();
         try {
-            jda = new JDABuilder().addListener(mainListener).setBotToken(Sneaky.DISCORD_TOKEN).buildBlocking();
+            jda = new JDABuilder().addListener(mainListener).setBotToken(Sneaky.DISCORD_TOKEN()).buildBlocking();
             jda.setAutoReconnect(true);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         //finding the guild aka discord server
-        String serverId = Sneaky.DISCORD_SERVER_ID;
+        String serverId = Sneaky.DISCORD_SERVER_ID();
         if (args.length > 0) serverId = args[0];
         activeServer = jda.getGuildById(serverId);
 
@@ -88,17 +88,16 @@ public class Main extends ListenerAdapter {
         commands.put("ping", new PingCommand());
 
         //start pregame
-        for (Guild g : jda.getGuilds()) {
-            TextChannel pregameChannel = null;
-            for (TextChannel txt : g.getTextChannels())
-                if (txt.getName().equals(PREGAME_ROOM_NAME)) pregameChannel = txt;
+        Guild g = activeServer;
+        TextChannel pregameChannel = null;
+        for (TextChannel txt : g.getTextChannels())
+            if (txt.getName().equals(PREGAME_ROOM_NAME)) pregameChannel = txt;
 
-            if (pregameChannel == null)
-                pregameChannel = (TextChannel) g.createTextChannel(PREGAME_ROOM_NAME).getChannel();
+        if (pregameChannel == null)
+            pregameChannel = (TextChannel) g.createTextChannel(PREGAME_ROOM_NAME).getChannel();
 
-            Pregame pg = new Pregame(pregameChannel);
-            mainListener.setListener(new PregameListener(pg), pregameChannel);
-        }
+        Pregame pg = new Pregame(pregameChannel);
+        mainListener.setListener(new PregameListener(pg), pregameChannel);
     }
 
 //    public static void handleCommand(CommandParser.CommandContainer cmd) {
@@ -118,21 +117,11 @@ public class Main extends ListenerAdapter {
 //    }
 
     public static void handleOutputMessage(MessageChannel channel, String msg) {
-
-        //the xl markdown 'fancies' it up with some color:
-        // lowercase text blue
-        // upper case orange
-        // numbers green,
-        // single chars grey
-
-        //this fucks up mentions (and probably other stuff) so commented it out for now
-        //msg = msg.toLowerCase();
-        //msg = "```xl\n" + msg + "\n```";
         channel.sendMessage(msg);
     }
 
     public static void handleOutputMessage(String userId, String msg) {
         PrivateChannel ch = jda.getUserById(userId).getPrivateChannel();
-        ch.sendMessage(msg);
+        handleOutputMessage(ch, msg);
     }
 }

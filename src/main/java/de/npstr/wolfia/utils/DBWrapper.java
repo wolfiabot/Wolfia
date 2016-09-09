@@ -62,6 +62,6 @@ public class DBWrapper {
     public Long del(String key) {
         key = DB_PREFIX + key;
         LOG.trace("db call: deleting key [" + key + "]");
-        return redis.del(DB_PREFIX + key);
+        return redis.del(key);
     }
 }

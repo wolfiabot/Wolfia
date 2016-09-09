@@ -1,7 +1,6 @@
 package de.npstr.wolfia;
 
 import de.npstr.wolfia.utils.DBWrapper;
-import net.dv8tion.jda.managers.RoleManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -72,12 +71,12 @@ public class Player {
         saveKnownPlayerIds();
 
         //configuring the solo role of the new player
-        RoleManager rm = Main.activeServer.createRole();
-        soloRoleId = rm.getRole().getId();
-        rm.setGrouped(false);
-        rm.setMentionable(false);
-        //rm.setName(discordUserId);
-        rm.update();
+//        RoleManager rm = Main.activeServer.createRole();
+//        soloRoleId = rm.getRole().getId();
+//        rm.setGrouped(false);
+//        rm.setMentionable(false);
+//        //rm.setName(discordUserId);
+//        rm.update();
 
         LOG.trace("New player " + this + " created");
     }

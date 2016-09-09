@@ -8,6 +8,26 @@ repositories {
     jcenter()
 }
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'eu.appsatori:gradle-fatjar-plugin:0.3'
+    }
+}
+
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Quickstart', 'Implementation-Version': version
+        attributes 'Main-Class': 'de.npstr.wolfia.Main'
+    }
+}
+
 //TODO check licenses of stuff that is used
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
@@ -16,4 +36,13 @@ dependencies {
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.6.2' //logging framework
     compile 'biz.paluch.redis:lettuce:4.2.2.Final'                                  //redis client
     compile 'com.google.code.gson:gson:2.7'                                         //serialize all the stuff
+}
+
+
+jar {
+    manifest {
+        attributes("Main-Class": "de.npstr.wolfia.Main",
+                "Class-Path": "Wolfia-0.1.jar")
+
+    }
 }
