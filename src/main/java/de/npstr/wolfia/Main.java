@@ -44,13 +44,16 @@ public class Main extends ListenerAdapter {
     private static final Gson GSON = new Gson();
     private static final String DB_PREFIX = "wolfia:";
     private static final String DB_PREFIX_PLAYER = DB_PREFIX + "player:";
+    private static final String DB_PREFIX_PREGAME = DB_PREFIX + "pregame:";
 
     public static void main(String[] args) {
 
         //connect to DB & distribute db objects to classes
+        //kill itself if that doesn't work
         RedisClient redisClient = RedisClient.create(REDIS_URI);
+        RedisCommands<String, String> redisSync;
         try {
-            RedisCommands<String, String> redisSync = redisClient.connect().sync();
+            redisSync = redisClient.connect().sync();
             db = new DBWrapper(DB_PREFIX, redisSync, GSON);
             //try writing and reading as a simple test
             db.set("key", "value");
@@ -96,7 +99,7 @@ public class Main extends ListenerAdapter {
         if (pregameChannel == null)
             pregameChannel = (TextChannel) g.createTextChannel(PREGAME_ROOM_NAME).getChannel();
 
-        Pregame pg = new Pregame(pregameChannel);
+        Pregame pg = new Pregame(pregameChannel, new DBWrapper(DB_PREFIX_PREGAME + pregameChannel.getId() + ":", redisSync, GSON));
         mainListener.setListener(new PregameListener(pg), pregameChannel);
     }
 

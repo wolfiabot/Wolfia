@@ -7,9 +7,9 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 /**
  * Created by npstr on 24.08.2016
  */
-public class SignUpStatusCommand implements Command {
+public class SignUpStatusCommand extends Command {
 
-    private final String HELP = "TODO";
+    private static final String HELP = "```usage: <prefix>signups\nposts the current signup list```";
 
     private Pregame pg;
 
@@ -32,10 +32,5 @@ public class SignUpStatusCommand implements Command {
     @Override
     public String help() {
         return HELP;
-    }
-
-    @Override
-    public void executed(boolean success, MessageReceivedEvent event) {
-
     }
 }

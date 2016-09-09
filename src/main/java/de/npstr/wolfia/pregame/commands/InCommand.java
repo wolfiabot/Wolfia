@@ -9,11 +9,9 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 /**
  * Created by npstr on 23.08.2016
  */
-public class InCommand implements Command {
+public class InCommand extends Command {
 
-    //TODO add argument so players can say for how long they want to in
-
-    private final String HELP = "TODO";
+    private static final String HELP = "```usage: <prefix>in <minutes>\nwill add you to the signup list for <minutes> (up to 600 mins) and out you automatically afterwards```";
 
     private Pregame pg;
 
@@ -24,6 +22,13 @@ public class InCommand implements Command {
 
     @Override
     public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
+        if (args.length < 1)
+            return false;
+        try {
+            Integer.valueOf(args[0]);
+        } catch (NumberFormatException e) {
+            return false;
+        }
         return true;
     }
 
@@ -36,14 +41,9 @@ public class InCommand implements Command {
             return false;
         }
 
-
         int timeForSignup;
-        try {
-            timeForSignup = Integer.valueOf(args[0]);
-            if (timeForSignup > 12 * 60) timeForSignup = 12 * 60; //max sign up time 12h
-        } catch (Exception e) {
-            timeForSignup = 60;
-        }
+        timeForSignup = Integer.valueOf(args[0]);
+        if (timeForSignup > 12 * 60) timeForSignup = 10 * 60; //max sign up time 10h
         pg.inPlayer(event.getAuthor().getId(), timeForSignup);
 
         return true;
@@ -52,10 +52,5 @@ public class InCommand implements Command {
     @Override
     public String help() {
         return HELP;
-    }
-
-    @Override
-    public void executed(boolean success, MessageReceivedEvent event) {
-
     }
 }

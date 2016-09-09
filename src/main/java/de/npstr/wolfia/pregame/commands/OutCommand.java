@@ -7,9 +7,9 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 /**
  * Created by npstr on 23.08.2016
  */
-public class OutCommand implements Command {
+public class OutCommand extends Command {
 
-    private final String HELP = "TODO";
+    private static final String HELP = "```usage: <prefix>out\nwill remove you from the current signup list```";
 
     private Pregame pg;
 
@@ -34,8 +34,4 @@ public class OutCommand implements Command {
         return HELP;
     }
 
-    @Override
-    public void executed(boolean success, MessageReceivedEvent event) {
-
-    }
 }

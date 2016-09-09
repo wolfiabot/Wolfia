@@ -7,7 +7,7 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 /**
  * Created by npstr on 23.08.2016
  */
-public class PingCommand implements Command {
+public class PingCommand extends Command {
     private final String HELP = "USAGE: ~!ping";
 
     @Override
@@ -26,8 +26,4 @@ public class PingCommand implements Command {
         return HELP;
     }
 
-    @Override
-    public void executed(boolean success, MessageReceivedEvent event) {
-        return;
-    }
 }

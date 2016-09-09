@@ -3,11 +3,9 @@ package de.npstr.wolfia.pregame;
 import de.npstr.wolfia.Command;
 import de.npstr.wolfia.Main;
 import de.npstr.wolfia.Player;
-import de.npstr.wolfia.pregame.commands.InCommand;
-import de.npstr.wolfia.pregame.commands.OutCommand;
-import de.npstr.wolfia.pregame.commands.SignUpStatusCommand;
-import de.npstr.wolfia.pregame.commands.SingUpCommand;
+import de.npstr.wolfia.pregame.commands.*;
 import de.npstr.wolfia.utils.CommandParser;
+import de.npstr.wolfia.utils.DBWrapper;
 import net.dv8tion.jda.entities.TextChannel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,20 +18,26 @@ import java.util.concurrent.TimeUnit;
  */
 public class Pregame {
 
-    private Map<String, Date> innedPlayers;
+    private Set<String> innedPlayers;
     private TextChannel channel;
-    private static HashMap<String, Command> commands = new HashMap<>();
+    private static Map<String, Command> commands = new HashMap<>();
     private final static Logger LOG = LogManager.getLogger();
 
+    private DBWrapper db;
 
-    public Pregame(TextChannel channel) {
-        innedPlayers = new HashMap<>();
+    public Pregame(TextChannel channel, DBWrapper db) {
+        innedPlayers = db.get("innedPlayers", Set.class);
+        if (innedPlayers == null) innedPlayers = new HashSet<>();
+        db.set("innedPlayers", innedPlayers);
+
         this.channel = channel;
+        this.db = db;
 
         commands.put("in", new InCommand(this));
         commands.put("out", new OutCommand(this));
         commands.put("signups", new SignUpStatusCommand(this));
         commands.put("singups", new SingUpCommand(this));
+        commands.put(HelpCommand.COMMAND, new HelpCommand(commands));
 
         Main.handleOutputMessage(channel, "Pregame now open");
         postSignUps();
@@ -56,26 +60,33 @@ public class Pregame {
     }
 
     public void inPlayer(String userId, int mins) {
-        innedPlayers.put(userId, new Date(System.currentTimeMillis() + mins * 60 * 1000));
+        innedPlayers = db.get("innedPlayers", Set.class);
+        innedPlayers.add(userId);
+        db.set(userId, System.currentTimeMillis() + mins * 60 * 1000);
+        db.set("innedPlayers", innedPlayers);
         postSignUps();
     }
 
     public void outPlayer(String userId) {
+        innedPlayers = db.get("innedPlayers", Set.class);
         innedPlayers.remove(userId);
+        db.del(userId);
+        db.set("innedPlayers", innedPlayers);
         postSignUps();
     }
 
     public void postSignUps() {
+        innedPlayers = db.get("innedPlayers", Set.class);
         String output = "Current signups: " + innedPlayers.size() + " players\n";
-        for (String userId : innedPlayers.keySet()) {
-            Date till = innedPlayers.get(userId);
+        for (String userId : innedPlayers) {
+            Long till = db.get(userId, Long.class);
 
-            long diff = till.getTime() - System.currentTimeMillis();
+            long diff = till - System.currentTimeMillis();
             diff /= 1000;
             long mins = diff / 60;
             long hours = mins / 60;
             mins = mins % 60;
-            output += Player.getDiscordNick(userId) + " for " + hours + "h " + mins + "m\n";
+            output += "   " + Player.getDiscordNick(userId) + " for " + hours + "h " + mins + "m\n";
         }
 
         Main.handleOutputMessage(channel, output);
@@ -84,14 +95,18 @@ public class Pregame {
     // remove players that went beyond their sign up time
     private void clearSignUpList() {
         List<String> gtfo = new ArrayList<>();
-        for (String userId : innedPlayers.keySet()) {
-            if (innedPlayers.get(userId).before(new Date())) {
+        innedPlayers = db.get("innedPlayers", Set.class);
+        for (String userId : innedPlayers) {
+            long till = db.get(userId, Long.class);
+            if (till < System.currentTimeMillis()) {
                 gtfo.add(userId);
             }
         }
 
         for (String userId : gtfo) {
             innedPlayers.remove(userId);
+            db.set("innedPlayers", innedPlayers);
+            db.del(userId);
             Main.handleOutputMessage(channel, Player.asMention(userId) + " removed from signups");
             Main.handleOutputMessage(userId, "removed you from the signup list");
         }

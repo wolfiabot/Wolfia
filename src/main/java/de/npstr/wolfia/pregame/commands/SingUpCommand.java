@@ -9,7 +9,7 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 /**
  * Created by npstr on 06.09.2016
  */
-public class SingUpCommand implements Command {
+public class SingUpCommand extends Command {
 
     private final Pregame pg;
 
@@ -38,10 +38,5 @@ public class SingUpCommand implements Command {
     @Override
     public String help() {
         return null;
-    }
-
-    @Override
-    public void executed(boolean success, MessageReceivedEvent event) {
-
     }
 }

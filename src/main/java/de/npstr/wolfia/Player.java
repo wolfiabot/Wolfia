@@ -5,7 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by npstr on 23.08.2016
@@ -13,7 +15,7 @@ import java.util.List;
 public class Player {
 
     private static final Logger LOG = LogManager.getLogger();
-    private static List<String> knownPlayerIds;
+    private static Set<String> knownPlayerIds;
 
     private static DBWrapper db;
 
@@ -48,11 +50,11 @@ public class Player {
         db.set(p.discordUserId, p);
     }
 
-    private static List<String> getKnownPlayerIds() {
+    private static Set<String> getKnownPlayerIds() {
         if (knownPlayerIds == null) {
-            knownPlayerIds = db.get("knownPlayerIds", List.class);
+            knownPlayerIds = db.get("knownPlayerIds", Set.class);
             if (knownPlayerIds == null)
-                knownPlayerIds = new ArrayList<>();
+                knownPlayerIds = new HashSet<>();
 
         }
         return knownPlayerIds;

@@ -6,7 +6,7 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 /**
  * Created by npstr on 04.09.2016
  */
-public class CreateHiddenChatroomCommand implements Command {
+public class CreateHiddenChatroomCommand extends Command {
     @Override
     public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
         return true;
@@ -22,8 +22,4 @@ public class CreateHiddenChatroomCommand implements Command {
         return null;
     }
 
-    @Override
-    public void executed(boolean success, MessageReceivedEvent event) {
-
-    }
 }
