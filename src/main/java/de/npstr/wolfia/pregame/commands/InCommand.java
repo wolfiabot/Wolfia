@@ -25,7 +25,7 @@ public class InCommand extends Command {
         if (args.length < 1)
             return false;
         try {
-            Integer.valueOf(args[0]);
+            Long.valueOf(args[0]);
         } catch (NumberFormatException e) {
             return false;
         }
@@ -41,8 +41,8 @@ public class InCommand extends Command {
             return false;
         }
 
-        int timeForSignup;
-        timeForSignup = Integer.valueOf(args[0]);
+        long timeForSignup;
+        timeForSignup = Long.valueOf(args[0]);
         if (timeForSignup > 12 * 60) timeForSignup = 10 * 60; //max sign up time 10h
         pg.inPlayer(event.getAuthor().getId(), timeForSignup);
 
@@ -52,5 +52,12 @@ public class InCommand extends Command {
     @Override
     public String help() {
         return HELP;
+    }
+
+    @Override
+    public void executed(boolean success, MessageReceivedEvent event) {
+        if (!success) {
+            Main.handleOutputMessage(event.getTextChannel(), Player.asMention(event.getAuthor().getId()) + ":\n" + help());
+        }
     }
 }

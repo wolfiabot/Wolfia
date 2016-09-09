@@ -59,7 +59,7 @@ public class Pregame {
         thread.start();
     }
 
-    public void inPlayer(String userId, int mins) {
+    public void inPlayer(String userId, long mins) {
         innedPlayers = db.get("innedPlayers", Set.class);
         innedPlayers.add(userId);
         db.set(userId, System.currentTimeMillis() + mins * 60 * 1000);
