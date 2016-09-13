@@ -14,7 +14,7 @@ public class Player {
     private Player() {
     }
 
-    static void setDB(DBWrapper db) {
+    public static void setDB(DBWrapper db) {
         Player.db = db;
     }
 
