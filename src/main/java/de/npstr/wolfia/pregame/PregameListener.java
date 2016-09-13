@@ -1,6 +1,6 @@
 package de.npstr.wolfia.pregame;
 
-import de.npstr.wolfia.Main;
+import de.npstr.wolfia.utils.CommandParser;
 import net.dv8tion.jda.events.ReadyEvent;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class PregameListener extends ListenerAdapter {
 
-    public static final String PREFIX = "!";
+    private static final String PREFIX = "!";
     private final Pregame pregame;
     private final static Logger LOG = LogManager.getLogger();
 
@@ -31,7 +31,7 @@ public class PregameListener extends ListenerAdapter {
         }
 
         if (event.getMessage().getContent().startsWith(PREFIX)) {
-            pregame.handleCommand(Main.parser.parse(PREFIX, event.getMessage().getContent().toLowerCase(), event));
+            pregame.handleCommand(CommandParser.parse(PREFIX, event.getMessage().getContent().toLowerCase(), event));
         }
     }
 

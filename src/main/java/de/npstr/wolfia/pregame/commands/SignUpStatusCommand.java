@@ -11,7 +11,7 @@ public class SignUpStatusCommand extends Command {
 
     private static final String HELP = "```usage: <prefix>signups\nposts the current signup list```";
 
-    private Pregame pg;
+    private final Pregame pg;
 
     public SignUpStatusCommand(Pregame pg) {
         super();

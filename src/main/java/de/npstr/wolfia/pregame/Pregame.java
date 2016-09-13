@@ -19,27 +19,27 @@ import java.util.concurrent.TimeUnit;
 public class Pregame {
 
     private Set<String> innedPlayers;
-    private TextChannel channel;
-    private static Map<String, Command> commands = new HashMap<>();
+    private final TextChannel channel;
+    private static final Map<String, Command> commands = new HashMap<>();
     private final static Logger LOG = LogManager.getLogger();
 
-    private DBWrapper db;
+    private final DBWrapper pregameDB;
 
+    @SuppressWarnings("unchecked")
     public Pregame(TextChannel channel, DBWrapper db) {
-        innedPlayers = db.get("innedPlayers", Set.class);
-        if (innedPlayers == null) innedPlayers = new HashSet<>();
-        db.set("innedPlayers", innedPlayers);
-
         this.channel = channel;
-        this.db = db;
+        this.pregameDB = db;
+        innedPlayers = pregameDB.get("innedPlayers", Set.class);
+        if (innedPlayers == null) innedPlayers = new HashSet<>();
+        pregameDB.set("innedPlayers", innedPlayers);
 
         commands.put("in", new InCommand(this));
         commands.put("out", new OutCommand(this));
         commands.put("signups", new SignUpStatusCommand(this));
-        commands.put("singups", new SingUpCommand(this));
-        commands.put(HelpCommand.COMMAND, new HelpCommand(commands));
+        commands.put(HelpCommand.COMMAND, new HelpCommand(new HashMap<>(commands)));
+        commands.put("singups", new SingUpCommand());//put this at the end so it doesn't show up in the HELP command
 
-        Main.handleOutputMessage(channel, "Pregame now open");
+        Main.handleOutputMessage(channel, "Signups now open in this channel");
         postSignUps();
 
         //this will keep track of players falling out of signups after a time
@@ -59,27 +59,36 @@ public class Pregame {
         thread.start();
     }
 
+    @SuppressWarnings("unchecked")
     public void inPlayer(String userId, long mins) {
-        innedPlayers = db.get("innedPlayers", Set.class);
+        innedPlayers = pregameDB.get("innedPlayers", Set.class);
         innedPlayers.add(userId);
-        db.set(userId, System.currentTimeMillis() + mins * 60 * 1000);
-        db.set("innedPlayers", innedPlayers);
+        pregameDB.set(userId, System.currentTimeMillis() + mins * 60 * 1000);
+        pregameDB.set("innedPlayers", innedPlayers);
         postSignUps();
     }
 
+    @SuppressWarnings("unchecked")
     public void outPlayer(String userId) {
-        innedPlayers = db.get("innedPlayers", Set.class);
-        innedPlayers.remove(userId);
-        db.del(userId);
-        db.set("innedPlayers", innedPlayers);
-        postSignUps();
+        innedPlayers = pregameDB.get("innedPlayers", Set.class);
+        boolean wasInned = innedPlayers.remove(userId);
+        pregameDB.del(userId);
+        pregameDB.set("innedPlayers", innedPlayers);
+        if (wasInned) {
+            Main.handleOutputMessage(channel, Player.asMention(userId) + " outed.");
+            postSignUps();
+        } else {
+            Main.handleOutputMessage(channel, Player.asMention(userId) + " you aren't even inned bro.");
+        }
+
     }
 
+    @SuppressWarnings("unchecked")
     public void postSignUps() {
-        innedPlayers = db.get("innedPlayers", Set.class);
+        innedPlayers = pregameDB.get("innedPlayers", Set.class);
         String output = "Current signups: " + innedPlayers.size() + " players\n";
         for (String userId : innedPlayers) {
-            Long till = db.get(userId, Long.class);
+            Long till = pregameDB.get(userId, Long.class);
 
             long diff = till - System.currentTimeMillis();
             diff /= 1000;
@@ -93,38 +102,56 @@ public class Pregame {
     }
 
     // remove players that went beyond their sign up time
+    @SuppressWarnings("unchecked")
     private void clearSignUpList() {
         List<String> gtfo = new ArrayList<>();
-        innedPlayers = db.get("innedPlayers", Set.class);
+        innedPlayers = pregameDB.get("innedPlayers", Set.class);
         for (String userId : innedPlayers) {
-            long till = db.get(userId, Long.class);
+            long till = pregameDB.get(userId, Long.class);
             if (till < System.currentTimeMillis()) {
+                gtfo.add(userId);
+                continue;
+            }
+
+            long lastSeen = Main.lastSeen(userId);
+            Long lastWarning = pregameDB.get("warningSent:" + userId, Long.class);
+            if (lastWarning == null) lastWarning = 0L;
+
+            if ((System.currentTimeMillis() - lastSeen > 3600000) & // 1hour of inactivity
+                    (System.currentTimeMillis() - lastWarning) > 600000) //10 mins since last warning
+            {
+                Main.handleOutputMessage(userId, "Heya " + Player.getDiscordNick(userId) + ", you signed up for a" +
+                        "turbo, but I haven't seen you around for a while. You will be removed from the signup list " +
+                        "in 5 minutes due to inactivity. To prevent that write me a message here or on the Mafia " +
+                        "Universe Discord Server.");
+                pregameDB.set("warningSent:" + userId, System.currentTimeMillis());
+            }
+
+            if (System.currentTimeMillis() - lastSeen > 3900000) // 1hour 5 mins of inactivity
+            {
                 gtfo.add(userId);
             }
         }
 
         for (String userId : gtfo) {
             innedPlayers.remove(userId);
-            db.set("innedPlayers", innedPlayers);
-            db.del(userId);
+            pregameDB.set("innedPlayers", innedPlayers);
+            pregameDB.del(userId);
             Main.handleOutputMessage(channel, Player.asMention(userId) + " removed from signups");
             Main.handleOutputMessage(userId, "removed you from the signup list");
         }
+        if (gtfo.size() > 0) {
+            postSignUps();
+        }
     }
 
-    static void handleCommand(CommandParser.CommandContainer cmd) {
+    void handleCommand(CommandParser.CommandContainer cmd) {
         if (commands.containsKey(cmd.invoke)) {
             Command c = commands.get(cmd.invoke);
             boolean safe = c.argumentsValid(cmd.args, cmd.event);
 
-            if (safe) {
-                c.execute(cmd.args, cmd.event);
-                c.executed(safe, cmd.event);
-            } else {
-                c.executed(safe, cmd.event);
-            }
-        } else {
-            //TODO unrecognizable command, tell the user about it?
+            if (safe) c.execute(cmd.args, cmd.event);
+            c.executed(safe, cmd.event);
         }
     }
 

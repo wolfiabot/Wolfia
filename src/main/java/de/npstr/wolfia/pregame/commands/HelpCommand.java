@@ -12,9 +12,9 @@ import java.util.Map;
 public class HelpCommand extends Command {
 
     public final static String COMMAND = "help";
-    private final static String HELP = "```usage: <prefix>help to see all available commands or <prefix>help <command> to see the help for a specific command```";
+    private final static String HELP = "```usage: <prefix>help to see all available commands for this channel or <prefix>help <command> to see the help for a specific command```";
 
-    private Map<String, Command> commands;
+    private final Map<String, Command> commands;
 
     public HelpCommand(Map<String, Command> commands) {
         this.commands = commands;
@@ -33,13 +33,12 @@ public class HelpCommand extends Command {
     public boolean execute(String[] args, MessageReceivedEvent event) {
         String out;
         if (args.length < 1) {
-            out = "Available commands in this room:\n```";
-            for (String s : commands.keySet()) if (!s.equals("singups")) out += s + ", "; //singups is hidden lol
+            out = "Available commands in this channel:\n```";
+            for (String s : commands.keySet()) out += s + ", ";
             if (commands.size() > 0) out = out.substring(0, out.length() - 2);
             out += "```";
         } else {
             out = commands.get(args[0]).help();
-            if ("singups".equals(args[0])) out = HELP;
         }
         Main.handleOutputMessage(event.getTextChannel(), out);
         return true;

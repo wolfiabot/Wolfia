@@ -16,9 +16,9 @@ public class DBWrapper {
     private static final Logger LOG = LogManager.getLogger();
 
 
-    private String DB_PREFIX;
-    private RedisCommands<String, String> redis;
-    private Gson gson;
+    private final String DB_PREFIX;
+    private final RedisCommands<String, String> redis;
+    private final Gson gson;
 
     public DBWrapper(String prefix, RedisCommands<String, String> redis, Gson gson) {
         this.DB_PREFIX = prefix;
@@ -43,6 +43,12 @@ public class DBWrapper {
         return this.set(key, value);
     }
 
+    /**
+     * @param key
+     * @param classOfT
+     * @param <T>
+     * @return the requested item or null
+     */
     public <T> T get(String key, Class<T> classOfT) {
         key = DB_PREFIX + key;
         String qvalue = this.get(key);

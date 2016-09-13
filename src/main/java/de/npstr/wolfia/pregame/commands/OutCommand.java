@@ -11,7 +11,7 @@ public class OutCommand extends Command {
 
     private static final String HELP = "```usage: <prefix>out\nwill remove you from the current signup list```";
 
-    private Pregame pg;
+    private final Pregame pg;
 
     public OutCommand(Pregame pg) {
         super();

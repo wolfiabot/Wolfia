@@ -3,28 +3,26 @@ package de.npstr.wolfia.utils;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by npstr on 23.08.2016
  */
 public class CommandParser {
 
-    public CommandContainer parse(String prefix, String rw, MessageReceivedEvent e) {
+    public static CommandContainer parse(String prefix, String rw, MessageReceivedEvent e) {
         ArrayList<String> split = new ArrayList<>();
-        String raw = rw;
-        String beheaded = raw.replaceFirst(prefix, "");
+        String beheaded = rw.replaceFirst(prefix, "");
         String[] splitBeheaded = beheaded.split(" ");
-        for (String s : splitBeheaded) {
-            split.add(s);
-        }
+        Collections.addAll(split, splitBeheaded);
         String invoke = split.get(0);
         String[] args = new String[split.size() - 1];
         split.subList(1, split.size()).toArray(args);
 
-        return new CommandContainer(raw, beheaded, splitBeheaded, invoke, args, e);
+        return new CommandContainer(rw, beheaded, splitBeheaded, invoke, args, e);
     }
 
-    public class CommandContainer {
+    public static class CommandContainer {
         public final String raw;
         public final String beheaded;
         public final String[] splitBeheaded;

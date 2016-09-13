@@ -4,9 +4,7 @@ import de.npstr.wolfia.utils.DBWrapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,9 +22,8 @@ public class Player {
     }
 
 
-    private String discordUserId;
+    private final String discordUserId;
     private String soloRoleId;
-    private List<String> muNicks = new ArrayList<>();
 
 
     public static String asMention(String userId) {
@@ -50,6 +47,7 @@ public class Player {
         db.set(p.discordUserId, p);
     }
 
+    @SuppressWarnings("unchecked")
     private static Set<String> getKnownPlayerIds() {
         if (knownPlayerIds == null) {
             knownPlayerIds = db.get("knownPlayerIds", Set.class);
@@ -117,12 +115,7 @@ public class Player {
 
     @Override
     public String toString() {
-        String result = "Player discordID: " + discordUserId + ", muNicks: [";
-        for (String s : muNicks) result += s + ", ";
-        if (muNicks.size() > 0)
-            result = result.substring(0, result.length() - 2);
-        result += "]";
-        return result;
+        return "Player discordID: " + discordUserId;
     }
 
     @Override

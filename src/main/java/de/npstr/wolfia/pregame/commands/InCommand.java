@@ -12,8 +12,9 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 public class InCommand extends Command {
 
     private static final String HELP = "```usage: <prefix>in <minutes>\nwill add you to the signup list for <minutes> (up to 600 mins) and out you automatically afterwards```";
+    private final int MAX_SIGNUP_TIME = 10 * 60; //10h
 
-    private Pregame pg;
+    private final Pregame pg;
 
     public InCommand(Pregame pg) {
         super();
@@ -35,15 +36,14 @@ public class InCommand extends Command {
     @Override
     public boolean execute(String[] args, MessageReceivedEvent event) {
         //check SING UP counter
-        if (Player.getSingup(event.getAuthor().getId()) >= 100) {
+        if (Player.getSingup(event.getAuthor().getId()) >= 10) {
             Main.handleOutputMessage(event.getTextChannel(), "Hold on champ. You have reached 100 SING UPs. Submit a " +
                     "karaoke video featuring yourself and ask an admin to reset your SING UP counter.");
             return false;
         }
 
-        long timeForSignup;
-        timeForSignup = Long.valueOf(args[0]);
-        if (timeForSignup > 12 * 60) timeForSignup = 10 * 60; //max sign up time 10h
+        long timeForSignup = Long.valueOf(args[0]);
+        timeForSignup = timeForSignup < MAX_SIGNUP_TIME ? timeForSignup : MAX_SIGNUP_TIME;
         pg.inPlayer(event.getAuthor().getId(), timeForSignup);
 
         return true;

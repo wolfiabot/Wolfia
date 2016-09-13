@@ -1,7 +1,10 @@
 package de.npstr.wolfia;
 
 import net.dv8tion.jda.entities.Channel;
+import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.events.Event;
 import net.dv8tion.jda.events.ReadyEvent;
+import net.dv8tion.jda.events.message.GenericMessageEvent;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
@@ -13,9 +16,9 @@ import java.util.Map;
 /**
  * Created by npstr on 25.08.2016
  */
-public class MainListener extends ListenerAdapter {
+class MainListener extends ListenerAdapter {
 
-    private static final String PREFIX = "!";
+    //private static final String PREFIX = "!";
 
     private final static Logger LOG = LogManager.getLogger();
 
@@ -26,8 +29,21 @@ public class MainListener extends ListenerAdapter {
         //TODO make sure they are being saved there in the first place
     }
 
-    public void setListener(ListenerAdapter listener, Channel channel) {
+    public void addListener(ListenerAdapter listener, Channel channel) {
         channelListeners.put(channel, listener);
+    }
+
+
+    //keeps track of last activity of a user
+    @Override
+    public void onEvent(Event event) {
+        super.onEvent(event);
+        if (event instanceof GenericMessageEvent) {
+            User u = ((GenericMessageEvent) event).getAuthor();
+            if (u != null) {
+                Main.justSeen(u.getId());
+            }
+        }
     }
 
     @Override

@@ -6,7 +6,7 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 /**
  * Created by npstr on 04.09.2016
  */
-public class AddPlayerToChatCommand extends Command {
+public class AddPlayerToHiddenChannelCommand extends Command {
     @Override
     public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
         return true;
