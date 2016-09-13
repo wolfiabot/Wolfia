@@ -23,6 +23,7 @@ import com.lambdaworks.redis.api.sync.RedisCommands;
 import de.npstr.wolfia.pregame.Pregame;
 import de.npstr.wolfia.pregame.PregameListener;
 import de.npstr.wolfia.utils.DBWrapper;
+import de.npstr.wolfia.utils.Player;
 import de.npstr.wolfia.utils.Sneaky;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;

@@ -2,7 +2,7 @@ package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
 import de.npstr.wolfia.Main;
-import de.npstr.wolfia.Player;
+import de.npstr.wolfia.utils.Player;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 /**
