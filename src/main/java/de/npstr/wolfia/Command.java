@@ -7,6 +7,16 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
  */
 public abstract class Command {
 
+    private final Listener listener;
+
+    public Command(Listener listener) {
+        this.listener = listener;
+    }
+
+    public Listener getListener() {
+        return listener;
+    }
+
     //this is called to check whether the arguments the user provided are ok
     public abstract boolean argumentsValid(String[] args, MessageReceivedEvent event);
 

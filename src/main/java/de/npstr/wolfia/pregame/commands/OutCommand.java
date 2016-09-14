@@ -1,6 +1,7 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
+import de.npstr.wolfia.Listener;
 import de.npstr.wolfia.pregame.Pregame;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
@@ -9,12 +10,13 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
  */
 public class OutCommand extends Command {
 
-    private static final String HELP = "```usage: <prefix>out\nwill remove you from the current signup list```";
+    public static final String COMMAND = "out";
+    private final String HELP = "```usage: " + getListener().getPrefix() + COMMAND + "\nwill remove you from the current signup list```";
 
     private final Pregame pg;
 
-    public OutCommand(Pregame pg) {
-        super();
+    public OutCommand(Listener l, Pregame pg) {
+        super(l);
         this.pg = pg;
     }
 

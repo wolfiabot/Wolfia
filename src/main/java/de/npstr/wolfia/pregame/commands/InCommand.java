@@ -1,9 +1,10 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
+import de.npstr.wolfia.Listener;
 import de.npstr.wolfia.Main;
-import de.npstr.wolfia.utils.Player;
 import de.npstr.wolfia.pregame.Pregame;
+import de.npstr.wolfia.utils.Player;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 /**
@@ -11,13 +12,15 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
  */
 public class InCommand extends Command {
 
-    private static final String HELP = "```usage: <prefix>in <minutes>\nwill add you to the signup list for <minutes> (up to 600 mins) and out you automatically afterwards```";
+    public static final String COMMAND = "in";
+    private final String HELP = "```usage: " + getListener().getPrefix() + COMMAND + " <minutes>\nwill add you to the" +
+            " signup list for <minutes> (up to 600 mins) and out you automatically afterwards or earlier if inactive```";
     private final int MAX_SIGNUP_TIME = 10 * 60; //10h
 
     private final Pregame pg;
 
-    public InCommand(Pregame pg) {
-        super();
+    public InCommand(Listener l, Pregame pg) {
+        super(l);
         this.pg = pg;
     }
 

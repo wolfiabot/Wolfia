@@ -1,6 +1,7 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
+import de.npstr.wolfia.Listener;
 import de.npstr.wolfia.pregame.Pregame;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
@@ -9,12 +10,13 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
  */
 public class SignUpStatusCommand extends Command {
 
-    private static final String HELP = "```usage: <prefix>signups\nposts the current signup list```";
+    public static final String COMMAND = "signups";
+    private final String HELP = "```usage: " + getListener().getPrefix() + COMMAND + "\nposts the current signup list```";
 
     private final Pregame pg;
 
-    public SignUpStatusCommand(Pregame pg) {
-        super();
+    public SignUpStatusCommand(Listener l, Pregame pg) {
+        super(l);
         this.pg = pg;
     }
 

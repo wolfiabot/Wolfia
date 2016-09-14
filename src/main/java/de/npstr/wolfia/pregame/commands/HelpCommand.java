@@ -1,6 +1,7 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
+import de.npstr.wolfia.Listener;
 import de.npstr.wolfia.Main;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
@@ -12,11 +13,13 @@ import java.util.Map;
 public class HelpCommand extends Command {
 
     public final static String COMMAND = "help";
-    private final static String HELP = "```usage: <prefix>help to see all available commands for this channel or <prefix>help <command> to see the help for a specific command```";
+    private final String HELP = "```usage: " + getListener().getPrefix() + COMMAND + " (<command>)\nto see all available commands " +
+            "for this channel or see the help for a specific command```";
 
     private final Map<String, Command> commands;
 
-    public HelpCommand(Map<String, Command> commands) {
+    public HelpCommand(Listener l, Map<String, Command> commands) {
+        super(l);
         this.commands = commands;
     }
 
@@ -34,7 +37,7 @@ public class HelpCommand extends Command {
         String out;
         if (args.length < 1) {
             out = "Available commands in this channel:\n```";
-            for (String s : commands.keySet()) out += s + ", ";
+            for (String s : commands.keySet()) out += getListener().getPrefix() + s + ", ";
             if (commands.size() > 0) out = out.substring(0, out.length() - 2);
             out += "```";
         } else {
