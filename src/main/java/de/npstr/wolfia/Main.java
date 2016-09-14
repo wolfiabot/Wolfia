@@ -88,7 +88,11 @@ public class Main extends ListenerAdapter {
         //kill itself it if doesn't work
         MainListener mainListener = new MainListener();
         try {
-            jda = new JDABuilder().addListener(mainListener).setBotToken(Sneaky.DISCORD_TOKEN()).buildBlocking();
+            jda = new JDABuilder()
+                    .addListener(mainListener)
+                    .setBotToken(Sneaky.DISCORD_TOKEN())
+                    .setBulkDeleteSplittingEnabled(false) //dont forget to handle bulk delete event
+                    .buildBlocking();
             jda.setAutoReconnect(true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,7 +116,7 @@ public class Main extends ListenerAdapter {
         if (pregameChannel == null)
             pregameChannel = (TextChannel) activeServer.createTextChannel(PREGAME_ROOM_NAME).getChannel();
 
-        Pregame pg = new Pregame(pregameChannel, new DBWrapper(DB_PREFIX_PREGAME + pregameChannel.getId() + ":", redisSync, GSON));
+        Pregame pg = new Pregame(pregameChannel, new DBWrapper(DB_PREFIX_PREGAME + pregameChannel.getId() + ":", redisSync, GSON), null);
         mainListener.addListener(pg.getListener(), pregameChannel);
     }
 

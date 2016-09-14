@@ -1,6 +1,7 @@
 package de.npstr.wolfia.pregame;
 
 import de.npstr.wolfia.Command;
+import de.npstr.wolfia.Game;
 import de.npstr.wolfia.Listener;
 import de.npstr.wolfia.Main;
 import de.npstr.wolfia.pregame.commands.*;
@@ -33,7 +34,7 @@ public class Pregame {
     private final DBWrapper pregameDB;
 
     @SuppressWarnings("unchecked")
-    public Pregame(TextChannel channel, DBWrapper db) {
+    public Pregame(TextChannel channel, DBWrapper db, Game game) {
         this.channel = channel;
         this.pregameDB = db;
         this.listener = new PregameListener(this);
@@ -44,6 +45,9 @@ public class Pregame {
         commands.put(InCommand.COMMAND, new InCommand(listener, this));
         commands.put(OutCommand.COMMAND, new OutCommand(listener, this));
         commands.put(SignUpStatusCommand.COMMAND, new SignUpStatusCommand(listener, this));
+        if (game != null) {
+            //put more commands here
+        }
         commands.put(HelpCommand.COMMAND, new HelpCommand(listener, new HashMap<>(commands)));
         commands.put(SingUpCommand.COMMAND, new SingUpCommand(listener));//put this at the end so it doesn't show up in the HELP command
 
