@@ -20,8 +20,9 @@ import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisCommandExecutionException;
 import com.lambdaworks.redis.RedisConnectionException;
 import com.lambdaworks.redis.api.sync.RedisCommands;
+import de.npstr.wolfia.commands.CreateHiddenChannelCommand;
 import de.npstr.wolfia.pregame.Pregame;
-import de.npstr.wolfia.pregame.PregameListener;
+import de.npstr.wolfia.utils.CommandParser;
 import de.npstr.wolfia.utils.DBWrapper;
 import de.npstr.wolfia.utils.Player;
 import de.npstr.wolfia.utils.Sneaky;
@@ -35,6 +36,8 @@ import net.dv8tion.jda.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashMap;
+
 public class Main extends ListenerAdapter {
 
     public static JDA jda;
@@ -42,7 +45,7 @@ public class Main extends ListenerAdapter {
 
     private static Guild activeServer;
 
-    //    private static HashMap<String, Command> commands = new HashMap<>();
+    private static HashMap<String, Command> commands = new HashMap<>();
     private static final Logger LOG = LogManager.getLogger();
 
     private static final String PREGAME_ROOM_NAME = "turbo-chat";
@@ -83,6 +86,7 @@ public class Main extends ListenerAdapter {
 
 
         //setting up JDA
+        //kill itself it if doesn't work
         MainListener mainListener = new MainListener();
         try {
             jda = new JDABuilder().addListener(mainListener).setBotToken(Sneaky.DISCORD_TOKEN()).buildBlocking();
@@ -90,16 +94,17 @@ public class Main extends ListenerAdapter {
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error("could not create JDA object, possibly invalid bot token, exiting");
+            redisClient.shutdown();
             return;
         }
+
+        //adding commands
+        commands.put("createprivatechannel", new CreateHiddenChannelCommand(mainListener));
 
         //finding the guild aka discord server
         String serverId = Sneaky.DISCORD_SERVER_ID();
         if (args.length > 0) serverId = args[0];
         activeServer = jda.getGuildById(serverId);
-
-        //adding commands
-//        commands.put("ping", new PingCommand());
 
         //start pregame
         TextChannel pregameChannel = null;
@@ -110,17 +115,17 @@ public class Main extends ListenerAdapter {
             pregameChannel = (TextChannel) activeServer.createTextChannel(PREGAME_ROOM_NAME).getChannel();
 
         Pregame pg = new Pregame(pregameChannel, new DBWrapper(DB_PREFIX_PREGAME + pregameChannel.getId() + ":", redisSync, GSON));
-        mainListener.addListener(new PregameListener(pg), pregameChannel);
+        mainListener.addListener(pg.getListener(), pregameChannel);
     }
 
-    public static long lastSeen(String userId) {
-        Long result = mainDB.get("lastSeen:" + userId, Long.class);
-        if (result == null) result = 0L;
-        return result;
-    }
+    void handleCommand(CommandParser.CommandContainer cmd) {
+        if (commands.containsKey(cmd.invoke)) {
+            Command c = commands.get(cmd.invoke);
+            boolean safe = c.argumentsValid(cmd.args, cmd.event);
 
-    public static void justSeen(String userId) {
-        mainDB.set("lastSeen:" + userId, System.currentTimeMillis());
+            if (safe) c.execute(cmd.args, cmd.event);
+            c.executed(safe, cmd.event);
+        }
     }
 
     public static void handleOutputMessage(MessageChannel channel, String msg) {

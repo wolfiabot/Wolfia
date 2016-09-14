@@ -38,4 +38,16 @@ public class Player {
         db.set("singups:" + userId, singups);
         return singups;
     }
+
+
+    public static long lastSeen(String userId) {
+        Long result = db.get("lastSeen:" + userId, Long.class);
+        if (result == null) result = 0L;
+        return result;
+    }
+
+    public static void justSeen(String userId) {
+        db.set("lastSeen:" + userId, System.currentTimeMillis());
+    }
+
 }
