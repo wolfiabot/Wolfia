@@ -20,7 +20,6 @@ import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisCommandExecutionException;
 import com.lambdaworks.redis.RedisConnectionException;
 import com.lambdaworks.redis.api.sync.RedisCommands;
-import de.npstr.wolfia.commands.CreateHiddenChannelCommand;
 import de.npstr.wolfia.pregame.Pregame;
 import de.npstr.wolfia.utils.CommandParser;
 import de.npstr.wolfia.utils.DBWrapper;
@@ -99,7 +98,6 @@ public class Main extends ListenerAdapter {
         }
 
         //adding commands
-        commands.put("createprivatechannel", new CreateHiddenChannelCommand(mainListener));
 
         //finding the guild aka discord server
         String serverId = Sneaky.DISCORD_SERVER_ID();
