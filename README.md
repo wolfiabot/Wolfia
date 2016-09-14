@@ -6,3 +6,4 @@ Written in Java, using the excellent [JDA (Java Discord API)](https://github.com
 
 #### Notes:
 - Add Discord Token to Sneaky.java, **don't publish it**.
+- uses redis so keep track of stuff, so make that available
