@@ -1,5 +1,6 @@
 package de.npstr.wolfia;
 
+import de.npstr.wolfia.utils.Player;
 import net.dv8tion.jda.entities.Channel;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.Event;
@@ -16,9 +17,9 @@ import java.util.Map;
 /**
  * Created by npstr on 25.08.2016
  */
-class MainListener extends ListenerAdapter {
+class MainListener extends ListenerAdapter implements Listener {
 
-    //private static final String PREFIX = "!";
+    private static final String PREFIX = "!";
 
     private final static Logger LOG = LogManager.getLogger();
 
@@ -41,7 +42,7 @@ class MainListener extends ListenerAdapter {
         if (event instanceof GenericMessageEvent) {
             User u = ((GenericMessageEvent) event).getAuthor();
             if (u != null) {
-                Main.justSeen(u.getId());
+                Player.justSeen(u.getId());
             }
         }
     }
@@ -69,5 +70,10 @@ class MainListener extends ListenerAdapter {
     @Override
     public void onReady(ReadyEvent event) {
         LOG.trace("Logged in as: " + event.getJDA().getSelfInfo().getUsername());
+    }
+
+    @Override
+    public String getPrefix() {
+        return PREFIX;
     }
 }

@@ -1,12 +1,16 @@
 package de.npstr.wolfia.pregame;
 
 import de.npstr.wolfia.Command;
+import de.npstr.wolfia.Listener;
 import de.npstr.wolfia.Main;
-import de.npstr.wolfia.utils.Player;
 import de.npstr.wolfia.pregame.commands.*;
 import de.npstr.wolfia.utils.CommandParser;
 import de.npstr.wolfia.utils.DBWrapper;
+import de.npstr.wolfia.utils.Player;
 import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.events.ReadyEvent;
+import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,7 +25,10 @@ public class Pregame {
     private Set<String> innedPlayers;
     private final TextChannel channel;
     private static final Map<String, Command> commands = new HashMap<>();
+    private final PregameListener listener;
     private final static Logger LOG = LogManager.getLogger();
+    public static final String PREFIX = "!";
+
 
     private final DBWrapper pregameDB;
 
@@ -29,17 +36,18 @@ public class Pregame {
     public Pregame(TextChannel channel, DBWrapper db) {
         this.channel = channel;
         this.pregameDB = db;
+        this.listener = new PregameListener(this);
         innedPlayers = pregameDB.get("innedPlayers", Set.class);
         if (innedPlayers == null) innedPlayers = new HashSet<>();
         pregameDB.set("innedPlayers", innedPlayers);
 
-        commands.put("in", new InCommand(this));
-        commands.put("out", new OutCommand(this));
-        commands.put("signups", new SignUpStatusCommand(this));
-        commands.put(HelpCommand.COMMAND, new HelpCommand(new HashMap<>(commands)));
-        commands.put("singups", new SingUpCommand());//put this at the end so it doesn't show up in the HELP command
+        commands.put(InCommand.COMMAND, new InCommand(listener, this));
+        commands.put(OutCommand.COMMAND, new OutCommand(listener, this));
+        commands.put(SignUpStatusCommand.COMMAND, new SignUpStatusCommand(listener, this));
+        commands.put(HelpCommand.COMMAND, new HelpCommand(listener, new HashMap<>(commands)));
+        commands.put(SingUpCommand.COMMAND, new SingUpCommand(listener));//put this at the end so it doesn't show up in the HELP command
 
-        Main.handleOutputMessage(channel, "Signups now open in this channel");
+        Main.handleOutputMessage(channel, "Bot started, signups now open in this channel");
         postSignUps();
 
         //this will keep track of players falling out of signups after a time
@@ -113,7 +121,7 @@ public class Pregame {
                 continue;
             }
 
-            long lastSeen = Main.lastSeen(userId);
+            long lastSeen = Player.lastSeen(userId);
             Long lastWarning = pregameDB.get("warningSent:" + userId, Long.class);
             if (lastWarning == null) lastWarning = 0L;
 
@@ -157,5 +165,44 @@ public class Pregame {
 
     public TextChannel getChannel() {
         return channel;
+    }
+
+    public PregameListener getListener() {
+        return listener;
+    }
+}
+
+class PregameListener extends ListenerAdapter implements Listener {
+
+    private final Pregame pregame;
+    private final static Logger LOG = LogManager.getLogger();
+
+
+    PregameListener(Pregame pg) {
+        super();
+        pregame = pg;
+    }
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+
+        //bot should ignore itself
+        if (event.getMessage().getAuthor().getId().equals(event.getJDA().getSelfInfo().getId())) {
+            return;
+        }
+
+        if (event.getMessage().getContent().startsWith(Pregame.PREFIX)) {
+            pregame.handleCommand(CommandParser.parse(Pregame.PREFIX, event.getMessage().getContent().toLowerCase(), event));
+        }
+    }
+
+    @Override
+    public void onReady(ReadyEvent event) {
+        LOG.trace("PregameListener running");
+    }
+
+    @Override
+    public String getPrefix() {
+        return Pregame.PREFIX;
     }
 }
