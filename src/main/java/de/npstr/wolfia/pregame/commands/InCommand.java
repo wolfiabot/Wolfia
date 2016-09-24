@@ -1,7 +1,7 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
-import de.npstr.wolfia.Listener;
+import de.npstr.wolfia.CommandListener;
 import de.npstr.wolfia.Main;
 import de.npstr.wolfia.pregame.Pregame;
 import de.npstr.wolfia.utils.Player;
@@ -19,7 +19,7 @@ public class InCommand extends Command {
 
     private final Pregame pg;
 
-    public InCommand(Listener l, Pregame pg) {
+    public InCommand(CommandListener l, Pregame pg) {
         super(l);
         this.pg = pg;
     }

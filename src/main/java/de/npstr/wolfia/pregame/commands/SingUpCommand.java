@@ -1,7 +1,7 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
-import de.npstr.wolfia.Listener;
+import de.npstr.wolfia.CommandListener;
 import de.npstr.wolfia.Main;
 import de.npstr.wolfia.utils.Player;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
@@ -13,7 +13,7 @@ public class SingUpCommand extends Command {
 
     public static final String COMMAND = "singups";
 
-    public SingUpCommand(Listener listener) {
+    public SingUpCommand(CommandListener listener) {
         super(listener);
     }
 

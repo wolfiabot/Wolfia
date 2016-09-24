@@ -1,8 +1,8 @@
 package de.npstr.wolfia.pregame;
 
 import de.npstr.wolfia.Command;
+import de.npstr.wolfia.CommandListener;
 import de.npstr.wolfia.Game;
-import de.npstr.wolfia.Listener;
 import de.npstr.wolfia.Main;
 import de.npstr.wolfia.pregame.commands.*;
 import de.npstr.wolfia.utils.CommandParser;
@@ -176,7 +176,7 @@ public class Pregame {
     }
 }
 
-class PregameListener extends ListenerAdapter implements Listener {
+class PregameListener extends ListenerAdapter implements CommandListener {
 
     private final Pregame pregame;
     private final static Logger LOG = LogManager.getLogger();
@@ -195,6 +195,12 @@ class PregameListener extends ListenerAdapter implements Listener {
             return;
         }
 
+        //is this our channel?
+        if (!pregame.getChannel().getId().equals(event.getTextChannel().getId())) {
+            return;
+        }
+
+        //does the message have our prefix?
         if (event.getMessage().getContent().startsWith(Pregame.PREFIX)) {
             pregame.handleCommand(CommandParser.parse(Pregame.PREFIX, event.getMessage().getContent().toLowerCase(), event));
         }
@@ -202,7 +208,7 @@ class PregameListener extends ListenerAdapter implements Listener {
 
     @Override
     public void onReady(ReadyEvent event) {
-        LOG.trace("PregameListener running");
+        LOG.trace("PregameListener on channel " + pregame.getChannel().getName() + " started");
     }
 
     @Override

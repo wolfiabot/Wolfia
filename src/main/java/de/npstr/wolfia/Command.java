@@ -7,13 +7,13 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
  */
 public abstract class Command {
 
-    private final Listener listener;
+    private final CommandListener listener;
 
-    public Command(Listener listener) {
+    public Command(CommandListener listener) {
         this.listener = listener;
     }
 
-    public Listener getListener() {
+    public CommandListener getListener() {
         return listener;
     }
 

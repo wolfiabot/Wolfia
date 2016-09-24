@@ -1,7 +1,7 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
-import de.npstr.wolfia.Listener;
+import de.npstr.wolfia.CommandListener;
 import de.npstr.wolfia.pregame.Pregame;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
@@ -15,7 +15,7 @@ public class OutCommand extends Command {
 
     private final Pregame pg;
 
-    public OutCommand(Listener l, Pregame pg) {
+    public OutCommand(CommandListener l, Pregame pg) {
         super(l);
         this.pg = pg;
     }

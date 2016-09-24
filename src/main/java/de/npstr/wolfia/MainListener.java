@@ -1,7 +1,6 @@
 package de.npstr.wolfia;
 
 import de.npstr.wolfia.utils.Player;
-import net.dv8tion.jda.entities.Channel;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.Event;
 import net.dv8tion.jda.events.ReadyEvent;
@@ -11,29 +10,14 @@ import net.dv8tion.jda.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by npstr on 25.08.2016
  */
-class MainListener extends ListenerAdapter implements Listener {
+class MainListener extends ListenerAdapter implements CommandListener {
 
     private static final String PREFIX = "!";
 
     private final static Logger LOG = LogManager.getLogger();
-
-    private final Map<Channel, ListenerAdapter> channelListeners = new HashMap<>();
-
-    public MainListener() {
-        //TODO restore channelListeners from DB
-        //TODO make sure they are being saved there in the first place
-    }
-
-    public void addListener(ListenerAdapter listener, Channel channel) {
-        channelListeners.put(channel, listener);
-    }
-
 
     //keeps track of last activity of a user
     @Override
@@ -54,17 +38,6 @@ class MainListener extends ListenerAdapter implements Listener {
         if (event.getMessage().getAuthor().getId().equals(event.getJDA().getSelfInfo().getId())) {
             return;
         }
-
-        //filter messages by channel
-        Channel targetChannel = event.getTextChannel();
-        if (channelListeners.containsKey(targetChannel)) {
-            channelListeners.get(targetChannel).onMessageReceived(event);
-        }
-
-
-//        if (event.getMessage().getContent().startsWith(PREFIX)) {
-//            Main.handleCommand(Main.parser.parse(PREFIX, event.getMessage().getContent().toLowerCase(), event));
-//        }
     }
 
     @Override

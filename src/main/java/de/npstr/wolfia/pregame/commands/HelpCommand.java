@@ -1,7 +1,7 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
-import de.npstr.wolfia.Listener;
+import de.npstr.wolfia.CommandListener;
 import de.npstr.wolfia.Main;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
@@ -18,7 +18,7 @@ public class HelpCommand extends Command {
 
     private final Map<String, Command> commands;
 
-    public HelpCommand(Listener l, Map<String, Command> commands) {
+    public HelpCommand(CommandListener l, Map<String, Command> commands) {
         super(l);
         this.commands = commands;
     }

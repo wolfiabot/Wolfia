@@ -1,7 +1,7 @@
 package de.npstr.wolfia.pregame.commands;
 
 import de.npstr.wolfia.Command;
-import de.npstr.wolfia.Listener;
+import de.npstr.wolfia.CommandListener;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 /**
@@ -9,7 +9,7 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
  */
 public class StartCommand extends Command {
 
-    public StartCommand(Listener listener) {
+    public StartCommand(CommandListener listener) {
         super(listener);
     }
 
