@@ -12,6 +12,7 @@ package de.npstr.wolfia;
  * <p>
  * <p>
  * Nice to have:
+ * Creating TextChannels so the bot can create a turbo-chat if it is missing for whatever reason
  * Reading Messages server wide (for better keeping track of inactive players)
  */
 
@@ -19,6 +20,7 @@ import com.google.gson.Gson;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisCommandExecutionException;
 import com.lambdaworks.redis.RedisConnectionException;
+import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import de.npstr.wolfia.pregame.Pregame;
 import de.npstr.wolfia.utils.CommandParser;
@@ -31,6 +33,7 @@ import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.MessageChannel;
 import net.dv8tion.jda.entities.PrivateChannel;
 import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.exceptions.PermissionException;
 import net.dv8tion.jda.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,9 +50,8 @@ public class Main extends ListenerAdapter {
     private static HashMap<String, Command> commands = new HashMap<>();
     private static final Logger LOG = LogManager.getLogger();
 
-    private static final String PREGAME_ROOM_NAME = "turbo-chat";
+    private static final String TURBO_CHAT_ROOM_NAME = "turbo-chat";
 
-    private static final String REDIS_URI = "redis://localhost:6379";
     private static DBWrapper mainDB;
 
     private static final Gson GSON = new Gson();
@@ -61,7 +63,8 @@ public class Main extends ListenerAdapter {
 
         //connect to DB & distribute db objects to classes
         //kill itself if that doesn't work
-        RedisClient redisClient = RedisClient.create(REDIS_URI);
+        RedisURI rUI = RedisURI.builder().withHost("localhost").withPort(6379).withPassword(Sneaky.REDIS_AUTH()).build();
+        RedisClient redisClient = RedisClient.create(rUI);
         RedisCommands<String, String> redisSync;
         try {
             redisSync = redisClient.connect().sync();
@@ -108,16 +111,33 @@ public class Main extends ListenerAdapter {
         if (args.length > 0) serverId = args[0];
         activeServer = jda.getGuildById(serverId);
 
-        //start pregame
-        TextChannel pregameChannel = null;
-        for (TextChannel txt : activeServer.getTextChannels())
-            if (txt.getName().equals(PREGAME_ROOM_NAME)) pregameChannel = txt;
 
-        if (pregameChannel == null)
-            pregameChannel = (TextChannel) activeServer.createTextChannel(PREGAME_ROOM_NAME).getChannel();
+        //start pregame in #turbo-chat
+        String asd = mainDB.get("turbochatid", String.class);
+        TextChannel turboChannel = jda.getTextChannelById(asd);// try looking for the last channel we used
+        if (turboChannel == null) mainDB.del("turbochatid"); // clear db of non-existent channel id
 
-        Pregame pg = new Pregame(pregameChannel, new DBWrapper(DB_PREFIX_PREGAME + pregameChannel.getId() + ":", redisSync, GSON), null);
-        mainListener.addListener(pg.getListener(), pregameChannel);
+        if (asd == null || turboChannel == null) { //didn't find a channel, look for it by the default channel name
+            for (TextChannel txt : activeServer.getTextChannels())
+                if (txt.getName().equals(TURBO_CHAT_ROOM_NAME)) {
+                    turboChannel = txt;
+                    mainDB.set("turbochatid", turboChannel.getId());
+                }
+        }
+        if (turboChannel == null) {//didn't even find a channel by default name, log a warning & try creating one
+            LOG.warn("did not find the turbo chat channel " + TURBO_CHAT_ROOM_NAME + ", attempting to create one");
+            try {
+                turboChannel = (TextChannel) activeServer.createTextChannel(TURBO_CHAT_ROOM_NAME).getChannel();
+                mainDB.set("turbochatid", turboChannel.getId());
+            } catch (PermissionException e) {
+                LOG.warn("could not create turbo-chat, missing permission to create text channels");
+            }
+        }
+        if (turboChannel != null) {
+            Pregame pg = new Pregame(turboChannel, new DBWrapper(DB_PREFIX_PREGAME + turboChannel.getId() + ":", redisSync, GSON), null);
+            jda.addEventListener(pg.getListener());
+        }
+
     }
 
     void handleCommand(CommandParser.CommandContainer cmd) {
