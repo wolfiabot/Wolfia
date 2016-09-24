@@ -11,12 +11,13 @@ import java.util.Map;
 /**
  * Created by npstr on 06.09.2016
  * <p>
- * K must be String
+ * unless specified not to, keys will expire after 60 days
  */
 public class DBWrapper {
 
     private static final Logger LOG = LogManager.getLogger();
 
+    private static final long EXPIRE = 1 * 60 * 60 * 24 * 60; //60 days ~ 2 months
 
     private final String DB_PREFIX;
     private final RedisCommands<String, String> redis;
@@ -28,41 +29,61 @@ public class DBWrapper {
         this.gson = gson;
     }
 
-    private String setStr(String key, String value) {
+    //setting stuff
+    private String setStr(String key, String value, boolean persist) {
         LOG.trace("db call: setting key [" + key + "] to [" + value + "]");
-        return redis.set(key, value);
+        String result = redis.set(key, value);
+        if (!persist) redis.expire(key, EXPIRE);
+        return result;
     }
 
-    private String getStr(String key) {
-        LOG.trace("db call: getting key [" + key + "]");
-        return redis.get(key);
+
+    //set strings
+    public String set(String key, String value, boolean persist) {
+        key = DB_PREFIX + key;
+        return this.setStr(key, value, persist);
     }
 
     public String set(String key, String value) {
-        key = DB_PREFIX + key;
-        return this.setStr(key, value);
+        return this.set(key, value, false);
     }
 
-    public String get(String key) {
+    //set objects
+    public <T> String set(String key, T object, boolean persist) {
         key = DB_PREFIX + key;
-        return this.getStr(key);
+        String value = gson.toJson(object);
+        return this.setStr(key, value, persist);
     }
 
     public <T> String set(String key, T object) {
-        key = DB_PREFIX + key;
-        String value = gson.toJson(object);
-        return this.setStr(key, value);
+        return this.set(key, object, false);
     }
 
+    //getting stuff
+    private String getStr(String key, boolean persist) {
+        LOG.trace("db call: getting key [" + key + "]");
+        if (!persist) redis.expire(key, EXPIRE);
+        return redis.get(key);
+    }
+
+    //get strings
+    public String get(String key, boolean persist) {
+        key = DB_PREFIX + key;
+        return this.getStr(key, persist);
+    }
+
+    public String get(String key) {
+        return this.get(key, false);
+    }
+
+    //get objects
+
     /**
-     * @param key
-     * @param classOfT
-     * @param <T>
      * @return the requested item or null
      */
-    public <T> T get(String key, Class<T> classOfT) {
+    public <T> T get(String key, Class<T> classOfT, boolean persist) {
         key = DB_PREFIX + key;
-        String qvalue = this.getStr(key);
+        String qvalue = this.getStr(key, persist);
         if (qvalue == null) {
             LOG.info("nothing in db behind key [" + key + "]");
             return null;
@@ -76,6 +97,14 @@ public class DBWrapper {
         }
     }
 
+    /**
+     * @return the requested item or null
+     */
+    public <T> T get(String key, Class<T> classOfT) {
+        return this.get(key, classOfT, false);
+    }
+
+
     public long del(String key) {
         key = DB_PREFIX + key;
         LOG.trace("db call: deleting key [" + key + "]");
@@ -84,28 +113,46 @@ public class DBWrapper {
 
 
     //hash related stuff
+    public boolean hset(String key, String field, String value, boolean persist) {
+        key = DB_PREFIX + key;
+        LOG.trace("db call: setting field [" + field + "] of hash [" + key + "] to [" + value + "]");
+        boolean result = redis.hset(key, field, value);
+        if (!persist) redis.expire(key, EXPIRE);
+        return result;
+    }
+
+    public boolean hset(String key, String field, String value) {
+        return this.hset(key, field, value, false);
+    }
+
+
+    public String hget(String key, String field, boolean persist) {
+        key = DB_PREFIX + key;
+        LOG.trace("db call: getting field [" + field + "] of hash [" + key + "]");
+        if (!persist) redis.expire(key, EXPIRE);
+        return redis.hget(key, field);
+    }
+
+    public String hget(String key, String field) {
+        return this.hget(key, field, false);
+    }
+
+
+    public Map<String, String> hgetall(String key, boolean persist) {
+        key = DB_PREFIX + key;
+        LOG.trace("db call: getting entire hash [" + key + "]");
+        if (!persist) redis.expire(key, EXPIRE);
+        return redis.hgetall(key);
+    }
+
+    public Map<String, String> hgetall(String key) {
+        return this.hgetall(key, false);
+    }
+
 
     public long hdel(String key) {
         key = DB_PREFIX + key;
         LOG.trace("db call: deleting entire hash [" + key + "]");
         return redis.hdel(key);
-    }
-
-    public boolean hset(String key, String field, String value) {
-        key = DB_PREFIX + key;
-        LOG.trace("db call: setting field [" + field + "] of hash [" + key + "] to [" + value + "]");
-        return redis.hset(key, field, value);
-    }
-
-    public String hget(String key, String field) {
-        key = DB_PREFIX + key;
-        LOG.trace("db call: getting field [" + field + "] of hash [" + key + "]");
-        return redis.hget(key, field);
-    }
-
-    public Map<String, String> hgetall(String key) {
-        key = DB_PREFIX + key;
-        LOG.trace("db call: getting entire hash [" + key + "]");
-        return redis.hgetall(key);
     }
 }

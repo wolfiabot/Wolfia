@@ -38,9 +38,7 @@ public class Pregame {
         this.channel = channel;
         this.pregameDB = db;
         this.listener = new PregameListener(this);
-        innedPlayers = pregameDB.get("innedPlayers", Set.class);
-        if (innedPlayers == null) innedPlayers = new HashSet<>();
-        pregameDB.set("innedPlayers", innedPlayers);
+        innedPlayers = getInnedPlayers();
 
         commands.put(InCommand.COMMAND, new InCommand(listener, this));
         commands.put(OutCommand.COMMAND, new OutCommand(listener, this));
@@ -72,8 +70,16 @@ public class Pregame {
     }
 
     @SuppressWarnings("unchecked")
-    public void inPlayer(String userId, long mins) {
+    private Set<String> getInnedPlayers() {
         innedPlayers = pregameDB.get("innedPlayers", Set.class);
+        if (innedPlayers == null) innedPlayers = new HashSet<>();
+        pregameDB.set("innedPlayers", innedPlayers);
+        return innedPlayers;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void inPlayer(String userId, long mins) {
+        innedPlayers = getInnedPlayers();
         innedPlayers.add(userId);
         pregameDB.set(userId, System.currentTimeMillis() + mins * 60 * 1000);
         pregameDB.set("innedPlayers", innedPlayers);
@@ -82,7 +88,7 @@ public class Pregame {
 
     @SuppressWarnings("unchecked")
     public void outPlayer(String userId) {
-        innedPlayers = pregameDB.get("innedPlayers", Set.class);
+        innedPlayers = getInnedPlayers();
         boolean wasInned = innedPlayers.remove(userId);
         pregameDB.del(userId);
         pregameDB.set("innedPlayers", innedPlayers);
@@ -97,7 +103,7 @@ public class Pregame {
 
     @SuppressWarnings("unchecked")
     public void postSignUps() {
-        innedPlayers = pregameDB.get("innedPlayers", Set.class);
+        innedPlayers = getInnedPlayers();
         String output = "Current signups: " + innedPlayers.size() + " players\n";
         for (String userId : innedPlayers) {
             Long till = pregameDB.get(userId, Long.class);
@@ -117,7 +123,7 @@ public class Pregame {
     @SuppressWarnings("unchecked")
     private void clearSignUpList() {
         List<String> gtfo = new ArrayList<>();
-        innedPlayers = pregameDB.get("innedPlayers", Set.class);
+        innedPlayers = getInnedPlayers();
         for (String userId : innedPlayers) {
             long till = pregameDB.get(userId, Long.class);
             if (till < System.currentTimeMillis()) {

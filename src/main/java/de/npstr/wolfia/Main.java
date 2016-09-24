@@ -113,7 +113,7 @@ public class Main extends ListenerAdapter {
 
 
         //start pregame in #turbo-chat
-        String asd = mainDB.get("turbochatid", String.class);
+        String asd = mainDB.get("turbochatid", String.class, true);
         TextChannel turboChannel = jda.getTextChannelById(asd);// try looking for the last channel we used
         if (turboChannel == null) mainDB.del("turbochatid"); // clear db of non-existent channel id
 
@@ -121,14 +121,14 @@ public class Main extends ListenerAdapter {
             for (TextChannel txt : activeServer.getTextChannels())
                 if (txt.getName().equals(TURBO_CHAT_ROOM_NAME)) {
                     turboChannel = txt;
-                    mainDB.set("turbochatid", turboChannel.getId());
+                    mainDB.set("turbochatid", turboChannel.getId(), true);
                 }
         }
         if (turboChannel == null) {//didn't even find a channel by default name, log a warning & try creating one
             LOG.warn("did not find the turbo chat channel " + TURBO_CHAT_ROOM_NAME + ", attempting to create one");
             try {
                 turboChannel = (TextChannel) activeServer.createTextChannel(TURBO_CHAT_ROOM_NAME).getChannel();
-                mainDB.set("turbochatid", turboChannel.getId());
+                mainDB.set("turbochatid", turboChannel.getId(), true);
             } catch (PermissionException e) {
                 LOG.warn("could not create turbo-chat, missing permission to create text channels");
             }
