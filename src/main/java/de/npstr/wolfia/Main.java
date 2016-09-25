@@ -151,6 +151,7 @@ public class Main extends ListenerAdapter {
 
     static void handleCommand(CommandParser.CommandContainer cmd) {
         if (commands.containsKey(cmd.invoke)) {
+            LOG.trace("handling command " + cmd.invoke);
             Command c = commands.get(cmd.invoke);
             boolean safe = c.argumentsValid(cmd.args, cmd.event);
 

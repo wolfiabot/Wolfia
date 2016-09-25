@@ -8,11 +8,11 @@ import net.dv8tion.jda.MessageHistory;
 import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.entities.MessageChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,6 +29,7 @@ public class ChatLogCommand extends Command {
             + COMMAND + " <days>\nto receive the log of this channel for the last <days> as a txt file\n" +
             "<days> being no bigger than " + Integer.MAX_VALUE + "\n\n" +
             "You need to be authorized to use this command!```";
+    private static final Logger LOG = LogManager.getLogger();
 
 
     public ChatLogCommand(CommandListener listener) {
@@ -50,42 +51,68 @@ public class ChatLogCommand extends Command {
     @Override
     public boolean execute(String[] args, MessageReceivedEvent event) {
         if (!Main.hasChatLogAuth(event.getAuthor())) return false;
-
         int days = Integer.valueOf(args[0]);
 
-        Calendar cal = new GregorianCalendar();
-        cal.setTimeInMillis(System.currentTimeMillis());
-        cal.add(Calendar.DAY_OF_MONTH, -days);
-        long noOlderThan = cal.getTimeInMillis();
+        Main.handleOutputMessage(event.getAuthor().getId(), "Received your order: chatlog for channel " + event.getTextChannel().getName() + " over the last " + days + " days.\n" +
+                "Please be patient while I collect all the juicy messages for you.");
 
-        MessageChannel ch = event.getTextChannel();
-        MessageHistory mh = ch.getHistory();
+        Runnable collectAndSendChatlog = () -> {
 
-        List<Message> collectingMessages = new ArrayList<>();
+            LOG.trace("runnable to collect and send chatlog started");
 
-        while (true) {
-            List<Message> messages = mh.retrieve();
-            if (messages == null) break;
+            Calendar cal = new GregorianCalendar();
+            cal.setTimeInMillis(System.currentTimeMillis());
+            cal.add(Calendar.DAY_OF_MONTH, -days);
+            long noOlderThan = cal.getTimeInMillis();
 
-            for (Message m : messages) {
-                if (m.getTime().toEpochSecond() * 1000 > noOlderThan) {
-                    collectingMessages.add(0, m);
-                } else break;
+            MessageChannel ch = event.getTextChannel();
+            MessageHistory mh = ch.getHistory();
+
+            List<Message> collectingMessages = new ArrayList<>();
+            LOG.trace("collecting messages now");
+
+            while (true) {
+                List<Message> messages = mh.retrieve();
+                if (messages == null) break;
+
+                for (Message m : messages) {
+                    if (m.getTime().toEpochSecond() * 1000 > noOlderThan) {
+                        collectingMessages.add(0, m);
+                    } else break;
+                }
             }
-        }
+            LOG.trace("done collecting messages, writing the log file");
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm:ss");
-        try (PrintWriter writer = new PrintWriter("log.txt", "UTF-8")) {
-            for (Message m : collectingMessages) {
-                writer.println("[" + m.getTime().format(dtf) + "] " + m.getAuthor().getUsername() + ": " + m.getContent());
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm:ss");
+            try (PrintWriter writer = new PrintWriter("chatlog.txt", "UTF-8")) {
+                for (Message m : collectingMessages) {
+                    try {
+                        String line = "[" + m.getTime().format(dtf) + "] ";
+                        line += m.getAuthor().getUsername() + ": ";
+                        line += m.getContent(); //TODO emotes, images get ignored currently, change that
+                        writer.println(line);
+                        //writer.println("[" + m.getTime().format(dtf) + "] " + m.getAuthor().getUsername() + ": " + m.getContent());
+                    } catch (NullPointerException e) {
+                        //this happens; for example a message that contains nothing but an uploaded picture may trigger this
+                        LOG.warn("NullPointerException while writing the log; skipping this message; here, have a stacktrace:");
+                        e.printStackTrace();
+                    }
+                }
+                writer.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            writer.close();
-        } catch (FileNotFoundException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
 
-        String out = "Your order, Sir. 1x chatlog for channel " + event.getTextChannel().getName() + " over the last " + days + " days, containing " + collectingMessages.size() + " messages.";
-        event.getAuthor().getPrivateChannel().sendFile(new File("log.txt"), new MessageBuilder().appendString(out).build());
+            LOG.trace("done writing the log file, uploading and sending");
+
+            String out = "Your order, Sir. Chatlog for channel " + event.getTextChannel().getName() + " over the last " + days + " days, containing " + collectingMessages.size() + " messages.";
+            event.getAuthor().getPrivateChannel().sendFile(new File("chatlog.txt"), new MessageBuilder().appendString(out).build());
+
+            LOG.trace("runnable to collect and send chatlog done successfully, exiting");
+
+        };
+        Thread thread = new Thread(collectAndSendChatlog);
+        thread.start();
 
         return true;
     }
