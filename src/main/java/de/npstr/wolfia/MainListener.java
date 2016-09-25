@@ -1,5 +1,6 @@
 package de.npstr.wolfia;
 
+import de.npstr.wolfia.utils.CommandParser;
 import de.npstr.wolfia.utils.Player;
 import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.Event;
@@ -37,6 +38,11 @@ class MainListener extends ListenerAdapter implements CommandListener {
         //bot should ignore itself
         if (event.getMessage().getAuthor().getId().equals(event.getJDA().getSelfInfo().getId())) {
             return;
+        }
+
+        //does the message have our prefix?
+        if (event.getMessage().getContent().startsWith(PREFIX)) {
+            Main.handleCommand(CommandParser.parse(PREFIX, event.getMessage().getContent().toLowerCase(), event));
         }
     }
 

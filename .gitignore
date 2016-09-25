@@ -112,3 +112,5 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 src/main/java/de/npstr/wolfia/utils/Sneaky.java
+
+log.txt

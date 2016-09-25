@@ -8,6 +8,7 @@ package de.npstr.wolfia;
  * Writing Messages in turbo chat (d'uh)
  * Mentioning Users in turbo chat (d'uh)
  * <p>
+ * Access to Message History to provide chatlogs
  * <p>
  * <p>
  * <p>
@@ -22,6 +23,7 @@ import com.lambdaworks.redis.RedisCommandExecutionException;
 import com.lambdaworks.redis.RedisConnectionException;
 import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.api.sync.RedisCommands;
+import de.npstr.wolfia.commands.ChatLogCommand;
 import de.npstr.wolfia.pregame.Pregame;
 import de.npstr.wolfia.utils.CommandParser;
 import de.npstr.wolfia.utils.DBWrapper;
@@ -29,16 +31,14 @@ import de.npstr.wolfia.utils.Player;
 import de.npstr.wolfia.utils.Sneaky;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.MessageChannel;
-import net.dv8tion.jda.entities.PrivateChannel;
-import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.entities.*;
 import net.dv8tion.jda.exceptions.PermissionException;
 import net.dv8tion.jda.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class Main extends ListenerAdapter {
 
@@ -105,12 +105,12 @@ public class Main extends ListenerAdapter {
         }
 
         //adding commands
+        commands.put(ChatLogCommand.COMMAND, new ChatLogCommand(mainListener));
 
         //finding the guild aka discord server
         String serverId = Sneaky.DISCORD_SERVER_ID();
         if (args.length > 0) serverId = args[0];
         activeServer = jda.getGuildById(serverId);
-
 
         //start pregame in #turbo-chat
         String asd = mainDB.get("turbochatid", String.class, true);
@@ -137,10 +137,19 @@ public class Main extends ListenerAdapter {
             Pregame pg = new Pregame(turboChannel, new DBWrapper(DB_PREFIX_PREGAME + turboChannel.getId() + ":", redisSync, GSON), null);
             jda.addEventListener(pg.getListener());
         }
-
     }
 
-    void handleCommand(CommandParser.CommandContainer cmd) {
+    public static boolean hasChatLogAuth(User user) {
+        List<Role> roles = activeServer.getRolesForUser(user);
+        for (Role r : roles) {
+            if (r.getName().equals("Staff")) return true;
+        }
+
+        return user.getId().equals(Sneaky.NPSTR_ID);
+    }
+
+
+    static void handleCommand(CommandParser.CommandContainer cmd) {
         if (commands.containsKey(cmd.invoke)) {
             Command c = commands.get(cmd.invoke);
             boolean safe = c.argumentsValid(cmd.args, cmd.event);
