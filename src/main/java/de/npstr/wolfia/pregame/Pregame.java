@@ -1,9 +1,6 @@
 package de.npstr.wolfia.pregame;
 
-import de.npstr.wolfia.Command;
-import de.npstr.wolfia.CommandListener;
-import de.npstr.wolfia.Game;
-import de.npstr.wolfia.Main;
+import de.npstr.wolfia.*;
 import de.npstr.wolfia.pregame.commands.*;
 import de.npstr.wolfia.utils.CommandParser;
 import de.npstr.wolfia.utils.DBWrapper;
@@ -21,15 +18,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by npstr on 24.08.2016
  */
-public class Pregame {
+public class Pregame implements CommandHandler {
 
     private Set<String> innedPlayers;
+    private Set<String> confirmedPlayers;
     private final TextChannel channel;
     private static final Map<String, Command> commands = new HashMap<>();
     private final PregameListener listener;
     private final static Logger LOG = LogManager.getLogger();
     public static final String PREFIX = "!";
 
+    private Game game = null;
+    private boolean gameGoing = false;
+    private boolean confirmationsGoing = false;
 
     private final DBWrapper pregameDB;
 
@@ -37,6 +38,7 @@ public class Pregame {
     public Pregame(TextChannel channel, DBWrapper db, Game game) {
         this.channel = channel;
         this.pregameDB = db;
+        this.game = game;
         this.listener = new PregameListener(this);
         innedPlayers = getInnedPlayers();
 
@@ -45,6 +47,7 @@ public class Pregame {
         commands.put(SignUpStatusCommand.COMMAND, new SignUpStatusCommand(listener, this));
         if (game != null) {
             //put more commands here
+            commands.put(StartCommand.COMMAND, new StartCommand(listener, this));
         }
         commands.put(HelpCommand.COMMAND, new HelpCommand(listener, new HashMap<>(commands)));
         commands.put(SingUpCommand.COMMAND, new SingUpCommand(listener));//put this at the end so it doesn't show up in the HELP command
@@ -57,6 +60,7 @@ public class Pregame {
             try {
                 while (true) {
                     TimeUnit.SECONDS.sleep(60);
+                    if (gameGoing || confirmationsGoing) continue; //dont need to do this when the thread is busy
                     LOG.trace("check signup list task executing");
                     clearSignUpList();
                 }
@@ -69,6 +73,109 @@ public class Pregame {
         thread.start();
     }
 
+    /**
+     * should get called whenever a user attempts to start a game
+     *
+     * @return whether or not confirmations have been started, which will happen if there is a game that is played in
+     * this channel, and there are enough players signed up for that game
+     */
+    public boolean startGame() {
+        if (game == null) {
+            return false;
+        }
+        if (!game.enoughPlayers(getInnedPlayers().size())) {
+            return false;
+        }
+
+        startConfirmations();
+
+        return true;
+    }
+
+    /**
+     * Starts the confirmations phase, where there is a time frame during which the signed up players have to confirm
+     * their presence so the game can start with no afks. Other players may hero in, but it should be considered bad
+     * manners to do so before the original sign ups had enough time to confirm. Community needs to sort this out.
+     */
+    private void startConfirmations() {
+        confirmedPlayers = new HashSet<>();
+        commands.put(ConfirmCommand.COMMAND, new ConfirmCommand(listener, this));
+        String mentions = "";
+        for (String userId : getInnedPlayers()) {
+            mentions += Player.asMention(userId) + " ";
+            Main.handleOutputMessage(userId, "Hey " + Player.getDiscordNick(userId) + "a game you signed up for is " +
+                    "about to start in " + channel.getAsMention() + ", please post " + PREFIX + ConfirmCommand.COMMAND +
+                    " in there during the next 10 minutes.");
+        }
+        Main.handleOutputMessage(channel, "Enough players have signed up! Game start initiated. You have 10 minutes " +
+                "to confirm that you are in, just type " + PREFIX + ConfirmCommand.COMMAND + ". Game starts as soon " +
+                "as enough players confirmed.\n" + mentions);
+
+        //this will hitler around every minute mentioning players we are waiting on
+        Runnable hitlerConfirmations = () -> {
+            int times = 9;
+            try {
+                while (times > 0) {
+                    if (gameGoing) break; //if the game started we dont need this
+                    times--;
+                    TimeUnit.SECONDS.sleep(60);
+                    LOG.trace("hitlering confirmations");
+                    String out = "Oi! ";
+                    for (String s : confirmedPlayers) out += Player.getDiscordNick(s) + " ";
+                    out += " have confirmed!\n";
+                    out += "Need " + (game.getAmountOfPlayers() - confirmedPlayers.size()) + " more players.\n";
+                    for (String s : getInnedPlayers())
+                        if (!confirmedPlayers.contains(s)) out += Player.asMention(s) + " ";
+
+                    Main.handleOutputMessage(channel, out);
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
+        Thread thread = new Thread(hitlerConfirmations);
+        thread.start();
+
+        //this will check if confirmations worked out
+        //possible bug if the game is over in less than 10 mins, then this thread will think the game never started
+        Runnable checkConfirmations = () -> {
+            try {
+                TimeUnit.SECONDS.sleep(600);
+                LOG.trace("checking confirmations");
+                confirmationsGoing = false;
+                if (gameGoing) return;
+                else {
+                    String out = "Game start aborted. Shame on these players that signed up but did not confirm:\n";
+                    for (String s : getInnedPlayers())
+                        if (!confirmedPlayers.contains(s)) out += Player.asMention(s) + " ";
+                    Main.handleOutputMessage(channel, out);
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
+        Thread thread2 = new Thread(checkConfirmations);
+        thread2.start();
+    }
+
+    /**
+     * Call this to have a user confirm his participation for an upcoming game
+     *
+     * @param userId discord id of the user that is confirming
+     */
+    public void confirm(String userId) {
+        if (!confirmedPlayers.contains(userId)) {
+            confirmedPlayers.add(userId);
+            if (confirmedPlayers.size() == game.getAmountOfPlayers()) {
+                //TODO open the channel after a game is over
+                game.start(confirmedPlayers);
+                gameGoing = true;
+            }
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private Set<String> getInnedPlayers() {
         innedPlayers = pregameDB.get("innedPlayers", Set.class);
@@ -77,15 +184,26 @@ public class Pregame {
         return innedPlayers;
     }
 
+    /**
+     * Call this to put a user on the signup list
+     *
+     * @param userId discord id of the user signing up
+     * @param mins   amount of minutes the user is signing up for
+     */
     @SuppressWarnings("unchecked")
     public void inPlayer(String userId, long mins) {
         innedPlayers = getInnedPlayers();
         innedPlayers.add(userId);
-        pregameDB.set(userId, System.currentTimeMillis() + mins * 60 * 1000);
+        pregameDB.set(userId, System.currentTimeMillis() + (mins * 60 * 1000) + 1000); //add a second so it looks nice
         pregameDB.set("innedPlayers", innedPlayers);
         postSignUps();
     }
 
+    /**
+     * Call this to remove a user from a signup list
+     *
+     * @param userId discord id of the user signing out
+     */
     @SuppressWarnings("unchecked")
     public void outPlayer(String userId) {
         innedPlayers = getInnedPlayers();
@@ -101,8 +219,12 @@ public class Pregame {
 
     }
 
+    /**
+     * Call this to post the current list of signed up players
+     */
     @SuppressWarnings("unchecked")
     public void postSignUps() {
+        if (gameGoing) return; //dont do this while there's a game going
         innedPlayers = getInnedPlayers();
         String output = "Current signups: " + innedPlayers.size() + " players\n";
         for (String userId : innedPlayers) {
@@ -119,9 +241,12 @@ public class Pregame {
         Main.handleOutputMessage(channel, output);
     }
 
-    // remove players that went beyond their sign up time
+    /**
+     * Removes players that went beyond their sign up time
+     */
     @SuppressWarnings("unchecked")
     private void clearSignUpList() {
+        if (gameGoing) return; //dont do this while there's a game going
         List<String> gtfo = new ArrayList<>();
         innedPlayers = getInnedPlayers();
         for (String userId : innedPlayers) {
@@ -163,7 +288,8 @@ public class Pregame {
         }
     }
 
-    void handleCommand(CommandParser.CommandContainer cmd) {
+    @Override
+    public void handleCommand(CommandParser.CommandContainer cmd) {
         if (commands.containsKey(cmd.invoke)) {
             Command c = commands.get(cmd.invoke);
             boolean safe = c.argumentsValid(cmd.args, cmd.event);
@@ -173,10 +299,16 @@ public class Pregame {
         }
     }
 
+    /**
+     * @return The channel where this Pregame is running in
+     */
     public TextChannel getChannel() {
         return channel;
     }
 
+    /**
+     * @return The Listener object of this Pregame
+     */
     public PregameListener getListener() {
         return listener;
     }
@@ -202,7 +334,7 @@ class PregameListener extends ListenerAdapter implements CommandListener {
         }
 
         //is this our channel?
-        if (!pregame.getChannel().getId().equals(event.getTextChannel().getId())) {
+        if (!pregame.getChannel().getId().equals(event.getChannel().getId())) {
             return;
         }
 

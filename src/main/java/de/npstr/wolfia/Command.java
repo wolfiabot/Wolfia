@@ -7,6 +7,8 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
  */
 public abstract class Command {
 
+    //TODO: implement getCommand to retrieve the command string just like the help string
+
     private final CommandListener listener;
 
     public Command(CommandListener listener) {

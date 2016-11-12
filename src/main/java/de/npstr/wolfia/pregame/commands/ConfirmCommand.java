@@ -6,11 +6,9 @@ import de.npstr.wolfia.pregame.Pregame;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 /**
- * Created by npstr on 14.09.2016
- * <p>
- * any signed up player can use this command to start a game
+ * Created by npstr on 22.10.2016
  */
-public class StartCommand extends Command {
+public class ConfirmCommand extends Command{
 
     public final static String COMMAND = "start";
     private final String HELP = "```usage: " + getListener().getPrefix()
@@ -18,9 +16,9 @@ public class StartCommand extends Command {
 
     private Pregame pg;
 
-    public StartCommand(CommandListener listener, Pregame pregame) {
+    public ConfirmCommand(CommandListener listener, Pregame pg) {
         super(listener);
-        this.pg = pregame;
+        this.pg = pg;
     }
 
     @Override
@@ -30,7 +28,8 @@ public class StartCommand extends Command {
 
     @Override
     public boolean execute(String[] args, MessageReceivedEvent event) {
-        return pg.startGame();
+        pg.confirm(event.getAuthor().getId());
+        return false;
     }
 
     @Override

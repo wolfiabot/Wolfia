@@ -10,6 +10,7 @@ package de.npstr.wolfia;
  * <p>
  * Access to Message History to provide chatlogs
  * <p>
+ * Manage Roles permission to mute and unmute players/channels during ongoing games
  * <p>
  * <p>
  * Nice to have:
@@ -33,34 +34,31 @@ import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;
 import net.dv8tion.jda.entities.*;
 import net.dv8tion.jda.exceptions.PermissionException;
-import net.dv8tion.jda.hooks.ListenerAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.List;
 
-public class Main extends ListenerAdapter {
+public class Main implements CommandHandler {
 
     public static JDA jda;
 
-
     private static Guild activeServer;
 
-    private static HashMap<String, Command> commands = new HashMap<>();
-    private static final Logger LOG = LogManager.getLogger();
+    private HashMap<String, Command> commands = new HashMap<>();
+    private final Logger LOG = LogManager.getLogger();
 
-    private static final String TURBO_CHAT_ROOM_NAME = "turbo-chat";
+    private final String TURBO_CHAT_ROOM_NAME = "turbo-chat";
 
-    private static DBWrapper mainDB;
+    private DBWrapper mainDB;
 
-    private static final Gson GSON = new Gson();
-    private static final String DB_PREFIX = "wolfia:";
-    private static final String DB_PREFIX_PLAYER = DB_PREFIX + "player:";
-    private static final String DB_PREFIX_PREGAME = DB_PREFIX + "pregame:";
+    private final Gson GSON = new Gson();
+    private final String DB_PREFIX = "wolfia:";
+    private final String DB_PREFIX_PLAYER = DB_PREFIX + "player:";
+    private final String DB_PREFIX_PREGAME = DB_PREFIX + "pregame:";
 
-    public static void main(String[] args) {
-
+    private Main(String[] args) {
         //connect to DB & distribute db objects to classes
         //kill itself if that doesn't work
         RedisURI rUI = RedisURI.builder().withHost("localhost").withPort(6379).withPassword(Sneaky.REDIS_AUTH()).build();
@@ -89,7 +87,7 @@ public class Main extends ListenerAdapter {
 
         //setting up JDA
         //kill itself it if doesn't work
-        MainListener mainListener = new MainListener();
+        MainListener mainListener = new MainListener(this);
         try {
             jda = new JDABuilder()
                     .addListener(mainListener)
@@ -139,6 +137,10 @@ public class Main extends ListenerAdapter {
         }
     }
 
+    public static void main(String[] args) {
+        new Main(args);
+    }
+
     public static boolean hasChatLogAuth(User user) {
         List<Role> roles = activeServer.getRolesForUser(user);
         for (Role r : roles) {
@@ -149,7 +151,8 @@ public class Main extends ListenerAdapter {
     }
 
 
-    static void handleCommand(CommandParser.CommandContainer cmd) {
+    @Override
+    public void handleCommand(CommandParser.CommandContainer cmd) {
         if (commands.containsKey(cmd.invoke)) {
             LOG.trace("handling command " + cmd.invoke);
             Command c = commands.get(cmd.invoke);

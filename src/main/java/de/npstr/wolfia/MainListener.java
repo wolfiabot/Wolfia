@@ -16,9 +16,16 @@ import org.apache.logging.log4j.Logger;
  */
 class MainListener extends ListenerAdapter implements CommandListener {
 
-    private static final String PREFIX = "!";
+    private final String PREFIX = "!";
 
-    private final static Logger LOG = LogManager.getLogger();
+    private final Logger LOG = LogManager.getLogger();
+
+    private CommandHandler main;
+
+    public MainListener(CommandHandler main) {
+        super();
+        this.main = main;
+    }
 
     //keeps track of last activity of a user
     @Override
@@ -40,9 +47,11 @@ class MainListener extends ListenerAdapter implements CommandListener {
             return;
         }
 
+        //ignore channels from an ignore list, like those that have a game going
+
         //does the message have our prefix?
         if (event.getMessage().getContent().startsWith(PREFIX)) {
-            Main.handleCommand(CommandParser.parse(PREFIX, event.getMessage().getContent().toLowerCase(), event));
+            main.handleCommand(CommandParser.parse(PREFIX, event.getMessage().getContent().toLowerCase(), event));
         }
     }
 

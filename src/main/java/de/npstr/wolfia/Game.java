@@ -10,4 +10,6 @@ public interface Game {
     public int getAmountOfPlayers();
 
     public void start(Set<String> players);
+
+    public boolean enoughPlayers(int signedUp);
 }
