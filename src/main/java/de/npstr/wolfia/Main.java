@@ -24,6 +24,7 @@ import com.lambdaworks.redis.RedisCommandExecutionException;
 import com.lambdaworks.redis.RedisConnectionException;
 import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.api.sync.RedisCommands;
+import de.npstr.wolfia.PopcornGame.Popcorn;
 import de.npstr.wolfia.commands.ChatLogCommand;
 import de.npstr.wolfia.pregame.Pregame;
 import de.npstr.wolfia.utils.CommandParser;
@@ -47,9 +48,10 @@ public class Main implements CommandHandler {
     private static Guild activeServer;
 
     private HashMap<String, Command> commands = new HashMap<>();
-    private final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
     private final String TURBO_CHAT_ROOM_NAME = "turbo-chat";
+    private final String POPCORN_CHAT_ROOM_NAME = "popcorn-chat";
 
     private DBWrapper mainDB;
 
@@ -135,6 +137,32 @@ public class Main implements CommandHandler {
             Pregame pg = new Pregame(turboChannel, new DBWrapper(DB_PREFIX_PREGAME + turboChannel.getId() + ":", redisSync, GSON), null);
             jda.addEventListener(pg.getListener());
         }
+
+        //start pregame in #popcorn-chat
+        String popcornChatId = mainDB.get("popcornchatid", String.class, true);
+        TextChannel popcornChannel = jda.getTextChannelById(popcornChatId);// try looking for the last channel we used
+        if (popcornChannel == null) mainDB.del("popcornchatid"); // clear db of non-existent channel id
+
+        if (popcornChatId == null || popcornChannel == null) { //didn't find a channel, look for it by the default channel name
+            for (TextChannel txt : activeServer.getTextChannels())
+                if (txt.getName().equals(POPCORN_CHAT_ROOM_NAME)) {
+                    popcornChannel = txt;
+                    mainDB.set("popcornchatid", popcornChannel.getId(), true);
+                }
+        }
+        if (popcornChannel == null) {//didn't even find a channel by default name, log a warning & try creating one
+            LOG.warn("did not find the chat channel " + POPCORN_CHAT_ROOM_NAME + ", attempting to create one");
+            try {
+                popcornChannel = (TextChannel) activeServer.createTextChannel(POPCORN_CHAT_ROOM_NAME).getChannel();
+                mainDB.set("popcornchatid", popcornChannel.getId(), true);
+            } catch (PermissionException e) {
+                LOG.warn("could not create chat channel " + POPCORN_CHAT_ROOM_NAME + ", missing permission to create text channels");
+            }
+        }
+        if (popcornChannel != null) {
+            Pregame pg = new Pregame(popcornChannel, new DBWrapper(DB_PREFIX_PREGAME + popcornChannel.getId() + ":", redisSync, GSON), new Popcorn(popcornChannel));
+            jda.addEventListener(pg.getListener());
+        }
     }
 
     public static void main(String[] args) {
@@ -164,7 +192,12 @@ public class Main implements CommandHandler {
     }
 
     public static void handleOutputMessage(MessageChannel channel, String msg) {
-        channel.sendMessage(msg);
+        try {
+            channel.sendMessage(msg);
+        } catch (PermissionException e) {
+            LOG.warn("Could not post a message in channel " + channel.getId() + "due to missing permission " + e.getPermission().name());
+            e.printStackTrace();
+        }
     }
 
     public static void handleOutputMessage(String userId, String msg) {

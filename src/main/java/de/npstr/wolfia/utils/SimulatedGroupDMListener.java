@@ -1,7 +1,6 @@
-package de.npstr.wolfia.PopcornGame;
+package de.npstr.wolfia.utils;
 
 import de.npstr.wolfia.Main;
-import de.npstr.wolfia.utils.Sneaky;
 import net.dv8tion.jda.entities.PrivateChannel;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.hooks.ListenerAdapter;

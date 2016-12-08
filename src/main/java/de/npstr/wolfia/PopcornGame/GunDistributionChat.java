@@ -2,10 +2,11 @@ package de.npstr.wolfia.PopcornGame;
 
 import de.npstr.wolfia.CommandHandler;
 import de.npstr.wolfia.CommandListener;
+import de.npstr.wolfia.Main;
 import de.npstr.wolfia.PopcornGame.Commands.GiveGunCommand;
-import de.npstr.wolfia.pregame.Pregame;
 import de.npstr.wolfia.utils.CommandParser;
 import de.npstr.wolfia.utils.Player;
+import de.npstr.wolfia.utils.SimulatedGroupDMListener;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
 
 import java.util.Set;
@@ -29,13 +30,17 @@ public class GunDistributionChat extends SimulatedGroupDMListener implements Com
         String out = "Mafia members: ";
         for (String s : mafiaPlayers) out += Player.getDiscordNick(s) + " ";
 
-        String out2 = "Write here to talk to your mafia team. You have 5 minutes to decide who of the villagers gets" +
+        out += "\nWrite here to talk to your mafia team. You have 5 minutes to decide who of the villagers gets " +
                 "the gun.";
 
-        String out3 = "Villagers: ";
-        for (String s : villagePlayers) out3 += Player.getDiscordNick(s) + " ";
+        out += "\nVillagers: ";
+        for (String s : villagePlayers) out += Player.getDiscordNick(s) + " ";
 
-        String out4 = "Talk about it with your team, then type " + PREFIX + GiveGunCommand.COMMAND + "";
+        out += "\nTalk about it with your team, then use the " + GiveGunCommand.COMMAND + " command to give a gun.";
+
+        for (String s : mafiaPlayers) {
+            Main.handleOutputMessage(s, out);
+        }
     }
 
 
@@ -44,8 +49,8 @@ public class GunDistributionChat extends SimulatedGroupDMListener implements Com
         super.onMessageReceived(event);
 
         //does the message have our prefix?
-        if (event.getMessage().getContent().startsWith(Pregame.PREFIX)) {
-            commHand.handleCommand(CommandParser.parse(Pregame.PREFIX, event.getMessage().getContent().toLowerCase(), event));
+        if (event.getMessage().getContent().startsWith(getPrefix())) {
+            commHand.handleCommand(CommandParser.parse(getPrefix(), event.getMessage().getContent().toLowerCase(), event));
         }
     }
 

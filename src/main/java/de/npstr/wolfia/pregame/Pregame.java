@@ -23,16 +23,25 @@ public class Pregame implements CommandHandler {
     private Set<String> innedPlayers;
     private Set<String> confirmedPlayers;
     private final TextChannel channel;
-    private static final Map<String, Command> commands = new HashMap<>();
+    private final Map<String, Command> commands = new HashMap<>();
     private final PregameListener listener;
     private final static Logger LOG = LogManager.getLogger();
-    public static final String PREFIX = "!";
+    private final String PREFIX = "!";
+
+    public String getPrefix() {
+        return PREFIX;
+    }
+
 
     private Game game = null;
+
     private boolean gameGoing = false;
-    private boolean confirmationsGoing = false;
 
     private final DBWrapper pregameDB;
+
+    public boolean isGameGoing() {
+        return gameGoing;
+    }
 
     @SuppressWarnings("unchecked")
     public Pregame(TextChannel channel, DBWrapper db, Game game) {
@@ -42,15 +51,12 @@ public class Pregame implements CommandHandler {
         this.listener = new PregameListener(this);
         innedPlayers = getInnedPlayers();
 
-        commands.put(InCommand.COMMAND, new InCommand(listener, this));
-        commands.put(OutCommand.COMMAND, new OutCommand(listener, this));
-        commands.put(SignUpStatusCommand.COMMAND, new SignUpStatusCommand(listener, this));
-        if (game != null) {
-            //put more commands here
-            commands.put(StartCommand.COMMAND, new StartCommand(listener, this));
-        }
-        commands.put(HelpCommand.COMMAND, new HelpCommand(listener, new HashMap<>(commands)));
-        commands.put(SingUpCommand.COMMAND, new SingUpCommand(listener));//put this at the end so it doesn't show up in the HELP command
+        commands.clear();
+        commands.putAll(getInitialCommands(game));
+
+        //clean up: remove any game roles/give writing access to everyone
+        if (game != null) game.resetRolesAndPermissions();
+
 
         Main.handleOutputMessage(channel, "Bot started, signups now open in this channel");
         postSignUps();
@@ -60,7 +66,7 @@ public class Pregame implements CommandHandler {
             try {
                 while (true) {
                     TimeUnit.SECONDS.sleep(60);
-                    if (gameGoing || confirmationsGoing) continue; //dont need to do this when the thread is busy
+                    if (gameGoing) continue; //dont need to do this when the thread is busy
                     LOG.trace("check signup list task executing");
                     clearSignUpList();
                 }
@@ -71,6 +77,21 @@ public class Pregame implements CommandHandler {
         };
         Thread thread = new Thread(checkSignupListEvery60Sec);
         thread.start();
+    }
+
+
+    private Map<String, Command> getInitialCommands(Game game) {
+        Map<String, Command> result = new HashMap<>();
+        result.put(InCommand.COMMAND, new InCommand(listener, this));
+        result.put(OutCommand.COMMAND, new OutCommand(listener, this));
+        result.put(SignUpStatusCommand.COMMAND, new SignUpStatusCommand(listener, this));
+        if (game != null) {
+            //put more commands here
+            result.put(StartCommand.COMMAND, new StartCommand(listener, this));
+        }
+        result.put(HelpCommand.COMMAND, new HelpCommand(listener, new HashMap<>(result)));
+        result.put(SingUpCommand.COMMAND, new SingUpCommand(listener));//put this at the end so it doesn't show up in the HELP command
+        return result;
     }
 
     /**
@@ -103,12 +124,12 @@ public class Pregame implements CommandHandler {
         String mentions = "";
         for (String userId : getInnedPlayers()) {
             mentions += Player.asMention(userId) + " ";
-            Main.handleOutputMessage(userId, "Hey " + Player.getDiscordNick(userId) + "a game you signed up for is " +
+            Main.handleOutputMessage(userId, "Hey " + Player.getDiscordNick(userId) + ", a game you signed up for is " +
                     "about to start in " + channel.getAsMention() + ", please post " + PREFIX + ConfirmCommand.COMMAND +
                     " in there during the next 10 minutes.");
         }
         Main.handleOutputMessage(channel, "Enough players have signed up! Game start initiated. You have 10 minutes " +
-                "to confirm that you are in, just type " + PREFIX + ConfirmCommand.COMMAND + ". Game starts as soon " +
+                "to confirm that you are in, just type _" + PREFIX + ConfirmCommand.COMMAND + "_. Game starts as soon " +
                 "as enough players confirmed.\n" + mentions);
 
         //this will hitler around every minute mentioning players we are waiting on
@@ -120,10 +141,9 @@ public class Pregame implements CommandHandler {
                     times--;
                     TimeUnit.SECONDS.sleep(60);
                     LOG.trace("hitlering confirmations");
-                    String out = "Oi! ";
+                    String out = "Oi! These players have confirmed: ";
                     for (String s : confirmedPlayers) out += Player.getDiscordNick(s) + " ";
-                    out += " have confirmed!\n";
-                    out += "Need " + (game.getAmountOfPlayers() - confirmedPlayers.size()) + " more players.\n";
+                    out += "\nNeed " + (game.getAmountOfPlayers() - confirmedPlayers.size()) + " more players.\n";
                     for (String s : getInnedPlayers())
                         if (!confirmedPlayers.contains(s)) out += Player.asMention(s) + " ";
 
@@ -143,7 +163,6 @@ public class Pregame implements CommandHandler {
             try {
                 TimeUnit.SECONDS.sleep(600);
                 LOG.trace("checking confirmations");
-                confirmationsGoing = false;
                 if (gameGoing) return;
                 else {
                     String out = "Game start aborted. Shame on these players that signed up but did not confirm:\n";
@@ -170,8 +189,15 @@ public class Pregame implements CommandHandler {
             confirmedPlayers.add(userId);
             if (confirmedPlayers.size() == game.getAmountOfPlayers()) {
                 //TODO open the channel after a game is over
-                game.start(confirmedPlayers);
+                String out = "Enough players confirmed. Game is starting!\n";
+                for (String s : confirmedPlayers) {
+                    out += Player.asMention(s) + " ";
+                }
+                Main.handleOutputMessage(channel, out);
                 gameGoing = true;
+                //remove confirm command
+                commands.remove(ConfirmCommand.COMMAND);
+                game.start(confirmedPlayers);
             }
         }
     }
@@ -338,9 +364,12 @@ class PregameListener extends ListenerAdapter implements CommandListener {
             return;
         }
 
+        //if a game is going we should not accept any commands, the game should handle them
+        if (pregame.isGameGoing()) return;
+
         //does the message have our prefix?
-        if (event.getMessage().getContent().startsWith(Pregame.PREFIX)) {
-            pregame.handleCommand(CommandParser.parse(Pregame.PREFIX, event.getMessage().getContent().toLowerCase(), event));
+        if (event.getMessage().getContent().startsWith(pregame.getPrefix())) {
+            pregame.handleCommand(CommandParser.parse(pregame.getPrefix(), event.getMessage().getContent().toLowerCase(), event));
         }
     }
 
@@ -351,6 +380,6 @@ class PregameListener extends ListenerAdapter implements CommandListener {
 
     @Override
     public String getPrefix() {
-        return Pregame.PREFIX;
+        return pregame.getPrefix();
     }
 }

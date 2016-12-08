@@ -8,9 +8,9 @@ import net.dv8tion.jda.events.message.MessageReceivedEvent;
 /**
  * Created by npstr on 22.10.2016
  */
-public class ConfirmCommand extends Command{
+public class ConfirmCommand extends Command {
 
-    public final static String COMMAND = "start";
+    public final static String COMMAND = "confirm";
     private final String HELP = "```usage: " + getListener().getPrefix()
             + COMMAND + " \nto start the game. Game will only start if enough players have signed up\n";
 
