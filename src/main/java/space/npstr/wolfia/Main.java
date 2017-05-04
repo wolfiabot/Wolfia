@@ -35,6 +35,9 @@ package space.npstr.wolfia;
  * Reading Messages server wide (for better keeping track of inactive players)
  */
 
+import ch.qos.logback.classic.AsyncAppender;
+import ch.qos.logback.classic.LoggerContext;
+import com.github.napstr.logback.DiscordAppender;
 import com.google.gson.Gson;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisCommandExecutionException;
@@ -49,14 +52,12 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.utils.SimpleLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.PopcornGame.Popcorn;
 import space.npstr.wolfia.pregame.Pregame;
-import space.npstr.wolfia.utils.App;
-import space.npstr.wolfia.utils.CommandParser;
-import space.npstr.wolfia.utils.DBWrapper;
-import space.npstr.wolfia.utils.Player;
+import space.npstr.wolfia.utils.*;
 
 import java.util.HashMap;
 
@@ -72,6 +73,7 @@ public class Main implements CommandHandler {
     private final String TURBO_CHAT_ROOM_NAME = "turbo-chat";
     private final String POPCORN_CHAT_ROOM_NAME = "popcorn-chat";
 
+    private static RedisClient redisClient;
     private DBWrapper mainDB;
 
     private final Gson GSON = new Gson();
@@ -79,24 +81,38 @@ public class Main implements CommandHandler {
     private final String DB_PREFIX_PLAYER = DB_PREFIX + "player:";
     private final String DB_PREFIX_PREGAME = DB_PREFIX + "pregame:";
 
+
+    public static void main(String[] args) {
+        new Main(args);
+    }
+
     private Main(String[] args) {
+        Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
+
+        //reroute JDA logging to our system
+        SimpleLog.LEVEL = SimpleLog.Level.OFF;
+        SimpleLog.addListener(new JDASimpleLogListener());
 
         log.info("Starting Wolfia v" + App.VERSION);
 
+        //add webhookURI to Discord log appender
+        if (Config.C.errorLogWebHook != null && !"".equals(Config.C.errorLogWebHook)) {
+            LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+            AsyncAppender discordAsync = (AsyncAppender) lc.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_DISCORD");
+            DiscordAppender disco = (DiscordAppender) discordAsync.getAppender("DISCORD");
+            disco.setWebhookUri(Config.C.errorLogWebHook);
+        }
 
         if (Config.C.isDebug)
-
             log.info("Running DEBUG configuration");
-
         else
-
             log.info("Running PRODUCTION configuration");
 
 
         //connect to DB & distribute db objects to classes
         //kill itself if that doesn't work
         RedisURI rUI = RedisURI.builder().withHost("localhost").withPort(6379).withPassword(Config.C.redisAuth).build();
-        RedisClient redisClient = RedisClient.create(rUI);
+        redisClient = RedisClient.create(rUI);
         RedisCommands<String, String> redisSync;
         try {
             redisSync = redisClient.connect().sync();
@@ -107,20 +123,17 @@ public class Main implements CommandHandler {
             mainDB.del("key");
             Player.setDB(new DBWrapper(DB_PREFIX_PLAYER, redisSync, GSON));
 
-            log.trace("established connection to redis DB");
+            log.info("Established connection to redis DB");
         } catch (RedisConnectionException e) {
-            e.printStackTrace();
-            log.error("could not establish connection to redis DB, exiting");
+            log.error("could not establish connection to redis DB, exiting", e);
             return;
         } catch (RedisCommandExecutionException e) {
-            e.printStackTrace();
-            log.error("could not execute commands on redis DB, possibly wrong AUTH, exiting");
+            log.error("could not execute commands on redis DB, possibly wrong AUTH, exiting", e);
             return;
         }
 
 
         //setting up JDA
-        //kill itself it if doesn't work
         MainListener mainListener = new MainListener(this);
         try {
             jda = new JDABuilder(AccountType.BOT)
@@ -130,9 +143,7 @@ public class Main implements CommandHandler {
                     .buildBlocking();
             jda.setAutoReconnect(true);
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("could not create JDA object, possibly invalid bot token, exiting");
-            redisClient.shutdown();
+            log.error("could not create JDA object, possibly invalid bot token, exiting", e);
             return;
         }
 
@@ -142,7 +153,12 @@ public class Main implements CommandHandler {
 
         //start pregame in #turbo-chat
         String asd = mainDB.get("turbochatid", String.class, true);
-        TextChannel turboChannel = jda.getTextChannelById(asd);// try looking for the last channel we used
+        TextChannel turboChannel = null;
+        try {
+            turboChannel = jda.getTextChannelById(asd);// try looking for the last channel we used
+        } catch (IllegalArgumentException e) {
+            //do nothing
+        }
         if (turboChannel == null) mainDB.del("turbochatid"); // clear db of non-existent channel id
 
         if (asd == null || turboChannel == null) { //didn't find a channel, look for it by the default channel name
@@ -168,7 +184,12 @@ public class Main implements CommandHandler {
 
         //start pregame in #popcorn-chat
         String popcornChatId = mainDB.get("popcornchatid", String.class, true);
-        TextChannel popcornChannel = jda.getTextChannelById(popcornChatId);// try looking for the last channel we used
+        TextChannel popcornChannel = null;
+        try {
+            popcornChannel = jda.getTextChannelById(popcornChatId);// try looking for the last channel we used
+        } catch (IllegalArgumentException e) {
+            //do nothing
+        }
         if (popcornChannel == null) mainDB.del("popcornchatid"); // clear db of non-existent channel id
 
         if (popcornChatId == null || popcornChannel == null) { //didn't find a channel, look for it by the default channel name
@@ -187,16 +208,15 @@ public class Main implements CommandHandler {
                 log.warn("could not create chat channel " + POPCORN_CHAT_ROOM_NAME + ", missing permission to create text channels");
             }
         }
-        if (popcornChannel != null) {
-            Pregame pg = new Pregame(popcornChannel, new DBWrapper(DB_PREFIX_PREGAME + popcornChannel.getId() + ":", redisSync, GSON), new Popcorn(popcornChannel));
-            jda.addEventListener(pg.getListener());
+        try {
+            if (popcornChannel != null) {
+                Pregame pg = new Pregame(popcornChannel, new DBWrapper(DB_PREFIX_PREGAME + popcornChannel.getId() + ":", redisSync, GSON), new Popcorn(popcornChannel));
+                jda.addEventListener(pg.getListener());
+            }
+        } catch (Exception e) {
+            log.error("Something went _terribly, terribly_ wrong", e);
         }
     }
-
-    public static void main(String[] args) {
-        new Main(args);
-    }
-
 
     @Override
     public void handleCommand(CommandParser.CommandContainer cmd) {
@@ -212,7 +232,7 @@ public class Main implements CommandHandler {
 
     public static void handleOutputMessage(MessageChannel channel, String msg) {
         try {
-            channel.sendMessage(msg);
+            channel.sendMessage(msg).complete();
         } catch (PermissionException e) {
             log.warn("Could not post a message in channel " + channel.getId() + "due to missing permission " + e.getPermission().name());
             e.printStackTrace();
@@ -223,4 +243,21 @@ public class Main implements CommandHandler {
         PrivateChannel ch = jda.getUserById(userId).getPrivateChannel();
         handleOutputMessage(ch, msg);
     }
+
+    private static final Thread SHUTDOWN_HOOK = new Thread(new Runnable() {
+        @Override
+        public void run() {
+
+
+            //shutdown JDA
+            jda.shutdown();
+
+            //shutdown DB
+            redisClient.shutdown();
+
+            //shutdown logback logger
+            LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+            loggerContext.stop();
+        }
+    });
 }

@@ -14,18 +14,23 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-    jcenter()           // JDA, maybe others
-    mavenCentral()      // everything else
+    jcenter()                               // JDA, maybe others
+    mavenCentral()                          // everything else
+    mavenLocal()                            // local maven repo, mostly for testing stuff
+    maven { url 'https://jitpack.io' }      //for getting builds from github
 }
 
 //TODO check licenses of stuff that is used
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'net.dv8tion:JDA:3.0.0_186'                                             //discord API
-    compile 'org.slf4j:slf4j-simple:1.7.25'                                         //logging framework
+    compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
+    compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
     compile 'biz.paluch.redis:lettuce:4.3.1.Final'                                  //redis client
     compile 'com.google.code.gson:gson:2.8.0'                                       //serialize all the stuff
     compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
+    compile 'com.github.napstr:logback-discord-appender:0.0.2'
+//    compile 'com.squareup.okhttp3:okhttp:3.7.0'
 }
 
 task wrapper(type: Wrapper) {
@@ -39,3 +44,5 @@ processResources {
         }
     }
 }
+
+compileJava.options.encoding = 'UTF-8'

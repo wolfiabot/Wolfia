@@ -66,6 +66,7 @@ public class Config {
     //sneaky sneaky
     public final String discordToken;
     public final String redisAuth;
+    public final String errorLogWebHook;
 
     @SuppressWarnings("unchecked")
     public Config() throws IOException {
@@ -102,5 +103,7 @@ public class Config {
                 redisAuth = redis.getOrDefault("prod", "");
         else
             redisAuth = "";
+
+        errorLogWebHook = (String) sneaky.getOrDefault("errorLogWebHook", "");
     }
 }

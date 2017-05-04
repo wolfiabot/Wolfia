@@ -116,4 +116,4 @@ gradle-app.setting
 
 *sneaky.yaml
 
-log.txt
+/logs/
