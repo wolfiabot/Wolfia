@@ -54,7 +54,7 @@
 //            final HtmlDivision div = page.getHtmlElementById("some_div_id");
 //            final HtmlAnchor anchor = page.getAnchorByName("anchor_name");
 //        } catch (IOException e) {
-//            e.printStackTrace();
+//            log.error(e);//TODO
 //        }
 //
 //

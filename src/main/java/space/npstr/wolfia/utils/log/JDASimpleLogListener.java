@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.utils.log;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.utils.SimpleLog;
@@ -32,7 +32,7 @@ public class JDASimpleLogListener implements SimpleLog.LogListener {
     private static final Logger ourLog = LoggerFactory.getLogger(JDA.class);
 
     @Override
-    public void onLog(SimpleLog log, SimpleLog.Level logLevel, Object message) {
+    public void onLog(final SimpleLog log, final SimpleLog.Level logLevel, final Object message) {
         if (logLevel == SimpleLog.Level.ALL) {
             ourLog.trace(message.toString());
         } else if (logLevel == SimpleLog.Level.TRACE) {
@@ -51,7 +51,7 @@ public class JDASimpleLogListener implements SimpleLog.LogListener {
     }
 
     @Override
-    public void onError(SimpleLog log, Throwable err) {
+    public void onError(final SimpleLog log, final Throwable err) {
         ourLog.error("", err);
     }
 }

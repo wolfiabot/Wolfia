@@ -15,45 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
-
-import space.npstr.wolfia.Main;
+package space.npstr.wolfia.db;
 
 /**
  * Created by npstr on 23.08.2016
  * <p>
- * just provides static methods to access player data on the DB
+ * Represents a Player
  */
 public class Player {
 
     private static DBWrapper db;
 
+    //this is a static helper class
     private Player() {
     }
 
     public static void setDB(DBWrapper db) {
         Player.db = db;
-    }
-
-    public static String asMention(String userId) {
-        return "<@" + userId + ">";
-    }
-
-    public static String getDiscordNick(String userId) {
-        return Main.jda.getUserById(userId).getName();
-    }
-
-    public static int getSingups(String userId) {
-        Integer singups = db.get("singups:" + userId, Integer.class);
-        if (singups == null) singups = 0;
-        return singups;
-    }
-
-    public static int singup(String userId) {
-        int singups = getSingups(userId);
-        singups++;
-        db.set("singups:" + userId, singups);
-        return singups;
     }
 
 

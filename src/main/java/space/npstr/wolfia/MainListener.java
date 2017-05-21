@@ -22,61 +22,47 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.utils.CommandParser;
+import space.npstr.wolfia.commands.meta.CommandHandler;
+import space.npstr.wolfia.commands.meta.CommandParser;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by npstr on 25.08.2016
  */
-class MainListener extends ListenerAdapter implements CommandListener {
-
-    private final String PREFIX = "!";
+class MainListener extends ListenerAdapter {
 
     private final static Logger log = LoggerFactory.getLogger(MainListener.class);
 
+    //todo decide if unlimited threads are ok, or impose a limit
+    private static final ExecutorService commandExecutor = Executors.newCachedThreadPool();
 
-    private CommandHandler main;
-
-    public MainListener(CommandHandler main) {
-        super();
-        this.main = main;
+    public MainListener() {
     }
 
-    //keeps track of last activity of a user
-    //TODO sort this out
-//    @Override
-//    public void onEvent(Event event) {
-//        super.onEvent(event);
-//        if (event instanceof GenericMessageEvent) {
-//            User u = ((GenericMessageEvent) event).getAuthor();
-//            if (u != null) {
-//                Player.justSeen(u.getId());
-//            }
-//        }
-//    }
-
+    //sort the checks here approximately by widest and cheapest filters higher up, and put expensive filters lower
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
-
+    public void onMessageReceived(final MessageReceivedEvent event) {
+        //ignore messages not starting with the prefix
+        final String raw = event.getMessage().getRawContent();
+        if (!raw.startsWith(Config.PREFIX)) {
+            return;
+        }
         //bot should ignore itself
-        if (event.getMessage().getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
+        if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
+            return;
+        }
+        //ignore channel where don't have sending permissions
+        if (!event.getTextChannel().canTalk()) {
             return;
         }
 
-        //ignore channels from an ignore list, like those that have a game going
-
-        //does the message have our prefix?
-        if (event.getMessage().getContent().startsWith(PREFIX)) {
-            main.handleCommand(CommandParser.parse(PREFIX, event.getMessage().getContent().toLowerCase(), event));
-        }
+        commandExecutor.submit(() -> CommandHandler.handleCommand(CommandParser.parse(Config.PREFIX, raw, event)));
     }
 
     @Override
-    public void onReady(ReadyEvent event) {
-        log.trace("Logged in as: " + event.getJDA().getSelfUser().getName());
-    }
-
-    @Override
-    public String getPrefix() {
-        return PREFIX;
+    public void onReady(final ReadyEvent event) {
+        log.info("Logged in as: " + event.getJDA().getSelfUser().getName());
     }
 }

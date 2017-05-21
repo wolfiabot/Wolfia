@@ -15,43 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.pregame.commands;
+package space.npstr.wolfia.commands;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import space.npstr.wolfia.Command;
-import space.npstr.wolfia.CommandListener;
-import space.npstr.wolfia.pregame.Pregame;
+import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.meta.CommandParser;
+import space.npstr.wolfia.commands.meta.ICommand;
+import space.npstr.wolfia.game.GameSetup;
+import space.npstr.wolfia.game.Setups;
 
 /**
  * Created by npstr on 14.09.2016
  * <p>
  * any signed up player can use this command to start a game
  */
-public class StartCommand extends Command {
+public class StartCommand implements ICommand {
 
     public final static String COMMAND = "start";
-    private final String HELP = "```usage: " + getListener().getPrefix()
-            + COMMAND + " \nto start the game. Game will only start if enough players have signed up\n";
 
-    private Pregame pg;
-
-    public StartCommand(CommandListener listener, Pregame pregame) {
-        super(listener);
-        this.pg = pregame;
+    public StartCommand() {
     }
 
     @Override
-    public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
+    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
         return true;
     }
 
     @Override
-    public boolean execute(String[] args, MessageReceivedEvent event) {
-        return pg.startGame();
+    public void execute(final CommandParser.CommandContainer commandInfo) {
+
+        final GameSetup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
+        if (setup == null) {
+            Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
+                    "Please start setting up a game in this channel with `%s%s`", Config.PREFIX, SetupCommand.COMMAND);
+        } else {
+            setup.startGame();
+        }
     }
 
     @Override
     public String help() {
-        return HELP;
+        return "```usage: " + Config.PREFIX + COMMAND
+                + " \nto start the game. Game will only start if enough players have signed up\n";
     }
 }

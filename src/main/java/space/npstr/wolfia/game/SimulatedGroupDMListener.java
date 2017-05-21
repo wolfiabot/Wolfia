@@ -15,13 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Main;
+import space.npstr.wolfia.Wolfia;
 
 import java.util.Set;
 
@@ -33,31 +33,31 @@ import java.util.Set;
  */
 public class SimulatedGroupDMListener extends ListenerAdapter {
 
-    private Set<String> users;
+    private final Set<String> users;
 
     /**
      * @param users the people that should receive the simulated group dm
      */
-    public SimulatedGroupDMListener(Set<String> users) {
-        super();
+    public SimulatedGroupDMListener(final Set<String> users) {
         this.users = users;
         if (Config.C.isDebug) users.add(Config.NAPSTER_ID);
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onMessageReceived(final MessageReceivedEvent event) {
         //bot should ignore itself
         if (event.getMessage().getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
             return;
         }
 
+        //todo these complete()s are kinda meh
         //if sent from a user of this group in a private channel to the bot
-        if (users.contains(event.getAuthor().getId()) && event.getAuthor().getPrivateChannel().getId().equals(event.getChannel().getId())) {
+        if (this.users.contains(event.getAuthor().getId()) && event.getAuthor().openPrivateChannel().complete().getId().equals(event.getChannel().getId())) {
             //echo the message to the users of this group
-            for (String userId : users) {
+            for (final String userId : this.users) {
                 if (userId.equals(event.getAuthor().getId())) continue; //skip the sender of the message
-                PrivateChannel pChan = event.getJDA().getUserById(userId).getPrivateChannel();
-                Main.handleOutputMessage(pChan, event.getAuthor().getName() + ": " + event.getMessage().getContent());
+                final PrivateChannel pChan = event.getJDA().getUserById(userId).openPrivateChannel().complete();
+                Wolfia.handleOutputMessage(pChan, event.getAuthor().getName() + ": " + event.getMessage().getContent());
             }
         }
     }

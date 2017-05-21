@@ -3,12 +3,13 @@ plugins {
     id 'application'
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '1.2.4'
+    id 'com.sedmelluq.jdaction' version '1.0.1' //check for unused RestActions
 }
 
 group = 'space.npstr'
-version = '0.4.1'
+version = '0.4.2-SNAPSHOT'
 
-mainClassName = "space.npstr.wolfia.Main"
+mainClassName = "space.npstr.wolfia.Wolfia"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -23,7 +24,7 @@ repositories {
 //TODO check licenses of stuff that is used
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'net.dv8tion:JDA:3.0.0_186'                                             //discord API
+    compile 'net.dv8tion:JDA:3.1.0_204'                                             //discord API
     compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
     compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
     compile 'biz.paluch.redis:lettuce:4.3.1.Final'                                  //redis client
@@ -45,4 +46,5 @@ processResources {
     }
 }
 
+compileJava.dependsOn 'clean'
 compileJava.options.encoding = 'UTF-8'

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration debug="false">
 
-    <statusListener class="space.npstr.wolfia.utils.StatusToFileListener">
+    <statusListener class="space.npstr.wolfia.utils.log.StatusToFileListener">
         <file>logs/logback_status.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
@@ -10,13 +10,13 @@
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%-36(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
+            <pattern>%-40(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
         </encoder>
     </statusListener>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%-36(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
+            <pattern>%-40(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
@@ -33,7 +33,7 @@
         </rollingPolicy>
 
         <encoder>
-            <pattern>%-36(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
+            <pattern>%-40(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>INFO</level>
@@ -50,7 +50,7 @@
         </rollingPolicy>
 
         <encoder>
-            <pattern>%-36(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
+            <pattern>%-40(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
         </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
@@ -68,13 +68,13 @@
         </rollingPolicy>
 
         <encoder>
-            <pattern>%-36(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
+            <pattern>%-40(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
     <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n```%ex{full}```</pattern>
+            <pattern>%d{HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n```java%n%ex{full}%n```</pattern>
         </layout>
         <username>Discurd</username>
         <avatarUrl>

@@ -15,42 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.pregame.commands;
+package space.npstr.wolfia.commands.unhaim;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import space.npstr.wolfia.Command;
-import space.npstr.wolfia.CommandListener;
-import space.npstr.wolfia.pregame.Pregame;
+import space.npstr.wolfia.Config;
+import space.npstr.wolfia.commands.meta.CommandParser;
+import space.npstr.wolfia.commands.meta.ICommand;
 
 /**
- * Created by npstr on 23.08.2016
+ * Created by npstr on 09.11.2016
  */
-public class OutCommand extends Command {
+public class GiveGunCommand implements ICommand {
 
-    public static final String COMMAND = "out";
-    private final String HELP = "```usage: " + getListener().getPrefix() + COMMAND + "\nwill remove you from the current signup list```";
+    public final static String COMMAND = "gun";
 
-    private final Pregame pg;
-
-    public OutCommand(CommandListener l, Pregame pg) {
-        super(l);
-        this.pg = pg;
+    public GiveGunCommand() {
     }
 
     @Override
-    public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
-        return true;
+    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
+        return false;
     }
 
     @Override
-    public boolean execute(String[] args, MessageReceivedEvent event) {
-        pg.outPlayer(event.getAuthor().getId());
-        return true;
+    public void execute(final CommandParser.CommandContainer commandInfo) {
+
     }
 
     @Override
     public String help() {
-        return HELP;
+        return "```usage: " + Config.PREFIX + COMMAND + " <player>\nto give <player> the gun. This is not a voting, "
+                + "this happens immediately, so remember to consult your teams opinion first.```";
     }
-
 }

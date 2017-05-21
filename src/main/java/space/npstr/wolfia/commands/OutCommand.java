@@ -15,42 +15,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.pregame.commands;
+package space.npstr.wolfia.commands;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import space.npstr.wolfia.Command;
-import space.npstr.wolfia.CommandListener;
-import space.npstr.wolfia.pregame.Pregame;
+import space.npstr.wolfia.Config;
+import space.npstr.wolfia.commands.meta.CommandParser;
+import space.npstr.wolfia.commands.meta.ICommand;
+import space.npstr.wolfia.game.GameSetup;
+import space.npstr.wolfia.game.Setups;
 
 /**
- * Created by npstr on 22.10.2016
+ * Created by npstr on 23.08.2016
  */
-public class ConfirmCommand extends Command {
+public class OutCommand implements ICommand {
 
-    public final static String COMMAND = "confirm";
-    private final String HELP = "```usage: " + getListener().getPrefix()
-            + COMMAND + " \nto start the game. Game will only start if enough players have signed up\n";
+    public static final String COMMAND = "out";
 
-    private Pregame pg;
 
-    public ConfirmCommand(CommandListener listener, Pregame pg) {
-        super(listener);
-        this.pg = pg;
+    public OutCommand() {
     }
 
     @Override
-    public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
+    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
         return true;
     }
 
     @Override
-    public boolean execute(String[] args, MessageReceivedEvent event) {
-        pg.confirm(event.getAuthor().getId());
-        return false;
+    public void execute(final CommandParser.CommandContainer commandInfo) {
+        final GameSetup setup = Setups.get(commandInfo.event.getChannel().getIdLong());
+        if (setup != null) {
+            setup.outPlayer(commandInfo.event.getAuthor().getIdLong());
+        }
     }
 
     @Override
     public String help() {
-        return HELP;
+        return "```usage: " + Config.PREFIX + COMMAND + "\nwill remove you from the current signup list```";
     }
+
 }

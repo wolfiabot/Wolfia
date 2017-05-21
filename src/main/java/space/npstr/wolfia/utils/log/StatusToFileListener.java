@@ -15,10 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.utils.log;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.status.Status;
@@ -29,11 +30,11 @@ import ch.qos.logback.core.status.StatusListener;
  * <p>
  * Write logback's status updates to a file.
  */
-public class StatusToFileListener extends RollingFileAppender implements StatusListener {
+public class StatusToFileListener extends RollingFileAppender<ILoggingEvent> implements StatusListener {
 
     @Override
-    public void addStatusEvent(Status status) {
-        Level level;
+    public void addStatusEvent(final Status status) {
+        final Level level;
         switch (status.getLevel()) {
             case Status.INFO:
                 level = Level.INFO;
@@ -47,7 +48,7 @@ public class StatusToFileListener extends RollingFileAppender implements StatusL
             default:
                 level = Level.INFO;
         }
-        LoggingEvent event = new LoggingEvent(StatusToFileListener.class.getSimpleName(),
+        final LoggingEvent event = new LoggingEvent(StatusToFileListener.class.getSimpleName(),
                 new LoggerContext().getLogger(StatusToFileListener.class),
                 level,
                 status.getMessage(),

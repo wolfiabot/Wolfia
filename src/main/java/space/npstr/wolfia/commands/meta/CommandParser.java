@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.commands.meta;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
@@ -27,31 +27,31 @@ import java.util.Collections;
  */
 public class CommandParser {
 
-    public static CommandContainer parse(String prefix, String rw, MessageReceivedEvent e) {
-        ArrayList<String> split = new ArrayList<>();
-        String beheaded = rw.replaceFirst(prefix, "");
-        String[] splitBeheaded = beheaded.split(" ");
+    public static CommandContainer parse(final String prefix, final String rw, final MessageReceivedEvent e) {
+        final ArrayList<String> split = new ArrayList<>();
+        final String beheaded = rw.replaceFirst(prefix, "");
+        final String[] splitBeheaded = beheaded.split(" ");
         Collections.addAll(split, splitBeheaded);
-        String invoke = split.get(0);
-        String[] args = new String[split.size() - 1];
+        final String command = split.get(0);
+        final String[] args = new String[split.size() - 1];
         split.subList(1, split.size()).toArray(args);
 
-        return new CommandContainer(rw, beheaded, splitBeheaded, invoke, args, e);
+        return new CommandContainer(rw, beheaded, splitBeheaded, command, args, e);
     }
 
     public static class CommandContainer {
-        public final String raw;
-        public final String beheaded;
-        public final String[] splitBeheaded;
-        public final String invoke;
-        public final String[] args;
-        public final MessageReceivedEvent event;
+        public final String raw; //the full thing
+        public final String beheaded; //without the prefix
+        public final String[] splitBeheaded; //without the prefix, split by " "
+        public final String command; // the actual command
+        public final String[] args; // the actual arguments
+        public final MessageReceivedEvent event; //underlying event
 
-        public CommandContainer(String rw, String beheaded, String[] splitBeheaded, String invoke, String[] args, MessageReceivedEvent e) {
+        public CommandContainer(final String rw, final String beheaded, final String[] splitBeheaded, final String command, final String[] args, final MessageReceivedEvent e) {
             this.raw = rw;
             this.beheaded = beheaded;
             this.splitBeheaded = splitBeheaded;
-            this.invoke = invoke;
+            this.command = command;
             this.args = args;
             this.event = e;
         }

@@ -15,57 +15,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.pregame.commands;
+package space.npstr.wolfia.commands;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import space.npstr.wolfia.Command;
-import space.npstr.wolfia.CommandListener;
-import space.npstr.wolfia.Main;
+import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.meta.CommandParser;
+import space.npstr.wolfia.commands.meta.ICommand;
 
 import java.util.Map;
 
 /**
  * Created by npstr on 09.09.2016
  */
-public class HelpCommand extends Command {
+public class HelpCommand implements ICommand {
 
     public final static String COMMAND = "help";
-    private final String HELP = "```usage: " + getListener().getPrefix() + COMMAND + " (<command>)\nto see all available commands " +
-            "for this channel or see the help for a specific command```";
 
-    private final Map<String, Command> commands;
+    private final Map<String, ICommand> commands;
 
-    public HelpCommand(CommandListener l, Map<String, Command> commands) {
-        super(l);
+    public HelpCommand(final Map<String, ICommand> commands) {
         this.commands = commands;
     }
 
     @Override
-    public boolean argumentsValid(String[] args, MessageReceivedEvent event) {
+    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
         if (args.length > 0) {
-            if (commands.get(args[0]) == null)
+            if (this.commands.get(args[0]) == null)
                 return false;
         }
         return true;
     }
 
     @Override
-    public boolean execute(String[] args, MessageReceivedEvent event) {
+    public void execute(final CommandParser.CommandContainer commandInfo) {
         String out;
-        if (args.length < 1) {
+        if (commandInfo.args.length < 1) {
             out = "Available commands in this channel:\n```";
-            for (String s : commands.keySet()) out += getListener().getPrefix() + s + ", ";
-            if (commands.size() > 0) out = out.substring(0, out.length() - 2);
+            for (final String s : this.commands.keySet()) out += Config.PREFIX + s + ", ";
+            if (this.commands.size() > 0) out = out.substring(0, out.length() - 2);
             out += "```";
         } else {
-            out = commands.get(args[0]).help();
+            out = this.commands.get(commandInfo.args[0]).help();
         }
-        Main.handleOutputMessage(event.getTextChannel(), out);
-        return true;
+        Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), out);
     }
 
     @Override
     public String help() {
-        return HELP;
+        return "```usage: " + Config.PREFIX + COMMAND + " (<command>)\nto see all available commands for this channel "
+                + "or see the help for a specific command```";
     }
 }

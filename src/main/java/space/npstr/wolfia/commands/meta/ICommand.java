@@ -15,12 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia;
+package space.npstr.wolfia.commands.meta;
+
+
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 /**
- * Created by npstr on 14.09.2016
+ * Created by npstr on 23.08.2016
  */
-public interface CommandListener {
+public interface ICommand {
 
-    String getPrefix();
+    //this is called to check whether the arguments the user provided are ok
+    default boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
+        return true;
+    }
+
+    //executes the command
+    void execute(CommandParser.CommandContainer commandInfo);
+
+    //return a help string that should explain the usage of this command
+    String help();
 }

@@ -15,34 +15,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia;
+package space.npstr.wolfia.game;
 
-import net.dv8tion.jda.core.entities.Channel;
+import space.npstr.wolfia.commands.meta.CommandParser;
+import space.npstr.wolfia.commands.meta.IGameCommand;
+import space.npstr.wolfia.utils.IllegalGameStateException;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by npstr on 14.09.2016
  */
-public interface Game {
+public abstract class Game {
 
-    public int getAmountOfPlayers();
+    public abstract Set<Integer> getAmountOfPlayers();
 
-    public void start(Set<String> players);
+    public abstract void start(Set<Long> players);
 
-    public boolean enoughPlayers(int signedUp);
+    public abstract boolean isAcceptablePlayerCount(int signedUp);
 
-    public Map<String, Command> getGameCommands();
+    public abstract void issueCommand(IGameCommand command, CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;
 
     /**
      * this should revert each and everything the game touches in terms of discord roles and permissions to normal
      * most likely this includes deleting all discord roles used in the game and resetting @everyone permissions for the game channel
      */
-    public void resetRolesAndPermissions();
+    public abstract void resetRolesAndPermissions();
 
     /**
      * @return Returns the main channel where the game is running
      */
-    public Channel getChannel();
+    public abstract long getChannelId();
+
+    /**
+     * @return a status of the game
+     */
+    public abstract String getStatus();
 }
