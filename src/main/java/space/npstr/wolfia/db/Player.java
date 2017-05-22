@@ -30,19 +30,19 @@ public class Player {
     private Player() {
     }
 
-    public static void setDB(DBWrapper db) {
+    public static void setDB(final DBWrapper db) {
         Player.db = db;
     }
 
 
-    public static long lastSeen(String userId) {
-        Long result = db.get("lastSeen:" + userId, Long.class);
-        if (result == null) result = 0L;
-        return result;
-    }
-
-    public static void justSeen(String userId) {
-        db.set("lastSeen:" + userId, System.currentTimeMillis());
-    }
+//    public static long lastSeen(String userId) {
+//        Long result = db.get("lastSeen:" + userId, Long.class);
+//        if (result == null) result = 0L;
+//        return result;
+//    }
+//
+//    public static void justSeen(String userId) {
+//        db.set("lastSeen:" + userId, System.currentTimeMillis());
+//    }
 
 }

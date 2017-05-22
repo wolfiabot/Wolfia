@@ -49,7 +49,8 @@ public class Setups {
     public static GameSetup createNew(final long channelId) {
         final GameSetup setup = new GameSetup(channelId);
         //TODO do we need to check the channel for not being private, or other prerequisites?
-        return SETUP_REGISTRY.put(channelId, setup);
+        SETUP_REGISTRY.put(channelId, setup);
+        return setup;
     }
 
 }

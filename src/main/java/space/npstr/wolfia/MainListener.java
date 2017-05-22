@@ -58,6 +58,7 @@ class MainListener extends ListenerAdapter {
             return;
         }
 
+        log.info("User {}, channel {}, command {}", event.getAuthor().getIdLong(), event.getChannel().getIdLong(), event.getMessage().getRawContent());
         commandExecutor.submit(() -> CommandHandler.handleCommand(CommandParser.parse(Config.PREFIX, raw, event)));
     }
 

@@ -39,11 +39,6 @@ import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import com.github.napstr.logback.DiscordAppender;
 import com.google.gson.Gson;
-import com.lambdaworks.redis.RedisClient;
-import com.lambdaworks.redis.RedisCommandExecutionException;
-import com.lambdaworks.redis.RedisConnectionException;
-import com.lambdaworks.redis.RedisURI;
-import com.lambdaworks.redis.api.sync.RedisCommands;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -55,8 +50,6 @@ import net.dv8tion.jda.core.utils.SimpleLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.commands.meta.ICommand;
-import space.npstr.wolfia.db.DBWrapper;
-import space.npstr.wolfia.db.Player;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
@@ -69,8 +62,8 @@ public class Wolfia {
     private final HashMap<String, ICommand> commands = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
 
-    private static RedisClient redisClient;
-    private static DBWrapper mainDB;
+//    private static RedisClient redisClient;
+//    private static DBWrapper mainDB;
 
     private static final Gson GSON = new Gson();
     private static final String DB_PREFIX = "wolfia:";
@@ -103,26 +96,26 @@ public class Wolfia {
             log.info("Running PRODUCTION configuration");
 
         //connect to DB & distribute db objects to classes
-        final RedisURI rUI = RedisURI.builder().withHost("localhost").withPort(6379).withPassword(Config.C.redisAuth).build();
-        redisClient = RedisClient.create(rUI);
-        final RedisCommands<String, String> redisSync;
-        try {
-            redisSync = redisClient.connect().sync();
-            mainDB = new DBWrapper(DB_PREFIX, redisSync, GSON);
-            //try writing and reading as a simple test
-            mainDB.set("key", "value");
-            mainDB.get("key", String.class);
-            mainDB.del("key");
-            Player.setDB(new DBWrapper(DB_PREFIX_PLAYER, redisSync, GSON));
-
-            log.info("Established connection to redis DB");
-        } catch (final RedisConnectionException e) {
-            log.error("could not establish connection to redis DB, exiting", e);
-            return;
-        } catch (final RedisCommandExecutionException e) {
-            log.error("could not execute commands on redis DB, possibly wrong AUTH, exiting", e);
-            return;
-        }
+//        final RedisURI rUI = RedisURI.builder().withHost("localhost").withPort(6379).withPassword(Config.C.redisAuth).build();
+//        redisClient = RedisClient.create(rUI);
+//        final RedisCommands<String, String> redisSync;
+//        try {
+//            redisSync = redisClient.connect().sync();
+//            mainDB = new DBWrapper(DB_PREFIX, redisSync, GSON);
+//            //try writing and reading as a simple test
+//            mainDB.set("key", "value");
+//            mainDB.get("key", String.class);
+//            mainDB.del("key");
+//            Player.setDB(new DBWrapper(DB_PREFIX_PLAYER, redisSync, GSON));
+//
+//            log.info("Established connection to redis DB");
+//        } catch (final RedisConnectionException e) {
+//            log.error("could not establish connection to redis DB, exiting", e);
+//            return;
+//        } catch (final RedisCommandExecutionException e) {
+//            log.error("could not execute commands on redis DB, possibly wrong AUTH, exiting", e);
+//            return;
+//        }
 
 
         new Wolfia();
@@ -174,7 +167,7 @@ public class Wolfia {
             jda.shutdown(true);
 
             //shutdown DB
-            redisClient.shutdown();
+//            redisClient.shutdown();
 
             //shutdown logback logger
             final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();

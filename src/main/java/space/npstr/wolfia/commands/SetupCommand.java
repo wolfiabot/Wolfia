@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
@@ -43,6 +44,6 @@ public class SetupCommand implements ICommand {
 
     @Override
     public String help() {
-        return null;
+        return "```usage: " + Config.PREFIX + COMMAND + "\nto start setting up a game in this channel```";
     }
 }

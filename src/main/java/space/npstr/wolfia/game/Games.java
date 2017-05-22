@@ -46,11 +46,4 @@ public class Games {
     public static void set(final Game game) {
         GAME_REGISTRY.put(game.getChannelId(), game);
     }
-
-//    //currently only supports popcorn games
-//    public static Game createNew(final long channelId) {
-//        final Game game = new Popcorn(channelId);
-//        return GAME_REGISTRY.put(channelId, game);
-//    }
-
 }
