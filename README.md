@@ -1,4 +1,4 @@
-# Wolfia [![Dependency Status](https://www.versioneye.com/user/projects/592b1be8c0295d002dd17a34/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/592b1be8c0295d002dd17a34)
+# Wolfia [![Build Status](https://travis-ci.org/napstr/wolfia.svg?branch=master)](https://travis-ci.org/napstr/wolfia) [![Dependency Status](https://www.versioneye.com/user/projects/592b1be8c0295d002dd17a34/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/592b1be8c0295d002dd17a34)
 ## A Discord bot to play Mafia/Werewolf games.
 
 Currently supported: Popcorn Mafia
