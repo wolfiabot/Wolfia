@@ -27,7 +27,7 @@ package space.npstr.wolfia;
  * <p>
  * Access to Message History to provide chatlogs
  * <p>
- * Manage Roles permission to mute and unmute players/channels during ongoing games
+ * Manage RoleUtils permission to mute and unmute players/channels during ongoing games
  * <p>
  * <p>
  * Nice to have:

@@ -31,7 +31,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by npstr on 25.08.2016
  */
-class MainListener extends ListenerAdapter {
+public class MainListener extends ListenerAdapter {
 
     private final static Logger log = LoggerFactory.getLogger(MainListener.class);
 

@@ -78,20 +78,20 @@ public class Popcorn extends Game {
     private void prepareChannel(final Set<Long> players) throws PermissionException {
 
 //        // - ensure write access for the bot in the game channel
-//        final Role botRole = Roles.getOrCreateRole(this.channel.getGuild(), Config.BOT_ROLE_NAME);
+//        final Role botRole = RoleUtils.getOrCreateRole(this.channel.getGuild(), Config.BOT_ROLE_NAME);
 //        this.channel.getGuild().getController().addRolesToMember(this.channel.getGuild().getMemberById(Wolfia.jda.getSelfUser().getId()), botRole).complete();
 //
-//        Roles.grant(this.channel, botRole, Permission.MESSAGE_WRITE, true);
+//        RoleUtils.grant(this.channel, botRole, Permission.MESSAGE_WRITE, true);
 //
 //
 //        // - read only access for @everyone in the game channel
-//        Roles.grant(this.channel, this.channel.getGuild().getPublicRole(), Permission.MESSAGE_WRITE, false);
+//        RoleUtils.grant(this.channel, this.channel.getGuild().getPublicRole(), Permission.MESSAGE_WRITE, false);
 //
 //
 //        // - write permission for the players
-//        Roles.deleteRole(this.channel.getGuild(), Config.POPCORN_PLAYER_ROLE_NAME);
-//        final Role playerRole = Roles.getOrCreateRole(this.channel.getGuild(), Config.POPCORN_PLAYER_ROLE_NAME);
-//        Roles.grant(this.channel, playerRole, Permission.MESSAGE_WRITE, true);
+//        RoleUtils.deleteRole(this.channel.getGuild(), Config.POPCORN_PLAYER_ROLE_NAME);
+//        final Role playerRole = RoleUtils.getOrCreateRole(this.channel.getGuild(), Config.POPCORN_PLAYER_ROLE_NAME);
+//        RoleUtils.grant(this.channel, playerRole, Permission.MESSAGE_WRITE, true);
 //
 //        for (final String userId : players) {
 //            this.channel.getGuild().getController().addRolesToMember(this.channel.getGuild().getMemberById(userId), playerRole).complete();
@@ -201,7 +201,7 @@ public class Popcorn extends Game {
         // - start the game
         this.running = true;
         //mention the players in the thread
-        Wolfia.handleOutputMessage(channel, "Game has started!\n%s\n%s wolves are alive!", listLivingPlayers(), getLivingWolves().size());
+        Wolfia.handleOutputMessage(channel, "Game has started!\n%s\n**%s** wolves are alive!", listLivingPlayers(), getLivingWolves().size());
         distributeGun();
     }
 
@@ -429,7 +429,7 @@ public class Popcorn extends Game {
     public void resetRolesAndPermissions() {
 //        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
 //        //delete roles used by the game; the BOT_ROLE can stay
-//        Roles.deleteRole(channel.getGuild(), Config.POPCORN_PLAYER_ROLE_NAME);
+//        RoleUtils.deleteRole(channel.getGuild(), Config.POPCORN_PLAYER_ROLE_NAME);
 //
 //        //reset permissions for @everyone in the game channel
 //        channel.getPermissionOverride(channel.getGuild().getPublicRole()).delete().complete();

@@ -31,17 +31,17 @@ import net.dv8tion.jda.core.managers.RoleManager;
  * <p>
  * This class is there to easy handling roles, like their creation, assignment to players, and granting and denying rights
  */
-public class Roles {
+public class RoleUtils {
 
     /**
      * @param guild Guild aka Server where the bot operates and where from the role shall be retrieved/created
-     * @param name  Name of the role that shall be retrieved/dreated
+     * @param name  Name of the role that shall be retrieved/created
      * @return Returns a role with the required name
      */
-    public static Role getOrCreateRole(Guild guild, String name) {
+    public static Role getOrCreateRole(final Guild guild, final String name) {
 
         RoleManager rm = null;
-        for (Role r : guild.getRolesByName(name, true)) {
+        for (final Role r : guild.getRolesByName(name, true)) {
             if (r.getName().equals(name)) {
                 rm = r.getManager();
                 break;
@@ -57,13 +57,13 @@ public class Roles {
     /**
      * @param channel Channel where this role and permission should take effect
      * @param r       Role that will be granted/denied the permission
-     * @param p       Permission that shall be granted/denien to the role
+     * @param p       Permission that shall be granted/denied to the role
      * @param grant   true to grant, false to deny
      */
-    public static void grant(Channel channel, Role r, Permission p, boolean grant) {
-        RoleManager rm = r.getManager();
-        PermissionOverride po = channel.getPermissionOverride(rm.getRole());
-        PermOverrideManager pom;
+    public static void grant(final Channel channel, final Role r, final Permission p, final boolean grant) {
+        final RoleManager rm = r.getManager();
+        final PermissionOverride po = channel.getPermissionOverride(rm.getRole());
+        final PermOverrideManager pom;
         if (po == null) pom = channel.createPermissionOverride(r).complete().getManager();
         else pom = po.getManager();
 
@@ -75,8 +75,8 @@ public class Roles {
      * @param g    Guild where the Role shall be deleted
      * @param name Name of the Role to be deleted. All roles with this name will be deleted
      */
-    public static void deleteRole(Guild g, String name) {
-        for (Role r : g.getRolesByName(name, true)) {
+    public static void deleteRole(final Guild g, final String name) {
+        for (final Role r : g.getRolesByName(name, true)) {
             if (r.getName().equals(name)) {
                 r.getManager().getRole().delete().complete();
             }
