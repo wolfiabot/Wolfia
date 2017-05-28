@@ -1,4 +1,5 @@
-# Wolfia, a Discord bot to play Mafia/Werewolf games.
+# Wolfia [![Dependency Status](https://www.versioneye.com/user/projects/592b1be8c0295d002dd17a34/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/592b1be8c0295d002dd17a34)
+## A Discord bot to play Mafia/Werewolf games.
 
 Currently supported: Popcorn Mafia
 
