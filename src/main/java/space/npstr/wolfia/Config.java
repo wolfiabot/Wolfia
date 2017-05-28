@@ -18,9 +18,14 @@
 package space.npstr.wolfia;
 
 
+import net.dv8tion.jda.core.requests.Requester;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import space.npstr.wolfia.utils.App;
 
 import java.io.File;
 import java.io.FileReader;
@@ -35,14 +40,7 @@ import java.util.Map;
  */
 public class Config {
 
-    //TODO sort these out
-    public static final String BOT_ROLE_NAME = "Turbot";
-    public static final String POPCORN_PLAYER_ROLE_NAME = "Popcorn Player"; //these role names shouldn't be used on the server cause this bot will overwrite them
-    //TODO: use this variable as the default prefix in every class that uses a prefix
     public static final String PREFIX = "w.";
-
-    public static final String NAPSTER_ID = "166604053629894657";
-
 
     private static final Logger log = LoggerFactory.getLogger(Config.class);
 
@@ -53,7 +51,7 @@ public class Config {
         Config c;
         try {
             c = new Config();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             c = null;
             log.error("Could not load config files!" + e);
         }
@@ -68,42 +66,63 @@ public class Config {
     public final String redisAuth;
     public final String errorLogWebHook;
 
-    @SuppressWarnings("unchecked")
+
+    //load even more values
+    public final long ownerId;
+
+    @SuppressWarnings(value = "unchecked")
     public Config() throws IOException {
 
-        File sneakyFile = new File("sneaky.yaml");
-        File configFile = new File("config.yaml");
+        final File sneakyFile = new File("sneaky.yaml");
+        final File configFile = new File("config.yaml");
 
-        Yaml yaml = new Yaml();
+        final Yaml yaml = new Yaml();
 
-        Map<String, Object> config = (Map<String, Object>) yaml.load(new FileReader(configFile));
-        Map<String, Object> sneaky = (Map<String, Object>) yaml.load(new FileReader(sneakyFile));
+        final Map<String, Object> config = (Map<String, Object>) yaml.loadAs(new FileReader(configFile), Map.class);
+        final Map<String, Object> sneaky = (Map<String, Object>) yaml.load(new FileReader(sneakyFile));
         //change nulls to empty strings
         config.keySet().forEach((String key) -> config.putIfAbsent(key, ""));
         sneaky.keySet().forEach((String key) -> sneaky.putIfAbsent(key, ""));
 
         //config stuff
-        isDebug = (boolean) config.getOrDefault("debug", false);
+        this.isDebug = (boolean) config.getOrDefault("debug", false);
 
         //sneaky stuff
-        Map<String, String> tokens = (Map) sneaky.get("discordToken");
+        final Map<String, String> tokens = (Map) sneaky.get("discordToken");
         if (tokens != null)
-            if (isDebug)
-                discordToken = tokens.getOrDefault("debug", "");
+            if (this.isDebug)
+                this.discordToken = tokens.getOrDefault("debug", "");
             else
-                discordToken = tokens.getOrDefault("prod", "");
+                this.discordToken = tokens.getOrDefault("prod", "");
         else
-            discordToken = "";
+            this.discordToken = "";
 
-        Map<String, String> redis = (Map) sneaky.get("redisAuth");
+        final Map<String, String> redis = (Map) sneaky.get("redisAuth");
         if (redis != null)
-            if (isDebug)
-                redisAuth = redis.getOrDefault("debug", "");
+            if (this.isDebug)
+                this.redisAuth = redis.getOrDefault("debug", "");
             else
-                redisAuth = redis.getOrDefault("prod", "");
+                this.redisAuth = redis.getOrDefault("prod", "");
         else
-            redisAuth = "";
+            this.redisAuth = "";
 
-        errorLogWebHook = (String) sneaky.getOrDefault("errorLogWebHook", "");
+        this.errorLogWebHook = (String) sneaky.getOrDefault("errorLogWebHook", "");
+
+
+        this.ownerId = Long.valueOf(getApplicationInfo(this.discordToken).getJSONObject("owner").getString("id"));
+    }
+
+
+    //https://discordapp.com/developers/docs/topics/oauth2#get-current-application-information
+    public static JSONObject getApplicationInfo(final String token) throws IOException {
+        final Request request = new Request.Builder()
+                .url(Requester.DISCORD_API_PREFIX + "/oauth2/applications/@me")
+                .header("Authorization", "Bot " + token)
+                .header("User-agent", "Wolfia DiscordBot (https://github.com/napstr/wolfia, " + App.VERSION + ")")
+                .get()
+                .build();
+        final Response response = Wolfia.httpClient.newCall(request).execute();
+        //noinspection ConstantConditions
+        return new JSONObject(response.body().string());
     }
 }

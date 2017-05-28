@@ -17,13 +17,14 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
 import space.npstr.wolfia.game.GameSetup;
+import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.game.Setups;
+import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
  * Created by npstr on 23.08.2016
@@ -33,34 +34,34 @@ public class InCommand implements ICommand {
     public static final String COMMAND = "in";
 //    private final int MAX_SIGNUP_TIME = 10 * 60; //10h
 
-
-    @Override
-    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
-//        if (args.length < 1)
-//            return false;
-//        try {
-//            Long.valueOf(args[0]);
-//        } catch (final NumberFormatException e) {
-//            return false;
-//        }
-        return true;
-    }
-
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
 
 //        long timeForSignup = Long.valueOf(args[0]);
 //        timeForSignup = timeForSignup < this.MAX_SIGNUP_TIME ? timeForSignup : this.MAX_SIGNUP_TIME;
 
-        final GameSetup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
+        //is there a game going on?
+        if (Games.get(commandInfo.event.getTextChannel().getIdLong()) != null) {
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
+                    "%s, the game has already started! Please wait until it is over to join.",
+                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
+            return;
+        }
+        GameSetup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
         if (setup == null) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
-                    "Please start setting up a game in with channel with `%s%s`", Config.PREFIX, SetupCommand.COMMAND);
+            setup = Setups.createNew(commandInfo.event.getChannel().getIdLong());
+        }
+        final GameSetup s = setup;
+
+
+        //force inn by bot owner
+        if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && commandInfo.event.getAuthor().getIdLong() == Config.C.ownerId) {
+            commandInfo.event.getMessage().getMentionedUsers().forEach(u -> s.inPlayer(u.getIdLong(),
+                    () -> Wolfia.handleOutputMessage(commandInfo.event.getChannel(), s.getStatus())));
             return;
         }
 
-        setup.inPlayer(commandInfo.event.getAuthor().getIdLong());
-        Wolfia.handleOutputMessage(commandInfo.event.getChannel(), setup.getStatus());
+        s.inPlayer(commandInfo.event.getAuthor().getIdLong(), () -> Wolfia.handleOutputMessage(commandInfo.event.getChannel(), s.getStatus()));
     }
 
     @Override

@@ -22,7 +22,9 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
 import space.npstr.wolfia.game.GameSetup;
+import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.game.Setups;
+import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
  * Created by napster on 12.05.17.
@@ -35,6 +37,13 @@ public class SetupCommand implements ICommand {
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
+        //is there a game going on?
+        if (Games.get(commandInfo.event.getTextChannel().getIdLong()) != null) {
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
+                    "%s, there is already a game going on in this channel!",
+                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
+            return;
+        }
         GameSetup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
         if (setup == null) {
             setup = Setups.createNew(commandInfo.event.getChannel().getIdLong());

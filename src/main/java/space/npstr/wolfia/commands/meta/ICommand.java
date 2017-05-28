@@ -18,17 +18,10 @@
 package space.npstr.wolfia.commands.meta;
 
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-
 /**
  * Created by npstr on 23.08.2016
  */
 public interface ICommand {
-
-    //this is called to check whether the arguments the user provided are ok
-    default boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
-        return true;
-    }
 
     //executes the command
     void execute(CommandParser.CommandContainer commandInfo);

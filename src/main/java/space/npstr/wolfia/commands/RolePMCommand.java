@@ -17,50 +17,48 @@
 
 package space.npstr.wolfia.commands;
 
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
-import space.npstr.wolfia.commands.meta.IGameCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Games;
-import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
- * Created by napster on 21.05.17.
+ * Created by napster on 27.05.17.
+ * <p>
+ * resend a role PM to a player
  */
-public class ShootCommand implements ICommand, IGameCommand {
+public class RolePMCommand implements ICommand {
 
-
-    public static final String COMMAND = "shoot";
+    public static final String COMMAND = "rolepm";
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
+        final long userId = commandInfo.event.getAuthor().getIdLong();
+        final long channelId = commandInfo.event.getChannel().getIdLong();
 
-        if (commandInfo.event.getMessage().getMentionedUsers().size() < 1) {
-            commandInfo.event.getChannel().sendMessage(help()).queue();
-            return;
-        }
-
-        final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
+        final Game game = Games.get(channelId);
         if (game == null) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
-                    "Hey %s, there is no game currently going on in here.",
-                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
+            Wolfia.handleOutputMessage(channelId, "%s, there is no game going on in %s.",
+                    TextchatUtils.userAsMention(userId), commandInfo.event.getTextChannel().getAsMention());
             return;
         }
 
-        try {
-            game.issueCommand(this, commandInfo);
-        } catch (final IllegalGameStateException e) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), e.getMessage());
+        if (!game.isUserPlaying(userId)) {
+            Wolfia.handleOutputMessage(channelId, "%s, you aren't playing in this game.", TextchatUtils.userAsMention(userId));
+            return;
         }
 
+        final String rolePm = game.getRolePm(userId);
+        Wolfia.handlePrivateOutputMessage(userId,
+                e -> Wolfia.handleOutputMessage(channelId, "%s, I cannot send you a private message, please adjust your privacy settings or unblock me.",
+                        TextchatUtils.userAsMention(userId)),
+                rolePm);
     }
 
     @Override
     public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + " @user\nshoot someone```";
+        return null;
     }
 }

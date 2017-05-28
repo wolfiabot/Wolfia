@@ -44,9 +44,9 @@ class MainListener extends ListenerAdapter {
     //sort the checks here approximately by widest and cheapest filters higher up, and put expensive filters lower
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
-        //ignore messages not starting with the prefix
+        //ignore messages not starting with the prefix (prefix is accepted case insensitive)
         final String raw = event.getMessage().getRawContent();
-        if (!raw.startsWith(Config.PREFIX)) {
+        if (!raw.regionMatches(true, 0, Config.PREFIX, 0, Config.PREFIX.length())) {
             return;
         }
         //bot should ignore itself
@@ -59,7 +59,7 @@ class MainListener extends ListenerAdapter {
         }
 
         log.info("User {}, channel {}, command {}", event.getAuthor().getIdLong(), event.getChannel().getIdLong(), event.getMessage().getRawContent());
-        commandExecutor.submit(() -> CommandHandler.handleCommand(CommandParser.parse(Config.PREFIX, raw, event)));
+        commandExecutor.submit(() -> CommandHandler.handleCommand(CommandParser.parse(raw, event)));
     }
 
     @Override

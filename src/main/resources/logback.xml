@@ -3,12 +3,12 @@
 
     <statusListener class="space.npstr.wolfia.utils.log.StatusToFileListener">
         <file>logs/logback_status.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
-            <fileNamePattern>logs/logback_status.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <!-- keep 30 days' worth of history -->
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+        <!--&lt;!&ndash; daily rollover &ndash;&gt;-->
+        <!--<fileNamePattern>logs/logback_status.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+        <!--&lt;!&ndash; keep 30 days' worth of history &ndash;&gt;-->
+        <!--<maxHistory>30</maxHistory>-->
+        <!--</rollingPolicy>-->
         <encoder>
             <pattern>%-40(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
         </encoder>

@@ -47,6 +47,7 @@ import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.utils.SimpleLog;
+import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.commands.meta.ICommand;
@@ -54,10 +55,13 @@ import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 public class Wolfia {
 
     public static JDA jda;
+    public static final OkHttpClient httpClient = new OkHttpClient();
+    public static final long START_TIME = System.currentTimeMillis();
 
     private final HashMap<String, ICommand> commands = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
@@ -138,30 +142,44 @@ public class Wolfia {
 
     }
 
-    public static void handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
+    public static void handleOutputMessage(final MessageChannel channel, final Consumer<Throwable> onFail, final String msg, final Object... args) {
         final MessageBuilder mb = new MessageBuilder();
         mb.appendFormat(msg, args);
         try {
-            channel.sendMessage(mb.build()).queue();
+            channel.sendMessage(mb.build()).queue(null, onFail);
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
         }
     }
 
-    public static void handleOutputMessage(final long channelId, final String msg, final Object... args) {
+    public static void handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
+        handleOutputMessage(channel, null, msg, args);
+    }
+
+    public static void handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
         final TextChannel channel = jda.getTextChannelById(channelId);
-        handleOutputMessage(channel, msg, args);
+        handleOutputMessage(channel, onFail, msg, args);
+    }
+
+    public static void handleOutputMessage(final long channelId, final String msg, final Object... args) {
+        handleOutputMessage(channelId, null, msg, args);
     }
 
     //send a message to a user privately
-    public static void handlePrivateOutputMessage(final long userId, final String msg, final Object... args) {
-        jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, msg, args));
+    public static void handlePrivateOutputMessage(final long userId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onFail, msg, args), onFail);
+    }
+
+    public static void shutdown(final int code) {
+        log.info("Shutting down with exit code {}", code);
+        System.exit(code);
     }
 
     private static final Thread SHUTDOWN_HOOK = new Thread(new Runnable() {
         @Override
         public void run() {
 
+            //okHttpClient claims that a shutdown isn't necessary
 
             //shutdown JDA
             jda.shutdown(true);

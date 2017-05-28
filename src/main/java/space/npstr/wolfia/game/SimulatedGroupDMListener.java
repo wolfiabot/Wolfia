@@ -33,14 +33,14 @@ import java.util.Set;
  */
 public class SimulatedGroupDMListener extends ListenerAdapter {
 
-    private final Set<String> users;
+    private final Set<Long> users;
 
     /**
      * @param users the people that should receive the simulated group dm
      */
-    public SimulatedGroupDMListener(final Set<String> users) {
+    public SimulatedGroupDMListener(final Set<Long> users) {
         this.users = users;
-        if (Config.C.isDebug) users.add(Config.NAPSTER_ID);
+        if (Config.C.isDebug) users.add(Config.C.ownerId);
     }
 
     @Override
@@ -54,8 +54,8 @@ public class SimulatedGroupDMListener extends ListenerAdapter {
         //if sent from a user of this group in a private channel to the bot
         if (this.users.contains(event.getAuthor().getId()) && event.getAuthor().openPrivateChannel().complete().getId().equals(event.getChannel().getId())) {
             //echo the message to the users of this group
-            for (final String userId : this.users) {
-                if (userId.equals(event.getAuthor().getId())) continue; //skip the sender of the message
+            for (final long userId : this.users) {
+                if (userId == event.getAuthor().getIdLong()) continue; //skip the sender of the message
                 final PrivateChannel pChan = event.getJDA().getUserById(userId).openPrivateChannel().complete();
                 Wolfia.handleOutputMessage(pChan, event.getAuthor().getName() + ": " + event.getMessage().getContent());
             }

@@ -17,13 +17,9 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
-
-import java.util.Map;
 
 /**
  * Created by npstr on 09.09.2016
@@ -32,33 +28,21 @@ public class HelpCommand implements ICommand {
 
     public final static String COMMAND = "help";
 
-    private final Map<String, ICommand> commands;
-
-    public HelpCommand(final Map<String, ICommand> commands) {
-        this.commands = commands;
-    }
-
-    @Override
-    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
-        if (args.length > 0) {
-            if (this.commands.get(args[0]) == null)
-                return false;
-        }
-        return true;
+    public HelpCommand() {
     }
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
-        String out;
-        if (commandInfo.args.length < 1) {
-            out = "Available commands in this channel:\n```";
-            for (final String s : this.commands.keySet()) out += Config.PREFIX + s + ", ";
-            if (this.commands.size() > 0) out = out.substring(0, out.length() - 2);
-            out += "```";
-        } else {
-            out = this.commands.get(commandInfo.args[0]).help();
-        }
-        Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), out);
+//        String out;
+//        if (commandInfo.args.length < 1) {
+//            out = "Available commands in this channel:\n```";
+//            for (final String s : this.commands.keySet()) out += Config.PREFIX + s + ", ";
+//            if (this.commands.size() > 0) out = out.substring(0, out.length() - 2);
+//            out += "```";
+//        } else {
+//            out = this.commands.get(commandInfo.args[0]).help();
+//        }
+//        Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), out);
     }
 
     @Override

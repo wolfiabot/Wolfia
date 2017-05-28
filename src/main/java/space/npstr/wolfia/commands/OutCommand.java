@@ -17,8 +17,11 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
 import space.npstr.wolfia.game.GameSetup;
@@ -36,21 +39,30 @@ public class OutCommand implements ICommand {
     }
 
     @Override
-    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
-        return true;
-    }
-
-    @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
         final GameSetup setup = Setups.get(commandInfo.event.getChannel().getIdLong());
         if (setup != null) {
-            setup.outPlayer(commandInfo.event.getAuthor().getIdLong());
+            //is this a forced out of a player by an moderator or the bot owner?
+            if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
+                final Member invoker = commandInfo.event.getMember();
+                final TextChannel channel = commandInfo.event.getTextChannel();
+                if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && invoker.getUser().getIdLong() != Config.C.ownerId) {
+                    Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out other players.", invoker.getAsMention());
+                    return;
+                } else {
+                    commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.outPlayer(u.getIdLong()));
+                }
+            } else {
+                //handling a regular out
+                setup.outPlayer(commandInfo.event.getAuthor().getIdLong());
+            }
+            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), setup.getStatus());
         }
     }
 
     @Override
     public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + "\nwill remove you from the current signup list```";
+        return "```usage: " + Config.PREFIX + COMMAND + "\nwill remove you from the current signup list\n " + Config.PREFIX + COMMAND + "@user allows moderators to out other players```";
     }
 
 }

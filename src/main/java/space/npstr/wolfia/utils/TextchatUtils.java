@@ -24,8 +24,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class TextchatUtils {
 
-    public static String userAsMention(final long id) {
-        return "<@" + id + ">";
+    public static String userAsMention(final long userId) {
+        return "<@" + userId + ">";
     }
 
     public static String formatMillis(final long millis) {

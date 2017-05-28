@@ -99,7 +99,7 @@
 ////                    log.trace("hitlering confirmations");
 ////                    String out = "Oi! These players have confirmed: ";
 ////                    for (final String s : this.confirmedPlayers) out += Player.getDiscordNick(s) + " ";
-////                    out += "\nNeed " + (this.game.getAmountOfPlayers() - this.confirmedPlayers.size()) + " more players.\n";
+////                    out += "\nNeed " + (this.game.getAmountsOfPlayers() - this.confirmedPlayers.size()) + " more players.\n";
 ////                    for (final String s : getInnedPlayers())
 ////                        if (!this.confirmedPlayers.contains(s)) out += Player.asMention(s) + " ";
 ////
@@ -143,7 +143,7 @@
 ////    public void confirm(final String userId) {
 ////        if (!this.confirmedPlayers.contains(userId)) {
 ////            this.confirmedPlayers.add(userId);
-////            if (this.confirmedPlayers.size() == this.game.getAmountOfPlayers()) {
+////            if (this.confirmedPlayers.size() == this.game.getAmountsOfPlayers()) {
 ////                //TODO open the channel after a game is over
 ////                String out = "Enough players confirmed. Game is starting!\n";
 ////                for (final String s : this.confirmedPlayers) {

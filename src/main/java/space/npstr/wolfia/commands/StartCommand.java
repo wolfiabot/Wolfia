@@ -17,13 +17,14 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
 import space.npstr.wolfia.game.GameSetup;
+import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.game.Setups;
+import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
  * Created by npstr on 14.09.2016
@@ -38,19 +39,20 @@ public class StartCommand implements ICommand {
     }
 
     @Override
-    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
-        return true;
-    }
-
-    @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
-
+        //is there a game going on?
+        if (Games.get(commandInfo.event.getTextChannel().getIdLong()) != null) {
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
+                    "%s, there is already a game going on in this channel!",
+                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
+            return;
+        }
         final GameSetup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
         if (setup == null) {
             Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
                     "Please start setting up a game in this channel with `%s%s`", Config.PREFIX, SetupCommand.COMMAND);
         } else {
-            setup.startGame();
+            setup.startGame(commandInfo.event.getAuthor().getIdLong());
         }
     }
 

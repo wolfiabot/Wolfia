@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.meta.CommandParser;
@@ -41,11 +40,6 @@ public class StatusCommand implements ICommand {
     public static final String COMMAND = "status";
 
     public StatusCommand() {
-    }
-
-    @Override
-    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
-        return true;
     }
 
     @Override

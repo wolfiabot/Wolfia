@@ -28,7 +28,7 @@ import java.util.Set;
  */
 public abstract class Game {
 
-    public abstract Set<Integer> getAmountOfPlayers();
+    public abstract Set<Integer> getAmountsOfPlayers();
 
     public abstract void start(Set<Long> players);
 
@@ -51,4 +51,14 @@ public abstract class Game {
      * @return a status of the game
      */
     public abstract String getStatus();
+
+    /**
+     * @return the role pm of a user
+     */
+    public abstract String getRolePm(long userId);
+
+    /**
+     * @return true if the user is playing in this game (dead or alive), false if not
+     */
+    public abstract boolean isUserPlaying(long userId);
 }

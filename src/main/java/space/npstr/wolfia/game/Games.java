@@ -43,6 +43,10 @@ public class Games {
         return GAME_REGISTRY.get(channelId);
     }
 
+    public static void remove(final Game game) {
+        GAME_REGISTRY.remove(game.getChannelId());
+    }
+
     public static void set(final Game game) {
         GAME_REGISTRY.put(game.getChannelId(), game);
     }

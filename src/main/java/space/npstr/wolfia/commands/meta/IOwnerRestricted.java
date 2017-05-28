@@ -15,22 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.commands.meta;
 
 /**
- * Created by napster on 21.05.17.
+ * Created by napster on 27.05.17.
  * <p>
- * contains various emojis used in the bot
+ * only the bot owner should be able to issue these commands
  */
-public class Emojis {
-
-    public static final String GUN = "\uD83D\uDD2B";
-
-    public static final String WOLF = "\uD83D\uDC3A";
-
-    public static final String POPCORN = "\uD83C\uDF7F";
-
-    public static final String COFFIN = "\u26B0";//"️⚰";
-
-    public static final String SKULL = "\uD83D\uDC80";
+public interface IOwnerRestricted {
 }

@@ -17,8 +17,8 @@
 
 package space.npstr.wolfia.utils;
 
-import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by napster on 21.05.17.
@@ -26,7 +26,7 @@ import java.util.Set;
 public class GameUtils {
 
     public static <E> E rand(final Set<E> items) {
-        final int rand = new Random().nextInt(items.size());
+        final int rand = ThreadLocalRandom.current().nextInt(items.size());
         int i = 0;
         E result = null;
         for (final E item : items) {

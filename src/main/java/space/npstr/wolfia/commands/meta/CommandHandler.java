@@ -17,8 +17,13 @@
 
 package space.npstr.wolfia.commands.meta;
 
-import space.npstr.wolfia.Wolfia;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.*;
+import space.npstr.wolfia.commands.debug.EvalCommand;
+import space.npstr.wolfia.commands.debug.StatsCommand;
+import space.npstr.wolfia.commands.debug.UpdateCommand;
 import space.npstr.wolfia.commands.meta.CommandParser.CommandContainer;
 
 import java.util.HashMap;
@@ -33,6 +38,8 @@ import java.util.Map;
  */
 public class CommandHandler {
 
+    private final static Logger log = LoggerFactory.getLogger(CommandHandler.class);
+
     private static final Map<String, ICommand> COMMAND_REGISTRY = new HashMap<>();
 
     static {
@@ -43,18 +50,32 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(ShootCommand.COMMAND, new ShootCommand());
         COMMAND_REGISTRY.put(StartCommand.COMMAND, new StartCommand());
         COMMAND_REGISTRY.put(StatusCommand.COMMAND, new StatusCommand());
+        COMMAND_REGISTRY.put(RolePMCommand.COMMAND, new RolePMCommand());
+        COMMAND_REGISTRY.put(EvalCommand.COMMAND, new EvalCommand());
+        COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
+        COMMAND_REGISTRY.put(StatsCommand.COMMAND, new StatsCommand());
     }
 
     public static void handleCommand(final CommandContainer commandInfo) {
         final ICommand command = COMMAND_REGISTRY.get(commandInfo.command);
         if (command == null) {
-            //TODO decide how to handle unknown command
-        } else {
-            if (!command.argumentsValid(commandInfo.args, commandInfo.event)) {
-                Wolfia.handleOutputMessage(commandInfo.event.getChannel(), command.help());
-            } else {
-                command.execute(commandInfo);
-            }
+            //unknown command
+            log.info("user {} channel {} unknown command issued: {}",
+                    commandInfo.event.getAuthor().getIdLong(),
+                    commandInfo.event.getChannel().getIdLong(),
+                    commandInfo.raw);
+            return;
         }
+
+        if (command instanceof IOwnerRestricted && commandInfo.event.getAuthor().getIdLong() != Config.C.ownerId) {
+            //not the bot owner
+            log.info("user {} channel {} attempted issuing owner restricted command: {}",
+                    commandInfo.event.getAuthor().getIdLong(),
+                    commandInfo.event.getChannel().getIdLong(),
+                    commandInfo.raw);
+            return;
+        }
+        command.execute(commandInfo);
+
     }
 }

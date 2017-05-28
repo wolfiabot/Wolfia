@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands.meta;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.wolfia.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,9 +28,9 @@ import java.util.Collections;
  */
 public class CommandParser {
 
-    public static CommandContainer parse(final String prefix, final String rw, final MessageReceivedEvent e) {
+    public static CommandContainer parse(final String rw, final MessageReceivedEvent e) {
         final ArrayList<String> split = new ArrayList<>();
-        final String beheaded = rw.replaceFirst(prefix, "");
+        final String beheaded = rw.substring(Config.PREFIX.length()).trim();
         final String[] splitBeheaded = beheaded.split(" ");
         Collections.addAll(split, splitBeheaded);
         final String command = split.get(0);

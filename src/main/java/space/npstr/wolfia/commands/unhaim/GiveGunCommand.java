@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.commands.unhaim;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
+import space.npstr.wolfia.utils.Emojis;
 
 /**
  * Created by npstr on 09.11.2016
@@ -33,18 +33,13 @@ public class GiveGunCommand implements ICommand {
     }
 
     @Override
-    public boolean argumentsValid(final String[] args, final MessageReceivedEvent event) {
-        return false;
-    }
-
-    @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
 
     }
 
     @Override
     public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + " <player>\nto give <player> the gun. This is not a voting, "
+        return "```usage: " + Config.PREFIX + COMMAND + " <player>\nto give <player> the " + Emojis.GUN + ". This is not a voting, "
                 + "this happens immediately, so remember to consult your teams opinion first.```";
     }
 }

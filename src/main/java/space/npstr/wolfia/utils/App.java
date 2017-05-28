@@ -26,6 +26,6 @@ import java.util.ResourceBundle;
  */
 public class App {
 
-    private static ResourceBundle props = ResourceBundle.getBundle("app");
+    private static final ResourceBundle props = ResourceBundle.getBundle("app");
     public static final String VERSION = props.getString("version");
 }

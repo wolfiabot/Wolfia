@@ -19,10 +19,11 @@ package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import org.apache.http.util.Args;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.RolePMCommand;
 import space.npstr.wolfia.commands.ShootCommand;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.IGameCommand;
@@ -44,8 +45,13 @@ public class Popcorn extends Game {
 
     static {
         final Set<Integer> foo = new HashSet<>();
-        foo.add(3); //for debugging and fucking around I guess
-        foo.add(11); // the regular game
+        //for debugging and fucking around I guess
+        foo.add(3); //1 wolf, 2 town
+        foo.add(6); //2 wolf, 4 town
+        foo.add(8); //3 wolf, 5 town
+        foo.add(9); //3 wolf, 6 town
+        foo.add(10); //4 wolf, 6 town
+        foo.add(11); // the regular game 4 wolf 7 town
         acceptedPlayerNumbers = Collections.unmodifiableSet(foo);
     }
 
@@ -55,11 +61,13 @@ public class Popcorn extends Game {
     private final Set<PopcornPlayer> players = new HashSet<>();
     private boolean running = false;
     private final Set<Integer> hasDayEnded = new HashSet<>();
+    private final Map<Long, String> rolePMs = new HashMap<>();
 
     private int day;
     private final long dayLength;
     private long dayStarted;
     private long gunBearer;
+
 
     public Popcorn(final long channelId) {
         this.channelId = channelId;
@@ -100,13 +108,16 @@ public class Popcorn extends Game {
      * @return player numbers that this game supports
      */
     @Override
-    public Set<Integer> getAmountOfPlayers() {
+    public Set<Integer> getAmountsOfPlayers() {
         return acceptedPlayerNumbers;
     }
 
     @Override
     public void start(final Set<Long> innedPlayers) {
-        Args.check(innedPlayers.size() == 3 || innedPlayers.size() == 11, "Oi mate please start this game only with allowed player size");
+        if (!acceptedPlayerNumbers.contains(innedPlayers.size())) {
+            Wolfia.handleOutputMessage(this.channelId, "Oi mate please start this game with one of the allowed player sizes!");
+            return;
+        }
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
         try {
             prepareChannel(innedPlayers);
@@ -125,12 +136,25 @@ public class Popcorn extends Game {
         Collections.shuffle(rand);
         final Set<Long> woofs = new HashSet<>();
         final Set<Long> villagers = new HashSet<>();
+        //todo redo this for the love of god
         if (innedPlayers.size() == 3) {
             woofs.addAll(rand.subList(0, 1));
             villagers.addAll(rand.subList(1, rand.size()));
+        } else if (innedPlayers.size() == 6) {
+            woofs.addAll(rand.subList(0, 2));
+            villagers.addAll(rand.subList(2, rand.size()));
+        } else if (innedPlayers.size() == 8) {
+            woofs.addAll(rand.subList(0, 3));
+            villagers.addAll(rand.subList(3, rand.size()));
+        } else if (innedPlayers.size() == 9) {
+            woofs.addAll(rand.subList(0, 3));
+            villagers.addAll(rand.subList(3, rand.size()));
+        } else if (innedPlayers.size() == 10) {
+            woofs.addAll(rand.subList(0, 4));
+            villagers.addAll(rand.subList(4, rand.size()));
         } else if (innedPlayers.size() == 11) {
-            woofs.addAll(rand.subList(0, 4)); //first 4 players on the shuffled list are the woofs
-            villagers.addAll(rand.subList(4, rand.size() - 1));
+            woofs.addAll(rand.subList(0, 4));
+            villagers.addAll(rand.subList(4, rand.size()));
         }
         villagers.forEach(userId -> this.players.add(new PopcornPlayer(userId, false)));
         woofs.forEach(userId -> this.players.add(new PopcornPlayer(userId, true)));
@@ -147,20 +171,37 @@ public class Popcorn extends Game {
         // but the bot won't (cause it can't) create that group DM
 
         //inform each player about his role
-        final String villagerPrimer = "Hi %s,\nyou have randed **Villager**. Your goal is to kill all %ss, of which there are %s around. "
+        final String villagerPrimer = "Hi %s,\nyou have randed **Villager**. Your goal is to kill all wolves, of which there are %s around. "
                 + "\nIf you shoot a villager, you will die. If the wolves reach parity with the village, you lose.";
-        villagers.forEach(userId -> Wolfia.handlePrivateOutputMessage(userId, villagerPrimer, Wolfia.jda.getUserById(userId).getName(), Emojis.WOLF, woofs.size()));
+        villagers.forEach(userId -> {
+            final String primer = String.format(villagerPrimer, Wolfia.jda.getUserById(userId).getName(), woofs.size());
+            Wolfia.handlePrivateOutputMessage(userId,
+                    e -> Wolfia.handleOutputMessage(this.channelId, "%s, **I cannot send you a private message**, please adjust your privacy settings or unblock me, then issue `%s%s` to receive your role PM.",
+                            TextchatUtils.userAsMention(userId), Config.PREFIX, RolePMCommand.COMMAND),
+                    primer);
+            this.rolePMs.put(userId, primer);
+        });
 
-        final String woofPrimer = "Hi %s,\nyou have randed **Wolf**. Your goal is to reach parity with the village. "
-                + "\nIf you get shot, you will die. If all %s get shot, you lose\nThis is your team: %s";
+        final String woofPrimer = "Hi %s,\nyou have randed **Wolf**. This is your team: %s\nYour goal is to reach parity with the village. "
+                + "\nIf you get shot, you will die. If all %s get shot, you lose\n";
         final StringBuilder wolfteamNames = new StringBuilder();
         for (final long userId : woofs) {
-            wolfteamNames.append(Wolfia.jda.getUserById(userId).getName()).append(" known as ").append(channel.getGuild().getMemberById(userId).getEffectiveName());
+            wolfteamNames.append("\n**").append(Wolfia.jda.getUserById(userId).getName()).append("** known as **")
+                    .append(channel.getGuild().getMemberById(userId).getEffectiveName()).append("**");
         }
-        woofs.forEach(userId -> Wolfia.handlePrivateOutputMessage(userId, woofPrimer, Wolfia.jda.getUserById(userId).getName(), Emojis.WOLF, wolfteamNames.toString()));
+        woofs.forEach(userId -> {
+            final String primer = String.format(woofPrimer, Wolfia.jda.getUserById(userId).getName(), wolfteamNames.toString(), Emojis.WOLF);
+            Wolfia.handlePrivateOutputMessage(userId,
+                    e -> Wolfia.handleOutputMessage(this.channelId, "%s, **I cannot send you a private message**, please adjust your privacy settings or unblock me, then issue `%s%s` to receive your role PM.",
+                            TextchatUtils.userAsMention(userId), Config.PREFIX, RolePMCommand.COMMAND),
+                    primer);
+            this.rolePMs.put(userId, primer);
+        });
 
         // - start the game
         this.running = true;
+        //mention the players in the thread
+        Wolfia.handleOutputMessage(channel, "Game has started!\n%s\n%s wolves are alive!", listLivingPlayers(), getLivingWolves().size());
         distributeGun();
     }
 
@@ -218,8 +259,21 @@ public class Popcorn extends Game {
 
     private void shoot(final long shooterId, final long targetId) throws IllegalGameStateException {
         //check various conditions for the shot being legal
-        if (!isLiving(shooterId)) {
-            Wolfia.handleOutputMessage(this.channelId, "%s shush, you're not playing in this game or dead!",
+        if (targetId == Wolfia.jda.getSelfUser().getIdLong()) {
+            Wolfia.handleOutputMessage(this.channelId, "%s lol can't %s me.",
+                    TextchatUtils.userAsMention(shooterId), Emojis.GUN);
+            return;
+        }
+        if (shooterId == targetId) {
+            Wolfia.handleOutputMessage(this.channelId, "%s please don't %s yourself, that would make a big mess.",
+                    TextchatUtils.userAsMention(shooterId), Emojis.GUN);
+            return;
+        } else if (this.players.stream().noneMatch(p -> p.userId == shooterId)) {
+            Wolfia.handleOutputMessage(this.channelId, "%s shush, you're not playing in this game!",
+                    TextchatUtils.userAsMention(shooterId));
+            return;
+        } else if (!isLiving(shooterId)) {
+            Wolfia.handleOutputMessage(this.channelId, "%s shush, you're dead!",
                     TextchatUtils.userAsMention(shooterId));
             return;
         } else if (shooterId != this.gunBearer) {
@@ -255,13 +309,17 @@ public class Popcorn extends Game {
 
         if (livingMafia.size() < 1) {
             this.running = false;
-            Wolfia.handleOutputMessage(this.channelId, "All wolves dead! Village wins. Thanks for playing.\nTeams:\n%s", listTeams());
+            //complete the sending of this in case a restart is queued
+            Wolfia.jda.getTextChannelById(this.channelId).sendMessage("All wolves dead! Village wins. Thanks for playing.\nTeams:\n" + listTeams()).complete();
+            Games.remove(this);
             return true;
         }
 
         if (livingMafia.size() >= livingVillage.size()) {
             this.running = false;
-            Wolfia.handleOutputMessage(this.channelId, "Parity reached! Wolves win. Thanks for playing.\nTeams:\n%s", listTeams());
+            //complete the sending of this in case a restart is queued
+            Wolfia.jda.getTextChannelById(this.channelId).sendMessage("Parity reached! Wolves win. Thanks for playing.\nTeams:\n" + listTeams()).complete();
+            Games.remove(this);
             return true;
         }
 
@@ -320,6 +378,9 @@ public class Popcorn extends Game {
 
     //do not post this before the game is over lol
     private String listTeams() {
+        if (this.running) {
+            log.warn("listTeams() called in a running game");
+        }
         final StringBuilder sb = new StringBuilder();
         sb.append("Village: ");
         getVillagers().forEach(p -> sb.append(TextchatUtils.userAsMention(p.userId)).append(" "));
@@ -329,8 +390,9 @@ public class Popcorn extends Game {
     }
 
     private String listLivingPlayers() {
-        final StringBuilder sb = new StringBuilder("Living players: ");
-        this.players.stream().filter(p -> p.isLiving).forEach(p -> sb.append(TextchatUtils.userAsMention(p.userId)).append(" "));
+        final Set<PopcornPlayer> living = getLivingPlayers();
+        final StringBuilder sb = new StringBuilder("Living players (**").append(living.size()).append("**) :");
+        living.forEach(p -> sb.append(TextchatUtils.userAsMention(p.userId)).append(" "));
         return sb.toString();
     }
 
@@ -345,6 +407,16 @@ public class Popcorn extends Game {
             Wolfia.handleOutputMessage(this.channelId, "%s, the '%s' command is not part of this game.",
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()), commandInfo.command);
         }
+    }
+
+    @Override
+    public boolean isUserPlaying(final long userId) {
+        return this.players.stream().anyMatch(p -> p.userId == userId);
+    }
+
+    @Override
+    public String getRolePm(final long userId) {
+        return this.rolePMs.get(userId);
     }
 
     @Override
@@ -371,17 +443,17 @@ public class Popcorn extends Game {
     @Override
     public String getStatus() {
 
-        final StringBuilder sb = new StringBuilder("Popcorn Mafia");
+        final StringBuilder sb = new StringBuilder(Emojis.POPCORN + " Mafia");
         if (!this.running) {
             sb.append("\nGame is not running");
             sb.append("\nAmount of players needed to start: ");
-            getAmountOfPlayers().forEach(i -> sb.append(i).append(" "));
+            getAmountsOfPlayers().forEach(i -> sb.append(i).append(" "));
         } else {
             sb.append("\nDay: ").append(this.day);
             sb.append("\n").append(listLivingPlayers()).append("\n");
             getLivingWolves().forEach(w -> sb.append(Emojis.WOLF));
             sb.append("(").append(getLivingWolves().size()).append(") still alive.");
-            sb.append("\n").append(TextchatUtils.userAsMention(this.gunBearer)).append(" is holding the gun");
+            sb.append("\n").append(TextchatUtils.userAsMention(this.gunBearer)).append(" is holding the ").append(Emojis.GUN);
             sb.append("\nTime left: ").append(TextchatUtils.formatMillis(this.dayStarted + this.dayLength - System.currentTimeMillis()));
         }
 
