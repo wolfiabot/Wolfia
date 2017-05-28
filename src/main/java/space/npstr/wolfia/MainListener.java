@@ -53,6 +53,12 @@ public class MainListener extends ListenerAdapter {
         if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
             return;
         }
+
+        //ignore private channels todo not forever tho
+        if (event.getPrivateChannel() != null) {
+            return;
+        }
+
         //ignore channel where don't have sending permissions
         if (!event.getTextChannel().canTalk()) {
             return;
