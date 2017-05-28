@@ -17,6 +17,12 @@
 
 package space.npstr.wolfia.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.Wolfia;
+
+import java.util.Arrays;
+
 /**
  * Created by napster on 21.05.17.
  * <p>
@@ -24,13 +30,34 @@ package space.npstr.wolfia.utils;
  */
 public class Emojis {
 
-    public static final String GUN = "\uD83D\uDD2B";
+    private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
 
-    public static final String WOLF = "\uD83D\uDC3A";
+    //standard unicode based ones
+    public static final String GUN = "🔫";
+    public static final String WOLF = "🐺";
+    public static final String POPCORN = "🍿";
+    public static final String COFFIN = "⚰";
+    public static final String SKULL = "💀";
+    public static final String HOG = "🐷";
 
-    public static final String POPCORN = "\uD83C\uDF7F";
+    //custom ones, currently hosted in the Wolfia Lounge
+    public static final String EEK = "<:eek:318452576850804748>";
+    public static final String CANTLOOK = "<:cantlook:318452650029088779>";
+    public static final String RIP = "<:rip:318205519724675072>";
 
-    public static final String COFFIN = "\u26B0";//"️⚰";
 
-    public static final String SKULL = "\uD83D\uDC80";
+    //to be called by eval for a quick'n'dirty test whether all emojis that are defined in this class are being
+    //displayed in the Discord client as expected
+    public static String test() {
+        final StringBuilder result = new StringBuilder();
+        Arrays.stream(Emojis.class.getFields()).filter(field -> field.getType().equals(String.class)).forEach(field -> {
+            try {
+                result.append(field.get(null));
+            } catch (final IllegalAccessException e) {
+                result.append("exception");
+                log.error("something something unexpected error while using reflection", e);
+            }
+        });
+        return result.toString();
+    }
 }
