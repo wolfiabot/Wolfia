@@ -57,25 +57,28 @@ public class CommandHandler {
     }
 
     public static void handleCommand(final CommandContainer commandInfo) {
-        final ICommand command = COMMAND_REGISTRY.get(commandInfo.command);
-        if (command == null) {
-            //unknown command
-            log.info("user {} channel {} unknown command issued: {}",
-                    commandInfo.event.getAuthor().getIdLong(),
-                    commandInfo.event.getChannel().getIdLong(),
-                    commandInfo.raw);
-            return;
-        }
+        try {
+            final ICommand command = COMMAND_REGISTRY.get(commandInfo.command);
+            if (command == null) {
+                //unknown command
+                log.info("user {} channel {} unknown command issued: {}",
+                        commandInfo.event.getAuthor().getIdLong(),
+                        commandInfo.event.getChannel().getIdLong(),
+                        commandInfo.raw);
+                return;
+            }
 
-        if (command instanceof IOwnerRestricted && commandInfo.event.getAuthor().getIdLong() != Config.C.ownerId) {
-            //not the bot owner
-            log.info("user {} channel {} attempted issuing owner restricted command: {}",
-                    commandInfo.event.getAuthor().getIdLong(),
-                    commandInfo.event.getChannel().getIdLong(),
-                    commandInfo.raw);
-            return;
+            if (command instanceof IOwnerRestricted && commandInfo.event.getAuthor().getIdLong() != Config.C.ownerId) {
+                //not the bot owner
+                log.info("user {} channel {} attempted issuing owner restricted command: {}",
+                        commandInfo.event.getAuthor().getIdLong(),
+                        commandInfo.event.getChannel().getIdLong(),
+                        commandInfo.raw);
+                return;
+            }
+            command.execute(commandInfo);
+        } catch (final Exception e) {
+            log.error("Exception while handling a command", e);
         }
-        command.execute(commandInfo);
-
     }
 }
