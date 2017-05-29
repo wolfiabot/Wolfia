@@ -17,9 +17,12 @@
 
 package space.npstr.wolfia.commands;
 
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
+import space.npstr.wolfia.utils.App;
 
 /**
  * Created by npstr on 09.09.2016
@@ -33,16 +36,17 @@ public class HelpCommand implements ICommand {
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
-//        String out;
-//        if (commandInfo.args.length < 1) {
-//            out = "Available commands in this channel:\n```";
-//            for (final String s : this.commands.keySet()) out += Config.PREFIX + s + ", ";
-//            if (this.commands.size() > 0) out = out.substring(0, out.length() - 2);
-//            out += "```";
-//        } else {
-//            out = this.commands.get(commandInfo.args[0]).help();
-//        }
-//        Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), out);
+        final MessageReceivedEvent e = commandInfo.event;
+        final String help = String.format("Hi %s,\nyou can find %s's documentation and a full list of commands under\n<%s>"
+                        + "\n\nTo invite the bot to your server please follow this link:\n<%s>"
+                        + "\n\nDrop by in the Wolfia Lounge to play games, get support, leave feedback, and find like-minded individuals.\n<%s>",
+                e.getAuthor().getName(), e.getJDA().getSelfUser().getName(), App.WEBSITE, App.INVITE_LINK, App.WOLFIA_LOUNGE_INVITE);
+
+
+        Wolfia.handlePrivateOutputMessage(e.getAuthor().getIdLong(),
+                m -> Wolfia.handleOutputMessage(e.getChannel(), "%s, sent you a PM with the help!", e.getAuthor().getAsMention()),
+                t -> Wolfia.handleOutputMessage(e.getChannel(), "%s, cannot send you a PM with the help. Please unblock me or change your privacy settings.", e.getAuthor().getAsMention()),
+                help);
     }
 
     @Override

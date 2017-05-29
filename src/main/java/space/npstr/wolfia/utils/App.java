@@ -31,7 +31,9 @@ public class App {
 
     private static final ResourceBundle props = ResourceBundle.getBundle("app");
     public static final String VERSION = props.getString("version");
-    public static final String GAME_STATUS = "Say " + Config.PREFIX + HelpCommand.COMMAND + " | Go to http://wolfia.space";
     public static long OWNER_ID = 166604053629894657L;//Napster
     public static String INVITE_LINK = "https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot";
+    public static String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";
+    public static String WEBSITE = "http://wolfia.space";
+    public static String GAME_STATUS = Config.PREFIX + HelpCommand.COMMAND + " | " + WEBSITE;
 }

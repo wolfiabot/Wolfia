@@ -43,7 +43,7 @@ public class CommandHandler {
     private static final Map<String, ICommand> COMMAND_REGISTRY = new HashMap<>();
 
     static {
-//        COMMAND_REGISTRY.put(HelpCommand.COMMAND, new HelpCommand());
+        COMMAND_REGISTRY.put(HelpCommand.COMMAND, new HelpCommand());
         COMMAND_REGISTRY.put(InCommand.COMMAND, new InCommand());
         COMMAND_REGISTRY.put(OutCommand.COMMAND, new OutCommand());
         COMMAND_REGISTRY.put(SetupCommand.COMMAND, new SetupCommand());

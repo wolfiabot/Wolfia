@@ -56,6 +56,7 @@ import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Wolfia {
@@ -144,28 +145,31 @@ public class Wolfia {
         jda.asBot().getApplicationInfo().queue(
                 appInfo -> {
                     App.OWNER_ID = appInfo.getOwner().getIdLong();
-                    App.INVITE_LINK = appInfo.getInviteUrl();
+                    App.INVITE_LINK = appInfo.getInviteUrl(0);
                 },
                 t -> log.error("Could not load application info", t));
     }
 
-    public static void handleOutputMessage(final MessageChannel channel, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+    //################## message handling + tons of overloaded methods
+
+    public static void handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
         final MessageBuilder mb = new MessageBuilder();
         mb.appendFormat(msg, args);
         try {
-            channel.sendMessage(mb.build()).queue(null, onFail);
+            channel.sendTyping().queue();
+            channel.sendMessage(mb.build()).queueAfter(1, TimeUnit.SECONDS, onSuccess, onFail);
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
         }
     }
 
     public static void handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
-        handleOutputMessage(channel, null, msg, args);
+        handleOutputMessage(channel, null, null, msg, args);
     }
 
     public static void handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
         final TextChannel channel = jda.getTextChannelById(channelId);
-        handleOutputMessage(channel, onFail, msg, args);
+        handleOutputMessage(channel, null, onFail, msg, args);
     }
 
     public static void handleOutputMessage(final long channelId, final String msg, final Object... args) {
@@ -174,8 +178,16 @@ public class Wolfia {
 
     //send a message to a user privately
     public static void handlePrivateOutputMessage(final long userId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onFail, msg, args), onFail);
+        jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
     }
+
+    public static void handlePrivateOutputMessage(final long userId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onSuccess, onFail, msg, args), onFail);
+    }
+
+    //################# end of message handling
+
+    //################# shutdown handling
 
     public static void shutdown(final int code) {
         log.info("Shutting down with exit code {}", code);
