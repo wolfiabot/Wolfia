@@ -18,7 +18,7 @@
 package space.npstr.wolfia.utils;
 
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.commands.HelpCommand;
+import space.npstr.wolfia.commands.util.HelpCommand;
 
 import java.util.ResourceBundle;
 
@@ -36,4 +36,5 @@ public class App {
     public static String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";
     public static String WEBSITE = "http://wolfia.space";
     public static String GAME_STATUS = Config.PREFIX + HelpCommand.COMMAND + " | " + WEBSITE;
+    public static String DESCRIPTION = "Play Werewolf/Mafia games on Discord!";
 }

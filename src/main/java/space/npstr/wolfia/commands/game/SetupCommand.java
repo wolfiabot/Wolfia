@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands;
+package space.npstr.wolfia.commands.game;
 
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;

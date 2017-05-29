@@ -146,6 +146,7 @@ public class Wolfia {
                 appInfo -> {
                     App.OWNER_ID = appInfo.getOwner().getIdLong();
                     App.INVITE_LINK = appInfo.getInviteUrl(0);
+                    App.DESCRIPTION = appInfo.getDescription();
                 },
                 t -> log.error("Could not load application info", t));
     }

@@ -19,11 +19,12 @@ package space.npstr.wolfia.commands.meta;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.commands.*;
 import space.npstr.wolfia.commands.debug.EvalCommand;
-import space.npstr.wolfia.commands.debug.StatsCommand;
 import space.npstr.wolfia.commands.debug.UpdateCommand;
+import space.npstr.wolfia.commands.game.*;
 import space.npstr.wolfia.commands.meta.CommandParser.CommandContainer;
+import space.npstr.wolfia.commands.util.HelpCommand;
+import space.npstr.wolfia.commands.util.InfoCommand;
 import space.npstr.wolfia.utils.App;
 
 import java.util.HashMap;
@@ -43,17 +44,22 @@ public class CommandHandler {
     private static final Map<String, ICommand> COMMAND_REGISTRY = new HashMap<>();
 
     static {
-        COMMAND_REGISTRY.put(HelpCommand.COMMAND, new HelpCommand());
+        //game related commands
         COMMAND_REGISTRY.put(InCommand.COMMAND, new InCommand());
         COMMAND_REGISTRY.put(OutCommand.COMMAND, new OutCommand());
+        COMMAND_REGISTRY.put(RolePMCommand.COMMAND, new RolePMCommand());
         COMMAND_REGISTRY.put(SetupCommand.COMMAND, new SetupCommand());
         COMMAND_REGISTRY.put(ShootCommand.COMMAND, new ShootCommand());
         COMMAND_REGISTRY.put(StartCommand.COMMAND, new StartCommand());
         COMMAND_REGISTRY.put(StatusCommand.COMMAND, new StatusCommand());
-        COMMAND_REGISTRY.put(RolePMCommand.COMMAND, new RolePMCommand());
+
+        //other commands
+        COMMAND_REGISTRY.put(HelpCommand.COMMAND, new HelpCommand());
+        COMMAND_REGISTRY.put(InfoCommand.COMMAND, new InfoCommand());
+
+        //bot owner/debug commands
         COMMAND_REGISTRY.put(EvalCommand.COMMAND, new EvalCommand());
         COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
-        COMMAND_REGISTRY.put(StatsCommand.COMMAND, new StatsCommand());
     }
 
     public static void handleCommand(final CommandContainer commandInfo) {

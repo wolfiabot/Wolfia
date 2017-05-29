@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.StatusCommand;
+import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.utils.Action;
 import space.npstr.wolfia.utils.TextchatUtils;
 

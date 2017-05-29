@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands;
+package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
@@ -48,7 +48,7 @@ public class OutCommand implements ICommand {
                 final Member invoker = commandInfo.event.getMember();
                 final TextChannel channel = commandInfo.event.getTextChannel();
                 if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && invoker.getUser().getIdLong() != App.OWNER_ID) {
-                    Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out other players.", invoker.getAsMention());
+                    Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out util players.", invoker.getAsMention());
                     return;
                 } else {
                     commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.outPlayer(u.getIdLong()));
@@ -63,7 +63,7 @@ public class OutCommand implements ICommand {
 
     @Override
     public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + "\nwill remove you from the current signup list\n " + Config.PREFIX + COMMAND + "@user allows moderators to out other players```";
+        return "```usage: " + Config.PREFIX + COMMAND + "\nwill remove you from the current signup list\n " + Config.PREFIX + COMMAND + "@user allows moderators to out util players```";
     }
 
 }

@@ -23,6 +23,7 @@ Drop by in the Wolfia Lounge to get support, leave feedback, and find like-minde
 | `w.shoot @player` | shoot another player                                                            |
 | `w.start`         | start a game                                                                    |
 | `w.status`        | show the current status of an ongoing game or sign ups                          |
+| `w.info`          | show some general information about the bot                                     |
 
 
 * * *
