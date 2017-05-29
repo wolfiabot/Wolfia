@@ -43,6 +43,8 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
@@ -140,6 +142,12 @@ public class Wolfia {
             return;
         }
 
+        jda.asBot().getApplicationInfo().queue(
+                appInfo -> {
+                    App.OWNER_ID = appInfo.getOwner().getIdLong();
+                    App.INVITE_LINK = appInfo.getInviteUrl();
+                },
+                t -> log.error("Could not load application info", t));
     }
 
     public static void handleOutputMessage(final MessageChannel channel, final Consumer<Throwable> onFail, final String msg, final Object... args) {

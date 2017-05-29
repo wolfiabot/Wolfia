@@ -19,12 +19,12 @@ package space.npstr.wolfia.commands.meta;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.*;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.StatsCommand;
 import space.npstr.wolfia.commands.debug.UpdateCommand;
 import space.npstr.wolfia.commands.meta.CommandParser.CommandContainer;
+import space.npstr.wolfia.utils.App;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,7 +68,7 @@ public class CommandHandler {
                 return;
             }
 
-            if (command instanceof IOwnerRestricted && commandInfo.event.getAuthor().getIdLong() != Config.C.ownerId) {
+            if (command instanceof IOwnerRestricted && commandInfo.event.getAuthor().getIdLong() != App.OWNER_ID) {
                 //not the bot owner
                 log.info("user {} channel {} attempted issuing owner restricted command: {}",
                         commandInfo.event.getAuthor().getIdLong(),

@@ -18,14 +18,9 @@
 package space.npstr.wolfia;
 
 
-import net.dv8tion.jda.core.requests.Requester;
-import okhttp3.Request;
-import okhttp3.Response;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
-import space.npstr.wolfia.utils.App;
 
 import java.io.File;
 import java.io.FileReader;
@@ -66,10 +61,6 @@ public class Config {
     public final String redisAuth;
     public final String errorLogWebHook;
 
-
-    //load even more values
-    public final long ownerId;
-
     @SuppressWarnings(value = "unchecked")
     public Config() throws IOException {
 
@@ -107,22 +98,5 @@ public class Config {
             this.redisAuth = "";
 
         this.errorLogWebHook = (String) sneaky.getOrDefault("errorLogWebHook", "");
-
-
-        this.ownerId = Long.valueOf(getApplicationInfo(this.discordToken).getJSONObject("owner").getString("id"));
-    }
-
-
-    //https://discordapp.com/developers/docs/topics/oauth2#get-current-application-information
-    public static JSONObject getApplicationInfo(final String token) throws IOException {
-        final Request request = new Request.Builder()
-                .url(Requester.DISCORD_API_PREFIX + "/oauth2/applications/@me")
-                .header("Authorization", "Bot " + token)
-                .header("User-agent", "Wolfia DiscordBot (https://github.com/napstr/wolfia, " + App.VERSION + ")")
-                .get()
-                .build();
-        final Response response = Wolfia.httpClient.newCall(request).execute();
-        //noinspection ConstantConditions
-        return new JSONObject(response.body().string());
     }
 }

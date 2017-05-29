@@ -26,6 +26,7 @@ import space.npstr.wolfia.commands.meta.CommandParser;
 import space.npstr.wolfia.commands.meta.ICommand;
 import space.npstr.wolfia.game.GameSetup;
 import space.npstr.wolfia.game.Setups;
+import space.npstr.wolfia.utils.App;
 
 /**
  * Created by npstr on 23.08.2016
@@ -46,7 +47,7 @@ public class OutCommand implements ICommand {
             if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
                 final Member invoker = commandInfo.event.getMember();
                 final TextChannel channel = commandInfo.event.getTextChannel();
-                if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && invoker.getUser().getIdLong() != Config.C.ownerId) {
+                if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && invoker.getUser().getIdLong() != App.OWNER_ID) {
                     Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out other players.", invoker.getAsMention());
                     return;
                 } else {

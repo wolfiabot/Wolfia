@@ -22,6 +22,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.utils.App;
 
 import java.util.Set;
 
@@ -40,7 +41,7 @@ public class SimulatedGroupDMListener extends ListenerAdapter {
      */
     public SimulatedGroupDMListener(final Set<Long> users) {
         this.users = users;
-        if (Config.C.isDebug) users.add(Config.C.ownerId);
+        if (Config.C.isDebug) users.add(App.OWNER_ID);
     }
 
     @Override

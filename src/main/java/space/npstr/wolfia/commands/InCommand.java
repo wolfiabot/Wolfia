@@ -24,6 +24,7 @@ import space.npstr.wolfia.commands.meta.ICommand;
 import space.npstr.wolfia.game.GameSetup;
 import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.game.Setups;
+import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
@@ -55,7 +56,7 @@ public class InCommand implements ICommand {
 
 
         //force inn by bot owner
-        if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && commandInfo.event.getAuthor().getIdLong() == Config.C.ownerId) {
+        if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && commandInfo.event.getAuthor().getIdLong() == App.OWNER_ID) {
             commandInfo.event.getMessage().getMentionedUsers().forEach(u -> s.inPlayer(u.getIdLong(),
                     () -> Wolfia.handleOutputMessage(commandInfo.event.getChannel(), s.getStatus())));
             return;
