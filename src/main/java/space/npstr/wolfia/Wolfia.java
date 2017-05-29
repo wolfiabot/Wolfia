@@ -134,6 +134,7 @@ public class Wolfia {
                     .setToken(Config.C.discordToken)
                     .addEventListener(mainListener)
                     .setEnableShutdownHook(false)
+                    .setGame(Game.of(App.GAME_STATUS))
                     .buildBlocking();
         } catch (final Exception e) {
             log.error("could not create JDA object, possibly invalid bot token, exiting", e);
