@@ -38,7 +38,6 @@ package space.npstr.wolfia;
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import com.github.napstr.logback.DiscordAppender;
-import com.google.gson.Gson;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -71,7 +70,6 @@ public class Wolfia {
 //    private static RedisClient redisClient;
 //    private static DBWrapper mainDB;
 
-    private static final Gson GSON = new Gson();
     private static final String DB_PREFIX = "wolfia:";
     private static final String DB_PREFIX_PLAYER = DB_PREFIX + "player:";
     private static final String DB_PREFIX_PREGAME = DB_PREFIX + "unhaim:";
