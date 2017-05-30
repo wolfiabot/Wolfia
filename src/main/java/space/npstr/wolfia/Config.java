@@ -60,6 +60,7 @@ public class Config {
     public final String discordToken;
     public final String redisAuth;
     public final String errorLogWebHook;
+    public final String jdbcUrl;
 
     @SuppressWarnings(value = "unchecked")
     public Config() throws IOException {
@@ -98,5 +99,7 @@ public class Config {
             this.redisAuth = "";
 
         this.errorLogWebHook = (String) sneaky.getOrDefault("errorLogWebHook", "");
+
+        this.jdbcUrl = (String) sneaky.getOrDefault("jdbcUrl", "");
     }
 }

@@ -20,6 +20,7 @@ package space.npstr.wolfia.commands.meta;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.commands.debug.DbTestCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.UpdateCommand;
 import space.npstr.wolfia.commands.game.*;
@@ -60,6 +61,7 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(InfoCommand.COMMAND, new InfoCommand());
 
         //bot owner/debug commands
+        COMMAND_REGISTRY.put(DbTestCommand.COMMAND, new DbTestCommand());
         COMMAND_REGISTRY.put(EvalCommand.COMMAND, new EvalCommand());
         COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
     }

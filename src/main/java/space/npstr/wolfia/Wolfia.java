@@ -52,6 +52,7 @@ import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.commands.meta.ICommand;
+import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
@@ -62,19 +63,12 @@ import java.util.function.Consumer;
 public class Wolfia {
 
     public static JDA jda;
+    public static DbManager dbManager;
     public static final OkHttpClient httpClient = new OkHttpClient();
     public static final long START_TIME = System.currentTimeMillis();
 
     private final HashMap<String, ICommand> commands = new HashMap<>();
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
-
-//    private static RedisClient redisClient;
-//    private static DBWrapper mainDB;
-
-    private static final String DB_PREFIX = "wolfia:";
-    private static final String DB_PREFIX_PLAYER = DB_PREFIX + "player:";
-    private static final String DB_PREFIX_PREGAME = DB_PREFIX + "unhaim:";
-
 
     //set up things that are crucial
     //if something fails exit right away
@@ -100,28 +94,8 @@ public class Wolfia {
         else
             log.info("Running PRODUCTION configuration");
 
-        //connect to DB & distribute db objects to classes
-//        final RedisURI rUI = RedisURI.builder().withHost("localhost").withPort(6379).withPassword(Config.C.redisAuth).build();
-//        redisClient = RedisClient.create(rUI);
-//        final RedisCommands<String, String> redisSync;
-//        try {
-//            redisSync = redisClient.connect().sync();
-//            mainDB = new DBWrapper(DB_PREFIX, redisSync, GSON);
-//            //try writing and reading as a simple test
-//            mainDB.set("key", "value");
-//            mainDB.get("key", String.class);
-//            mainDB.del("key");
-//            Player.setDB(new DBWrapper(DB_PREFIX_PLAYER, redisSync, GSON));
-//
-//            log.info("Established connection to redis DB");
-//        } catch (final RedisConnectionException e) {
-//            log.error("could not establish connection to redis DB, exiting", e);
-//            return;
-//        } catch (final RedisCommandExecutionException e) {
-//            log.error("could not execute commands on redis DB, possibly wrong AUTH, exiting", e);
-//            return;
-//        }
-
+        //set up relational database
+        dbManager = new DbManager();
 
         new Wolfia();
     }

@@ -30,6 +30,11 @@ dependencies {
     compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
     compile 'com.squareup.okhttp3:okhttp:3.8.0'                                     //make http requests
     compile 'com.github.napstr:logback-discord-appender:0.0.2'      //log errors to a discord channel through a webhook
+
+    //database stuff
+    compile 'org.postgresql:postgresql:42.1.1'                                      //postgres jdbc driver
+    compile 'org.hibernate:hibernate-entitymanager:5.2.10.Final'                    //hibernate + JPA
+    compile 'com.zaxxer:HikariCP:2.6.2'                                             //connection pool
 }
 
 task wrapper(type: Wrapper) {
