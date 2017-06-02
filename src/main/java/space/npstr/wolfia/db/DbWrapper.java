@@ -31,6 +31,13 @@ import java.util.List;
  * Created by napster on 30.05.17.
  * <p>
  * This class is all about saving/loading/deleting entities
+ * <p>
+ * Some general notes: the entities/objects in Wolfia are mostly treated just as data containers, conveniently
+ * describing what data we have and how exactly that data looks like. With Hibernate we automatically create the needed
+ * columns, even if we later on decided to add more, we won't have to do any kind of annoying/complicated/errorprone
+ * /timeconsuming lowlevel database operations. This is all about just throwing data at the database, easily getting it
+ * out again, and being easily extendable in the future.
+ * This is NOT about transfering actual objects between independent applications.
  */
 public class DbWrapper {
 
@@ -39,7 +46,7 @@ public class DbWrapper {
 
     //########## saving
 
-    private static void merge(final IEntity entity) {
+    public static void merge(final IEntity entity) {
         final DbManager dbManager = Wolfia.dbManager;
 
         final EntityManager em = dbManager.getEntityManager();
@@ -57,22 +64,31 @@ public class DbWrapper {
 
     //########## loading
 
+    //never returns null; IEntity objects are required to have a default constructor that sets them up with sensible
+    // defaults, as long as we make sure that the id is a natural one (for example derived from a snowflake from
+    // discord, aka channels, guilds, users etc)
     private static <E extends IEntity> E getEntity(final long id, final Class<E> clazz) {
-        final DbManager dbManager = Wolfia.dbManager;
+        E entity = getObject(id, clazz);
+        //return a fresh object if we didn't find the one we were looking for
+        if (entity == null) entity = newInstance(id, clazz);
+        return entity;
+    }
 
+    //may return null
+    private static <O> O getObject(final long id, final Class<O> clazz) {
+        final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
-        E entity;
+        O object;
         try {
-            entity = em.find(clazz, id);
+            object = em.find(clazz, id);
         } catch (final PersistenceException e) {
             log.error("Error while trying to find entity of class {} from DB for id {}", clazz.getName(), id, e);
             throw new RuntimeException(e);
         } finally {
             em.close();
         }
-        //return a fresh object if we didn't found the one we were looking for
-        if (entity == null) entity = newInstance(id, clazz);
-        return entity;
+
+        return object;
     }
 
     private static <E extends IEntity> E newInstance(final long id, final Class<E> clazz) {

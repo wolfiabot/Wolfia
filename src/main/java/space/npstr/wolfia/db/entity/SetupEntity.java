@@ -19,10 +19,9 @@ package space.npstr.wolfia.db.entity;
 
 import space.npstr.wolfia.db.IEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by napster on 29.05.17.
@@ -30,13 +29,31 @@ import javax.persistence.Table;
  * database representation of a Setup object
  */
 @Entity
-@Table(name = "SetupEntity")
+@Table(name = "setups")
 public class SetupEntity implements IEntity {
 
     @Id
-    @Column(name = "channel_id0")
-    private long channelId;
+    @Column(name = "channel_id")
+    private long channelId = -1;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "inned_players")
+    private Set<Long> innedPlayers = new HashSet<>();
+
+    //one of the values of the Games.GAMES enum
+    @Column(name = "game")
+    private String game = "";
+
+    //optional mode, for example CLASSIC or WILD for Popcorn games
+    @Column(name = "mode")
+    private String mode = "";
+
+
+    public SetupEntity(final long channelId, final Set<Long> innedPlayers, final String game) {
+        this.channelId = channelId;
+        this.innedPlayers = innedPlayers;
+        this.game = game;
+    }
 
     @Override
     public void setId(final long id) {
@@ -48,6 +65,8 @@ public class SetupEntity implements IEntity {
         return this.channelId;
     }
 
+
+    //below is boilerplate code for hibernate/jpa
     public SetupEntity() {
     }
 
@@ -57,5 +76,29 @@ public class SetupEntity implements IEntity {
 
     public void setChannelId(final long channelId) {
         this.channelId = channelId;
+    }
+
+    public Set<Long> getInnedPlayers() {
+        return this.innedPlayers;
+    }
+
+    public void setInnedPlayers(final Set<Long> innedPlayers) {
+        this.innedPlayers = innedPlayers;
+    }
+
+    public String getGame() {
+        return this.game;
+    }
+
+    public void setGame(final String game) {
+        this.game = game;
+    }
+
+    public String getMode() {
+        return this.mode;
+    }
+
+    public void setMode(final String mode) {
+        this.mode = mode;
     }
 }
