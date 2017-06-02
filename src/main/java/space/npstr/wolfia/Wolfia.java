@@ -51,7 +51,7 @@ import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.commands.meta.ICommand;
+import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;

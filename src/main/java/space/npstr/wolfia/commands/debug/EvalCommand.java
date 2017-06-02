@@ -24,9 +24,9 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.commands.meta.CommandParser;
-import space.npstr.wolfia.commands.meta.ICommand;
-import space.npstr.wolfia.commands.meta.IOwnerRestricted;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.game.Setups;
 

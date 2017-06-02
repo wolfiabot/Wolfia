@@ -17,22 +17,37 @@
 
 package space.npstr.wolfia.game;
 
-import space.npstr.wolfia.commands.meta.CommandParser;
-import space.npstr.wolfia.commands.meta.IGameCommand;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.IGameCommand;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 
+import java.util.List;
 import java.util.Set;
 
 /**
  * Created by npstr on 14.09.2016
+ * <p>
+ * creating these should be lightweight and not cause any permanent "damage"
+ * they may be discarded a few times before one actually starts
+ * a created game that hasn't started can answer questions about the modes it supports, supported player counts, etc
+ * <p>
+ * on contrast, starting a game is serious business
+ * it needs to receive a unique number (preferably increasing)
+ * it will have to cause outputs in the main game channel and in private channels for role pms
+ * all this means a started game has to be treated carefully, both for data consistency and to keep salt levels due to
+ * technical problems at bay
  */
 public abstract class Game {
 
     public abstract Set<Integer> getAmountsOfPlayers();
 
-    public abstract void start(Set<Long> players);
+    public abstract void start(long channelId, Set<Long> players);
 
     public abstract boolean isAcceptablePlayerCount(int signedUp);
+
+    public abstract List<String> getGameModes();
+
+    public abstract void setMode(String mode);
 
     public abstract void issueCommand(IGameCommand command, CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;
 

@@ -19,11 +19,11 @@ package space.npstr.wolfia.commands.game;
 
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.meta.CommandParser;
-import space.npstr.wolfia.commands.meta.ICommand;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.GameSetup;
 import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.Setup;
 import space.npstr.wolfia.game.Setups;
 
 /**
@@ -51,7 +51,7 @@ public class StatusCommand implements ICommand {
             return;
         }
 
-        final GameSetup setup = Setups.get(commandInfo.event.getChannel().getIdLong());
+        final Setup setup = Setups.get(commandInfo.event.getChannel().getIdLong());
         if (setup != null) {
             Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", setup.getStatus());
             return;

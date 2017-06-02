@@ -19,11 +19,12 @@ package space.npstr.wolfia.commands.game;
 
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.meta.CommandParser;
-import space.npstr.wolfia.commands.meta.ICommand;
-import space.npstr.wolfia.game.GameSetup;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.Setup;
 import space.npstr.wolfia.game.Setups;
+import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
@@ -39,7 +40,7 @@ public class StartCommand implements ICommand {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public void execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
         //is there a game going on?
         if (Games.get(commandInfo.event.getTextChannel().getIdLong()) != null) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
@@ -47,7 +48,7 @@ public class StartCommand implements ICommand {
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
             return;
         }
-        final GameSetup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
+        final Setup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
         if (setup == null) {
             Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
                     "Please start setting up a game in this channel with `%s%s`", Config.PREFIX, SetupCommand.COMMAND);

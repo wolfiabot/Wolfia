@@ -20,8 +20,8 @@ package space.npstr.wolfia.commands.util;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.meta.CommandParser;
-import space.npstr.wolfia.commands.meta.ICommand;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.utils.App;
 
 /**

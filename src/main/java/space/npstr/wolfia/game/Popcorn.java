@@ -23,10 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.IGameCommand;
 import space.npstr.wolfia.commands.game.RolePMCommand;
 import space.npstr.wolfia.commands.game.ShootCommand;
-import space.npstr.wolfia.commands.meta.CommandParser;
-import space.npstr.wolfia.commands.meta.IGameCommand;
 import space.npstr.wolfia.utils.Emojis;
 import space.npstr.wolfia.utils.GameUtils;
 import space.npstr.wolfia.utils.IllegalGameStateException;
@@ -43,6 +43,8 @@ public class Popcorn extends Game {
     private final static Logger log = LoggerFactory.getLogger(Popcorn.class);
     private final static Set<Integer> acceptedPlayerNumbers;
 
+    public enum MODE {WILD, CLASSIC}
+
     static {
         final Set<Integer> foo = new HashSet<>();
         //for debugging and fucking around I guess
@@ -57,22 +59,20 @@ public class Popcorn extends Game {
 
 
     //internal variables of an ongoing game
-    private final long channelId;
+    private long channelId;
+    private MODE mode;
     private final Set<PopcornPlayer> players = new HashSet<>();
     private boolean running = false;
     private final Set<Integer> hasDayEnded = new HashSet<>();
     private final Map<Long, String> rolePMs = new HashMap<>();
 
     private int day;
-    private final long dayLength;
+    private long dayLength;
     private long dayStarted;
     private long gunBearer;
 
 
-    public Popcorn(final long channelId) {
-        this.channelId = channelId;
-        this.day = 0;
-        this.dayLength = 60 * 10 * 1000; //10 minutes
+    public Popcorn() {
     }
 
     private void prepareChannel(final Set<Long> players) throws PermissionException {
@@ -113,7 +113,27 @@ public class Popcorn extends Game {
     }
 
     @Override
-    public void start(final Set<Long> innedPlayers) {
+    public List<String> getGameModes() {
+        return Arrays.stream(MODE.values()).map(Enum::name).collect(Collectors.toList());
+    }
+
+    @Override
+    //callers of this might want to  catch an IllegalArgumentException, or make sure the value they send is a valid one
+    //by checking getGamesModes() first
+    public void setMode(final String mode) throws IllegalArgumentException {
+        this.mode = MODE.valueOf(mode);
+    }
+
+    @Override
+    public synchronized void start(final long channelId, final Set<Long> innedPlayers) {
+        if (this.running) {
+            throw new IllegalStateException("Cannot start a game that is running already");
+        }
+
+        this.channelId = channelId;
+        this.day = 0;
+        this.dayLength = 60 * 10 * 1000; //10 minutes
+
         if (!acceptedPlayerNumbers.contains(innedPlayers.size())) {
             Wolfia.handleOutputMessage(this.channelId, "Oi mate please start this game with one of the allowed player sizes!");
             return;

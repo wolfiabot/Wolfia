@@ -22,9 +22,9 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.meta.CommandParser;
-import space.npstr.wolfia.commands.meta.ICommand;
-import space.npstr.wolfia.game.GameSetup;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.game.Setup;
 import space.npstr.wolfia.game.Setups;
 import space.npstr.wolfia.utils.App;
 
@@ -41,7 +41,7 @@ public class OutCommand implements ICommand {
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
-        final GameSetup setup = Setups.get(commandInfo.event.getChannel().getIdLong());
+        final Setup setup = Setups.get(commandInfo.event.getChannel().getIdLong());
         if (setup != null) {
             //is this a forced out of a player by an moderator or the bot owner?
             if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {

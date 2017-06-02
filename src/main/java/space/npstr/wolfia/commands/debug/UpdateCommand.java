@@ -20,11 +20,11 @@ package space.npstr.wolfia.commands.debug;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.meta.CommandParser;
-import space.npstr.wolfia.commands.meta.ICommand;
-import space.npstr.wolfia.commands.meta.IOwnerRestricted;
-import space.npstr.wolfia.game.GameSetup;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.Setup;
 
 /**
  * Created by napster on 28.05.17.
@@ -40,13 +40,13 @@ public class UpdateCommand implements ICommand, IOwnerRestricted {
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
-        if (GameSetup.restartFlag) {
+        if (Setup.restartFlag) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
                     "%s, restart flag has been set already. Ignoring your command.",
                     commandInfo.event.getAuthor().getAsMention());
             return;
         }
-        GameSetup.restartFlag = true;
+        Setup.restartFlag = true;
 
         boolean interrupted = false;
         Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),

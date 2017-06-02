@@ -28,6 +28,29 @@ import java.util.Map;
  */
 public class Games {
 
+    //lists all games supported by the bot
+    public enum GAME {
+        POPCORN(Popcorn.class);
+
+        private final Class<? extends Game> clazz;
+
+        GAME(final Class<? extends Game> clazz) {
+            this.clazz = clazz;
+        }
+
+        public Class<? extends Game> getGameClass() {
+            return this.clazz;
+        }
+
+        public Game createInstance() {
+            try {
+                return this.clazz.newInstance();
+            } catch (IllegalAccessException | InstantiationException e) {
+                return new Popcorn(); //todo decide if this handling is ok
+            }
+        }
+    }
+
 
     //static aboose
     private static final Map<Long, Game> GAME_REGISTRY = new HashMap<>();

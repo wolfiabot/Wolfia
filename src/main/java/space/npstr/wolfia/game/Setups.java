@@ -29,25 +29,25 @@ import java.util.Map;
 public class Setups {
 
     //static aboose
-    private static final Map<Long, GameSetup> SETUP_REGISTRY = new HashMap<>();
+    private static final Map<Long, Setup> SETUP_REGISTRY = new HashMap<>();
 
-    public static Map<Long, GameSetup> getAll() {
+    public static Map<Long, Setup> getAll() {
         return Collections.unmodifiableMap(SETUP_REGISTRY);
     }
 
     /**
      * @return game setup that is running in the specified channel; may return null
      */
-    public static GameSetup get(final long channelId) {
+    public static Setup get(final long channelId) {
         return SETUP_REGISTRY.get(channelId);
     }
 
-    public static void remove(final GameSetup setup) {
+    public static void remove(final Setup setup) {
         SETUP_REGISTRY.remove(setup.getChannelId());
     }
 
-    public static GameSetup createNew(final long channelId) {
-        final GameSetup setup = new GameSetup(channelId);
+    public static Setup createNew(final long channelId) {
+        final Setup setup = new Setup(channelId);
         //TODO do we need to check the channel for not being private, or other prerequisites?
         SETUP_REGISTRY.put(channelId, setup);
         return setup;

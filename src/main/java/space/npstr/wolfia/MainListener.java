@@ -22,8 +22,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.commands.meta.CommandHandler;
-import space.npstr.wolfia.commands.meta.CommandParser;
+import space.npstr.wolfia.commands.CommandHandler;
+import space.npstr.wolfia.commands.CommandParser;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

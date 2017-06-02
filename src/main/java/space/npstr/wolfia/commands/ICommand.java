@@ -15,8 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.meta;
+package space.npstr.wolfia.commands;
 
+
+import space.npstr.wolfia.utils.IllegalGameStateException;
 
 /**
  * Created by npstr on 23.08.2016
@@ -24,7 +26,7 @@ package space.npstr.wolfia.commands.meta;
 public interface ICommand {
 
     //executes the command
-    void execute(CommandParser.CommandContainer commandInfo);
+    void execute(CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;
 
     //return a help string that should explain the usage of this command
     String help();

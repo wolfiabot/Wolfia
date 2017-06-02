@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.meta;
+package space.npstr.wolfia.commands;
 
 /**
- * Created by napster on 27.05.17.
+ * Created by napster on 21.05.17.
  * <p>
- * only the bot owner should be able to issue these commands
+ * game command are different from regular commands as they can be registered by games
  */
-public interface IOwnerRestricted {
+public interface IGameCommand {
 }

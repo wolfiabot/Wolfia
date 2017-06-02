@@ -19,10 +19,10 @@ package space.npstr.wolfia.commands.game;
 
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.meta.CommandParser;
-import space.npstr.wolfia.commands.meta.ICommand;
-import space.npstr.wolfia.game.GameSetup;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.Setup;
 import space.npstr.wolfia.game.Setups;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.TextchatUtils;
@@ -48,11 +48,11 @@ public class InCommand implements ICommand {
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
             return;
         }
-        GameSetup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
+        Setup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
         if (setup == null) {
             setup = Setups.createNew(commandInfo.event.getChannel().getIdLong());
         }
-        final GameSetup s = setup;
+        final Setup s = setup;
 
 
         //force inn by bot owner
