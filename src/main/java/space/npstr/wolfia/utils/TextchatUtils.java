@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by napster on 21.05.17.
+ * <p>
+ * Useful methods for the Discord chat and general working with Strings
  */
 public class TextchatUtils {
 
@@ -46,5 +48,39 @@ public class TextchatUtils {
         } catch (final PermissionException ignored) {
             return "";
         }
+    }
+
+    /**
+     * Case insensitive
+     * Useful for fuzzy matching of two strings
+     * Source: https://rosettacode.org/wiki/Levenshtein_distance#Java
+     * <p>
+     * expected complexity: O(b + a*b)  (a and b = lengths of a and b)
+     */
+    public static int levenshteinDist(String a, String b) {
+        a = a.toLowerCase();
+        b = b.toLowerCase();
+        final int[] costs = new int[b.length() + 1];
+        for (int j = 0; j < costs.length; j++)
+            costs[j] = j;
+        for (int i = 1; i <= a.length(); i++) {
+            costs[0] = i;
+            int nw = i - 1;
+            for (int j = 1; j <= b.length(); j++) {
+                final int cj = Math.min(1 + Math.min(costs[j], costs[j - 1]), a.charAt(i - 1) == b.charAt(j - 1) ? nw : nw + 1);
+                nw = costs[j];
+                costs[j] = cj;
+            }
+        }
+        return costs[b.length()];
+    }
+
+    //just kept around to eval-test the above levenshtein code
+    public static String levenshteinTest() {
+        final String[] data = {"kitten", "sitting", "saturday", "sunday", "rosettacode", "raisethysword"};
+        String out = "";
+        for (int i = 0; i < data.length; i += 2)
+            out += ("\nlevenshteinDist(" + data[i] + ", " + data[i + 1] + ") = " + levenshteinDist(data[i], data[i + 1]));
+        return out;
     }
 }
