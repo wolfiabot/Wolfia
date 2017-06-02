@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entity.SetupEntity;
+import space.npstr.wolfia.db.entity.stats.GameStats;
+import space.npstr.wolfia.db.entity.stats.TeamStats;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
@@ -48,7 +50,6 @@ public class DbWrapper {
 
     public static void merge(final IEntity entity) {
         final DbManager dbManager = Wolfia.dbManager;
-
         final EntityManager em = dbManager.getEntityManager();
         try {
             em.getTransaction().begin();
@@ -62,16 +63,52 @@ public class DbWrapper {
         }
     }
 
+    public static void persist(final Object object) {
+        final DbManager dbManager = Wolfia.dbManager;
+        final EntityManager em = dbManager.getEntityManager();
+        try {
+            em.getTransaction().begin();
+            em.persist(object);
+            em.getTransaction().commit();
+        } catch (final JDBCConnectionException e) {
+            log.error("Failed to merge object {}", object, e);
+            throw new RuntimeException(e);
+        } finally {
+            em.close();
+        }
+    }
+
     //########## loading
 
     //never returns null; IEntity objects are required to have a default constructor that sets them up with sensible
     // defaults, as long as we make sure that the id is a natural one (for example derived from a snowflake from
     // discord, aka channels, guilds, users etc)
-    private static <E extends IEntity> E getEntity(final long id, final Class<E> clazz) {
+    public static <E extends IEntity> E getEntity(final long id, final Class<E> clazz) {
         E entity = getObject(id, clazz);
         //return a fresh object if we didn't find the one we were looking for
         if (entity == null) entity = newInstance(id, clazz);
         return entity;
+    }
+
+    public static List<GameStats> loadStats() {
+        final DbManager dbManager = Wolfia.dbManager;
+        final EntityManager em = dbManager.getEntityManager();
+
+        final List<GameStats> queryResult;
+        try {
+            queryResult = em.createQuery("SELECT g FROM stats_game g", GameStats.class).getResultList();
+            //force load all the lazy things
+            for (final GameStats g : queryResult) {
+                g.getActions().size();
+                g.getStartingTeams().size();
+                for (final TeamStats t : g.getStartingTeams()) {
+                    t.getPlayers().size();
+                }
+            }
+        } finally {
+            em.close();
+        }
+        return queryResult;
     }
 
     //may return null

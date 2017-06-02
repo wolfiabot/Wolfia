@@ -27,7 +27,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "stats_action")
-public class Action implements Serializable {
+public class ActionStats implements Serializable {
 
     private static final long serialVersionUID = -6803073458836067860L;
 
@@ -40,7 +40,7 @@ public class Action implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
     @Column(name = "game")
-    private Game game;
+    private GameStats game;
 
     //chronological order of the actions
     //just a failsafe in case the List of actions in Game gets into an unsorted state
@@ -69,7 +69,6 @@ public class Action implements Serializable {
     private long target;
 
     @Override
-
     public int hashCode() {
         final int prime = 31;
         //todo test if referencing game here produces any kind of errors, since it's marked as lazy loading
@@ -85,10 +84,10 @@ public class Action implements Serializable {
 
     @Override
     public boolean equals(final Object obj) {
-        if (!(obj instanceof Action)) {
+        if (!(obj instanceof ActionStats)) {
             return false;
         }
-        final Action a = (Action) obj;
+        final ActionStats a = (ActionStats) obj;
         //todo test if referencing game here produces any kind of errors, since it's marked as lazy loading
         return this.game.equals(a.game)
                 && this.order == a.order
@@ -101,7 +100,7 @@ public class Action implements Serializable {
 
     //########## boilerplate code below
 
-    Action() {
+    ActionStats() {
     }
 
     public long getId() {
@@ -112,11 +111,11 @@ public class Action implements Serializable {
         this.id = id;
     }
 
-    public Game getGame() {
+    public GameStats getGame() {
         return this.game;
     }
 
-    public void setGame(final Game game) {
+    public void setGame(final GameStats game) {
         this.game = game;
     }
 
