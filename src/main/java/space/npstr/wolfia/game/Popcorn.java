@@ -213,7 +213,7 @@ public class Popcorn extends Game {
 
     private void giveGun(final long userId) {
         this.gunBearer = userId;
-        Wolfia.handleOutputMessage(this.channelId, TextchatUtils.userAsMention(userId) + " has the %s !", Emojis.GUN);
+        Wolfia.handleOutputMessage(this.channelId, "%s has the %s !", TextchatUtils.userAsMention(userId), Emojis.GUN);
         startDay();
     }
 
@@ -283,7 +283,7 @@ public class Popcorn extends Game {
         } else if (!isLiving(targetId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s you have to %s a living player of this game!",
                     TextchatUtils.userAsMention(shooterId), Emojis.GUN);
-            Wolfia.handleOutputMessage(this.channelId, listLivingPlayers());
+            Wolfia.handleOutputMessage(this.channelId, "%s", listLivingPlayers());
             return;
         }
 

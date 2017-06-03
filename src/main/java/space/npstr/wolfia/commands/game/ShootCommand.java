@@ -54,7 +54,7 @@ public class ShootCommand implements ICommand, IGameCommand {
         try {
             game.issueCommand(this, commandInfo);
         } catch (final IllegalGameStateException e) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), e.getMessage());
+            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", e.getMessage());
         }
 
     }

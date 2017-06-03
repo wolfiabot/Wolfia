@@ -58,11 +58,11 @@ public class InCommand implements ICommand {
         //force inn by bot owner
         if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && commandInfo.event.getAuthor().getIdLong() == App.OWNER_ID) {
             commandInfo.event.getMessage().getMentionedUsers().forEach(u -> s.inPlayer(u.getIdLong(),
-                    () -> Wolfia.handleOutputMessage(commandInfo.event.getChannel(), s.getStatus())));
+                    () -> Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", s.getStatus())));
             return;
         }
 
-        s.inPlayer(commandInfo.event.getAuthor().getIdLong(), () -> Wolfia.handleOutputMessage(commandInfo.event.getChannel(), s.getStatus()));
+        s.inPlayer(commandInfo.event.getAuthor().getIdLong(), () -> Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", s.getStatus()));
     }
 
     @Override

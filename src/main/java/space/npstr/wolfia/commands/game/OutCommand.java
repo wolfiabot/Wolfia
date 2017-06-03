@@ -57,7 +57,7 @@ public class OutCommand implements ICommand {
                 //handling a regular out
                 setup.outPlayer(commandInfo.event.getAuthor().getIdLong());
             }
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), setup.getStatus());
+            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", setup.getStatus());
         }
     }
 

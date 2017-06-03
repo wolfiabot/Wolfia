@@ -58,7 +58,7 @@ public class SimulatedGroupDMListener extends ListenerAdapter {
             for (final long userId : this.users) {
                 if (userId == event.getAuthor().getIdLong()) continue; //skip the sender of the message
                 final PrivateChannel pChan = event.getJDA().getUserById(userId).openPrivateChannel().complete();
-                Wolfia.handleOutputMessage(pChan, event.getAuthor().getName() + ": " + event.getMessage().getContent());
+                Wolfia.handleOutputMessage(pChan, "%s", event.getAuthor().getName() + ": " + event.getMessage().getContent());
             }
         }
     }

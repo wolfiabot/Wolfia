@@ -48,7 +48,7 @@ public class SetupCommand implements ICommand {
         if (setup == null) {
             setup = Setups.createNew(commandInfo.event.getChannel().getIdLong());
         }
-        Wolfia.handleOutputMessage(commandInfo.event.getChannel(), setup.getStatus());
+        Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", setup.getStatus());
     }
 
     @Override
