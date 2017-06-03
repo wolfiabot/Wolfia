@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.meta;
 
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.commands.debug.EvalCommand;
@@ -84,7 +85,9 @@ public class CommandHandler {
             }
             command.execute(commandInfo);
         } catch (final Exception e) {
-            log.error("Exception while handling a command", e);
+            final MessageReceivedEvent ev = commandInfo.event;
+            log.error("Exception while handling a command in guild {}, channel {}, user {}",
+                    ev.getGuild().getIdLong(), ev.getChannel().getIdLong(), ev.getAuthor().getIdLong(), e);
         }
     }
 }
