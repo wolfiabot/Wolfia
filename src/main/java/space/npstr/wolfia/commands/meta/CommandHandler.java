@@ -27,6 +27,7 @@ import space.npstr.wolfia.commands.meta.CommandParser.CommandContainer;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InfoCommand;
 import space.npstr.wolfia.utils.App;
+import space.npstr.wolfia.utils.TextchatUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -86,8 +87,9 @@ public class CommandHandler {
             command.execute(commandInfo);
         } catch (final Exception e) {
             final MessageReceivedEvent ev = commandInfo.event;
-            log.error("Exception while handling a command in guild {}, channel {}, user {}",
-                    ev.getGuild().getIdLong(), ev.getChannel().getIdLong(), ev.getAuthor().getIdLong(), e);
+            log.error("Exception while handling a command in guild {}, channel {}, user {}, invite {}",
+                    ev.getGuild().getIdLong(), ev.getChannel().getIdLong(), ev.getAuthor().getIdLong(),
+                    TextchatUtils.createInviteLink(ev.getTextChannel()), e);
         }
     }
 }

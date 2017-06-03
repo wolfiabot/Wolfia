@@ -17,6 +17,9 @@
 
 package space.npstr.wolfia.utils;
 
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.exceptions.PermissionException;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,5 +38,13 @@ public class TextchatUtils {
                         TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+    }
+
+    public static String createInviteLink(final TextChannel channel) {
+        try {
+            return "https://discord.gg/" + channel.createInvite().complete().getCode();
+        } catch (final PermissionException ignored) {
+            return "";
+        }
     }
 }
