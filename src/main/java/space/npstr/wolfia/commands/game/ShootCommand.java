@@ -39,7 +39,7 @@ public class ShootCommand implements ICommand, IGameCommand {
     public void execute(final CommandParser.CommandContainer commandInfo) {
 
         if (commandInfo.event.getMessage().getMentionedUsers().size() < 1) {
-            commandInfo.event.getChannel().sendMessage(help()).queue();
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s", help());
             return;
         }
 
