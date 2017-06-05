@@ -21,6 +21,13 @@ package space.npstr.wolfia.game.definitions;
  * Created by napster on 02.06.17.
  */
 public enum Alignments {
-    VILLAGE,
-    WOLF
+    VILLAGE("Village"),
+    WOLF("Wolves");
+
+
+    public final String textRep;
+
+    Alignments(final String textRepresentation) {
+        this.textRep = textRepresentation;
+    }
 }
