@@ -49,6 +49,12 @@ public class MainListener extends ListenerAdapter {
         if (!raw.regionMatches(true, 0, Config.PREFIX, 0, Config.PREFIX.length())) {
             return;
         }
+
+        //ignore bot accounts generally
+        if (event.getAuthor().isBot()) {
+            return;
+        }
+
         //bot should ignore itself
         if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
             return;
