@@ -28,6 +28,7 @@ import space.npstr.wolfia.commands.debug.UpdateCommand;
 import space.npstr.wolfia.commands.game.*;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InfoCommand;
+import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.TextchatUtils;
 
@@ -60,6 +61,7 @@ public class CommandHandler {
         //other commands
         COMMAND_REGISTRY.put(HelpCommand.COMMAND, new HelpCommand());
         COMMAND_REGISTRY.put(InfoCommand.COMMAND, new InfoCommand());
+        COMMAND_REGISTRY.put(ReplayCommand.COMMAND, new ReplayCommand());
 
         //bot owner/debug commands
         COMMAND_REGISTRY.put(DbTestCommand.COMMAND, new DbTestCommand());

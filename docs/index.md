@@ -13,17 +13,18 @@ Drop by in the Wolfia Lounge to get support, leave feedback, and find like-minde
 
 ## Commands
 
-| Command           | What it does                                                                    |
-|:------------------|:--------------------------------------------------------------------------------|
-| `w.help`          | send some help your way                                                         |
-| `w.in`            | sign up for a game                                                              |
-| `w.out`           | drop from the sign up list; Moderators can out other players with `w.out @user` |
-| `w.rolepm`        | ask the bot to resend you your rolepm for the ongoing game                      |
-| `w.setup`         | set up the game in the current channel                                          |
-| `w.shoot @player` | shoot another player                                                            |
-| `w.start`         | start a game                                                                    |
-| `w.status`        | show the current status of an ongoing game or sign ups                          |
-| `w.info`          | show some general information about the bot                                     |
+| Command            | What it does                                                                    |
+|:-------------------|:--------------------------------------------------------------------------------|
+| `w.help`           | send some help your way                                                         |
+| `w.in`             | sign up for a game                                                              |
+| `w.out`            | drop from the sign up list; Moderators can out other players with `w.out @user` |
+| `w.rolepm`         | ask the bot to resend you your rolepm for the ongoing game                      |
+| `w.setup`          | set up the game in the current channel                                          |
+| `w.shoot @player`  | shoot another player                                                            |
+| `w.start`          | start a game                                                                    |
+| `w.status`         | show the current status of an ongoing game or sign ups                          |
+| `w.info`           | show some general information about the bot                                     |
+| `w.replay #gameid` | show the replay of a game                                                       |
 
 
 * * *
