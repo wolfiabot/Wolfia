@@ -48,7 +48,7 @@ public class UpdateCommand implements ICommand, IOwnerRestricted {
         Wolfia.restartFlag = true;
 
         boolean interrupted = false;
-        Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
+        Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),
                 "%s, **%s** games are still running. Will update as soon as they are over.",
                 commandInfo.event.getAuthor().getAsMention(), Games.getAll().size());
         while (Games.getAll().size() > 0 && !interrupted) {

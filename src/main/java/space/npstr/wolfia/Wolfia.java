@@ -44,6 +44,7 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
@@ -124,23 +125,40 @@ public class Wolfia {
 
     //################## message handling + tons of overloaded methods
 
-    public static void handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+    //calling with complete = true will ignore onsuccess and on fail
+    private static void handleOutputMessage(final boolean complete, final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        if (complete && (onSuccess != null || onFail != null)) {
+            log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
+        }
         final MessageBuilder mb = new MessageBuilder();
         mb.appendFormat(msg, args);
         try {
-            channel.sendMessage(mb.build()).queue(onSuccess, onFail);
+            final RestAction<Message> ra = channel.sendMessage(mb.build());
+            if (complete) {
+                ra.complete();
+            } else {
+                ra.queue(onSuccess, onFail);
+            }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
         }
     }
 
+    private static void handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
+    }
+
+    public static void handleOutputMessage(final boolean complete, final MessageChannel channel, final String msg, final Object... args) {
+        handleOutputMessage(complete, channel, null, null, msg, args);
+    }
+
     public static void handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
-        handleOutputMessage(channel, null, null, msg, args);
+        handleOutputMessage(false, channel, null, null, msg, args);
     }
 
     public static void handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
         final TextChannel channel = jda.getTextChannelById(channelId);
-        handleOutputMessage(channel, null, onFail, msg, args);
+        handleOutputMessage(false, channel, null, onFail, msg, args);
     }
 
     public static void handleOutputMessage(final long channelId, final String msg, final Object... args) {
