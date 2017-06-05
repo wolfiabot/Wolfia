@@ -39,11 +39,21 @@ public class Emojis {
     public static final String COFFIN = "⚰";
     public static final String SKULL = "💀";
     public static final String HOG = "🐷";
+    public static final String POTATO = "🥔";
+    public static final String VIDEO_GAME = "🎮";
+    public static final String END = "🔚";
+    public static final String COWBOY = "🤠";
+
+    public static final String SUNNY = "☀";
+    public static final String FULL_MOON = "🌕";
+    public static final String CITY_SUNSET_SUNRISE = "🌇";
+
 
     //custom ones, currently hosted in the Wolfia Lounge
     public static final String EEK = "<:eek:318452576850804748>";
     public static final String CANTLOOK = "<:cantlook:318452650029088779>";
     public static final String RIP = "<:rip:318205519724675072>";
+    public static final String WOLFTHINK = "<:wolfthinking:320350239795970048>";
 
 
     //to be called by eval for a quick'n'dirty test whether all emojis that are defined in this class are being
