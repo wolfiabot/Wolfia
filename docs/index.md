@@ -2,12 +2,35 @@
 layout: default
 ---
 
+## Invite Wolfia to your server
+
 To invite the bot to your Discord please follow this link:
 [>>Invite Wolfia<<](https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot)
 
-Drop by in the Wolfia Lounge to get support, leave feedback, and find like-minded individuals:
+* * *
+
+## Join our server
+
+Drop by the Wolfia Lounge to
+- get support
+- get notified of updates
+- see and vote on the roadmap of the project
+- leave any kind of feedback
+- or just find like-minded individuals:
 
 [![Join Wolfia Lounge](https://discordapp.com/api/guilds/315944983754571796/embed.png?style=banner2)](https://discord.gg/nvcfX3q)
+
+* * *
+
+## Ⲁ version
+
+Wolfia is currently in **alpha** status, which means the following:
+- A small selection of games and modes is supported. More stuff is being worked on.
+- Bugs during games might happen. Please drop by in the Wolfia Lounge to help sort these out.
+- Data and commands might change without notice.
+- Output and formatting of messages might look a bit rough.
+
+Being an Ⲁ bot doesn't stop Wolfia from being an Ⲁ wolf with close to 100% uptime though!
 
 * * *
 
@@ -46,3 +69,7 @@ Drop by in the Wolfia Lounge to get support, leave feedback, and find like-minde
 - Written in Java using the excellent [JDA (Java Discord API)](https://github.com/DV8FromTheWorld/JDA). They maintain a super helpful crowd in their Discord guild.
 - Several functions and architectural decisions inspired by and/or plain copy pasta'd from [Frederikam's](https://github.com/Frederikam) music bot [FredBoat](https://github.com/Frederikam/FredBoat).
 - Thanks to the folks at [Mafia Universe](http://www.mafiauniverse.com) and their Discord guild for helping testing and refining the initial version.
+
+* * *
+
+Coded with lots of ![](https://canary.discordapp.com/assets/25c09e6fde32411da2b0da00f5cb9c84.svg){:height="15" width="15"} by [Napster](https://npstr.space/)
