@@ -86,7 +86,10 @@ public class DbWrapper {
     public static <E extends IEntity> E getEntity(final long id, final Class<E> clazz) {
         E entity = getObject(id, clazz);
         //return a fresh object if we didn't find the one we were looking for
-        if (entity == null) entity = newInstance(id, clazz);
+        if (entity == null) {
+            entity = newInstance(id, clazz);
+            DbWrapper.merge(entity);
+        }
         return entity;
     }
 

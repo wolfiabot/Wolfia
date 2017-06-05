@@ -63,10 +63,6 @@ public class SetupEntity implements IEntity {
     @Column(name = "mode")
     private String mode = "";
 
-    //constructor for JPA/Hibernate
-    SetupEntity() {
-    }
-
     //some basic getters/setters
     @Override
     public void setId(final long id) {
@@ -102,13 +98,10 @@ public class SetupEntity implements IEntity {
         this.mode = mode;
     }
 
-
     //create a fresh setup; default game is Popcorn, default mode is Wild
-    public SetupEntity(final long channelId) {
-        this.channelId = channelId;
+    public SetupEntity() {
         this.setGame(Games.POPCORN);
         this.setMode(Popcorn.MODE.WILD.name());
-        DbWrapper.merge(this);
     }
 
     public void inUser(final long userId, final Operation success) {
@@ -207,17 +200,4 @@ public class SetupEntity implements IEntity {
             DbWrapper.merge(this);
         }
     }
-
-
-//    public void setChannelId(final long channelId) {
-//        this.channelId = channelId;
-//    }
-
-//    public Set<Long> getInnedUsers() {
-//        return this.innedUsers;
-//    }
-
-//    public void setInnedUsers(final Set<Long> innedUsers) {
-//        this.innedUsers = innedUsers;
-//    }
 }
