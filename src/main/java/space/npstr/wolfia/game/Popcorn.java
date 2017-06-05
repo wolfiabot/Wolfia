@@ -277,6 +277,15 @@ public class Popcorn extends Game {
         }
     }
 
+    // can be called for debugging
+    public void evalShoot(final String shooterId, final String targetId) throws IllegalGameStateException {
+        if (!Config.C.isDebug) {
+            log.error("Cant eval shoot outside of DEBUG mode");
+            return;
+        }
+        shoot(Long.valueOf(shooterId), Long.valueOf(targetId));
+    }
+
     private void shoot(final long shooterId, final long targetId) throws IllegalGameStateException {
         //check various conditions for the shot being legal
         if (targetId == Wolfia.jda.getSelfUser().getIdLong()) {
