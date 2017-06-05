@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.Games;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,6 +46,11 @@ public class MainListener extends ListenerAdapter {
     //sort the checks here approximately by widest and cheapest filters higher up, and put expensive filters lower
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
+
+        //update user stats
+        final Game g = Games.get(event.getChannel().getIdLong());
+        if (g != null) g.userPosted(event.getMessage());
+
         //ignore messages not starting with the prefix (prefix is accepted case insensitive)
         final String raw = event.getMessage().getRawContent();
         if (!raw.regionMatches(true, 0, Config.PREFIX, 0, Config.PREFIX.length())) {
