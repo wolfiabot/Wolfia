@@ -42,10 +42,7 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.OkHttpClient;
@@ -149,6 +146,21 @@ public class Wolfia {
     public static void handleOutputMessage(final long channelId, final String msg, final Object... args) {
         handleOutputMessage(channelId, null, msg, args);
     }
+
+    //embeds
+    public static void handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed) {
+        try {
+            channel.sendMessage(msgEmbed).queue();
+        } catch (final PermissionException e) {
+            log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
+        }
+    }
+
+    public static void handleOutputEmbed(final long channelId, final MessageEmbed msgEmbed) {
+        final TextChannel channel = jda.getTextChannelById(channelId);
+        handleOutputEmbed(channel, msgEmbed);
+    }
+
 
     //send a message to a user privately
     public static void handlePrivateOutputMessage(final long userId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
