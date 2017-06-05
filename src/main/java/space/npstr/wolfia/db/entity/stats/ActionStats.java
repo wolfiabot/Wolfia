@@ -17,6 +17,11 @@
 
 package space.npstr.wolfia.db.entity.stats;
 
+import space.npstr.wolfia.game.definitions.Actions;
+import space.npstr.wolfia.game.definitions.Alignments;
+import space.npstr.wolfia.utils.Emojis;
+import space.npstr.wolfia.utils.TextchatUtils;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -39,12 +44,11 @@ public class ActionStats implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
-    @Column(name = "game")
     private GameStats game;
 
     //chronological order of the actions
     //just a failsafe in case the List of actions in Game gets into an unsorted state
-    @Column(name = "order")
+    @Column(name = "ord3r")//cant user "order" as a column name
     private int order;
 
     // the difference between these two timestamps is the following: an action may be submitted before it actually
@@ -56,17 +60,35 @@ public class ActionStats implements Serializable {
     @Column(name = "time_stamp_happened")
     private long timeStampHappened;
 
+    @Column(name = "day")
+    private int day;
+
+    @Column(name = "night")
+    private int night;
+
     //userId of the discord user; there might be special negative values for factional actors/targets in the future
     @Column(name = "actor")
     private long actor;
 
     //defined in the Actions enum
-    @Column(name = "action_tape")
+    @Column(name = "action_type")
     private String actionType;
 
     //userId of the discord user
     @Column(name = "target")
     private long target;
+
+    public ActionStats(final GameStats game, final int order, final long timeStampSubmitted, final long timeStampHappened, final int day, final int night, final long actor, final Actions action, final long target) {
+        this.game = game;
+        this.order = order;
+        this.timeStampSubmitted = timeStampSubmitted;
+        this.timeStampHappened = timeStampHappened;
+        this.day = day;
+        this.night = night;
+        this.actor = actor;
+        this.actionType = action.name();
+        this.target = target;
+    }
 
     @Override
     public int hashCode() {
@@ -96,6 +118,74 @@ public class ActionStats implements Serializable {
                 && this.actor == a.actor
                 && this.actionType.equals(a.actionType)
                 && this.target == a.target;
+    }
+
+    //how much time since game started
+    private String gameTime() {
+        return TextchatUtils.formatMillis(getTimeStampHappened() - this.game.getStartTime());
+    }
+
+    //giant ass method of displaying an action
+    @Override
+    public String toString() {
+
+        String result = "`" + gameTime() + "` ";
+        switch (Actions.valueOf(this.actionType)) {
+
+            case GAMESTART:
+                result += String.format("%s: Game **#%s** starts.", Emojis.VIDEO_GAME, getGame().getGameId());
+                break;
+            case GAMEEND:
+                result += String.format("%s: Game **#%s** ends.", Emojis.END, getGame().getGameId());
+                break;
+            case DAYSTART:
+                result += String.format("%s: Day **%s** starts.", Emojis.SUNNY, getDay());
+                break;
+            case DAYEND:
+                result += String.format("%s: Day **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, getDay());
+                break;
+            case NIGHTSTART:
+                result += String.format("%s: Night **%s** starts.", Emojis.FULL_MOON, getNight());
+                break;
+            case NIGHTEND:
+                result += String.format("%s: Night **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, getNight());
+                break;
+            case BOTKILL:
+                result += String.format("%s: %s botkilled.", Emojis.SKULL, getFormattedNickFromStats(this.target));
+                break;
+            case MODKILL:
+                result += String.format("%s: %s modkilled.", Emojis.COFFIN, getFormattedNickFromStats(this.target));
+                break;
+
+            case DEATH:
+                result += String.format("%s: %s dies.", Emojis.RIP, getFormattedNickFromStats(this.target));
+                break;
+
+
+            case SHOOT:
+                result += String.format("%s: %s shoots %s.", Emojis.GUN, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
+                break;
+
+            case GIVEGUN:
+                result += String.format("%s: %s receives the gun", Emojis.GUN, getFormattedNickFromStats(this.target));
+                break;
+
+            default:
+                throw new IllegalArgumentException("Encountered an action that is not defined/has no text representation: " + this.actionType);
+        }
+
+        return result;
+    }
+
+    private String getFormattedNickFromStats(final long userId) {
+        for (final TeamStats team : this.game.getStartingTeams()) {
+            for (final PlayerStats player : team.getPlayers()) {
+                if (player.getUserId() == userId)
+                    return "`" + player.getNickname() + "` " + (team.getAlignment() == Alignments.VILLAGE ? Emojis.COWBOY : Emojis.WOLF);
+            }
+        }
+        final String message = String.format("No such player %s in this game %s", userId, this.game.getGameId());
+        throw new IllegalArgumentException(message);
     }
 
     //########## boilerplate code below
@@ -143,6 +233,22 @@ public class ActionStats implements Serializable {
         this.timeStampHappened = timeStampHappened;
     }
 
+    public int getDay() {
+        return this.day;
+    }
+
+    public void setDay(final int day) {
+        this.day = day;
+    }
+
+    public int getNight() {
+        return this.night;
+    }
+
+    public void setNight(final int night) {
+        this.night = night;
+    }
+
     public long getActor() {
         return this.actor;
     }
@@ -151,12 +257,12 @@ public class ActionStats implements Serializable {
         this.actor = actor;
     }
 
-    public String getActionType() {
-        return this.actionType;
+    public Actions getActionType() {
+        return Actions.valueOf(this.actionType);
     }
 
-    public void setActionType(final String actionType) {
-        this.actionType = actionType;
+    public void setActionType(final Actions actionType) {
+        this.actionType = actionType.name();
     }
 
     public long getTarget() {

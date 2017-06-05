@@ -90,7 +90,27 @@ public class DbWrapper {
         return entity;
     }
 
-    public static List<GameStats> loadStats() {
+    public static GameStats loadSingleGameStats(final long id) {
+        final DbManager dbManager = Wolfia.dbManager;
+        final EntityManager em = dbManager.getEntityManager();
+        final GameStats g;
+        try {
+            g = em.find(GameStats.class, id);
+            if (g != null) {
+                //force load all the lazy things
+                g.getActions().size();
+                g.getStartingTeams().size();
+                for (final TeamStats t : g.getStartingTeams()) {
+                    t.getPlayers().size();
+                }
+            }
+        } finally {
+            em.close();
+        }
+        return g;
+    }
+
+    public static List<GameStats> loadFullStats() {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
 
