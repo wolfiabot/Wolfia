@@ -21,7 +21,8 @@ package space.npstr.wolfia.utils;
  * Created by napster on 25.05.17.
  * <p>
  * a super simple action that neither takes arguments nor returns anything
+ * to be used as a lamda
  */
-public interface Action {
-    void action();
+public interface Operation {
+    void execute();
 }

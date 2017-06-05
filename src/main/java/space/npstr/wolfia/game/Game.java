@@ -17,12 +17,13 @@
 
 package space.npstr.wolfia.game;
 
+import net.dv8tion.jda.core.entities.Message;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.IGameCommand;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by npstr on 14.09.2016
@@ -39,15 +40,41 @@ import java.util.Set;
  */
 public abstract class Game {
 
-    public abstract Set<Integer> getAmountsOfPlayers();
+    //hideous construction...this is what happens when you can't override static methods todo seriously, find a better way
+    protected static final Map<Games, Set<String>> MODES_REGISTRY = new HashMap<>();
+    protected static final Map<Games, Set<Integer>> ACCEPTABLE_PLAYER_NUMBERS_REGISTRY = new HashMap<>();
 
-    public abstract void start(long channelId, Set<Long> players);
+    static {
+        MODES_REGISTRY.put(Games.POPCORN, Arrays.stream(Popcorn.MODE.values()).map(Enum::name).collect(Collectors.toSet()));
+
+        final Set<Integer> foo = new HashSet<>();
+        //for debugging and fucking around I guess
+        foo.add(3); //1 wolf, 2 town
+        foo.add(6); //2 wolf, 4 town
+        foo.add(8); //3 wolf, 5 town
+        foo.add(9); //3 wolf, 6 town
+        foo.add(10); //4 wolf, 6 town
+        foo.add(11); // the regular game 4 wolf 7 town
+        ACCEPTABLE_PLAYER_NUMBERS_REGISTRY.put(Games.POPCORN, Collections.unmodifiableSet(foo));
+    }
+
+    public static Set<String> getGameModes(final Games g) {
+        return MODES_REGISTRY.get(g);
+    }
+
+    public static Set<Integer> getAcceptablePlayerNumbers(final Games g) {
+        return ACCEPTABLE_PLAYER_NUMBERS_REGISTRY.get(g);
+    }
+
+    public abstract Set<Integer> getAcceptedPlayerNumbers();
+
+    public abstract boolean start(Set<Long> players);
 
     public abstract boolean isAcceptablePlayerCount(int signedUp);
 
-    public abstract List<String> getGameModes();
-
     public abstract void setMode(String mode);
+
+    public abstract List<String> getPossibleModes();
 
     public abstract void issueCommand(IGameCommand command, CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;
 
@@ -61,6 +88,9 @@ public abstract class Game {
      * @return Returns the main channel where the game is running
      */
     public abstract long getChannelId();
+
+    public abstract void setChannelId(long channelId);
+
 
     /**
      * @return a status of the game
@@ -76,4 +106,10 @@ public abstract class Game {
      * @return true if the user is playing in this game (dead or alive), false if not
      */
     public abstract boolean isUserPlaying(long userId);
+
+
+    /**
+     * this is used to keep stats
+     */
+    public abstract void userPosted(Message message);
 }

@@ -17,13 +17,14 @@
 
 package space.npstr.wolfia.commands.game;
 
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.Games;
-import space.npstr.wolfia.game.Setup;
-import space.npstr.wolfia.game.Setups;
 import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
@@ -37,18 +38,55 @@ public class SetupCommand implements ICommand {
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
-        //is there a game going on?
-        if (Games.get(commandInfo.event.getTextChannel().getIdLong()) != null) {
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
-                    "%s, there is already a game going on in this channel!",
-                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
-            return;
+
+        final MessageReceivedEvent e = commandInfo.event;
+        //will not be null because it will be initialized with default values if there is none
+        final SetupEntity setup = DbWrapper.getEntity(e.getChannel().getIdLong(), SetupEntity.class);
+
+        //is this an attempt to edit the setup?
+        if (commandInfo.args.length > 1) {
+            //is there a game going on?
+            if (space.npstr.wolfia.game.Games.get(e.getTextChannel().getIdLong()) != null) {
+                Wolfia.handleOutputMessage(e.getTextChannel(),
+                        "%s, there is a game going on in this channel, please wait until it is over to adjust the setup!",
+                        TextchatUtils.userAsMention(e.getAuthor().getIdLong()));
+                return;
+            }
+
+            final String option = commandInfo.args[0];
+            switch (option.toLowerCase()) {
+                case "game":
+                    try {
+                        setup.setGame(Games.valueOf(commandInfo.args[1]));
+                        DbWrapper.merge(setup);
+                    } catch (final IllegalArgumentException ex) {
+                        Wolfia.handleOutputMessage(e.getTextChannel(), "%s, no such game is supported by this bot.", e.getAuthor().getAsMention());
+                        return;
+                    }
+                    break;
+                case "mode":
+                    try {
+                        setup.setMode(commandInfo.args[1].toUpperCase());
+                        DbWrapper.merge(setup);
+                    } catch (final IllegalArgumentException ex) {
+                        Wolfia.handleOutputMessage(e.getTextChannel(), "%s, no such mode is supported by this game.", e.getAuthor().getAsMention());
+                        return;
+                    }
+                    break;
+                //future ideas:
+//                case "daylength":
+//                case "nightlength":
+//                case "roles":
+//                case "playercount":
+//                case "handleTIE":
+//                    etc
+                default:
+                    //didn't understand the input, will show the status quo
+                    break;
+            }
         }
-        Setup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
-        if (setup == null) {
-            setup = Setups.createNew(commandInfo.event.getChannel().getIdLong());
-        }
-        Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", setup.getStatus());
+        //show the status quo
+        setup.postStats();
     }
 
     @Override

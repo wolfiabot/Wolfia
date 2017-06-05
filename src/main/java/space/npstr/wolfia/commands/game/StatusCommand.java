@@ -21,10 +21,10 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Games;
-import space.npstr.wolfia.game.Setup;
-import space.npstr.wolfia.game.Setups;
 
 /**
  * Created by npstr on 24.08.2016
@@ -33,7 +33,6 @@ import space.npstr.wolfia.game.Setups;
  * <p>
  * is there a game running, whats it's state?
  * if not, is there a setup created for this channel, whats the status here, inned players etc?
- * if not, explain how to start a game setup
  */
 public class StatusCommand implements ICommand {
 
@@ -51,14 +50,8 @@ public class StatusCommand implements ICommand {
             return;
         }
 
-        final Setup setup = Setups.get(commandInfo.event.getChannel().getIdLong());
-        if (setup != null) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", setup.getStatus());
-            return;
-        }
-
-        Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
-                "Nothing going on in here yet! Start setting up a game with `%s%s`.", Config.PREFIX, SetupCommand.COMMAND);
+        final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+        setup.postStats();
     }
 
     @Override

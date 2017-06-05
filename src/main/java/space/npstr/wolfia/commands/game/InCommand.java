@@ -21,9 +21,9 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.Games;
-import space.npstr.wolfia.game.Setup;
-import space.npstr.wolfia.game.Setups;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.TextchatUtils;
 
@@ -48,21 +48,18 @@ public class InCommand implements ICommand {
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
             return;
         }
-        Setup setup = Setups.getAll().get(commandInfo.event.getChannel().getIdLong());
-        if (setup == null) {
-            setup = Setups.createNew(commandInfo.event.getChannel().getIdLong());
-        }
-        final Setup s = setup;
+
+        final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
 
 
         //force inn by bot owner
         if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && commandInfo.event.getAuthor().getIdLong() == App.OWNER_ID) {
-            commandInfo.event.getMessage().getMentionedUsers().forEach(u -> s.inPlayer(u.getIdLong(),
-                    () -> Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", s.getStatus())));
+            commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.inUser(u.getIdLong(),
+                    setup::postStats));
             return;
         }
 
-        s.inPlayer(commandInfo.event.getAuthor().getIdLong(), () -> Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", s.getStatus()));
+        setup.inUser(commandInfo.event.getAuthor().getIdLong(), setup::postStats);
     }
 
     @Override

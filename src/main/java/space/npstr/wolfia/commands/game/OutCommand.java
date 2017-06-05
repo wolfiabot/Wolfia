@@ -24,8 +24,8 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
-import space.npstr.wolfia.game.Setup;
-import space.npstr.wolfia.game.Setups;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.utils.App;
 
 /**
@@ -41,7 +41,7 @@ public class OutCommand implements ICommand {
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
-        final Setup setup = Setups.get(commandInfo.event.getChannel().getIdLong());
+        final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
         if (setup != null) {
             //is this a forced out of a player by an moderator or the bot owner?
             if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
@@ -51,13 +51,13 @@ public class OutCommand implements ICommand {
                     Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out util players.", invoker.getAsMention());
                     return;
                 } else {
-                    commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.outPlayer(u.getIdLong()));
+                    commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.outUser(u.getIdLong()));
                 }
             } else {
                 //handling a regular out
-                setup.outPlayer(commandInfo.event.getAuthor().getIdLong());
+                setup.outUser(commandInfo.event.getAuthor().getIdLong());
             }
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", setup.getStatus());
+            setup.postStats();
         }
     }
 

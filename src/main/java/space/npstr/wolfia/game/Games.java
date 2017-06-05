@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.game;
 
+import space.npstr.wolfia.utils.Emojis;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,31 +28,17 @@ import java.util.Map;
  * <p>
  * keeps track of ongoing games
  */
-public class Games {
+//lists all games supported by the bot
+public enum Games {
+    POPCORN(Popcorn.class, Emojis.POPCORN + "-Mafia");
 
-    //lists all games supported by the bot
-    public enum GAME {
-        POPCORN(Popcorn.class);
+    public final Class<? extends Game> clazz;
+    public final String textRep;
 
-        private final Class<? extends Game> clazz;
-
-        GAME(final Class<? extends Game> clazz) {
-            this.clazz = clazz;
-        }
-
-        public Class<? extends Game> getGameClass() {
-            return this.clazz;
-        }
-
-        public Game createInstance() {
-            try {
-                return this.clazz.newInstance();
-            } catch (IllegalAccessException | InstantiationException e) {
-                return new Popcorn(); //todo decide if this handling is ok
-            }
-        }
+    Games(final Class<? extends Game> clazz, final String textRepresentation) {
+        this.clazz = clazz;
+        this.textRep = textRepresentation;
     }
-
 
     //static aboose
     private static final Map<Long, Game> GAME_REGISTRY = new HashMap<>();
@@ -73,4 +61,5 @@ public class Games {
     public static void set(final Game game) {
         GAME_REGISTRY.put(game.getChannelId(), game);
     }
+
 }

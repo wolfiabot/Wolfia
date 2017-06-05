@@ -48,13 +48,10 @@ import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
-import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Wolfia {
@@ -64,7 +61,10 @@ public class Wolfia {
     public static final OkHttpClient httpClient = new OkHttpClient();
     public static final long START_TIME = System.currentTimeMillis();
 
-    private final HashMap<String, ICommand> commands = new HashMap<>();
+    //todo find a better place for this
+    //true if a restart is planned, so games wont be able to be started
+    public static boolean restartFlag = false;
+
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
 
     //set up things that are crucial

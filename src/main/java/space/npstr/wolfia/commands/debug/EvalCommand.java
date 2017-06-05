@@ -27,8 +27,9 @@ import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.Games;
-import space.npstr.wolfia.game.Setups;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -80,7 +81,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
         this.engine.put("message", message);
         this.engine.put("guild", guild);
         this.engine.put("game", Games.get(channel.getIdLong()));
-        this.engine.put("setup", Setups.get(channel.getIdLong()));
+        this.engine.put("setup", DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class));
 
         final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
         final ScheduledFuture<?> future = service.schedule(() -> {
