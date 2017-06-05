@@ -67,7 +67,7 @@ public class InfoCommand implements ICommand {
         eb.addField("Machine stats", maStats, false);
 
 
-        commandInfo.event.getChannel().sendMessage(eb.build()).queue();
+        Wolfia.handleOutputEmbed(commandInfo.event.getTextChannel(), eb.build());
     }
 
     @Override

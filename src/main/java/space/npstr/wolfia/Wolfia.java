@@ -144,12 +144,17 @@ public class Wolfia {
         }
     }
 
-    private static void handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
-    }
-
     public static void handleOutputMessage(final boolean complete, final MessageChannel channel, final String msg, final Object... args) {
         handleOutputMessage(complete, channel, null, null, msg, args);
+    }
+
+    public static void handleOutputMessage(final boolean complete, final long channelId, final String msg, final Object... args) {
+        final TextChannel channel = jda.getTextChannelById(channelId);
+        handleOutputMessage(complete, channel, null, null, msg, args);
+    }
+
+    private static void handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
     }
 
     public static void handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
