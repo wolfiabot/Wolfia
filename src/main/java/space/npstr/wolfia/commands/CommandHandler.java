@@ -20,6 +20,7 @@ package space.npstr.wolfia.commands;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.debug.DbTestCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
@@ -28,7 +29,6 @@ import space.npstr.wolfia.commands.game.*;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InfoCommand;
 import space.npstr.wolfia.utils.App;
-import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.TextchatUtils;
 
 import java.util.HashMap;
@@ -88,14 +88,15 @@ public class CommandHandler {
                 return;
             }
             command.execute(commandInfo);
-        } catch (final IllegalGameStateException e) {
-            log.error(e.getMessage(), e);
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), IllegalGameStateException.class.getSimpleName() + " " + e.getMessage());
         } catch (final Exception e) {
             final MessageReceivedEvent ev = commandInfo.event;
             log.error("Exception while handling a command in guild {}, channel {}, user {}, invite {}",
                     ev.getGuild().getIdLong(), ev.getChannel().getIdLong(), ev.getAuthor().getIdLong(),
                     TextchatUtils.createInviteLink(ev.getTextChannel()), e);
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
+                    "%s, an internal exception happened while executing your command\n`%s`\nSorry about that. Please " +
+                            "contact the developer through the website or Discord guild sent to you through `%s`",
+                    ev.getAuthor().getAsMention(), commandInfo.raw, Config.PREFIX + HelpCommand.COMMAND);
         }
     }
 }
