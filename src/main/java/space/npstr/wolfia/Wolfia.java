@@ -131,8 +131,7 @@ public class Wolfia {
         final MessageBuilder mb = new MessageBuilder();
         mb.appendFormat(msg, args);
         try {
-            channel.sendTyping().queue();
-            channel.sendMessage(mb.build()).queueAfter(1, TimeUnit.SECONDS, onSuccess, onFail);
+            channel.sendMessage(mb.build()).queue(onSuccess, onFail);
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
         }
