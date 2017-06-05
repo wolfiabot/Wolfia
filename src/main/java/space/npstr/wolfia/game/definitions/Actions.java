@@ -21,6 +21,19 @@ package space.npstr.wolfia.game.definitions;
  * Created by napster on 02.06.17.
  */
 public enum Actions {
+
+    //general game stuff
+    GAMESTART,
+    GAMEEND,
+    DAYSTART,
+    DAYEND,
+    NIGHTSTART,
+    NIGHTEND,
+    BOTKILL, //auto kill by the bot
+    MODKILL, //killed by a game mod (reserved for the future )
+
+    DEATH,
+
     //popcorn related
     SHOOT,
     GIVEGUN
