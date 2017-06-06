@@ -166,7 +166,7 @@ public class SetupEntity implements IEntity {
         return eb.build();
     }
 
-    public void startGame(final long commandCallerId) throws IllegalGameStateException {
+    public synchronized void startGame(final long commandCallerId) throws IllegalGameStateException {
 
         if (Wolfia.restartFlag) {
             Wolfia.handleOutputMessage(this.channelId, "The bot is getting ready to restart. Please try playing a game later.");
@@ -175,6 +175,14 @@ public class SetupEntity implements IEntity {
 
         if (!this.innedUsers.contains(commandCallerId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s: Only players that inned can start the game!", TextchatUtils.userAsMention(commandCallerId));
+            return;
+        }
+
+        //is there a game running already in this channel?
+        if (Games.get(this.channelId) != null) {
+            Wolfia.handleOutputMessage(this.channelId,
+                    "%s, there is already a game going on in this channel!",
+                    TextchatUtils.userAsMention(commandCallerId));
             return;
         }
 
@@ -194,7 +202,7 @@ public class SetupEntity implements IEntity {
         }
 
         game.setChannelId(this.channelId);
-        space.npstr.wolfia.game.Games.set(game);
+        Games.set(game);
         if (game.start(this.innedUsers)) {
             this.innedUsers.clear();
             DbWrapper.merge(this);

@@ -18,14 +18,11 @@
 package space.npstr.wolfia.commands.game;
 
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
-import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.utils.IllegalGameStateException;
-import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
  * Created by npstr on 14.09.2016
@@ -41,13 +38,6 @@ public class StartCommand implements ICommand {
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
-        //is there a game going on?
-        if (Games.get(commandInfo.event.getTextChannel().getIdLong()) != null) {
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
-                    "%s, there is already a game going on in this channel!",
-                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
-            return;
-        }
         final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
         setup.startGame(commandInfo.event.getAuthor().getIdLong());
     }
