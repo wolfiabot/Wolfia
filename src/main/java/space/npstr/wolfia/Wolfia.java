@@ -38,10 +38,7 @@ package space.npstr.wolfia;
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import com.github.napstr.logback.DiscordAppender;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.*;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -172,6 +169,15 @@ public class Wolfia {
 
     //embeds
     public static void handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed) {
+        //check for embed permissions in a guild text channel
+        if (channel instanceof TextChannel) {
+            final TextChannel tc = (TextChannel) channel;
+            if (!tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_EMBED_LINKS)) {
+                handleOutputMessage(channel, "Hey, I am missing the **Embed Links** permission to display my messages properly in this channel.");
+                return;
+            }
+        }
+
         try {
             channel.sendMessage(msgEmbed).queue();
         } catch (final PermissionException e) {
