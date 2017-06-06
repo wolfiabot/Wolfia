@@ -36,9 +36,23 @@ public class UpdateCommand implements ICommand, IOwnerRestricted {
 
     private static final Logger log = LoggerFactory.getLogger(UpdateCommand.class);
 
+    private static boolean reminded = false;
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
+
+        if (!reminded) {
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
+                    "%s, you have fucked up in the past so here's a reminder:" +
+                            "\n - Did you update the config files?" +
+                            "\n - Any database migration necessary/implemented?" +
+                            "\n - Did you actually upload the updated code?" +
+                            "\nJust run the command again if you're sure you have done everything." +
+                            "\n\n_Yours, %s_", commandInfo.event.getAuthor().getAsMention(), commandInfo.event.getJDA().getSelfUser().getName());
+            reminded = true;
+            return;
+        }
+
         if (Wolfia.restartFlag) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
                     "%s, restart flag has been set already. Ignoring your command.",
