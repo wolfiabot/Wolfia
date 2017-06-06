@@ -33,7 +33,7 @@ public class CommandParser {
         final String beheaded = rw.substring(Config.PREFIX.length()).trim();
         final String[] splitBeheaded = beheaded.split(" ");
         Collections.addAll(split, splitBeheaded);
-        final String command = split.get(0);
+        final String command = split.get(0).toLowerCase();
         final String[] args = new String[split.size() - 1];
         split.subList(1, split.size()).toArray(args);
 
@@ -44,7 +44,7 @@ public class CommandParser {
         public final String raw; //the full thing
         public final String beheaded; //without the prefix
         public final String[] splitBeheaded; //without the prefix, split by " "
-        public final String command; // the actual command
+        public final String command; // the actual command, in lower case
         public final String[] args; // the actual arguments
         public final MessageReceivedEvent event; //underlying event
 

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Games;
 
@@ -53,7 +54,7 @@ public class MainListener extends ListenerAdapter {
 
         //ignore messages not starting with the prefix (prefix is accepted case insensitive)
         final String raw = event.getMessage().getRawContent();
-        if (!raw.regionMatches(true, 0, Config.PREFIX, 0, Config.PREFIX.length())) {
+        if (!raw.toLowerCase().startsWith(Config.PREFIX.toLowerCase())) {
             return;
         }
 
@@ -72,8 +73,8 @@ public class MainListener extends ListenerAdapter {
             return;
         }
 
-        //ignore channel where don't have sending permissions
-        if (!event.getTextChannel().canTalk()) {
+        //ignore channels where we don't have sending permissions, with a special exception for the help command
+        if (!event.getTextChannel().canTalk() && !raw.toLowerCase().startsWith((Config.PREFIX + HelpCommand.COMMAND).toLowerCase())) {
             return;
         }
 

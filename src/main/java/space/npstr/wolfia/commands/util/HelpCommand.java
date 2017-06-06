@@ -17,12 +17,16 @@
 
 package space.npstr.wolfia.commands.util;
 
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.utils.App;
+
+import java.util.function.Consumer;
 
 /**
  * Created by npstr on 09.09.2016
@@ -37,16 +41,22 @@ public class HelpCommand implements ICommand {
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
         final MessageReceivedEvent e = commandInfo.event;
-        final String help = String.format("Hi %s,\nyou can find %s's documentation and a full list of commands under\n<%s>"
-                        + "\n\nTo invite the bot to your server please follow this link:\n<%s>"
-                        + "\n\nDrop by in the Wolfia Lounge to play games, get support, leave feedback, and find like-minded individuals.\n<%s>",
-                e.getAuthor().getName(), e.getJDA().getSelfUser().getName(), App.WEBSITE, App.INVITE_LINK, App.WOLFIA_LOUNGE_INVITE);
+        final TextChannel channel = e.getTextChannel();
+        final String help = String.format("Hi %s,\nyou can find %s's **documentation** and a **full list of commands** under\n<%s>"
+                        + "\n\n**To invite the bot to your server please follow this link**:\n<%s>"
+                        + "\n\nDrop by the Wolfia Lounge to play games, get support, leave feedback, and find like-minded individuals:\n<%s>"
+                        + "\n\nCode open sourced on Github:\n<%s>"
+                        + "\n\nCreated and hosted by Napster:\n<%s>",
+                e.getAuthor().getName(), e.getJDA().getSelfUser().getName(), App.WEBSITE, App.INVITE_LINK, App.WOLFIA_LOUNGE_INVITE, "https://github.com/napstr/wolfia", "https://npstr.space");
 
+        Consumer<Message> onSuccess = null;
+        Consumer<Throwable> onFail = null;
+        if (channel.canTalk()) {
+            onSuccess = m -> Wolfia.handleOutputMessage(channel, "%s, sent you a PM with the help!", e.getAuthor().getAsMention());
+            onFail = t -> Wolfia.handleOutputMessage(channel, "%s, cannot send you a PM with the help. Please unblock me or change your privacy settings.", e.getAuthor().getAsMention());
+        }
 
-        Wolfia.handlePrivateOutputMessage(e.getAuthor().getIdLong(),
-                m -> Wolfia.handleOutputMessage(e.getChannel(), "%s, sent you a PM with the help!", e.getAuthor().getAsMention()),
-                t -> Wolfia.handleOutputMessage(e.getChannel(), "%s, cannot send you a PM with the help. Please unblock me or change your privacy settings.", e.getAuthor().getAsMention()),
-                help);
+        Wolfia.handlePrivateOutputMessage(e.getAuthor().getIdLong(), onSuccess, onFail, "%s", help);
     }
 
     @Override
