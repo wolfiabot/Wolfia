@@ -405,7 +405,7 @@ public class Popcorn extends Game {
                 this.gameStats.getStartingTeams().stream().filter(t -> t.getAlignment() == Alignments.WOLF).findFirst().ifPresent(t -> t.setWinner(true));
             }
             DbWrapper.persist(this.gameStats);
-            out += String.format("\nThis game's id is **%s**, you can watch it's replay with `%s %s`", this.gameStats.getGameId(), Config.PREFIX + ReplayCommand.COMMAND, this.gameStats.getGameId());
+            out += String.format("\nThis game's id is **%s**, you can watch its replay with `%s %s`", this.gameStats.getGameId(), Config.PREFIX + ReplayCommand.COMMAND, this.gameStats.getGameId());
             //complete the sending of this in case a restart is queued
             Wolfia.handleOutputMessage(true, this.channelId, "%s", out);
             //this has to be the last statement, since if a restart is queued, it waits for an empty games registry
