@@ -56,14 +56,13 @@ public class StatsCommand implements ICommand {
         final Message m = commandInfo.event.getMessage();
 
         if (m.getMentionedUsers().size() < 1) {
-            Wolfia.handleOutputEmbed(m.getChannel(), outputUserStats(commandInfo.event.getMember()).build());
+            outputUserStats(m.getChannel(), commandInfo.event.getMember());
             return;
         }
 
         for (final User u : m.getMentionedUsers()) {
             if (!m.getGuild().isMember(u)) continue; //skip mentioned non-members
-            final MessageEmbed e = outputUserStats(m.getGuild().getMember(u)).build();
-            Wolfia.handleOutputEmbed(m.getChannel(), e);
+            outputUserStats(m.getChannel(), m.getGuild().getMember(u));
         }
 
 //        for (final Channel c : m.getMentionedChannels()) {
@@ -86,7 +85,7 @@ public class StatsCommand implements ICommand {
             "INNER JOIN public.stats_game ON (stats_action.game_id = stats_game.game_id AND stats_team.game_id = stats_game.game_id)\n" +
             "WHERE (actor = :userId AND action_type = 'SHOOT')";
 
-    private EmbedBuilder outputUserStats(final Member m) {
+    private void outputUserStats(final MessageChannel channel, final Member m) {
         //get data out of the database
         final List<Map<String, Object>> res = new ArrayList<>();
         final List<Map<String, Object>> shats = new ArrayList<>();
@@ -125,24 +124,35 @@ public class StatsCommand implements ICommand {
                 .count();
 
         //add them to the embed
-        final NumberFormat nf = NumberFormat.getPercentInstance();
-        nf.setMaximumFractionDigits(2);
+
         final EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle(m.getEffectiveName() + "'s Wolfia stats");
         eb.setThumbnail(m.getUser().getEffectiveAvatarUrl());
         eb.addField("Total games played", res.size() + "", true);
-        eb.addField("Total win %", nf.format(1.0 * gamesWon / res.size()), true);
+        eb.addField("Total win %", percentFormat(divide(gamesWon, res.size())), true);
         eb.addField("Games as " + Emojis.WOLF, gamesAsWolf + "", true);
-        eb.addField("Win % as " + Emojis.WOLF, nf.format(1.0 * gamesWonAsWolf / gamesAsWolf), true);
+        eb.addField("Win % as " + Emojis.WOLF, percentFormat(divide(gamesWonAsWolf, gamesAsWolf)), true);
         eb.addField("Games as " + Emojis.COWBOY, gamesAsVillage + "", true);
-        eb.addField("Win % as " + Emojis.COWBOY, nf.format(1.0 * gamesWonAsVillage / gamesAsVillage), true);
+        eb.addField("Win % as " + Emojis.COWBOY, percentFormat(divide(gamesWonAsVillage, gamesAsVillage)), true);
         eb.addField(Emojis.GUN + " fired", shats.size() + "", true);
-        eb.addField(Emojis.GUN + " accuracy", nf.format(1.0 * wolvesShatted / shats.size()), true);
+        eb.addField(Emojis.GUN + " accuracy", percentFormat(divide(wolvesShatted, shats.size())), true);
         eb.addField("Total posts written", totalPostsWritten + "", true);
         eb.addField("Total post length", totalPostsLength + "", true);
-        eb.addField("∅ posts per game", totalPostsWritten / res.size() + "", true);
-        eb.addField("∅ post length", totalPostsLength / totalPostsWritten + "", true);
-        return eb;
+        eb.addField("∅ posts per game", ((long) divide(totalPostsWritten, res.size())) + "", true);
+        eb.addField("∅ post length", ((long) divide(totalPostsLength, totalPostsWritten)) + "", true);
+
+        Wolfia.handleOutputEmbed(channel, eb.build());
+    }
+
+    private String percentFormat(final double value) {
+        final NumberFormat nf = NumberFormat.getPercentInstance();
+        nf.setMaximumFractionDigits(2);
+        return nf.format(value);
+    }
+
+    private double divide(final long part, final long total) {
+        if (total == 0) return 0;
+        return 1.0 * part / total;
     }
 
     private void outputChannelStats(final Channel c) {
