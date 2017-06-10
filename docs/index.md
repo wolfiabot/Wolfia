@@ -50,6 +50,7 @@ Being an Ⲁ bot doesn't stop Wolfia from being an Ⲁ wolf with close to 100% u
 | `w.replay #gameid` | show the replay of a game                                                       |
 | `w.userstats @user`| show the stats of a user                                                        |
 | `w.guildstats`     | show the stats of the current guild                                             |
+| `w.botstats`       | show stats of the whole bot                                                     |
 
 
 * * *

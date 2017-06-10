@@ -62,6 +62,47 @@ public class StatsProvider {
             "INNER JOIN public.stats_team ON (stats_team.game_id = stats_game.game_id)\n" +
             "WHERE (is_winner = true AND guild_id = :guildId)";
 
+    //selects the winning teams of all games ever
+    private static final String botQuery = "SELECT stats_game.game_id, alignment FROM public.stats_game\n" +
+            "INNER JOIN public.stats_team ON (stats_team.game_id = stats_game.game_id)\n" +
+            "WHERE (is_winner = true)";
+
+
+    //this should be rather similar to getGuildStats
+    @SuppressWarnings("unchecked")
+    public static EmbedBuilder getBotStats() {
+        //get data out of the database
+        final List<Map<String, Object>> gamesxWinningTeam = new ArrayList<>();
+        final EntityManager em = Wolfia.dbManager.getEntityManager();
+        try {
+            final List<Object[]> result = em.createNativeQuery(botQuery).getResultList();
+            gamesxWinningTeam.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(botQuery, em)));
+        } catch (final SQLException e) {
+            log.error("SQL exception when querying bot stats", e);
+        } finally {
+            em.close();
+        }
+
+        //collect a bunch of values
+        final long totalGames = gamesxWinningTeam.size();
+        final long gamesWonByWolves = gamesxWinningTeam.stream()
+                .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.WOLF).count();
+        final long gamesWonByVillage = gamesxWinningTeam.stream()
+                .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.VILLAGE).count();
+
+
+        //add them to the embed
+        final EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("Wolfia stats");
+        eb.setThumbnail(Wolfia.jda.getSelfUser().getAvatarUrl());
+        eb.addField("Total games played", totalGames + "", true);
+        eb.addField("Players on average", "---", true);
+        eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(gamesWonByWolves, totalGames)), true);
+        eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(gamesWonByVillage, totalGames)), true);
+        return eb;
+    }
+
+
     @SuppressWarnings("unchecked")
     public static EmbedBuilder getGuildStats(final Guild g) {
         //get data out of the database

@@ -67,6 +67,7 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
         COMMAND_REGISTRY.put(UserStatsCommand.COMMAND, new UserStatsCommand());
         COMMAND_REGISTRY.put(GuildStatsCommand.COMMAND, new GuildStatsCommand());
+        COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
     }
 
     public static void handleCommand(final CommandParser.CommandContainer commandInfo) {
