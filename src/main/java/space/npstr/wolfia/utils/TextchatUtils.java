@@ -20,12 +20,13 @@ package space.npstr.wolfia.utils;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 
+import java.text.NumberFormat;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by napster on 21.05.17.
  * <p>
- * Useful methods for the Discord chat and general working with Strings
+ * Useful methods for the Discord chat and general working with Strings and outputs
  */
 public class TextchatUtils {
 
@@ -48,6 +49,20 @@ public class TextchatUtils {
         } catch (final PermissionException ignored) {
             return "";
         }
+    }
+
+    public static String percentFormat(final double value) {
+        final NumberFormat nf = NumberFormat.getPercentInstance();
+        nf.setMaximumFractionDigits(2);
+        return nf.format(value);
+    }
+
+    /**
+     * @return performs a division; returns 0 if the divisor is 0
+     */
+    public static double divide(final long dividend, final long divisor) {
+        if (divisor == 0) return 0;
+        return 1.0 * dividend / divisor;
     }
 
     /**
