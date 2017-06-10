@@ -43,6 +43,7 @@ import space.npstr.wolfia.utils.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -53,11 +54,6 @@ public class Popcorn extends Game {
     private final static Logger log = LoggerFactory.getLogger(Popcorn.class);
 
     public enum MODE {WILD}//, CLASSIC} //todo not yet
-
-    static {
-
-    }
-
 
     //internal variables of an ongoing game
     private long channelId;
@@ -166,6 +162,8 @@ public class Popcorn extends Game {
         final Set<Long> woofs = new HashSet<>();
         final Set<Long> villagers = new HashSet<>();
         //todo redo this for the love of god
+        //https://i.npstr.space/iyF.png
+        //https://i.npstr.space/hsi.png
         if (innedPlayers.size() == 3) {
             woofs.addAll(rand.subList(0, 1));
             villagers.addAll(rand.subList(1, rand.size()));
@@ -293,30 +291,36 @@ public class Popcorn extends Game {
         this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.DAYEND, -1));
         Wolfia.handleOutputMessage(this.channelId, "Day %s has ended!", this.day);
 
-        //check win conditions
-        if (isGameOver()) {
-            return; //we're done here
-        }
-
+        //an operation that shall be run if the game isn't over; doing this so we can ge the output from he below if construct sent
+        final Consumer<Long> doIfGameIsntOver;
         if (reason == DayEndReason.TIMER) {
             Wolfia.handleOutputMessage(this.channelId,
                     "%s took too long to decide who to shat! They died and the %s will be redistributed.",
                     TextchatUtils.userAsMention(toBeKilled), Emojis.GUN);
-            distributeGun();
+            doIfGameIsntOver = ignored -> distributeGun();
         } else if (reason == DayEndReason.SHAT) {
             if (getPlayer(toBeKilled).isWolf) {
                 Wolfia.handleOutputMessage(this.channelId, "%s was a dirty %s!",
                         TextchatUtils.userAsMention(toBeKilled), Emojis.WOLF);
-                startDay();
+                doIfGameIsntOver = ignored -> startDay();
             } else {
                 Wolfia.handleOutputMessage(this.channelId, "%s is an innocent %s! %s dies.",
                         TextchatUtils.userAsMention(survivor), Emojis.COWBOY, TextchatUtils.userAsMention(toBeKilled));
-                giveGun(survivor);
+                doIfGameIsntOver = this::giveGun;
             }
+        } else {
+            throw new IllegalGameStateException("Day ended with unhandled DayEndReason: " + reason.name());
         }
+
+        //check win conditions
+        if (isGameOver()) {
+            return; //we're done here
+        }
+        doIfGameIsntOver.accept(survivor);
     }
 
     // can be called for debugging
+    @SuppressWarnings("unused")
     public void evalShoot(final String shooterId, final String targetId) throws IllegalGameStateException {
         if (!Config.C.isDebug) {
             log.error("Cant eval shoot outside of DEBUG mode");
@@ -384,17 +388,18 @@ public class Popcorn extends Game {
         String out = "";
         if (livingMafia.size() < 1) {
             gameEnding = true;
+            this.running = false;
             out = "All wolves dead! Village wins. Thanks for playing.\nTeams:\n" + listTeams();
         }
         //todo what if both conditions happen at the same time (not possible in popcorn, but if we expand the game modes?)
         if (livingMafia.size() >= livingVillage.size()) {
             gameEnding = true;
+            this.running = false;
             villageWins = false;
             out = "Parity reached! Wolves win. Thanks for playing.\nTeams:\n" + listTeams();
         }
 
         if (gameEnding) {
-            this.running = false;
             this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.GAMEEND, -1));
             this.gameStats.setEndTime(System.currentTimeMillis());
 
@@ -409,7 +414,7 @@ public class Popcorn extends Game {
             //complete the sending of this in case a restart is queued
             Wolfia.handleOutputMessage(true, this.channelId, "%s", out);
             //this has to be the last statement, since if a restart is queued, it waits for an empty games registry
-            space.npstr.wolfia.game.Games.remove(this);
+            Games.remove(this);
             return true;
         }
 
@@ -608,6 +613,19 @@ class PopcornPlayer {
     public PopcornPlayer(final long userId, final boolean isWolf) {
         this.userId = userId;
         this.isWolf = isWolf;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.hashCode(this.userId);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof PopcornPlayer)) return false;
+        final PopcornPlayer other = (PopcornPlayer) obj;
+
+        return other.userId == this.userId;
     }
 }
 

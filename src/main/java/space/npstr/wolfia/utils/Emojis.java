@@ -57,6 +57,7 @@ public class Emojis {
 
     //to be called by eval for a quick'n'dirty test whether all emojis that are defined in this class are being
     //displayed in the Discord client as expected
+    @SuppressWarnings("unused")
     public static String test() {
         final StringBuilder result = new StringBuilder();
         Arrays.stream(Emojis.class.getFields()).filter(field -> field.getType().equals(String.class)).forEach(field -> {
