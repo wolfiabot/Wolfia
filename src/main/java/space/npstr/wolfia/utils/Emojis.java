@@ -19,7 +19,6 @@ package space.npstr.wolfia.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.Wolfia;
 
 import java.util.Arrays;
 
@@ -30,7 +29,7 @@ import java.util.Arrays;
  */
 public class Emojis {
 
-    private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
+    private static final Logger log = LoggerFactory.getLogger(Emojis.class);
 
     //standard unicode based ones
     public static final String GUN = "🔫";
