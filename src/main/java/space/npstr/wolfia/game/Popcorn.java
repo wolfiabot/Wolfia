@@ -217,7 +217,7 @@ public class Popcorn extends Game {
                     .append(channel.getGuild().getMemberById(userId).getEffectiveName()).append("**");
         }
         woofs.forEach(userId -> {
-            final String primer = String.format(woofPrimer, Emojis.WOLF, Wolfia.jda.getUserById(userId).getName(), wolfteamNames.toString());
+            final String primer = String.format(woofPrimer, Wolfia.jda.getUserById(userId).getName(), Emojis.WOLF, wolfteamNames.toString());
             Wolfia.handlePrivateOutputMessage(userId,
                     e -> Wolfia.handleOutputMessage(this.channelId, "%s, **I cannot send you a private message**, please adjust your privacy settings or unblock me, then issue `%s%s` to receive your role PM.",
                             TextchatUtils.userAsMention(userId), Config.PREFIX, RolePMCommand.COMMAND),
