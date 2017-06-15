@@ -20,6 +20,7 @@ package space.npstr.wolfia.db.entity;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import org.hibernate.annotations.ColumnDefault;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.game.StatusCommand;
@@ -34,8 +35,10 @@ import space.npstr.wolfia.utils.TextchatUtils;
 
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -63,6 +66,11 @@ public class SetupEntity implements IEntity {
     @Column(name = "mode")
     private String mode = "";
 
+    //day length in milliseconds
+    @Column(name = "day_length")
+    @ColumnDefault(value = 1000 * 60 * 10 + "")//10 minutes
+    private long dayLength;
+
     //some basic getters/setters
     @Override
     public void setId(final long id) {
@@ -71,10 +79,6 @@ public class SetupEntity implements IEntity {
 
     @Override
     public long getId() {
-        return this.channelId;
-    }
-
-    public long getChannelId() {
         return this.channelId;
     }
 
@@ -96,6 +100,14 @@ public class SetupEntity implements IEntity {
             throw new IllegalArgumentException(message);
         }
         this.mode = mode;
+    }
+
+    public long getDayLength() {
+        return this.dayLength;
+    }
+
+    public void setDayLength(final long dayLength, final TimeUnit timeUnit) {
+        this.dayLength = timeUnit.toMillis(dayLength);
     }
 
     //create a fresh setup; default game is Popcorn, default mode is Wild
@@ -155,6 +167,9 @@ public class SetupEntity implements IEntity {
         Game.getGameModes(getGame()).forEach(mode -> possibleModes.append(mode.equals(getMode()) ? "`[x]` " : "`[ ]` ").append(mode).append("\n"));
         eb.addField("Mode", possibleModes.toString(), true);
 
+        //day length
+        eb.addField("Day length", TextchatUtils.formatMillis(this.dayLength), true);
+
         //accepted player numbers
         eb.addField("Allowed players",
                 String.join(", ", Game.getAcceptablePlayerNumbers(getGame()).stream().map(i -> "`" + i + "`").collect(Collectors.toList())),
@@ -194,16 +209,20 @@ public class SetupEntity implements IEntity {
         }
 
         cleanUpInnedPlayers();
-        if (!game.isAcceptablePlayerCount(this.innedUsers.size())) {
+        //todo instead of checking here and then starting the game again with it, maybe just have a setPlayers() function in game that does those checks in one place?
+        final Set<Long> inned = Collections.unmodifiableSet(this.innedUsers);
+        if (!game.isAcceptablePlayerCount(inned.size())) {
             Wolfia.handleOutputMessage(this.channelId,
                     "There aren't enough (or too many) players signed up! Please use `%s%s` for more information",
                     Config.PREFIX, StatusCommand.COMMAND);
             return;
         }
 
+        game.setDayLength(this.dayLength);
+
         game.setChannelId(this.channelId);
         Games.set(game);
-        if (game.start(this.innedUsers)) {
+        if (game.start(inned)) {
             this.innedUsers.clear();
             DbWrapper.merge(this);
         }

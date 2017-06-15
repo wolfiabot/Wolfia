@@ -74,6 +74,8 @@ public abstract class Game {
 
     public abstract void setMode(String mode);
 
+    public abstract void setDayLength(long millis);
+
     public abstract List<String> getPossibleModes();
 
     public abstract void issueCommand(IGameCommand command, CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;

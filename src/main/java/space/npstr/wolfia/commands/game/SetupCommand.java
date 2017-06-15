@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.game;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
@@ -25,7 +26,10 @@ import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.TextchatUtils;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by napster on 12.05.17.
@@ -53,6 +57,13 @@ public class SetupCommand implements ICommand {
                 return;
             }
 
+            //is the user allowed to do that?
+            if (!e.getMember().hasPermission(e.getTextChannel(), Permission.MESSAGE_MANAGE) && e.getAuthor().getIdLong() != App.OWNER_ID) {
+                Wolfia.handleOutputMessage(e.getTextChannel(), "%s, you need the following permission to edit the setup of this channel: %s",
+                        e.getAuthor().getAsMention(), Permission.MESSAGE_MANAGE.getName());
+                return;
+            }
+
             final String option = commandInfo.args[0];
             switch (option.toLowerCase()) {
                 case "game":
@@ -73,8 +84,24 @@ public class SetupCommand implements ICommand {
                         return;
                     }
                     break;
+                case "daylength":
+                    try {
+                        final long minutes = Long.valueOf(commandInfo.args[1]);
+                        if (minutes > 10) {
+                            Wolfia.handleOutputMessage(e.getTextChannel(), "%s, day lengths of more than 10 minutes are not supported currently.", e.getAuthor().getAsMention());
+                            return;
+                        } else if (minutes < 1) {
+                            Wolfia.handleOutputMessage(e.getTextChannel(), "%s, day length must be at least one minute.", e.getAuthor().getAsMention());
+                            return;
+                        }
+                        setup.setDayLength(minutes, TimeUnit.MINUTES);
+                        DbWrapper.merge(setup);
+                    } catch (final NumberFormatException ex) {
+                        Wolfia.handleOutputMessage(e.getTextChannel(), "%s, use a number to set the day length!", e.getAuthor().getAsMention());
+                        return;
+                    }
+                    break;
                 //future ideas:
-//                case "daylength":
 //                case "nightlength":
 //                case "roles":
 //                case "playercount":

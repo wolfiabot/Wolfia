@@ -64,7 +64,7 @@ public class Popcorn extends Game {
     private final Map<Long, String> rolePMs = new HashMap<>();
 
     private int day;
-    private long dayLength;
+    private long dayLength = 60 * 10 * 1000; //10 minutes default
     private long dayStarted;
     private long gunBearer;
 
@@ -123,6 +123,11 @@ public class Popcorn extends Game {
     }
 
     @Override
+    public void setDayLength(final long millis) {
+        this.dayLength = millis;
+    }
+
+    @Override
     public List<String> getPossibleModes() {
         return Arrays.stream(MODE.values()).map(Enum::name).collect(Collectors.toList());
     }
@@ -137,7 +142,6 @@ public class Popcorn extends Game {
         }
 
         this.day = 0;
-        this.dayLength = 60 * 10 * 1000; //10 minutes
 
         if (!getAcceptedPlayerNumbers().contains(innedPlayers.size())) {
             Wolfia.handleOutputMessage(this.channelId, "Oi mate please start this game with one of the allowed player sizes!");
