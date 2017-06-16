@@ -69,7 +69,7 @@ public class SetupEntity implements IEntity {
     //day length in milliseconds
     @Column(name = "day_length")
     @ColumnDefault(value = 1000 * 60 * 10 + "")//10 minutes
-    private long dayLength;
+    private long dayLength = 1000 * 60 * 10;
 
     //some basic getters/setters
     @Override
@@ -114,6 +114,7 @@ public class SetupEntity implements IEntity {
     public SetupEntity() {
         this.setGame(Games.POPCORN);
         this.setMode(Popcorn.MODE.WILD.name());
+        this.setDayLength(10, TimeUnit.MINUTES);
     }
 
     public void inUser(final long userId, final Operation success) {
