@@ -3,7 +3,7 @@ plugins {
     id 'application'
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '2.0.0'
-    id 'com.sedmelluq.jdaction' version '1.0.1' //check for unused RestActions
+    id 'com.sedmelluq.jdaction' version '1.0.2' //check for unused RestActions
 }
 
 group = 'space.npstr'
@@ -24,7 +24,7 @@ repositories {
 //TODO check licenses of stuff that is used
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'net.dv8tion:JDA:3.1.1_212'                                             //discord API
+    compile 'net.dv8tion:JDA:3.1.1_213'                                             //discord API
     compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
     compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
     compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
