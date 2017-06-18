@@ -50,6 +50,7 @@ import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
+import java.util.Optional;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.function.Consumer;
 
@@ -125,8 +126,8 @@ public class Wolfia {
 
     //################## message handling + tons of overloaded methods
 
-    //calling with complete = true will ignore onsuccess and on fail
-    private static void handleOutputMessage(final boolean complete, final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+    //calling with complete = true will ignore onsuccess and on fail, but return an optional with the message
+    private static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
         if (complete && (onSuccess != null || onFail != null)) {
             log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
         }
@@ -135,62 +136,80 @@ public class Wolfia {
         try {
             final RestAction<Message> ra = channel.sendMessage(mb.build());
             if (complete) {
-                ra.complete();
+                return Optional.of(ra.complete());
             } else {
                 ra.queue(onSuccess, onFail);
             }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
         }
+        return Optional.empty();
     }
 
-    public static void handleOutputMessage(final boolean complete, final MessageChannel channel, final String msg, final Object... args) {
-        handleOutputMessage(complete, channel, null, null, msg, args);
+    public static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final String msg, final Object... args) {
+        return handleOutputMessage(complete, channel, null, null, msg, args);
     }
 
-    public static void handleOutputMessage(final boolean complete, final long channelId, final String msg, final Object... args) {
+    public static Optional<Message> handleOutputMessage(final boolean complete, final long channelId, final String msg, final Object... args) {
         final TextChannel channel = jda.getTextChannelById(channelId);
-        handleOutputMessage(complete, channel, null, null, msg, args);
+        return handleOutputMessage(complete, channel, null, null, msg, args);
     }
 
-    private static void handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
+    private static Optional<Message> handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        return handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
     }
 
-    public static void handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
-        handleOutputMessage(false, channel, null, null, msg, args);
+    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
+        return handleOutputMessage(false, channel, null, null, msg, args);
     }
 
-    public static void handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
         final TextChannel channel = jda.getTextChannelById(channelId);
-        handleOutputMessage(false, channel, null, onFail, msg, args);
+        return handleOutputMessage(false, channel, null, onFail, msg, args);
     }
 
-    public static void handleOutputMessage(final long channelId, final String msg, final Object... args) {
-        handleOutputMessage(channelId, null, msg, args);
+    public static Optional<Message> handleOutputMessage(final long channelId, final String msg, final Object... args) {
+        return handleOutputMessage(channelId, null, msg, args);
     }
 
     //embeds
-    public static void handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed) {
+    private static Optional<Message> handleOutputEmbed(final boolean complete, final MessageChannel channel, final MessageEmbed msgEmbed, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail) {
         //check for embed permissions in a guild text channel
         if (channel instanceof TextChannel) {
             final TextChannel tc = (TextChannel) channel;
             if (!tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_EMBED_LINKS)) {
                 handleOutputMessage(channel, "Hey, I am missing the **Embed Links** permission to display my messages properly in this channel.");
-                return;
+                return Optional.empty();
             }
         }
-
         try {
-            channel.sendMessage(msgEmbed).queue();
+            final RestAction<Message> ra = channel.sendMessage(msgEmbed);
+            if (complete) {
+                return Optional.of(ra.complete());
+            } else {
+                ra.queue(onSuccess, onFail);
+            }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
         }
+        return Optional.empty();
     }
 
-    public static void handleOutputEmbed(final long channelId, final MessageEmbed msgEmbed) {
+    public static Optional<Message> handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed) {
+        return handleOutputEmbed(false, channel, msgEmbed, null, null);
+    }
+
+    public static Optional<Message> handleOutputEmbed(final boolean complete, final long channelId, final MessageEmbed msgEmbed) {
         final TextChannel channel = jda.getTextChannelById(channelId);
-        handleOutputEmbed(channel, msgEmbed);
+        return handleOutputEmbed(complete, channel, msgEmbed, null, null);
+    }
+
+    public static Optional<Message> handleOutputEmbed(final long channelId, final MessageEmbed msgEmbed) {
+        return handleOutputEmbed(false, channelId, msgEmbed);
+    }
+
+    public static Optional<Message> handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed, final Consumer<Message> onSuccess) {
+        return handleOutputEmbed(false, channel, msgEmbed, onSuccess, null);
     }
 
 
