@@ -50,6 +50,7 @@ import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.function.Consumer;
 
 public class Wolfia {
@@ -58,6 +59,8 @@ public class Wolfia {
     public static DbManager dbManager;
     public static final OkHttpClient httpClient = new OkHttpClient();
     public static final long START_TIME = System.currentTimeMillis();
+
+    public final static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
     //todo find a better place for this
     //true if a restart is planned, so games wont be able to be started
