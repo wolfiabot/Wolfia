@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  */
 public class Popcorn extends Game {
 
-    private final static Logger log = LoggerFactory.getLogger(Popcorn.class);
+    private static final Logger log = LoggerFactory.getLogger(Popcorn.class);
 
     public enum MODE {WILD}//, CLASSIC} //todo not yet
 
@@ -599,8 +599,8 @@ public class Popcorn extends Game {
                             () -> Popcorn.this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.MODKILL, this.game.gunBearer)));
                 }
             } catch (final InterruptedException e) {
-                //todo handle interrupted exception properly
                 Thread.currentThread().interrupt();
+                return;
             } catch (final IllegalGameStateException ignored) {
                 //todo decide if this can be safely ignored?
             }

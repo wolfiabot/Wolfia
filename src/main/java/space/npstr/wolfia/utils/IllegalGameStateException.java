@@ -22,6 +22,8 @@ package space.npstr.wolfia.utils;
  */
 public class IllegalGameStateException extends Exception {
 
+    private static final long serialVersionUID = -3082580128565589439L;
+
     //force creation with a message
     private IllegalGameStateException() {
 

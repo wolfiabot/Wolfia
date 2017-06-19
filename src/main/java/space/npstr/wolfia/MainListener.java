@@ -38,7 +38,6 @@ public class MainListener extends ListenerAdapter {
 
     private final static Logger log = LoggerFactory.getLogger(MainListener.class);
 
-    //todo decide if unlimited threads are ok, or impose a limit
     private static final ExecutorService commandExecutor = Executors.newCachedThreadPool();
 
     public MainListener() {

@@ -19,12 +19,11 @@ package space.npstr.wolfia.utils;
 
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.PermissionOverride;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.managers.PermOverrideManager;
-import net.dv8tion.jda.core.managers.RoleManager;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
+
+import java.util.Optional;
 
 /**
  * Created by npstr on 18.11.2016
@@ -39,36 +38,87 @@ public class RoleUtils {
      * @return Returns a role with the required name
      */
     public static Role getOrCreateRole(final Guild guild, final String name) {
+        final Optional<Role> r = guild.getRolesByName(name, true).stream()
+                .filter(role -> role.getName().equals(name)).findFirst();
+        return r.orElseGet(() -> guild.getController().createRole().setName(name).complete());
+    }
 
-        RoleManager rm = null;
-        for (final Role r : guild.getRolesByName(name, true)) {
-            if (r.getName().equals(name)) {
-                rm = r.getManager();
-                break;
+
+    private enum PERMISSION_ACTION {GRANT, DENY, CLEAR}
+
+    //i personally allow this thing to be ugly
+    private static RestAction setPermissionsInChannelForRoleOrMember(final Channel channel, final IPermissionHolder memberOrRole,
+                                                                     final PERMISSION_ACTION action, final Permission... permissions) {
+        final PermissionOverride po;
+        if (memberOrRole instanceof Role) {
+            po = channel.getPermissionOverride((Role) memberOrRole);
+        } else {
+            po = channel.getPermissionOverride((Member) memberOrRole);
+        }
+
+        RestAction ra = null;
+        if (po != null) {
+            switch (action) {
+                case GRANT:
+                    ra = po.getManager().grant(permissions);
+                    break;
+                case DENY:
+                    ra = po.getManager().deny(permissions);
+                    break;
+                case CLEAR:
+                    ra = po.getManager().clear(permissions);
+                    break;
             }
+        } else {
+            PermissionOverrideAction poa;
+            if (memberOrRole instanceof Role) {
+                poa = channel.createPermissionOverride((Role) memberOrRole);
+            } else {
+                poa = channel.createPermissionOverride((Member) memberOrRole);
+            }
+            switch (action) {
+                case GRANT:
+                    poa = poa.setAllow(permissions);
+                    break;
+                case DENY:
+                    poa = poa.setAllow(permissions);
+                    break;
+                case CLEAR:
+                    //no need to do things here
+                    break;
+            }
+            ra = poa;
         }
-        if (rm == null) {
-            rm = guild.getController().createRole().complete().getManager();
-            rm.setName(name).complete();
-        }
-        return rm.getRole();
+        return ra;
     }
 
     /**
-     * @param channel Channel where this role and permission should take effect
-     * @param r       Role that will be granted/denied the permission
-     * @param p       Permission that shall be granted/denied to the role
-     * @param grant   true to grant, false to deny
+     * @param channel     Channel where this role and permission should take effect
+     * @param role        Role that will be granted/denied the permission
+     * @param permissions Permission that shall be granted/denied to the role
      */
-    public static void grant(final Channel channel, final Role r, final Permission p, final boolean grant) {
-        final RoleManager rm = r.getManager();
-        final PermissionOverride po = channel.getPermissionOverride(rm.getRole());
-        final PermOverrideManager pom;
-        if (po == null) pom = channel.createPermissionOverride(r).complete().getManager();
-        else pom = po.getManager();
+    public static RestAction grant(final Channel channel, final Role role, final Permission... permissions) {
+        return setPermissionsInChannelForRoleOrMember(channel, role, PERMISSION_ACTION.GRANT, permissions);
+    }
 
-        if (grant) pom.grant(p).complete();
-        else pom.deny(p).complete();
+    public static RestAction deny(final Channel channel, final Role role, final Permission... permissions) {
+        return setPermissionsInChannelForRoleOrMember(channel, role, PERMISSION_ACTION.DENY, permissions);
+    }
+
+    public static RestAction clear(final Channel channel, final Role role, final Permission... permissions) {
+        return setPermissionsInChannelForRoleOrMember(channel, role, PERMISSION_ACTION.CLEAR, permissions);
+    }
+
+    public static RestAction grant(final Channel channel, final Member member, final Permission... permissions) {
+        return setPermissionsInChannelForRoleOrMember(channel, member, PERMISSION_ACTION.GRANT, permissions);
+    }
+
+    public static RestAction deny(final Channel channel, final Member member, final Permission... permissions) {
+        return setPermissionsInChannelForRoleOrMember(channel, member, PERMISSION_ACTION.DENY, permissions);
+    }
+
+    public static RestAction clear(final Channel channel, final Member member, final Permission... permissions) {
+        return setPermissionsInChannelForRoleOrMember(channel, member, PERMISSION_ACTION.CLEAR, permissions);
     }
 
     /**

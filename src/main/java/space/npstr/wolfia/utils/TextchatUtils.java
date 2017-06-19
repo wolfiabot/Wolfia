@@ -43,10 +43,13 @@ public class TextchatUtils {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
     }
 
-    public static String createInviteLink(final TextChannel channel) {
+    public static String createInviteLink(final TextChannel channel, final Operation... onFail) {
         try {
             return "https://discord.gg/" + channel.createInvite().complete().getCode();
         } catch (final PermissionException ignored) {
+            if (onFail.length > 0) {
+                onFail[0].execute();
+            }
             return "";
         }
     }
