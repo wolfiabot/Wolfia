@@ -110,6 +110,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
         return this.privateGuildNumber == pg.privateGuildNumber && this.guildId == pg.guildId;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
         if (event.getGuild().getIdLong() != this.guildId) {
@@ -119,7 +120,6 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
         //kick everyone who isn't allowed
         if (!this.allowedUsers.contains(event.getMember().getUser().getIdLong())) {
             final Consumer whenDone = aVoid -> event.getGuild().getController().kick(event.getMember()).queue();
-            //noinspection unchecked
             Wolfia.handlePrivateOutputMessage(event.getMember().getUser().getIdLong(), whenDone, whenDone,
                     "You are not allowed to join private guild #%s currently.", this.privateGuildNumber);
             return;
