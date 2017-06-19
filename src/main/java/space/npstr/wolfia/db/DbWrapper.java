@@ -50,12 +50,13 @@ public class DbWrapper {
 
     //########## saving
 
-    public static void merge(final IEntity entity) {
+    public static <E extends IEntity> E merge(final E entity) {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
+        E managedEntity;
         try {
             em.getTransaction().begin();
-            em.merge(entity);
+            managedEntity = em.merge(entity);
             em.getTransaction().commit();
         } catch (final JDBCConnectionException e) {
             log.error("Failed to merge entity {}", entity, e);
@@ -63,6 +64,7 @@ public class DbWrapper {
         } finally {
             em.close();
         }
+        return managedEntity;
     }
 
     public static void persist(final Object object) {
@@ -121,7 +123,7 @@ public class DbWrapper {
 
         final List<GameStats> queryResult;
         try {
-            queryResult = em.createQuery("SELECT g FROM stats_game g", GameStats.class).getResultList();
+            queryResult = em.createQuery("FROM GameStats", GameStats.class).getResultList();
             //force load all the lazy things
             for (final GameStats g : queryResult) {
                 g.getActions().size();
