@@ -184,7 +184,7 @@ public class SetupEntity implements IEntity {
 
     public synchronized void startGame(final long commandCallerId) throws IllegalGameStateException {
 
-        if (Wolfia.restartFlag) {
+        if (Wolfia.maintenanceFlag) {
             Wolfia.handleOutputMessage(this.channelId, "The bot is getting ready to restart. Please try playing a game later.");
             return;
         }

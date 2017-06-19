@@ -53,13 +53,13 @@ public class UpdateCommand implements ICommand, IOwnerRestricted {
             return;
         }
 
-        if (Wolfia.restartFlag) {
+        if (Wolfia.maintenanceFlag) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
                     "%s, restart flag has been set already. Ignoring your command.",
                     commandInfo.event.getAuthor().getAsMention());
             return;
         }
-        Wolfia.restartFlag = true;
+        Wolfia.maintenanceFlag = true;
 
         boolean interrupted = false;
         Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),

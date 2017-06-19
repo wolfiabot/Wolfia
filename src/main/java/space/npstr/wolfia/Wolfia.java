@@ -63,9 +63,8 @@ public class Wolfia {
 
     public final static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
-    //todo find a better place for this
-    //true if a restart is planned, so games wont be able to be started
-    public static boolean restartFlag = false;
+    //true if a restart is planned, or live meintenance is happening, so games wont be able to be started
+    public static boolean maintenanceFlag = false;
 
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
 
