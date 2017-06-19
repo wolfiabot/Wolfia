@@ -91,6 +91,7 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
         DbWrapper.persist(pg);
         Wolfia.FREE_PRIVATE_GUILD_QUEUE.add(pg);
         Wolfia.jda.addEventListener(pg);
+        Wolfia.wolfia.commandListener.addIgnoredGuild(pg.getId());
         g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue();
     }
 }

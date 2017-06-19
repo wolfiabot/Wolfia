@@ -56,6 +56,7 @@ import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class Wolfia {
 
@@ -71,6 +72,8 @@ public class Wolfia {
     public static boolean maintenanceFlag = false;
 
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
+
+    public static Wolfia wolfia;
 
     //set up things that are crucial
     //if something fails exit right away
@@ -102,17 +105,20 @@ public class Wolfia {
         FREE_PRIVATE_GUILD_QUEUE.addAll(DbWrapper.loadPrivateGuilds());
         log.info("{} private guilds loaded", FREE_PRIVATE_GUILD_QUEUE.size());
 
-        new Wolfia();
+        wolfia = new Wolfia();
     }
+
+    public final CommandListener commandListener;
 
     private Wolfia() {
         //setting up JDA
         log.info("Setting up JDA and main listener");
-        final MainListener mainListener = new MainListener();
+        this.commandListener = new CommandListener(
+                FREE_PRIVATE_GUILD_QUEUE.stream().map(PrivateGuild::getId).collect(Collectors.toList()));
         try {
             jda = new JDABuilder(AccountType.BOT)
                     .setToken(Config.C.discordToken)
-                    .addEventListener(mainListener)
+                    .addEventListener(this.commandListener)
                     .addEventListener(FREE_PRIVATE_GUILD_QUEUE.toArray())
                     .setEnableShutdownHook(false)
                     .setGame(Game.of(App.GAME_STATUS))
