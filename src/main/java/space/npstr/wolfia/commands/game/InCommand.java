@@ -53,7 +53,7 @@ public class InCommand implements ICommand {
 
 
         //force inn by bot owner
-        if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && commandInfo.event.getAuthor().getIdLong() == App.OWNER_ID) {
+        if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && App.isOwner(commandInfo.event.getAuthor())) {
             commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.inUser(u.getIdLong(),
                     setup::postStats));
             return;

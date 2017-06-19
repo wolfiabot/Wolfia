@@ -82,7 +82,7 @@ public class CommandHandler {
                 return;
             }
 
-            if (command instanceof IOwnerRestricted && commandInfo.event.getAuthor().getIdLong() != App.OWNER_ID) {
+            if (command instanceof IOwnerRestricted && !App.isOwner(commandInfo.event.getAuthor())) {
                 //not the bot owner
                 log.info("user {} channel {} attempted issuing owner restricted command: {}",
                         commandInfo.event.getAuthor().getIdLong(),

@@ -58,7 +58,7 @@ public class SetupCommand implements ICommand {
             }
 
             //is the user allowed to do that?
-            if (!e.getMember().hasPermission(e.getTextChannel(), Permission.MESSAGE_MANAGE) && e.getAuthor().getIdLong() != App.OWNER_ID) {
+            if (!e.getMember().hasPermission(e.getTextChannel(), Permission.MESSAGE_MANAGE) && !App.isOwner(e.getAuthor())) {
                 Wolfia.handleOutputMessage(e.getTextChannel(), "%s, you need the following permission to edit the setup of this channel: %s",
                         e.getAuthor().getAsMention(), Permission.MESSAGE_MANAGE.getName());
                 return;

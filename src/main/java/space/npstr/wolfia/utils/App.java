@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.utils;
 
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.util.HelpCommand;
 
@@ -37,4 +39,16 @@ public class App {
     public static String WEBSITE = "http://wolfia.space";
     public static String GAME_STATUS = Config.PREFIX + HelpCommand.COMMAND + " | " + WEBSITE;
     public static String DESCRIPTION = "Play Werewolf/Mafia games on Discord!";
+
+    public static boolean isOwner(final long userId) {
+        return OWNER_ID == userId;
+    }
+
+    public static boolean isOwner(final User user) {
+        return isOwner(user.getIdLong());
+    }
+
+    public static boolean isOwner(final Member member) {
+        return isOwner(member.getUser());
+    }
 }

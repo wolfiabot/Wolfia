@@ -47,7 +47,7 @@ public class OutCommand implements ICommand {
             if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
                 final Member invoker = commandInfo.event.getMember();
                 final TextChannel channel = commandInfo.event.getTextChannel();
-                if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && invoker.getUser().getIdLong() != App.OWNER_ID) {
+                if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && !App.isOwner(invoker)) {
                     Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out util players.", invoker.getAsMention());
                     return;
                 } else {

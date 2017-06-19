@@ -39,6 +39,7 @@ public class InfoCommand implements ICommand {
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
+        final User owner = jda.getUserById(App.OWNER_ID);
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
         maStats += "-> Of which is used:    " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000 + "MB\n";
@@ -54,7 +55,7 @@ public class InfoCommand implements ICommand {
         botInfo += "Version:                " + App.VERSION + "\n";
         botInfo += "JDA responses total:    " + jda.getResponseTotal() + "\n";
         botInfo += "JDA version:            " + JDAInfo.VERSION + "\n";
-        botInfo += "Bot owner:              " + jda.getUserById(App.OWNER_ID).getName() + "\n";
+        botInfo += "Bot owner:              " + owner.getName() + "#" + owner.getDiscriminator() + "\n";
         botInfo += "```";
 
         final EmbedBuilder eb = new EmbedBuilder();
