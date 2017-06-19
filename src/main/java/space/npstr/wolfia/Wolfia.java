@@ -47,10 +47,13 @@ import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.db.DbManager;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
 import java.util.Optional;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.function.Consumer;
 
@@ -61,6 +64,7 @@ public class Wolfia {
     public static final OkHttpClient httpClient = new OkHttpClient();
     public static final long START_TIME = System.currentTimeMillis();
 
+    public static final LinkedBlockingQueue<PrivateGuild> FREE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
     public final static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
     //true if a restart is planned, or live meintenance is happening, so games wont be able to be started
@@ -95,6 +99,9 @@ public class Wolfia {
         //set up relational database
         dbManager = new DbManager();
 
+        FREE_PRIVATE_GUILD_QUEUE.addAll(DbWrapper.loadPrivateGuilds());
+        log.info("{} private guilds loaded", FREE_PRIVATE_GUILD_QUEUE.size());
+
         new Wolfia();
     }
 
@@ -106,6 +113,7 @@ public class Wolfia {
             jda = new JDABuilder(AccountType.BOT)
                     .setToken(Config.C.discordToken)
                     .addEventListener(mainListener)
+                    .addEventListener(FREE_PRIVATE_GUILD_QUEUE.toArray())
                     .setEnableShutdownHook(false)
                     .setGame(Game.of(App.GAME_STATUS))
                     .buildBlocking();

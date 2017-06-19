@@ -24,6 +24,7 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.debug.DbTestCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
+import space.npstr.wolfia.commands.debug.RegisterPrivateServerCommand;
 import space.npstr.wolfia.commands.debug.UpdateCommand;
 import space.npstr.wolfia.commands.game.*;
 import space.npstr.wolfia.commands.util.*;
@@ -68,6 +69,7 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(UserStatsCommand.COMMAND, new UserStatsCommand());
         COMMAND_REGISTRY.put(GuildStatsCommand.COMMAND, new GuildStatsCommand());
         COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
+        COMMAND_REGISTRY.put(RegisterPrivateServerCommand.COMMAND, new RegisterPrivateServerCommand());
     }
 
     public static void handleCommand(final CommandParser.CommandContainer commandInfo) {

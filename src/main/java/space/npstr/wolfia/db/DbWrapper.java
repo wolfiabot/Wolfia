@@ -21,12 +21,14 @@ import org.hibernate.exception.JDBCConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.TeamStats;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -128,6 +130,22 @@ public class DbWrapper {
                     t.getPlayers().size();
                 }
             }
+        } finally {
+            em.close();
+        }
+        return queryResult;
+    }
+
+    public static List<PrivateGuild> loadPrivateGuilds() {
+        return loadAll("FROM PrivateGuild", PrivateGuild.class);
+    }
+
+    public static <E> List<E> loadAll(final String query, final Class<E> clazz) {
+        final DbManager dbManager = Wolfia.dbManager;
+        final EntityManager em = dbManager.getEntityManager();
+        final List<E> queryResult = new ArrayList<>();
+        try {
+            queryResult.addAll(em.createQuery(query, clazz).getResultList());
         } finally {
             em.close();
         }
