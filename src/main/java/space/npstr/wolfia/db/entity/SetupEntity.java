@@ -209,6 +209,8 @@ public class SetupEntity implements IEntity {
             throw new IllegalGameStateException("Internal error, could not create the specified game.");
         }
 
+        game.setMode(this.mode);
+
         cleanUpInnedPlayers();
         //todo instead of checking here and then starting the game again with it, maybe just have a setPlayers() function in game that does those checks in one place?
         final Set<Long> inned = Collections.unmodifiableSet(this.innedUsers);
@@ -223,9 +225,22 @@ public class SetupEntity implements IEntity {
 
         game.setChannelId(this.channelId);
         Games.set(game);
-        if (game.start(inned)) {
+        final boolean gameStarted;
+        try {
+            gameStarted = game.start(inned);
+        } catch (final Exception e) {
+            //start failed
+            Games.remove(game);
+            game.cleanUp();
+            throw new RuntimeException("Exception thrown during game start.", e);
+        }
+        if (gameStarted) {
             this.innedUsers.clear();
             DbWrapper.merge(this);
+        } else {
+            //start failed
+            Games.remove(game);
+            game.cleanUp();
         }
     }
 }

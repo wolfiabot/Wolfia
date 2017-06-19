@@ -72,7 +72,7 @@ public abstract class Game {
 
     public abstract boolean isAcceptablePlayerCount(int signedUp);
 
-    public abstract void setMode(String mode);
+    public abstract void setMode(String mode) throws IllegalGameStateException;
 
     public abstract void setDayLength(long millis);
 
@@ -114,4 +114,10 @@ public abstract class Game {
      * this is used to keep stats
      */
     public abstract void userPosted(Message message);
+
+    /**
+     * completely clean up a running game
+     * aka reset any possible permissions and overrides, stop any running threads etc
+     */
+    public abstract void cleanUp();
 }
