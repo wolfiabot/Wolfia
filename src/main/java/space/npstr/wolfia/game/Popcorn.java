@@ -587,10 +587,9 @@ public class Popcorn extends Game {
         final Role livingPlayerRole = channel.getGuild().getRoleById(this.livingPlayersRoleId);
         if (livingPlayerRole != null) {
             livingPlayerRole.delete().queue();
+            //reset permissions for @everyone in the game channel
+            channel.getPermissionOverride(channel.getGuild().getPublicRole()).getManager().clear(Permission.MESSAGE_WRITE).complete();
         }
-
-        //reset permissions for @everyone in the game channel
-        channel.getPermissionOverride(channel.getGuild().getPublicRole()).getManager().clear(Permission.MESSAGE_WRITE).complete();
     }
 
     @Override
