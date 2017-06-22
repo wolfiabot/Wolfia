@@ -27,8 +27,8 @@ import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.Games;
-import space.npstr.wolfia.game.Popcorn;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.TextchatUtils;
@@ -90,16 +90,16 @@ public class SetupEntity implements IEntity {
         this.game = game.name();
     }
 
-    public String getMode() {
-        return this.mode;
+    public GameInfo.GameMode getMode() {
+        return GameInfo.GameMode.valueOf(this.mode);
     }
 
-    public void setMode(final String mode) throws IllegalArgumentException {
-        if (!Game.getGameModes(getGame()).contains(mode)) {
+    public void setMode(final GameInfo.GameMode mode) throws IllegalArgumentException {
+        if (!Games.getInfo(getGame()).getSupportedModes().contains(mode)) {
             final String message = String.format("Game %s does not support mode %s", getGame().name(), mode);
             throw new IllegalArgumentException(message);
         }
-        this.mode = mode;
+        this.mode = mode.name();
     }
 
     public long getDayLength() {
@@ -113,7 +113,7 @@ public class SetupEntity implements IEntity {
     //create a fresh setup; default game is Popcorn, default mode is Wild
     public SetupEntity() {
         this.setGame(Games.POPCORN);
-        this.setMode(Popcorn.MODE.WILD.name());
+        this.setMode(Games.getInfo(Games.POPCORN).getDefaultgMode());
         this.setDayLength(10, TimeUnit.MINUTES);
     }
 
@@ -127,9 +127,10 @@ public class SetupEntity implements IEntity {
         }
     }
 
-    public void outUser(final long userId) {
-        this.innedUsers.remove(userId);
+    public boolean outUser(final long userId) {
+        final boolean outted = this.innedUsers.remove(userId);
         DbWrapper.merge(this);
+        return outted;
     }
 
     private void cleanUpInnedPlayers() {
@@ -165,7 +166,7 @@ public class SetupEntity implements IEntity {
 
         //modes
         final StringBuilder possibleModes = new StringBuilder();
-        Game.getGameModes(getGame()).forEach(mode -> possibleModes.append(mode.equals(getMode()) ? "`[x]` " : "`[ ]` ").append(mode).append("\n"));
+        Games.getInfo(getGame()).getSupportedModes().forEach(mode -> possibleModes.append(mode.equals(getMode()) ? "`[x]` " : "`[ ]` ").append(mode).append("\n"));
         eb.addField("Mode", possibleModes.toString(), true);
 
         //day length
@@ -173,7 +174,7 @@ public class SetupEntity implements IEntity {
 
         //accepted player numbers
         eb.addField("Allowed players",
-                String.join(", ", Game.getAcceptablePlayerNumbers(getGame()).stream().map(i -> "`" + i + "`").collect(Collectors.toList())),
+                String.join(", ", Games.getInfo(getGame()).getAcceptablePlayerNumbers(getMode()).stream().map(i -> "`" + i + "`").collect(Collectors.toList())),
                 true);
 
         //inned players
@@ -182,6 +183,7 @@ public class SetupEntity implements IEntity {
         return eb.build();
     }
 
+    //needs to be synchronized so only one incoming command at a time can be in here
     public synchronized void startGame(final long commandCallerId) throws IllegalGameStateException {
 
         if (Wolfia.maintenanceFlag) {
@@ -209,8 +211,6 @@ public class SetupEntity implements IEntity {
             throw new IllegalGameStateException("Internal error, could not create the specified game.");
         }
 
-        game.setMode(this.mode);
-
         cleanUpInnedPlayers();
         //todo instead of checking here and then starting the game again with it, maybe just have a setPlayers() function in game that does those checks in one place?
         final Set<Long> inned = Collections.unmodifiableSet(this.innedUsers);
@@ -223,24 +223,16 @@ public class SetupEntity implements IEntity {
 
         game.setDayLength(this.dayLength);
 
-        game.setChannelId(this.channelId);
-        Games.set(game);
-        final boolean gameStarted;
         try {
-            gameStarted = game.start(inned);
+            game.start(this.channelId, getMode(), inned);
         } catch (final Exception e) {
+            Wolfia.handleOutputMessage(this.channelId, "Game start aborted due to:\n%s", e.getMessage());
             //start failed
             Games.remove(game);
             game.cleanUp();
             throw new RuntimeException("Exception thrown during game start.", e);
         }
-        if (gameStarted) {
-            this.innedUsers.clear();
-            DbWrapper.merge(this);
-        } else {
-            //start failed
-            Games.remove(game);
-            game.cleanUp();
-        }
+        this.innedUsers.clear();
+        DbWrapper.merge(this);
     }
 }

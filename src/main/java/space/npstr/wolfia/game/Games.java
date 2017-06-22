@@ -40,7 +40,25 @@ public enum Games {
         this.textRep = textRepresentation;
     }
 
-    //static aboose
+    private static final Map<Class<? extends Game>, GameInfo> GAME_INFOS = new HashMap<>();
+
+    static {
+        GAME_INFOS.put(POPCORN.clazz, new PopcornInfo());
+    }
+
+    public static GameInfo getInfo(final Games game) {
+        return GAME_INFOS.get(game.clazz);
+    }
+
+    public static GameInfo getInfo(final Class<? extends Game> gameClass) {
+        return GAME_INFOS.get(gameClass);
+    }
+
+    public static GameInfo getInfo(final Game game) {
+        return GAME_INFOS.get(game.getClass());
+    }
+
+    //static aboose?
     private static final Map<Long, Game> GAME_REGISTRY = new HashMap<>();
 
     public static Map<Long, Game> getAll() {
@@ -56,6 +74,10 @@ public enum Games {
 
     public static void remove(final Game game) {
         GAME_REGISTRY.remove(game.getChannelId());
+    }
+
+    public static void remove(final long channelId) {
+        GAME_REGISTRY.remove(channelId);
     }
 
     public static void set(final Game game) {
