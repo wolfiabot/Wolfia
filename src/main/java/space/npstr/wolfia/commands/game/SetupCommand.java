@@ -45,7 +45,7 @@ public class SetupCommand implements ICommand {
 
         final MessageReceivedEvent e = commandInfo.event;
         //will not be null because it will be initialized with default values if there is none
-        final SetupEntity setup = DbWrapper.getEntity(e.getChannel().getIdLong(), SetupEntity.class);
+        SetupEntity setup = DbWrapper.getEntity(channel.getIdLong(), SetupEntity.class);
 
         //is this an attempt to edit the setup?
         if (commandInfo.args.length > 1) {
@@ -69,7 +69,7 @@ public class SetupCommand implements ICommand {
                 case "game":
                     try {
                         setup.setGame(Games.valueOf(commandInfo.args[1]));
-                        DbWrapper.merge(setup);
+                        setup = DbWrapper.merge(setup);
                     } catch (final IllegalArgumentException ex) {
                         Wolfia.handleOutputMessage(e.getTextChannel(), "%s, no such game is supported by this bot.", e.getAuthor().getAsMention());
                         return;
@@ -78,7 +78,7 @@ public class SetupCommand implements ICommand {
                 case "mode":
                     try {
                         setup.setMode(commandInfo.args[1].toUpperCase());
-                        DbWrapper.merge(setup);
+                        setup = DbWrapper.merge(setup);
                     } catch (final IllegalArgumentException ex) {
                         Wolfia.handleOutputMessage(e.getTextChannel(), "%s, no such mode is supported by this game.", e.getAuthor().getAsMention());
                         return;
@@ -95,7 +95,7 @@ public class SetupCommand implements ICommand {
                             return;
                         }
                         setup.setDayLength(minutes, TimeUnit.MINUTES);
-                        DbWrapper.merge(setup);
+                        setup = DbWrapper.merge(setup);
                     } catch (final NumberFormatException ex) {
                         Wolfia.handleOutputMessage(e.getTextChannel(), "%s, use a number to set the day length!", e.getAuthor().getAsMention());
                         return;

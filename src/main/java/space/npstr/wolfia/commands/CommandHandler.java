@@ -59,15 +59,15 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(InfoCommand.COMMAND, new InfoCommand());
         COMMAND_REGISTRY.put(ReplayCommand.COMMAND, new ReplayCommand());
         COMMAND_REGISTRY.put(ChannelSettingsCommand.COMMAND, new ChannelSettingsCommand());
+        COMMAND_REGISTRY.put(UserStatsCommand.COMMAND, new UserStatsCommand());
+        COMMAND_REGISTRY.put(GuildStatsCommand.COMMAND, new GuildStatsCommand());
+        COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
 
         //bot owner/debug commands
         COMMAND_REGISTRY.put(DbTestCommand.COMMAND, new DbTestCommand());
         COMMAND_REGISTRY.put(EvalCommand.COMMAND, new EvalCommand());
         COMMAND_REGISTRY.put(ShutdownCommand.COMMAND, new ShutdownCommand());
         COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
-        COMMAND_REGISTRY.put(UserStatsCommand.COMMAND, new UserStatsCommand());
-        COMMAND_REGISTRY.put(GuildStatsCommand.COMMAND, new GuildStatsCommand());
-        COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
         COMMAND_REGISTRY.put(RegisterPrivateServerCommand.COMMAND, new RegisterPrivateServerCommand());
     }
 

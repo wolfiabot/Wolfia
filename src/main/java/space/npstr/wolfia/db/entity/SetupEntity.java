@@ -156,7 +156,7 @@ public class SetupEntity implements IEntity {
 
         final EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Setup for channel #" + Wolfia.jda.getTextChannelById(this.channelId).getName());
-        eb.setDescription(Games.get(this.channelId) == null ? "Game has **NOT** started yet." : "Gam has started.");
+        eb.setDescription(Games.get(this.channelId) == null ? "Game has **NOT** started yet." : "Game has started.");
 
         //games
         final StringBuilder possibleGames = new StringBuilder();
@@ -185,7 +185,7 @@ public class SetupEntity implements IEntity {
     public synchronized void startGame(final long commandCallerId) throws IllegalGameStateException {
 
         if (Wolfia.maintenanceFlag) {
-            Wolfia.handleOutputMessage(this.channelId, "The bot is getting ready to restart. Please try playing a game later.");
+            Wolfia.handleOutputMessage(this.channelId, "The bot is under maintenance. Please try starting a game later.");
             return;
         }
 

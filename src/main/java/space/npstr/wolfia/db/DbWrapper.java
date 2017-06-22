@@ -92,7 +92,7 @@ public class DbWrapper {
         //return a fresh object if we didn't find the one we were looking for
         if (entity == null) {
             entity = newInstance(id, clazz);
-            DbWrapper.merge(entity);
+            entity = DbWrapper.merge(entity);
         }
         return entity;
     }

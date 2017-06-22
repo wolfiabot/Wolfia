@@ -19,20 +19,6 @@ package space.npstr.wolfia;
 
 /**
  * Created by npstr on 22.08.2016
- * <p>
- * Needed Permissions:
- * Reading messages in turbo chat (d'uh)
- * Writing Messages in turbo chat (d'uh)
- * Mentioning Users in turbo chat (d'uh)
- * <p>
- * Access to Message History to provide chatlogs
- * <p>
- * Manage RoleUtils permission to mute and unmute players/channels during ongoing games
- * <p>
- * <p>
- * Nice to have:
- * Creating TextChannels so the bot can create a turbo-chat if it is missing for whatever reason
- * Reading Messages server wide (for better keeping track of inactive players)
  */
 
 import ch.qos.logback.classic.AsyncAppender;
@@ -68,7 +54,7 @@ public class Wolfia {
     public static final LinkedBlockingQueue<PrivateGuild> FREE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
     public final static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
 
-    //true if a restart is planned, or live meintenance is happening, so games wont be able to be started
+    //true if a restart is planned, or live maintenance is happening, so games wont be able to be started
     public static boolean maintenanceFlag = false;
 
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
