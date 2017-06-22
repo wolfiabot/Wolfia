@@ -65,6 +65,7 @@ public class CommandHandler {
         //bot owner/debug commands
         COMMAND_REGISTRY.put(DbTestCommand.COMMAND, new DbTestCommand());
         COMMAND_REGISTRY.put(EvalCommand.COMMAND, new EvalCommand());
+        COMMAND_REGISTRY.put(ShutdownCommand.COMMAND, new ShutdownCommand());
         COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
         COMMAND_REGISTRY.put(UserStatsCommand.COMMAND, new UserStatsCommand());
         COMMAND_REGISTRY.put(GuildStatsCommand.COMMAND, new GuildStatsCommand());
