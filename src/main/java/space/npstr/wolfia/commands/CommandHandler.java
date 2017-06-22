@@ -22,10 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.debug.DbTestCommand;
-import space.npstr.wolfia.commands.debug.EvalCommand;
-import space.npstr.wolfia.commands.debug.RegisterPrivateServerCommand;
-import space.npstr.wolfia.commands.debug.UpdateCommand;
+import space.npstr.wolfia.commands.debug.*;
 import space.npstr.wolfia.commands.game.*;
 import space.npstr.wolfia.commands.util.*;
 import space.npstr.wolfia.utils.App;
@@ -61,6 +58,7 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(HelpCommand.COMMAND, new HelpCommand());
         COMMAND_REGISTRY.put(InfoCommand.COMMAND, new InfoCommand());
         COMMAND_REGISTRY.put(ReplayCommand.COMMAND, new ReplayCommand());
+        COMMAND_REGISTRY.put(ChannelSettingsCommand.COMMAND, new ChannelSettingsCommand());
 
         //bot owner/debug commands
         COMMAND_REGISTRY.put(DbTestCommand.COMMAND, new DbTestCommand());
