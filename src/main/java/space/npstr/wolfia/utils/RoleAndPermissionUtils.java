@@ -22,7 +22,10 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
+import space.npstr.wolfia.game.definitions.Scope;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -30,7 +33,7 @@ import java.util.Optional;
  * <p>
  * This class is there to easy handling roles, like their creation, assignment to players, and granting and denying rights
  */
-public class RoleUtils {
+public class RoleAndPermissionUtils {
 
     /**
      * @param guild Guild aka Server where the bot operates and where from the role shall be retrieved/created
@@ -41,6 +44,29 @@ public class RoleUtils {
         final Optional<Role> r = guild.getRolesByName(name, true).stream()
                 .filter(role -> role.getName().equals(name)).findFirst();
         return r.orElseGet(() -> guild.getController().createRole().setName(name).complete());
+    }
+
+    public static boolean hasPermissions(final Member member, final TextChannel channel, final Map<Scope, Permission> permissions) {
+        final ArrayList<Permission> guildPerms = new ArrayList<>();
+        final ArrayList<Permission> channelPerms = new ArrayList<>();
+        permissions.forEach((scope, permission) -> {
+            if (scope == Scope.GUILD) {
+                guildPerms.add(permission);
+            } else if (scope == Scope.CHANNEL) {
+                channelPerms.add(permission);
+            }
+        });
+        return member.hasPermission(guildPerms) && member.hasPermission(channel, channelPerms);
+    }
+
+    public static boolean hasPermission(final Member member, final TextChannel channel, final Scope scope, final Permission permission) {
+        if (scope == Scope.GUILD) {
+            return member.hasPermission(permission);
+        } else if (scope == Scope.CHANNEL) {
+            return member.hasPermission(channel, permission);
+        } else {
+            throw new IllegalArgumentException("Unknown permission scope: " + scope.name());
+        }
     }
 
 

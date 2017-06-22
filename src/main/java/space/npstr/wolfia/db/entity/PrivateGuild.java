@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.IEntity;
-import space.npstr.wolfia.utils.RoleUtils;
+import space.npstr.wolfia.utils.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.TextchatUtils;
 
 import javax.persistence.*;
@@ -125,7 +125,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
             return;
         }
 
-        final Role wolf = RoleUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME);
+        final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME);
         event.getGuild().getController().addRolesToMember(event.getMember(), wolf).queue(
                 aVoid -> Wolfia.handleOutputMessage(this.currentChannelId, "%s, welcome to wolf chat!", event.getMember().getAsMention())
         );
@@ -147,7 +147,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
             this.currentChannelId = wolfChannel.getIdLong();
 
             //give the wolfrole access to it
-            RoleUtils.grant(wolfChannel, RoleUtils.getOrCreateRole(g, WOLF_ROLE_NAME), Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
+            RoleAndPermissionUtils.grant(wolfChannel, RoleAndPermissionUtils.getOrCreateRole(g, WOLF_ROLE_NAME), Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
         } catch (final Exception e) {
             endUsage();
             throw new RuntimeException("Could not begin the usage of private guild #" + this.privateGuildNumber, e);

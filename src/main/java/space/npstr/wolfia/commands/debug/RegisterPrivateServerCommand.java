@@ -30,7 +30,7 @@ import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.utils.IllegalGameStateException;
-import space.npstr.wolfia.utils.RoleUtils;
+import space.npstr.wolfia.utils.RoleAndPermissionUtils;
 
 import java.io.IOException;
 
@@ -78,7 +78,7 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
         //- deny reading messages
         g.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue();
         //- deny writing messages in #general
-        RoleUtils.deny(g.getPublicChannel(), g.getPublicRole(), Permission.MESSAGE_WRITE).queue();
+        RoleAndPermissionUtils.deny(g.getPublicChannel(), g.getPublicRole(), Permission.MESSAGE_WRITE).queue();
 
         //set up #general
         //- post a message about welcoming the scum team, and their channel being set up (just click it on the left side etc.)
