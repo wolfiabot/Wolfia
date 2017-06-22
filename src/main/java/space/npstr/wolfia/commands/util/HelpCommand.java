@@ -40,6 +40,9 @@ public class HelpCommand implements ICommand {
 
     @Override
     public void execute(final CommandParser.CommandContainer commandInfo) {
+        if (Config.C.isDebug && !App.isOwner(commandInfo.event.getAuthor())) {
+            return;//dont answer the help command in debug mode unless it's the owner
+        }
         final MessageReceivedEvent e = commandInfo.event;
         final TextChannel channel = e.getTextChannel();
         final String help = String.format("Hi %s,\nyou can find %s's **documentation** and a **full list of commands** under\n<%s>"
