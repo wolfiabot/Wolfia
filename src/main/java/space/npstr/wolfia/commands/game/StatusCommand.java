@@ -51,7 +51,7 @@ public class StatusCommand implements ICommand {
         }
 
         final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
-        setup.postStats();
+        setup.postStatus();
         return true;
     }
 

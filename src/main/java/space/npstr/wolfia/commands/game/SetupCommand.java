@@ -81,7 +81,7 @@ public class SetupCommand implements ICommand {
                     break;
                 case "mode":
                     try {
-                        setup.setMode(GameInfo.GameMode.valueOf(commandInfo.args[1]));
+                        setup.setMode(GameInfo.GameMode.valueOf(commandInfo.args[1].toUpperCase()));
                         setup = DbWrapper.merge(setup);
                     } catch (final IllegalArgumentException ex) {
                         Wolfia.handleOutputMessage(channel, "%s, no such mode is supported by this game: %s", invoker.getAsMention(), commandInfo.args[1]);
@@ -123,13 +123,13 @@ public class SetupCommand implements ICommand {
 //                case "handleTIE":
 //                    etc
                 default:
-                    //didn't understand the input, will show the status quo
+                    //didn't understand the input
                     Wolfia.handleOutputMessage(channel, "%s, I did not understand that input.", invoker.getAsMention());
                     return false;
             }
         }
         //show the status quo
-        setup.postStats();
+        setup.postStatus();
         return true;
     }
 

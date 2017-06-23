@@ -148,7 +148,7 @@ public class SetupEntity implements IEntity {
         //todo whenever time based ins are a thing, this is probably the place to check them
     }
 
-    public void postStats() {
+    public void postStatus() {
         Wolfia.handleOutputEmbed(this.channelId, getStatus());
     }
 

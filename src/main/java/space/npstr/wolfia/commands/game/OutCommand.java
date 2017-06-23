@@ -51,13 +51,13 @@ public class OutCommand implements ICommand {
                 return false;
             } else {
                 commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.outUser(u.getIdLong()));
-                setup.postStats();
+                setup.postStatus();
                 return true;
             }
         } else {
             //handling a regular out
             if (setup.outUser(commandInfo.event.getAuthor().getIdLong())) {
-                setup.postStats();
+                setup.postStatus();
                 return true;
             }
         }
