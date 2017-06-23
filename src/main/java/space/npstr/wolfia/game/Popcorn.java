@@ -47,6 +47,7 @@ import space.npstr.wolfia.utils.*;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -690,14 +691,20 @@ public class Popcorn extends Game {
                 Thread.sleep(this.game.dayLength);
 
                 if (this.day == this.game.day) {
-                    this.game.endDay(DayEndReason.TIMER, this.game.gunBearer, -1,
-                            () -> Popcorn.this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.MODKILL, this.game.gunBearer)));
+                    //run this in it own thread, because it may result in this PopcornTimer getting canceled in case it ends the game
+                    Wolfia.executor.execute(() -> {
+                                try {
+                                    this.game.endDay(DayEndReason.TIMER, this.game.gunBearer, -1,
+                                            () -> Popcorn.this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.MODKILL, this.game.gunBearer)));
+                                } catch (final IllegalGameStateException ignored) {
+                                    //todo decide if this can be safely ignored?
+                                }
+                            }
+                    );
                 }
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return;
-            } catch (final IllegalGameStateException ignored) {
-                //todo decide if this can be safely ignored?
             }
         }
     }
@@ -727,7 +734,7 @@ public class Popcorn extends Game {
         }
     }
 
-    enum DayEndReason {
+    private enum DayEndReason {
         TIMER, //gun bearer didn't shoot in time
         SHAT  //gun bearer shatted someone
     }
@@ -763,7 +770,7 @@ public class Popcorn extends Game {
                             m.editMessage(prepareGunDistributionEmbed(options, Collections.unmodifiableMap(this.votes)).build()).queue();
                         },
                         TIME_TO_DISTRIBUTE_GUN_MILLIS,
-                        aVoid -> endDistribution(Collections.unmodifiableMap(this.votes))
+                        aVoid -> endDistribution(Collections.unmodifiableMap(this.votes), GunDistributionEndReason.TIMER)
                 ));
             });
         }
@@ -775,12 +782,12 @@ public class Popcorn extends Game {
             this.votes.put(voter, candidate);
             //has everyone voted?
             if (this.votes.size() == getLivingWolves().size()) {
-                endDistribution(Collections.unmodifiableMap(this.votes));
+                endDistribution(Collections.unmodifiableMap(this.votes), GunDistributionEndReason.EVERYONE_VOTED);
             }
         }
 
         //synchronized because there is only one distribution allowed to happen
-        private synchronized void endDistribution(final Map<Long, Long> votesCopy) {
+        private synchronized void endDistribution(final Map<Long, Long> votesCopy, final GunDistributionEndReason reason) {
             if (this.done) {
                 //ignore
                 return;
@@ -798,9 +805,17 @@ public class Popcorn extends Game {
                     winningCandidate = candidate;
                 }
             }
-            Wolfia.handleOutputMessage(Popcorn.this.wolfChat.getChannelId(), "@here, %s gets the %s! Game about to start/continue.",
-                    Wolfia.jda.getUserById(winningCandidate).getName(), Emojis.GUN);
-            giveGun(winningCandidate);
+            final long getsGun = winningCandidate;
+            String out = "";
+            if (reason == GunDistributionEndReason.TIMER) {
+                out = "Time ran out!";
+            } else if (reason == GunDistributionEndReason.EVERYONE_VOTED) {
+                out = "Everyone has voted!";
+            }
+            Wolfia.handleOutputMessage(Popcorn.this.wolfChat.getChannelId(), out + "\n@here, %s gets the %s! Game about to start/continue, get back to the main chat.",
+                    Wolfia.jda.getUserById(getsGun).getName(), Emojis.GUN);
+            //give wolves 10 seconds to get back into the chat
+            Wolfia.executor.schedule(() -> giveGun(getsGun), 10, TimeUnit.SECONDS);
         }
 
         private EmbedBuilder prepareGunDistributionEmbed(final Map<String, PopcornPlayer> livingVillage, final Map<Long, Long> votesCopy) {
@@ -826,5 +841,10 @@ public class Popcorn extends Game {
             eb.addField("", "**Click the reactions below to decide who to give the gun. Dead wolves voting will be ignored.**", false);
             return eb;
         }
+    }
+
+    private enum GunDistributionEndReason {
+        TIMER, //time ran out
+        EVERYONE_VOTED //all wolves have voted
     }
 }
