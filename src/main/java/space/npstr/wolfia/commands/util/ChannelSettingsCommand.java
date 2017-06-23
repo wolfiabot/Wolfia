@@ -1,0 +1,113 @@
+/*
+ * Copyright (C) 2017 Dennis Neufeld
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package space.npstr.wolfia.commands.util;
+
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.ChannelSettings;
+import space.npstr.wolfia.utils.App;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Created by napster on 22.06.17.
+ * <p>
+ * sets up the bot (= discord related options, not game related ones), targets owner/admins of a guild
+ */
+public class ChannelSettingsCommand implements ICommand {
+
+    public static final String COMMAND = "channelsettings";
+
+    @Override
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+        final MessageReceivedEvent event = commandInfo.event;
+        final TextChannel channel = event.getTextChannel();
+        final Member invoker = event.getMember();
+        final Guild guild = event.getGuild();
+
+        //will not be null because it will be initialized with default values if there is none
+        ChannelSettings channelSettings = DbWrapper.getEntity(channel.getIdLong(), ChannelSettings.class);
+
+
+        if (commandInfo.args.length == 0) {
+            Wolfia.handleOutputEmbed(channel, channelSettings.getStatus());
+            return true;
+        }
+
+        //is the user allowed to do that?
+        if (!invoker.hasPermission(channel, Permission.ADMINISTRATOR) && !App.isOwner(invoker)) {
+            Wolfia.handleOutputMessage(channel, "%s, you need the following permission to edit the setup of this channel: %s",
+                    invoker.getAsMention(), Permission.ADMINISTRATOR.getName());
+            return false;
+        }
+
+        //at least 2 arguments?
+        if (commandInfo.args.length < 2) {
+            Wolfia.handleOutputMessage(channel, "%s", help());
+            return false;
+        }
+
+        final String option = commandInfo.args[0];
+        switch (option.toLowerCase()) {
+            case "accessrole":
+                final Role accessRole;
+                if (event.getMessage().getMentionedRoles().size() > 0) {
+                    accessRole = event.getMessage().getMentionedRoles().get(0);
+                } else {
+                    final String roleName = String.join(" ", Arrays.copyOfRange(commandInfo.args, 1, commandInfo.args.length)).trim();
+                    final List<Role> rolesByName = guild.getRolesByName(roleName, true);
+                    if ("everyone".equals(roleName)) {
+                        accessRole = guild.getPublicRole();
+                    } else if (rolesByName.isEmpty()) {
+                        Wolfia.handleOutputMessage(channel, "%s, there is no such role in this guild.", invoker.getAsMention());
+                        return false;
+                    } else if (rolesByName.size() > 1) {
+                        Wolfia.handleOutputMessage(channel, "%s, there is more than one role with that name in this guild.", invoker.getAsMention());
+                        return false;
+                    } else {
+                        accessRole = rolesByName.get(0);
+                    }
+                }
+                channelSettings.setAccessRoleId(accessRole.getIdLong());
+                channelSettings = DbWrapper.merge(channelSettings);
+                break;
+            default:
+                //didn't understand the input, will show the status quo
+                Wolfia.handleOutputMessage(channel, "%s, I did not understand that input.", invoker.getAsMention());
+                return false;
+        }
+        Wolfia.handleOutputEmbed(channel, channelSettings.getStatus());
+        return true;
+    }
+
+    @Override
+    public String help() {
+        return "```usage: " + Config.PREFIX + COMMAND + " <option> <setting>\nto set up Wolfia in this channel" +
+                "\nExample: " + Config.PREFIX + COMMAND + " accessrole <name or mention of a role>```";
+    }
+}

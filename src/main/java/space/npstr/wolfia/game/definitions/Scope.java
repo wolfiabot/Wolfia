@@ -15,25 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.game.definitions;
 
 /**
- * Created by napster on 21.05.17.
+ * Created by napster on 20.06.17.
  */
-public class IllegalGameStateException extends Exception {
-
-    private static final long serialVersionUID = -3082580128565589439L;
-
-    //force creation with a message
-    private IllegalGameStateException() {
-
-    }
-
-    public IllegalGameStateException(final String message) {
-        super(message);
-    }
-
-    public IllegalGameStateException(final String message, final Throwable t) {
-        super(message, t);
-    }
+public enum Scope {
+    CHANNEL,
+    GUILD
 }

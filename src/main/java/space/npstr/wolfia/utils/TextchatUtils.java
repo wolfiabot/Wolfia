@@ -21,6 +21,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,12 +45,26 @@ public class TextchatUtils {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
     }
 
-    public static String createInviteLink(final TextChannel channel) {
+    public static String createInviteLink(final TextChannel channel, final Operation... onFail) {
         try {
             return "https://discord.gg/" + channel.createInvite().complete().getCode();
         } catch (final PermissionException ignored) {
+            if (onFail.length > 0) {
+                onFail[0].execute();
+            }
             return "";
         }
+    }
+
+    private static final List<String> TRUE_TEXT = Arrays.asList("true", "yes", "enable", "y", "on", "1", "positive");
+    private static final List<String> FALSE_TEXT = Arrays.asList("false", "no", "disable", "n", "off", "0", "negative");
+
+    public static boolean isTrue(final String input) {
+        return TRUE_TEXT.contains(input);
+    }
+
+    public static boolean isFalse(final String input) {
+        return FALSE_TEXT.contains(input);
     }
 
     public static String percentFormat(final double value) {

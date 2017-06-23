@@ -40,25 +40,28 @@ public class OutCommand implements ICommand {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
         final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
-        if (setup != null) {
-            //is this a forced out of a player by an moderator or the bot owner?
-            if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
-                final Member invoker = commandInfo.event.getMember();
-                final TextChannel channel = commandInfo.event.getTextChannel();
-                if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && invoker.getUser().getIdLong() != App.OWNER_ID) {
-                    Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out util players.", invoker.getAsMention());
-                    return;
-                } else {
-                    commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.outUser(u.getIdLong()));
-                }
+        //is this a forced out of a player by an moderator or the bot owner?
+        if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
+            final Member invoker = commandInfo.event.getMember();
+            final TextChannel channel = commandInfo.event.getTextChannel();
+            if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && !App.isOwner(invoker)) {
+                Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out util players.", invoker.getAsMention());
+                return false;
             } else {
-                //handling a regular out
-                setup.outUser(commandInfo.event.getAuthor().getIdLong());
+                commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.outUser(u.getIdLong()));
+                setup.postStatus();
+                return true;
             }
-            setup.postStats();
+        } else {
+            //handling a regular out
+            if (setup.outUser(commandInfo.event.getAuthor().getIdLong())) {
+                setup.postStatus();
+                return true;
+            }
         }
+        return false;
     }
 
     @Override

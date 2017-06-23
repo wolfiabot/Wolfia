@@ -42,16 +42,17 @@ public class StatusCommand implements ICommand {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
 
         final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
         if (game != null) {
             Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", game.getStatus());
-            return;
+            return true;
         }
 
         final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
-        setup.postStats();
+        setup.postStatus();
+        return true;
     }
 
     @Override

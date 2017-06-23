@@ -24,6 +24,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
@@ -34,7 +35,9 @@ import space.npstr.wolfia.game.Games;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.util.concurrent.*;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by napster on 27.05.17.
@@ -60,7 +63,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
         final Guild guild = commandInfo.event.getGuild();
         final TextChannel channel = commandInfo.event.getTextChannel();
         final Message message = commandInfo.event.getMessage();
@@ -83,8 +86,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
         this.engine.put("game", Games.get(channel.getIdLong()));
         this.engine.put("setup", DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class));
 
-        final ScheduledExecutorService service = Executors.newScheduledThreadPool(1);
-        final ScheduledFuture<?> future = service.schedule(() -> {
+        final ScheduledFuture<?> future = Wolfia.executor.schedule(() -> {
 
             final Object out;
             try {
@@ -127,6 +129,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
             }
         };
         script.start();
+        return true;
     }
 
     @Override

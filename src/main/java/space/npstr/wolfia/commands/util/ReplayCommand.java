@@ -52,12 +52,12 @@ public class ReplayCommand implements ICommand {
     private static final Logger log = LoggerFactory.getLogger(ReplayCommand.class);
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
 
         final MessageReceivedEvent e = commandInfo.event;
         if (commandInfo.args.length < 1) {
             Wolfia.handleOutputMessage(e.getTextChannel(), "%s", help());
-            return;
+            return false;
         }
 
         final long gameId;
@@ -65,7 +65,7 @@ public class ReplayCommand implements ICommand {
             gameId = Long.valueOf(commandInfo.args[0].replaceAll("#", ""));
         } catch (final NumberFormatException ex) {
             Wolfia.handleOutputMessage(e.getTextChannel(), "%s", help());
-            return;
+            return false;
         }
 
         final GameStats gameStats = DbWrapper.loadSingleGameStats(gameId);
@@ -73,7 +73,7 @@ public class ReplayCommand implements ICommand {
         if (gameStats == null) {
             Wolfia.handleOutputMessage(e.getTextChannel(), "%s, there is no such game in the database.",
                     e.getAuthor().getAsMention());
-            return;
+            return false;
         }
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss z").withZone(ZoneId.of("UTC"));
 
@@ -125,37 +125,7 @@ public class ReplayCommand implements ICommand {
         eb.addField("Winners", winText, true);
 
         Wolfia.handleOutputEmbed(e.getTextChannel(), eb.build());
-
-//        final StringBuilder out = new StringBuilder("**Game #").append(gameStats.getGameId()).append("** ");
-//        //1. post summary like game, mode, players, roles
-//        out.append(gameStats.getGameType().textRep);
-//        out.append("\n**Mode**: ").append(gameStats.getGameMode());
-//        out.append("\n**Started**: ").append(dtf.format(Instant.ofEpochMilli(gameStats.getStartTime())));
-//        gameStats.getStartingTeams().forEach(team -> out
-//                .append("\n**")
-//                .append(team.getAlignment().textRep)
-//                .append("**: ")
-//                .append(String.join(", ", team.getPlayers().stream().map(player -> "`" + player.getNickname() + "`").collect(Collectors.toList())))
-//        );
-//
-//        //2. post the actions
-//        gameStats.getActions().forEach(actionStats -> out.append("\n").append(actionStats.toString()));
-//
-//        //3. post the winners
-//        out.append("\n**Game ended**: ").append(dtf.format(Instant.ofEpochMilli(gameStats.getEndTime())));
-//        out.append("\n**Game length**: ").append(TextchatUtils.formatMillis(gameStats.getEndTime() - gameStats.getStartTime()));
-//        final Optional<TeamStats> winners = gameStats.getStartingTeams().stream().filter(TeamStats::isWinner).findFirst();
-//        if (!winners.isPresent()) {
-//            //shouldn't happen lol
-//            out.append("\nGame has no winning team ").append(Emojis.WOLFTHINK)
-//                    .append("\nReplay must be borked. Error has been reported.");
-//            log.error("Game #{} has no winning team in the data", gameId);
-//        } else {
-//            final TeamStats winningTeam = winners.get();
-//            out.append("\n**Team ").append(winningTeam.getAlignment().textRep).append(" wins the game!**");
-//        }
-//
-//        Wolfia.handleOutputMessage(e.getTextChannel(), "%s", out);
+        return true;
     }
 
 

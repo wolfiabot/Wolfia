@@ -17,49 +17,52 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.Games;
 
-/**
- * Created by napster on 28.05.17.
- * <p>
- * wait for games to be over and run an update
- */
-public class UpdateCommand implements ICommand, IOwnerRestricted {
+import java.util.concurrent.TimeUnit;
 
-    public static final String COMMAND = "update";
-    private static boolean reminded = false;
+/**
+ * Created by napster on 21.06.17.
+ */
+public class ShutdownCommand implements ICommand, IOwnerRestricted {
+
+    public static final String COMMAND = "shutdown";
+    private static final Logger log = LoggerFactory.getLogger(ShutdownCommand.class);
+
+    private static boolean shutdownInitiated = false;
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
-
-        if (!reminded) {
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
-                    "%s, you have fucked up in the past so here's a reminder:" +
-                            "\n - Did you update the config files?" +
-                            "\n - Any database migration necessary/implemented?" +
-                            "\n - Did you actually upload the updated code?" +
-                            "\nJust run the command again if you're sure you have done everything." +
-                            "\n\n_Yours, %s_", commandInfo.event.getAuthor().getAsMention(), commandInfo.event.getJDA().getSelfUser().getName());
-            reminded = true;
-            return false;
-        }
-
         Wolfia.maintenanceFlag = true;
-
         Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),
-                "%s, **%s** games are still running. Will update as soon as they are over.",
+                "%s, **%s** games are still running. Will shut down as soon as they are over.",
                 commandInfo.event.getAuthor().getAsMention(), Games.getAll().size());
 
-        ShutdownCommand.shutdownAfterGamesAreDoneWithCode(2);
+        shutdownAfterGamesAreDoneWithCode(0);
         return true;
+    }
+
+    public static synchronized void shutdownAfterGamesAreDoneWithCode(final int code) {
+        if (shutdownInitiated) return;
+        shutdownInitiated = true;
+
+        Wolfia.executor.scheduleAtFixedRate(() -> {
+            if (Games.getAll().size() <= 0) {
+                Wolfia.shutdown(code);
+            } else {
+                log.info("{} games still running, waiting...", Games.getAll().size());
+            }
+        }, 0, 10, TimeUnit.SECONDS);
     }
 
     @Override
     public String help() {
-        return "restarts and updates the bot";
+        return "shuts down the bot";
     }
 }

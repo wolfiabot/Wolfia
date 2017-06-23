@@ -36,11 +36,11 @@ public class ShootCommand implements ICommand, IGameCommand {
     public static final String COMMAND = "shoot";
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
 
         if (commandInfo.event.getMessage().getMentionedUsers().size() < 1) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s", help());
-            return;
+            return false;
         }
 
         final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
@@ -48,13 +48,14 @@ public class ShootCommand implements ICommand, IGameCommand {
             Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
                     "Hey %s, there is no game currently going on in here.",
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
-            return;
+            return false;
         }
 
         try {
-            game.issueCommand(this, commandInfo);
+            return game.issueCommand(this, commandInfo);
         } catch (final IllegalGameStateException e) {
             Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", e.getMessage());
+            return false;
         }
 
     }

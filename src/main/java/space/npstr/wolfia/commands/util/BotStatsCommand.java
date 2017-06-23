@@ -35,7 +35,8 @@ public class BotStatsCommand implements ICommand {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
         Wolfia.handleOutputEmbed(commandInfo.event.getTextChannel(), StatsProvider.getBotStats().build());
+        return true;
     }
 }

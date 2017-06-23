@@ -15,25 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.game;
+
+import net.dv8tion.jda.core.Permission;
+import space.npstr.wolfia.game.definitions.Scope;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Created by napster on 21.05.17.
+ * Created by napster on 20.06.17.
+ * <p>
+ * should provide some static information about a game
  */
-public class IllegalGameStateException extends Exception {
+public interface GameInfo {
 
-    private static final long serialVersionUID = -3082580128565589439L;
+    public enum GameMode {WILD, CLASSIC}
 
-    //force creation with a message
-    private IllegalGameStateException() {
+    List<GameMode> getSupportedModes();
 
-    }
+    GameMode getDefaultgMode();
 
-    public IllegalGameStateException(final String message) {
-        super(message);
-    }
+    Map<Scope, Permission> getRequiredPermissions(final GameMode mode);
 
-    public IllegalGameStateException(final String message, final Throwable t) {
-        super(message, t);
-    }
+    Set<Integer> getAcceptablePlayerNumbers(final GameMode mode);
 }

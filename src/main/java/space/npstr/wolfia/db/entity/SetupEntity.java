@@ -27,11 +27,12 @@ import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.Games;
-import space.npstr.wolfia.game.Popcorn;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.UserFriendlyException;
 
 import javax.persistence.*;
 import java.util.Arrays;
@@ -90,16 +91,16 @@ public class SetupEntity implements IEntity {
         this.game = game.name();
     }
 
-    public String getMode() {
-        return this.mode;
+    public GameInfo.GameMode getMode() {
+        return GameInfo.GameMode.valueOf(this.mode);
     }
 
-    public void setMode(final String mode) throws IllegalArgumentException {
-        if (!Game.getGameModes(getGame()).contains(mode)) {
+    public void setMode(final GameInfo.GameMode mode) throws IllegalArgumentException {
+        if (!Games.getInfo(getGame()).getSupportedModes().contains(mode)) {
             final String message = String.format("Game %s does not support mode %s", getGame().name(), mode);
             throw new IllegalArgumentException(message);
         }
-        this.mode = mode;
+        this.mode = mode.name();
     }
 
     public long getDayLength() {
@@ -113,7 +114,7 @@ public class SetupEntity implements IEntity {
     //create a fresh setup; default game is Popcorn, default mode is Wild
     public SetupEntity() {
         this.setGame(Games.POPCORN);
-        this.setMode(Popcorn.MODE.WILD.name());
+        this.setMode(Games.getInfo(Games.POPCORN).getDefaultgMode());
         this.setDayLength(10, TimeUnit.MINUTES);
     }
 
@@ -127,9 +128,10 @@ public class SetupEntity implements IEntity {
         }
     }
 
-    public void outUser(final long userId) {
-        this.innedUsers.remove(userId);
+    public boolean outUser(final long userId) {
+        final boolean outted = this.innedUsers.remove(userId);
         DbWrapper.merge(this);
+        return outted;
     }
 
     private void cleanUpInnedPlayers() {
@@ -146,7 +148,7 @@ public class SetupEntity implements IEntity {
         //todo whenever time based ins are a thing, this is probably the place to check them
     }
 
-    public void postStats() {
+    public void postStatus() {
         Wolfia.handleOutputEmbed(this.channelId, getStatus());
     }
 
@@ -156,7 +158,7 @@ public class SetupEntity implements IEntity {
 
         final EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Setup for channel #" + Wolfia.jda.getTextChannelById(this.channelId).getName());
-        eb.setDescription(Games.get(this.channelId) == null ? "Game has **NOT** started yet." : "Gam has started.");
+        eb.setDescription(Games.get(this.channelId) == null ? "Game has **NOT** started yet." : "Game has started.");
 
         //games
         final StringBuilder possibleGames = new StringBuilder();
@@ -165,7 +167,7 @@ public class SetupEntity implements IEntity {
 
         //modes
         final StringBuilder possibleModes = new StringBuilder();
-        Game.getGameModes(getGame()).forEach(mode -> possibleModes.append(mode.equals(getMode()) ? "`[x]` " : "`[ ]` ").append(mode).append("\n"));
+        Games.getInfo(getGame()).getSupportedModes().forEach(mode -> possibleModes.append(mode.equals(getMode()) ? "`[x]` " : "`[ ]` ").append(mode).append("\n"));
         eb.addField("Mode", possibleModes.toString(), true);
 
         //day length
@@ -173,7 +175,7 @@ public class SetupEntity implements IEntity {
 
         //accepted player numbers
         eb.addField("Allowed players",
-                String.join(", ", Game.getAcceptablePlayerNumbers(getGame()).stream().map(i -> "`" + i + "`").collect(Collectors.toList())),
+                String.join(", ", Games.getInfo(getGame()).getAcceptablePlayerNumbers(getMode()).stream().map(i -> "`" + i + "`").collect(Collectors.toList())),
                 true);
 
         //inned players
@@ -182,16 +184,17 @@ public class SetupEntity implements IEntity {
         return eb.build();
     }
 
-    public synchronized void startGame(final long commandCallerId) throws IllegalGameStateException {
+    //needs to be synchronized so only one incoming command at a time can be in here
+    public synchronized boolean startGame(final long commandCallerId) throws IllegalGameStateException {
 
-        if (Wolfia.restartFlag) {
-            Wolfia.handleOutputMessage(this.channelId, "The bot is getting ready to restart. Please try playing a game later.");
-            return;
+        if (Wolfia.maintenanceFlag) {
+            Wolfia.handleOutputMessage(this.channelId, "The bot is under maintenance. Please try starting a game later.");
+            return false;
         }
 
         if (!this.innedUsers.contains(commandCallerId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s: Only players that inned can start the game!", TextchatUtils.userAsMention(commandCallerId));
-            return;
+            return false;
         }
 
         //is there a game running already in this channel?
@@ -199,14 +202,14 @@ public class SetupEntity implements IEntity {
             Wolfia.handleOutputMessage(this.channelId,
                     "%s, there is already a game going on in this channel!",
                     TextchatUtils.userAsMention(commandCallerId));
-            return;
+            return false;
         }
 
         final Game game;
         try {
             game = this.getGame().clazz.newInstance();
         } catch (IllegalAccessException | InstantiationException e) {
-            throw new IllegalGameStateException("Internal error, could not create the specified game.");
+            throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
         }
 
         cleanUpInnedPlayers();
@@ -216,16 +219,21 @@ public class SetupEntity implements IEntity {
             Wolfia.handleOutputMessage(this.channelId,
                     "There aren't enough (or too many) players signed up! Please use `%s%s` for more information",
                     Config.PREFIX, StatusCommand.COMMAND);
-            return;
+            return false;
         }
 
         game.setDayLength(this.dayLength);
 
-        game.setChannelId(this.channelId);
-        Games.set(game);
-        if (game.start(inned)) {
-            this.innedUsers.clear();
-            DbWrapper.merge(this);
+        try {
+            game.start(this.channelId, getMode(), inned);
+        } catch (final Exception e) {
+            //start failed
+            Games.remove(game);
+            game.cleanUp();
+            throw new UserFriendlyException("Game start aborted due to:\n" + e.getMessage(), e);
         }
+        this.innedUsers.clear();
+        DbWrapper.merge(this);
+        return true;
     }
 }

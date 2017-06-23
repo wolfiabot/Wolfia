@@ -20,6 +20,7 @@ package space.npstr.wolfia.utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -47,6 +48,65 @@ public class Emojis {
     public static final String FULL_MOON = "🌕";
     public static final String CITY_SUNSET_SUNRISE = "🌇";
 
+    public static final String QUESTION = "❓";
+    public static final String X = "❌";
+    public static final String ANGER = "💢";
+    public static final String CHECK = "✅";
+    public static final String LOADING = "🔄";
+
+
+    public static final String NUMBER_0 = "0⃣";
+    public static final String NUMBER_1 = "1⃣";
+    public static final String NUMBER_2 = "2⃣";
+    public static final String NUMBER_3 = "3⃣";
+    public static final String NUMBER_4 = "4⃣";
+    public static final String NUMBER_5 = "5⃣";
+    public static final String NUMBER_6 = "6⃣";
+    public static final String NUMBER_7 = "7⃣";
+    public static final String NUMBER_8 = "8⃣";
+    public static final String NUMBER_9 = "9⃣";
+    public static final String NUMBER_10 = "🔟";
+
+    public static final String[] NUMBERS = {NUMBER_0, NUMBER_1, NUMBER_2, NUMBER_3, NUMBER_4, NUMBER_5, NUMBER_6,
+            NUMBER_7, NUMBER_8, NUMBER_9, NUMBER_10};
+
+    public static final String LETTER_A = "🇦";
+    public static final String LETTER_B = "🇧";
+    public static final String LETTER_C = "🇨";
+    public static final String LETTER_D = "🇩";
+    public static final String LETTER_E = "🇪";
+    public static final String LETTER_F = "🇫";
+    public static final String LETTER_G = "🇬";
+    public static final String LETTER_H = "🇭";
+    public static final String LETTER_I = "🇮";
+    public static final String LETTER_J = "🇯";
+    public static final String LETTER_K = "🇰";
+    public static final String LETTER_L = "🇱";
+    public static final String LETTER_M = "🇲";
+    public static final String LETTER_N = "🇳";
+    public static final String LETTER_O = "🇴";
+    public static final String LETTER_P = "🇵";
+    public static final String LETTER_Q = "🇶";
+    public static final String LETTER_R = "🇷";
+    public static final String LETTER_S = "🇸";
+    public static final String LETTER_T = "🇹";
+    public static final String LETTER_U = "🇺";
+    public static final String LETTER_V = "🇻";
+    public static final String LETTER_W = "🇼";
+    public static final String LETTER_X = "🇽";
+    public static final String LETTER_Y = "🇾";
+    public static final String LETTER_Z = "🇿";
+
+    public static final String[] LETTERS = {LETTER_A, LETTER_B, LETTER_C, LETTER_D, LETTER_E, LETTER_F, LETTER_G,
+            LETTER_H, LETTER_I, LETTER_J, LETTER_K, LETTER_L, LETTER_M, LETTER_N, LETTER_O, LETTER_P, LETTER_Q,
+            LETTER_R, LETTER_S, LETTER_T, LETTER_U, LETTER_V, LETTER_W, LETTER_X, LETTER_Y, LETTER_Z};
+
+    public static final ArrayList<String> NUMBERS_AND_LETTERS = new ArrayList<>();
+
+    static {
+        NUMBERS_AND_LETTERS.addAll(Arrays.asList(NUMBERS));
+        NUMBERS_AND_LETTERS.addAll(Arrays.asList(LETTERS));
+    }
 
     //custom ones, currently hosted in the Wolfia Lounge
     public static final String EEK = "<:eek:318452576850804748>";

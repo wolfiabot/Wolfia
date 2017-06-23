@@ -28,25 +28,44 @@ import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Games;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * Created by npstr on 25.08.2016
  */
-public class MainListener extends ListenerAdapter {
+public class CommandListener extends ListenerAdapter {
 
-    private final static Logger log = LoggerFactory.getLogger(MainListener.class);
+    private final static Logger log = LoggerFactory.getLogger(CommandListener.class);
 
-    //todo decide if unlimited threads are ok, or impose a limit
     private static final ExecutorService commandExecutor = Executors.newCachedThreadPool();
 
-    public MainListener() {
+    private final Set<Long> IGNORED_GUILDS = new HashSet<>();
+
+    public CommandListener(final Collection<Long> ignoredGuilds) {
+        this.IGNORED_GUILDS.addAll(ignoredGuilds);
+    }
+
+    public void addIgnoredGuild(final long guildId) {
+        this.IGNORED_GUILDS.add(guildId);
     }
 
     //sort the checks here approximately by widest and cheapest filters higher up, and put expensive filters lower
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
+
+        //ignore private channels
+        if (event.getPrivateChannel() != null) {
+            return;
+        }
+
+        //ignore certain guilds (private guilds for example, they have their own listener)
+        if (this.IGNORED_GUILDS.contains(event.getGuild().getIdLong())) {
+            return;
+        }
 
         //update user stats
         final Game g = Games.get(event.getChannel().getIdLong());
@@ -65,11 +84,6 @@ public class MainListener extends ListenerAdapter {
 
         //bot should ignore itself
         if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
-            return;
-        }
-
-        //ignore private channels todo not forever tho
-        if (event.getPrivateChannel() != null) {
             return;
         }
 

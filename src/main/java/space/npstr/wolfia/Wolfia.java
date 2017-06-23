@@ -19,20 +19,6 @@ package space.npstr.wolfia;
 
 /**
  * Created by npstr on 22.08.2016
- * <p>
- * Needed Permissions:
- * Reading messages in turbo chat (d'uh)
- * Writing Messages in turbo chat (d'uh)
- * Mentioning Users in turbo chat (d'uh)
- * <p>
- * Access to Message History to provide chatlogs
- * <p>
- * Manage RoleUtils permission to mute and unmute players/channels during ongoing games
- * <p>
- * <p>
- * Nice to have:
- * Creating TextChannels so the bot can create a turbo-chat if it is missing for whatever reason
- * Reading Messages server wide (for better keeping track of inactive players)
  */
 
 import ch.qos.logback.classic.AsyncAppender;
@@ -47,10 +33,16 @@ import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.db.DbManager;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
+import java.util.Optional;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class Wolfia {
 
@@ -59,11 +51,15 @@ public class Wolfia {
     public static final OkHttpClient httpClient = new OkHttpClient();
     public static final long START_TIME = System.currentTimeMillis();
 
-    //todo find a better place for this
-    //true if a restart is planned, so games wont be able to be started
-    public static boolean restartFlag = false;
+    public static final LinkedBlockingQueue<PrivateGuild> FREE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
+    public final static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+
+    //true if a restart is planned, or live maintenance is happening, so games wont be able to be started
+    public static boolean maintenanceFlag = false;
 
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
+
+    public static Wolfia wolfia;
 
     //set up things that are crucial
     //if something fails exit right away
@@ -92,17 +88,24 @@ public class Wolfia {
         //set up relational database
         dbManager = new DbManager();
 
-        new Wolfia();
+        FREE_PRIVATE_GUILD_QUEUE.addAll(DbWrapper.loadPrivateGuilds());
+        log.info("{} private guilds loaded", FREE_PRIVATE_GUILD_QUEUE.size());
+
+        wolfia = new Wolfia();
     }
+
+    public final CommandListener commandListener;
 
     private Wolfia() {
         //setting up JDA
         log.info("Setting up JDA and main listener");
-        final MainListener mainListener = new MainListener();
+        this.commandListener = new CommandListener(
+                FREE_PRIVATE_GUILD_QUEUE.stream().map(PrivateGuild::getId).collect(Collectors.toList()));
         try {
             jda = new JDABuilder(AccountType.BOT)
                     .setToken(Config.C.discordToken)
-                    .addEventListener(mainListener)
+                    .addEventListener(this.commandListener)
+                    .addEventListener(FREE_PRIVATE_GUILD_QUEUE.toArray())
                     .setEnableShutdownHook(false)
                     .setGame(Game.of(App.GAME_STATUS))
                     .buildBlocking();
@@ -122,8 +125,8 @@ public class Wolfia {
 
     //################## message handling + tons of overloaded methods
 
-    //calling with complete = true will ignore onsuccess and on fail
-    private static void handleOutputMessage(final boolean complete, final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+    //calling with complete = true will ignore onsuccess and on fail, but return an optional with the message
+    private static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final Consumer<Message> onSuccess, Consumer<Throwable> onFail, final String msg, final Object... args) {
         if (complete && (onSuccess != null || onFail != null)) {
             log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
         }
@@ -132,71 +135,108 @@ public class Wolfia {
         try {
             final RestAction<Message> ra = channel.sendMessage(mb.build());
             if (complete) {
-                ra.complete();
+                return Optional.of(ra.complete());
+            } else {
+                if (onFail == null) {
+                    onFail = throwable -> {
+                        if (!(channel instanceof PrivateChannel)) //ignore exceptions when sending to private channels
+                            log.error("Exception when sending a message in channel {}", channel.getIdLong(), throwable);
+                    };
+                }
+                ra.queue(onSuccess, onFail);
+            }
+        } catch (final PermissionException e) {
+            log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final String msg, final Object... args) {
+        return handleOutputMessage(complete, channel, null, null, msg, args);
+    }
+
+    public static Optional<Message> handleOutputMessage(final boolean complete, final long channelId, final String msg, final Object... args) {
+        final TextChannel channel = jda.getTextChannelById(channelId);
+        return handleOutputMessage(complete, channel, null, null, msg, args);
+    }
+
+    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        return handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
+    }
+
+    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        final TextChannel channel = jda.getTextChannelById(channelId);
+        return handleOutputMessage(channel, onSuccess, onFail, msg, args);
+    }
+
+    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
+        return handleOutputMessage(false, channel, null, null, msg, args);
+    }
+
+    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        final TextChannel channel = jda.getTextChannelById(channelId);
+        return handleOutputMessage(false, channel, null, onFail, msg, args);
+    }
+
+    public static Optional<Message> handleOutputMessage(final long channelId, final String msg, final Object... args) {
+        return handleOutputMessage(channelId, null, msg, args);
+    }
+
+    //embeds
+    private static Optional<Message> handleOutputEmbed(final boolean complete, final MessageChannel channel, final MessageEmbed msgEmbed, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail) {
+        //check for embed permissions in a guild text channel
+        if (channel instanceof TextChannel) {
+            final TextChannel tc = (TextChannel) channel;
+            if (!tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_EMBED_LINKS)) {
+                handleOutputMessage(channel, "Hey, I am missing the `%s` permission to display my messages properly in this channel.", Permission.MESSAGE_EMBED_LINKS.getName());
+                return Optional.empty();
+            }
+        }
+        try {
+            final RestAction<Message> ra = channel.sendMessage(msgEmbed);
+            if (complete) {
+                return Optional.of(ra.complete());
             } else {
                 ra.queue(onSuccess, onFail);
             }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
         }
+        return Optional.empty();
     }
 
-    public static void handleOutputMessage(final boolean complete, final MessageChannel channel, final String msg, final Object... args) {
-        handleOutputMessage(complete, channel, null, null, msg, args);
+    public static Optional<Message> handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed) {
+        return handleOutputEmbed(false, channel, msgEmbed, null, null);
     }
 
-    public static void handleOutputMessage(final boolean complete, final long channelId, final String msg, final Object... args) {
+    public static Optional<Message> handleOutputEmbed(final boolean complete, final long channelId, final MessageEmbed msgEmbed) {
         final TextChannel channel = jda.getTextChannelById(channelId);
-        handleOutputMessage(complete, channel, null, null, msg, args);
+        return handleOutputEmbed(complete, channel, msgEmbed, null, null);
     }
 
-    private static void handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
+    public static Optional<Message> handleOutputEmbed(final long channelId, final MessageEmbed msgEmbed) {
+        return handleOutputEmbed(false, channelId, msgEmbed);
     }
 
-    public static void handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
-        handleOutputMessage(false, channel, null, null, msg, args);
-    }
-
-    public static void handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        final TextChannel channel = jda.getTextChannelById(channelId);
-        handleOutputMessage(false, channel, null, onFail, msg, args);
-    }
-
-    public static void handleOutputMessage(final long channelId, final String msg, final Object... args) {
-        handleOutputMessage(channelId, null, msg, args);
-    }
-
-    //embeds
-    public static void handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed) {
-        //check for embed permissions in a guild text channel
-        if (channel instanceof TextChannel) {
-            final TextChannel tc = (TextChannel) channel;
-            if (!tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_EMBED_LINKS)) {
-                handleOutputMessage(channel, "Hey, I am missing the **Embed Links** permission to display my messages properly in this channel.");
-                return;
-            }
-        }
-
-        try {
-            channel.sendMessage(msgEmbed).queue();
-        } catch (final PermissionException e) {
-            log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
-        }
-    }
-
-    public static void handleOutputEmbed(final long channelId, final MessageEmbed msgEmbed) {
-        final TextChannel channel = jda.getTextChannelById(channelId);
-        handleOutputEmbed(channel, msgEmbed);
+    public static Optional<Message> handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed, final Consumer<Message> onSuccess) {
+        return handleOutputEmbed(false, channel, msgEmbed, onSuccess, null);
     }
 
 
     //send a message to a user privately
     public static void handlePrivateOutputMessage(final long userId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        if (onFail == null) {
+            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
+                    "error log spam. Fix your code please.");
+        }
         jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
     }
 
     public static void handlePrivateOutputMessage(final long userId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        if (onFail == null) {
+            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
+                    "error log spam. Fix your code please.");
+        }
         jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onSuccess, onFail, msg, args), onFail);
     }
 

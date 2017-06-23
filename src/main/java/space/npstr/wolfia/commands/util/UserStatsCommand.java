@@ -41,17 +41,18 @@ public class UserStatsCommand implements ICommand {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
         final Message m = commandInfo.event.getMessage();
         if (m.getMentionedUsers().size() < 1) {
             Wolfia.handleOutputEmbed(m.getChannel(), StatsProvider.getUserStats(commandInfo.event.getMember()).build());
-            return;
+            return true;
         }
 
         for (final User u : m.getMentionedUsers()) {
             if (!m.getGuild().isMember(u)) continue; //skip mentioned non-members
             Wolfia.handleOutputEmbed(m.getChannel(), StatsProvider.getUserStats(m.getGuild().getMember(u)).build());
         }
+        return true;
     }
 
 
