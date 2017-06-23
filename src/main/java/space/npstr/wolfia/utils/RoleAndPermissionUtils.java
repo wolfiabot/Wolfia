@@ -85,10 +85,20 @@ public class RoleAndPermissionUtils {
         if (po != null) {
             switch (action) {
                 case GRANT:
-                    ra = po.getManager().grant(permissions);
+                    //do nothing if the permission override already grants the permission
+                    if (po.getAllowed().containsAll(Arrays.asList(permissions))) {
+                        ra = new RestAction.EmptyRestAction<>(Wolfia.jda, null);
+                    } else {
+                        ra = po.getManager().grant(permissions);
+                    }
                     break;
                 case DENY:
-                    ra = po.getManager().deny(permissions);
+                    //do nothing if the permission override already denies the permission
+                    if (po.getDenied().containsAll(Arrays.asList(permissions))) {
+                        ra = new RestAction.EmptyRestAction<>(Wolfia.jda, null);
+                    } else {
+                        ra = po.getManager().deny(permissions);
+                    }
                     break;
                 case CLEAR:
                     //if the permission override becomes empty as a result of clearing these permissions, delete it
@@ -105,7 +115,7 @@ public class RoleAndPermissionUtils {
                     break;
             }
         } else {
-            PermissionOverrideAction poa;
+            final PermissionOverrideAction poa;
             if (memberOrRole instanceof Role) {
                 poa = channel.createPermissionOverride((Role) memberOrRole);
             } else {
@@ -113,16 +123,16 @@ public class RoleAndPermissionUtils {
             }
             switch (action) {
                 case GRANT:
-                    poa = poa.setAllow(permissions);
+                    ra = poa.setAllow(permissions);
                     break;
                 case DENY:
-                    poa = poa.setDeny(permissions);
+                    ra = poa.setDeny(permissions);
                     break;
                 case CLEAR:
-                    //no need to do things here
+                    //do nothing if we are trying to clear a nonexisting permission override
+                    ra = new RestAction.EmptyRestAction<>(Wolfia.jda, null);
                     break;
             }
-            ra = poa;
         }
         return ra;
     }

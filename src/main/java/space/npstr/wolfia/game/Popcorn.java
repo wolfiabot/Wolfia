@@ -624,13 +624,6 @@ public class Popcorn extends Game {
             missingPermissions.add(e.getPermission());
         }
 
-        //reset permission override for the bot:
-        try {
-            toComplete.add(RoleAndPermissionUtils.clear(channel, g.getSelfMember(), Permission.MESSAGE_WRITE).submit());
-        } catch (final PermissionException e) {
-            missingPermissions.add(e.getPermission());
-        }
-
         if (missingPermissions.size() > 0) {
             Wolfia.handleOutputMessage(channel, "Tried to clean up channel, but was missing the following permissions: `%s%s",
                     String.join("`, `", missingPermissions.stream().map(Permission::getName).distinct().collect(Collectors.toList())), "`");
