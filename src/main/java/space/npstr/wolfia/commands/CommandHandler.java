@@ -17,7 +17,9 @@
 
 package space.npstr.wolfia.commands;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +78,11 @@ public class CommandHandler {
 
     public static void handleCommand(final CommandParser.CommandContainer commandInfo) {
         final Message message = commandInfo.event.getMessage();
+        final TextChannel channel = commandInfo.event.getTextChannel();
+        boolean canAddReaction = false;
+        if (channel != null) {
+            canAddReaction = commandInfo.event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_ADD_REACTION);
+        }
         try {
             final ICommand command = COMMAND_REGISTRY.get(commandInfo.command);
             if (command == null) {
@@ -84,7 +91,7 @@ public class CommandHandler {
                         commandInfo.event.getAuthor().getIdLong(),
                         commandInfo.event.getChannel().getIdLong(),
                         commandInfo.raw);
-                message.addReaction(Emojis.QUESTION).queue();
+                if (canAddReaction) message.addReaction(Emojis.QUESTION).queue();
                 return;
             }
 
@@ -94,21 +101,21 @@ public class CommandHandler {
                         commandInfo.event.getAuthor().getIdLong(),
                         commandInfo.event.getChannel().getIdLong(),
                         commandInfo.raw);
-                message.addReaction(Emojis.X).queue();
+                if (canAddReaction) message.addReaction(Emojis.X).queue();
                 return;
             }
-            message.addReaction(Emojis.LOADING).complete();
+            if (canAddReaction) message.addReaction(Emojis.LOADING).complete();
             final boolean success = command.execute(commandInfo);
             if (success) {
-                clearAndReact(message, Emojis.CHECK);
+                if (canAddReaction) clearAndReact(message, Emojis.CHECK);
             } else {
-                clearAndReact(message, Emojis.X);
+                if (canAddReaction) clearAndReact(message, Emojis.X);
             }
         } catch (final UserFriendlyException e) {
-            clearAndReact(message, Emojis.X);
+            if (canAddReaction) clearAndReact(message, Emojis.X);
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), e.getMessage());
         } catch (final Exception e) {
-            clearAndReact(message, Emojis.ANGER);
+            if (canAddReaction) clearAndReact(message, Emojis.ANGER);
             final MessageReceivedEvent ev = commandInfo.event;
             Throwable t = e;
             while (t != null) {
