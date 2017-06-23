@@ -36,21 +36,36 @@ Being an Ⲁ bot doesn't stop Wolfia from being an Ⲁ wolf with close to 100% u
 
 ## Commands
 
+### Setting up the bot in your discord server
+
+| Command             | What it does                                                                                              |
+|:--------------------|:----------------------------------------------------------------------------------------------------------|
+| `w.channelsettings` | set up settings for this channel, for example the access role: `w.channelsettings accessrole Mafiaplayer` |
+
+
+### Playing a game
+
+| Command            | What it does                                                                              |
+|:-------------------|:------------------------------------------------------------------------------------------|
+| `w.in`             | sign up for a game                                                                        |
+| `w.out`            | drop from the sign up list; Moderators can out other players with `w.out @user`           |
+| `w.rolepm`         | ask the bot to resend you your rolepm for the ongoing game                                |
+| `w.setup`          | set up the game in the current channel, for example the day length: `w.setup daylength 5` |
+| `w.shoot @player`  | shoot another player                                                                      |
+| `w.start`          | start a game                                                                              |
+| `w.status`         | show the current status of an ongoing game or sign ups                                    |
+
+
+### Others
+
 | Command            | What it does                                                                    |
 |:-------------------|:--------------------------------------------------------------------------------|
 | `w.help`           | send some help your way                                                         |
-| `w.in`             | sign up for a game                                                              |
-| `w.out`            | drop from the sign up list; Moderators can out other players with `w.out @user` |
-| `w.rolepm`         | ask the bot to resend you your rolepm for the ongoing game                      |
-| `w.setup`          | set up the game in the current channel                                          |
-| `w.shoot @player`  | shoot another player                                                            |
-| `w.start`          | start a game                                                                    |
-| `w.status`         | show the current status of an ongoing game or sign ups                          |
-| `w.info`           | show some general information about the bot                                     |
 | `w.replay #gameid` | show the replay of a game                                                       |
 | `w.userstats @user`| show the stats of a user                                                        |
 | `w.guildstats`     | show the stats of the current guild                                             |
 | `w.botstats`       | show stats of the whole bot                                                     |
+| `w.info`           | show some general information about the bot                                     |
 
 
 * * *
@@ -61,10 +76,18 @@ Being an Ⲁ bot doesn't stop Wolfia from being an Ⲁ wolf with close to 100% u
 3-11 players
 
 - The ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"}s know their team.
-- A villager holds the ![](https://canary.discordapp.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg){:height="15" width="15"}.
-- If he shoots a ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"}, the ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"} dies and he can shoot again.
-- If he shoots a villager, the shooter dies, and the ![](https://canary.discordapp.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg){:height="15" width="15"} goes to the villager that was shot at.
-- Village wins when all ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"}s are dead, ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"}s win when they reach parity.
+- A ![](https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg){:height="15" width="15"} holds the ![](https://canary.discordapp.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg){:height="15" width="15"}.
+- If the ![](https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg){:height="15" width="15"} shoots a ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"}, the ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"} dies and the ![](https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg){:height="15" width="15"} can shoot again.
+- If the ![](https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg){:height="15" width="15"} shoots another ![](https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg){:height="15" width="15"}, the shooter dies, and the ![](https://canary.discordapp.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg){:height="15" width="15"} goes to the ![](https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg){:height="15" width="15"} that was shot at.
+- ![](https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg){:height="15" width="15"}s win when all ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"}s are dead, ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"}s win when they reach parity.
+
+#### Wild
+The WILD mode of Popcorn will randomize who gets the ![](https://canary.discordapp.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg){:height="15" width="15"}.
+The channel will never be closed, non-players and dead players can post the whole time. The bot won't need any special permissions to run this mode.
+
+#### Classic
+The CLASSIC mode of Popcorn will allow the ![](https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg){:height="15" width="15"}s to have a separate hidden chat, where they may decide which ![](https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg){:height="15" width="15"} gets the ![](https://canary.discordapp.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg){:height="15" width="15"}.
+The game channel will be moderated, which means during a game only the living players are allowed to talk in the channel. The bot will need the permission to manage permissions for that channel to run this mode.
 
 * * *
 
