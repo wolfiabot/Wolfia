@@ -22,11 +22,10 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.game.definitions.Scope;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by npstr on 18.11.2016
@@ -92,7 +91,17 @@ public class RoleAndPermissionUtils {
                     ra = po.getManager().deny(permissions);
                     break;
                 case CLEAR:
-                    ra = po.getManager().clear(permissions);
+                    //if the permission override becomes empty as a result of clearing these permissions, delete it
+                    final List<Permission> currentPerms = new ArrayList<>();
+                    currentPerms.addAll(po.getDenied());
+                    currentPerms.addAll(po.getAllowed());
+                    currentPerms.removeAll(Arrays.asList(permissions));
+
+                    if (currentPerms.isEmpty()) {
+                        ra = po.delete();
+                    } else {
+                        ra = po.getManager().clear(permissions);
+                    }
                     break;
             }
         } else {
@@ -107,7 +116,7 @@ public class RoleAndPermissionUtils {
                     poa = poa.setAllow(permissions);
                     break;
                 case DENY:
-                    poa = poa.setAllow(permissions);
+                    poa = poa.setDeny(permissions);
                     break;
                 case CLEAR:
                     //no need to do things here
@@ -145,6 +154,15 @@ public class RoleAndPermissionUtils {
 
     public static RestAction clear(final Channel channel, final Member member, final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, member, PERMISSION_ACTION.CLEAR, permissions);
+    }
+
+    public static RestAction<Void> deleteIfCleared(final PermissionOverride permissionOverride) {
+        //remove the whole override if it doesnt actually override any permission anymore
+        if (permissionOverride != null && permissionOverride.getAllowed().isEmpty() && permissionOverride.getDenied().isEmpty()) {
+            return permissionOverride.delete();
+        } else {
+            return new RestAction.EmptyRestAction<>(Wolfia.jda, null);
+        }
     }
 
     /**

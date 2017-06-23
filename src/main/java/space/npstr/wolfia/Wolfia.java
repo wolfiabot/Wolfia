@@ -126,7 +126,7 @@ public class Wolfia {
     //################## message handling + tons of overloaded methods
 
     //calling with complete = true will ignore onsuccess and on fail, but return an optional with the message
-    private static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+    private static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final Consumer<Message> onSuccess, Consumer<Throwable> onFail, final String msg, final Object... args) {
         if (complete && (onSuccess != null || onFail != null)) {
             log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
         }
@@ -137,6 +137,12 @@ public class Wolfia {
             if (complete) {
                 return Optional.of(ra.complete());
             } else {
+                if (onFail == null) {
+                    onFail = throwable -> {
+                        if (!(channel instanceof PrivateChannel)) //ignore exceptions when sending to private channels
+                            log.error("Exception when sending a message in channel {}", channel.getIdLong(), throwable);
+                    };
+                }
                 ra.queue(onSuccess, onFail);
             }
         } catch (final PermissionException e) {
@@ -154,8 +160,13 @@ public class Wolfia {
         return handleOutputMessage(complete, channel, null, null, msg, args);
     }
 
-    private static Optional<Message> handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
         return handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
+    }
+
+    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        final TextChannel channel = jda.getTextChannelById(channelId);
+        return handleOutputMessage(channel, onSuccess, onFail, msg, args);
     }
 
     public static Optional<Message> handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
@@ -177,7 +188,7 @@ public class Wolfia {
         if (channel instanceof TextChannel) {
             final TextChannel tc = (TextChannel) channel;
             if (!tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_EMBED_LINKS)) {
-                handleOutputMessage(channel, "Hey, I am missing the **Embed Links** permission to display my messages properly in this channel.");
+                handleOutputMessage(channel, "Hey, I am missing the `%s` permission to display my messages properly in this channel.", Permission.MESSAGE_EMBED_LINKS.getName());
                 return Optional.empty();
             }
         }
@@ -214,10 +225,18 @@ public class Wolfia {
 
     //send a message to a user privately
     public static void handlePrivateOutputMessage(final long userId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        if (onFail == null) {
+            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
+                    "error log spam. Fix your code please.");
+        }
         jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
     }
 
     public static void handlePrivateOutputMessage(final long userId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+        if (onFail == null) {
+            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
+                    "error log spam. Fix your code please.");
+        }
         jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onSuccess, onFail, msg, args), onFail);
     }
 

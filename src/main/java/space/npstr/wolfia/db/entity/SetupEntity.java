@@ -32,6 +32,7 @@ import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.UserFriendlyException;
 
 import javax.persistence.*;
 import java.util.Arrays;
@@ -208,7 +209,7 @@ public class SetupEntity implements IEntity {
         try {
             game = this.getGame().clazz.newInstance();
         } catch (IllegalAccessException | InstantiationException e) {
-            throw new IllegalGameStateException("Internal error, could not create the specified game.");
+            throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
         }
 
         cleanUpInnedPlayers();
@@ -226,11 +227,10 @@ public class SetupEntity implements IEntity {
         try {
             game.start(this.channelId, getMode(), inned);
         } catch (final Exception e) {
-            Wolfia.handleOutputMessage(this.channelId, "Game start aborted due to:\n%s", e.getMessage());
             //start failed
             Games.remove(game);
             game.cleanUp();
-            throw new RuntimeException("Exception thrown during game start.", e);
+            throw new UserFriendlyException("Game start aborted due to:\n" + e.getMessage(), e);
         }
         this.innedUsers.clear();
         DbWrapper.merge(this);

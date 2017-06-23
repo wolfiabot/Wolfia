@@ -18,22 +18,25 @@
 package space.npstr.wolfia.utils;
 
 /**
- * Created by napster on 21.05.17.
+ * Created by napster on 22.06.17.
+ * <p>
+ * These Exceptions are allowed to happen, for example if the bot is misconfigured by the user,
+ * and their content is save to be shown to users and considered part of the UX
  */
-public class IllegalGameStateException extends Exception {
+public class UserFriendlyException extends RuntimeException {
 
-    private static final long serialVersionUID = -3082580128565589439L;
+    private static final long serialVersionUID = 4569619083608513524L;
 
     //force creation with a message
-    private IllegalGameStateException() {
+    private UserFriendlyException() {
 
     }
 
-    public IllegalGameStateException(final String message) {
+    public UserFriendlyException(final String message) {
         super(message);
     }
 
-    public IllegalGameStateException(final String message, final Throwable t) {
+    public UserFriendlyException(final String message, final Throwable t) {
         super(message, t);
     }
 }

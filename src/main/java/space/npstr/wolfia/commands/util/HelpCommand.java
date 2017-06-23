@@ -52,12 +52,14 @@ public class HelpCommand implements ICommand {
                         + "\n\nCreated and hosted by Napster:\n<%s>",
                 e.getAuthor().getName(), e.getJDA().getSelfUser().getName(), App.WEBSITE, App.INVITE_LINK, App.WOLFIA_LOUNGE_INVITE, "https://github.com/napstr/wolfia", "https://npstr.space");
 
-        Consumer<Message> onSuccess = null;
-        Consumer<Throwable> onFail = null;
-        if (channel.canTalk()) {
-            onSuccess = m -> Wolfia.handleOutputMessage(channel, "%s, sent you a PM with the help!", e.getAuthor().getAsMention());
-            onFail = t -> Wolfia.handleOutputMessage(channel, "%s, cannot send you a PM with the help. Please unblock me or change your privacy settings.", e.getAuthor().getAsMention());
-        }
+        final Consumer<Message> onSuccess = m -> {
+            if (channel.canTalk())
+                Wolfia.handleOutputMessage(channel, "%s, sent you a PM with the help!", e.getAuthor().getAsMention());
+        };
+        final Consumer<Throwable> onFail = t -> {
+            if (channel.canTalk())
+                Wolfia.handleOutputMessage(channel, "%s, cannot send you a PM with the help. Please unblock me or change your privacy settings.", e.getAuthor().getAsMention());
+        };
 
         Wolfia.handlePrivateOutputMessage(e.getAuthor().getIdLong(), onSuccess, onFail, "%s", help);
         return true;

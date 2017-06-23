@@ -49,9 +49,12 @@ public abstract class Game {
 
     /**
      * this should revert each and everything the game touches in terms of discord roles and permissions to normal
-     * most likely this includes deleting all discord roles used in the game and resetting @everyone permissions for the game channel
+     * most likely this includes deleting all discord roles used in the game and resetting players and @everyone permissions
+     * overrides for the game channel
+     *
+     * @param complete optionally set to true to complete these operations before returning
      */
-    public abstract void resetRolesAndPermissions();
+    public abstract void resetRolesAndPermissions(boolean... complete);
 
     /**
      * @return Returns the main channel where the game is running

@@ -29,6 +29,7 @@ import space.npstr.wolfia.commands.util.*;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.Emojis;
 import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.UserFriendlyException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -103,13 +104,20 @@ public class CommandHandler {
             } else {
                 clearAndReact(message, Emojis.X);
             }
+        } catch (final UserFriendlyException e) {
+            clearAndReact(message, Emojis.X);
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), e.getMessage());
         } catch (final Exception e) {
             clearAndReact(message, Emojis.ANGER);
             final MessageReceivedEvent ev = commandInfo.event;
-            log.error("Exception while handling a command in guild {}, channel {}, user {}, invite {}",
-                    ev.getGuild().getIdLong(), ev.getChannel().getIdLong(), ev.getAuthor().getIdLong(),
-                    TextchatUtils.createInviteLink(ev.getTextChannel()), e);
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
+            Throwable t = e;
+            while (t != null) {
+                log.error("Exception {} while handling a command in guild {}, channel {}, user {}, invite {}",
+                        ev.getGuild().getIdLong(), ev.getChannel().getIdLong(), ev.getAuthor().getIdLong(),
+                        TextchatUtils.createInviteLink(ev.getTextChannel()), t);
+                t = t.getCause();
+            }
+            Wolfia.handleOutputMessage(ev.getTextChannel(),
                     "%s, an internal exception happened while executing your command\n`%s`\nSorry about that. Please " +
                             "contact the developer through the website or Discord guild sent to you through `%s`",
                     ev.getAuthor().getAsMention(), commandInfo.raw, Config.PREFIX + HelpCommand.COMMAND);

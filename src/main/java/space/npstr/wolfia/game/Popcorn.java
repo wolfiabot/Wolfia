@@ -45,6 +45,8 @@ import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.utils.*;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -97,7 +99,7 @@ public class Popcorn extends Game {
             throw new IllegalStateException("Cannot start a game that is running already");
         }
         if (channelId <= 0 || Wolfia.jda.getTextChannelById(channelId) == null) {
-            throw new IllegalArgumentException(String.format("Cannot start a game with invalid/no channel (%s) set.", channelId));
+            throw new IllegalArgumentException(String.format("Cannot start a game with invalid/no channel (channelId: %s) set.", channelId));
         }
         this.channelId = channelId;
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
@@ -115,7 +117,7 @@ public class Popcorn extends Game {
         //check permissions
         Games.getInfo(this).getRequiredPermissions(mode).forEach((scope, permission) -> {
             if (!RoleAndPermissionUtils.hasPermission(channel.getGuild().getSelfMember(), channel, scope, permission)) {
-                throw new PermissionException(String.format("To run a %s game in %s mode in this channel, I need the permission to %s in this %s",
+                throw new PermissionException(String.format("To run a %s game in %s mode in this channel, I need the permission to `%s` in this %s",
                         Games.POPCORN.textRep, mode.name(), permission.getName(), scope.name().toLowerCase()));
             }
         });
@@ -129,28 +131,32 @@ public class Popcorn extends Game {
                 this.accessRoleId = DbWrapper.getEntity(channelId, ChannelSettings.class).getAccessRoleId();
                 final Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
-                    throw new RuntimeException("Non-public channel has been detected (`@everyone` is missing `" + Permission.MESSAGE_WRITE.getName() +
+                    throw new UserFriendlyException("Non-public channel has been detected (`@everyone` is missing `" + Permission.MESSAGE_WRITE.getName() +
                             "` and/or `" + Permission.MESSAGE_READ.getName() + "` permissions). The chosen game and mode requires the channel " +
-                            "to be either public, or have an access role set up. Please refer to the documentation under " + App.WEBSITE);
+                            "to be either public, or have an access role set up. Talk to an admin of your server to fix this. " +
+                            "Please refer to the documentation under " + App.WEBSITE);
                 }
                 if (!accessRole.hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
-                    throw new RuntimeException("The configured access role `" + accessRole.getName() + "` is missing `" + Permission.MESSAGE_WRITE.getName() +
-                            "` and/or `" + Permission.MESSAGE_READ.getName() + "` permissions. Please talk to an administrator of your server to fix this. " +
-                            "Please refer to the documentation under" + App.WEBSITE);
+                    throw new UserFriendlyException("The configured access role `" + accessRole.getName() + "` is missing `" + Permission.MESSAGE_WRITE.getName() +
+                            "` and/or `" + Permission.MESSAGE_READ.getName() + "` permissions in this channel. Talk to an admin of your server to fix this. " +
+                            "Please refer to the documentation under " + App.WEBSITE);
                 }
             }
 
             //is the bot allowed to manage permissions for this channel?
-
+            if (!g.getSelfMember().hasPermission(channel, Permission.MANAGE_PERMISSIONS)) {
+                throw new PermissionException(String.format("To run a %s game in %s mode in this channel, I need the permission to `%s` in this channel",
+                        Games.POPCORN.textRep, mode.name(), Permission.MANAGE_PERMISSIONS));
+            }
         }
 
         try {
             prepareChannel(innedPlayers);
         } catch (final PermissionException e) {
             log.error("Could not prepare channel {}, id: {}, due to missing permission: {}", channel.getName(),
-                    channel.getId(), e.getPermission().name(), e);
-            throw new RuntimeException(String.format("The bot is missing the permission `%s` to run the selected game and mode in this channel.",
-                    e.getPermission().name()));
+                    channel.getId(), e.getPermission().getName(), e);
+            throw new UserFriendlyException(String.format("The bot is missing the permission `%s` to run the selected game and mode in this channel.",
+                    e.getPermission().getName()), e);
         }
 
         this.day = 0;
@@ -307,9 +313,6 @@ public class Popcorn extends Game {
         this.gameStats.addAction(simpleAction(survivor, Actions.DEATH, toBeKilled));
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
         final Guild g = channel.getGuild();
-        if (this.mode != GameMode.WILD) {
-            RoleAndPermissionUtils.deny(channel, g.getMemberById(toBeKilled), Permission.MESSAGE_WRITE).queue();
-        }
 
         this.hasDayEnded.add(this.day);
         this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.DAYEND, -1));
@@ -339,6 +342,9 @@ public class Popcorn extends Game {
         //check win conditions
         if (isGameOver()) {
             return; //we're done here
+        }
+        if (this.mode != GameMode.WILD) {
+            RoleAndPermissionUtils.deny(channel, g.getMemberById(toBeKilled), Permission.MESSAGE_WRITE).queue();
         }
         doIfGameIsntOver.accept(survivor);
     }
@@ -438,10 +444,14 @@ public class Popcorn extends Game {
             DbWrapper.persist(this.gameStats);
             out += String.format("\nThis game's id is **%s**, you can watch its replay with `%s %s`", this.gameStats.getGameId(), Config.PREFIX + ReplayCommand.COMMAND, this.gameStats.getGameId());
             cleanUp();
-            //complete the sending of this in case a restart is queued
-            Wolfia.handleOutputMessage(true, this.channelId, "%s", out);
-            //this has to be the last statement, since if a restart is queued, it waits for an empty games registry
-            Games.remove(this);
+            //removing the game from the registry has to be the last statement, since if a restart is queued, it waits for an empty games registry
+            Wolfia.handleOutputMessage(this.channelId,
+                    ignoredMessage -> Games.remove(this),
+                    throwable -> {
+                        log.error("Failed to send last message of game #{}", this.gameStats.getGameId(), throwable);
+                        Games.remove(this);
+                    },
+                    "%s", out);
             return true;
         }
 
@@ -584,23 +594,56 @@ public class Popcorn extends Game {
         players.forEach(userId -> RoleAndPermissionUtils.deny(channel, g.getMemberById(userId), Permission.MESSAGE_WRITE).queue());
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    //revert whatever prepareChannel() did
-    public void resetRolesAndPermissions() {
+    //revert whatever prepareChannel() did in reverse order
+    public void resetRolesAndPermissions(final boolean... complete) {
         if (this.mode == GameMode.WILD) { //nothing to do for the wild mode
             return;
         }
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
         final Guild g = channel.getGuild();
-
-        //reset permission override for the bot:
-        RoleAndPermissionUtils.clear(channel, g.getSelfMember(), Permission.MESSAGE_WRITE).queue();
-
-        //reset permission override for the access role in the game channel
-        RoleAndPermissionUtils.clear(channel, g.getRoleById(this.accessRoleId), Permission.MESSAGE_WRITE).queue();
+        final List<Permission> missingPermissions = new ArrayList<>();
+        final List<Future> toComplete = new ArrayList<>();
 
         //reset permission override for the players
-        this.players.forEach(player -> RoleAndPermissionUtils.clear(channel, g.getMemberById(player.userId), Permission.MESSAGE_WRITE).queue());
+        try {
+            for (final PopcornPlayer player : this.players) {
+                toComplete.add(RoleAndPermissionUtils.clear(channel, g.getMemberById(player.userId), Permission.MESSAGE_WRITE).submit());
+            }
+        } catch (final PermissionException e) {
+            missingPermissions.add(e.getPermission());
+        }
+
+        //reset permission override for the access role in the game channel
+        try {
+            final Role accessRole = g.getRoleById(this.accessRoleId);
+            if (accessRole != null)
+                toComplete.add(RoleAndPermissionUtils.clear(channel, accessRole, Permission.MESSAGE_WRITE).submit());
+        } catch (final PermissionException e) {
+            missingPermissions.add(e.getPermission());
+        }
+
+        //reset permission override for the bot:
+        try {
+            toComplete.add(RoleAndPermissionUtils.clear(channel, g.getSelfMember(), Permission.MESSAGE_WRITE).submit());
+        } catch (final PermissionException e) {
+            missingPermissions.add(e.getPermission());
+        }
+
+        if (missingPermissions.size() > 0) {
+            Wolfia.handleOutputMessage(channel, "Tried to clean up channel, but was missing the following permissions: `%s%s",
+                    String.join("`, `", missingPermissions.stream().map(Permission::getName).distinct().collect(Collectors.toList())), "`");
+        }
+
+        if (complete.length > 0 && complete[0]) {
+            for (final Future f : toComplete) {
+                try {
+                    f.get();
+                } catch (InterruptedException | ExecutionException ignored) {
+                }
+            }
+        }
     }
 
     @Override
