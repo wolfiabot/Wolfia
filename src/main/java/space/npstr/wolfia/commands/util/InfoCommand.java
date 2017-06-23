@@ -38,7 +38,7 @@ public class InfoCommand implements ICommand {
     public static final String COMMAND = "info";
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
         final User owner = jda.getUserById(App.OWNER_ID);
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
@@ -69,6 +69,7 @@ public class InfoCommand implements ICommand {
 
 
         Wolfia.handleOutputEmbed(commandInfo.event.getTextChannel(), eb.build());
+        return true;
     }
 
     @Override

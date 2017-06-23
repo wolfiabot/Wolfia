@@ -51,7 +51,7 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
     }
 
     @Override
-    public synchronized void execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public synchronized boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
 
         final MessageReceivedEvent e = commandInfo.event;
         final Guild g = e.getGuild();
@@ -59,7 +59,7 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
         //make sure we have admin rights
         if (!g.getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
             Wolfia.handleOutputMessage(e.getTextChannel(), "%s, gimme admin perms first.", e.getAuthor().getAsMention());
-            return;
+            return false;
         }
 
         //set up the looks
@@ -70,7 +70,7 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
             g.getManager().setIcon(Icon.from(getClass().getResourceAsStream("/img/popcorn_mafia_guy.png"))).queue();
         } catch (final IOException ex) {
             log.error("Could not set icon for guild {}", g.getIdLong(), e);
-            return;
+            return false;
         }
 
         //set up rights:
@@ -93,5 +93,6 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
         Wolfia.jda.addEventListener(pg);
         Wolfia.wolfia.commandListener.addIgnoredGuild(pg.getId());
         g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue();
+        return true;
     }
 }

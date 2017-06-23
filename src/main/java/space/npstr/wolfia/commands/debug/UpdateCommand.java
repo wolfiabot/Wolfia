@@ -34,7 +34,7 @@ public class UpdateCommand implements ICommand, IOwnerRestricted {
     private static boolean reminded = false;
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
 
         if (!reminded) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
@@ -45,7 +45,7 @@ public class UpdateCommand implements ICommand, IOwnerRestricted {
                             "\nJust run the command again if you're sure you have done everything." +
                             "\n\n_Yours, %s_", commandInfo.event.getAuthor().getAsMention(), commandInfo.event.getJDA().getSelfUser().getName());
             reminded = true;
-            return;
+            return false;
         }
 
         Wolfia.maintenanceFlag = true;
@@ -55,6 +55,7 @@ public class UpdateCommand implements ICommand, IOwnerRestricted {
                 commandInfo.event.getAuthor().getAsMention(), Games.getAll().size());
 
         ShutdownCommand.shutdownAfterGamesAreDoneWithCode(2);
+        return true;
     }
 
     @Override

@@ -34,7 +34,7 @@ public class RolePMCommand implements ICommand {
     public static final String COMMAND = "rolepm";
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
         final long userId = commandInfo.event.getAuthor().getIdLong();
         final long channelId = commandInfo.event.getChannel().getIdLong();
 
@@ -42,12 +42,12 @@ public class RolePMCommand implements ICommand {
         if (game == null) {
             Wolfia.handleOutputMessage(channelId, "%s, there is no game going on in %s.",
                     TextchatUtils.userAsMention(userId), commandInfo.event.getTextChannel().getAsMention());
-            return;
+            return false;
         }
 
         if (!game.isUserPlaying(userId)) {
             Wolfia.handleOutputMessage(channelId, "%s, you aren't playing in this game.", TextchatUtils.userAsMention(userId));
-            return;
+            return false;
         }
 
         final String rolePm = game.getRolePm(userId);
@@ -55,6 +55,7 @@ public class RolePMCommand implements ICommand {
                 e -> Wolfia.handleOutputMessage(channelId, "%s, I cannot send you a private message, please adjust your privacy settings or unblock me.",
                         TextchatUtils.userAsMention(userId)),
                 rolePm);
+        return true;
     }
 
     @Override

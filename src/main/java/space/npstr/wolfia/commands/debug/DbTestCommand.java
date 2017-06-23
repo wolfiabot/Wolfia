@@ -48,8 +48,8 @@ public class DbTestCommand implements ICommand, IOwnerRestricted {
     private final String INSERT_TEST_TABLE = "INSERT INTO test (val) VALUES (:val) ";
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
-        invoke(Wolfia.dbManager, commandInfo.event.getTextChannel(), commandInfo.event.getMember(), commandInfo.args);
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+        return invoke(Wolfia.dbManager, commandInfo.event.getTextChannel(), commandInfo.event.getMember(), commandInfo.args);
     }
 
     boolean invoke(final DbManager dbm, final TextChannel channel, final Member invoker, final String[] args) {

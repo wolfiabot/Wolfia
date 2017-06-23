@@ -40,7 +40,7 @@ public class OutCommand implements ICommand {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
         final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
         //is this a forced out of a player by an moderator or the bot owner?
         if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
@@ -48,17 +48,20 @@ public class OutCommand implements ICommand {
             final TextChannel channel = commandInfo.event.getTextChannel();
             if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && !App.isOwner(invoker)) {
                 Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out util players.", invoker.getAsMention());
-                return;
+                return false;
             } else {
                 commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.outUser(u.getIdLong()));
                 setup.postStats();
+                return true;
             }
         } else {
             //handling a regular out
             if (setup.outUser(commandInfo.event.getAuthor().getIdLong())) {
                 setup.postStats();
+                return true;
             }
         }
+        return false;
     }
 
     @Override

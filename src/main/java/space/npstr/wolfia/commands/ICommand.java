@@ -26,7 +26,7 @@ import space.npstr.wolfia.utils.IllegalGameStateException;
 public interface ICommand {
 
     //executes the command
-    void execute(CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;
+    boolean execute(CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;
 
     //return a help string that should explain the usage of this command
     String help();

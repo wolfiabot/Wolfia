@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ import space.npstr.wolfia.commands.debug.*;
 import space.npstr.wolfia.commands.game.*;
 import space.npstr.wolfia.commands.util.*;
 import space.npstr.wolfia.utils.App;
+import space.npstr.wolfia.utils.Emojis;
 import space.npstr.wolfia.utils.TextchatUtils;
 
 import java.util.HashMap;
@@ -72,6 +74,7 @@ public class CommandHandler {
     }
 
     public static void handleCommand(final CommandParser.CommandContainer commandInfo) {
+        final Message message = commandInfo.event.getMessage();
         try {
             final ICommand command = COMMAND_REGISTRY.get(commandInfo.command);
             if (command == null) {
@@ -80,6 +83,7 @@ public class CommandHandler {
                         commandInfo.event.getAuthor().getIdLong(),
                         commandInfo.event.getChannel().getIdLong(),
                         commandInfo.raw);
+                message.addReaction(Emojis.QUESTION).queue();
                 return;
             }
 
@@ -89,10 +93,18 @@ public class CommandHandler {
                         commandInfo.event.getAuthor().getIdLong(),
                         commandInfo.event.getChannel().getIdLong(),
                         commandInfo.raw);
+                message.addReaction(Emojis.X).queue();
                 return;
             }
-            command.execute(commandInfo);
+            message.addReaction(Emojis.LOADING).complete();
+            final boolean success = command.execute(commandInfo);
+            if (success) {
+                clearAndReact(message, Emojis.CHECK);
+            } else {
+                clearAndReact(message, Emojis.X);
+            }
         } catch (final Exception e) {
+            clearAndReact(message, Emojis.ANGER);
             final MessageReceivedEvent ev = commandInfo.event;
             log.error("Exception while handling a command in guild {}, channel {}, user {}, invite {}",
                     ev.getGuild().getIdLong(), ev.getChannel().getIdLong(), ev.getAuthor().getIdLong(),
@@ -102,5 +114,14 @@ public class CommandHandler {
                             "contact the developer through the website or Discord guild sent to you through `%s`",
                     ev.getAuthor().getAsMention(), commandInfo.raw, Config.PREFIX + HelpCommand.COMMAND);
         }
+    }
+
+    private static void clearAndReact(final Message message, final String emoji) {
+        message.getChannel().getMessageById(message.getIdLong()).queue(
+                m -> {
+                    m.getReactions().forEach(reaction -> reaction.removeReaction().queue());
+                    message.addReaction(emoji).queue();
+                }
+        );
     }
 }

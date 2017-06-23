@@ -48,6 +48,12 @@ public class Emojis {
     public static final String FULL_MOON = "🌕";
     public static final String CITY_SUNSET_SUNRISE = "🌇";
 
+    public static final String QUESTION = "❓";
+    public static final String X = "❌";
+    public static final String ANGER = "💢";
+    public static final String CHECK = "✅";
+    public static final String LOADING = "🔄";
+
 
     public static final String NUMBER_0 = "0⃣";
     public static final String NUMBER_1 = "1⃣";

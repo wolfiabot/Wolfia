@@ -63,7 +63,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
         final Guild guild = commandInfo.event.getGuild();
         final TextChannel channel = commandInfo.event.getTextChannel();
         final Message message = commandInfo.event.getMessage();
@@ -129,6 +129,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
             }
         };
         script.start();
+        return true;
     }
 
     @Override

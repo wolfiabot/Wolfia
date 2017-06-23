@@ -43,7 +43,7 @@ public class SetupCommand implements ICommand {
     public static final String COMMAND = "setup";
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
 
         final MessageReceivedEvent event = commandInfo.event;
         final TextChannel channel = event.getTextChannel();
@@ -58,14 +58,14 @@ public class SetupCommand implements ICommand {
                 Wolfia.handleOutputMessage(channel,
                         "%s, there is a game going on in this channel, please wait until it is over to adjust the setup!",
                         invoker.getAsMention());
-                return;
+                return false;
             }
 
             //is the user allowed to do that?
             if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && !App.isOwner(invoker)) {
                 Wolfia.handleOutputMessage(channel, "%s, you need the following permission to edit the setup of this channel: %s",
                         invoker.getAsMention(), Permission.MESSAGE_MANAGE.getName());
-                return;
+                return false;
             }
 
             final String option = commandInfo.args[0];
@@ -76,7 +76,7 @@ public class SetupCommand implements ICommand {
                         setup = DbWrapper.merge(setup);
                     } catch (final IllegalArgumentException ex) {
                         Wolfia.handleOutputMessage(channel, "%s, no such game is supported by this bot: ", invoker.getAsMention(), commandInfo.args[1]);
-                        return;
+                        return false;
                     }
                     break;
                 case "mode":
@@ -85,7 +85,7 @@ public class SetupCommand implements ICommand {
                         setup = DbWrapper.merge(setup);
                     } catch (final IllegalArgumentException ex) {
                         Wolfia.handleOutputMessage(channel, "%s, no such mode is supported by this game: %s", invoker.getAsMention(), commandInfo.args[1]);
-                        return;
+                        return false;
                     }
                     break;
                 case "daylength":
@@ -93,16 +93,16 @@ public class SetupCommand implements ICommand {
                         final long minutes = Long.valueOf(commandInfo.args[1]);
                         if (minutes > 10) {
                             Wolfia.handleOutputMessage(channel, "%s, day lengths of more than 10 minutes are not supported currently.", invoker.getAsMention());
-                            return;
+                            return false;
                         } else if (minutes < 1) {
                             Wolfia.handleOutputMessage(channel, "%s, day length must be at least one minute.", invoker.getAsMention());
-                            return;
+                            return false;
                         }
                         setup.setDayLength(minutes, TimeUnit.MINUTES);
                         setup = DbWrapper.merge(setup);
                     } catch (final NumberFormatException ex) {
                         Wolfia.handleOutputMessage(channel, "%s, use a number to set the day length!", invoker.getAsMention());
-                        return;
+                        return false;
                     }
                     break;
 //                case "moderated":
@@ -125,11 +125,12 @@ public class SetupCommand implements ICommand {
                 default:
                     //didn't understand the input, will show the status quo
                     Wolfia.handleOutputMessage(channel, "%s, I did not understand that input.", invoker.getAsMention());
-                    return;
+                    return false;
             }
         }
         //show the status quo
         setup.postStats();
+        return true;
     }
 
     @Override

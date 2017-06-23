@@ -353,34 +353,34 @@ public class Popcorn extends Game {
         shoot(Long.valueOf(shooterId), Long.valueOf(targetId));
     }
 
-    private void shoot(final long shooterId, final long targetId) throws IllegalGameStateException {
+    private boolean shoot(final long shooterId, final long targetId) throws IllegalGameStateException {
         //check various conditions for the shot being legal
         if (targetId == Wolfia.jda.getSelfUser().getIdLong()) {
             Wolfia.handleOutputMessage(this.channelId, "%s lol can't %s me.",
                     TextchatUtils.userAsMention(shooterId), Emojis.GUN);
-            return;
+            return false;
         }
         if (shooterId == targetId) {
             Wolfia.handleOutputMessage(this.channelId, "%s please don't %s yourself, that would make a big mess.",
                     TextchatUtils.userAsMention(shooterId), Emojis.GUN);
-            return;
+            return false;
         } else if (this.players.stream().noneMatch(p -> p.userId == shooterId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s shush, you're not playing in this game!",
                     TextchatUtils.userAsMention(shooterId));
-            return;
+            return false;
         } else if (!isLiving(shooterId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s shush, you're dead!",
                     TextchatUtils.userAsMention(shooterId));
-            return;
+            return false;
         } else if (shooterId != this.gunBearer) {
             Wolfia.handleOutputMessage(this.channelId, "%s you do not have the %s!",
                     TextchatUtils.userAsMention(shooterId), Emojis.GUN);
-            return;
+            return false;
         } else if (!isLiving(targetId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s you have to %s a living player of this game!",
                     TextchatUtils.userAsMention(shooterId), Emojis.GUN);
             Wolfia.handleOutputMessage(this.channelId, "%s", listLivingPlayers());
-            return;
+            return false;
         }
 
 
@@ -394,8 +394,10 @@ public class Popcorn extends Game {
             } else {
                 endDay(DayEndReason.SHAT, shooterId, targetId, doIfLegal);
             }
+            return true;
         } catch (final IllegalStateException e) {
             Wolfia.handleOutputMessage(this.channelId, "Too late! Time has run out.");
+            return false;
         }
     }
 
@@ -526,15 +528,16 @@ public class Popcorn extends Game {
     }
 
     @Override
-    public void issueCommand(final IGameCommand command, final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean issueCommand(final IGameCommand command, final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
         //todo resolve this smelly instanceof paradigm to something better in the future
         if (command instanceof ShootCommand) {
             final long shooter = commandInfo.event.getAuthor().getIdLong();
             final long target = commandInfo.event.getMessage().getMentionedUsers().get(0).getIdLong();
-            shoot(shooter, target);
+            return shoot(shooter, target);
         } else {
             Wolfia.handleOutputMessage(this.channelId, "%s, the '%s' command is not part of this game.",
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()), commandInfo.command);
+            return false;
         }
     }
 

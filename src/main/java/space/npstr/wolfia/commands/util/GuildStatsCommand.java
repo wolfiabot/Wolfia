@@ -38,7 +38,8 @@ public class GuildStatsCommand implements ICommand {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
         Wolfia.handleOutputEmbed(commandInfo.event.getTextChannel(), StatsProvider.getGuildStats(commandInfo.event.getGuild()).build());
+        return true;
     }
 }

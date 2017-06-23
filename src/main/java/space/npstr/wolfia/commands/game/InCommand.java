@@ -36,7 +36,7 @@ public class InCommand implements ICommand {
 //    private final int MAX_SIGNUP_TIME = 10 * 60; //10h
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
 
 //        long timeForSignup = Long.valueOf(args[0]);
 //        timeForSignup = timeForSignup < this.MAX_SIGNUP_TIME ? timeForSignup : this.MAX_SIGNUP_TIME;
@@ -46,7 +46,7 @@ public class InCommand implements ICommand {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
                     "%s, the game has already started! Please wait until it is over to join.",
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
-            return;
+            return false;
         }
 
         final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
@@ -56,10 +56,11 @@ public class InCommand implements ICommand {
         if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && App.isOwner(commandInfo.event.getAuthor())) {
             commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.inUser(u.getIdLong(),
                     setup::postStats));
-            return;
+            return true;
         }
 
         setup.inUser(commandInfo.event.getAuthor().getIdLong(), setup::postStats);
+        return true;
     }
 
     @Override

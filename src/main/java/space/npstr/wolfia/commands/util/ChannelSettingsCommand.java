@@ -44,7 +44,7 @@ public class ChannelSettingsCommand implements ICommand {
     public static final String COMMAND = "channelsettings";
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
         final MessageReceivedEvent event = commandInfo.event;
         final TextChannel channel = event.getTextChannel();
         final Member invoker = event.getMember();
@@ -56,20 +56,20 @@ public class ChannelSettingsCommand implements ICommand {
 
         if (commandInfo.args.length == 0) {
             Wolfia.handleOutputEmbed(channel, channelSettings.getStatus());
-            return;
+            return true;
         }
 
         //is the user allowed to do that?
         if (!invoker.hasPermission(channel, Permission.ADMINISTRATOR) && !App.isOwner(invoker)) {
             Wolfia.handleOutputMessage(channel, "%s, you need the following permission to edit the setup of this channel: %s",
                     invoker.getAsMention(), Permission.ADMINISTRATOR.getName());
-            return;
+            return false;
         }
 
         //at least 2 arguments?
         if (commandInfo.args.length < 2) {
             Wolfia.handleOutputMessage(channel, "%s", help());
-            return;
+            return false;
         }
 
         final String option = commandInfo.args[0];
@@ -85,10 +85,10 @@ public class ChannelSettingsCommand implements ICommand {
                         accessRole = guild.getPublicRole();
                     } else if (rolesByName.isEmpty()) {
                         Wolfia.handleOutputMessage(channel, "%s, there is no such role in this guild.", invoker.getAsMention());
-                        return;
+                        return false;
                     } else if (rolesByName.size() > 1) {
                         Wolfia.handleOutputMessage(channel, "%s, there is more than one role with that name in this guild.", invoker.getAsMention());
-                        return;
+                        return false;
                     } else {
                         accessRole = rolesByName.get(0);
                     }
@@ -99,9 +99,10 @@ public class ChannelSettingsCommand implements ICommand {
             default:
                 //didn't understand the input, will show the status quo
                 Wolfia.handleOutputMessage(channel, "%s, I did not understand that input.", invoker.getAsMention());
-                break;
+                return false;
         }
         Wolfia.handleOutputEmbed(channel, channelSettings.getStatus());
+        return true;
     }
 
     @Override

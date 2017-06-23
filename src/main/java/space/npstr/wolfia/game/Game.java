@@ -45,7 +45,7 @@ public abstract class Game {
 
     public abstract void setDayLength(long millis);
 
-    public abstract void issueCommand(IGameCommand command, CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;
+    public abstract boolean issueCommand(IGameCommand command, CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;
 
     /**
      * this should revert each and everything the game touches in terms of discord roles and permissions to normal

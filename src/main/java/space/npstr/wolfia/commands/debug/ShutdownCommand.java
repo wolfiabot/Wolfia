@@ -38,13 +38,14 @@ public class ShutdownCommand implements ICommand, IOwnerRestricted {
     private static boolean shutdownInitiated = false;
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
         Wolfia.maintenanceFlag = true;
         Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),
                 "%s, **%s** games are still running. Will shut down as soon as they are over.",
                 commandInfo.event.getAuthor().getAsMention(), Games.getAll().size());
 
         shutdownAfterGamesAreDoneWithCode(0);
+        return true;
     }
 
     public static synchronized void shutdownAfterGamesAreDoneWithCode(final int code) {

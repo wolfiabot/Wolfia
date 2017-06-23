@@ -184,16 +184,16 @@ public class SetupEntity implements IEntity {
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
-    public synchronized void startGame(final long commandCallerId) throws IllegalGameStateException {
+    public synchronized boolean startGame(final long commandCallerId) throws IllegalGameStateException {
 
         if (Wolfia.maintenanceFlag) {
             Wolfia.handleOutputMessage(this.channelId, "The bot is under maintenance. Please try starting a game later.");
-            return;
+            return false;
         }
 
         if (!this.innedUsers.contains(commandCallerId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s: Only players that inned can start the game!", TextchatUtils.userAsMention(commandCallerId));
-            return;
+            return false;
         }
 
         //is there a game running already in this channel?
@@ -201,7 +201,7 @@ public class SetupEntity implements IEntity {
             Wolfia.handleOutputMessage(this.channelId,
                     "%s, there is already a game going on in this channel!",
                     TextchatUtils.userAsMention(commandCallerId));
-            return;
+            return false;
         }
 
         final Game game;
@@ -218,7 +218,7 @@ public class SetupEntity implements IEntity {
             Wolfia.handleOutputMessage(this.channelId,
                     "There aren't enough (or too many) players signed up! Please use `%s%s` for more information",
                     Config.PREFIX, StatusCommand.COMMAND);
-            return;
+            return false;
         }
 
         game.setDayLength(this.dayLength);
@@ -234,5 +234,6 @@ public class SetupEntity implements IEntity {
         }
         this.innedUsers.clear();
         DbWrapper.merge(this);
+        return true;
     }
 }

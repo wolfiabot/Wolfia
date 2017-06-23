@@ -39,9 +39,9 @@ public class HelpCommand implements ICommand {
     }
 
     @Override
-    public void execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) {
         if (Config.C.isDebug && !App.isOwner(commandInfo.event.getAuthor())) {
-            return;//dont answer the help command in debug mode unless it's the owner
+            return true;//dont answer the help command in debug mode unless it's the owner
         }
         final MessageReceivedEvent e = commandInfo.event;
         final TextChannel channel = e.getTextChannel();
@@ -60,6 +60,7 @@ public class HelpCommand implements ICommand {
         }
 
         Wolfia.handlePrivateOutputMessage(e.getAuthor().getIdLong(), onSuccess, onFail, "%s", help);
+        return true;
     }
 
     @Override
