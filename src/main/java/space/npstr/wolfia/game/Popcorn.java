@@ -272,7 +272,7 @@ public class Popcorn extends Game {
             Wolfia.handleOutputMessage(channel, "Randing the %s", Emojis.GUN);
             giveGun(GameUtils.rand(getLivingVillage()).userId);
         } else { //lets wolves do it
-            getLivingPlayers().forEach(player -> RoleAndPermissionUtils.deny(channel, channel.getGuild().getMemberById(player.userId), Permission.MESSAGE_WRITE).queue());
+            getLivingPlayers().forEach(player -> RoleAndPermissionUtils.deny(channel, channel.getGuild().getMemberById(player.userId), Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue());
             new GunDistribution();
         }
     }
@@ -294,7 +294,7 @@ public class Popcorn extends Game {
                 this.day, TextchatUtils.userAsMention(this.gunBearer), this.dayLength / 60000);
 
         if (this.mode != GameMode.WILD) {
-            getLivingPlayers().forEach(player -> RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId), Permission.MESSAGE_WRITE).queue());
+            getLivingPlayers().forEach(player -> RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId), Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue());
         }
 
         final Thread t = new Thread(new PopcornTimer(this.day, this), "timer-popcorngame-" + this.day + "-" + this.channelId);
@@ -610,7 +610,7 @@ public class Popcorn extends Game {
         //reset permission override for the players
         try {
             for (final PopcornPlayer player : this.players) {
-                toComplete.add(RoleAndPermissionUtils.clear(channel, g.getMemberById(player.userId), Permission.MESSAGE_WRITE).submit());
+                toComplete.add(RoleAndPermissionUtils.clear(channel, g.getMemberById(player.userId), Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).submit());
             }
         } catch (final PermissionException e) {
             missingPermissions.add(e.getPermission());
