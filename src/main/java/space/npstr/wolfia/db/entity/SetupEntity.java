@@ -186,54 +186,56 @@ public class SetupEntity implements IEntity {
 
     //needs to be synchronized so only one incoming command at a time can be in here
     public synchronized boolean startGame(final long commandCallerId) throws IllegalGameStateException {
+        //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
+        synchronized (SetupEntity.class) {
+            if (Wolfia.maintenanceFlag) {
+                Wolfia.handleOutputMessage(this.channelId, "The bot is under maintenance. Please try starting a game later.");
+                return false;
+            }
 
-        if (Wolfia.maintenanceFlag) {
-            Wolfia.handleOutputMessage(this.channelId, "The bot is under maintenance. Please try starting a game later.");
-            return false;
+            if (!this.innedUsers.contains(commandCallerId)) {
+                Wolfia.handleOutputMessage(this.channelId, "%s: Only players that inned can start the game!", TextchatUtils.userAsMention(commandCallerId));
+                return false;
+            }
+
+            //is there a game running already in this channel?
+            if (Games.get(this.channelId) != null) {
+                Wolfia.handleOutputMessage(this.channelId,
+                        "%s, there is already a game going on in this channel!",
+                        TextchatUtils.userAsMention(commandCallerId));
+                return false;
+            }
+
+            final Game game;
+            try {
+                game = this.getGame().clazz.newInstance();
+            } catch (IllegalAccessException | InstantiationException e) {
+                throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
+            }
+
+            cleanUpInnedPlayers();
+            //todo instead of checking here and then starting the game again with it, maybe just have a setPlayers() function in game that does those checks in one place?
+            final Set<Long> inned = Collections.unmodifiableSet(this.innedUsers);
+            if (!game.isAcceptablePlayerCount(inned.size())) {
+                Wolfia.handleOutputMessage(this.channelId,
+                        "There aren't enough (or too many) players signed up! Please use `%s%s` for more information",
+                        Config.PREFIX, StatusCommand.COMMAND);
+                return false;
+            }
+
+            game.setDayLength(this.dayLength);
+
+            try {
+                game.start(this.channelId, getMode(), inned);
+            } catch (final Exception e) {
+                //start failed
+                Games.remove(game);
+                game.cleanUp();
+                throw new UserFriendlyException("Game start aborted due to:\n" + e.getMessage(), e);
+            }
+            this.innedUsers.clear();
+            DbWrapper.merge(this);
+            return true;
         }
-
-        if (!this.innedUsers.contains(commandCallerId)) {
-            Wolfia.handleOutputMessage(this.channelId, "%s: Only players that inned can start the game!", TextchatUtils.userAsMention(commandCallerId));
-            return false;
-        }
-
-        //is there a game running already in this channel?
-        if (Games.get(this.channelId) != null) {
-            Wolfia.handleOutputMessage(this.channelId,
-                    "%s, there is already a game going on in this channel!",
-                    TextchatUtils.userAsMention(commandCallerId));
-            return false;
-        }
-
-        final Game game;
-        try {
-            game = this.getGame().clazz.newInstance();
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
-        }
-
-        cleanUpInnedPlayers();
-        //todo instead of checking here and then starting the game again with it, maybe just have a setPlayers() function in game that does those checks in one place?
-        final Set<Long> inned = Collections.unmodifiableSet(this.innedUsers);
-        if (!game.isAcceptablePlayerCount(inned.size())) {
-            Wolfia.handleOutputMessage(this.channelId,
-                    "There aren't enough (or too many) players signed up! Please use `%s%s` for more information",
-                    Config.PREFIX, StatusCommand.COMMAND);
-            return false;
-        }
-
-        game.setDayLength(this.dayLength);
-
-        try {
-            game.start(this.channelId, getMode(), inned);
-        } catch (final Exception e) {
-            //start failed
-            Games.remove(game);
-            game.cleanUp();
-            throw new UserFriendlyException("Game start aborted due to:\n" + e.getMessage(), e);
-        }
-        this.innedUsers.clear();
-        DbWrapper.merge(this);
-        return true;
     }
 }
