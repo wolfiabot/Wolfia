@@ -589,7 +589,7 @@ public class Popcorn extends Game {
         RoleAndPermissionUtils.grant(channel, g.getSelfMember(), Permission.MESSAGE_WRITE).queue();
 
         // - no writing access for @everyone in the game channel
-        RoleAndPermissionUtils.deny(channel, g.getRoleById(this.accessRoleId), Permission.MESSAGE_WRITE).queue();
+        RoleAndPermissionUtils.deny(channel, g.getRoleById(this.accessRoleId), Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue();
 
         // - write permission for the players; deny them for now, they will open up when the game starts
         players.forEach(userId -> RoleAndPermissionUtils.deny(channel, g.getMemberById(userId), Permission.MESSAGE_WRITE).queue());
@@ -620,7 +620,7 @@ public class Popcorn extends Game {
         try {
             final Role accessRole = g.getRoleById(this.accessRoleId);
             if (accessRole != null)
-                toComplete.add(RoleAndPermissionUtils.clear(channel, accessRole, Permission.MESSAGE_WRITE).submit());
+                toComplete.add(RoleAndPermissionUtils.clear(channel, accessRole, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).submit());
         } catch (final PermissionException e) {
             missingPermissions.add(e.getPermission());
         }

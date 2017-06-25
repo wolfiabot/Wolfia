@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
@@ -79,9 +78,10 @@ public class CommandHandler {
     public static void handleCommand(final CommandParser.CommandContainer commandInfo) {
         final Message message = commandInfo.event.getMessage();
         final TextChannel channel = commandInfo.event.getTextChannel();
-        boolean canAddReaction = false;
+        final boolean canAddReaction = false;
         if (channel != null) {
-            canAddReaction = commandInfo.event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_ADD_REACTION);
+            //commented out for now because reactions allow angelshooting
+//            canAddReaction = commandInfo.event.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_ADD_REACTION);
         }
         try {
             final ICommand command = COMMAND_REGISTRY.get(commandInfo.command);
