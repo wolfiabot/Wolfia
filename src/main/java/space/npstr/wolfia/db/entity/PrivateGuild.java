@@ -125,7 +125,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
             return;
         }
 
-        final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME);
+        final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME).complete();
         event.getGuild().getController().addRolesToMember(event.getMember(), wolf).queue(
                 aVoid -> Wolfia.handleOutputMessage(this.currentChannelId, "%s, welcome to wolf chat!", event.getMember().getAsMention())
         );
@@ -147,7 +147,8 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
             this.currentChannelId = wolfChannel.getIdLong();
 
             //give the wolfrole access to it
-            RoleAndPermissionUtils.grant(wolfChannel, RoleAndPermissionUtils.getOrCreateRole(g, WOLF_ROLE_NAME), Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
+            RoleAndPermissionUtils.grant(wolfChannel, RoleAndPermissionUtils.getOrCreateRole(g, WOLF_ROLE_NAME).complete(),
+                    Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
         } catch (final Exception e) {
             endUsage();
             throw new RuntimeException("Could not begin the usage of private guild #" + this.privateGuildNumber, e);
