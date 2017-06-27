@@ -87,7 +87,7 @@ public class CommandHandler {
             final ICommand command = COMMAND_REGISTRY.get(commandInfo.command);
             if (command == null) {
                 //unknown command
-                log.info("user {} channel {} unknown command issued: {}",
+                log.info("user {}, channel {}, unknown command issued: {}",
                         commandInfo.event.getAuthor().getIdLong(),
                         commandInfo.event.getChannel().getIdLong(),
                         commandInfo.raw);
@@ -97,7 +97,7 @@ public class CommandHandler {
 
             if (command instanceof IOwnerRestricted && !App.isOwner(commandInfo.event.getAuthor())) {
                 //not the bot owner
-                log.info("user {} channel {} attempted issuing owner restricted command: {}",
+                log.info("user {}, channel {}, attempted issuing owner restricted command: {}",
                         commandInfo.event.getAuthor().getIdLong(),
                         commandInfo.event.getChannel().getIdLong(),
                         commandInfo.raw);
