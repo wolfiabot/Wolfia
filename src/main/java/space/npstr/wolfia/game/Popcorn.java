@@ -586,7 +586,8 @@ public class Popcorn extends Game {
         final Guild g = channel.getGuild();
 
         // - ensure write access for the bot in the game channel
-        RoleAndPermissionUtils.grant(channel, g.getSelfMember(), Permission.MESSAGE_WRITE).queue();
+        //this can be done with completem as most of the time (after the first game) it will already be in place
+        RoleAndPermissionUtils.grant(channel, g.getSelfMember(), Permission.MESSAGE_WRITE).complete();
 
         // - no writing access for @everyone in the game channel
         RoleAndPermissionUtils.deny(channel, g.getRoleById(this.accessRoleId), Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue();
