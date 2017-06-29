@@ -689,7 +689,16 @@ public class Popcorn extends Game {
         @Override
         public void run() {
             try {
-                Thread.sleep(this.game.dayLength);
+                //if the day is longer than one minute, remind the gunholder about the time running out with 1 minute left
+                final long oneMinute = TimeUnit.MINUTES.toMillis(1);
+                if (this.game.dayLength > oneMinute) {
+                    Thread.sleep(this.game.dayLength - oneMinute);
+                    Wolfia.handleOutputMessage(Popcorn.this.channelId, "%s, **there is 1 minute left for you to shoot!**",
+                            TextchatUtils.userAsMention(Popcorn.this.gunBearer));
+                    Thread.sleep(oneMinute);
+                } else {
+                    Thread.sleep(this.game.dayLength);
+                }
 
                 if (this.day == this.game.day) {
                     //run this in it own thread, because it may result in this PopcornTimer getting canceled in case it ends the game
