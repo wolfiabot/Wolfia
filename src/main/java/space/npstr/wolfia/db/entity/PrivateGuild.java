@@ -186,7 +186,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
         final Guild g = Wolfia.jda.getGuildById(this.guildId);
         TextChannel channel = g.getTextChannelById(this.currentChannelId);
         if (channel == null) channel = g.getPublicChannel();
-        return TextchatUtils.createInviteLink(channel, () -> {
+        return TextchatUtils.getOrCreateInviteLink(channel, () -> {
             throw new RuntimeException("Could not create invite to private guild " + this.guildId);
         });
     }

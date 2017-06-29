@@ -45,7 +45,9 @@ public class TextchatUtils {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
     }
 
-    public static String createInviteLink(final TextChannel channel, final Operation... onFail) {
+    //this will not always create a new invite, discord/JDA reuses previously created one
+    //so no worries about spammed invites in a channel
+    public static String getOrCreateInviteLink(final TextChannel channel, final Operation... onFail) {
         try {
             return "https://discord.gg/" + channel.createInvite().complete().getCode();
         } catch (final PermissionException ignored) {

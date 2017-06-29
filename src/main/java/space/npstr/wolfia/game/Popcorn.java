@@ -209,10 +209,15 @@ public class Popcorn extends Game {
         }
 
         //inform each player about his role
-        final String villagerPrimer = "Hi %s,\nyou have randed **Villager** %s. Your goal is to kill all wolves, of which there are %s around. "
-                + "\nIf you shoot a villager, you will die. If the wolves reach parity with the village, you lose.";
+        final String inviteLink = TextchatUtils.getOrCreateInviteLink(channel);
+        final String villagerPrimer = "Hi %s,\n" +
+                "you have randed **Villager** %s. Your goal is to kill all wolves, of which there are %s around.\n" +
+                "If you shoot a villager, you will die. If the wolves reach parity with the village, you lose.\n" +
+                "Guild/Server: **%s**\n" +
+                "Main channel: **%s** %s";//invite that may be empty
         villagers.forEach(userId -> {
-            final String primer = String.format(villagerPrimer, Wolfia.jda.getUserById(userId).getName(), Emojis.COWBOY, woofs.size());
+            final String primer = String.format(villagerPrimer, Wolfia.jda.getUserById(userId).getName(), Emojis.COWBOY,
+                    woofs.size(), channel.getGuild().getName(), channel.getName(), inviteLink);
             Wolfia.handlePrivateOutputMessage(userId,
                     e -> Wolfia.handleOutputMessage(channel, "%s, **I cannot send you a private message**, please adjust your privacy settings or unblock me, then issue `%s%s` to receive your role PM.",
                             TextchatUtils.userAsMention(userId), Config.PREFIX, RolePMCommand.COMMAND),
@@ -220,10 +225,14 @@ public class Popcorn extends Game {
             this.rolePMs.put(userId, primer);
         });
 
-        String wp = "Hi %s,\nyou have randed **Wolf** %s. This is your team: %s\nYour goal is to reach parity with the village. "
-                + "\nIf you get shot, you will die. If all wolves get shot, you lose\n";
+        String wp = "Hi %s,\n" +
+                "you have randed **Wolf** %s. This is your team: %s\n" +
+                "Your goal is to reach parity with the village.\n" +
+                "If you get shot, you will die. If all wolves get shot, you lose\n" +
+                "Guild/Server: **%s**\n" +
+                "Main channel: **%s** %s";//invite that may be empty;
         if (this.wolfChat != null) {
-            wp += "\nLink to wolfchat: " + this.wolfChat.getInvite();
+            wp += "\nWolfchat: " + this.wolfChat.getInvite();
         }
         final String woofPrimer = wp;
         final StringBuilder wolfteamNames = new StringBuilder();
@@ -232,7 +241,8 @@ public class Popcorn extends Game {
                     .append(channel.getGuild().getMemberById(userId).getEffectiveName()).append("**");
         }
         woofs.forEach(userId -> {
-            final String primer = String.format(woofPrimer, Wolfia.jda.getUserById(userId).getName(), Emojis.WOLF, wolfteamNames.toString());
+            final String primer = String.format(woofPrimer, Wolfia.jda.getUserById(userId).getName(), Emojis.WOLF,
+                    wolfteamNames.toString(), channel.getGuild().getName(), channel.getName(), inviteLink);
             Wolfia.handlePrivateOutputMessage(userId,
                     e -> Wolfia.handleOutputMessage(channel, "%s, **I cannot send you a private message**, please adjust your privacy settings or unblock me, then issue `%s%s` to receive your role PM.",
                             TextchatUtils.userAsMention(userId), Config.PREFIX, RolePMCommand.COMMAND),
