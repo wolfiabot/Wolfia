@@ -54,7 +54,7 @@ public class SetupCommand implements ICommand {
         //is this an attempt to edit the setup?
         if (commandInfo.args.length > 1) {
             //is there a game going on?
-            if (space.npstr.wolfia.game.Games.get(channel.getIdLong()) != null) {
+            if (Games.get(channel.getIdLong()) != null) {
                 Wolfia.handleOutputMessage(channel,
                         "%s, there is a game going on in this channel, please wait until it is over to adjust the setup!",
                         invoker.getAsMention());

@@ -20,10 +20,17 @@ package space.npstr.wolfia.game;
 import net.dv8tion.jda.core.Permission;
 import space.npstr.wolfia.game.definitions.Scope;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Created by napster on 20.06.17.
+ * <p>
+ * Static information about the popcorn game
  */
 public class PopcornInfo implements GameInfo {
 
@@ -36,7 +43,7 @@ public class PopcornInfo implements GameInfo {
     }
 
     @Override
-    public GameMode getDefaultgMode() {
+    public GameMode getDefaultMode() {
         return GameMode.WILD;
     }
 
@@ -50,6 +57,7 @@ public class PopcornInfo implements GameInfo {
             default:
                 requiredPermissions.put(Scope.CHANNEL, Permission.MESSAGE_EMBED_LINKS);
                 requiredPermissions.put(Scope.CHANNEL, Permission.MESSAGE_EXT_EMOJI);
+                break;
         }
         return requiredPermissions;
     }

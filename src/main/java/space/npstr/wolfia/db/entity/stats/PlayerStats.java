@@ -19,7 +19,14 @@ package space.npstr.wolfia.db.entity.stats;
 
 import space.npstr.wolfia.game.definitions.Roles;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.io.Serializable;
 
 /**
@@ -78,7 +85,6 @@ public class PlayerStats implements Serializable {
     @Override
     public int hashCode() {
         final int prime = 31;
-        //todo test if referencing team here produces any kind of errors, since it's marked as lazy loading
         int result = this.team.hashCode();
         result = prime * result + (int) (this.userId ^ (this.userId >>> 32));
         return result;
@@ -91,7 +97,6 @@ public class PlayerStats implements Serializable {
             return false;
         }
         final PlayerStats p = (PlayerStats) obj;
-        //todo test if referencing team here produces any kind of errors, since it's marked as lazy loading
         return this.userId == p.userId && this.team.equals(p.team);
     }
 

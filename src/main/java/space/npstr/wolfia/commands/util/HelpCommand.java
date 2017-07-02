@@ -35,9 +35,6 @@ public class HelpCommand implements ICommand {
 
     public final static String COMMAND = "help";
 
-    public HelpCommand() {
-    }
-
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
         if (Config.C.isDebug && !App.isOwner(commandInfo.event.getAuthor())) {

@@ -22,7 +22,14 @@ import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.utils.Emojis;
 import space.npstr.wolfia.utils.TextchatUtils;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.io.Serializable;
 
 /**
@@ -93,7 +100,6 @@ public class ActionStats implements Serializable {
     @Override
     public int hashCode() {
         final int prime = 31;
-        //todo test if referencing game here produces any kind of errors, since it's marked as lazy loading
         int result = this.game.hashCode();
         result = prime * result + this.order;
         result = prime * result + (int) (this.timeStampSubmitted ^ (this.timeStampSubmitted >>> 32));
@@ -110,7 +116,6 @@ public class ActionStats implements Serializable {
             return false;
         }
         final ActionStats a = (ActionStats) obj;
-        //todo test if referencing game here produces any kind of errors, since it's marked as lazy loading
         return this.game.equals(a.game)
                 && this.order == a.order
                 && this.timeStampSubmitted == a.timeStampSubmitted

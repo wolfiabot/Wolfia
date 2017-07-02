@@ -19,6 +19,8 @@ package space.npstr.wolfia.utils;
 
 /**
  * Created by napster on 21.05.17.
+ * <p>
+ * Exception for when a game enters a faulty state
  */
 public class IllegalGameStateException extends Exception {
 

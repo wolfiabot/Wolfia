@@ -19,7 +19,16 @@ package space.npstr.wolfia.db.entity.stats;
 
 import space.npstr.wolfia.game.Games;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,8 +40,6 @@ import java.util.Set;
  * <p>
  * Describe a game that happened
  * <p>
- * //todo reminder to myself: we are saving user genereted strings in the database. not only in this class, but also in
- * //todo a bunch of others, so  make sure we are not susceptible to SQL injection: http://bobby-tables.com/java
  */
 @Entity
 @Table(name = "stats_game")

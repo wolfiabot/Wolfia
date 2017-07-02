@@ -33,6 +33,18 @@ import java.util.concurrent.TimeUnit;
 public class TextchatUtils {
 
     public static final int MAX_MESSAGE_LENGTH = 2000;
+    private static final List<String> TRUE_TEXT = Arrays.asList("true", "yes", "enable", "y", "on", "1",
+            "positive", "+", "add", "start", "join", "ja");
+    private static final List<String> FALSE_TEXT = Arrays.asList("false", "no", "disable", "n", "off", "0",
+            "negative", "-", "remove", "stop", "leave", "nein");
+
+    public static boolean isTrue(final String input) {
+        return TRUE_TEXT.contains(input);
+    }
+
+    public static boolean isFalse(final String input) {
+        return FALSE_TEXT.contains(input);
+    }
 
     public static String userAsMention(final long userId) {
         return "<@" + userId + ">";
@@ -60,17 +72,6 @@ public class TextchatUtils {
         }
     }
 
-    private static final List<String> TRUE_TEXT = Arrays.asList("true", "yes", "enable", "y", "on", "1", "positive", "+", "add", "start");
-    private static final List<String> FALSE_TEXT = Arrays.asList("false", "no", "disable", "n", "off", "0", "negative", "-", "remove", "stop");
-
-    public static boolean isTrue(final String input) {
-        return TRUE_TEXT.contains(input);
-    }
-
-    public static boolean isFalse(final String input) {
-        return FALSE_TEXT.contains(input);
-    }
-
     public static String percentFormat(final double value) {
         final NumberFormat nf = NumberFormat.getPercentInstance();
         nf.setMaximumFractionDigits(2);
@@ -92,9 +93,9 @@ public class TextchatUtils {
      * <p>
      * expected complexity: O(b + a*b)  (a and b = lengths of a and b)
      */
-    public static int levenshteinDist(String a, String b) {
-        a = a.toLowerCase();
-        b = b.toLowerCase();
+    public static int levenshteinDist(final String x, final String y) {
+        final String a = x.toLowerCase();
+        final String b = y.toLowerCase();
         final int[] costs = new int[b.length() + 1];
         for (int j = 0; j < costs.length; j++)
             costs[j] = j;
@@ -113,9 +114,10 @@ public class TextchatUtils {
     //just kept around to eval-test the above levenshtein code
     public static String levenshteinTest() {
         final String[] data = {"kitten", "sitting", "saturday", "sunday", "rosettacode", "raisethysword"};
-        String out = "";
+        final StringBuilder out = new StringBuilder();
         for (int i = 0; i < data.length; i += 2)
-            out += ("\nlevenshteinDist(" + data[i] + ", " + data[i + 1] + ") = " + levenshteinDist(data[i], data[i + 1]));
-        return out;
+            out.append("\nlevenshteinDist(").append(data[i]).append(", ").append(data[i + 1]).append(") = ")
+                    .append(levenshteinDist(data[i], data[i + 1]));
+        return out.toString();
     }
 }

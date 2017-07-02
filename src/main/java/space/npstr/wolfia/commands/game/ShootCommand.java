@@ -29,6 +29,8 @@ import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
  * Created by napster on 21.05.17.
+ * <p>
+ * A player shoots another player
  */
 public class ShootCommand implements ICommand, IGameCommand {
 

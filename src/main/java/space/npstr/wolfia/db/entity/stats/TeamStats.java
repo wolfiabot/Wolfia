@@ -19,7 +19,16 @@ package space.npstr.wolfia.db.entity.stats;
 
 import space.npstr.wolfia.game.definitions.Alignments;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -78,7 +87,6 @@ public class TeamStats implements Serializable {
     @Override
     public int hashCode() {
         final int prime = 31;
-        //todo test if referencing game here produces any kind of errors, since it's marked as lazy loading
         int result = this.game.hashCode();
         result = prime * result + this.alignment.hashCode();
         result = prime * result + this.name.hashCode();
@@ -92,7 +100,6 @@ public class TeamStats implements Serializable {
             return false;
         }
         final TeamStats t = (TeamStats) obj;
-        //todo test if referencing game here produces any kind of errors, since it's marked as lazy loading
         return this.game.equals(t.game) && this.alignment.equals(t.alignment) && this.name.equals(t.name);
     }
 

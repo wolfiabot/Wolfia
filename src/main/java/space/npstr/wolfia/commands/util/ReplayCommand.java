@@ -112,7 +112,7 @@ public class ReplayCommand implements ICommand {
         eb.addField("Game ended", dtf.format(Instant.ofEpochMilli(gameStats.getEndTime())), true);
         eb.addField("Game length", TextchatUtils.formatMillis(gameStats.getEndTime() - gameStats.getStartTime()), true);
 
-        String winText = "";
+        final String winText;
         final Optional<TeamStats> winners = gameStats.getStartingTeams().stream().filter(TeamStats::isWinner).findFirst();
         if (!winners.isPresent()) {
             //shouldn't happen lol

@@ -37,7 +37,7 @@ public class UserStatsCommand implements ICommand {
 
     @Override
     public String help() {
-        return "todo";//todo
+        return "Shows game stats for a user";
     }
 
     @Override

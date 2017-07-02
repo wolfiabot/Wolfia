@@ -52,7 +52,7 @@ public class DbTestCommand implements ICommand, IOwnerRestricted {
         return invoke(Wolfia.dbManager, commandInfo.event.getTextChannel(), commandInfo.event.getMember(), commandInfo.args);
     }
 
-    boolean invoke(final DbManager dbm, final TextChannel channel, final Member invoker, final String[] args) {
+    public boolean invoke(final DbManager dbm, final TextChannel channel, final Member invoker, final String[] args) {
 
         boolean result = false;
 
@@ -93,23 +93,24 @@ public class DbTestCommand implements ICommand, IOwnerRestricted {
             }
         }
 
-        String out = "`DB stress test results:";
+        final StringBuilder out = new StringBuilder("`DB stress test results:");
         for (int i = 0; i < results.length; i++) {
-            out += "\nThread #" + i + ": ";
+            out.append("\nThread #").append(i).append(": ");
             if (results[i] == Result.WORKING) {
-                out += "failed to get it done in " + maxTime / 1000 + " seconds";
+                out.append("failed to get it done in ").append(maxTime / 1000).append(" seconds");
                 result = false;
             } else if (results[i] == Result.FAILED) {
                 exceptions[i].printStackTrace();
-                out += "failed with an exception: " + exceptions[i].toString();
+                out.append("failed with an exception: ").append(exceptions[i].toString());
                 result = false;
             } else if (results[i] == Result.SUCCESS) {
-                out += "successful";
+                out.append("successful");
                 result = true;
             }
         }
-        out += "\n Time taken: " + ((System.currentTimeMillis() - started)) + "ms for " + (threads * operations) + " requested operations.`";
-        log.info(out);
+        out.append("\n Time taken: ").append(System.currentTimeMillis() - started).append("ms for ")
+                .append(threads * operations).append(" requested operations.`");
+        log.info(out.toString());
         if (channel != null && invoker != null) {
             Wolfia.handleOutputMessage(channel, TextchatUtils.userAsMention(invoker.getUser().getIdLong()) + "\n" + out);
         }
@@ -118,8 +119,8 @@ public class DbTestCommand implements ICommand, IOwnerRestricted {
     }
 
     private boolean doneYet(final Result[] results) {
-        for (int i = 0; i < results.length; i++) {
-            if (results[i] == Result.WORKING) {
+        for (final Result result : results) {
+            if (result == Result.WORKING) {
                 return false;
             }
         }

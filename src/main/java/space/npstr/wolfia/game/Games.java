@@ -32,13 +32,8 @@ import java.util.Map;
 public enum Games {
     POPCORN(Popcorn.class, Emojis.POPCORN + "-Mafia");
 
-    public final Class<? extends Game> clazz;
-    public final String textRep;
-
-    Games(final Class<? extends Game> clazz, final String textRepresentation) {
-        this.clazz = clazz;
-        this.textRep = textRepresentation;
-    }
+    //static aboose?
+    private static final Map<Long, Game> GAME_REGISTRY = new HashMap<>();
 
     private static final Map<Class<? extends Game>, GameInfo> GAME_INFOS = new HashMap<>();
 
@@ -57,9 +52,6 @@ public enum Games {
     public static GameInfo getInfo(final Game game) {
         return GAME_INFOS.get(game.getClass());
     }
-
-    //static aboose?
-    private static final Map<Long, Game> GAME_REGISTRY = new HashMap<>();
 
     public static Map<Long, Game> getAll() {
         return Collections.unmodifiableMap(GAME_REGISTRY);
@@ -82,6 +74,14 @@ public enum Games {
 
     public static void set(final Game game) {
         GAME_REGISTRY.put(game.getChannelId(), game);
+    }
+
+    public final Class<? extends Game> clazz;
+    public final String textRep;
+
+    Games(final Class<? extends Game> clazz, final String textRepresentation) {
+        this.clazz = clazz;
+        this.textRep = textRepresentation;
     }
 
 }

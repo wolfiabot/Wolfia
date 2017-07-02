@@ -38,9 +38,6 @@ public class StatusCommand implements ICommand {
 
     public static final String COMMAND = "status";
 
-    public StatusCommand() {
-    }
-
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
 

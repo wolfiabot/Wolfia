@@ -18,7 +18,12 @@
 package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.ISnowflake;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
@@ -53,7 +58,7 @@ public class TagCommand implements ICommand {
         final Guild guild = event.getGuild();
         final TextChannel channel = event.getTextChannel();
         final Member invoker = event.getMember();
-        final ChannelSettings settings = DbWrapper.getEntity(channel.getIdLong(), ChannelSettings.class);//todo not lazy fetch?
+        final ChannelSettings settings = DbWrapper.getEntity(channel.getIdLong(), ChannelSettings.class);
         final Set<Long> tags = settings.getTags();
 
         String option = "";
@@ -198,6 +203,6 @@ public class TagCommand implements ICommand {
 
     @Override
     public String help() {
-        return "todo"; //todo
+        return "Allows to add and remove yourself from a channel specific tag list";
     }
 }

@@ -19,7 +19,11 @@ package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +46,23 @@ import space.npstr.wolfia.db.entity.stats.TeamStats;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
-import space.npstr.wolfia.utils.*;
+import space.npstr.wolfia.utils.App;
+import space.npstr.wolfia.utils.Emojis;
+import space.npstr.wolfia.utils.GameUtils;
+import space.npstr.wolfia.utils.IllegalGameStateException;
+import space.npstr.wolfia.utils.Operation;
+import space.npstr.wolfia.utils.RoleAndPermissionUtils;
+import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.UserFriendlyException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -84,9 +102,6 @@ public class Popcorn extends Game {
     private final Map<Long, PlayerStats> playersStats = new HashMap<>();
     private final AtomicInteger actionOrder = new AtomicInteger();
 
-
-    public Popcorn() {
-    }
 
     @Override
     public void setDayLength(final long millis) {
@@ -676,7 +691,6 @@ public class Popcorn extends Game {
         return sb.toString();
     }
 
-    //todo make sure a call to this is guaranteed and will not fail after a game is over
     @Override
     public void cleanUp() {
         this.timers.forEach(Thread::interrupt);
@@ -688,8 +702,8 @@ public class Popcorn extends Game {
 
     class PopcornTimer implements Runnable {
 
-        final int day;
-        final Popcorn game;
+        protected final int day;
+        protected final Popcorn game;
 
         public PopcornTimer(final int day, final Popcorn game) {
             this.day = day;
@@ -717,7 +731,6 @@ public class Popcorn extends Game {
                                     this.game.endDay(DayEndReason.TIMER, this.game.gunBearer, -1,
                                             () -> Popcorn.this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.MODKILL, this.game.gunBearer)));
                                 } catch (final IllegalGameStateException ignored) {
-                                    //todo decide if this can be safely ignored?
                                 }
                             }
                     );
@@ -731,9 +744,9 @@ public class Popcorn extends Game {
 
     class PopcornPlayer {
 
-        final long userId;
-        final boolean isWolf;
-        boolean isLiving = true;
+        protected final long userId;
+        protected final boolean isWolf;
+        protected boolean isLiving = true;
 
         public PopcornPlayer(final long userId, final boolean isWolf) {
             this.userId = userId;

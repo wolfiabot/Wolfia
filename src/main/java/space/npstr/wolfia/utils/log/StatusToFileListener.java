@@ -47,6 +47,7 @@ public class StatusToFileListener extends RollingFileAppender<ILoggingEvent> imp
                 break;
             default:
                 level = Level.INFO;
+                break;
         }
         final LoggingEvent event = new LoggingEvent(StatusToFileListener.class.getSimpleName(),
                 new LoggerContext().getLogger(StatusToFileListener.class),

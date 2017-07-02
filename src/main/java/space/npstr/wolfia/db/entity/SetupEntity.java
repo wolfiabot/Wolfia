@@ -34,7 +34,13 @@ import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.TextchatUtils;
 import space.npstr.wolfia.utils.UserFriendlyException;
 
-import javax.persistence.*;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -114,7 +120,7 @@ public class SetupEntity implements IEntity {
     //create a fresh setup; default game is Popcorn, default mode is Wild
     public SetupEntity() {
         this.setGame(Games.POPCORN);
-        this.setMode(Games.getInfo(Games.POPCORN).getDefaultgMode());
+        this.setMode(Games.getInfo(Games.POPCORN).getDefaultMode());
         this.setDayLength(10, TimeUnit.MINUTES);
     }
 
@@ -214,7 +220,6 @@ public class SetupEntity implements IEntity {
             }
 
             cleanUpInnedPlayers();
-            //todo instead of checking here and then starting the game again with it, maybe just have a setPlayers() function in game that does those checks in one place?
             final Set<Long> inned = Collections.unmodifiableSet(this.innedUsers);
             if (!game.isAcceptablePlayerCount(inned.size())) {
                 Wolfia.handleOutputMessage(this.channelId,

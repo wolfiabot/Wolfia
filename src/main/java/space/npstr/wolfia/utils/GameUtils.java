@@ -22,9 +22,16 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by napster on 21.05.17.
+ * <p>
+ * Helpful mehtods for running games
  */
 public class GameUtils {
 
+    /**
+     * @param items items, from which one is to be randed
+     * @param <E>   class of the provided items and the desired returned one
+     * @return a random item of the provided ones
+     */
     public static <E> E rand(final Set<E> items) {
         final int rand = ThreadLocalRandom.current().nextInt(items.size());
         int i = 0;

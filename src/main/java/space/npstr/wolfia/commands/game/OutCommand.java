@@ -35,10 +35,6 @@ public class OutCommand implements ICommand {
 
     public static final String COMMAND = "out";
 
-
-    public OutCommand() {
-    }
-
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
         final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);

@@ -31,11 +31,11 @@ import java.util.Set;
  */
 public interface GameInfo {
 
-    public enum GameMode {WILD, CLASSIC}
+    enum GameMode {WILD, CLASSIC}
 
     List<GameMode> getSupportedModes();
 
-    GameMode getDefaultgMode();
+    GameMode getDefaultMode();
 
     Map<Scope, Permission> getRequiredPermissions(final GameMode mode);
 

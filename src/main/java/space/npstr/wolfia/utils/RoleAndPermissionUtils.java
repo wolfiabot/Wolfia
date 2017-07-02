@@ -19,7 +19,13 @@ package space.npstr.wolfia.utils;
 
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.IPermissionHolder;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.PermissionOverride;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
 import org.slf4j.Logger;
@@ -27,7 +33,11 @@ import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.game.definitions.Scope;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by npstr on 18.11.2016
@@ -74,11 +84,11 @@ public class RoleAndPermissionUtils {
     }
 
 
-    private enum PERMISSION_ACTION {GRANT, DENY, CLEAR}
+    private enum PermissionAction {GRANT, DENY, CLEAR}
 
     //i personally allow this thing to be ugly
     private static RestAction setPermissionsInChannelForRoleOrMember(final Channel channel, final IPermissionHolder memberOrRole,
-                                                                     final PERMISSION_ACTION action, final Permission... permissions) {
+                                                                     final PermissionAction action, final Permission... permissions) {
         //dont bitch about a nonexisting role/member
         if (memberOrRole == null) {
             log.warn("setPermissionsInChannelForRoleOrMember() called with a null member/role. Fix your code dude. " +
@@ -95,7 +105,7 @@ public class RoleAndPermissionUtils {
             return new RestAction.EmptyRestAction<>(Wolfia.jda, null);
         }
 
-        RestAction ra = null;
+        final RestAction ra;
         if (po != null) {
             switch (action) {
                 case GRANT:
@@ -127,6 +137,8 @@ public class RoleAndPermissionUtils {
                         ra = po.getManager().clear(permissions);
                     }
                     break;
+                default:
+                    throw new IllegalArgumentException("Unknown PermissionAction passed: " + action.name());
             }
         } else {
             final PermissionOverrideAction poa;
@@ -146,6 +158,8 @@ public class RoleAndPermissionUtils {
                     //do nothing if we are trying to clear a nonexisting permission override
                     ra = new RestAction.EmptyRestAction<>(Wolfia.jda, null);
                     break;
+                default:
+                    throw new IllegalArgumentException("Unknown PermissionAction passed: " + action.name());
             }
         }
         return ra;
@@ -157,15 +171,15 @@ public class RoleAndPermissionUtils {
      * @param permissions  Permissions that shall be granted/denied to the member/role
      */
     public static RestAction grant(final Channel channel, final IPermissionHolder memberOrRole, final Permission... permissions) {
-        return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PERMISSION_ACTION.GRANT, permissions);
+        return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.GRANT, permissions);
     }
 
     public static RestAction deny(final Channel channel, final IPermissionHolder memberOrRole, final Permission... permissions) {
-        return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PERMISSION_ACTION.DENY, permissions);
+        return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.DENY, permissions);
     }
 
     public static RestAction clear(final Channel channel, final IPermissionHolder memberOrRole, final Permission... permissions) {
-        return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PERMISSION_ACTION.CLEAR, permissions);
+        return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.CLEAR, permissions);
     }
 
     public static RestAction<Void> deleteIfCleared(final PermissionOverride permissionOverride) {

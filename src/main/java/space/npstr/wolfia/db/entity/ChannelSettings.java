@@ -24,7 +24,13 @@ import org.hibernate.annotations.ColumnDefault;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.IEntity;
 
-import javax.persistence.*;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,7 +54,6 @@ public class ChannelSettings implements IEntity {
     private long accessRoleId = -1;
 
     //taglist for this channel, consists of userIds and possibly roleIds
-    //todo fix fetch types https://www.thoughts-on-java.org/5-ways-to-initialize-lazy-relations-and-when-to-use-them/
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tags")
     private final Set<Long> tags = new HashSet<>();

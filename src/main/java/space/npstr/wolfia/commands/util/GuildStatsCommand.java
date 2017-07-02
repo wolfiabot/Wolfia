@@ -34,7 +34,7 @@ public class GuildStatsCommand implements ICommand {
 
     @Override
     public String help() {
-        return "todo";//todo
+        return "Shows stats of all games played in this guild";
     }
 
     @Override

@@ -37,7 +37,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -168,7 +172,7 @@ public class DbManager {
 
             @Override
             public void addTransformer(final ClassTransformer transformer) {
-
+                //do nothing
             }
 
             @Override

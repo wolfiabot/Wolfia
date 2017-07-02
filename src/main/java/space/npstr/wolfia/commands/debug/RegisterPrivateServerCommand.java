@@ -47,7 +47,7 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
 
     @Override
     public String help() {
-        return "todo"; //todo
+        return "Registers a private guild. Reserved for the bot owner.";
     }
 
     @Override

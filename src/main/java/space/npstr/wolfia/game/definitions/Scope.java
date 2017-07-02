@@ -19,6 +19,8 @@ package space.npstr.wolfia.game.definitions;
 
 /**
  * Created by napster on 20.06.17.
+ * <p>
+ * Just some scope definitions
  */
 public enum Scope {
     CHANNEL,

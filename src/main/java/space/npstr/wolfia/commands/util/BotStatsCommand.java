@@ -25,13 +25,15 @@ import space.npstr.wolfia.utils.StatsProvider;
 
 /**
  * Created by napster on 10.06.17.
+ * <p>
+ * Show stats of the whole bot
  */
 public class BotStatsCommand implements ICommand {
     public static final String COMMAND = "botstats";
 
     @Override
     public String help() {
-        return "todo";//todo
+        return "Shows stats over all games played of this bot";
     }
 
     @Override

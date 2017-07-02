@@ -33,9 +33,6 @@ public class StartCommand implements ICommand {
 
     public final static String COMMAND = "start";
 
-    public StartCommand() {
-    }
-
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
         final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);

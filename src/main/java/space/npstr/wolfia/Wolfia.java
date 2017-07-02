@@ -17,15 +17,20 @@
 
 package space.npstr.wolfia;
 
-/**
- * Created by npstr on 22.08.2016
- */
-
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import com.github.napstr.logback.DiscordAppender;
-import net.dv8tion.jda.core.*;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
@@ -44,22 +49,26 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * Created by npstr on 22.08.2016
+ * <p>
+ * Main class of Wolfia
+ */
 public class Wolfia {
 
     public static JDA jda;
     public static DbManager dbManager;
     public static final OkHttpClient httpClient = new OkHttpClient();
     public static final long START_TIME = System.currentTimeMillis();
-
     public static final LinkedBlockingQueue<PrivateGuild> FREE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
-    public final static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
-
+    public static final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     //true if a restart is planned, or live maintenance is happening, so games wont be able to be started
     public static boolean maintenanceFlag = false;
+    public static Wolfia wolfia;
 
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
 
-    public static Wolfia wolfia;
+    public final CommandListener commandListener;
 
     //set up things that are crucial
     //if something fails exit right away
@@ -94,8 +103,6 @@ public class Wolfia {
         wolfia = new Wolfia();
     }
 
-    public final CommandListener commandListener;
-
     private Wolfia() {
         //setting up JDA
         log.info("Setting up JDA and main listener");
@@ -126,7 +133,7 @@ public class Wolfia {
     //################## message handling + tons of overloaded methods
 
     //calling with complete = true will ignore onsuccess and on fail, but return an optional with the message
-    private static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final Consumer<Message> onSuccess, Consumer<Throwable> onFail, final String msg, final Object... args) {
+    private static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
         if (complete && (onSuccess != null || onFail != null)) {
             log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
         }
@@ -137,13 +144,14 @@ public class Wolfia {
             if (complete) {
                 return Optional.of(ra.complete());
             } else {
-                if (onFail == null) {
-                    onFail = throwable -> {
+                Consumer<Throwable> fail = onFail;
+                if (fail == null) {
+                    fail = throwable -> {
                         if (!(channel instanceof PrivateChannel)) //ignore exceptions when sending to private channels
                             log.error("Exception when sending a message in channel {}", channel.getIdLong(), throwable);
                     };
                 }
-                ra.queue(onSuccess, onFail);
+                ra.queue(onSuccess, fail);
             }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);

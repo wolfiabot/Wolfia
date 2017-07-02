@@ -29,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by napster on 21.06.17.
+ * <p>
+ * Shut the bot down
  */
 public class ShutdownCommand implements ICommand, IOwnerRestricted {
 

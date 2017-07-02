@@ -21,7 +21,6 @@ repositories {
     maven { url 'https://jitpack.io' }      //for getting builds from github
 }
 
-//TODO check licenses of stuff that is used
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
     compile 'net.dv8tion:JDA:3.1.1_219'                                             //discord API

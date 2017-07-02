@@ -19,6 +19,8 @@ package space.npstr.wolfia.game.definitions;
 
 /**
  * Created by napster on 02.06.17.
+ * <p>
+ * Possible actions in the game
  */
 public enum Actions {
 

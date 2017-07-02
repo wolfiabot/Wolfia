@@ -34,6 +34,8 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * Created by napster on 08.06.17.
+ * <p>
+ * Helpful and/or ugly and therefore hidden away database related methods
  */
 public class DbUtils {
 
