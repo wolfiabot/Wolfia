@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b6bd0bab45034ee9b154d9fa02a0ca68)](https://www.codacy.com/app/napstr/wolfia?utm_source=github.com&utm_medium=referral&utm_content=napstr/wolfia&utm_campaign=badger)
 # Wolfia [![Build Status](https://travis-ci.org/napstr/wolfia.svg?branch=master)](https://travis-ci.org/napstr/wolfia) [![Dependency Status](https://www.versioneye.com/user/projects/592b1be8c0295d002dd17a34/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/592b1be8c0295d002dd17a34)
 ## A Discord bot to play Mafia/Werewolf games.
 
