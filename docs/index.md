@@ -38,9 +38,9 @@ Being an Ⲁ bot doesn't stop Wolfia from being an Ⲁ wolf with close to 100% u
 
 ### Setting up the bot in your discord server
 
-| Command             | What it does                                                                                              |
-|:--------------------|:----------------------------------------------------------------------------------------------------------|
-| `w.channelsettings` | set up settings for this channel, for example the access role: `w.channelsettings accessrole Mafiaplayer` |
+| Command             | What it does                                                                                                              |
+|:--------------------|:--------------------------------------------------------------------------------------------------------------------------|
+| `w.channelsettings` | set up settings for this channel, examples: `w.channelsettings accessrole Mafiaplayer` `w.channelsettings tagcooldown 10` |
 
 
 ### Playing a game
@@ -48,7 +48,7 @@ Being an Ⲁ bot doesn't stop Wolfia from being an Ⲁ wolf with close to 100% u
 | Command            | What it does                                                                              |
 |:-------------------|:------------------------------------------------------------------------------------------|
 | `w.in`             | sign up for a game                                                                        |
-| `w.out`            | drop from the sign up list; Moderators can out other players with `w.out @user`           |
+| `w.out`            | drop from the sign up list; moderators can out other players with `w.out @user`           |
 | `w.rolepm`         | ask the bot to resend you your rolepm for the ongoing game                                |
 | `w.setup`          | set up the game in the current channel, for example the day length: `w.setup daylength 5` |
 | `w.shoot @player`  | shoot another player                                                                      |
@@ -66,6 +66,7 @@ Being an Ⲁ bot doesn't stop Wolfia from being an Ⲁ wolf with close to 100% u
 | `w.guildstats`     | show the stats of the current guild                                             |
 | `w.botstats`       | show stats of the whole bot                                                     |
 | `w.info`           | show some general information about the bot                                     |
+| `w.tag`            | post the tag list of the channel; use `w.tag +` to get added and `w.get -` to remove yourself; moderators can add mentionable roles with `w.tag + @Role` |
 
 
 * * *

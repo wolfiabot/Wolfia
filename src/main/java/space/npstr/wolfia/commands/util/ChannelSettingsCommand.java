@@ -60,9 +60,9 @@ public class ChannelSettingsCommand implements ICommand {
         }
 
         //is the user allowed to do that?
-        if (!invoker.hasPermission(channel, Permission.ADMINISTRATOR) && !App.isOwner(invoker)) {
-            Wolfia.handleOutputMessage(channel, "%s, you need the following permission to edit the setup of this channel: %s",
-                    invoker.getAsMention(), Permission.ADMINISTRATOR.getName());
+        if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && !App.isOwner(invoker)) {
+            Wolfia.handleOutputMessage(channel, "%s, you need the following permission to edit the settings of this channel: %s",
+                    invoker.getAsMention(), Permission.MESSAGE_MANAGE.getName());
             return false;
         }
 
@@ -95,6 +95,19 @@ public class ChannelSettingsCommand implements ICommand {
                 }
                 channelSettings.setAccessRoleId(accessRole.getIdLong());
                 channelSettings = DbWrapper.merge(channelSettings);
+                break;
+            case "tagcooldown":
+                try {
+                    Long tagCooldown = Long.valueOf(commandInfo.args[1]);
+                    if (tagCooldown < 0) {
+                        tagCooldown = 0L;
+                    }
+                    channelSettings.setTagCooldown(tagCooldown);
+                    channelSettings = DbWrapper.merge(channelSettings);
+                } catch (final NumberFormatException e) {
+                    Wolfia.handleOutputMessage(channel, "%s, please use a number of minutes to set the tags cooldown.", invoker.getAsMention());
+                    return false;
+                }
                 break;
             default:
                 //didn't understand the input, will show the status quo

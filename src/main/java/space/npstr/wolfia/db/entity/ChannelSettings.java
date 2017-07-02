@@ -20,13 +20,14 @@ package space.npstr.wolfia.db.entity;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
+import org.hibernate.annotations.ColumnDefault;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.IEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by napster on 22.06.17.
@@ -46,6 +47,22 @@ public class ChannelSettings implements IEntity {
     @Column(name = "access_role_id")
     private long accessRoleId = -1;
 
+    //taglist for this channel, consists of userIds and possibly roleIds
+    //todo fix fetch types https://www.thoughts-on-java.org/5-ways-to-initialize-lazy-relations-and-when-to-use-them/
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "tags")
+    private final Set<Long> tags = new HashSet<>();
+
+    //last time the taglist was posted
+    @Column(name = "tag_list_last_used")
+    @ColumnDefault(value = "0")
+    private long tagListLastUsed;
+
+    //minimum minutes between tags
+    @Column(name = "tag_cooldown")
+    @ColumnDefault(value = "5")
+    private long tagCooldown = 5;
+
     @Override
     public void setId(final long id) {
         this.channelId = id;
@@ -64,10 +81,46 @@ public class ChannelSettings implements IEntity {
         this.accessRoleId = accessRoleId;
     }
 
+    public Set<Long> getTags() {
+        return this.tags;
+    }
+
+    public void addTag(final long id) {
+        this.tags.add(id);
+    }
+
+    public void addTags(final Collection<Long> ids) {
+        this.tags.addAll(ids);
+    }
+
+    public void removeTag(final long id) {
+        this.tags.remove(id);
+    }
+
+    public void removeTags(final Collection<Long> ids) {
+        this.tags.removeAll(ids);
+    }
+
+    public long getTagListLastUsed() {
+        return this.tagListLastUsed;
+    }
+
+    public void usedTagList() {
+        this.tagListLastUsed = System.currentTimeMillis();
+    }
+
+    public long getTagCooldown() {
+        return this.tagCooldown;
+    }
+
+    public void setTagCooldown(final long tagCooldown) {
+        this.tagCooldown = tagCooldown;
+    }
+
     public MessageEmbed getStatus() {
         final EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Settings for channel #" + Wolfia.jda.getTextChannelById(this.channelId).getName());
-        eb.setDescription("Changes to the settings are reserved for server admins.");
+        eb.setDescription("Changes to the settings are reserved for channel moderators.");
         String roleName = "[Not set up]";
         if (this.accessRoleId > 0) {
             final Role accessRole = Wolfia.jda.getTextChannelById(this.channelId).getGuild().getRoleById(this.accessRoleId);
@@ -78,6 +131,8 @@ public class ChannelSettings implements IEntity {
             }
         }
         eb.addField("Access Role", roleName, true);
+
+        eb.addField("Tag list cooldown", this.tagCooldown + " minutes", true);
 
         return eb.build();
     }

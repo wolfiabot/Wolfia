@@ -32,6 +32,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class TextchatUtils {
 
+    public static final int MAX_MESSAGE_LENGTH = 2000;
+
     public static String userAsMention(final long userId) {
         return "<@" + userId + ">";
     }
@@ -58,8 +60,8 @@ public class TextchatUtils {
         }
     }
 
-    private static final List<String> TRUE_TEXT = Arrays.asList("true", "yes", "enable", "y", "on", "1", "positive");
-    private static final List<String> FALSE_TEXT = Arrays.asList("false", "no", "disable", "n", "off", "0", "negative");
+    private static final List<String> TRUE_TEXT = Arrays.asList("true", "yes", "enable", "y", "on", "1", "positive", "+", "add", "start");
+    private static final List<String> FALSE_TEXT = Arrays.asList("false", "no", "disable", "n", "off", "0", "negative", "-", "remove", "stop");
 
     public static boolean isTrue(final String input) {
         return TRUE_TEXT.contains(input);

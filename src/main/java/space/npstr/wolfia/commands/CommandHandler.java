@@ -63,6 +63,7 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(InfoCommand.COMMAND, new InfoCommand());
         COMMAND_REGISTRY.put(ReplayCommand.COMMAND, new ReplayCommand());
         COMMAND_REGISTRY.put(ChannelSettingsCommand.COMMAND, new ChannelSettingsCommand());
+        COMMAND_REGISTRY.put(TagCommand.COMMAND, new TagCommand());
         COMMAND_REGISTRY.put(UserStatsCommand.COMMAND, new UserStatsCommand());
         COMMAND_REGISTRY.put(GuildStatsCommand.COMMAND, new GuildStatsCommand());
         COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
