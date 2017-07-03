@@ -171,6 +171,10 @@ public class ActionStats implements Serializable {
                 result += String.format("%s: %s shoots %s.", Emojis.GUN, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
                 break;
 
+            case VOTEGUN:
+                result += String.format("%s: %s votes to give %s the %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target), Emojis.GUN);
+                break;
+
             case GIVEGUN:
                 result += String.format("%s: %s receives the gun", Emojis.GUN, getFormattedNickFromStats(this.target));
                 break;

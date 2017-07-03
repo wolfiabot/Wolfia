@@ -38,5 +38,6 @@ public enum Actions {
 
     //popcorn related
     SHOOT,
+    VOTEGUN,
     GIVEGUN
 }

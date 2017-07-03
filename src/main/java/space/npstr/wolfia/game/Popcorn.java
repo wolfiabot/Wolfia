@@ -827,6 +827,9 @@ public class Popcorn extends Game {
             }
             this.done = true;
 
+            //log votes
+            votesCopy.forEach((voter, candidate) -> Popcorn.this.gameStats.addAction(simpleAction(voter, Actions.VOTEGUN, candidate)));
+
             //find the target with the most votes
             //if there isn't one, the one who was voted first will get the gun (thats why we use a LinkedHashMap)
             long mostVotes = 0;
