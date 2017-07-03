@@ -46,6 +46,7 @@ import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
+import java.lang.management.ManagementFactory;
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
@@ -128,6 +129,7 @@ public class Wolfia {
                 Runtime.getRuntime().maxMemory(),
                 Runtime.getRuntime().totalMemory(),
                 Runtime.getRuntime().availableProcessors(),
+                ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage(),
                 System.currentTimeMillis() - START_TIME
         ));
     }

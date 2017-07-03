@@ -55,7 +55,6 @@ public class GeneralBotStats implements Serializable {
     private int gamesBeingPlayed;
 
     @Column(name = "available_private_guilds_count")
-    @ColumnDefault(value = "10") //todo remove
     private int availablePrivateGuildsCount;
 
     @Column(name = "free_memory")
@@ -73,6 +72,10 @@ public class GeneralBotStats implements Serializable {
     @Column(name = "available_cores")
     private int availableCores;
 
+    @Column(name = "average_load")
+    @ColumnDefault(value = "0")//todo remove
+    private double averageLoad;
+
     @Column(name = "uptime")
     private long uptime;
 
@@ -85,7 +88,8 @@ public class GeneralBotStats implements Serializable {
 
     public GeneralBotStats(final long userCount, final long guildCount, final int shardsTotal,
                            final int gamesBeingPlayed, final int availablePrivateGuildsCount, final long freeMemory,
-                           final long maxMemory, final long totalMemory, final int availableCores, final long uptime) {
+                           final long maxMemory, final long totalMemory, final int availableCores,
+                           final double averageLoad, final long uptime) {
         this.userCount = userCount;
         this.guildCount = guildCount;
         this.shardsTotal = shardsTotal;
@@ -96,6 +100,7 @@ public class GeneralBotStats implements Serializable {
         this.totalMemory = totalMemory;
         this.usedMemory = totalMemory - this.freeMemory;
         this.availableCores = availableCores;
+        this.averageLoad = averageLoad;
         this.uptime = uptime;
         this.timeStamp = System.currentTimeMillis();
 
@@ -192,6 +197,14 @@ public class GeneralBotStats implements Serializable {
 
     public void setAvailableCores(final int availableCores) {
         this.availableCores = availableCores;
+    }
+
+    public double getAverageLoad() {
+        return this.averageLoad;
+    }
+
+    public void setAverageLoad(final double averageLoad) {
+        this.averageLoad = averageLoad;
     }
 
     public long getUptime() {
