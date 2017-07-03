@@ -18,7 +18,11 @@
 package space.npstr.wolfia.db.entity;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.Channel;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Invite;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.hibernate.annotations.NaturalId;
@@ -29,7 +33,11 @@ import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.utils.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.TextchatUtils;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -179,7 +187,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
             return;//leave the private guild in a "broken state", this can be later fixed manually through eval
         }
         this.inUse = false;
-        Wolfia.FREE_PRIVATE_GUILD_QUEUE.add(this);
+        Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(this);
     }
 
     public String getInvite() {

@@ -65,7 +65,7 @@ public class Wolfia {
     public static DbManager dbManager;
     public static final OkHttpClient httpClient = new OkHttpClient();
     public static final long START_TIME = System.currentTimeMillis();
-    public static final LinkedBlockingQueue<PrivateGuild> FREE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
+    public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
     public static final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
     //true if a restart is planned, or live maintenance is happening, so games wont be able to be started
     public static boolean maintenanceFlag = false;
@@ -103,8 +103,8 @@ public class Wolfia {
         //set up relational database
         dbManager = new DbManager();
 
-        FREE_PRIVATE_GUILD_QUEUE.addAll(DbWrapper.loadPrivateGuilds());
-        log.info("{} private guilds loaded", FREE_PRIVATE_GUILD_QUEUE.size());
+        AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(DbWrapper.loadPrivateGuilds());
+        log.info("{} private guilds loaded", AVAILABLE_PRIVATE_GUILD_QUEUE.size());
 
         wolfia = new Wolfia();
 
@@ -123,6 +123,7 @@ public class Wolfia {
                 jda.getGuilds().size(),
                 1,
                 Games.getRunningGamesCount(),
+                AVAILABLE_PRIVATE_GUILD_QUEUE.size(),
                 Runtime.getRuntime().freeMemory(),
                 Runtime.getRuntime().maxMemory(),
                 Runtime.getRuntime().totalMemory(),
@@ -135,12 +136,12 @@ public class Wolfia {
         //setting up JDA
         log.info("Setting up JDA and main listener");
         this.commandListener = new CommandListener(
-                FREE_PRIVATE_GUILD_QUEUE.stream().map(PrivateGuild::getId).collect(Collectors.toList()));
+                AVAILABLE_PRIVATE_GUILD_QUEUE.stream().map(PrivateGuild::getId).collect(Collectors.toList()));
         try {
             jda = new JDABuilder(AccountType.BOT)
                     .setToken(Config.C.discordToken)
                     .addEventListener(this.commandListener)
-                    .addEventListener(FREE_PRIVATE_GUILD_QUEUE.toArray())
+                    .addEventListener(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
                     .setEnableShutdownHook(false)
                     .setGame(Game.of(App.GAME_STATUS))
                     .buildBlocking();

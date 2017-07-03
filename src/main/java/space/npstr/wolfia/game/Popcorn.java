@@ -209,12 +209,12 @@ public class Popcorn extends Game {
 
         //get a hold of a private server...
         if (this.mode != GameMode.WILD) {
-            this.wolfChat = Wolfia.FREE_PRIVATE_GUILD_QUEUE.poll();
+            this.wolfChat = Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.poll();
             if (this.wolfChat == null) {
                 Wolfia.handleOutputMessage(channel, "Acquiring a private server for the wolves...this may take a while.");
                 log.error("Ran out of free private guilds. Please add moar.");
                 try { //oh yeah...we are waiting till infinity if necessary
-                    this.wolfChat = Wolfia.FREE_PRIVATE_GUILD_QUEUE.take();
+                    this.wolfChat = Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.take();
                 } catch (final InterruptedException e) {
                     Thread.currentThread().interrupt();
                     throw new RuntimeException("Interrupted while waiting for a private server.");

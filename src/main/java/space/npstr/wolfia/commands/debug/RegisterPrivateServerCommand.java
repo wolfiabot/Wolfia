@@ -89,7 +89,7 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
         //since this command should only run occasionally, and never in some kind of race condition (fingers crossed), I will allow this
         final PrivateGuild pg = new PrivateGuild(DbWrapper.loadPrivateGuilds().size(), g.getIdLong());
         DbWrapper.persist(pg);
-        Wolfia.FREE_PRIVATE_GUILD_QUEUE.add(pg);
+        Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(pg);
         Wolfia.jda.addEventListener(pg);
         Wolfia.wolfia.commandListener.addIgnoredGuild(pg.getId());
         g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue();
