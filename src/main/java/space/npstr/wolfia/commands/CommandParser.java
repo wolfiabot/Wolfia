@@ -28,7 +28,7 @@ import java.util.Collections;
  */
 public class CommandParser {
 
-    public static CommandContainer parse(final String rw, final MessageReceivedEvent e) {
+    public static CommandContainer parse(final String rw, final MessageReceivedEvent e, final long received) {
         final ArrayList<String> split = new ArrayList<>();
         final String beheaded = rw.substring(Config.PREFIX.length()).trim();
         final String[] splitBeheaded = beheaded.split(" ");
@@ -37,7 +37,7 @@ public class CommandParser {
         final String[] args = new String[split.size() - 1];
         split.subList(1, split.size()).toArray(args);
 
-        return new CommandContainer(rw, beheaded, splitBeheaded, command, args, e);
+        return new CommandContainer(rw, beheaded, splitBeheaded, command, args, e, received);
     }
 
     public static class CommandContainer {
@@ -47,14 +47,18 @@ public class CommandParser {
         public final String command; // the actual command, in lower case
         public final String[] args; // the actual arguments
         public final MessageReceivedEvent event; //underlying event
+        public final long received; //earliest moment of when the event entered our bots' code
 
-        public CommandContainer(final String rw, final String beheaded, final String[] splitBeheaded, final String command, final String[] args, final MessageReceivedEvent e) {
+        public CommandContainer(final String rw, final String beheaded, final String[] splitBeheaded,
+                                final String command, final String[] args, final MessageReceivedEvent e,
+                                final long received) {
             this.raw = rw;
             this.beheaded = beheaded;
             this.splitBeheaded = splitBeheaded;
             this.command = command;
             this.args = args;
             this.event = e;
+            this.received = received;
         }
     }
 }

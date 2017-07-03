@@ -56,7 +56,7 @@ public class CommandListener extends ListenerAdapter {
     //sort the checks here approximately by widest and cheapest filters higher up, and put expensive filters lower
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
-
+        final long received = System.currentTimeMillis();
         //ignore private channels
         if (event.getPrivateChannel() != null) {
             return;
@@ -93,7 +93,7 @@ public class CommandListener extends ListenerAdapter {
         }
 
         log.info("user {}, channel {}, command {}", event.getAuthor().getIdLong(), event.getChannel().getIdLong(), event.getMessage().getRawContent());
-        commandExecutor.submit(() -> CommandHandler.handleCommand(CommandParser.parse(raw, event)));
+        commandExecutor.submit(() -> CommandHandler.handleCommand(CommandParser.parse(raw, event, received)));
     }
 
     @Override

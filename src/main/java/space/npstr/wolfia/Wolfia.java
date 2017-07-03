@@ -40,12 +40,16 @@ import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.PrivateGuild;
+import space.npstr.wolfia.db.entity.stats.GeneralBotStats;
+import space.npstr.wolfia.db.entity.stats.MessageOutputStats;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -67,6 +71,7 @@ public class Wolfia {
     public static Wolfia wolfia;
 
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
+    private static ScheduledFuture postingStats;
 
     public final CommandListener commandListener;
 
@@ -101,6 +106,27 @@ public class Wolfia {
         log.info("{} private guilds loaded", FREE_PRIVATE_GUILD_QUEUE.size());
 
         wolfia = new Wolfia();
+
+        //post stats every 10 minutes
+        postingStats = executor.scheduleAtFixedRate(Wolfia::postBotStats, 1, 10, TimeUnit.MINUTES);
+    }
+
+    private static void postBotStats() {
+        if (jda == null) {
+            log.warn("Skipping posting of bot stats due to JDA being null");
+            return;
+        }
+
+        DbWrapper.persist(new GeneralBotStats(
+                jda.getUsers().size(),
+                jda.getGuilds().size(),
+                1,
+                Runtime.getRuntime().freeMemory(),
+                Runtime.getRuntime().maxMemory(),
+                Runtime.getRuntime().totalMemory(),
+                Runtime.getRuntime().availableProcessors(),
+                System.currentTimeMillis() - START_TIME
+        ));
     }
 
     private Wolfia() {
@@ -142,7 +168,9 @@ public class Wolfia {
         try {
             final RestAction<Message> ra = channel.sendMessage(mb.build());
             if (complete) {
-                return Optional.of(ra.complete());
+                final Message message = ra.complete();
+                executor.submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                return Optional.of(message);
             } else {
                 Consumer<Throwable> fail = onFail;
                 if (fail == null) {
@@ -151,7 +179,12 @@ public class Wolfia {
                             log.error("Exception when sending a message in channel {}", channel.getIdLong(), throwable);
                     };
                 }
-                ra.queue(onSuccess, fail);
+                //for stats keeping
+                final Consumer<Message> wrappedSuccess = (message) -> {
+                    executor.submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                    if (onSuccess != null) onSuccess.accept(message);
+                };
+                ra.queue(wrappedSuccess, fail);
             }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
@@ -203,9 +236,16 @@ public class Wolfia {
         try {
             final RestAction<Message> ra = channel.sendMessage(msgEmbed);
             if (complete) {
-                return Optional.of(ra.complete());
+                final Message message = ra.complete();
+                executor.submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                return Optional.of(message);
             } else {
-                ra.queue(onSuccess, onFail);
+                //for stats keeping
+                final Consumer<Message> wrappedSuccess = (message) -> {
+                    executor.submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                    if (onSuccess != null) onSuccess.accept(message);
+                };
+                ra.queue(wrappedSuccess, onFail);
             }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
@@ -260,6 +300,11 @@ public class Wolfia {
     private static final Thread SHUTDOWN_HOOK = new Thread(new Runnable() {
         @Override
         public void run() {
+
+            //shut down stats posting
+            if (postingStats != null) {
+                postingStats.cancel(true);
+            }
 
             //okHttpClient claims that a shutdown isn't necessary
 

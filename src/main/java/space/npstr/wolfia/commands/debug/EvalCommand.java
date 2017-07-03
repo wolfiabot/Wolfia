@@ -96,7 +96,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
                                 + "})();");
 
             } catch (final Exception ex) {
-                channel.sendMessage("`" + ex.getMessage() + "`").queue();
+                Wolfia.handleOutputMessage(channel, "`%s`", ex.getMessage());
                 log.error("Error occurred in eval", ex);
                 return;
             }
@@ -110,7 +110,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
                 outputS = "\nEvalCommand: `" + out.toString() + "`";
             }
 
-            channel.sendMessage("```java\n" + source + "```" + "\n" + outputS).queue();
+            Wolfia.handleOutputMessage(channel, "```java\n%s```\n%s", source, outputS);
 
         }, 0, TimeUnit.MILLISECONDS);
 
@@ -122,9 +122,9 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
 
                 } catch (final TimeoutException ex) {
                     future.cancel(true);
-                    channel.sendMessage("Task exceeded time limit.").queue();
+                    Wolfia.handleOutputMessage(channel, "Task exceeded time limit.");
                 } catch (final Exception ex) {
-                    channel.sendMessage("`" + ex.getMessage() + "`").queue();
+                    Wolfia.handleOutputMessage(channel, "`%s`", ex.getMessage());
                 }
             }
         };

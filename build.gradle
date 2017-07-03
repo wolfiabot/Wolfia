@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'space.npstr'
-version = '0.7.5-SNAPSHOT'
+version = '0.7.6-SNAPSHOT'
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 

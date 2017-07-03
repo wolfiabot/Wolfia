@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.db;
 
-import org.hibernate.exception.JDBCConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
@@ -25,6 +24,7 @@ import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.TeamStats;
+import space.npstr.wolfia.utils.DatabaseException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
@@ -50,7 +50,7 @@ public class DbWrapper {
 
     //########## saving
 
-    public static <E extends IEntity> E merge(final E entity) {
+    public static <E extends IEntity> E merge(final E entity) throws DatabaseException {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
         E managedEntity;
@@ -58,25 +58,25 @@ public class DbWrapper {
             em.getTransaction().begin();
             managedEntity = em.merge(entity);
             em.getTransaction().commit();
-        } catch (final JDBCConnectionException e) {
+        } catch (final PersistenceException e) {
             log.error("Failed to merge entity {}", entity, e);
-            throw new RuntimeException(e);
+            throw new DatabaseException("Failed to merge entity", e);
         } finally {
             em.close();
         }
         return managedEntity;
     }
 
-    public static void persist(final Object object) {
+    public static void persist(final Object object) throws DatabaseException {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
         try {
             em.getTransaction().begin();
             em.persist(object);
             em.getTransaction().commit();
-        } catch (final JDBCConnectionException e) {
+        } catch (final PersistenceException e) {
             log.error("Failed to merge object {}", object, e);
-            throw new RuntimeException(e);
+            throw new DatabaseException("Failed to merge object", e);
         } finally {
             em.close();
         }
@@ -155,7 +155,7 @@ public class DbWrapper {
     }
 
     //may return null
-    private static <O> O getObject(final long id, final Class<O> clazz) {
+    private static <O> O getObject(final long id, final Class<O> clazz) throws DatabaseException {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
         O object;
@@ -163,7 +163,7 @@ public class DbWrapper {
             object = em.find(clazz, id);
         } catch (final PersistenceException e) {
             log.error("Error while trying to find entity of class {} from DB for id {}", clazz.getName(), id, e);
-            throw new RuntimeException(e);
+            throw new DatabaseException("Error while trying to find entity", e);
         } finally {
             em.close();
         }
@@ -171,13 +171,13 @@ public class DbWrapper {
         return object;
     }
 
-    private static <E extends IEntity> E newInstance(final long id, final Class<E> clazz) {
+    private static <E extends IEntity> E newInstance(final long id, final Class<E> clazz) throws DatabaseException {
         try {
             final E entity = clazz.newInstance();
             entity.setId(id);
             return entity;
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("Could not create an entity of class " + clazz.getName(), e);
+            throw new DatabaseException("Could not create an entity of class " + clazz.getName(), e);
         }
     }
 

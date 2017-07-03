@@ -21,6 +21,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import org.hibernate.annotations.ColumnDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.game.StatusCommand;
@@ -32,7 +34,6 @@ import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.TextchatUtils;
-import space.npstr.wolfia.utils.UserFriendlyException;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -41,6 +42,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -56,6 +58,10 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "setups")
 public class SetupEntity implements IEntity {
+
+    @Transient
+    private static final Logger log = LoggerFactory.getLogger(SetupEntity.class);
+
 
     @Id
     @Column(name = "channel_id")
@@ -236,7 +242,10 @@ public class SetupEntity implements IEntity {
                 //start failed
                 Games.remove(game);
                 game.cleanUp();
-                throw new UserFriendlyException("Game start aborted due to:\n" + e.getMessage(), e);
+                log.warn("Game start aborted due to exception", e);
+                Wolfia.handleOutputMessage(this.channelId, "%s, game start aborted due to:\n%s",
+                        TextchatUtils.userAsMention(commandCallerId), e.getMessage());
+                return false;
             }
             this.innedUsers.clear();
             DbWrapper.merge(this);

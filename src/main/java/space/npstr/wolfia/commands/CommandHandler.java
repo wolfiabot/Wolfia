@@ -42,9 +42,10 @@ import space.npstr.wolfia.commands.util.InfoCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
 import space.npstr.wolfia.commands.util.UserStatsCommand;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.stats.CommandStats;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.TextchatUtils;
-import space.npstr.wolfia.utils.UserFriendlyException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -110,9 +111,9 @@ public class CommandHandler {
                         commandInfo.raw);
                 return;
             }
-            command.execute(commandInfo);
-        } catch (final UserFriendlyException e) {
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), e.getMessage());
+            final boolean success = command.execute(commandInfo);
+            final long executed = System.currentTimeMillis();
+            Wolfia.executor.submit(() -> DbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
         } catch (final Exception e) {
             final MessageReceivedEvent ev = commandInfo.event;
             Throwable t = e;
