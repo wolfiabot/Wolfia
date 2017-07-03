@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.db.entity.stats;
 
+import org.hibernate.annotations.ColumnDefault;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -49,6 +51,10 @@ public class GeneralBotStats implements Serializable {
     @Column(name = "shards_total")
     private int shardsTotal;
 
+    @Column(name = "games_being_played")
+    @ColumnDefault(value = "0")
+    private int gamesBeingPlayed;
+
     @Column(name = "free_memory")
     private long freeMemory;
 
@@ -74,15 +80,17 @@ public class GeneralBotStats implements Serializable {
 
     }
 
-    public GeneralBotStats(final long userCount, final long guildCount, final int shardsTotal, final long freeMemory,
-                           final long maxMemory, final long totalMemory, final int availableCores, final long uptime) {
+    public GeneralBotStats(final long userCount, final long guildCount, final int shardsTotal,
+                           final int gamesBeingPlayed, final long freeMemory, final long maxMemory,
+                           final long totalMemory, final int availableCores, final long uptime) {
         this.userCount = userCount;
         this.guildCount = guildCount;
         this.shardsTotal = shardsTotal;
+        this.gamesBeingPlayed = gamesBeingPlayed;
         this.freeMemory = freeMemory;
         this.maxMemory = maxMemory;
         this.totalMemory = totalMemory;
-        this.usedMemory = totalMemory - freeMemory;
+        this.usedMemory = totalMemory - this.freeMemory;
         this.availableCores = availableCores;
         this.uptime = uptime;
         this.timeStamp = System.currentTimeMillis();
@@ -124,6 +132,14 @@ public class GeneralBotStats implements Serializable {
 
     public void setShardsTotal(final int shardsTotal) {
         this.shardsTotal = shardsTotal;
+    }
+
+    public int getGamesBeingPlayed() {
+        return this.gamesBeingPlayed;
+    }
+
+    public void setGamesBeingPlayed(final int gamesBeingPlayed) {
+        this.gamesBeingPlayed = gamesBeingPlayed;
     }
 
     public long getFreeMemory() {

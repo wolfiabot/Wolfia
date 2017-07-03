@@ -49,7 +49,7 @@ public class InfoCommand implements ICommand {
 
 
         String botInfo = "```\n";
-        botInfo += "Games being played:     " + Games.getAll().size() + "\n";
+        botInfo += "Games being played:     " + Games.getRunningGamesCount() + "\n";
         botInfo += "Known servers:          " + jda.getGuilds().size() + "\n";
         botInfo += "Known users in servers: " + jda.getUsers().size() + "\n";
         botInfo += "Version:                " + App.VERSION + "\n";

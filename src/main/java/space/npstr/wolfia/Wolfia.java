@@ -42,6 +42,7 @@ import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.stats.GeneralBotStats;
 import space.npstr.wolfia.db.entity.stats.MessageOutputStats;
+import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
@@ -121,6 +122,7 @@ public class Wolfia {
                 jda.getUsers().size(),
                 jda.getGuilds().size(),
                 1,
+                Games.getRunningGamesCount(),
                 Runtime.getRuntime().freeMemory(),
                 Runtime.getRuntime().maxMemory(),
                 Runtime.getRuntime().totalMemory(),

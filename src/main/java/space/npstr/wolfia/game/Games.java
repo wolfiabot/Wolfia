@@ -76,6 +76,10 @@ public enum Games {
         GAME_REGISTRY.put(game.getChannelId(), game);
     }
 
+    public static int getRunningGamesCount() {
+        return GAME_REGISTRY.size();
+    }
+
     public final Class<? extends Game> clazz;
     public final String textRep;
 

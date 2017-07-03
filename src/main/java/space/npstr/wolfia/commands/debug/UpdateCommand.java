@@ -52,7 +52,7 @@ public class UpdateCommand implements ICommand, IOwnerRestricted {
 
         Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),
                 "%s, **%s** games are still running. Will update as soon as they are over.",
-                commandInfo.event.getAuthor().getAsMention(), Games.getAll().size());
+                commandInfo.event.getAuthor().getAsMention(), Games.getRunningGamesCount());
 
         ShutdownCommand.shutdownAfterGamesAreDoneWithCode(2);
         return true;

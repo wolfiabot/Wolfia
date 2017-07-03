@@ -44,7 +44,7 @@ public class ShutdownCommand implements ICommand, IOwnerRestricted {
         Wolfia.maintenanceFlag = true;
         Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),
                 "%s, **%s** games are still running. Will shut down as soon as they are over.",
-                commandInfo.event.getAuthor().getAsMention(), Games.getAll().size());
+                commandInfo.event.getAuthor().getAsMention(), Games.getRunningGamesCount());
 
         shutdownAfterGamesAreDoneWithCode(0);
         return true;
@@ -55,10 +55,10 @@ public class ShutdownCommand implements ICommand, IOwnerRestricted {
         shutdownInitiated = true;
 
         Wolfia.executor.scheduleAtFixedRate(() -> {
-            if (Games.getAll().size() <= 0) {
+            if (Games.getRunningGamesCount() <= 0) {
                 Wolfia.shutdown(code);
             } else {
-                log.info("{} games still running, waiting...", Games.getAll().size());
+                log.info("{} games still running, waiting...", Games.getRunningGamesCount());
             }
         }, 0, 10, TimeUnit.SECONDS);
     }
