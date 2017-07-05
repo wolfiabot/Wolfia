@@ -34,7 +34,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
-import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.db.DbManager;
@@ -64,7 +63,6 @@ public class Wolfia {
 
     public static JDA jda;
     public static DbManager dbManager;
-    public static final OkHttpClient httpClient = new OkHttpClient();
     public static final long START_TIME = System.currentTimeMillis();
     public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
     public static final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);

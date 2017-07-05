@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.game;
 
+import space.npstr.wolfia.game.popcorn.Popcorn;
+import space.npstr.wolfia.game.popcorn.PopcornInfo;
 import space.npstr.wolfia.utils.Emojis;
 
 import java.util.Collections;

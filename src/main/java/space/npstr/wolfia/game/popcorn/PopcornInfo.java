@@ -15,9 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.game;
+package space.npstr.wolfia.game.popcorn;
 
 import net.dv8tion.jda.core.Permission;
+import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Scope;
 
 import java.util.ArrayList;

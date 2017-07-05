@@ -20,7 +20,6 @@ package space.npstr.wolfia.db.entity;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
-import org.hibernate.annotations.ColumnDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
@@ -81,8 +80,7 @@ public class SetupEntity implements IEntity {
 
     //day length in milliseconds
     @Column(name = "day_length")
-    @ColumnDefault(value = 1000 * 60 * 10 + "")//10 minutes
-    private long dayLength = 1000 * 60 * 10;
+    private long dayLengthMillis = TimeUnit.MINUTES.toMillis(10);
 
     //some basic getters/setters
     @Override
@@ -115,12 +113,12 @@ public class SetupEntity implements IEntity {
         this.mode = mode.name();
     }
 
-    public long getDayLength() {
-        return this.dayLength;
+    public long getDayLengthMillis() {
+        return this.dayLengthMillis;
     }
 
     public void setDayLength(final long dayLength, final TimeUnit timeUnit) {
-        this.dayLength = timeUnit.toMillis(dayLength);
+        this.dayLengthMillis = timeUnit.toMillis(dayLength);
     }
 
     //create a fresh setup; default game is Popcorn, default mode is Wild
@@ -183,7 +181,7 @@ public class SetupEntity implements IEntity {
         eb.addField("Mode", possibleModes.toString(), true);
 
         //day length
-        eb.addField("Day length", TextchatUtils.formatMillis(this.dayLength), true);
+        eb.addField("Day length", TextchatUtils.formatMillis(this.dayLengthMillis), true);
 
         //accepted player numbers
         eb.addField("Allowed players",
@@ -227,14 +225,14 @@ public class SetupEntity implements IEntity {
 
             cleanUpInnedPlayers();
             final Set<Long> inned = Collections.unmodifiableSet(this.innedUsers);
-            if (!game.isAcceptablePlayerCount(inned.size())) {
+            if (!game.isAcceptablePlayerCount(inned.size(), getMode())) {
                 Wolfia.handleOutputMessage(this.channelId,
                         "There aren't enough (or too many) players signed up! Please use `%s%s` for more information",
                         Config.PREFIX, StatusCommand.COMMAND);
                 return false;
             }
 
-            game.setDayLength(this.dayLength);
+            game.setDayLength(this.dayLengthMillis, TimeUnit.MILLISECONDS);
 
             try {
                 game.start(this.channelId, getMode(), inned);
