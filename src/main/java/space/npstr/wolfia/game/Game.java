@@ -95,6 +95,12 @@ public abstract class Game {
         return this.rolePMs.get(userId);
     }
 
+    /**
+     * @return true if the user is playing in this game (dead or alive), false if not
+     */
+    public boolean isUserPlaying(final long userId) {
+        return this.players.stream().anyMatch(p -> p.userId == userId);
+    }
 
     /**
      * @param signedUpCount amount of players that have signed up
@@ -102,6 +108,19 @@ public abstract class Game {
      */
     public boolean isAcceptablePlayerCount(final int signedUpCount, final GameInfo.GameMode mode) {
         return Games.getInfo(this.getClass()).getAcceptablePlayerNumbers(mode).contains(signedUpCount);
+    }
+
+    /**
+     * this is used to keep stats, call this whenever a listener sees the user post something during an ongoing game
+     */
+    public void userPosted(final Message message) {
+        if (!this.running) return;
+
+        final long userId = message.getAuthor().getIdLong();
+        final PlayerStats ps = this.playersStats.get(userId);
+        if (ps != null) {
+            ps.bumpPosts(message.getRawContent().length());
+        }
     }
 
     protected boolean isLiving(final long userId) {
@@ -193,14 +212,9 @@ public abstract class Game {
         // and will prevent messages getting lost due to queue() sometimes taking a while
         RoleAndPermissionUtils.grant(channel, g.getSelfMember(), Permission.MESSAGE_WRITE).complete();
 
-        // - no writing access for @everyone in the game channel
+        // - no writing access and reaction adding for @everyone/access role in the game channel during the game
         RoleAndPermissionUtils.deny(channel, g.getRoleById(this.accessRoleId),
                 Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue();
-
-        // - write permission for the players; deny them for now, they will open up when the game starts
-        for (final long userId : players) {
-            RoleAndPermissionUtils.deny(channel, g.getMemberById(userId), Permission.MESSAGE_WRITE).queue();
-        }
     }
 
     /**
@@ -269,16 +283,6 @@ public abstract class Game {
      * @return a status of the game
      */
     public abstract String getStatus();
-
-    /**
-     * @return true if the user is playing in this game (dead or alive), false if not
-     */
-    public abstract boolean isUserPlaying(long userId);
-
-    /**
-     * this is used to keep stats, call this whenever a listener sees the user post something during an ongoing game
-     */
-    public abstract void userPosted(Message message);
 
     /**
      * completely clean up a running game

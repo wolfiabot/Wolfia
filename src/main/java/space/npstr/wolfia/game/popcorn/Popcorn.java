@@ -21,7 +21,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
@@ -118,22 +117,6 @@ public class Popcorn extends Game {
         }
 
         return sb.toString();
-    }
-
-    @Override
-    public boolean isUserPlaying(final long userId) {
-        return this.players.stream().anyMatch(p -> p.userId == userId);
-    }
-
-    @Override
-    public void userPosted(final Message message) {
-        if (!this.running) return;
-
-        final long userId = message.getAuthor().getIdLong();
-        final PlayerStats ps = this.playersStats.get(userId);
-        if (ps != null) {
-            ps.bumpPosts(message.getRawContent().length());
-        }
     }
 
     @Override
@@ -290,7 +273,7 @@ public class Popcorn extends Game {
                 "you have randed **Villager** %s. Your goal is to kill all wolves, of which there are %s around.\n" +
                 "If you shoot a villager, you will die. If the wolves reach parity with the village, you lose.\n" +
                 "Guild/Server: **%s**\n" +
-                "Main channel: **%s** %s";//invite that may be empty
+                "Main channel: **#%s** %s";//invite that may be empty
         villagers.forEach(userId -> {
             final String primer = String.format(villagerPrimer, Wolfia.jda.getUserById(userId).getName(), Emojis.COWBOY,
                     woofs.size(), channel.getGuild().getName(), channel.getName(), inviteLink);
@@ -308,7 +291,7 @@ public class Popcorn extends Game {
                 "Your goal is to reach parity with the village.\n" +
                 "If you get shot, you will die. If all wolves get shot, you lose\n" +
                 "Guild/Server: **%s**\n" +
-                "Main channel: **%s** %s";//invite that may be empty;
+                "Main channel: **#%s** %s";//invite that may be empty;
         if (this.wolfChat != null) {
             wp += "\nWolfchat: " + this.wolfChat.getInvite();
         }
@@ -407,7 +390,7 @@ public class Popcorn extends Game {
         if (this.mode != GameMode.WILD) {
             for (final Player player : getLivingPlayers()) {
                 RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
-                        Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue();
+                        Permission.MESSAGE_WRITE).queue();
             }
         }
 
@@ -724,9 +707,10 @@ public class Popcorn extends Game {
             } else if (reason == GunDistributionEndReason.EVERYONE_VOTED) {
                 out = "Everyone has voted!";
             }
-            Wolfia.handleOutputMessage(Popcorn.this.wolfChat.getChannelId(),
-                    out + "\n@here, %s gets the %s! Game about to start/continue, get back to the main chat.",
-                    Wolfia.jda.getUserById(getsGun).getName(), Emojis.GUN);
+            Wolfia.handleOutputMessage(Popcorn.this.wolfChat.getChannelId(), //provided invite link may be empty
+                    out + "\n@here, %s gets the %s! Game about to start/continue, get back to the main chat.\n%s",
+                    Wolfia.jda.getUserById(getsGun).getName(), Emojis.GUN,
+                    TextchatUtils.getOrCreateInviteLink(Wolfia.jda.getTextChannelById(Popcorn.this.channelId)));
             //give wolves 10 seconds to get back into the chat
             Wolfia.executor.schedule(() -> giveGun(getsGun), 10, TimeUnit.SECONDS);
         }
