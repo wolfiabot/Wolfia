@@ -37,7 +37,6 @@ import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.ChannelSettings;
-import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.stats.ActionStats;
 import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.PlayerStats;
@@ -84,7 +83,6 @@ public class Popcorn extends Game {
 
     //internal variables of an ongoing game
     private final List<Thread> timers = new ArrayList<>(); //keeps track of timer threads
-    private PrivateGuild wolfChat = null;
     private int day = -1;
     private long dayLengthMillis = TimeUnit.MINUTES.toMillis(10); //10 minutes default
     private long dayStarted = -1;
@@ -126,6 +124,7 @@ public class Popcorn extends Game {
             this.wolfChat.endUsage();
         }
 
+        this.executor.shutdown();
         if (this.mode != GameMode.WILD) { //nothing to do for the wild mode
             resetRolesAndPermissions();
         }
@@ -600,8 +599,9 @@ public class Popcorn extends Game {
                 }
 
                 if (this.day == this.game.day) {
-                    //run this in it own thread, because it may result in this PopcornTimer getting canceled in case it ends the game
-                    Wolfia.executor.execute(() -> {
+                    //run this in it own thread in an independent executor,
+                    // because it may result in this PopcornTimer getting canceled in case it ends the game
+                    Popcorn.this.executor.execute(() -> {
                                 try {
                                     final Operation ifLegal = () -> Popcorn.this.gameStats.addAction(simpleAction(
                                             Wolfia.jda.getSelfUser().getIdLong(), Actions.MODKILL, this.game.gunBearer));
@@ -712,7 +712,7 @@ public class Popcorn extends Game {
                     Wolfia.jda.getUserById(getsGun).getName(), Emojis.GUN,
                     TextchatUtils.getOrCreateInviteLink(Wolfia.jda.getTextChannelById(Popcorn.this.channelId)));
             //give wolves 10 seconds to get back into the chat
-            Wolfia.executor.schedule(() -> giveGun(getsGun), 10, TimeUnit.SECONDS);
+            Popcorn.this.executor.schedule(() -> giveGun(getsGun), 10, TimeUnit.SECONDS);
         }
 
         private EmbedBuilder prepareGunDistributionEmbed(final Map<String, Player> livingVillage,

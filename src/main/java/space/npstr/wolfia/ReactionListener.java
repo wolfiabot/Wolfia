@@ -49,7 +49,7 @@ public class ReactionListener extends ListenerAdapter {
         this.filter = filter;
         this.callback = callback;
 
-        Wolfia.executor.schedule(() -> {
+        Wolfia.schedule(() -> {
             //remove the listener
             Wolfia.jda.removeEventListener(this);
             selfDestructCallback.accept(null);

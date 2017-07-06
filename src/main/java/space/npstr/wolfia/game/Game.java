@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.IGameCommand;
+import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.PlayerStats;
 import space.npstr.wolfia.utils.IllegalGameStateException;
@@ -42,7 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -66,6 +69,9 @@ public abstract class Game {
 
     private static final Logger log = LoggerFactory.getLogger(Game.class);
 
+    //to be used to execute tasks for each game
+    protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+            r -> new Thread(r, "game-in-channel-" + Game.this.channelId + "-helper-thread"));
 
     //commonly used fields
     protected long channelId = -1;
@@ -74,6 +80,7 @@ public abstract class Game {
     protected final Set<Player> players = new HashSet<>();
     protected volatile boolean running = false;
     protected long accessRoleId;
+    protected PrivateGuild wolfChat = null;
 
     //stats keeping fields
     protected GameStats gameStats = null;
@@ -272,6 +279,18 @@ public abstract class Game {
     }
 
     /**
+     * clean up a running game
+     * aka reset any possible permissions and overrides, stop any running threads etc
+     */
+    public void cleanUp() {
+        if (this.wolfChat != null) {
+            this.wolfChat.endUsage();
+        }
+        this.executor.shutdownNow();
+        resetRolesAndPermissions();
+    }
+
+    /**
      * Sets the day length
      *
      * @param dayLength desired length of the day
@@ -283,13 +302,6 @@ public abstract class Game {
      * @return a status of the game
      */
     public abstract String getStatus();
-
-    /**
-     * completely clean up a running game
-     * aka reset any possible permissions and overrides, stop any running threads etc
-     */
-    public abstract void cleanUp();
-
 
     /**
      * Start a game

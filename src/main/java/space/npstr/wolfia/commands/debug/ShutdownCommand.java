@@ -54,7 +54,7 @@ public class ShutdownCommand implements ICommand, IOwnerRestricted {
         if (shutdownInitiated) return;
         shutdownInitiated = true;
 
-        Wolfia.executor.scheduleAtFixedRate(() -> {
+        Wolfia.scheduleAtFixedRate(() -> {
             if (Games.getRunningGamesCount() <= 0) {
                 Wolfia.shutdown(code);
             } else {

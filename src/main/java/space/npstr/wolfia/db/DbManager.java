@@ -56,22 +56,23 @@ public class DbManager {
     private static final Logger log = LoggerFactory.getLogger(DbManager.class);
 
     private final EntityManagerFactory emf;
+    private final HikariDataSource hikariDs;
 
     public DbManager() {
         // hikari connection pool
-        final HikariDataSource ds = new HikariDataSource();
-        ds.setJdbcUrl(Config.C.jdbcUrl);
-        ds.setMaximumPoolSize(Runtime.getRuntime().availableProcessors() * 2);
-        ds.setPoolName("Wolfia Default Pool");
-        ds.setValidationTimeout(1000);
-        ds.setConnectionTimeout(2000);
-        ds.setConnectionTestQuery("SELECT 1;");
+        this.hikariDs = new HikariDataSource();
+        this.hikariDs.setJdbcUrl(Config.C.jdbcUrl);
+        this.hikariDs.setMaximumPoolSize(Runtime.getRuntime().availableProcessors() * 2);
+        this.hikariDs.setPoolName("Wolfia Default Pool");
+        this.hikariDs.setValidationTimeout(1000);
+        this.hikariDs.setConnectionTimeout(2000);
+        this.hikariDs.setConnectionTestQuery("SELECT 1;");
         final Properties props = new Properties();
         props.setProperty("ApplicationName", "Wolfia_" + (Config.C.isDebug ? "DEBUG" : "PROD") + "_" + App.VERSION);
-        ds.setDataSourceProperties(props);
+        this.hikariDs.setDataSourceProperties(props);
 
         // jpa
-        final PersistenceUnitInfo puInfo = defaultPersistenceUnitInfo(ds, "space.npstr.wolfia.db.entity");
+        final PersistenceUnitInfo puInfo = defaultPersistenceUnitInfo(this.hikariDs, "space.npstr.wolfia.db.entity");
 
         // hibernate
         final Properties hibernateProps = new Properties();
@@ -85,6 +86,10 @@ public class DbManager {
         return this.emf.createEntityManager();
     }
 
+    public void shutdown() {
+        this.emf.close();
+        this.hikariDs.close();
+    }
 
     //copy pasta'd this from somewhere on stackoverflow, seems to work with slight adjustments
     private PersistenceUnitInfo defaultPersistenceUnitInfo(final DataSource ds, @SuppressWarnings("SameParameterValue") final String entityPackage) {

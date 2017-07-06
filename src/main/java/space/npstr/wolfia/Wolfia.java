@@ -46,7 +46,11 @@ import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -65,13 +69,16 @@ public class Wolfia {
     public static DbManager dbManager;
     public static final long START_TIME = System.currentTimeMillis();
     public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
-    public static final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(1);
+    //for any fire and forget tasks that are expected to run for a short while only
+    public static final ExecutorService executor = Executors.newCachedThreadPool();
     //true if a restart is planned, or live maintenance is happening, so games wont be able to be started
     public static boolean maintenanceFlag = false;
     public static Wolfia wolfia;
 
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
-    private static ScheduledFuture postingStats;
+    //for long running, repeating and/or scheduled tasks
+    private static final ScheduledThreadPoolExecutor scheduledExecutor = new ScheduledThreadPoolExecutor(1);
+    private static final List<ScheduledFuture> runningTasks = new ArrayList<>();
 
     public final CommandListener commandListener;
 
@@ -108,8 +115,17 @@ public class Wolfia {
         wolfia = new Wolfia();
 
         //post stats every 10 minutes
-        postingStats = executor.scheduleAtFixedRate(Wolfia::postBotStats, 1, 10, TimeUnit.MINUTES);
+        scheduleAtFixedRate(Wolfia::postBotStats, 1, 10, TimeUnit.MINUTES);
     }
+
+    public static void scheduleAtFixedRate(final Runnable task, final long initialDelay, final long period, final TimeUnit timeUnit) {
+        runningTasks.add(scheduledExecutor.scheduleAtFixedRate(task, initialDelay, period, timeUnit));
+    }
+
+    public static void schedule(final Runnable task, final long delay, final TimeUnit timeUnit) {
+        runningTasks.add(scheduledExecutor.schedule(task, delay, timeUnit));
+    }
+
 
     private static void postBotStats() {
         if (jda == null) {
@@ -304,18 +320,23 @@ public class Wolfia {
         @Override
         public void run() {
 
-            //shut down stats posting
-            if (postingStats != null) {
-                postingStats.cancel(true);
-            }
-
             //okHttpClient claims that a shutdown isn't necessary
 
             //shutdown JDA
-            jda.shutdown(true);
+            jda.shutdown(true); //true will shut down the unirest client too
+
+            //shutdown executors
+            executor.shutdown();
+            scheduledExecutor.shutdown();
+            runningTasks.forEach(scheduledFuture -> scheduledFuture.cancel(true));
+            try {
+                executor.awaitTermination(30, TimeUnit.SECONDS);
+            } catch (final InterruptedException e) {
+                log.warn("Executor did not finish it's tasks after 30 seconds");
+            }
 
             //shutdown DB
-//            redisClient.shutdown();
+            dbManager.shutdown();
 
             //shutdown logback logger
             final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
