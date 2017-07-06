@@ -35,7 +35,7 @@ import space.npstr.wolfia.game.Games;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -48,6 +48,8 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
 
     public static final String COMMAND = "eval";
     private static final Logger log = LoggerFactory.getLogger(EvalCommand.class);
+
+    private Future lastTask;
 
     //Thanks Fred & Dinos!
     private final ScriptEngine engine;
@@ -64,16 +66,39 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
+        final long started = System.currentTimeMillis();
         final Guild guild = commandInfo.event.getGuild();
         final TextChannel channel = commandInfo.event.getTextChannel();
         final Message message = commandInfo.event.getMessage();
         final Member author = commandInfo.event.getMember();
-
         final JDA jda = guild.getJDA();
+
+        String source = commandInfo.beheaded.substring(commandInfo.command.length()).trim();
+
+        if (commandInfo.args.length > 0 && (commandInfo.args[0].equals("-k") || commandInfo.args[0].equals("kill"))) {
+            if (this.lastTask != null) {
+                if (this.lastTask.isDone() || this.lastTask.isCancelled()) {
+                    Wolfia.handleOutputMessage(channel, "Task isn't running.");
+                } else {
+                    this.lastTask.cancel(true);
+                    Wolfia.handleOutputMessage(channel, "Task killed.");
+                }
+            } else {
+                Wolfia.handleOutputMessage(channel, "No task found to kill.");
+            }
+            return true;
+        }
 
         channel.sendTyping().queue();
 
-        final String source = commandInfo.beheaded.substring(commandInfo.command.length()).trim();
+        final int timeOut;
+        if (commandInfo.args.length > 1 && (commandInfo.args[0].equals("-t") || commandInfo.args[0].equals("timeout"))) {
+            timeOut = Integer.parseInt(commandInfo.args[1]);
+            source = source.replaceFirst(commandInfo.args[0], "");
+            source = source.replaceFirst(commandInfo.args[1], "");
+        } else timeOut = -1;
+
+        final String finalSource = source.trim();
 
         this.engine.put("jda", jda);
         this.engine.put("api", jda);
@@ -86,17 +111,18 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
         this.engine.put("game", Games.get(channel.getIdLong()));
         this.engine.put("setup", DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class));
 
-        final ScheduledFuture<?> future = Wolfia.executor.schedule(() -> {
+        final Future<?> future = Wolfia.executor.submit(() -> {
 
             final Object out;
             try {
                 out = this.engine.eval(
                         "(function() {"
-                                + "with (imports) {\n" + source + "\n}"
+                                + "with (imports) {\n" + finalSource + "\n}"
                                 + "})();");
 
             } catch (final Exception ex) {
-                Wolfia.handleOutputMessage(channel, "`%s`", ex.getMessage());
+                Wolfia.handleOutputMessage(channel, "`%s`\n\n`%sms`",
+                        ex.getMessage(), System.currentTimeMillis() - started);
                 log.error("Error occurred in eval", ex);
                 return;
             }
@@ -110,21 +136,25 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
                 outputS = "\nEvalCommand: `" + out.toString() + "`";
             }
 
-            Wolfia.handleOutputMessage(channel, "```java\n%s```\n%s", source, outputS);
+            Wolfia.handleOutputMessage(channel, "```java\n%s```\n%s `%sms`",
+                    finalSource, outputS, System.currentTimeMillis() - started);
 
-        }, 0, TimeUnit.MILLISECONDS);
+        });
+        this.lastTask = future;
 
         final Thread script = new Thread("EvalCommand") {
             @Override
             public void run() {
                 try {
-                    future.get(600, TimeUnit.SECONDS);
-
+                    if (timeOut > -1) {
+                        future.get(timeOut, TimeUnit.SECONDS);
+                    }
                 } catch (final TimeoutException ex) {
                     future.cancel(true);
-                    Wolfia.handleOutputMessage(channel, "Task exceeded time limit.");
+                    Wolfia.handleOutputMessage(channel, "Task exceeded time limit of %s seconds.", timeOut);
                 } catch (final Exception ex) {
-                    Wolfia.handleOutputMessage(channel, "`%s`", ex.getMessage());
+                    Wolfia.handleOutputMessage(channel, "`%s`\n\n`%sms`",
+                            ex.getMessage(), System.currentTimeMillis() - started);
                 }
             }
         };
