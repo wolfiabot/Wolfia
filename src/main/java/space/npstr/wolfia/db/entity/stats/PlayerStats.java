@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.db.entity.stats;
 
+import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 
 import javax.persistence.Column;
@@ -57,6 +58,9 @@ public class PlayerStats implements Serializable {
     @Column(name = "nickname")
     private String nickname;
 
+    @Column(name = "alignment")
+    private String alignment;
+
     //defined in the Roles enum
     @Column(name = "role")
     private String role;
@@ -67,10 +71,12 @@ public class PlayerStats implements Serializable {
     @Column(name = "total_postlength")
     private int totalPostLength;
 
-    public PlayerStats(final TeamStats team, final long userId, final String nick, final Roles role) {
+    public PlayerStats(final TeamStats team, final long userId, final String nick, final Alignments alignment,
+                       final Roles role) {
         this.team = team;
         this.userId = userId;
         this.nickname = nick;
+        this.alignment = alignment.name();
         this.role = role.name();
         this.totalPosts = 0;
         this.totalPostLength = 0;
@@ -135,6 +141,14 @@ public class PlayerStats implements Serializable {
 
     public void setNickname(final String nickname) {
         this.nickname = nickname;
+    }
+
+    public Alignments getAlignment() {
+        return Alignments.valueOf(this.alignment);
+    }
+
+    public void setAlignment(final Alignments alignment) {
+        this.alignment = alignment.name();
     }
 
     public Roles getRole() {

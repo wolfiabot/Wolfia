@@ -67,11 +67,13 @@ public class ActionStats implements Serializable {
     @Column(name = "time_stamp_happened")
     private long timeStampHappened;
 
-    @Column(name = "day")
-    private int day;
+    //n0, d1 + n1, d2 + n2 etc
+    @Column(name = "cycle")
+    private int cycle;
 
-    @Column(name = "night")
-    private int night;
+    //day or night or whatever else, defined in the Phase enum
+    @Column(name = "phase")
+    private String phase;
 
     //userId of the discord user; there might be special negative values for factional actors/targets in the future
     @Column(name = "actor")
@@ -85,13 +87,15 @@ public class ActionStats implements Serializable {
     @Column(name = "target")
     private long target;
 
-    public ActionStats(final GameStats game, final int order, final long timeStampSubmitted, final long timeStampHappened, final int day, final int night, final long actor, final Actions action, final long target) {
+    public enum Phase {DAY, NIGHT}
+
+    public ActionStats(final GameStats game, final int order, final long timeStampSubmitted, final long timeStampHappened, final int cycle, final Phase phase, final long actor, final Actions action, final long target) {
         this.game = game;
         this.order = order;
         this.timeStampSubmitted = timeStampSubmitted;
         this.timeStampHappened = timeStampHappened;
-        this.day = day;
-        this.night = night;
+        this.cycle = cycle;
+        this.phase = phase.name();
         this.actor = actor;
         this.actionType = action.name();
         this.target = target;
@@ -144,16 +148,16 @@ public class ActionStats implements Serializable {
                 result += String.format("%s: Game **#%s** ends.", Emojis.END, getGame().getGameId());
                 break;
             case DAYSTART:
-                result += String.format("%s: Day **%s** starts.", Emojis.SUNNY, getDay());
+                result += String.format("%s: Day **%s** starts.", Emojis.SUNNY, getCycle());
                 break;
             case DAYEND:
-                result += String.format("%s: Day **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, getDay());
+                result += String.format("%s: Day **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, getCycle());
                 break;
             case NIGHTSTART:
-                result += String.format("%s: Night **%s** starts.", Emojis.FULL_MOON, getNight());
+                result += String.format("%s: Night **%s** starts.", Emojis.FULL_MOON, getCycle());
                 break;
             case NIGHTEND:
-                result += String.format("%s: Night **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, getNight());
+                result += String.format("%s: Night **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, getCycle());
                 break;
             case BOTKILL:
                 result += String.format("%s: %s botkilled.", Emojis.SKULL, getFormattedNickFromStats(this.target));
@@ -242,20 +246,20 @@ public class ActionStats implements Serializable {
         this.timeStampHappened = timeStampHappened;
     }
 
-    public int getDay() {
-        return this.day;
+    public int getCycle() {
+        return this.cycle;
     }
 
-    public void setDay(final int day) {
-        this.day = day;
+    public void setCycle(final int cycle) {
+        this.cycle = cycle;
     }
 
-    public int getNight() {
-        return this.night;
+    public Phase getPhase() {
+        return Phase.valueOf(this.phase);
     }
 
-    public void setNight(final int night) {
-        this.night = night;
+    public void setPhase(final Phase phase) {
+        this.phase = phase.name();
     }
 
     public long getActor() {

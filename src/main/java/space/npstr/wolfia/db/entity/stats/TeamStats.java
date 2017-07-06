@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.db.entity.stats;
 
+import org.hibernate.annotations.ColumnDefault;
 import space.npstr.wolfia.game.definitions.Alignments;
 
 import javax.persistence.CascadeType;
@@ -70,12 +71,17 @@ public class TeamStats implements Serializable {
     @Column(name = "is_winner")
     private boolean isWinner;
 
+    @Column(name = "team_size")
+    @ColumnDefault(value = "-1") //todo remove
+    private int teamSize;
 
-    public TeamStats(final GameStats game, final Alignments alignment, final String name) {
+
+    public TeamStats(final GameStats game, final Alignments alignment, final String name, final int teamSize) {
         this.game = game;
         this.alignment = alignment.name();
         this.name = name;
         this.isWinner = false;
+        this.teamSize = teamSize;
     }
 
     public void addPlayer(final PlayerStats player) {
@@ -156,5 +162,13 @@ public class TeamStats implements Serializable {
 
     public void setWinner(final boolean winner) {
         this.isWinner = winner;
+    }
+
+    public int getTeamSize() {
+        return this.teamSize;
+    }
+
+    public void setTeamSize(final int teamSize) {
+        this.teamSize = teamSize;
     }
 }

@@ -17,8 +17,6 @@
 
 package space.npstr.wolfia.db.entity.stats;
 
-import org.hibernate.annotations.ColumnDefault;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -73,7 +71,6 @@ public class GeneralBotStats implements Serializable {
     private int availableCores;
 
     @Column(name = "average_load")
-    @ColumnDefault(value = "0")//todo remove
     private double averageLoad;
 
     @Column(name = "uptime")

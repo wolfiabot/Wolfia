@@ -118,7 +118,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
             @Override
             public void run() {
                 try {
-                    future.get(10, TimeUnit.SECONDS);
+                    future.get(600, TimeUnit.SECONDS);
 
                 } catch (final TimeoutException ex) {
                     future.cancel(true);

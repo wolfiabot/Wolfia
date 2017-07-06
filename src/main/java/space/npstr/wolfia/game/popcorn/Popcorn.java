@@ -315,17 +315,17 @@ public class Popcorn extends Game {
 
         //set up stats objects
         this.gameStats = new GameStats(g.getIdLong(), g.getName(), this.channelId, channel.getName(),
-                Games.POPCORN, this.mode.name());
-        final TeamStats w = new TeamStats(this.gameStats, Alignments.WOLF, "Wolves");
+                Games.POPCORN, this.mode.name(), this.players.size());
+        final TeamStats w = new TeamStats(this.gameStats, Alignments.WOLF, "Wolves", woofs.size());
         woofs.forEach(userId -> {
-            final PlayerStats ps = new PlayerStats(w, userId, g.getMemberById(userId).getEffectiveName(), Roles.VANILLA);
+            final PlayerStats ps = new PlayerStats(w, userId, g.getMemberById(userId).getEffectiveName(), Alignments.WOLF, Roles.VANILLA);
             this.playersStats.put(userId, ps);
             w.addPlayer(ps);
         });
         this.gameStats.addTeam(w);
-        final TeamStats v = new TeamStats(this.gameStats, Alignments.VILLAGE, "Village");
+        final TeamStats v = new TeamStats(this.gameStats, Alignments.VILLAGE, "Village", villagers.size());
         villagers.forEach(userId -> {
-            final PlayerStats ps = new PlayerStats(v, userId, g.getMemberById(userId).getEffectiveName(), Roles.VANILLA);
+            final PlayerStats ps = new PlayerStats(v, userId, g.getMemberById(userId).getEffectiveName(), Alignments.VILLAGE, Roles.VANILLA);
             this.playersStats.put(userId, ps);
             v.addPlayer(ps);
         });
@@ -570,7 +570,7 @@ public class Popcorn extends Game {
     private ActionStats simpleAction(final long actor, final Actions action, final long target) {
         final long now = System.currentTimeMillis();
         return new ActionStats(this.gameStats, this.actionOrder.incrementAndGet(),
-                now, now, this.day, -1, actor, action, target);
+                now, now, this.day, ActionStats.Phase.DAY, actor, action, target);
     }
 
 

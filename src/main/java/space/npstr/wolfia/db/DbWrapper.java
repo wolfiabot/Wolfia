@@ -28,8 +28,12 @@ import space.npstr.wolfia.utils.DatabaseException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by napster on 30.05.17.
@@ -50,21 +54,21 @@ public class DbWrapper {
 
     //########## saving
 
-    public static <E extends IEntity> E merge(final E entity) throws DatabaseException {
+    public static <O> O merge(final O object) throws DatabaseException {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
-        E managedEntity;
+        O managedObject;
         try {
             em.getTransaction().begin();
-            managedEntity = em.merge(entity);
+            managedObject = em.merge(object);
             em.getTransaction().commit();
         } catch (final PersistenceException e) {
-            log.error("Failed to merge entity {}", entity, e);
-            throw new DatabaseException("Failed to merge entity", e);
+            log.error("Failed to merge object {}", object, e);
+            throw new DatabaseException("Failed to merge object", e);
         } finally {
             em.close();
         }
-        return managedEntity;
+        return managedObject;
     }
 
     public static void persist(final Object object) throws DatabaseException {
@@ -82,12 +86,30 @@ public class DbWrapper {
         }
     }
 
+    public static int executeJPQLQuery(final String queryString, final Map<String, Object> parameters) throws DatabaseException {
+        final DbManager dbManager = Wolfia.dbManager;
+        final EntityManager em = dbManager.getEntityManager();
+        try {
+            final Query query = em.createQuery(queryString);
+            parameters.forEach(query::setParameter);
+            em.getTransaction().begin();
+            final int updatedOrDeleted = query.executeUpdate();
+            em.getTransaction().commit();
+            return updatedOrDeleted;
+        } catch (final PersistenceException e) {
+            log.error("Failed to execute JPQL query {}", queryString, e);
+            throw new DatabaseException("Failed to execute JPQL query", e);
+        } finally {
+            em.close();
+        }
+    }
+
     //########## loading
 
     //never returns null; IEntity objects are required to have a default constructor that sets them up with sensible
     // defaults, as long as we make sure that the id is a natural one (for example derived from a snowflake from
     // discord, aka channels, guilds, users etc)
-    public static <E extends IEntity> E getEntity(final long id, final Class<E> clazz) {
+    public static <E extends IEntity> E getEntity(final long id, final Class<E> clazz) throws DatabaseException {
         E entity = getObject(id, clazz);
         //return a fresh object if we didn't find the one we were looking for
         if (entity == null) {
@@ -97,7 +119,7 @@ public class DbWrapper {
         return entity;
     }
 
-    public static GameStats loadSingleGameStats(final long id) {
+    public static GameStats loadSingleGameStats(final long id) throws DatabaseException {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
         final GameStats g;
@@ -111,13 +133,16 @@ public class DbWrapper {
                     t.getPlayers().size();
                 }
             }
+        } catch (final PersistenceException e) {
+            log.error("Failed to load single game stats for game #{}", id, e);
+            throw new DatabaseException("Failed to load single game stats", e);
         } finally {
             em.close();
         }
         return g;
     }
 
-    public static List<GameStats> loadFullStats() {
+    public static List<GameStats> loadFullStats() throws DatabaseException {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
 
@@ -132,22 +157,28 @@ public class DbWrapper {
                     t.getPlayers().size();
                 }
             }
+        } catch (final PersistenceException e) {
+            log.error("Failed to full game stats", e);
+            throw new DatabaseException("Failed to full game stats", e);
         } finally {
             em.close();
         }
         return queryResult;
     }
 
-    public static List<PrivateGuild> loadPrivateGuilds() {
+    public static List<PrivateGuild> loadPrivateGuilds() throws DatabaseException {
         return loadAll("FROM PrivateGuild", PrivateGuild.class);
     }
 
-    public static <E> List<E> loadAll(final String query, final Class<E> clazz) {
+    public static <E> List<E> loadAll(final String query, final Class<E> clazz) throws DatabaseException {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
         final List<E> queryResult = new ArrayList<>();
         try {
             queryResult.addAll(em.createQuery(query, clazz).getResultList());
+        } catch (final PersistenceException e) {
+            log.error("Failed to load all {}", query, e);
+            throw new DatabaseException("Failed to load all", e);
         } finally {
             em.close();
         }
@@ -181,27 +212,76 @@ public class DbWrapper {
         }
     }
 
-    public static List<SetupEntity> loadSetups() {
+    public static List<SetupEntity> loadSetups() throws DatabaseException {
         final DbManager dbManager = Wolfia.dbManager;
 
         final EntityManager em = dbManager.getEntityManager();
         final List<SetupEntity> queryResult;
         try {
             queryResult = em.createQuery("SELECT s FROM SetupEntity s", SetupEntity.class).getResultList();
+        } catch (final PersistenceException e) {
+            log.error("Failed to load setups", e);
+            throw new DatabaseException("Failed to load setups", e);
         } finally {
             em.close();
         }
         return queryResult;
     }
 
+    /**
+     * @param queryString the raw JPQL query string
+     * @param parameters  parameters to be set on the query
+     * @param resultClass expected class of the results of the query
+     * @param offset      set to -1 or lower for no offset
+     * @param limit       set to -1 or lower for no limit
+     */
+    //limited and offset results
+    public static <T> List<T> selectJPQLQuery(final String queryString, final Map<String, Object> parameters,
+                                              final Class<T> resultClass, final int offset, final int limit) throws DatabaseException {
+        final DbManager dbManager = Wolfia.dbManager;
+        final EntityManager em = dbManager.getEntityManager();
+        try {
+            final TypedQuery<T> q = em.createQuery(queryString, resultClass);
+            parameters.forEach(q::setParameter);
+            if (offset > -1) q.setFirstResult(offset);
+            if (limit > -1) q.setMaxResults(limit);
+            return q.getResultList();
+        } catch (final PersistenceException e) {
+            log.error("Failed to select JPQL query {}", queryString, e);
+            throw new DatabaseException("Failed to select JPQL query", e);
+        } finally {
+            em.close();
+        }
+    }
+
+    //limited results
+    public static <T> List<T> selectJPQLQuery(final String queryString, final Map<String, Object> parameters,
+                                              final Class<T> resultClass, final int limit) throws DatabaseException {
+        return selectJPQLQuery(queryString, parameters, resultClass, -1, limit);
+    }
+
+    public static <T> List<T> selectJPQLQuery(final String queryString, final Class<T> resultClass,
+                                              final int limit) throws DatabaseException {
+        return selectJPQLQuery(queryString, Collections.emptyMap(), resultClass, -1, limit);
+    }
+
+    //all results
+    public static <T> List<T> selectJPQLQuery(final String queryString, final Map<String, Object> parameters,
+                                              final Class<T> resultClass) throws DatabaseException {
+        return selectJPQLQuery(queryString, parameters, resultClass, -1);
+    }
+
+    public static <T> List<T> selectJPQLQuery(final String queryString, final Class<T> resultClass) throws DatabaseException {
+        return selectJPQLQuery(queryString, Collections.emptyMap(), resultClass, -1);
+    }
 
     //########## deletion
 
-    public static void deleteEntity(final IEntity entity) {
+    public static void deleteEntity(final IEntity entity) throws DatabaseException {
         deleteEntity(entity.getId(), entity.getClass());
     }
 
-    public static void deleteEntity(final long id, final Class<? extends IEntity> clazz) {
+    public static void deleteEntity(final long id, final Class<? extends IEntity> clazz) throws DatabaseException {
         final DbManager dbManager = Wolfia.dbManager;
         final EntityManager em = dbManager.getEntityManager();
         try {
@@ -212,6 +292,9 @@ public class DbWrapper {
                 em.remove(entity);
                 em.getTransaction().commit();
             }
+        } catch (final PersistenceException e) {
+            log.error("Failed to delete entity id {} of class {}", id, clazz.getSimpleName(), e);
+            throw new DatabaseException("Failed to delete entity", e);
         } finally {
             em.close();
         }

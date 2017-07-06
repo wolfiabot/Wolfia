@@ -17,6 +17,10 @@
 
 package space.npstr.wolfia.db.entity.stats;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.game.Games;
 
 import javax.persistence.CascadeType;
@@ -46,6 +50,7 @@ import java.util.Set;
 public class GameStats implements Serializable {
 
     private static final long serialVersionUID = -577030472501735570L;
+    private static final Logger log = LoggerFactory.getLogger(GameStats.class);
 
     //this is pretty much an auto incremented id generator starting by 1 and going 1 upwards
     //there are no hard guarantees that there wont be any gaps, or that they will be in any order in the table
@@ -91,7 +96,50 @@ public class GameStats implements Serializable {
     @Column(name = "game_mode")
     private String gameMode;
 
-    public GameStats(final long guildId, final String guildName, final long channelId, final String channelName, final Games gameType, final String gameMode) {
+    @Column(name = "player_size")
+    @ColumnDefault(value = "-1") //todo remove
+    private int playerSize;
+
+    //todo remove this code
+    public static String evalMigrate() {
+        final List<Long> gameIds = DbWrapper.selectJPQLQuery("SELECT gameId FROM GameStats", Long.class);
+        int toMigrate = 0;
+        int failed = 0;
+        for (final long id : gameIds) {
+            try {
+                final GameStats game = DbWrapper.loadSingleGameStats(id);
+
+                if (game.playerSize > -1) continue;
+                toMigrate++;
+
+                int sum = 0;
+                for (final TeamStats team : game.getStartingTeams()) {
+                    sum += team.getPlayers().size();
+                    if (team.getTeamSize() < 0) {
+                        team.setTeamSize(team.getPlayers().size());
+                    }
+
+                    for (final PlayerStats player : team.getPlayers()) {
+                        player.setAlignment(team.getAlignment());
+                    }
+                }
+                game.playerSize = sum;
+
+                for (final ActionStats action : game.actions) {
+                    action.setPhase(ActionStats.Phase.DAY);
+                }
+
+                DbWrapper.merge(game);
+            } catch (final Exception e) {
+                log.warn("Failed to migrate game #{} ", id, e);
+                failed++;
+            }
+        }
+        return "Successfully migrated " + (toMigrate - failed) + " / " + toMigrate + " / " + gameIds.size() + " total game stats";
+    }
+
+    public GameStats(final long guildId, final String guildName, final long channelId, final String channelName,
+                     final Games gameType, final String gameMode, final int playerSize) {
         this.guildId = guildId;
         this.guildName = guildName;
         this.channelId = channelId;
@@ -99,6 +147,7 @@ public class GameStats implements Serializable {
         this.startTime = System.currentTimeMillis();
         this.gameType = gameType.name();
         this.gameMode = gameMode;
+        this.playerSize = playerSize;
     }
 
     public void addAction(final ActionStats action) {
@@ -220,5 +269,13 @@ public class GameStats implements Serializable {
 
     public void setGameMode(final String gameMode) {
         this.gameMode = gameMode;
+    }
+
+    public int getPlayerSize() {
+        return this.playerSize;
+    }
+
+    public void setPlayerSize(final int playerSize) {
+        this.playerSize = playerSize;
     }
 }
