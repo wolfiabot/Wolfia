@@ -45,25 +45,25 @@ public class StatsProvider {
 
     //SQL queries:
     //return all players a user ever was and join with data for the team and game
-    private static final String userQuery = "SELECT player_id, nickname, role, total_postlength, total_posts, user_id, stats_team.team_id, alignment, is_winner, stats_team.name as team_name, stats_game.game_id, channel_id, channel_name, end_time, start_time, guild_id, guild_name, game_mode, game_type FROM public.stats_player\n" +
+    private static final String userQuery = "SELECT player_id, nickname, role, total_postlength, total_posts, user_id, stats_team.team_id, stats_team.alignment, is_winner, stats_team.name as team_name, stats_game.game_id, channel_id, channel_name, end_time, start_time, guild_id, guild_name, game_mode, game_type FROM public.stats_player\n" +
             "INNER JOIN public.stats_team ON (stats_player.team_id = stats_team.team_id)\n" +
             "INNER JOIN public.stats_game ON (stats_team.game_id = stats_game.game_id)\n" +
             "WHERE user_id = :userId";
 
     //return all SHOOT actions where userId pulled the trigger; join with team data for the target
-    private static final String shatsQuery = "SELECT alignment, target FROM public.stats_action\n" +
+    private static final String shatsQuery = "SELECT stats_team.alignment, target FROM public.stats_action\n" +
             "INNER JOIN public.stats_player ON (stats_player.user_id = stats_action.target)\n" +
             "INNER JOIN public.stats_team ON (stats_team.team_id = stats_player.team_id)\n" +
             "INNER JOIN public.stats_game ON (stats_action.game_id = stats_game.game_id AND stats_team.game_id = stats_game.game_id)\n" +
             "WHERE (action_type = 'SHOOT' AND actor = :userId)";
 
     //selects the winning teams of all games in this guild
-    private static final String guildQuery = "SELECT stats_game.game_id, alignment FROM public.stats_game\n" +
+    private static final String guildQuery = "SELECT stats_game.game_id, stats_team.alignment FROM public.stats_game\n" +
             "INNER JOIN public.stats_team ON (stats_team.game_id = stats_game.game_id)\n" +
             "WHERE (is_winner = true AND guild_id = :guildId)";
 
     //selects the winning teams of all games ever
-    private static final String botQuery = "SELECT stats_game.game_id, alignment FROM public.stats_game\n" +
+    private static final String botQuery = "SELECT stats_game.game_id, stats_team.alignment FROM public.stats_game\n" +
             "INNER JOIN public.stats_team ON (stats_team.game_id = stats_game.game_id)\n" +
             "WHERE (is_winner = true)";
 

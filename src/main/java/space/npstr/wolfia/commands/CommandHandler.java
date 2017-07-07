@@ -118,9 +118,9 @@ public class CommandHandler {
             final MessageReceivedEvent ev = commandInfo.event;
             Throwable t = e;
             while (t != null) {
-                log.error("Exception {} while handling a command in guild {}, channel {}, user {}, invite {}",
-                        ev.getGuild().getIdLong(), ev.getChannel().getIdLong(), ev.getAuthor().getIdLong(),
-                        TextchatUtils.getOrCreateInviteLink(ev.getTextChannel()), t);
+                log.error("Exception `{}` while handling a command in guild {}, channel {}, user {}, invite {}",
+                        t.getMessage(), ev.getGuild().getIdLong(), ev.getChannel().getIdLong(),
+                        ev.getAuthor().getIdLong(), TextchatUtils.getOrCreateInviteLink(ev.getTextChannel()), t);
                 t = t.getCause();
             }
             Wolfia.handleOutputMessage(ev.getTextChannel(),
