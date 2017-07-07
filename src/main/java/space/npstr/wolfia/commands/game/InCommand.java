@@ -22,8 +22,10 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.Banlist;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.TextchatUtils;
 
@@ -57,6 +59,13 @@ public class InCommand implements ICommand {
             commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.inUser(u.getIdLong(),
                     setup::postStatus));
             return true;
+        }
+
+        if (DbWrapper.getEntity(commandInfo.event.getAuthor().getIdLong(), Banlist.class).getScope() == Scope.GLOBAL) {
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
+                    "%s, lol ur banned.",
+                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
+            return false;
         }
 
         setup.inUser(commandInfo.event.getAuthor().getIdLong(), setup::postStatus);

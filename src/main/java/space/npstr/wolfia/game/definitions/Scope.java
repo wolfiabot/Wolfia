@@ -23,6 +23,8 @@ package space.npstr.wolfia.game.definitions;
  * Just some scope definitions
  */
 public enum Scope {
+    NONE,
     CHANNEL,
-    GUILD
+    GUILD,
+    GLOBAL
 }

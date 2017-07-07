@@ -33,9 +33,9 @@ import java.util.concurrent.TimeUnit;
 public class TextchatUtils {
 
     public static final int MAX_MESSAGE_LENGTH = 2000;
-    private static final List<String> TRUE_TEXT = Arrays.asList("true", "yes", "enable", "y", "on", "1",
+    public static final List<String> TRUE_TEXT = Arrays.asList("true", "yes", "enable", "y", "on", "1",
             "positive", "+", "add", "start", "join", "ja");
-    private static final List<String> FALSE_TEXT = Arrays.asList("false", "no", "disable", "n", "off", "0",
+    public static final List<String> FALSE_TEXT = Arrays.asList("false", "no", "disable", "n", "off", "0",
             "negative", "-", "remove", "stop", "leave", "nein");
 
     public static boolean isTrue(final String input) {

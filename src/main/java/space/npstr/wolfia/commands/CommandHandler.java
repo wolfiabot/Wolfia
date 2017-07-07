@@ -34,6 +34,7 @@ import space.npstr.wolfia.commands.game.SetupCommand;
 import space.npstr.wolfia.commands.game.ShootCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
+import space.npstr.wolfia.commands.util.BanCommand;
 import space.npstr.wolfia.commands.util.BotStatsCommand;
 import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
 import space.npstr.wolfia.commands.util.GuildStatsCommand;
@@ -89,6 +90,7 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(ShutdownCommand.COMMAND, new ShutdownCommand());
         COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
         COMMAND_REGISTRY.put(RegisterPrivateServerCommand.COMMAND, new RegisterPrivateServerCommand());
+        COMMAND_REGISTRY.put(BanCommand.COMMAND, new BanCommand());
     }
 
     public static void handleCommand(final CommandParser.CommandContainer commandInfo) {
