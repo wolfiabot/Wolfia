@@ -69,6 +69,9 @@ public class DbManager {
         this.hikariDs.setConnectionTestQuery("SELECT 1;");
         final Properties props = new Properties();
         props.setProperty("ApplicationName", "Wolfia_" + (Config.C.isDebug ? "DEBUG" : "PROD") + "_" + App.VERSION);
+        // allow postgres to cast strings (varchars) more freely to actual column types
+        // source https://jdbc.postgresql.org/documentation/head/connect.html
+        props.setProperty("stringtype", "unspecified");
         this.hikariDs.setDataSourceProperties(props);
 
         // jpa

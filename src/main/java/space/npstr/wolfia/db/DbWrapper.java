@@ -20,6 +20,7 @@ package space.npstr.wolfia.db;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.entity.Hstore;
 import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.db.entity.stats.GameStats;
@@ -295,6 +296,29 @@ public class DbWrapper {
         } catch (final PersistenceException e) {
             log.error("Failed to delete entity id {} of class {}", id, clazz.getSimpleName(), e);
             throw new DatabaseException("Failed to delete entity", e);
+        } finally {
+            em.close();
+        }
+    }
+
+
+    //########## hstore stuff
+
+    public static Hstore getHstore(final String name) {
+        final DbManager dbManager = Wolfia.dbManager;
+        final EntityManager em = dbManager.getEntityManager();
+        try {
+            Hstore hstore = em.find(Hstore.class, name);
+
+            //create a fresh one
+            if (hstore == null) {
+                hstore = new Hstore(name);
+            }
+
+            return hstore;
+        } catch (final PersistenceException e) {
+            log.error("Failed to load hstore of name {}", name, e);
+            throw new DatabaseException("Failed to load hstore", e);
         } finally {
             em.close();
         }

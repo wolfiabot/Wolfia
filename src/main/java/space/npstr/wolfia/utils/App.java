@@ -36,6 +36,7 @@ public class App {
     public static long OWNER_ID = 166604053629894657L;//Napster
     public static String INVITE_LINK = "https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot";
     public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";
+    public static final long WOLFIA_LOUNGE_ID = 315944983754571796L;
     public static final String WEBSITE = "http://wolfia.space";
     public static final String GAME_STATUS = Config.PREFIX + HelpCommand.COMMAND + " | " + WEBSITE;
     public static String DESCRIPTION = "Play Werewolf/Mafia games on Discord!";

@@ -26,6 +26,8 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -38,13 +40,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.Hstore;
 import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.stats.GeneralBotStats;
 import space.npstr.wolfia.db.entity.stats.MessageOutputStats;
 import space.npstr.wolfia.game.Games;
 import space.npstr.wolfia.utils.App;
+import space.npstr.wolfia.utils.ImgurAlbum;
+import space.npstr.wolfia.utils.SimpleCache;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,15 +81,17 @@ public class Wolfia {
     public static boolean maintenanceFlag = false;
     public static Wolfia wolfia;
 
+    //default on fail handler for all queues()
+    public static Consumer<Throwable> defaultOnFail;
+
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
     //for long running, repeating and/or scheduled tasks
     private static final ScheduledThreadPoolExecutor scheduledExecutor = new ScheduledThreadPoolExecutor(1);
     private static final List<ScheduledFuture> runningTasks = new ArrayList<>();
 
-    public final CommandListener commandListener;
+    private static final ImgurAlbum avatars = new ImgurAlbum(Config.C.avatars);
 
-    //default on fail handler for all queues()
-    public static Consumer<Throwable> defaultOnFail;
+    public final CommandListener commandListener;
 
     //set up things that are crucial
     //if something fails exit right away
@@ -120,6 +128,28 @@ public class Wolfia {
 
         //post stats every 10 minutes
         scheduleAtFixedRate(Wolfia::postBotStats, 1, 10, TimeUnit.MINUTES);
+
+        //set up a random avatar and change every 2 hours
+        final Hstore defaultHstore = Hstore.load();
+        final int lastIndex = Integer.valueOf(defaultHstore.get("avatarLastIndex", "-1"));
+        avatars.setLastIndex(lastIndex);
+        avatars.get(lastIndex);
+
+        final long lastUpdated = Long.valueOf(defaultHstore.get("avatarLastUpdated", "0"));
+        final long initialDelay = lastUpdated - System.currentTimeMillis() + TimeUnit.HOURS.toMillis(2);
+        log.info("Updating avatar in {}ms", initialDelay);
+
+        scheduleAtFixedRate(() -> {
+            try {
+                setAvatars(Icon.from(SimpleCache.getImageFromURL(avatars.getNext())));
+                Hstore.loadAndSet("avatarLastIndex", Integer.toString(avatars.getLastIndex()))
+                        .set("avatarLastUpdated", Long.toString(System.currentTimeMillis()))
+                        .save();
+                log.info("Avatar updated");
+            } catch (final IOException e) {
+                log.error("Could not set avatar.", e);
+            }
+        }, initialDelay, TimeUnit.HOURS.toMillis(2), TimeUnit.MILLISECONDS);
     }
 
     public static void scheduleAtFixedRate(final Runnable task, final long initialDelay, final long period, final TimeUnit timeUnit) {
@@ -177,6 +207,15 @@ public class Wolfia {
                     App.DESCRIPTION = appInfo.getDescription();
                 },
                 t -> log.error("Could not load application info", t));
+    }
+
+    //set avatar for bot and wolfia lounge
+    private static void setAvatars(final Icon icon) {
+        final Guild wolfiaLounge = jda.getGuildById(App.WOLFIA_LOUNGE_ID);
+        jda.getSelfUser().getManager().setAvatar(icon).queue(null, defaultOnFail);
+        if (!Config.C.isDebug && wolfiaLounge != null && wolfiaLounge.getSelfMember().hasPermission(Permission.MANAGE_SERVER)) {
+            wolfiaLounge.getManager().setIcon(icon).queue(null, defaultOnFail);
+        }
     }
 
     //################## message handling + tons of overloaded methods

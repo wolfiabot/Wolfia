@@ -53,53 +53,34 @@ public class Config {
         C = c;
     }
 
-    //config
     public final boolean isDebug;
-
-    //sneaky sneaky
     public final String discordToken;
-    public final String redisAuth;
     public final String errorLogWebHook;
     public final String jdbcUrl;
+    public final String imgurClientId;
+    public final String avatars;
 
     @SuppressWarnings(value = "unchecked")
     public Config() throws IOException {
 
         final File sneakyFile = new File("sneaky.yaml");
-        final File configFile = new File("config.yaml");
-
         final Yaml yaml = new Yaml();
-
-        final Map<String, Object> config = (Map<String, Object>) yaml.loadAs(new FileReader(configFile), Map.class);
         final Map<String, Object> sneaky = (Map<String, Object>) yaml.load(new FileReader(sneakyFile));
         //change nulls to empty strings
-        config.keySet().forEach((String key) -> config.putIfAbsent(key, ""));
         sneaky.keySet().forEach((String key) -> sneaky.putIfAbsent(key, ""));
 
-        //config stuff
-        this.isDebug = (boolean) config.getOrDefault("debug", false);
+        //where are we running?
+        this.isDebug = (boolean) sneaky.getOrDefault("isDebug", false);
+
+        final Map<String, String> values;
+        if (this.isDebug) values = (Map) sneaky.get("debug");
+        else values = (Map) sneaky.get("prod");
 
         //sneaky stuff
-        final Map<String, String> tokens = (Map) sneaky.get("discordToken");
-        if (tokens != null)
-            if (this.isDebug)
-                this.discordToken = tokens.getOrDefault("debug", "");
-            else
-                this.discordToken = tokens.getOrDefault("prod", "");
-        else
-            this.discordToken = "";
-
-        final Map<String, String> redis = (Map) sneaky.get("redisAuth");
-        if (redis != null)
-            if (this.isDebug)
-                this.redisAuth = redis.getOrDefault("debug", "");
-            else
-                this.redisAuth = redis.getOrDefault("prod", "");
-        else
-            this.redisAuth = "";
-
-        this.errorLogWebHook = (String) sneaky.getOrDefault("errorLogWebHook", "");
-
-        this.jdbcUrl = (String) sneaky.getOrDefault("jdbcUrl", "");
+        this.discordToken = values.getOrDefault("discordToken", "");
+        this.errorLogWebHook = values.getOrDefault("errorLogWebHook", "");
+        this.jdbcUrl = values.getOrDefault("jdbcUrl", "");
+        this.imgurClientId = values.getOrDefault("imgurClientId", "");
+        this.avatars = values.getOrDefault("avatars", "");
     }
 }
