@@ -74,7 +74,7 @@
 
     <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n```java%n%ex{full}%n```</pattern>
+            <pattern>%d{HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n```%ex{full}%n```</pattern>
         </layout>
         <username>Discurd</username>
         <avatarUrl>

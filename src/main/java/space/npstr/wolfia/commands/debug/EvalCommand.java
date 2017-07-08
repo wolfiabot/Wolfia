@@ -89,7 +89,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
             return true;
         }
 
-        channel.sendTyping().queue();
+        channel.sendTyping().queue(null, Wolfia.defaultOnFail);
 
         final int timeOut;
         if (commandInfo.args.length > 1 && (commandInfo.args[0].equals("-t") || commandInfo.args[0].equals("timeout"))) {

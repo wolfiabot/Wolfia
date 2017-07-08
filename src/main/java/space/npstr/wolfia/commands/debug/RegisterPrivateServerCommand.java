@@ -64,10 +64,10 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
 
         //set up the looks
         //- give the server a name
-        g.getManager().setName("Wolfia Private Server").queue();
+        g.getManager().setName("Wolfia Private Server").queue(null, Wolfia.defaultOnFail);
         //- give the server a logo
         try {
-            g.getManager().setIcon(Icon.from(getClass().getResourceAsStream("/img/popcorn_mafia_guy.png"))).queue();
+            g.getManager().setIcon(Icon.from(getClass().getResourceAsStream("/img/popcorn_mafia_guy.png"))).queue(null, Wolfia.defaultOnFail);
         } catch (final IOException ex) {
             log.error("Could not set icon for guild {}", g.getIdLong(), e);
             return false;
@@ -76,9 +76,9 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
         //set up rights:
         //- deny creating invites
         //- deny reading messages
-        g.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue();
+        g.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue(null, Wolfia.defaultOnFail);
         //- deny writing messages in #general
-        RoleAndPermissionUtils.deny(g.getPublicChannel(), g.getPublicRole(), Permission.MESSAGE_WRITE).queue();
+        RoleAndPermissionUtils.deny(g.getPublicChannel(), g.getPublicRole(), Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);
 
         //set up #general
         //- post a message about welcoming the scum team, and their channel being set up (just click it on the left side etc.)
@@ -92,7 +92,7 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
         Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(pg);
         Wolfia.jda.addEventListener(pg);
         Wolfia.wolfia.commandListener.addIgnoredGuild(pg.getId());
-        g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue();
+        g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue(null, Wolfia.defaultOnFail);
         return true;
     }
 }

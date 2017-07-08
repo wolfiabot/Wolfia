@@ -87,8 +87,8 @@ public class RoleAndPermissionUtils {
     private enum PermissionAction {GRANT, DENY, CLEAR}
 
     //i personally allow this thing to be ugly
-    private static RestAction setPermissionsInChannelForRoleOrMember(final Channel channel, final IPermissionHolder memberOrRole,
-                                                                     final PermissionAction action, final Permission... permissions) {
+    private static RestAction<?> setPermissionsInChannelForRoleOrMember(final Channel channel, final IPermissionHolder memberOrRole,
+                                                                        final PermissionAction action, final Permission... permissions) {
         //dont bitch about a nonexisting role/member
         if (memberOrRole == null) {
             log.warn("setPermissionsInChannelForRoleOrMember() called with a null member/role. Fix your code dude. " +
@@ -170,15 +170,15 @@ public class RoleAndPermissionUtils {
      * @param memberOrRole Member or Role that will be granted/denied the permission
      * @param permissions  Permissions that shall be granted/denied to the member/role
      */
-    public static RestAction grant(final Channel channel, final IPermissionHolder memberOrRole, final Permission... permissions) {
+    public static RestAction<?> grant(final Channel channel, final IPermissionHolder memberOrRole, final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.GRANT, permissions);
     }
 
-    public static RestAction deny(final Channel channel, final IPermissionHolder memberOrRole, final Permission... permissions) {
+    public static RestAction<?> deny(final Channel channel, final IPermissionHolder memberOrRole, final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.DENY, permissions);
     }
 
-    public static RestAction clear(final Channel channel, final IPermissionHolder memberOrRole, final Permission... permissions) {
+    public static RestAction<?> clear(final Channel channel, final IPermissionHolder memberOrRole, final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.CLEAR, permissions);
     }
 

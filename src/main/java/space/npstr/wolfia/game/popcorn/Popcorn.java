@@ -363,7 +363,7 @@ public class Popcorn extends Game {
         } else { //lets wolves do it
             for (final Player player : getLivingPlayers()) {
                 RoleAndPermissionUtils.deny(channel, channel.getGuild().getMemberById(player.userId),
-                        Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue();
+                        Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue(null, Wolfia.defaultOnFail);
             }
             new GunDistribution();
         }
@@ -389,7 +389,7 @@ public class Popcorn extends Game {
         if (this.mode != GameMode.WILD) {
             for (final Player player : getLivingPlayers()) {
                 RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
-                        Permission.MESSAGE_WRITE).queue();
+                        Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);
             }
         }
 
@@ -443,7 +443,7 @@ public class Popcorn extends Game {
             return; //we're done here
         }
         if (this.mode != GameMode.WILD) {
-            RoleAndPermissionUtils.deny(channel, g.getMemberById(toBeKilled), Permission.MESSAGE_WRITE).queue();
+            RoleAndPermissionUtils.deny(channel, g.getMemberById(toBeKilled), Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);
         }
         doIfGameIsntOver.accept(survivor);
     }
@@ -645,7 +645,7 @@ public class Popcorn extends Game {
 
             Wolfia.handleOutputEmbed(wolfchatChannel,
                     prepareGunDistributionEmbed(options, Collections.unmodifiableMap(this.votes)).build(), m -> {
-                        options.keySet().forEach(emoji -> m.addReaction(emoji).queue());
+                        options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, Wolfia.defaultOnFail));
                         Wolfia.jda.addEventListener(new ReactionListener(m,
                                 //filter: only living wolves may vote
                                 Popcorn.this::isLivingWolf,
@@ -655,7 +655,7 @@ public class Popcorn extends Game {
                                     if (p == null) return;
                                     voted(reactionEvent.getUser().getIdLong(), p.userId);
                                     m.editMessage(prepareGunDistributionEmbed(options,
-                                            Collections.unmodifiableMap(this.votes)).build()).queue();
+                                            Collections.unmodifiableMap(this.votes)).build()).queue(null, Wolfia.defaultOnFail);
                                 },
                                 TIME_TO_DISTRIBUTE_GUN_MILLIS,
                                 aVoid -> endDistribution(Collections.unmodifiableMap(this.votes),

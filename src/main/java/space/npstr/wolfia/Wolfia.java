@@ -82,10 +82,14 @@ public class Wolfia {
 
     public final CommandListener commandListener;
 
+    //default on fail handler for all queues()
+    public static Consumer<Throwable> defaultOnFail;
+
     //set up things that are crucial
     //if something fails exit right away
     public static void main(final String[] args) {
         Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
+        defaultOnFail = t -> log.error("Exception during queue(): {}", t.getMessage(), t);
 
         //reroute JDA logging to our system
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -243,7 +247,9 @@ public class Wolfia {
     }
 
     //embeds
-    private static Optional<Message> handleOutputEmbed(final boolean complete, final MessageChannel channel, final MessageEmbed msgEmbed, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail) {
+    private static Optional<Message> handleOutputEmbed(final boolean complete, final MessageChannel channel,
+                                                       final MessageEmbed msgEmbed, final Consumer<Message> onSuccess,
+                                                       final Consumer<Throwable> onFail) {
         //check for embed permissions in a guild text channel
         if (channel instanceof TextChannel) {
             final TextChannel tc = (TextChannel) channel;
@@ -264,7 +270,7 @@ public class Wolfia {
                     executor.submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
                     if (onSuccess != null) onSuccess.accept(message);
                 };
-                ra.queue(wrappedSuccess, onFail);
+                ra.queue(wrappedSuccess, onFail != null ? onFail : defaultOnFail);
             }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);

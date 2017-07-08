@@ -127,7 +127,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
 
         //kick everyone who isn't allowed
         if (!this.allowedUsers.contains(event.getMember().getUser().getIdLong())) {
-            final Consumer whenDone = aVoid -> event.getGuild().getController().kick(event.getMember()).queue();
+            final Consumer whenDone = aVoid -> event.getGuild().getController().kick(event.getMember()).queue(null, Wolfia.defaultOnFail);
             Wolfia.handlePrivateOutputMessage(event.getMember().getUser().getIdLong(), whenDone, whenDone,
                     "You are not allowed to join private guild #%s currently.", this.privateGuildNumber);
             return;
@@ -135,7 +135,8 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
 
         final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME).complete();
         event.getGuild().getController().addRolesToMember(event.getMember(), wolf).queue(
-                aVoid -> Wolfia.handleOutputMessage(this.currentChannelId, "%s, welcome to wolf chat!", event.getMember().getAsMention())
+                aVoid -> Wolfia.handleOutputMessage(this.currentChannelId, "%s, welcome to wolf chat!", event.getMember().getAsMention()),
+                Wolfia.defaultOnFail
         );
     }
 
@@ -156,7 +157,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
 
             //give the wolfrole access to it
             RoleAndPermissionUtils.grant(wolfChannel, RoleAndPermissionUtils.getOrCreateRole(g, WOLF_ROLE_NAME).complete(),
-                    Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue();
+                    Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue(null, Wolfia.defaultOnFail);
         } catch (final Exception e) {
             endUsage();
             throw new RuntimeException("Could not begin the usage of private guild #" + this.privateGuildNumber, e);
@@ -167,7 +168,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
     private void cleanUpMembers() {
         final Guild g = Wolfia.jda.getGuildById(this.guildId);
         this.allowedUsers.clear();
-        g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.getController().kick(m).queue());
+        g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.getController().kick(m).queue(null, Wolfia.defaultOnFail));
     }
 
     public synchronized void endUsage() {
