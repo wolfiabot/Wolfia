@@ -16,12 +16,12 @@
  */
 
 function requestDataPoint(path, series, updateInterval, range = 0) {
-    var xhttp = new XMLHttpRequest();
+    const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4) {
             if (this.status === 200) {
-                var shift = range > 0 && series.data.length > range; // shift if the series is longer than the range
-                var point = JSON.parse(this.responseText);
+                const shift = range > 0 && series.data.length > range; // shift if the series is longer than the range
+                const point = JSON.parse(this.responseText);
                 //only add it if it it not the same as the last point
                 if (series.data.length < 1 || series.data[series.data.length - 1].x !== point[0]) {
                     series.addPoint(point, true, shift);
@@ -39,12 +39,11 @@ function requestDataPoint(path, series, updateInterval, range = 0) {
 
 //period = time in milliseconds for which this should show data, by default the last hour
 function requestPeriodicData(path, series, updateInterval, period = 3600000) {
-    var xhttp = new XMLHttpRequest();
+    const xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4) {
             if (this.status === 200) {
                 // set the data
-                console.log(this.responseText);
                 series.setData(JSON.parse(this.responseText), true);
             }
             // request updates
@@ -53,74 +52,20 @@ function requestPeriodicData(path, series, updateInterval, period = 3600000) {
             }, updateInterval);
         }
     };
-    var since = new Date().valueOf() - period;
-    var params = "?since=" + since;
+    const since = new Date().valueOf() - period;
+    const params = "?since=" + since;
     xhttp.open("GET", path + params, true);
     xhttp.send();
 }
 
-// function getSeries(names, datas) {
-//     var result = [];
-//     //is this an array? then create several series
-//     if (Array.isArray(names)) {
-//         for (var i = 0; i < names.length; i++) {
-//             var series = {};
-//             series.name = names[i];
-//             series.data = datas[i];
-//             result.push(series);
-//         }
-//     } else {
-//         result.push({name: names, data: datas});
-//     }
-//     return result;
-// }
-
-// function createLiveDateTimeChart(element, dataGetPath, title, initialData, updateInterval, max = 100, range = 0) {
-//     return Highcharts.chart(element, {
-//         chart: {
-//             type: 'spline',
-//             events: {
-//                 load: function () {
-//                     // requestData(dataGetPath, this.series[0], updateInterval, range);
-//                     requestDataPoint(dataGetPath + "/latest", this.series[0], updateInterval, range);
-//                 }
-//             }
-//         },
-//         title: {
-//             text: title
-//         },
-//         xAxis: {
-//             type: 'datetime',
-//             minRange: range * updateInterval
-//         },
-//         yAxis: {
-//             min: 0,
-//             max: max
-//         },
-//         plotOptions: {
-//             spline: {
-//                 marker: {
-//                     enabled: false
-//                 }
-//             }
-//         },
-//         // series: getSeries(seriesNames, initialDatas)
-//         series: [{
-//             name: title,
-//             data: initialData
-//         }]
-//     });
-// }
-
 function getLiveChartOptions(dataGetPath, title, initialData = [], updateInterval = 800, range = 20, max = -1) {
-    var chartOptions = getDefaultChartOptions(dataGetPath, title, initialData, updateInterval, range);
+    const chartOptions = getDefaultChartOptions(dataGetPath, title, initialData, updateInterval, range);
     chartOptions.xAxis.minRange = range * updateInterval;
     if (max > -1) {
         chartOptions.yAxis.max = max;
     }
     return chartOptions;
 }
-
 
 function getDefaultChartOptions(dataGetPath, title, initialData = [], updateInterval = 60000, range = 0) {
     return {
@@ -153,7 +98,6 @@ function getDefaultChartOptions(dataGetPath, title, initialData = [], updateInte
                 }
             }
         },
-        // series: getSeries(seriesNames, initialDatas)
         series: [{
             name: title,
             data: initialData

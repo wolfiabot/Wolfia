@@ -21,6 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.stats.CommandStats;
@@ -62,8 +63,18 @@ public class Charts {
 
     private Charts() {
         Spark.port(4567);
-        Spark.staticFileLocation("/spark");
+
+        if (Config.C.isDebug) {
+            final String projectDir = System.getProperty("user.dir");
+            final String staticDir = "/src/main/resources/spark";
+            Spark.staticFiles.externalLocation(projectDir + staticDir);
+        } else {
+            Spark.staticFiles.location("/spark");
+            Spark.ipAddress("127.0.0.1"); //only listen to loopback that will be provided by an nginx reverse proxy
+        }
+
         Spark.before(
+                (rq, rs) -> log.debug("Request received from {} for {}{}", rq.ip(), rq.url(), paramsToString(rq.queryString())),
                 //redirect root requests to the charts view
                 (rq, rs) -> {
                     if ("/".equals(rq.pathInfo())) {
@@ -398,5 +409,9 @@ public class Charts {
     private static long extractSince(final Request request, final long defaultValue) {
         final String since = request.queryParams("since");
         return since == null ? defaultValue : Long.valueOf(since);
+    }
+
+    private static String paramsToString(final String query) {
+        return query == null ? "" : "?" + query;
     }
 }

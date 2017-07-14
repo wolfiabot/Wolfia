@@ -15,10 +15,15 @@
   ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
-<html lang="en">
+<html lang="en" class="html">
 <head>
     <meta charset="UTF-8">
     <title>Wolfia Charts</title>
+    <!--suppress HtmlUnknownTarget -->
+    <link rel="icon" href="/favicon.ico">
+
+    <!--suppress HtmlUnknownTarget -->
+    <link rel="stylesheet" type="text/css" href="css/charts.css">
     <!--suppress HtmlUnknownTarget -->
     <script src="scripts/highchart/highcharts.js"></script>
     <!--suppress HtmlUnknownTarget -->
@@ -28,40 +33,38 @@
     <!--suppress HtmlUnknownTarget -->
     <script src="js/charts.js"></script>
 </head>
-<body style="margin: 0">
-<!-- @formatter:off -->
-<div id="command_charts"                                 style="width: 100%; display: flex">
-    <div id="command_execution_duration_livechart"       style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
-    <div id="command_execution_duration_last_hour_chart" style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
+<body class="body">
+<div class="chart_column">
+    <div class="chart_row">
+        <div class="chart" id="command_execution_duration_livechart"></div>
+        <div class="chart" id="command_execution_duration_last_hour_chart"></div>
+        <div class="chart" id="randomdata_livechart"></div>
+    </div>
+    <div class="chart_row">
+        <div class="chart" id="usercount_chart"></div>
+        <div class="chart" id="guildcount_chart"></div>
+        <div class="chart" id="gamesbeingplayedcount_chart"></div>
+    </div>
+    <div class="chart_row last_row">
+        <div class="chart" id="averageload_chart"></div>
+        <div class="chart" id="memory_chart"></div>
+        <div class="chart" id="availableprivateguildscount_chart"></div>
+    </div>
 </div>
-<div id="bot_charts"                                     style="width: 100%; display: flex">
-    <div id="usercount_chart"                            style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
-    <div id="guildcount_chart"                           style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
-</div>
-<div id="wolfia_charts"                                  style="width: 100%; display: flex">
-    <div id="gamesbeingplayedcount_chart"                style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
-    <div id="availableprivateguildscount_chart"          style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
-</div>
-<div id="technical_charts"                               style="width: 100%; display: flex">
-    <div id="averageload_chart"                          style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
-    <div id="memory_chart"                               style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
-</div>
-
-<div id="randomdata_livechart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
 <script>
+    createDateTimeChart("command_execution_duration_livechart",
+        getLiveChartOptions("commandstats/averageexecutionduration", "Average Command Execution Duration in ms", [], 1000, 100));
 
-    createDateTimeChart("command_execution_duration_livechart", getLiveChartOptions("commandstats/averageexecutionduration", "Average Command Execution Duration in ms", [], 1000, 100));
-
-    var oneHourMillis = 3600 * 1000;
-    var executionDurationLastHourPeriodicChartOptions = getDefaultChartOptions("", "Command Execution Duration Last Hour in ms");
-    executionDurationLastHourPeriodicChartOptions.chart.events.load = function() {
+    const oneHourMillis = 3600 * 1000;
+    const executionDurationLastHourPeriodicChartOptions = getDefaultChartOptions("", "Command Execution Duration Last Hour in ms");
+    executionDurationLastHourPeriodicChartOptions.chart.events.load = function () {
         requestPeriodicData("commandstats/executionduration", this.series[0], 10000, oneHourMillis);
     };
     executionDurationLastHourPeriodicChartOptions.xAxis.minRange = oneHourMillis;
     createDateTimeChart("command_execution_duration_last_hour_chart", executionDurationLastHourPeriodicChartOptions);
-    createDateTimeChart("randomdata_livechart",                 getLiveChartOptions("random",                                "Live Random Data",           [[${randomData}]], 800, 20, 100));
-
+    createDateTimeChart("randomdata_livechart", getLiveChartOptions("random", "Live Random Data", [[${randomData}]], 800, 20, 100));
+    // @formatter:off
     createDateTimeChart("usercount_chart",
         getDefaultChartOptions("generalbotstats/usercount",                   "User Count",               [[${userCountData}]]));
     createDateTimeChart("guildcount_chart",
@@ -76,7 +79,7 @@
         getDefaultChartOptions("generalbotstats/averageload",                 "Average Load",             [[${averageLoadData}]]));
     // @formatter:on
 
-    var memoryChartOptions = getDefaultChartOptions("", "Memory Stats");
+    const memoryChartOptions = getDefaultChartOptions("", "Memory Stats");
     memoryChartOptions.series = [];
     memoryChartOptions.series.push({name: "Max Memory", data: [[${maxMemoryData}]]});
     memoryChartOptions.series.push({name: "Total Memory", data: [[${totalMemoryData}]]});
