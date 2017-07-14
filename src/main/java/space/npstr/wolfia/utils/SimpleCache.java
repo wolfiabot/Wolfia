@@ -17,14 +17,12 @@
 
 package space.npstr.wolfia.utils;
 
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -55,7 +53,8 @@ public class SimpleCache {
                 final Matcher matcher = Pattern.compile("(\\.\\w+$)").matcher(url);
                 final String type = matcher.find() ? matcher.group(1) : "";
                 tmpFile = File.createTempFile(UUID.randomUUID().toString(), type);
-                is = Unirest.get(url).asBinary().getRawBody();
+                //noinspection ConstantConditions
+                is = new URL(url).openStream();
                 final FileWriter writer = new FileWriter(tmpFile);
                 fos = new FileOutputStream(tmpFile);
 
@@ -69,7 +68,7 @@ public class SimpleCache {
 
                 cachedURLFiles.put(url, tmpFile);
                 return tmpFile;
-            } catch (final IOException | UnirestException ex) {
+            } catch (final IOException ex) {
                 if (tmpFile != null) tmpFile.delete();
                 throw new RuntimeException(ex);
             }

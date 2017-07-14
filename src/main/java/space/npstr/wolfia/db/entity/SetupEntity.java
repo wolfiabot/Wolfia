@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.debug.MaintenanceCommand;
+import space.npstr.wolfia.commands.debug.ShutdownCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
@@ -198,7 +200,7 @@ public class SetupEntity implements IEntity {
     public synchronized boolean startGame(final long commandCallerId) throws IllegalGameStateException {
         //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
         synchronized (SetupEntity.class) {
-            if (Wolfia.maintenanceFlag) {
+            if (MaintenanceCommand.getMaintenanceFlag() || ShutdownCommand.getShutdownFlag()) {
                 Wolfia.handleOutputMessage(this.channelId, "The bot is under maintenance. Please try starting a game later.");
                 return false;
             }

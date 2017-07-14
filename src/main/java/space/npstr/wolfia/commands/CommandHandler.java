@@ -24,6 +24,7 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.debug.DbTestCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
+import space.npstr.wolfia.commands.debug.MaintenanceCommand;
 import space.npstr.wolfia.commands.debug.RegisterPrivateServerCommand;
 import space.npstr.wolfia.commands.debug.ShutdownCommand;
 import space.npstr.wolfia.commands.debug.UpdateCommand;
@@ -89,6 +90,7 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(EvalCommand.COMMAND, new EvalCommand());
         COMMAND_REGISTRY.put(ShutdownCommand.COMMAND, new ShutdownCommand());
         COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
+        COMMAND_REGISTRY.put(MaintenanceCommand.COMMAND, new MaintenanceCommand());
         COMMAND_REGISTRY.put(RegisterPrivateServerCommand.COMMAND, new RegisterPrivateServerCommand());
         COMMAND_REGISTRY.put(BanCommand.COMMAND, new BanCommand());
     }

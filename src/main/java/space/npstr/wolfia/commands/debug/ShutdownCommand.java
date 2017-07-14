@@ -41,13 +41,16 @@ public class ShutdownCommand implements ICommand, IOwnerRestricted {
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
-        Wolfia.maintenanceFlag = true;
         Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),
                 "%s, **%s** games are still running. Will shut down as soon as they are over.",
                 commandInfo.event.getAuthor().getAsMention(), Games.getRunningGamesCount());
 
         shutdownAfterGamesAreDoneWithCode(0);
         return true;
+    }
+
+    public static boolean getShutdownFlag() {
+        return shutdownInitiated;
     }
 
     public static synchronized void shutdownAfterGamesAreDoneWithCode(final int code) {
@@ -65,6 +68,6 @@ public class ShutdownCommand implements ICommand, IOwnerRestricted {
 
     @Override
     public String help() {
-        return "shuts down the bot";
+        return "Shut down the bot.";
     }
 }

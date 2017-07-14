@@ -89,6 +89,13 @@ public class Hstore {
         return this.hstore.getOrDefault(key, defaultValue);
     }
 
+    /**
+     * @return the requested value or null if it doesnt exist
+     */
+    public String get(final String key) {
+        return this.hstore.getOrDefault(key, null);
+    }
+
 
     // ########## static convenience stuff below
 

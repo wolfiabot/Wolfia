@@ -17,16 +17,15 @@
 
 package space.npstr.wolfia.utils;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -45,8 +44,6 @@ public class ImgurAlbum {
     //https://regex101.com/r/0TDxsu/2
     private static final Pattern IMGUR_ALBUM = Pattern.compile("^https?://imgur\\.com/a/([a-zA-Z0-9]+)$");
 
-    private volatile String etag = "";
-
     //contains the images that this class randomly serves
     private volatile String[] urls = {"http://i.imgur.com/KLXYGHG.png"};
 
@@ -54,7 +51,6 @@ public class ImgurAlbum {
 
     public ImgurAlbum(final String imgurAlbum) {
         //update the album every hour or so
-
         Wolfia.scheduleAtFixedRate(() -> {
             populateItems(imgurAlbum);
         }, 0, 1, TimeUnit.HOURS);
@@ -75,7 +71,7 @@ public class ImgurAlbum {
 
     public String getNext() {
         this.lastIndex++;
-        if (this.lastIndex > this.urls.length) this.lastIndex = 0;
+        if (this.lastIndex >= this.urls.length) this.lastIndex = 0;
         return this.urls[this.lastIndex];
     }
 
@@ -97,39 +93,32 @@ public class ImgurAlbum {
         }
 
         final String albumId = m.group(1);
-        final HttpResponse<JsonNode> response;
+        final Response response;
         try {
             synchronized (this) {
-                response = Unirest.get("https://api.imgur.com/3/album/" + albumId)
+                final Request rq = new Request.Builder()
+                        .url("https://api.imgur.com/3/album/" + albumId)
                         .header("Authorization", "Client-ID " + Config.C.imgurClientId)
-                        .header("If-None-Match", this.etag)
-                        .asJson();
+                        .build();
+                response = Wolfia.httpClient.newCall(rq).execute();
             }
-        } catch (final UnirestException e) {
+            if (response.isSuccessful()) {
+                //noinspection ConstantConditions
+                final JSONArray images = new JSONObject(response.body().string()).getJSONObject("data").getJSONArray("images");
+                final List<String> imageUrls = new ArrayList<>();
+                images.forEach(o -> imageUrls.add(((JSONObject) o).getString("link")));
+
+                synchronized (this) {
+                    this.urls = imageUrls.toArray(this.urls);
+                }
+                log.info("Refreshed imgur album " + imgurAlbumUrl);
+            } else {
+                //some other status
+                log.warn("Unexpected http status for imgur album request " + imgurAlbumUrl + ", response: " + response.toString());
+            }
+
+        } catch (final IOException | NullPointerException e) {
             log.error("Imgur down? Could not fetch imgur album " + imgurAlbumUrl, e);
-            return;
-        }
-
-        if (response.getStatus() == 200) {
-            final JSONArray images = response.getBody().getObject().getJSONObject("data").getJSONArray("images");
-            final List<String> imageUrls = new ArrayList<>();
-            images.forEach(o -> imageUrls.add(((JSONObject) o).getString("link")));
-
-            synchronized (this) {
-                this.urls = imageUrls.toArray(this.urls);
-                this.etag = response.getHeaders().getFirst("ETag");
-            }
-            log.info("Refreshed imgur album " + imgurAlbumUrl + ", new data found.");
-        }
-        //etag implementation: nothing has changed
-        //https://api.imgur.com/performancetips
-        else if (response.getStatus() == 304) {
-            //nothing to do here
-            log.info("Refreshed imgur album " + imgurAlbumUrl + ", no update.");
-        } else {
-            //some other status
-            log.warn("Unexpected http status for imgur album request " + imgurAlbumUrl + ", response: " + response.getBody().toString());
         }
     }
-
 }

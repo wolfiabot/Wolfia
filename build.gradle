@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id 'com.github.johnrengelman.shadow' version '2.0.0'
+    id 'com.github.johnrengelman.shadow' version '2.0.1'
     id 'com.sedmelluq.jdaction' version '1.0.2' //check for unused RestActions
 }
 
@@ -23,11 +23,12 @@ repositories {
 
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'net.dv8tion:JDA:3.1.1_219'                                             //discord API
+    compile 'net.dv8tion:JDA:3.1.1_223'                                             //discord API
     compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
     compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
     compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
     compile 'com.github.napstr:logback-discord-appender:0.0.2'      //log errors to a discord channel through a webhook
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'                                     //http client
 
     //database stuff
     compile 'org.postgresql:postgresql:42.1.1'                                      //postgres jdbc driver

@@ -36,6 +36,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
+import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.db.DbManager;
@@ -73,12 +74,12 @@ public class Wolfia {
 
     public static JDA jda;
     public static DbManager dbManager;
+    public static OkHttpClient httpClient = new OkHttpClient();
     public static final long START_TIME = System.currentTimeMillis();
     public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
     //for any fire and forget tasks that are expected to run for a short while only
     public static final ExecutorService executor = Executors.newCachedThreadPool();
     //true if a restart is planned, or live maintenance is happening, so games wont be able to be started
-    public static boolean maintenanceFlag = false;
     public static Wolfia wolfia;
 
     //default on fail handler for all queues()
@@ -368,7 +369,7 @@ public class Wolfia {
             //okHttpClient claims that a shutdown isn't necessary
 
             //shutdown JDA
-            jda.shutdown(true); //true will shut down the unirest client too
+            jda.shutdown();
 
             //shutdown executors
             executor.shutdown();
