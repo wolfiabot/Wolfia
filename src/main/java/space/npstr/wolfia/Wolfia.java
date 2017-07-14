@@ -39,6 +39,7 @@ import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.charts.Charts;
 import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.Hstore;
@@ -125,7 +126,11 @@ public class Wolfia {
         AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(DbWrapper.loadPrivateGuilds());
         log.info("{} private guilds loaded", AVAILABLE_PRIVATE_GUILD_QUEUE.size());
 
+        //start the bot
         wolfia = new Wolfia();
+
+        //fire up spark
+        Charts.spark();
 
         //post stats every 10 minutes
         scheduleAtFixedRate(Wolfia::postBotStats, 1, 10, TimeUnit.MINUTES);

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'space.npstr'
-version = '0.7.12-SNAPSHOT'
+version = '0.7.13-SNAPSHOT'
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
@@ -34,6 +34,11 @@ dependencies {
     compile 'org.postgresql:postgresql:42.1.1'                                      //postgres jdbc driver
     compile 'org.hibernate:hibernate-entitymanager:5.2.10.Final'                    //hibernate + JPA
     compile 'com.zaxxer:HikariCP:2.6.3'                                             //connection pool
+
+    //charts stuff
+    compile 'com.sparkjava:spark-core:2.6.0'
+    compile 'com.sparkjava:spark-template-thymeleaf:2.5.5'
+    compile 'org.thymeleaf:thymeleaf:3.0.6.RELEASE'
 }
 
 task wrapper(type: Wrapper) {

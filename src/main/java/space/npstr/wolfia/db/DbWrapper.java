@@ -92,7 +92,9 @@ public class DbWrapper {
         final EntityManager em = dbManager.getEntityManager();
         try {
             final Query query = em.createQuery(queryString);
-            parameters.forEach(query::setParameter);
+            if (parameters != null) {
+                parameters.forEach(query::setParameter);
+            }
             em.getTransaction().begin();
             final int updatedOrDeleted = query.executeUpdate();
             em.getTransaction().commit();
@@ -243,7 +245,9 @@ public class DbWrapper {
         final EntityManager em = dbManager.getEntityManager();
         try {
             final TypedQuery<T> q = em.createQuery(queryString, resultClass);
-            parameters.forEach(q::setParameter);
+            if (parameters != null) {
+                parameters.forEach(q::setParameter);
+            }
             if (offset > -1) q.setFirstResult(offset);
             if (limit > -1) q.setMaxResults(limit);
             return q.getResultList();
@@ -274,6 +278,44 @@ public class DbWrapper {
 
     public static <T> List<T> selectJPQLQuery(final String queryString, final Class<T> resultClass) throws DatabaseException {
         return selectJPQLQuery(queryString, Collections.emptyMap(), resultClass, -1);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> selectPlainSqlQueryList(final String queryString, final Map<String, Object> parameters,
+                                                      final Class<T> resultClass) throws DatabaseException {
+        final DbManager dbManager = Wolfia.dbManager;
+        final EntityManager em = dbManager.getEntityManager();
+        try {
+            final Query q = em.createNativeQuery(queryString, resultClass);
+            if (parameters != null) {
+                parameters.forEach(q::setParameter);
+            }
+            return (List<T>) q.getResultList();
+        } catch (final PersistenceException e) {
+            log.error("Failed to select SQL query {}", queryString, e);
+            throw new DatabaseException("Failed to select SQL query", e);
+        } finally {
+            em.close();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T selectPlainSqlQuerySingleResult(final String queryString, final Map<String, Object> parameters,
+                                                        final Class<T> resultClass) throws DatabaseException {
+        final DbManager dbManager = Wolfia.dbManager;
+        final EntityManager em = dbManager.getEntityManager();
+        try {
+            final Query q = em.createNativeQuery(queryString);
+            if (parameters != null) {
+                parameters.forEach(q::setParameter);
+            }
+            return resultClass.cast(q.getSingleResult());
+        } catch (final PersistenceException e) {
+            log.error("Failed to select SQL query {}", queryString, e);
+            throw new DatabaseException("Failed to select SQL query", e);
+        } finally {
+            em.close();
+        }
     }
 
     //########## deletion

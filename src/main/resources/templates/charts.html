@@ -1,0 +1,95 @@
+<!--
+  ~ Copyright (C) 2017 Dennis Neufeld
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Affero General Public License as published
+  ~ by the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Affero General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Affero General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wolfia Charts</title>
+    <!--suppress HtmlUnknownTarget -->
+    <script src="scripts/highchart/highcharts.js"></script>
+    <!--suppress HtmlUnknownTarget -->
+    <script src="scripts/highchart/modules/exporting.js"></script>
+    <!--suppress HtmlUnknownTarget -->
+    <script src="js/theme_dark_unica.js"></script>
+    <!--suppress HtmlUnknownTarget -->
+    <script src="js/charts.js"></script>
+</head>
+<body style="margin: 0">
+<!-- @formatter:off -->
+<div id="command_charts"                                 style="width: 100%; display: flex">
+    <div id="command_execution_duration_livechart"       style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
+    <div id="command_execution_duration_last_hour_chart" style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
+</div>
+<div id="bot_charts"                                     style="width: 100%; display: flex">
+    <div id="usercount_chart"                            style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
+    <div id="guildcount_chart"                           style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
+</div>
+<div id="wolfia_charts"                                  style="width: 100%; display: flex">
+    <div id="gamesbeingplayedcount_chart"                style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
+    <div id="availableprivateguildscount_chart"          style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
+</div>
+<div id="technical_charts"                               style="width: 100%; display: flex">
+    <div id="averageload_chart"                          style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
+    <div id="memory_chart"                               style="width: 100%; min-width: 310px; height: 300px; margin: 0 auto"></div>
+</div>
+
+<div id="randomdata_livechart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+<script>
+
+    createDateTimeChart("command_execution_duration_livechart", getLiveChartOptions("commandstats/averageexecutionduration", "Average Command Execution Duration in ms", [], 1000, 100));
+
+    var oneHourMillis = 3600 * 1000;
+    var executionDurationLastHourPeriodicChartOptions = getDefaultChartOptions("", "Command Execution Duration Last Hour in ms");
+    executionDurationLastHourPeriodicChartOptions.chart.events.load = function() {
+        requestPeriodicData("commandstats/executionduration", this.series[0], 10000, oneHourMillis);
+    };
+    executionDurationLastHourPeriodicChartOptions.xAxis.minRange = oneHourMillis;
+    createDateTimeChart("command_execution_duration_last_hour_chart", executionDurationLastHourPeriodicChartOptions);
+    createDateTimeChart("randomdata_livechart",                 getLiveChartOptions("random",                                "Live Random Data",           [[${randomData}]], 800, 20, 100));
+
+    createDateTimeChart("usercount_chart",
+        getDefaultChartOptions("generalbotstats/usercount",                   "User Count",               [[${userCountData}]]));
+    createDateTimeChart("guildcount_chart",
+        getDefaultChartOptions("generalbotstats/guildcount",                  "Guild Count",              [[${guildCountData}]]));
+
+    createDateTimeChart("gamesbeingplayedcount_chart",
+        getDefaultChartOptions("generalbotstats/gamesbeingplayedcount",       "Running Games",            [[${gamesBeingPlayedCountData}]]));
+    createDateTimeChart("availableprivateguildscount_chart",
+        getDefaultChartOptions("generalbotstats/availableprivateguildscount", "Available Private Guilds", [[${availablePrivateGuildsCountData}]]));
+
+    createDateTimeChart("averageload_chart",
+        getDefaultChartOptions("generalbotstats/averageload",                 "Average Load",             [[${averageLoadData}]]));
+    // @formatter:on
+
+    var memoryChartOptions = getDefaultChartOptions("", "Memory Stats");
+    memoryChartOptions.series = [];
+    memoryChartOptions.series.push({name: "Max Memory", data: [[${maxMemoryData}]]});
+    memoryChartOptions.series.push({name: "Total Memory", data: [[${totalMemoryData}]]});
+    memoryChartOptions.series.push({name: "Free Memory", data: [[${freeMemoryData}]]});
+
+    memoryChartOptions.chart.events.load = function () {
+        requestDataPoint("generalbotstats/maxmemory/latest", this.series[0], 60000);
+        requestDataPoint("generalbotstats/totalmemory/latest", this.series[1], 60000);
+        requestDataPoint("generalbotstats/freememory/latest", this.series[2], 60000);
+    };
+    createDateTimeChart("memory_chart", memoryChartOptions);
+
+</script>
+</body>
+</html>
+
