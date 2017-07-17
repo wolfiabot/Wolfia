@@ -37,6 +37,7 @@ import static java.util.stream.Collectors.toList;
  * <p>
  * Helpful and/or ugly and therefore hidden away database related methods
  */
+//todo think about retrieving the data as JSON from postgres instead of piping it through this abomination
 public class DbUtils {
 
 

@@ -26,8 +26,12 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.game.definitions.Alignments;
 
 import javax.persistence.EntityManager;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,39 +48,90 @@ public class StatsProvider {
     private static final Logger log = LoggerFactory.getLogger(StatsProvider.class);
 
     //SQL queries:
-    //return all players a user ever was and join with data for the team and game
-    private static final String userQuery = "SELECT player_id, nickname, role, total_postlength, total_posts, user_id, stats_team.team_id, stats_team.alignment, is_winner, stats_team.name as team_name, stats_game.game_id, channel_id, channel_name, end_time, start_time, guild_id, guild_name, game_mode, game_type FROM public.stats_player\n" +
-            "INNER JOIN public.stats_team ON (stats_player.team_id = stats_team.team_id)\n" +
-            "INNER JOIN public.stats_game ON (stats_team.game_id = stats_game.game_id)\n" +
-            "WHERE user_id = :userId";
+    private class Queries {
 
-    //return all SHOOT actions where userId pulled the trigger; join with team data for the target
-    private static final String shatsQuery = "SELECT stats_team.alignment, target FROM public.stats_action\n" +
-            "INNER JOIN public.stats_player ON (stats_player.user_id = stats_action.target)\n" +
-            "INNER JOIN public.stats_team ON (stats_team.team_id = stats_player.team_id)\n" +
-            "INNER JOIN public.stats_game ON (stats_action.game_id = stats_game.game_id AND stats_team.game_id = stats_game.game_id)\n" +
-            "WHERE (action_type = 'SHOOT' AND actor = :userId)";
+        private class Bot {
+            //average player size bot wide
+            private static final String AVERAGE_PLAYERS_SIZE = "SELECT AVG(stats_game.player_size) FROM public.stats_game";
 
-    //selects the winning teams of all games in this guild
-    private static final String guildQuery = "SELECT stats_game.game_id, stats_team.alignment FROM public.stats_game\n" +
-            "INNER JOIN public.stats_team ON (stats_team.game_id = stats_game.game_id)\n" +
-            "WHERE (is_winner = true AND guild_id = :guildId)";
+            //select teams + games
+            private static final String TEAMS = "SELECT stats_game.game_id, stats_team.alignment FROM public.stats_game\n" +
+                    "INNER JOIN public.stats_team ON (stats_team.game_id = stats_game.game_id)";
 
-    //selects the winning teams of all games ever
-    private static final String botQuery = "SELECT stats_game.game_id, stats_team.alignment FROM public.stats_game\n" +
-            "INNER JOIN public.stats_team ON (stats_team.game_id = stats_game.game_id)\n" +
-            "WHERE (is_winner = true)";
+            //select winning teams of all games
+            private static final String WINNING_TEAMS = TEAMS +
+                    "\nWHERE (stats_team.is_winner = TRUE)";
 
+            //select winning teams of games of a certain size
+            private static final String WINNING_TEAMS_FOR_PLAYER_SIZE = TEAMS +
+                    "\nWHERE (stats_team.is_winner = TRUE AND stats_game.player_size = :playerSize)";
+
+            //select all unique player sizes for games that are recorded
+            private static final String DISTINCT_PLAYER_SIZES = "SELECT DISTINCT stats_game.player_size FROM public.stats_game";
+        }
+
+        private class Guild {
+
+            //average player size for a guild
+            private static final String AVERAGE_PLAYERS_SIZE = Bot.AVERAGE_PLAYERS_SIZE +
+                    "\nWHERE (stats_game.guild_id = :guildId)";
+
+            //select winning teams of all games in this guild
+            private static final String WINNING_TEAMS = Bot.TEAMS +
+                    "\nWHERE (stats_game.guild_id = :guildId AND stats_team.is_winner = TRUE)";
+
+            //select winning teams of games of a certain size in this guild
+            private static final String WINNING_TEAMS_FOR_PLAYER_SIZE = Bot.TEAMS +
+                    "\nWHERE (stats_game.guild_id = :guildId AND stats_team.is_winner = TRUE AND stats_game.player_size = :playerSize)";
+
+            private static final String DISTINCT_PLAYER_SIZES = Bot.DISTINCT_PLAYER_SIZES +
+                    "\nWHERE (stats_game.guild_id = :guildId)";
+
+        }
+
+        private class User {
+            //return all players a user ever was and join with data for the team and game
+            private static final String GENERAL =
+                    "SELECT stats_player.total_postlength, stats_player.total_posts, stats_player.alignment, stats_team.is_winner FROM public.stats_player\n" +
+                            "INNER JOIN public.stats_team ON (stats_player.team_id = stats_team.team_id)\n" +
+                            "WHERE stats_player.user_id = :userId";
+
+            //return all SHOOT actions where userId pulled the trigger; join with team data for the target
+            private static final String SHATS =
+                    "SELECT stats_player.alignment, stats_action.target FROM public.stats_action\n" +
+                            "INNER JOIN public.stats_player ON (stats_player.user_id = stats_action.target)\n" +
+                            "INNER JOIN public.stats_team ON (stats_team.team_id = stats_player.team_id)\n" +
+                            "INNER JOIN public.stats_game ON (stats_action.game_id = stats_game.game_id AND stats_team.game_id = stats_game.game_id)\n" +
+                            "WHERE (stats_action.action_type = 'SHOOT' AND stats_action.actor = :userId)";
+        }
+    }
 
     //this should be rather similar to getGuildStats
     @SuppressWarnings("unchecked")
     public static EmbedBuilder getBotStats() {
         //get data out of the database
-        final List<Map<String, Object>> gamesxWinningTeam = new ArrayList<>();
+        BigDecimal averagePlayerSize = new BigDecimal(0);
+        final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
+
         final EntityManager em = Wolfia.dbManager.getEntityManager();
         try {
-            final List<Object[]> result = em.createNativeQuery(botQuery).getResultList();
-            gamesxWinningTeam.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(botQuery, em)));
+            averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Bot.AVERAGE_PLAYERS_SIZE).getSingleResult();
+
+            //get winning teams by player sizes
+            List<Object[]> result = em.createNativeQuery(Queries.Bot.WINNING_TEAMS).getResultList();
+            //add total stats with size -1; there better not by any -1 sized entries in the database
+            gamesxWinningTeamByPlayerSize.put(-1, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Bot.WINNING_TEAMS, em)));
+            final List<Integer> existingPlayerSizes = em.createNativeQuery(Queries.Bot.DISTINCT_PLAYER_SIZES).getResultList();
+            Collections.sort(existingPlayerSizes);
+            for (final int playerSize : existingPlayerSizes) {
+                if (playerSize < 1) {
+                    //skip and log about weird player sizes in the db
+                    log.error("Found unexpected player size {} in the database with query '{}'", playerSize, Queries.Bot.DISTINCT_PLAYER_SIZES);
+                    continue;
+                }
+                result = em.createNativeQuery(Queries.Bot.WINNING_TEAMS_FOR_PLAYER_SIZE).setParameter("playerSize", playerSize).getResultList();
+                gamesxWinningTeamByPlayerSize.put(playerSize, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Bot.WINNING_TEAMS_FOR_PLAYER_SIZE, em)));
+            }
         } catch (final SQLException e) {
             log.error("SQL exception when querying bot stats", e);
         } finally {
@@ -84,21 +139,24 @@ public class StatsProvider {
         }
 
         //collect a bunch of values
-        final long totalGames = gamesxWinningTeam.size();
-        final long gamesWonByWolves = gamesxWinningTeam.stream()
-                .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.WOLF).count();
-        final long gamesWonByVillage = gamesxWinningTeam.stream()
-                .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.VILLAGE).count();
-
+        final Map<Integer, List<Long>> collectedValues = collectValues(gamesxWinningTeamByPlayerSize);
 
         //add them to the embed
-        final EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("Wolfia stats");
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("Wolfia stats:");
         eb.setThumbnail(Wolfia.jda.getSelfUser().getAvatarUrl());
-        eb.addField("Total games played", totalGames + "", true);
-        eb.addField("Players on average", "---", true);
-        eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(gamesWonByWolves, totalGames)), true);
-        eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(gamesWonByVillage, totalGames)), true);
+
+        //stats for all games:
+        eb.addBlankField(false);
+        final List<Long> values = collectedValues.remove(-1);
+        eb.addField("Total games played", values.get(0) + "", true);
+        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize), true);
+        eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(values.get(1), values.get(0))), true);
+        eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(values.get(2), values.get(0))), true);
+        //stats by playersize:
+        eb.addBlankField(false);
+        eb.addField("Stats by player size:", "", false);
+        eb = addStatsPerPlayerSize(eb, collectedValues);
         return eb;
     }
 
@@ -106,11 +164,28 @@ public class StatsProvider {
     @SuppressWarnings("unchecked")
     public static EmbedBuilder getGuildStats(final Guild g) {
         //get data out of the database
-        final List<Map<String, Object>> gamesInGuildxWinningTeam = new ArrayList<>();
+        BigDecimal averagePlayerSize = new BigDecimal(0);
+        final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
+
         final EntityManager em = Wolfia.dbManager.getEntityManager();
         try {
-            final List<Object[]> result = em.createNativeQuery(guildQuery).setParameter("guildId", g.getIdLong()).getResultList();
-            gamesInGuildxWinningTeam.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(guildQuery, em)));
+            averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Guild.AVERAGE_PLAYERS_SIZE).setParameter("guildId", g.getIdLong()).getSingleResult();
+
+            //get winning teams by player sizes
+            List<Object[]> result = em.createNativeQuery(Queries.Guild.WINNING_TEAMS).setParameter("guildId", g.getIdLong()).getResultList();
+            //add total stats with size -1; there better not by any -1 sized entries in the database
+            gamesxWinningTeamInGuildByPlayerSize.put(-1, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Guild.WINNING_TEAMS, em)));
+            final List<Integer> existingPlayerSizes = em.createNativeQuery(Queries.Guild.DISTINCT_PLAYER_SIZES).setParameter("guildId", g.getIdLong()).getResultList();
+            Collections.sort(existingPlayerSizes);
+            for (final int playerSize : existingPlayerSizes) {
+                if (playerSize < 1) {
+                    //skip and log about weird player sizes in the db
+                    log.error("Found unexpected player size {} in the database with query '{}'", playerSize, Queries.Guild.DISTINCT_PLAYER_SIZES);
+                    continue;
+                }
+                result = em.createNativeQuery(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE).setParameter("guildId", g.getIdLong()).setParameter("playerSize", playerSize).getResultList();
+                gamesxWinningTeamInGuildByPlayerSize.put(playerSize, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE, em)));
+            }
         } catch (final SQLException e) {
             log.error("SQL exception when querying stats for guild {}", g.getIdLong(), e);
         } finally {
@@ -118,21 +193,25 @@ public class StatsProvider {
         }
 
         //collect a bunch of values
-        final long totalGames = gamesInGuildxWinningTeam.size();
-        final long gamesWonByWolves = gamesInGuildxWinningTeam.stream()
-                .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.WOLF).count();
-        final long gamesWonByVillage = gamesInGuildxWinningTeam.stream()
-                .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.VILLAGE).count();
+        final Map<Integer, List<Long>> collectedValues = collectValues(gamesxWinningTeamInGuildByPlayerSize);
 
 
         //add them to the embed
-        final EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(g.getName() + "'s Wolfia stats");
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle(g.getName() + "'s Wolfia stats:");
         eb.setThumbnail(g.getIconUrl());
-        eb.addField("Total games played", totalGames + "", true);
-        eb.addField("Players on average", "---", true);
-        eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(gamesWonByWolves, totalGames)), true);
-        eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(gamesWonByVillage, totalGames)), true);
+
+        //stats for all games in this guild:
+        eb.addBlankField(false);
+        final List<Long> values = collectedValues.remove(-1);
+        eb.addField("Total games played", values.get(0) + "", true);
+        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize), true);
+        eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(values.get(1), values.get(0))), true);
+        eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(values.get(2), values.get(0))), true);
+        //stats by playersize in this guild:
+        eb.addBlankField(false);
+        eb.addField("Stats by player size:", "", false);
+        eb = addStatsPerPlayerSize(eb, collectedValues);
         return eb;
     }
 
@@ -143,10 +222,10 @@ public class StatsProvider {
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
         final EntityManager em = Wolfia.dbManager.getEntityManager();
         try {
-            List<Object[]> result = em.createNativeQuery(userQuery).setParameter("userId", m.getUser().getIdLong()).getResultList();
-            gamesByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(userQuery, em)));
-            result = em.createNativeQuery(shatsQuery).setParameter("userId", m.getUser().getIdLong()).getResultList();
-            shatsByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(shatsQuery, em)));
+            List<Object[]> result = em.createNativeQuery(Queries.User.GENERAL).setParameter("userId", m.getUser().getIdLong()).getResultList();
+            gamesByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.GENERAL, em)));
+            result = em.createNativeQuery(Queries.User.SHATS).setParameter("userId", m.getUser().getIdLong()).getResultList();
+            shatsByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.SHATS, em)));
         } catch (final SQLException e) {
             log.error("SQL exception when querying stats for user {}", m.getUser().getIdLong(), e);
         } finally {
@@ -190,6 +269,31 @@ public class StatsProvider {
         eb.addField("Total post length", totalPostsLength + "", true);
         eb.addField("∅ posts per game", ((long) divide(totalPostsWritten, totalGamesByUser)) + "", true);
         eb.addField("∅ post length", ((long) divide(totalPostsLength, totalPostsWritten)) + "", true);
+        return eb;
+    }
+
+    private static Map<Integer, List<Long>> collectValues(final Map<Integer, List<Map<String, Object>>> input) {
+        final Map<Integer, List<Long>> result = new LinkedHashMap<>();//linked to preserve sorting
+        for (final int playerSize : input.keySet()) {
+            final List<Map<String, Object>> gamesxWinningTeam = input.get(playerSize);
+            final long totalGames = gamesxWinningTeam.size();
+            final long gamesWonByWolves = gamesxWinningTeam.stream()
+                    .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.WOLF).count();
+            final long gamesWonByVillage = gamesxWinningTeam.stream()
+                    .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.VILLAGE).count();
+
+            result.put(playerSize, Arrays.asList(totalGames, gamesWonByWolves, gamesWonByVillage));
+        }
+        return result;
+    }
+
+    private static EmbedBuilder addStatsPerPlayerSize(final EmbedBuilder eb, final Map<Integer, List<Long>> collectedValues) {
+        for (final int playerSize : collectedValues.keySet()) {
+            final List<Long> values = collectedValues.get(playerSize);
+            String content = Emojis.WOLF + " win " + percentFormat(divide(values.get(1), values.get(0)));
+            content += "\n" + Emojis.COWBOY + " win " + percentFormat(divide(values.get(2), values.get(0)));
+            eb.addField(values.get(0) + " games with " + playerSize + " players", content, true);
+        }
         return eb;
     }
 
