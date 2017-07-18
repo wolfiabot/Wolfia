@@ -19,11 +19,13 @@ package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
+import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
  * Created by napster on 08.06.17.
@@ -37,20 +39,32 @@ public class UserStatsCommand implements ICommand {
 
     @Override
     public String help() {
-        return "Shows game stats for a user";
+        final String usage = Config.PREFIX + COMMAND + " (<@user> or <userId>)\n#";
+        return usage + "Show game stats for a user.";
     }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
         final Message m = commandInfo.event.getMessage();
+        long userId = m.getAuthor().getIdLong();
+
         if (m.getMentionedUsers().size() < 1) {
-            Wolfia.handleOutputEmbed(m.getChannel(), StatsProvider.getUserStats(commandInfo.event.getMember()).build());
+            //noinspection Duplicates
+            if (commandInfo.args.length > 0) {
+                try {
+                    userId = Long.valueOf(commandInfo.args[0]);
+                } catch (final NumberFormatException e) {
+                    Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s", TextchatUtils.asMarkdown(help()));
+                    return false;
+                }
+            }
+
+            Wolfia.handleOutputEmbed(m.getChannel(), StatsProvider.getUserStats(userId).build());
             return true;
         }
 
         for (final User u : m.getMentionedUsers()) {
-            if (!m.getGuild().isMember(u)) continue; //skip mentioned non-members
-            Wolfia.handleOutputEmbed(m.getChannel(), StatsProvider.getUserStats(m.getGuild().getMember(u)).build());
+            Wolfia.handleOutputEmbed(m.getChannel(), StatsProvider.getUserStats(u.getIdLong()).build());
         }
         return true;
     }

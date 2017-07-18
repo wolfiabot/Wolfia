@@ -120,4 +120,8 @@ public class TextchatUtils {
                     .append(levenshteinDist(data[i], data[i + 1]));
         return out.toString();
     }
+
+    public static String asMarkdown(final String str) {
+        return "```md\n" + str + "```";
+    }
 }

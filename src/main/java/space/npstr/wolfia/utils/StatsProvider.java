@@ -19,7 +19,7 @@ package space.npstr.wolfia.utils;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
@@ -116,6 +116,7 @@ public class StatsProvider {
         final EntityManager em = Wolfia.dbManager.getEntityManager();
         try {
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Bot.AVERAGE_PLAYERS_SIZE).getSingleResult();
+            if (averagePlayerSize == null) averagePlayerSize = new BigDecimal(0);
 
             //get winning teams by player sizes
             List<Object[]> result = em.createNativeQuery(Queries.Bot.WINNING_TEAMS).getResultList();
@@ -150,7 +151,7 @@ public class StatsProvider {
         eb.addBlankField(false);
         final List<Long> values = collectedValues.remove(-1);
         eb.addField("Total games played", values.get(0) + "", true);
-        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize), true);
+        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize.doubleValue()), true);
         eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(values.get(1), values.get(0))), true);
         eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(values.get(2), values.get(0))), true);
         //stats by playersize:
@@ -162,20 +163,21 @@ public class StatsProvider {
 
 
     @SuppressWarnings("unchecked")
-    public static EmbedBuilder getGuildStats(final Guild g) {
+    public static EmbedBuilder getGuildStats(final long guildId) {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
         final EntityManager em = Wolfia.dbManager.getEntityManager();
         try {
-            averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Guild.AVERAGE_PLAYERS_SIZE).setParameter("guildId", g.getIdLong()).getSingleResult();
+            averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Guild.AVERAGE_PLAYERS_SIZE).setParameter("guildId", guildId).getSingleResult();
+            if (averagePlayerSize == null) averagePlayerSize = new BigDecimal(0);
 
             //get winning teams by player sizes
-            List<Object[]> result = em.createNativeQuery(Queries.Guild.WINNING_TEAMS).setParameter("guildId", g.getIdLong()).getResultList();
+            List<Object[]> result = em.createNativeQuery(Queries.Guild.WINNING_TEAMS).setParameter("guildId", guildId).getResultList();
             //add total stats with size -1; there better not by any -1 sized entries in the database
             gamesxWinningTeamInGuildByPlayerSize.put(-1, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Guild.WINNING_TEAMS, em)));
-            final List<Integer> existingPlayerSizes = em.createNativeQuery(Queries.Guild.DISTINCT_PLAYER_SIZES).setParameter("guildId", g.getIdLong()).getResultList();
+            final List<Integer> existingPlayerSizes = em.createNativeQuery(Queries.Guild.DISTINCT_PLAYER_SIZES).setParameter("guildId", guildId).getResultList();
             Collections.sort(existingPlayerSizes);
             for (final int playerSize : existingPlayerSizes) {
                 if (playerSize < 1) {
@@ -183,11 +185,11 @@ public class StatsProvider {
                     log.error("Found unexpected player size {} in the database with query '{}'", playerSize, Queries.Guild.DISTINCT_PLAYER_SIZES);
                     continue;
                 }
-                result = em.createNativeQuery(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE).setParameter("guildId", g.getIdLong()).setParameter("playerSize", playerSize).getResultList();
+                result = em.createNativeQuery(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE).setParameter("guildId", guildId).setParameter("playerSize", playerSize).getResultList();
                 gamesxWinningTeamInGuildByPlayerSize.put(playerSize, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE, em)));
             }
         } catch (final SQLException e) {
-            log.error("SQL exception when querying stats for guild {}", g.getIdLong(), e);
+            log.error("SQL exception when querying stats for guild {}", guildId, e);
         } finally {
             em.close();
         }
@@ -198,14 +200,20 @@ public class StatsProvider {
 
         //add them to the embed
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(g.getName() + "'s Wolfia stats:");
-        eb.setThumbnail(g.getIconUrl());
+        final Guild guild = Wolfia.jda.getGuildById(guildId);
+        if (guild != null) {
+            eb.setTitle(guild.getName() + "'s Wolfia stats:");
+            eb.setThumbnail(guild.getIconUrl());
+        } else {
+            eb.setTitle(guildId + "'s Wolfia stats:");
+            eb.setThumbnail("http://i.imgur.com/Jm9SIGh.png");
+        }
 
         //stats for all games in this guild:
         eb.addBlankField(false);
         final List<Long> values = collectedValues.remove(-1);
         eb.addField("Total games played", values.get(0) + "", true);
-        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize), true);
+        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize.doubleValue()), true);
         eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(values.get(1), values.get(0))), true);
         eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(values.get(2), values.get(0))), true);
         //stats by playersize in this guild:
@@ -216,18 +224,18 @@ public class StatsProvider {
     }
 
     @SuppressWarnings("unchecked")
-    public static EmbedBuilder getUserStats(final Member m) {
+    public static EmbedBuilder getUserStats(final long userId) {
         //get data out of the database
         final List<Map<String, Object>> gamesByUser = new ArrayList<>();
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
         final EntityManager em = Wolfia.dbManager.getEntityManager();
         try {
-            List<Object[]> result = em.createNativeQuery(Queries.User.GENERAL).setParameter("userId", m.getUser().getIdLong()).getResultList();
+            List<Object[]> result = em.createNativeQuery(Queries.User.GENERAL).setParameter("userId", userId).getResultList();
             gamesByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.GENERAL, em)));
-            result = em.createNativeQuery(Queries.User.SHATS).setParameter("userId", m.getUser().getIdLong()).getResultList();
+            result = em.createNativeQuery(Queries.User.SHATS).setParameter("userId", userId).getResultList();
             shatsByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.SHATS, em)));
         } catch (final SQLException e) {
-            log.error("SQL exception when querying stats for user {}", m.getUser().getIdLong(), e);
+            log.error("SQL exception when querying stats for user {}", userId, e);
         } finally {
             em.close();
         }
@@ -255,8 +263,15 @@ public class StatsProvider {
 
         //add them to the embed
         final EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(m.getEffectiveName() + "'s Wolfia stats");
-        eb.setThumbnail(m.getUser().getEffectiveAvatarUrl());
+        final User user = Wolfia.jda.getUserById(userId);
+        if (user != null) {
+            eb.setTitle(user.getName() + "'s Wolfia stats");
+            eb.setThumbnail(user.getEffectiveAvatarUrl());
+        } else {
+            eb.setTitle(userId + "'s Wolfia stats");
+            eb.setThumbnail("http://i.imgur.com/Jm9SIGh.png");
+        }
+
         eb.addField("Total games played", totalGamesByUser + "", true);
         eb.addField("Total win %", percentFormat(divide(gamesWon, totalGamesByUser)), true);
         eb.addField("Games as " + Emojis.WOLF, gamesAsWolf + "", true);
