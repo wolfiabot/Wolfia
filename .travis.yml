@@ -1,4 +1,13 @@
+env:
+  global:
+    BINTRAY_USER: napster
+    BINTRAY_API_KEY:
+      secure: TibOvGlMn0dBK97rMpvHtk17iEQszuZJkL6rqc8FoKOmMb36CFdHK7lGUCGHEoYwCl2Cs4OSICWyLhmYwfP623vYLrXfd5fdBbHWaSO1RtQkGK9+roomb80tkYleKBUArWrteYk+uevWA7HxWoQXmoVKD/DvppF6tZsJq2sv8BFQZSE2XDtiQ5QvotD0j4ypSwatZFT73AAGJlxbT3fBrx5gNw6bLJd8ZEdjRTEL+bHPAh+iqURVg3181RcEJQA3N+uAn2dkdByn4TENBLvsr4HuQmkeG0W7yTWIhZZS+t2sbp4i2PrGmEVaGeqc4DqqVSAR522NLOzwfpxXJcRr9xmfQXnt2qPyfK7cZQET/QuRvUIBw1IQo42Bae2Kk0Xhvm45FSOmgYY1YyFNFhdaK/pCbHd5jmp6djTeajeiEaH7Th6LBcDfTrNK8dmL2THvSxsodH2FRwlks+9t3KY7ZwwxXbpwbPb95qYpR8bDqlf9aIE5awNf6LXTi4l97mMNeLoN9e9yXtmDUdjPGkqZqi1nTdFfJH1Qx3RNwufFRVoIfJ7wNQG1W14hTaw6JGXCbEyJkQ5cHFzSW0T+7KH53IicnXbLDneenViDuw21vBwgT+53aHENhgwR5ZpdbhIyUVdGPvxF8udmp2NCmW3ePJrVKwWHKjj+F9I+5g4F49I=
+
 language: java
 
 jdk:
   - oraclejdk8
+
+script:
+  - gradle shadowJar bintrayUpload --info

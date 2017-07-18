@@ -4,10 +4,11 @@ plugins {
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '2.0.1'
     id 'com.sedmelluq.jdaction' version '1.0.2' //check for unused RestActions
+    id "com.jfrog.bintray" version "1.7.3"
 }
 
 group = 'space.npstr'
-version = '0.7.14-SNAPSHOT'
+version = '0.7.15_' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
@@ -55,3 +56,22 @@ processResources {
 
 compileJava.dependsOn 'clean'
 compileJava.options.encoding = 'UTF-8'
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    filesSpec {
+        from 'build/libs'
+        into '.'
+    }
+    dryRun = false
+    publish = true
+    pkg {
+        repo = 'wolfia'
+        name = 'alpha'
+        userOrg = user
+        version {
+            name = project.version
+        }
+    }
+}
