@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.debug.BanCommand;
 import space.npstr.wolfia.commands.debug.DbTestCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
@@ -32,18 +33,19 @@ import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.OutCommand;
 import space.npstr.wolfia.commands.game.RolePMCommand;
 import space.npstr.wolfia.commands.game.SetupCommand;
-import space.npstr.wolfia.commands.game.ShootCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
-import space.npstr.wolfia.commands.util.BanCommand;
-import space.npstr.wolfia.commands.util.BotStatsCommand;
+import space.npstr.wolfia.commands.ingame.ShootCommand;
+import space.npstr.wolfia.commands.ingame.UnvoteCommand;
+import space.npstr.wolfia.commands.ingame.VoteCommand;
+import space.npstr.wolfia.commands.stats.BotStatsCommand;
+import space.npstr.wolfia.commands.stats.GuildStatsCommand;
+import space.npstr.wolfia.commands.stats.UserStatsCommand;
 import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
-import space.npstr.wolfia.commands.util.GuildStatsCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InfoCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
-import space.npstr.wolfia.commands.util.UserStatsCommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.stats.CommandStats;
 import space.npstr.wolfia.utils.App;
@@ -71,28 +73,34 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(OutCommand.COMMAND, new OutCommand());
         COMMAND_REGISTRY.put(RolePMCommand.COMMAND, new RolePMCommand());
         COMMAND_REGISTRY.put(SetupCommand.COMMAND, new SetupCommand());
-        COMMAND_REGISTRY.put(ShootCommand.COMMAND, new ShootCommand());
         COMMAND_REGISTRY.put(StartCommand.COMMAND, new StartCommand());
         COMMAND_REGISTRY.put(StatusCommand.COMMAND, new StatusCommand());
 
-        //other commands
+        //ingame commands
+        COMMAND_REGISTRY.put(ShootCommand.COMMAND, new ShootCommand());
+        COMMAND_REGISTRY.put(VoteCommand.COMMAND, new VoteCommand());
+        COMMAND_REGISTRY.put(UnvoteCommand.COMMAND, new UnvoteCommand());
+
+        //stats commands
+        COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
+        COMMAND_REGISTRY.put(GuildStatsCommand.COMMAND, new GuildStatsCommand());
+        COMMAND_REGISTRY.put(UserStatsCommand.COMMAND, new UserStatsCommand());
+
+        //util commands
+        COMMAND_REGISTRY.put(ChannelSettingsCommand.COMMAND, new ChannelSettingsCommand());
         COMMAND_REGISTRY.put(HelpCommand.COMMAND, new HelpCommand());
         COMMAND_REGISTRY.put(InfoCommand.COMMAND, new InfoCommand());
         COMMAND_REGISTRY.put(ReplayCommand.COMMAND, new ReplayCommand());
-        COMMAND_REGISTRY.put(ChannelSettingsCommand.COMMAND, new ChannelSettingsCommand());
         COMMAND_REGISTRY.put(TagCommand.COMMAND, new TagCommand());
-        COMMAND_REGISTRY.put(UserStatsCommand.COMMAND, new UserStatsCommand());
-        COMMAND_REGISTRY.put(GuildStatsCommand.COMMAND, new GuildStatsCommand());
-        COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
 
         //bot owner/debug commands
+        COMMAND_REGISTRY.put(BanCommand.COMMAND, new BanCommand());
         COMMAND_REGISTRY.put(DbTestCommand.COMMAND, new DbTestCommand());
         COMMAND_REGISTRY.put(EvalCommand.COMMAND, new EvalCommand());
-        COMMAND_REGISTRY.put(ShutdownCommand.COMMAND, new ShutdownCommand());
-        COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
         COMMAND_REGISTRY.put(MaintenanceCommand.COMMAND, new MaintenanceCommand());
         COMMAND_REGISTRY.put(RegisterPrivateServerCommand.COMMAND, new RegisterPrivateServerCommand());
-        COMMAND_REGISTRY.put(BanCommand.COMMAND, new BanCommand());
+        COMMAND_REGISTRY.put(ShutdownCommand.COMMAND, new ShutdownCommand());
+        COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
     }
 
     public static void handleCommand(final CommandParser.CommandContainer commandInfo) {
@@ -117,7 +125,7 @@ public class CommandHandler {
             }
             final boolean success = command.execute(commandInfo);
             final long executed = System.currentTimeMillis();
-            Wolfia.executor.submit(() -> DbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
+            Wolfia.submit(() -> DbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
         } catch (final Exception e) {
             final MessageReceivedEvent ev = commandInfo.event;
             Throwable t = e;

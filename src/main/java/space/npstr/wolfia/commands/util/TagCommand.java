@@ -30,7 +30,7 @@ import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.ChannelSettings;
-import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.TextchatUtils;

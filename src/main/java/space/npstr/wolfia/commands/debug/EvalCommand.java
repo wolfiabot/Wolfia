@@ -30,7 +30,7 @@ import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
-import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.definitions.Games;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -111,7 +111,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
         this.engine.put("game", Games.get(channel.getIdLong()));
         this.engine.put("setup", DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class));
 
-        final Future<?> future = Wolfia.executor.submit(() -> {
+        final Future<?> future = Wolfia.submit(() -> {
 
             final Object out;
             try {

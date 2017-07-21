@@ -24,7 +24,7 @@ import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.Banlist;
 import space.npstr.wolfia.db.entity.SetupEntity;
-import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.TextchatUtils;

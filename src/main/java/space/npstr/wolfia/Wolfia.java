@@ -46,7 +46,8 @@ import space.npstr.wolfia.db.entity.Hstore;
 import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.stats.GeneralBotStats;
 import space.npstr.wolfia.db.entity.stats.MessageOutputStats;
-import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.events.CommandListener;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.App;
 import space.npstr.wolfia.utils.ImgurAlbum;
 import space.npstr.wolfia.utils.SimpleCache;
@@ -54,11 +55,10 @@ import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -73,25 +73,32 @@ import java.util.stream.Collectors;
  */
 public class Wolfia {
 
+    public static final long START_TIME;
+    public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE;
+    // default on fail handler for all queues()
+    public static final Consumer<Throwable> defaultOnFail;
+
     public static JDA jda;
     public static DbManager dbManager;
-    public static OkHttpClient httpClient = new OkHttpClient();
-    public static final long START_TIME = System.currentTimeMillis();
-    public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
-    //for any fire and forget tasks that are expected to run for a short while only
-    public static final ExecutorService executor = Executors.newCachedThreadPool();
-    //true if a restart is planned, or live maintenance is happening, so games wont be able to be started
     public static Wolfia wolfia;
+    public static OkHttpClient httpClient = new OkHttpClient();
 
-    //default on fail handler for all queues()
-    public static Consumer<Throwable> defaultOnFail;
+    private static final Logger log;
+    // for any fire and forget tasks that are expected to run for a short while only
+    private static final ExecutorService executor;
+    // for long running, repeating and/or scheduled tasks
+    private static final ScheduledThreadPoolExecutor scheduledExecutor;
+    private static final ImgurAlbum avatars;
 
-    private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
-    //for long running, repeating and/or scheduled tasks
-    private static final ScheduledThreadPoolExecutor scheduledExecutor = new ScheduledThreadPoolExecutor(1);
-    private static final List<ScheduledFuture> runningTasks = new ArrayList<>();
-
-    private static final ImgurAlbum avatars = new ImgurAlbum(Config.C.avatars);
+    static { //just a few static final singleton things getting set up in here
+        START_TIME = System.currentTimeMillis();
+        AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
+        log = LoggerFactory.getLogger(Wolfia.class);
+        defaultOnFail = t -> log.error("Exception during queue(): {}", t.getMessage(), t);
+        executor = Executors.newCachedThreadPool(r -> new Thread(r, "main-executor"));
+        scheduledExecutor = new ScheduledThreadPoolExecutor(100, r -> new Thread(r, "main-scheduled-executor")); //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
+        avatars = new ImgurAlbum(Config.C.avatars);
+    }
 
     public final CommandListener commandListener;
 
@@ -99,7 +106,6 @@ public class Wolfia {
     //if something fails exit right away
     public static void main(final String[] args) {
         Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
-        defaultOnFail = t -> log.error("Exception during queue(): {}", t.getMessage(), t);
 
         //reroute JDA logging to our system
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
@@ -148,7 +154,8 @@ public class Wolfia {
         scheduleAtFixedRate(() -> {
             try {
                 setAvatars(Icon.from(SimpleCache.getImageFromURL(avatars.getNext())));
-                Hstore.loadAndSet("avatarLastIndex", Integer.toString(avatars.getLastIndex()))
+                Hstore.load()
+                        .set("avatarLastIndex", Integer.toString(avatars.getLastIndex()))
                         .set("avatarLastUpdated", Long.toString(System.currentTimeMillis()))
                         .save();
                 log.info("Avatar updated");
@@ -158,12 +165,35 @@ public class Wolfia {
         }, initialDelay, TimeUnit.HOURS.toMillis(2), TimeUnit.MILLISECONDS);
     }
 
-    public static void scheduleAtFixedRate(final Runnable task, final long initialDelay, final long period, final TimeUnit timeUnit) {
-        runningTasks.add(scheduledExecutor.scheduleAtFixedRate(task, initialDelay, period, timeUnit));
+    public static ScheduledFuture<?> scheduleAtFixedRate(final Runnable task, final long initialDelay, final long period, final TimeUnit timeUnit) {
+        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
+        return scheduledExecutor.scheduleAtFixedRate(exceptionSafeTask, initialDelay, period, timeUnit);
     }
 
-    public static void schedule(final Runnable task, final long delay, final TimeUnit timeUnit) {
-        runningTasks.add(scheduledExecutor.schedule(task, delay, timeUnit));
+    public static ScheduledFuture<?> schedule(final Runnable task, final long delay, final TimeUnit timeUnit) {
+        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
+        return scheduledExecutor.schedule(exceptionSafeTask, delay, timeUnit);
+    }
+
+    /**
+     * @return use this for any one time off tasks
+     */
+    public static Future<?> submit(final Runnable task) {
+        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
+        return executor.submit(exceptionSafeTask);
+    }
+
+    private static Runnable wrapExceptionSafe(final Runnable task) {
+        // scheduled executor services are sneaky bastards and will silently cancel tasks that throw an uncaught exception
+        // related: http://code.nomad-labs.com/2011/12/09/mother-fk-the-scheduledexecutorservice
+        // we don't really want our tasks to stop getting executed, and we want them to log any exceptions they encounter
+        return () -> {
+            try {
+                task.run();
+            } catch (final Throwable t) {
+                log.error("Task encountered an exception: {}", t.getMessage(), t);
+            }
+        };
     }
 
 
@@ -172,6 +202,7 @@ public class Wolfia {
             log.warn("Skipping posting of bot stats due to JDA being null");
             return;
         }
+        log.info("Posting bot stats");
 
         DbWrapper.persist(new GeneralBotStats(
                 jda.getUsers().size(),
@@ -232,12 +263,16 @@ public class Wolfia {
             log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
         }
         final MessageBuilder mb = new MessageBuilder();
-        mb.appendFormat(msg, args);
+        if (args.length == 0) {
+            mb.append(msg);
+        } else {
+            mb.appendFormat(msg, args);
+        }
         try {
             final RestAction<Message> ra = channel.sendMessage(mb.build());
             if (complete) {
                 final Message message = ra.complete();
-                executor.submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
                 return Optional.of(message);
             } else {
                 Consumer<Throwable> fail = onFail;
@@ -249,7 +284,7 @@ public class Wolfia {
                 }
                 //for stats keeping
                 final Consumer<Message> wrappedSuccess = (message) -> {
-                    executor.submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                    submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
                     if (onSuccess != null) onSuccess.accept(message);
                 };
                 ra.queue(wrappedSuccess, fail);
@@ -307,12 +342,12 @@ public class Wolfia {
             final RestAction<Message> ra = channel.sendMessage(msgEmbed);
             if (complete) {
                 final Message message = ra.complete();
-                executor.submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
                 return Optional.of(message);
             } else {
                 //for stats keeping
                 final Consumer<Message> wrappedSuccess = (message) -> {
-                    executor.submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                    submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
                     if (onSuccess != null) onSuccess.accept(message);
                 };
                 ra.queue(wrappedSuccess, onFail != null ? onFail : defaultOnFail);
@@ -358,6 +393,15 @@ public class Wolfia {
         jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onSuccess, onFail, msg, args), onFail);
     }
 
+    public static void handlePrivateOutputEmbed(final long userId, final Consumer<Throwable> onFail, final MessageEmbed messageEmbed) {
+        if (onFail == null) {
+            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
+                    "error log spam. Fix your code please.");
+        }
+        jda.getUserById(userId).openPrivateChannel().queue((privateChannel -> Wolfia.handleOutputEmbed(false, privateChannel, messageEmbed, null, onFail)));
+    }
+
+
     //################# end of message handling
 
     //################# shutdown handling
@@ -374,12 +418,13 @@ public class Wolfia {
             //okHttpClient claims that a shutdown isn't necessary
 
             //shutdown JDA
+            log.info("Shutting down JDA");
             jda.shutdown();
 
             //shutdown executors
+            log.info("Shutting down executors");
             executor.shutdown();
             scheduledExecutor.shutdown();
-            runningTasks.forEach(scheduledFuture -> scheduledFuture.cancel(true));
             try {
                 executor.awaitTermination(30, TimeUnit.SECONDS);
             } catch (final InterruptedException e) {
@@ -387,9 +432,11 @@ public class Wolfia {
             }
 
             //shutdown DB
+            log.info("Shutting down database");
             dbManager.shutdown();
 
             //shutdown logback logger
+            log.info("Shutting down logger :rip:");
             final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
             loggerContext.stop();
         }

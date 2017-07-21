@@ -15,11 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.game;
+package space.npstr.wolfia.game.definitions;
 
+import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.GameInfo;
+import space.npstr.wolfia.game.mafia.Mafia;
+import space.npstr.wolfia.game.mafia.MafiaInfo;
 import space.npstr.wolfia.game.popcorn.Popcorn;
 import space.npstr.wolfia.game.popcorn.PopcornInfo;
-import space.npstr.wolfia.utils.Emojis;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,7 +35,8 @@ import java.util.Map;
  */
 //lists all games supported by the bot
 public enum Games {
-    POPCORN(Popcorn.class, Emojis.POPCORN + "-Mafia");
+    POPCORN(Popcorn.class, "Popcorn"),
+    MAFIA(Mafia.class, "Mafia");
 
     //static aboose?
     private static final Map<Long, Game> GAME_REGISTRY = new HashMap<>();
@@ -41,6 +45,7 @@ public enum Games {
 
     static {
         GAME_INFOS.put(POPCORN.clazz, new PopcornInfo());
+        GAME_INFOS.put(MAFIA.clazz, new MafiaInfo());
     }
 
     public static GameInfo getInfo(final Games game) {
@@ -89,5 +94,4 @@ public enum Games {
         this.clazz = clazz;
         this.textRep = textRepresentation;
     }
-
 }

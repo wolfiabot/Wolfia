@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.game;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -26,19 +27,32 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.IGameCommand;
+import space.npstr.wolfia.commands.GameCommand;
+import space.npstr.wolfia.commands.game.StatusCommand;
+import space.npstr.wolfia.commands.util.HelpCommand;
+import space.npstr.wolfia.commands.util.ReplayCommand;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.ChannelSettings;
 import space.npstr.wolfia.db.entity.PrivateGuild;
+import space.npstr.wolfia.db.entity.stats.ActionStats;
 import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.PlayerStats;
+import space.npstr.wolfia.game.definitions.Actions;
+import space.npstr.wolfia.game.definitions.Alignments;
+import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.utils.App;
+import space.npstr.wolfia.utils.Emojis;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.UserFriendlyException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,7 +91,7 @@ public abstract class Game {
     protected long channelId = -1;
     protected final Map<Long, String> rolePMs = new HashMap<>();
     protected GameInfo.GameMode mode;
-    protected final Set<Player> players = new HashSet<>();
+    protected final List<Player> players = new ArrayList<>();
     protected volatile boolean running = false;
     protected long accessRoleId;
     protected PrivateGuild wolfChat = null;
@@ -114,7 +128,7 @@ public abstract class Game {
      * @return true if a game can be started with the provided amount of players
      */
     public boolean isAcceptablePlayerCount(final int signedUpCount, final GameInfo.GameMode mode) {
-        return Games.getInfo(this.getClass()).getAcceptablePlayerNumbers(mode).contains(signedUpCount);
+        return Games.getInfo(this.getClass()).isAcceptablePlayerCount(signedUpCount, mode);
     }
 
     /**
@@ -130,9 +144,13 @@ public abstract class Game {
         }
     }
 
+    protected boolean isLiving(final Member member) {
+        return isLiving(member.getUser().getIdLong());
+    }
+
     protected boolean isLiving(final long userId) {
         for (final Player p : this.players) {
-            if (p.userId == userId && p.isLiving()) {
+            if (p.userId == userId && p.isAlive()) {
                 return true;
             }
         }
@@ -148,36 +166,82 @@ public abstract class Game {
         throw new IllegalGameStateException("Requested player " + userId + " is not in the player list");
     }
 
+    protected Player getPlayerByNumber(final int number) throws IllegalGameStateException {
+        for (final Player p : this.players) {
+            if (p.number == number) {
+                return p;
+            }
+        }
+        throw new IllegalGameStateException("Requested player number " + number + " is not in the player list");
+    }
+
     protected Set<Player> getVillagers() {
         return this.players.stream()
-                .filter(player -> !player.isWolf)
+                .filter(Player::isVillager)
                 .collect(Collectors.toSet());
     }
 
-    protected Set<Player> getLivingVillage() {
+    protected List<Player> getLivingVillage() {
         return this.players.stream()
-                .filter(Player::isLiving)
-                .filter(player -> !player.isWolf)
+                .filter(Player::isAlive)
+                .filter(Player::isVillager)
+                .collect(Collectors.toList());
+    }
+
+    protected Set<Long> getLivingVillageIds() {
+        return this.players.stream()
+                .filter(Player::isAlive)
+                .filter(Player::isVillager)
+                .map(Player::getUserId)
                 .collect(Collectors.toSet());
     }
 
     protected Set<Player> getWolves() {
         return this.players.stream()
-                .filter(player -> player.isWolf)
+                .filter(Player::isWolf)
                 .collect(Collectors.toSet());
     }
 
-    protected Set<Player> getLivingWolves() {
+    protected Set<Long> getWolvesIds() {
         return this.players.stream()
-                .filter(Player::isLiving)
-                .filter(player -> player.isWolf)
+                .filter(Player::isWolf)
+                .map(Player::getUserId)
                 .collect(Collectors.toSet());
     }
 
-    protected Set<Player> getLivingPlayers() {
+    protected List<Player> getLivingWolves() {
         return this.players.stream()
-                .filter(Player::isLiving)
+                .filter(Player::isAlive)
+                .filter(Player::isWolf)
+                .collect(Collectors.toList());
+    }
+
+    protected Set<String> getLivingWolvesMentions() {
+        return this.players.stream()
+                .filter(Player::isAlive)
+                .filter(Player::isWolf)
+                .map(p -> TextchatUtils.userAsMention(p.userId))
                 .collect(Collectors.toSet());
+    }
+
+    protected List<Player> getLivingPlayers() {
+        return this.players.stream()
+                .filter(Player::isAlive)
+                .collect(Collectors.toList());
+    }
+
+    protected Set<Long> getLivingPlayerIds() {
+        return this.players.stream()
+                .filter(Player::isAlive)
+                .map(Player::getUserId)
+                .collect(Collectors.toSet());
+    }
+
+    protected List<String> getLivingPlayerMentions() {
+        return this.players.stream()
+                .filter(Player::isAlive)
+                .map(p -> TextchatUtils.userAsMention(p.userId))
+                .collect(Collectors.toList());
     }
 
     public boolean isLivingWolf(final Member m) {
@@ -198,30 +262,181 @@ public abstract class Game {
     }
 
     protected String listLivingPlayers() {
-        final Set<Player> living = getLivingPlayers();
+        final List<Player> living = getLivingPlayers();
         final StringBuilder sb = new StringBuilder("Living players (**").append(living.size()).append("**) :");
         living.forEach(p -> sb.append(TextchatUtils.userAsMention(p.userId)).append(" "));
         return sb.toString();
     }
 
     /**
+     * Calls this from your start() implementation
+     * <p>
+     * Does general checks of the arguments provided to start()
+     *
+     * @param channelId    main channel where the game shall run
+     * @param mode         the chosen game mode
+     * @param innedPlayers the players who signed up
+     * @throws IllegalArgumentException if any of the provided arguments fail the checks
+     */
+    protected void doArgumentChecksAndSet(final long channelId, final GameInfo.GameMode mode, final Set<Long> innedPlayers)
+            throws IllegalArgumentException {
+        if (this.running) {
+            throw new IllegalStateException("Cannot start a game that is running already");
+        }
+        if (channelId <= 0 || Wolfia.jda.getTextChannelById(channelId) == null) {
+            throw new IllegalArgumentException(String.format(
+                    "Cannot start a game with invalid/no channel (channelId: %s) set.", channelId)
+            );
+        }
+        this.channelId = channelId;
+        if (!Games.getInfo(this).getSupportedModes().contains(mode)) {
+            throw new IllegalArgumentException(String.format(
+                    "Mode %s not supported by game %s", mode.name(), Games.POPCORN.name())
+            );
+        }
+        this.mode = mode;
+
+        if (!Games.getInfo(this).isAcceptablePlayerCount(innedPlayers.size(), mode)) {
+            throw new IllegalArgumentException(String.format("There aren't enough (or too many) players signed up! " +
+                    "Please use `%s%s` for more information", Config.PREFIX, StatusCommand.COMMAND));
+        }
+    }
+
+    /**
+     * Calls this from your start() implementation after having checked and set the arguments
+     * <p>
+     * Checks whether all required permissions for running the chosen game and mode are available to the bot
+     * <p>
+     * Prepares the channel for moderated games.
+     *
+     * @param moderated moderated games require additional permissions
+     * @throws UserFriendlyException if the bot is missing permissions to run the game in the channel
+     */
+    protected void doPermissionCheckAndPrepareChannel(final boolean moderated) throws UserFriendlyException {
+        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        final Guild g = channel.getGuild();
+
+        //check permissions
+        Games.getInfo(this).getRequiredPermissions(this.mode).forEach((permission, scope) -> {
+            if (!RoleAndPermissionUtils.hasPermission(channel.getGuild().getSelfMember(), channel, scope, permission)) {
+                throw new UserFriendlyException(String.format(
+                        "To run a %s game in %s mode in this channel, I need the permission to `%s` in this %s",
+                        Games.POPCORN.textRep, this.mode.name(), permission.getName(), scope.name().toLowerCase())
+                );
+            }
+        });
+
+        if (moderated) {
+            //is this a non-public channel, and if yes, has an existing access role been set?
+            final boolean isChannelPublic = g.getPublicRole()
+                    .hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ);
+            if (isChannelPublic) {
+                this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
+            } else {
+                this.accessRoleId = DbWrapper.getEntity(this.channelId, ChannelSettings.class).getAccessRoleId();
+                final Role accessRole = g.getRoleById(this.accessRoleId);
+                if (accessRole == null) {
+                    throw new UserFriendlyException(String.format(
+                            "Non-public channel has been detected (`@everyone` is missing `%s` and/or `%s` permissions)." +
+                                    " The chosen game and mode requires the channel to be either public, or have an access role set up." +
+                                    " Talk to an admin of your server to fix this." +
+                                    " Please refer to the documentation under %s",
+                            Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(), App.WEBSITE
+                    ));
+                }
+                if (!accessRole.hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
+                    throw new UserFriendlyException(String.format(
+                            "The configured access role `%s` is missing `%s` and/or `%s` permissions in this channel." +
+                                    " Talk to an admin of your server to fix this." +
+                                    " Please refer to the documentation under %s",
+                            accessRole.getName(), Permission.MESSAGE_WRITE.getName(),
+                            Permission.MESSAGE_READ.getName(), App.WEBSITE
+                    ));
+                }
+            }
+
+            //is the bot allowed to manage permissions for this channel?
+            if (!g.getSelfMember().hasPermission(channel, Permission.MANAGE_PERMISSIONS)) {
+                throw new UserFriendlyException(String.format(
+                        "To run a %s game in %s mode in this channel, I need the permission to `%s` in this channel",
+                        Games.POPCORN.textRep, this.mode.name(), Permission.MANAGE_PERMISSIONS)
+                );
+            }
+
+
+            try {
+                prepareChannel();
+            } catch (final PermissionException e) {
+                log.error("Could not prepare channel {}, id: {}, due to missing permission: {}", channel.getName(),
+                        channel.getId(), e.getPermission().getName(), e);
+                throw new UserFriendlyException(String.format(
+                        "The bot is missing the permission `%s` to run the selected game and mode in this channel.",
+                        e.getPermission().getName()
+                ), e);
+            }
+        }
+    }
+
+    /**
+     * Obtains a character setup and rands the roles and alignments between the inned players
+     *
+     * @param innedPlayers players that have inned
+     */
+    protected void randCharacters(final Set<Long> innedPlayers) {
+        // - rand the characters
+        final CharakterSetup charakterSetup = Games.getInfo(this).getCharacterSetup(this.mode, innedPlayers.size());
+        final List<Long> rand = new ArrayList<>(innedPlayers);
+        Collections.shuffle(rand);
+
+        if (charakterSetup.size() != innedPlayers.size()) {
+            throw new IllegalArgumentException(String.format(
+                    "The received character setup (%s) has a different size than the inned players (%s)",
+                    charakterSetup.size(), innedPlayers.size())
+            );
+        }
+
+        this.players.clear();
+        int i = 0;
+        for (final CharakterSetup.Charakter c : charakterSetup.getRandedCharakters()) {
+            final long randedUserId = rand.get(i);
+            this.players.add(new Player(randedUserId, c.alignment, c.role, i + 1));
+            i++;
+        }
+    }
+
+    protected PrivateGuild allocatePrivateGuild() {
+        PrivateGuild pg = Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.poll();
+        if (pg == null) {
+            Wolfia.handleOutputMessage(this.channelId,
+                    "Acquiring a private server for the wolves...this may take a while.");
+            log.error("Ran out of free private guilds. Please add moar.");
+            try { //oh yeah...we are waiting till infinity if necessary
+                pg = Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.take();
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Interrupted while waiting for a private server.");
+            }
+        }
+        return pg;
+    }
+
+    /**
      * Prepares the channel for a moderated game
      *
-     * @param players ids of the players that have inned
      * @throws PermissionException if the bot is missing permissions to edit permission overrides for members and roles
      */
-    protected void prepareChannel(final Set<Long> players) throws PermissionException {
+    protected void prepareChannel() throws PermissionException {
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
         final Guild g = channel.getGuild();
 
         // - ensure write access for the bot in the game channel
         // this can be done with complete() as most of the time (after the first game) it will already be in place
         // and will prevent messages getting lost due to queue() sometimes taking a while
-        RoleAndPermissionUtils.grant(channel, g.getSelfMember(), Permission.MESSAGE_WRITE).complete();
+        RoleAndPermissionUtils.grant(channel, g.getSelfMember(), Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).complete();
 
         // - no writing access and reaction adding for @everyone/access role in the game channel during the game
         RoleAndPermissionUtils.deny(channel, g.getRoleById(this.accessRoleId),
-                Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue();
+                Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue(null, Wolfia.defaultOnFail);
     }
 
     /**
@@ -290,6 +505,123 @@ public abstract class Game {
         resetRolesAndPermissions();
     }
 
+    //public for eval usage
+    public void destroy(final Throwable reason) {
+        String reasonMessage = "No reason provided";
+        if (reason != null) reasonMessage = reason.getMessage();
+        log.error("Game in channel {} destroyed due to {}", this.channelId, reasonMessage, reason);
+        Wolfia.handleOutputMessage(this.channelId,
+                "Game has been stopped due to:\n`%s`\nSorry about that. The issue has been logged and will hopefully be fixed soon." +
+                        "\nFeel free to join the Wolfia Lounge meanwhile through `%s` for direct support with the issue.",
+                reasonMessage, Config.PREFIX + HelpCommand.COMMAND);
+        cleanUp();
+        Games.remove(this);
+    }
+
+    protected boolean isOnlyVillageLeft() {
+        return getLivingPlayers().stream().allMatch(Player::isVillager);
+    }
+
+    //this check will probably get much more sophisticated with more complicated roles
+    protected boolean isParityReached() {
+        return getLivingWolves().size() >= getLivingVillage().size();
+    }
+
+
+    /**
+     * Checks whether any win conditions have been met, and reveals the game if yes
+     */
+    protected boolean isGameOver(final boolean... wwFlair) {
+        boolean gameEnding = false;
+        boolean villageWins = true;
+        String out = "";
+        if (isOnlyVillageLeft()) {
+            gameEnding = true;
+            this.running = false;
+            if (wwFlair.length > 0 && wwFlair[0]) {
+                out = "All wolves dead! **Village wins.** Thanks for playing!\nTeams:\n" + listTeams();
+            } else { //Mafia flair
+                out = "All mafia dead! **Town wins.** Thanks for playing!\nTeams:\n" + listTeams();
+            }
+        }
+        if (isParityReached()) {
+            gameEnding = true;
+            this.running = false;
+            villageWins = false;
+            if (wwFlair.length > 0 && wwFlair[0]) {
+                out = "Parity reached! **Wolves win.** Thanks for playing.\nTeams:\n" + listTeams();
+            } else { //Mafia Flair
+                out = "Parity reached! **Mafia wins.** Thanks for playing.\nTeams:\n" + listTeams();
+            }
+        }
+
+        if (gameEnding) {
+            this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.GAMEEND, -1));
+            this.gameStats.setEndTime(System.currentTimeMillis());
+
+            if (villageWins) {
+                this.gameStats.getStartingTeams().stream()
+                        .filter(t -> t.getAlignment() == Alignments.VILLAGE)
+                        .findFirst()
+                        .ifPresent(t -> t.setWinner(true));
+            } else {
+                //woofs win
+                this.gameStats.getStartingTeams().stream()
+                        .filter(t -> t.getAlignment() == Alignments.WOLF)
+                        .findFirst()
+                        .ifPresent(t -> t.setWinner(true));
+            }
+            DbWrapper.persist(this.gameStats);
+            out += String.format("\nThis game's id is **%s**, you can watch its replay with `%s %s`",
+                    this.gameStats.getGameId(), Config.PREFIX + ReplayCommand.COMMAND, this.gameStats.getGameId());
+            cleanUp();
+            // removing the game from the registry has to be the very last statement, since if a restart is queued, it
+            // waits for an empty games registry
+            Wolfia.handleOutputMessage(this.channelId,
+                    ignoredMessage -> Games.remove(this),
+                    throwable -> {
+                        log.error("Failed to send last message of game #{}", this.gameStats.getGameId(), throwable);
+                        Games.remove(this);
+                    },
+                    "%s", out);
+            return true;
+        }
+
+        return false;
+    }
+
+
+    protected EmbedBuilder listLivingPlayersWithNumbers() {
+        final EmbedBuilder eb = new EmbedBuilder();
+        final TextChannel tc = Wolfia.jda.getTextChannelById(this.channelId);
+        final Guild g = tc.getGuild();
+        eb.setTitle("Living players");
+        eb.setDescription("Game: " + Games.getInfo(this).textRep() + " " + this.mode.textRep + " on " + g.getName() + " in #" + tc.getName());
+
+        //format them into 2 columns
+        final StringBuilder field1 = new StringBuilder();
+        final StringBuilder field2 = new StringBuilder();
+
+        int i = 0;
+        for (final Player p : getLivingPlayers()) {
+            final Member m = g.getMemberById(p.userId);
+            final StringBuilder toAdd;
+            if (i % 2 == 0) {
+                toAdd = field1;
+            } else {
+                toAdd = field2;
+            }
+            toAdd.append(Emojis.LETTERS[p.number - 1]).append(" **").append(m.getEffectiveName()).append("** aka **").append(m.getUser().getName()).append("**\n");
+            i++;
+        }
+        eb.addField("", field1.toString(), true);
+        eb.addField("", field2.toString(), true);
+        return eb;
+    }
+
+    //an way to create ActionStats object with a bunch of default/automatically generated values, like time stamps
+    protected abstract ActionStats simpleAction(final long actor, final Actions action, final long target);
+
     /**
      * Sets the day length
      *
@@ -306,15 +638,17 @@ public abstract class Game {
     /**
      * Start a game
      * <p>
+     * IMPORTANT: In 99.483% of cases this needs to be implemented as synchronized.
+     * <p>
      * Things this needs to take care of include:
      * - setting the channelId, game mode and players
      * - creating, sending and saving the role pms
      *
-     * @param channelId main channel where the game shall runs
-     * @param mode      the chosen game mode
-     * @param players   the players who signed up
+     * @param channelId    main channel where the game shall run
+     * @param mode         the chosen game mode
+     * @param innedPlayers the players who signed up
      */
-    public abstract void start(final long channelId, final GameInfo.GameMode mode, Set<Long> players);
+    public abstract void start(long channelId, GameInfo.GameMode mode, Set<Long> innedPlayers);
 
     /**
      * Let the game handle a command a user issued
@@ -324,6 +658,6 @@ public abstract class Game {
      * @return true if the command was executed successful
      * @throws IllegalGameStateException if the command entered led to an illegal game state
      */
-    public abstract boolean issueCommand(IGameCommand command, CommandParser.CommandContainer commandInfo)
+    public abstract boolean issueCommand(GameCommand command, CommandParser.CommandContainer commandInfo)
             throws IllegalGameStateException;
 }

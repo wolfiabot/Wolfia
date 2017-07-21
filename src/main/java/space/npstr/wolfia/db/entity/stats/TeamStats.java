@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.db.entity.stats;
 
-import org.hibernate.annotations.ColumnDefault;
 import space.npstr.wolfia.game.definitions.Alignments;
 
 import javax.persistence.CascadeType;
@@ -72,7 +71,6 @@ public class TeamStats implements Serializable {
     private boolean isWinner;
 
     @Column(name = "team_size")
-    @ColumnDefault(value = "-1") //todo remove
     private int teamSize;
 
 

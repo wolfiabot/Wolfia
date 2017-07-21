@@ -31,7 +31,7 @@ import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
-import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.TextchatUtils;
@@ -187,7 +187,7 @@ public class SetupEntity implements IEntity {
 
         //accepted player numbers
         eb.addField("Allowed players",
-                String.join(", ", Games.getInfo(getGame()).getAcceptablePlayerNumbers(getMode()).stream().map(i -> "`" + i + "`").collect(Collectors.toList())),
+                Games.getInfo(getGame()).getAcceptablePlayerNumbers(getMode()),
                 true);
 
         //inned players

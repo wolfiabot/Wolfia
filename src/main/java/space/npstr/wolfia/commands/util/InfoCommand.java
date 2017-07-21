@@ -23,7 +23,7 @@ import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
-import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.App;
 
 import static space.npstr.wolfia.Wolfia.jda;

@@ -15,34 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.game;
+package space.npstr.wolfia.commands;
 
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
-import space.npstr.wolfia.commands.IGameCommand;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.TextchatUtils;
 
 /**
  * Created by napster on 21.05.17.
  * <p>
- * A player shoots another player
+ * game command are different from regular commands as they can be registered by games
  */
-public class ShootCommand implements ICommand, IGameCommand {
+public abstract class GameCommand implements ICommand {
 
-
-    public static final String COMMAND = "shoot";
+    protected boolean mentionRequired = false;
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
-
-        if (commandInfo.event.getMessage().getMentionedUsers().size() < 1) {
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s", help());
-            return false;
+        if (this.mentionRequired) {
+            if (commandInfo.event.getMessage().getMentionedUsers().size() < 1) {
+                Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s", TextchatUtils.asMarkdown(help()));
+                return false;
+            }
         }
 
         final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
@@ -59,11 +55,9 @@ public class ShootCommand implements ICommand, IGameCommand {
             Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", e.getMessage());
             return false;
         }
-
     }
 
-    @Override
-    public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + " @user\nshoot someone```";
+    public boolean isCommandTrigger(final String command) {
+        throw new UnsupportedOperationException("isCommandTrigger not implemented for this game command");
     }
 }

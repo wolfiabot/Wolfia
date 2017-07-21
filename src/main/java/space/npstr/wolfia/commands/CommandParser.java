@@ -19,6 +19,7 @@ package space.npstr.wolfia.commands;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Wolfia;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,6 +60,16 @@ public class CommandParser {
             this.args = args;
             this.event = e;
             this.received = received;
+        }
+
+
+        //todo introduce this to the code everywhere
+        public void reply(final String reply) {
+            if (this.event.getPrivateChannel() != null) {
+                Wolfia.handlePrivateOutputMessage(this.event.getAuthor().getIdLong(), Wolfia.defaultOnFail, reply);
+            } else {
+                Wolfia.handleOutputMessage(this.event.getTextChannel(), reply);
+            }
         }
     }
 }

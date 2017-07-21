@@ -15,12 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands;
+package space.npstr.wolfia.game.definitions;
 
 /**
- * Created by napster on 21.05.17.
+ * Created by napster on 06.07.17.
  * <p>
- * game command are different from regular commands as they can be registered by games
+ * Possible phases of a cycle
  */
-public interface IGameCommand {
+public enum Phase {
+
+    DAY("Day"),
+    NIGHT("Night");
+
+    public final String textRep;
+
+    Phase(final String textRepresentation) {
+        this.textRep = textRepresentation;
+    }
 }

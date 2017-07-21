@@ -17,11 +17,9 @@
 
 package space.npstr.wolfia.db.entity.stats;
 
-import org.hibernate.annotations.ColumnDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.definitions.Games;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,6 +33,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -97,46 +96,8 @@ public class GameStats implements Serializable {
     private String gameMode;
 
     @Column(name = "player_size")
-    @ColumnDefault(value = "-1") //todo remove
     private int playerSize;
 
-    //todo remove this code
-    public static String evalMigrate() {
-        final List<Long> gameIds = DbWrapper.selectJPQLQuery("SELECT gameId FROM GameStats", Long.class);
-        int toMigrate = 0;
-        int failed = 0;
-        for (final long id : gameIds) {
-            try {
-                final GameStats game = DbWrapper.loadSingleGameStats(id);
-
-                if (game.playerSize > -1) continue;
-                toMigrate++;
-
-                int sum = 0;
-                for (final TeamStats team : game.getStartingTeams()) {
-                    sum += team.getPlayers().size();
-                    if (team.getTeamSize() < 0) {
-                        team.setTeamSize(team.getPlayers().size());
-                    }
-
-                    for (final PlayerStats player : team.getPlayers()) {
-                        player.setAlignment(team.getAlignment());
-                    }
-                }
-                game.playerSize = sum;
-
-                for (final ActionStats action : game.actions) {
-                    action.setPhase(ActionStats.Phase.DAY);
-                }
-
-                DbWrapper.merge(game);
-            } catch (final Exception e) {
-                log.warn("Failed to migrate game #{} ", id, e);
-                failed++;
-            }
-        }
-        return "Successfully migrated " + (toMigrate - failed) + " / " + toMigrate + " / " + gameIds.size() + " total game stats";
-    }
 
     public GameStats(final long guildId, final String guildName, final long channelId, final String channelName,
                      final Games gameType, final String gameMode, final int playerSize) {
@@ -152,6 +113,10 @@ public class GameStats implements Serializable {
 
     public void addAction(final ActionStats action) {
         this.actions.add(action);
+    }
+
+    public void addActions(final Collection<ActionStats> actions) {
+        this.actions.addAll(actions);
     }
 
     public void addTeam(final TeamStats team) {

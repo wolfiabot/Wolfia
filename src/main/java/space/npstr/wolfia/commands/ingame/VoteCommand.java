@@ -15,35 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.game.definitions;
+package space.npstr.wolfia.commands.ingame;
+
+import space.npstr.wolfia.Config;
+import space.npstr.wolfia.commands.GameCommand;
 
 /**
- * Created by napster on 02.06.17.
+ * Created by napster on 06.07.17.
  * <p>
- * Possible actions in the game
+ * Add a vote
  */
-public enum Actions {
+public class VoteCommand extends GameCommand {
 
-    //general game stuff
-    GAMESTART,
-    GAMEEND,
-    DAYSTART,
-    DAYEND,
-    NIGHTSTART,
-    NIGHTEND,
-    BOTKILL, //auto kill by the bot
-    MODKILL, //killed by a game mod (reserved for the future )
+    public static final String COMMAND = "vote";
 
-    DEATH,
+    public VoteCommand() {
+        this.mentionRequired = true;
+    }
 
-    VOTELYNCH,
-    LYNCH,
-    VOTENIGHTKILL,
-
-    CHECK,
-
-    //popcorn related
-    SHOOT,
-    VOTEGUN,
-    GIVEGUN
+    @Override
+    public String help() {
+        final String usage = Config.PREFIX + COMMAND + " @player\n#";
+        return usage + "Vote the mentioned player.";
+    }
 }

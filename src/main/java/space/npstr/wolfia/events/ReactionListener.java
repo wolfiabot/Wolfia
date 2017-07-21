@@ -15,12 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia;
+package space.npstr.wolfia.events;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import space.npstr.wolfia.Wolfia;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -36,24 +37,29 @@ public class ReactionListener extends ListenerAdapter {
     private final long messageId;
     private final Predicate<Member> filter;
     private final Consumer<GenericMessageReactionEvent> callback;
+    private final Consumer<Void> selfDestructCallback;
 
     /**
-     * @param message            The message on which to listen for reactions
-     * @param filter             filter by Members
-     * @param callback           wat do when a reaction happens that went through the filter
-     * @param selfDestructMillis milliseconds after which this listener is removed and the message deleted
+     * @param message              The message on which to listen for reactions
+     * @param filter               filter by Members
+     * @param callback             wat do when a reaction happens that went through the filter
+     * @param selfDestructMillis   milliseconds after which this listener is removed and the message deleted
+     * @param selfDestructCallback called on self destruct
      */
     public ReactionListener(final Message message, final Predicate<Member> filter, final Consumer<GenericMessageReactionEvent> callback,
                             final long selfDestructMillis, final Consumer<Void> selfDestructCallback) {
         this.messageId = message.getIdLong();
         this.filter = filter;
         this.callback = callback;
+        this.selfDestructCallback = selfDestructCallback;
 
-        Wolfia.schedule(() -> {
-            //remove the listener
-            Wolfia.jda.removeEventListener(this);
-            selfDestructCallback.accept(null);
-        }, selfDestructMillis, TimeUnit.MILLISECONDS);
+        Wolfia.schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
+    }
+
+    protected void destruct() {
+        //remove the listener
+        Wolfia.jda.removeEventListener(this);
+        this.selfDestructCallback.accept(null);
     }
 
     @Override

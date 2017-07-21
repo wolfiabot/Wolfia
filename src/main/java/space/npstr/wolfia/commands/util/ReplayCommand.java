@@ -30,6 +30,7 @@ import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.stats.ActionStats;
 import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.TeamStats;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.Emojis;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.TextchatUtils;
@@ -85,7 +86,7 @@ public class ReplayCommand implements ICommand {
         eb.addField("Game started", dtf.format(Instant.ofEpochMilli(gameStats.getStartTime())), true);
 
         gameStats.getStartingTeams().forEach(team ->
-                eb.addField(team.getAlignment().textRep,
+                eb.addField(gameStats.getGameType() == Games.POPCORN ? team.getAlignment().textRepWW : team.getAlignment().textRepMaf,
                         String.join(", ",
                                 team.getPlayers().stream().map(player -> "`" + player.getNickname() + "`").collect(Collectors.toList())),
                         true)
@@ -120,7 +121,9 @@ public class ReplayCommand implements ICommand {
             winText = "Game has no winning team " + Emojis.WOLFTHINK + "\nReplay must be borked. Error has been reported.";
         } else {
             final TeamStats winningTeam = winners.get();
-            winText = "**Team " + winningTeam.getAlignment().textRep + " wins the game!**";
+            String flavouredTeamName = winningTeam.getAlignment().textRepMaf;
+            if (gameStats.getGameType() == Games.POPCORN) flavouredTeamName = winningTeam.getAlignment().textRepWW;
+            winText = "**Team " + flavouredTeamName + " wins the game!**";
         }
         eb.addField("Winners", winText, true);
 

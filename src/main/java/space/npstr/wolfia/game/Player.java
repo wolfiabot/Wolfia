@@ -17,7 +17,9 @@
 
 package space.npstr.wolfia.game;
 
+import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
+import space.npstr.wolfia.utils.Emojis;
 import space.npstr.wolfia.utils.IllegalGameStateException;
 
 /**
@@ -28,26 +30,57 @@ import space.npstr.wolfia.utils.IllegalGameStateException;
 public class Player {
 
     public final long userId;
-    public final boolean isWolf;
+    public final Alignments alignment;
     public final Roles role;
 
-    private boolean isLiving = true;
+    //1-26; fixed while the game goes on
+    public final int number;
 
-    public Player(final long userId, final boolean isWolf, final Roles role) {
+    private boolean isAlive = true;
+
+    public Player(final long userId, final Alignments alignment, final Roles role, final int number) {
         this.userId = userId;
-        this.isWolf = isWolf;
+        this.alignment = alignment;
         this.role = role;
+        this.number = number;
     }
 
-    public boolean isLiving() {
-        return this.isLiving;
+    public long getUserId() {
+        return this.userId;
+    }
+
+    public boolean isAlive() {
+        return this.isAlive;
+    }
+
+    public boolean isWolf() {
+        return this.alignment == Alignments.WOLF;
+    }
+
+    public boolean isVillager() {
+        return this.alignment == Alignments.VILLAGE;
+    }
+
+    /**
+     * @return an emoji representing role and alignment of this player
+     */
+    public String getEmoji() {
+        //role specific ones
+        if (this.role == Roles.COP) {
+            return Emojis.MAGNIFIER;
+        }
+        //alignment specific ones
+        if (this.alignment == Alignments.WOLF) {
+            return Emojis.SPY;
+        }
+        return Emojis.COWBOY;
     }
 
     public void kill() throws IllegalGameStateException {
-        if (!this.isLiving) {
+        if (!this.isAlive) {
             throw new IllegalGameStateException("Can't kill a dead player");
         }
-        this.isLiving = false;
+        this.isAlive = false;
     }
 
     @Override

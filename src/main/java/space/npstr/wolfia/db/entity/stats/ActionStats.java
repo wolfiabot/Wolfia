@@ -19,6 +19,8 @@ package space.npstr.wolfia.db.entity.stats;
 
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
+import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.definitions.Phase;
 import space.npstr.wolfia.utils.Emojis;
 import space.npstr.wolfia.utils.TextchatUtils;
 
@@ -86,8 +88,6 @@ public class ActionStats implements Serializable {
     //userId of the discord user
     @Column(name = "target")
     private long target;
-
-    public enum Phase {DAY, NIGHT}
 
     public ActionStats(final GameStats game, final int order, final long timeStampSubmitted, final long timeStampHappened, final int cycle, final Phase phase, final long actor, final Actions action, final long target) {
         this.game = game;
@@ -165,24 +165,30 @@ public class ActionStats implements Serializable {
             case MODKILL:
                 result += String.format("%s: %s modkilled.", Emojis.COFFIN, getFormattedNickFromStats(this.target));
                 break;
-
             case DEATH:
                 result += String.format("%s: %s dies.", Emojis.RIP, getFormattedNickFromStats(this.target));
                 break;
-
-
+            case VOTELYNCH:
+                result += String.format("%s: %s votes to lynch %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
+                break;
+            case LYNCH:
+                result += String.format("%s: %s is lynched", Emojis.FIRE, getFormattedNickFromStats(this.target));
+                break;
+            case VOTENIGHTKILL:
+                result += String.format("%s: %s votes to night kill %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
+                break;
+            case CHECK:
+                result += String.format("%s: %s checks alignment of %s.", Emojis.MAGNIFIER, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
+                break;
             case SHOOT:
                 result += String.format("%s: %s shoots %s.", Emojis.GUN, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
                 break;
-
             case VOTEGUN:
                 result += String.format("%s: %s votes to give %s the %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target), Emojis.GUN);
                 break;
-
             case GIVEGUN:
                 result += String.format("%s: %s receives the gun", Emojis.GUN, getFormattedNickFromStats(this.target));
                 break;
-
             default:
                 throw new IllegalArgumentException("Encountered an action that is not defined/has no text representation: " + this.actionType);
         }
@@ -191,10 +197,12 @@ public class ActionStats implements Serializable {
     }
 
     private String getFormattedNickFromStats(final long userId) {
+        String baddieEmoji = Emojis.SPY;
+        if (this.game.getGameType() == Games.POPCORN) baddieEmoji = Emojis.WOLF;
         for (final TeamStats team : this.game.getStartingTeams()) {
             for (final PlayerStats player : team.getPlayers()) {
                 if (player.getUserId() == userId)
-                    return "`" + player.getNickname() + "` " + (team.getAlignment() == Alignments.VILLAGE ? Emojis.COWBOY : Emojis.WOLF);
+                    return "`" + player.getNickname() + "` " + (player.getAlignment() == Alignments.VILLAGE ? Emojis.COWBOY : baddieEmoji);
             }
         }
         final String message = String.format("No such player %s in this game %s", userId, this.game.getGameId());

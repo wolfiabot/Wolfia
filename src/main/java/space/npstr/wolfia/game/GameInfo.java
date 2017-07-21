@@ -22,7 +22,6 @@ import space.npstr.wolfia.game.definitions.Scope;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by napster on 20.06.17.
@@ -31,13 +30,36 @@ import java.util.Set;
  */
 public interface GameInfo {
 
-    enum GameMode {WILD, CLASSIC}
+    //WILD and CLASSIC are used by Popcorn
+    //PURE and LITE are used by Mafia
+    enum GameMode {
+        WILD("Wild"),
+        CLASSIC("Classic"),
+        PURE("Pure"),
+        LITE("Lite");
+
+        public final String textRep;
+
+        GameMode(final String textRep) {
+            this.textRep = textRep;
+        }
+    }
 
     List<GameMode> getSupportedModes();
 
     GameMode getDefaultMode();
 
-    Map<Scope, Permission> getRequiredPermissions(final GameMode mode);
+    /**
+     * Smaller permissions need to be at the top of the returned Map to prevent bugs where JDA _thinks_ we have a
+     * permission to do something because we have a higher hierarchical permission but Discord disagrees.
+     */
+    Map<Permission, Scope> getRequiredPermissions(GameMode mode);
 
-    Set<Integer> getAcceptablePlayerNumbers(final GameMode mode);
+    String getAcceptablePlayerNumbers(GameMode mode);
+
+    boolean isAcceptablePlayerCount(int playerCount, GameMode mode);
+
+    CharakterSetup getCharacterSetup(GameMode mode, int playerCount);
+
+    String textRep();
 }

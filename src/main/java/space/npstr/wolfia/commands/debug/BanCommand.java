@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.util;
+package space.npstr.wolfia.commands.debug;
 
 import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.Member;
@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.Banlist;
 import space.npstr.wolfia.game.definitions.Scope;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
  * <p>
  * Ban users from playing the game.
  */
-public class BanCommand implements ICommand {
+public class BanCommand implements ICommand, IOwnerRestricted {
 
     public static final String COMMAND = "ban";
 

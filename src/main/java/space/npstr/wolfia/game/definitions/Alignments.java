@@ -17,19 +17,37 @@
 
 package space.npstr.wolfia.game.definitions;
 
+import space.npstr.wolfia.utils.Emojis;
+
 /**
  * Created by napster on 02.06.17.
  * <p>
  * Possible alignments in the game
  */
 public enum Alignments {
-    VILLAGE("Village"),
-    WOLF("Wolves");
+    VILLAGE("Village", String.format("Your alignment is **Villager** %s. Your goal is to kill all wolves.", Emojis.COWBOY),
+            "Town", String.format("Your alignment is **Town** %s. Your goal is to kill all mafia.", Emojis.COWBOY)),
+    WOLF("Wolves", String.format("Your alignment is **Wolf** %s. Your goal is to reach parity with the village.", Emojis.WOLF),
+            "Mafia", String.format("Your alignment is **Mafia** %s. Your goal is to reach parity with town.", Emojis.SPY));
 
 
-    public final String textRep;
+    //werewolf lingo
+    public final String textRepWW;
 
-    Alignments(final String textRepresentation) {
-        this.textRep = textRepresentation;
+    //alignment related building block of character pms
+    public final String rolePmBlockWW;
+
+    //mafia lingo
+    public final String textRepMaf;
+
+    //alignment related building block of character pms
+    public final String rolePmBlockMaf;
+
+    Alignments(final String textRepWW, final String rolePmBlockWW, final String textRepMaf, final String rolePmBlockMaf) {
+        this.textRepWW = textRepWW;
+        this.rolePmBlockWW = rolePmBlockWW;
+
+        this.textRepMaf = textRepMaf;
+        this.rolePmBlockMaf = rolePmBlockMaf;
     }
 }

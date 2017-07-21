@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'space.npstr'
-version = '0.7.15_' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
+version = '0.8.0_' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'net.dv8tion:JDA:3.1.1_223'                                             //discord API
+    compile 'net.dv8tion:JDA:3.2.0_228'                                             //discord API
     compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
     compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
     compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
@@ -32,8 +32,8 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.8.1'                                     //http client
 
     //database stuff
-    compile 'org.postgresql:postgresql:42.1.1'                                      //postgres jdbc driver
-    compile 'org.hibernate:hibernate-entitymanager:5.2.10.Final'                    //hibernate + JPA
+    compile 'org.postgresql:postgresql:42.1.3'                                      //postgres jdbc driver
+    compile 'org.hibernate:hibernate-core:5.2.10.Final'                             //hibernate + JPA
     compile 'com.zaxxer:HikariCP:2.6.3'                                             //connection pool
 
     //charts stuff

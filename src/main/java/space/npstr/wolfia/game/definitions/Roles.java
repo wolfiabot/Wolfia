@@ -17,11 +17,24 @@
 
 package space.npstr.wolfia.game.definitions;
 
+import space.npstr.wolfia.utils.Emojis;
+
 /**
  * Created by napster on 31.05.17.
  * <p>
- * Roles related stuff. don't just change once assigned values in production or things break
+ * Roles related stuff. Don't just change once created enums in production or things break
  */
 public enum Roles {
-    VANILLA
+    VANILLA("Vanilla", "Your role is **Vanilla**. Your vote is your weapon. "),
+    COP("Cop", String.format("Your role is **Cop** %s. Each night you may check a player's alignment.", Emojis.MAGNIFIER));
+
+    public final String textRep;
+
+    //role related building block of character pms
+    public final String rolePmBlock;
+
+    Roles(final String textRepresentation, final String rolePmBlock) {
+        this.textRep = textRepresentation;
+        this.rolePmBlock = rolePmBlock;
+    }
 }

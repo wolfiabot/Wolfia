@@ -28,7 +28,7 @@ import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.GameInfo;
-import space.npstr.wolfia.game.Games;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.App;
 
 import java.util.concurrent.TimeUnit;
@@ -72,7 +72,8 @@ public class SetupCommand implements ICommand {
             switch (option.toLowerCase()) {
                 case "game":
                     try {
-                        setup.setGame(Games.valueOf(commandInfo.args[1]));
+                        setup.setGame(Games.valueOf(commandInfo.args[1].toUpperCase()));
+                        setup.setMode(Games.getInfo(setup.getGame()).getDefaultMode());
                         setup = DbWrapper.merge(setup);
                     } catch (final IllegalArgumentException ex) {
                         Wolfia.handleOutputMessage(channel, "%s, no such game is supported by this bot: ", invoker.getAsMention(), commandInfo.args[1]);
