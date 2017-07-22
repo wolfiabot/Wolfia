@@ -83,7 +83,7 @@ Command             | What it does                                        | Exam
 `w.help`            | send some help your way                             | `w.help`
 `w.info`            | show some general information about Wolfia          | `w.info`
 `w.replay`          | show the replay of a game                           | `w.replay #gameid`
-`w.tag`             | post or sign up for the tag list of the channel     | `w.tag add` `w.get remove` `w.tag add @role`
+`w.tag`             | post or sign up for the tag list of the channel     | `w.tag add` `w.tag remove` `w.tag add @role`
 
 * * *
 
@@ -95,8 +95,8 @@ Command             | What it does                                        | Exam
 
 Town ![][t]{:height="15" width="15"} against Mafia ![][m]{:height="15" width="15"}
 
-Power roles:
-Cop ![][cop]{:height="15" width="15"} : Investigates the alignment of a player at night.
+Power roles:  
+The Cop ![][cop]{:height="15" width="15"} investigates the alignment of a player at night.
 
 - The Mafia knows their team
 - During the day everyone votes to lynch one of the players
@@ -118,7 +118,7 @@ Village ![][v]{:height="15" width="15"} against Wolves ![][w]{:height="15" width
 3+ players
 
 The Wild mode randomizes who gets the ![][gun]{:height="15" width="15"}.
-The channel will never be closed, non-players and dead players can post the whole time.
+The channel is never be closed, non-players and dead players can post all the time.
 
 ### Classic
 
