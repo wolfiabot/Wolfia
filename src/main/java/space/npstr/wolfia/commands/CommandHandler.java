@@ -43,6 +43,7 @@ import space.npstr.wolfia.commands.stats.BotStatsCommand;
 import space.npstr.wolfia.commands.stats.GuildStatsCommand;
 import space.npstr.wolfia.commands.stats.UserStatsCommand;
 import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
+import space.npstr.wolfia.commands.util.CommandsCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InfoCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
@@ -88,6 +89,7 @@ public class CommandHandler {
 
         //util commands
         COMMAND_REGISTRY.put(ChannelSettingsCommand.COMMAND, new ChannelSettingsCommand());
+        COMMAND_REGISTRY.put(CommandsCommand.COMMAND, new CommandsCommand());
         COMMAND_REGISTRY.put(HelpCommand.COMMAND, new HelpCommand());
         COMMAND_REGISTRY.put(InfoCommand.COMMAND, new InfoCommand());
         COMMAND_REGISTRY.put(ReplayCommand.COMMAND, new ReplayCommand());

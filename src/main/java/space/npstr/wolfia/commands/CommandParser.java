@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
@@ -69,6 +70,14 @@ public class CommandParser {
                 Wolfia.handlePrivateOutputMessage(this.event.getAuthor().getIdLong(), Wolfia.defaultOnFail, reply);
             } else {
                 Wolfia.handleOutputMessage(this.event.getTextChannel(), reply);
+            }
+        }
+
+        public void reply(final MessageEmbed embed) {
+            if (this.event.getPrivateChannel() != null) {
+                Wolfia.handlePrivateOutputEmbed(this.event.getAuthor().getIdLong(), Wolfia.defaultOnFail, embed);
+            } else {
+                Wolfia.handleOutputEmbed(this.event.getTextChannel(), embed);
             }
         }
     }
