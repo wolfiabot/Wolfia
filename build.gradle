@@ -43,7 +43,7 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '4.0.1'
 }
 
 processResources {
@@ -56,6 +56,7 @@ processResources {
 
 compileJava.dependsOn 'clean'
 compileJava.options.encoding = 'UTF-8'
+compileJava.options.compilerArgs << "-Xlint:unchecked"
 
 bintray {
     user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
