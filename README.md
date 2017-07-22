@@ -12,7 +12,7 @@
 
 Wolfia is considered to be alpha status. New games, modes and features are coming out regularly.
 
-Please check out http://wolfia.space for a full list of commands and games!
+Please check out https://docs.wolfia.party for a full list of commands and games!
 
 
 ## Support, feedback, roadmap and games in the Wolfia Lounge
