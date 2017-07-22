@@ -1,0 +1,24 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+#header {
+  visibility: hidden;
+}
+
+.wrapper {
+  max-width: 1000px;
+}
+
+section {
+  max-width: 1000px;
+}
+
+.center {
+  text-align: center;
+}
+
+.invite-image a img {
+  max-width: 700px;
+}

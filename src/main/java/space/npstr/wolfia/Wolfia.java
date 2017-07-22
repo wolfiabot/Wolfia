@@ -110,6 +110,7 @@ public class Wolfia {
         SimpleLog.LEVEL = SimpleLog.Level.OFF;
         SimpleLog.addListener(new JDASimpleLogListener());
 
+        log.info(art());
         log.info("Starting Wolfia v" + App.VERSION);
 
         //add webhookURI to Discord log appender
@@ -440,4 +441,36 @@ public class Wolfia {
             loggerContext.stop();
         }
     });
+
+    //########## vanity
+    private static String art() {
+
+        return "" +
+                "\n                              __" +
+                "\n                            .d$$b" +
+                "\n                           .' TO$;\\" +
+                "\n        Wolfia            /  : TP._;" +
+                "\n    Werewolf & Mafia     / _.;  :Tb|" +
+                "\n      Discord bot       /   /   ;j$j" +
+                "\n                    _.-\"       d$$$$" +
+                "\n                  .' ..       d$$$$;" +
+                "\n                 /  /P'      d$$$$P. |\\" +
+                "\n                /   \"      .d$$$P' |\\^\"l" +
+                "\n              .'           `T$P^\"\"\"\"\"  :" +
+                "\n          ._.'      _.'                ;" +
+                "\n       `-.-\".-'-' ._.       _.-\"    .-\"" +
+                "\n     `.-\" _____  ._              .-\"" +
+                "\n    -(.g$$$$$$$b.              .'" +
+                "\n      \"\"^^T$$$P^)            .(:" +
+                "\n        _/  -\"  /.'         /:/;" +
+                "\n     ._.'-'`-'  \")/         /;/;" +
+                "\n  `-.-\"..--\"\"   \" /         /  ;" +
+                "\n .-\" ..--\"\"        -'          :" +
+                "\n ..--\"\"--.-\"         (\\      .-(\\" +
+                "\n   ..--\"\"              `-\\(\\/;`" +
+                "\n     _.                      :" +
+                "\n                             ;`-" +
+                "\n                            :\\" +
+                "\n                            ;";
+    }
 }
