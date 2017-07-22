@@ -21,8 +21,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.utils.App;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

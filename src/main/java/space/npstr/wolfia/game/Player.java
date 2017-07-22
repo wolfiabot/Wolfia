@@ -19,8 +19,7 @@ package space.npstr.wolfia.game;
 
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
-import space.npstr.wolfia.utils.Emojis;
-import space.npstr.wolfia.utils.IllegalGameStateException;
+import space.npstr.wolfia.utils.discord.Emojis;
 
 /**
  * Created by napster on 05.07.17.

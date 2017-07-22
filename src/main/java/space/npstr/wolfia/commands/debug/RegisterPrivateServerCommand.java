@@ -29,8 +29,8 @@ import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.PrivateGuild;
-import space.npstr.wolfia.utils.IllegalGameStateException;
-import space.npstr.wolfia.utils.RoleAndPermissionUtils;
+import space.npstr.wolfia.game.IllegalGameStateException;
+import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 
 import java.io.IOException;
 

@@ -20,13 +20,13 @@ package space.npstr.wolfia.commands.game;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
-import space.npstr.wolfia.utils.App;
 
 /**
  * Created by npstr on 23.08.2016

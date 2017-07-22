@@ -31,10 +31,10 @@ import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
+import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.Operation;
-import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;

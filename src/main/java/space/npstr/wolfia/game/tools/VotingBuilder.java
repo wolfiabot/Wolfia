@@ -3,10 +3,10 @@ package space.npstr.wolfia.game.tools;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.game.GameUtils;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Phase;
-import space.npstr.wolfia.utils.GameUtils;
-import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;

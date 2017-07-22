@@ -15,27 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.db;
 
 /**
- * Created by napster on 21.05.17.
+ * Created by napster on 03.07.17.
  * <p>
- * Exception for when a game enters a faulty state
+ * Thrown by our database connection
  */
-public class IllegalGameStateException extends Exception {
+public class DatabaseException extends RuntimeException {
 
-    private static final long serialVersionUID = -3082580128565589439L;
+
+    private static final long serialVersionUID = 4421127305934584766L;
 
     //force creation with a message
-    private IllegalGameStateException() {
+    private DatabaseException() {
 
     }
 
-    public IllegalGameStateException(final String message) {
+    public DatabaseException(final String message) {
         super(message);
     }
 
-    public IllegalGameStateException(final String message, final Throwable t) {
+    public DatabaseException(final String message, final Throwable t) {
         super(message, t);
     }
 }

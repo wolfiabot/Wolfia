@@ -15,10 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.utils.discord;
 
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import space.npstr.wolfia.utils.Operation;
 
 import java.text.NumberFormat;
 import java.util.Arrays;

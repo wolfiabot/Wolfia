@@ -30,10 +30,10 @@ import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.stats.ActionStats;
 import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.TeamStats;
+import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.utils.Emojis;
-import space.npstr.wolfia.utils.IllegalGameStateException;
-import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.time.Instant;
 import java.time.ZoneId;

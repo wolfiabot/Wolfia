@@ -20,7 +20,7 @@ package space.npstr.wolfia.commands.stats;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
-import space.npstr.wolfia.utils.IllegalGameStateException;
+import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
 
 /**

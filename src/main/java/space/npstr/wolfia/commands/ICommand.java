@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands;
 
 
-import space.npstr.wolfia.utils.IllegalGameStateException;
+import space.npstr.wolfia.game.IllegalGameStateException;
 
 /**
  * Created by npstr on 23.08.2016

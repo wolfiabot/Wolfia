@@ -25,7 +25,6 @@ import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.TeamStats;
-import space.npstr.wolfia.utils.DatabaseException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;

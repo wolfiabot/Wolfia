@@ -20,6 +20,7 @@ package space.npstr.wolfia.commands;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.debug.BanCommand;
@@ -31,7 +32,7 @@ import space.npstr.wolfia.commands.debug.ShutdownCommand;
 import space.npstr.wolfia.commands.debug.UpdateCommand;
 import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.OutCommand;
-import space.npstr.wolfia.commands.game.RolePMCommand;
+import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.game.SetupCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
@@ -48,8 +49,7 @@ import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.stats.CommandStats;
-import space.npstr.wolfia.utils.App;
-import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class CommandHandler {
         //game related commands
         COMMAND_REGISTRY.put(InCommand.COMMAND, new InCommand());
         COMMAND_REGISTRY.put(OutCommand.COMMAND, new OutCommand());
-        COMMAND_REGISTRY.put(RolePMCommand.COMMAND, new RolePMCommand());
+        COMMAND_REGISTRY.put(RolePmCommand.COMMAND, new RolePmCommand());
         COMMAND_REGISTRY.put(SetupCommand.COMMAND, new SetupCommand());
         COMMAND_REGISTRY.put(StartCommand.COMMAND, new StartCommand());
         COMMAND_REGISTRY.put(StatusCommand.COMMAND, new StatusCommand());

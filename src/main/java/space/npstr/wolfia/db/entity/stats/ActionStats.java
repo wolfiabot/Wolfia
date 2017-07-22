@@ -21,8 +21,8 @@ import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Phase;
-import space.npstr.wolfia.utils.Emojis;
-import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

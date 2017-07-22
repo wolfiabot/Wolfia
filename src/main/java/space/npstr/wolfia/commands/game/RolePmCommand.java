@@ -22,14 +22,14 @@ import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
  * Created by napster on 27.05.17.
  * <p>
  * resend a role PM to a player
  */
-public class RolePMCommand implements ICommand {
+public class RolePmCommand implements ICommand {
 
     public static final String COMMAND = "rolepm";
 

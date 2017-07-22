@@ -23,7 +23,9 @@ import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.DbUtils;
 import space.npstr.wolfia.game.definitions.Alignments;
+import space.npstr.wolfia.utils.discord.Emojis;
 
 import javax.persistence.EntityManager;
 import java.math.BigDecimal;
@@ -35,8 +37,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static space.npstr.wolfia.utils.TextchatUtils.divide;
-import static space.npstr.wolfia.utils.TextchatUtils.percentFormat;
+import static space.npstr.wolfia.utils.discord.TextchatUtils.divide;
+import static space.npstr.wolfia.utils.discord.TextchatUtils.percentFormat;
 
 /**
  * Created by napster on 10.06.17.

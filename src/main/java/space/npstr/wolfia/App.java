@@ -15,11 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.util.HelpCommand;
 
 import java.util.ResourceBundle;
@@ -34,7 +33,7 @@ public class App {
     private static final ResourceBundle props = ResourceBundle.getBundle("app");
     public static final String VERSION = props.getString("version");
     public static long OWNER_ID = 166604053629894657L;//Napster
-    public static String INVITE_LINK = "https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot";
+    public static String INVITE_LINK = "https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot&permissions=268787777";
     public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";
     public static final long WOLFIA_LOUNGE_ID = 315944983754571796L;
     public static final String WEBSITE = "http://wolfia.space";

@@ -25,15 +25,15 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.ChannelSettings;
+import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.utils.App;
-import space.npstr.wolfia.utils.IllegalGameStateException;
-import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;

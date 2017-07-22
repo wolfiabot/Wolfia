@@ -28,7 +28,7 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.GameCommand;
-import space.npstr.wolfia.commands.game.RolePMCommand;
+import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
@@ -40,6 +40,8 @@ import space.npstr.wolfia.events.PrivateChannelListener;
 import space.npstr.wolfia.events.UpdatingReactionListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
+import space.npstr.wolfia.game.GameUtils;
+import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
@@ -47,13 +49,11 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Phase;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.game.tools.VotingBuilder;
-import space.npstr.wolfia.utils.Emojis;
-import space.npstr.wolfia.utils.GameUtils;
-import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.PeriodicTimer;
-import space.npstr.wolfia.utils.RoleAndPermissionUtils;
-import space.npstr.wolfia.utils.TextchatUtils;
 import space.npstr.wolfia.utils.UserFriendlyException;
+import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -114,6 +114,7 @@ public class Mafia extends Game {
         return sb.toString();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public synchronized void start(final long channelId, final GameInfo.GameMode mode, final Set<Long> innedPlayers)
             throws UserFriendlyException {
@@ -163,7 +164,7 @@ public class Mafia extends Game {
                     e -> Wolfia.handleOutputMessage(channel,
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                     "or unblock me, then issue `%s%s` to receive your role PM.",
-                            TextchatUtils.userAsMention(player.userId), Config.PREFIX, RolePMCommand.COMMAND),
+                            TextchatUtils.userAsMention(player.userId), Config.PREFIX, RolePmCommand.COMMAND),
                     "%s", rolePm.toString()
             );
             this.rolePMs.put(player.userId, rolePm.toString());
@@ -198,7 +199,6 @@ public class Mafia extends Game {
 
         //start the time only after the message was actually sent
         final Consumer c = aVoid -> this.executor.schedule(this::startDay, 20, TimeUnit.SECONDS);
-        //noinspection unchecked
         Wolfia.handleOutputMessage(this.channelId, c, c, "Time to read your role PMs! Day starts in 20 seconds. ");
 
     }
@@ -578,6 +578,7 @@ public class Mafia extends Game {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void endNight(final Player nightKillCandidate) {
 
         this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.NIGHTEND, -1));
@@ -616,7 +617,6 @@ public class Mafia extends Game {
         if (!isGameOver()) {
             //start the timer only after the message has actually been sent
             final Consumer c = aVoid -> this.executor.schedule(this::startDay, 10, TimeUnit.SECONDS);
-            //noinspection unchecked
             Wolfia.handleOutputMessage(this.channelId, c, c, "Day starts in 10 seconds.\n%s", String.join(", ", getLivingPlayerMentions()));
         }
     }

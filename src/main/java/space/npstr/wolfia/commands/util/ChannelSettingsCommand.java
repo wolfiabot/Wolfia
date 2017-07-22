@@ -23,13 +23,13 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.ChannelSettings;
-import space.npstr.wolfia.utils.App;
 
 import java.util.Arrays;
 import java.util.List;

@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.IEntity;
-import space.npstr.wolfia.utils.RoleAndPermissionUtils;
-import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

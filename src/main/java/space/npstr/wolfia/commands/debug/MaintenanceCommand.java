@@ -5,7 +5,7 @@ import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entity.Hstore;
-import space.npstr.wolfia.utils.IllegalGameStateException;
+import space.npstr.wolfia.game.IllegalGameStateException;
 
 /**
  * Created by napster on 14.07.17.

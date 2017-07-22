@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.game;
 
-import space.npstr.wolfia.game.Player;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.game.definitions;
 
-import space.npstr.wolfia.utils.Emojis;
+import space.npstr.wolfia.utils.discord.Emojis;
 
 /**
  * Created by napster on 02.06.17.

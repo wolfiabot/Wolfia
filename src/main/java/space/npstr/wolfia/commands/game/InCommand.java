@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.game;
 
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
@@ -26,8 +27,7 @@ import space.npstr.wolfia.db.entity.Banlist;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
-import space.npstr.wolfia.utils.App;
-import space.npstr.wolfia.utils.TextchatUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
  * Created by npstr on 23.08.2016

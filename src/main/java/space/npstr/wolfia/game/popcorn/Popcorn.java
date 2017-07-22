@@ -28,7 +28,7 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.GameCommand;
-import space.npstr.wolfia.commands.game.RolePMCommand;
+import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.db.entity.stats.ActionStats;
 import space.npstr.wolfia.db.entity.stats.GameStats;
@@ -36,18 +36,18 @@ import space.npstr.wolfia.db.entity.stats.PlayerStats;
 import space.npstr.wolfia.db.entity.stats.TeamStats;
 import space.npstr.wolfia.events.ReactionListener;
 import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.GameUtils;
+import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Phase;
-import space.npstr.wolfia.utils.Emojis;
-import space.npstr.wolfia.utils.GameUtils;
-import space.npstr.wolfia.utils.IllegalGameStateException;
 import space.npstr.wolfia.utils.Operation;
-import space.npstr.wolfia.utils.RoleAndPermissionUtils;
-import space.npstr.wolfia.utils.TextchatUtils;
 import space.npstr.wolfia.utils.UserFriendlyException;
+import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -178,7 +178,7 @@ public class Popcorn extends Game {
                     e -> Wolfia.handleOutputMessage(channel,
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                     "or unblock me, then issue `%s%s` to receive your role PM.",
-                            TextchatUtils.userAsMention(player.userId), Config.PREFIX, RolePMCommand.COMMAND),
+                            TextchatUtils.userAsMention(player.userId), Config.PREFIX, RolePmCommand.COMMAND),
                     "%s", rolePm.toString()
             );
             this.rolePMs.put(player.userId, rolePm.toString());
@@ -311,7 +311,7 @@ public class Popcorn extends Game {
         }
 
         //check win conditions
-        if (isGameOver()) {
+        if (isGameOver(true)) {
             return; //we're done here
         }
         if (this.mode != GameMode.WILD) {
