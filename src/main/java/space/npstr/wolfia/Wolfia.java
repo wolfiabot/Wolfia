@@ -266,6 +266,9 @@ public class Wolfia {
         if (complete && (onSuccess != null || onFail != null)) {
             log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
         }
+        if (channel == null) {
+            throw new IllegalArgumentException("Provided channel is null");
+        }
         final MessageBuilder mb = new MessageBuilder();
         if (args.length == 0) {
             mb.append(msg);

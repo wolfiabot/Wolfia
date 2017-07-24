@@ -93,22 +93,24 @@ public class Popcorn extends Game {
 
 
     @Override
-    public String getStatus() {
-
-        final StringBuilder sb = new StringBuilder("Popcorn");
+    public EmbedBuilder getStatus() {
+        final EmbedBuilder eb = new EmbedBuilder();
+        eb.addField("Game", Games.POPCORN.textRep + " " + this.mode.textRep, true);
         if (!this.running) {
-            sb.append("\nGame is not running");
-        } else {
-            sb.append("\nDay: ").append(this.day);
-            sb.append("\n").append(listLivingPlayers()).append("\n");
-            getLivingWolves().forEach(w -> sb.append(Emojis.WOLF));
-            sb.append("(").append(getLivingWolves().size()).append(") still alive.");
-            sb.append("\n").append(TextchatUtils.userAsMention(this.gunBearer)).append(" is holding the ").append(Emojis.GUN);
-            final long timeLeft = this.dayStarted + this.dayLengthMillis - System.currentTimeMillis();
-            sb.append("\nTime left: ").append(TextchatUtils.formatMillis(timeLeft));
+            eb.addField("", "**Game is not running**", false);
+            return eb;
         }
+        eb.addField("Day", Integer.toString(this.day), true);
+        final long timeLeft = this.dayStarted + this.dayLengthMillis - System.currentTimeMillis();
+        eb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
 
-        return sb.toString();
+        eb.addField("Living Players", String.join("\n", getLivingPlayerMentions()), true);
+        final StringBuilder sb = new StringBuilder();
+        getLivingWolves().forEach(w -> sb.append(Emojis.WOLF));
+        eb.addField("Living wolves", sb.toString(), true);
+        eb.addField("Gun holder", TextchatUtils.userAsMention(this.gunBearer), true);
+
+        return eb;
     }
 
     @Override
@@ -256,7 +258,7 @@ public class Popcorn extends Game {
         this.dayStarted = System.currentTimeMillis();
         this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.DAYSTART, -1));
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
-        Wolfia.handleOutputMessage(channel, getStatus());
+        Wolfia.handleOutputEmbed(channel, getStatus().build());
         Wolfia.handleOutputMessage(channel, "Day %s started! %s, you have %s minutes to shoot someone.",
                 this.day, TextchatUtils.userAsMention(this.gunBearer), this.dayLengthMillis / 60000);
 

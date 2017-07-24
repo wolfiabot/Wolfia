@@ -22,6 +22,9 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import space.npstr.wolfia.utils.Operation;
 
 import java.text.NumberFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -124,5 +127,15 @@ public class TextchatUtils {
 
     public static String asMarkdown(final String str) {
         return "```md\n" + str + "```";
+    }
+
+    public static String toUtcTime(final long epochMillis) {
+        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss z").withZone(ZoneId.of("UTC"));
+        return dtf.format(Instant.ofEpochMilli(epochMillis));
+    }
+
+    public static String toBerlinTime(final long epochMillis) {
+        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss z").withZone(ZoneId.of("Europe/Berlin"));
+        return dtf.format(Instant.ofEpochMilli(epochMillis));
     }
 }

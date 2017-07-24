@@ -43,7 +43,7 @@ public class StatusCommand implements ICommand {
 
         final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
         if (game != null) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", game.getStatus());
+            Wolfia.handleOutputEmbed(commandInfo.event.getChannel(), game.getStatus().build());
             return true;
         }
 

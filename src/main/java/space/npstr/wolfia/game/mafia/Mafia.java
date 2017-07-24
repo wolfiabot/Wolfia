@@ -98,20 +98,23 @@ public class Mafia extends Game {
     }
 
     @Override
-    public String getStatus() {
-        final StringBuilder sb = new StringBuilder(Games.MAFIA.textRep);
+    public EmbedBuilder getStatus() {
+        final EmbedBuilder eb = new EmbedBuilder();
+        eb.addField("Game", Games.MAFIA.textRep + " " + this.mode.textRep, true);
         if (!this.running) {
-            sb.append("\nGame is not running");
-        } else {
-            sb.append("\nCycle: ").append(this.cycle);
-            sb.append("\nPhase: ").append(this.phase.textRep);
-            sb.append("\n").append(listLivingPlayers()).append("\n");
-            getLivingWolves().forEach(w -> sb.append(Emojis.SPY));
-            sb.append("(").append(getLivingWolves().size()).append(") still alive.");
-            final long timeLeft = this.phaseStarted + (this.phase == Phase.DAY ? this.dayLengthMillis : this.nightLengthMillis) - System.currentTimeMillis();
-            sb.append("\nTime left: ").append(TextchatUtils.formatMillis(timeLeft));
+            eb.addField("", "**Game is not running**", false);
+            return eb;
         }
-        return sb.toString();
+        eb.addField("Phase", this.phase.textRep + " " + this.cycle, true);
+        final long timeLeft = this.phaseStarted + (this.phase == Phase.DAY ? this.dayLengthMillis : this.nightLengthMillis) - System.currentTimeMillis();
+        eb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
+
+        eb.addField("Living Players", String.join("\n", getLivingPlayerMentions()), true);
+        final StringBuilder sb = new StringBuilder();
+        getLivingWolves().forEach(w -> sb.append(Emojis.SPY));
+        eb.addField("Living Mafia", sb.toString(), true);
+
+        return eb;
     }
 
     @SuppressWarnings("unchecked")

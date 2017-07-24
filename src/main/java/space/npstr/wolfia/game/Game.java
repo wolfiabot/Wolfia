@@ -131,6 +131,14 @@ public abstract class Game {
     }
 
     /**
+     * @return time when the game started
+     */
+    public long getStartTime() {
+        if (this.gameStats != null) return this.gameStats.getStartTime();
+        else return -1;
+    }
+
+    /**
      * this is used to keep stats, call this whenever a listener sees the user post something during an ongoing game
      */
     public void userPosted(final Message message) {
@@ -510,12 +518,15 @@ public abstract class Game {
         String reasonMessage = "No reason provided";
         if (reason != null) reasonMessage = reason.getMessage();
         log.error("Game in channel {} destroyed due to {}", this.channelId, reasonMessage, reason);
-        Wolfia.handleOutputMessage(this.channelId,
-                "Game has been stopped due to:\n`%s`\nSorry about that. The issue has been logged and will hopefully be fixed soon." +
-                        "\nFeel free to join the Wolfia Lounge meanwhile through `%s` for direct support with the issue.",
-                reasonMessage, Config.PREFIX + HelpCommand.COMMAND);
         cleanUp();
         Games.remove(this);
+        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        if (channel != null) {
+            Wolfia.handleOutputMessage(channel,
+                    "Game has been stopped due to:\n`%s`\nSorry about that. The issue has been logged and will hopefully be fixed soon." +
+                            "\nFeel free to join the Wolfia Lounge meanwhile through `%s` for direct support with the issue.",
+                    reasonMessage, Config.PREFIX + HelpCommand.COMMAND);
+        }
     }
 
     protected boolean isOnlyVillageLeft() {
@@ -636,7 +647,7 @@ public abstract class Game {
     /**
      * @return a status of the game
      */
-    public abstract String getStatus();
+    public abstract EmbedBuilder getStatus();
 
     /**
      * Start a game

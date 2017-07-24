@@ -35,9 +35,6 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -76,14 +73,13 @@ public class ReplayCommand implements ICommand {
                     e.getAuthor().getAsMention());
             return false;
         }
-        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss z").withZone(ZoneId.of("UTC"));
 
         final EmbedBuilder eb = new EmbedBuilder();
 
         //1. post summary like game, mode, players, roles
         eb.setTitle("**Game #" + gameStats.getGameId() + "**");
         eb.setDescription(gameStats.getGameType().textRep + " " + gameStats.getGameMode());
-        eb.addField("Game started", dtf.format(Instant.ofEpochMilli(gameStats.getStartTime())), true);
+        eb.addField("Game started", TextchatUtils.toUtcTime(gameStats.getStartTime()), true);
 
         gameStats.getStartingTeams().forEach(team ->
                 eb.addField(gameStats.getGameType() == Games.POPCORN ? team.getAlignment().textRepWW : team.getAlignment().textRepMaf,
@@ -110,7 +106,7 @@ public class ReplayCommand implements ICommand {
         eb.addField(fieldTitle, actions.toString(), false);
 
         //3. post the winners
-        eb.addField("Game ended", dtf.format(Instant.ofEpochMilli(gameStats.getEndTime())), true);
+        eb.addField("Game ended", TextchatUtils.toUtcTime(gameStats.getEndTime()), true);
         eb.addField("Game length", TextchatUtils.formatMillis(gameStats.getEndTime() - gameStats.getStartTime()), true);
 
         final String winText;
