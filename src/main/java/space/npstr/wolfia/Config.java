@@ -59,6 +59,8 @@ public class Config {
     public final String jdbcUrl;
     public final String imgurClientId;
     public final String avatars;
+    public final String botsDiscordPwToken;
+    public final String discordbotsOrgToken;
 
     @SuppressWarnings(value = "unchecked")
     public Config() throws IOException {
@@ -82,5 +84,7 @@ public class Config {
         this.jdbcUrl = values.getOrDefault("jdbcUrl", "");
         this.imgurClientId = values.getOrDefault("imgurClientId", "");
         this.avatars = values.getOrDefault("avatars", "");
+        this.botsDiscordPwToken = values.getOrDefault("botsDiscordPwToken", "");
+        this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
     }
 }

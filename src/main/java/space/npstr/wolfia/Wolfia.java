@@ -47,6 +47,7 @@ import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.stats.GeneralBotStats;
 import space.npstr.wolfia.db.entity.stats.MessageOutputStats;
 import space.npstr.wolfia.events.CommandListener;
+import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.img.ImgurAlbum;
 import space.npstr.wolfia.utils.img.SimpleCache;
@@ -139,16 +140,16 @@ public class Wolfia {
         Charts.spark();
 
         //post stats every 10 minutes
-        scheduleAtFixedRate(Wolfia::postBotStats, 1, 10, TimeUnit.MINUTES);
+        scheduleAtFixedRate(Wolfia::generalBotStatsToDB, 1, 10, TimeUnit.MINUTES);
 
-        //set up a random avatar and change every 2 hours
+        //set up a random avatar and change every 6 hours
         final Hstore defaultHstore = Hstore.load();
         final int lastIndex = Integer.valueOf(defaultHstore.get("avatarLastIndex", "-1"));
         avatars.setLastIndex(lastIndex);
         avatars.get(lastIndex);
 
         final long lastUpdated = Long.valueOf(defaultHstore.get("avatarLastUpdated", "0"));
-        final long initialDelay = lastUpdated - System.currentTimeMillis() + TimeUnit.HOURS.toMillis(2);
+        final long initialDelay = lastUpdated - System.currentTimeMillis() + TimeUnit.HOURS.toMillis(6);
         log.info("Updating avatar in {}ms", initialDelay);
 
         scheduleAtFixedRate(() -> {
@@ -162,7 +163,7 @@ public class Wolfia {
             } catch (final IOException e) {
                 log.error("Could not set avatar.", e);
             }
-        }, initialDelay, TimeUnit.HOURS.toMillis(2), TimeUnit.MILLISECONDS);
+        }, initialDelay, TimeUnit.HOURS.toMillis(6), TimeUnit.MILLISECONDS);
     }
 
     public static ScheduledFuture<?> scheduleAtFixedRate(final Runnable task, final long initialDelay, final long period, final TimeUnit timeUnit) {
@@ -197,12 +198,12 @@ public class Wolfia {
     }
 
 
-    private static void postBotStats() {
+    private static void generalBotStatsToDB() {
         if (jda == null) {
-            log.warn("Skipping posting of bot stats due to JDA being null");
+            log.error("Skipping posting of bot stats due to JDA being null");
             return;
         }
-        log.info("Posting bot stats");
+        log.info("Writing general bot stats to database");
 
         DbWrapper.persist(new GeneralBotStats(
                 jda.getUsers().size(),
@@ -229,6 +230,7 @@ public class Wolfia {
                     .setToken(Config.C.discordToken)
                     .addEventListener(this.commandListener)
                     .addEventListener(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
+                    .addEventListener(new InternalListener())
                     .setEnableShutdownHook(false)
                     .setGame(Game.of(App.GAME_STATUS))
                     .buildBlocking();
