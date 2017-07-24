@@ -17,16 +17,22 @@
 
 package space.npstr.wolfia.events;
 
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.listing.Listings;
+import space.npstr.wolfia.utils.discord.Emojis;
 
 /**
  * Created by napster on 23.07.17.
  * <p>
  * Events listened to in here are used for internal purposes
+ * <p>
+ * todo prevent spamming of these into the log channel during discord hickups
  */
 public class InternalListener extends ListenerAdapter {
 
@@ -34,17 +40,27 @@ public class InternalListener extends ListenerAdapter {
     public void onReady(final ReadyEvent event) {
         Listings.postToBotsDiscordPw();
         Listings.postToDiscordbotsOrg();
+
+        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s Ready!", Emojis.ROCKET);
     }
 
     @Override
     public void onGuildJoin(final GuildJoinEvent event) {
         Listings.postToBotsDiscordPw();
         Listings.postToDiscordbotsOrg();
+
+        final Guild g = event.getGuild();
+        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s Joined guild %s with %s users.",
+                Emojis.CHECK, g.getName(), g.getMembers().size());
     }
 
     @Override
     public void onGuildLeave(final GuildLeaveEvent event) {
         Listings.postToBotsDiscordPw();
         Listings.postToDiscordbotsOrg();
+
+        final Guild g = event.getGuild();
+        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s Left guild %s with %s users.",
+                Emojis.X, g.getName(), g.getMembers().size());
     }
 }

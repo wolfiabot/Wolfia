@@ -61,6 +61,7 @@ public class Config {
     public final String avatars;
     public final String botsDiscordPwToken;
     public final String discordbotsOrgToken;
+    public final long logChannelId;
 
     @SuppressWarnings(value = "unchecked")
     public Config() throws IOException {
@@ -86,5 +87,6 @@ public class Config {
         this.avatars = values.getOrDefault("avatars", "");
         this.botsDiscordPwToken = values.getOrDefault("botsDiscordPwToken", "");
         this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
+        this.logChannelId = Long.valueOf(values.getOrDefault("logChannelId", "0"));
     }
 }

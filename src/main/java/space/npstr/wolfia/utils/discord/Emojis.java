@@ -43,6 +43,7 @@ public class Emojis {
     public static final String VIDEO_GAME = "🎮";
     public static final String END = "🔚";
     public static final String COWBOY = "🤠";
+    public static final String ROCKET = "🚀";
 
     public static final String SUNNY = "☀";
     public static final String FULL_MOON = "🌕";
