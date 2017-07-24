@@ -208,7 +208,7 @@ public class DbManager {
         final URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
         log.debug("ClassDiscovery: Resource = " + resource);
         if (resource == null) {
-            throw new RuntimeException("No resource for " + relPath);
+            throw new DatabaseException("No resource for " + relPath);
         }
         fullPath = resource.getFile();
         log.debug("ClassDiscovery: FullPath = " + resource);
@@ -216,7 +216,7 @@ public class DbManager {
         try {
             directory = new File(resource.toURI());
         } catch (final URISyntaxException e) {
-            throw new RuntimeException(pkgName + " (" + resource + ") does not appear to be a valid URL / URI.  Strange, since we got it from the system...", e);
+            throw new DatabaseException(pkgName + " (" + resource + ") does not appear to be a valid URL / URI.  Strange, since we got it from the system...", e);
         } catch (final IllegalArgumentException e) {
             directory = null;
         }
@@ -235,7 +235,7 @@ public class DbManager {
                         try {
                             classes.add(Class.forName(className));
                         } catch (final ClassNotFoundException e) {
-                            throw new RuntimeException("ClassNotFoundException loading " + className);
+                            throw new DatabaseException("ClassNotFoundException loading " + className);
                         }
                     }
                 }
@@ -261,13 +261,13 @@ public class DbManager {
                         try {
                             classes.add(Class.forName(className));
                         } catch (final ClassNotFoundException e) {
-                            throw new RuntimeException("ClassNotFoundException loading " + className);
+                            throw new DatabaseException("ClassNotFoundException loading " + className);
                         }
 
                     }
                 }
             } catch (final IOException e) {
-                throw new RuntimeException(pkgName + " (" + directory + ") does not appear to be a valid package", e);
+                throw new DatabaseException(pkgName + " (" + directory + ") does not appear to be a valid package", e);
             }
         }
         return classes;

@@ -30,11 +30,6 @@ public class VotingBuilder {
     private String unvoteEmoji;
     private List<Player> possibleVoters;
 
-    public VotingBuilder() {
-
-    }
-
-
     public VotingBuilder endTime(final long endTime) {
         this.endTime = endTime;
         return this;
@@ -145,9 +140,9 @@ public class VotingBuilder {
     }
 
     private class VoteEntry {
-        final String emoji;
-        final Player candidate;
-        final Collection<Player> voters;
+        public final String emoji;
+        public final Player candidate;
+        public final Collection<Player> voters;
 
         public VoteEntry(final String emoji, final Player candidate, final Collection<Player> voters) {
             this.emoji = emoji;

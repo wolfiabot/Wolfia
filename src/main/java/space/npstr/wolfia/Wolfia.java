@@ -177,7 +177,9 @@ public class Wolfia {
     }
 
     /**
-     * @return use this for any one time off tasks
+     * Use this for any one-off tasks.
+     *
+     * @return the Future of the submitted task
      */
     public static Future<?> submit(final Runnable task) {
         final Runnable exceptionSafeTask = wrapExceptionSafe(task);

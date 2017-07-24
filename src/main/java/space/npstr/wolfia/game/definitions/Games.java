@@ -38,6 +38,14 @@ public enum Games {
     POPCORN(Popcorn.class, "Popcorn"),
     MAFIA(Mafia.class, "Mafia");
 
+    public final Class<? extends Game> clazz;
+    public final String textRep;
+
+    Games(final Class<? extends Game> clazz, final String textRepresentation) {
+        this.clazz = clazz;
+        this.textRep = textRepresentation;
+    }
+
     //static aboose?
     private static final Map<Long, Game> GAME_REGISTRY = new HashMap<>();
 
@@ -85,13 +93,5 @@ public enum Games {
 
     public static int getRunningGamesCount() {
         return GAME_REGISTRY.size();
-    }
-
-    public final Class<? extends Game> clazz;
-    public final String textRep;
-
-    Games(final Class<? extends Game> clazz, final String textRepresentation) {
-        this.clazz = clazz;
-        this.textRep = textRepresentation;
     }
 }

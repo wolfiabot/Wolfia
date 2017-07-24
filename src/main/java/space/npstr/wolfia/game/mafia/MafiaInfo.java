@@ -38,10 +38,6 @@ import java.util.Map;
  */
 public class MafiaInfo implements GameInfo {
 
-    public MafiaInfo() {
-
-    }
-
     @Override
     public List<GameMode> getSupportedModes() {
         final List<GameMode> supportedModes = new ArrayList<>();

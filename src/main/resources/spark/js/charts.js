@@ -58,21 +58,12 @@ function requestPeriodicData(path, series, updateInterval, period = 3600000) {
     xhttp.send();
 }
 
-function getLiveChartOptions(dataGetPath, title, initialData = [], updateInterval = 800, range = 20, max = -1) {
-    const chartOptions = getDefaultChartOptions(dataGetPath, title, initialData, updateInterval, range);
-    chartOptions.xAxis.minRange = range * updateInterval;
-    if (max > -1) {
-        chartOptions.yAxis.max = max;
-    }
-    return chartOptions;
-}
-
 function getDefaultChartOptions(dataGetPath, title, initialData = [], updateInterval = 60000, range = 0) {
     return {
         chart: {
             type: 'areaspline',
             events: {
-                load: function () {
+                load() {
                     requestDataPoint(dataGetPath + "/latest", this.series[0], updateInterval, range);
                 }
             }
@@ -102,7 +93,16 @@ function getDefaultChartOptions(dataGetPath, title, initialData = [], updateInte
             name: title,
             data: initialData
         }]
+    };
+}
+
+function getLiveChartOptions(dataGetPath, title, initialData = [], updateInterval = 800, range = 20, max = -1) {
+    const chartOptions = getDefaultChartOptions(dataGetPath, title, initialData, updateInterval, range);
+    chartOptions.xAxis.minRange = range * updateInterval;
+    if (max > -1) {
+        chartOptions.yAxis.max = max;
     }
+    return chartOptions;
 }
 
 function createDateTimeChart(element, chartOptions) {

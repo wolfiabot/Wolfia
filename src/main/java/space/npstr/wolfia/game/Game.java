@@ -403,7 +403,7 @@ public abstract class Game {
         }
     }
 
-    protected PrivateGuild allocatePrivateGuild() {
+    protected PrivateGuild allocatePrivateGuild() throws UserFriendlyException {
         PrivateGuild pg = Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.poll();
         if (pg == null) {
             Wolfia.handleOutputMessage(this.channelId,
@@ -413,7 +413,8 @@ public abstract class Game {
                 pg = Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.take();
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new RuntimeException("Interrupted while waiting for a private server.");
+                log.error("Interrupted while waiting for a private server.");
+                throw new UserFriendlyException("Could not allocate a private server.");
             }
         }
         return pg;

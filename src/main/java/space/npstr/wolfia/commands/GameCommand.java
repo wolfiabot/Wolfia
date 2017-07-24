@@ -34,11 +34,9 @@ public abstract class GameCommand implements ICommand {
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
-        if (this.mentionRequired) {
-            if (commandInfo.event.getMessage().getMentionedUsers().size() < 1) {
-                Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s", TextchatUtils.asMarkdown(help()));
-                return false;
-            }
+        if (this.mentionRequired && commandInfo.event.getMessage().getMentionedUsers().isEmpty()) {
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s", TextchatUtils.asMarkdown(help()));
+            return false;
         }
 
         final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
