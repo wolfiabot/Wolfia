@@ -88,6 +88,7 @@ public abstract class Game {
 
     //commonly used fields
     protected long channelId = -1;
+    protected long guildId = -1;
     protected final Map<Long, String> rolePMs = new HashMap<>();
     protected GameInfo.GameMode mode;
     protected final List<Player> players = new ArrayList<>();
@@ -106,6 +107,10 @@ public abstract class Game {
      */
     public long getChannelId() {
         return this.channelId;
+    }
+
+    public long getGuildId() {
+        return this.guildId;
     }
 
     /**
@@ -290,12 +295,14 @@ public abstract class Game {
         if (this.running) {
             throw new IllegalStateException("Cannot start a game that is running already");
         }
-        if (channelId <= 0 || Wolfia.jda.getTextChannelById(channelId) == null) {
+        final TextChannel channel = Wolfia.jda.getTextChannelById(channelId);
+        if (channelId <= 0 || channel == null) {
             throw new IllegalArgumentException(String.format(
                     "Cannot start a game with invalid/no channel (channelId: %s) set.", channelId)
             );
         }
         this.channelId = channelId;
+        this.guildId = channel.getGuild().getIdLong();
         if (!Games.getInfo(this).getSupportedModes().contains(mode)) {
             throw new IllegalArgumentException(String.format(
                     "Mode %s not supported by game %s", mode.name(), Games.POPCORN.name())

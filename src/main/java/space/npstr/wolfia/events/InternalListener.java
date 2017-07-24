@@ -24,7 +24,10 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.listing.Listings;
+import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -64,5 +67,12 @@ public class InternalListener extends ListenerAdapter {
         final Guild g = event.getGuild();
         Wolfia.handleOutputMessage(Config.C.logChannelId, "%s %s Left guild %s with %s users.",
                 Emojis.X, TextchatUtils.toBerlinTime(System.currentTimeMillis()), g.getName(), g.getMembers().size());
+
+        //destroy games running in the server that was left
+        for (final Game game : Games.getAll().values()) {
+            if (game.getGuildId() == g.getIdLong()) {
+                game.destroy(new UserFriendlyException("Bot was kicked from the server " + g.getName() + " " + g.getIdLong()));
+            }
+        }
     }
 }
