@@ -574,6 +574,9 @@ public abstract class Game {
             out += String.format("\nThis game's id is **%s**, you can watch its replay with `%s %s`",
                     this.gameStats.getGameId(), Config.PREFIX + ReplayCommand.COMMAND, this.gameStats.getGameId());
             cleanUp();
+            final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+            Wolfia.handleOutputMessage(Config.C.logChannelId, "%s Game ended in guild %s, channel %s, Game %s Mode %s players %s",
+                    Emojis.END, channel.getGuild().getName(), channel.getName(), Games.MAFIA.textRep, this.mode.textRep, this.players.size());
             // removing the game from the registry has to be the very last statement, since if a restart is queued, it
             // waits for an empty games registry
             Wolfia.handleOutputMessage(this.channelId,
