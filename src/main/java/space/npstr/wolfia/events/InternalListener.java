@@ -26,6 +26,7 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.listing.Listings;
 import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
  * Created by napster on 23.07.17.
@@ -41,7 +42,8 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToBotsDiscordPw(event.getJDA());
         Listings.postToDiscordbotsOrg(event.getJDA());
 
-        event.getJDA().getTextChannelById(Config.C.logChannelId).sendMessageFormat("%s Ready!", Emojis.ROCKET).queue();
+        event.getJDA().getTextChannelById(Config.C.logChannelId).sendMessageFormat("%s %s Ready!",
+                Emojis.ROCKET, TextchatUtils.toBerlinTime(System.currentTimeMillis())).queue();
     }
 
     @Override
@@ -50,8 +52,8 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild g = event.getGuild();
-        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s Joined guild %s with %s users.",
-                Emojis.CHECK, g.getName(), g.getMembers().size());
+        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s %s Joined guild %s with %s users.",
+                Emojis.CHECK, TextchatUtils.toBerlinTime(System.currentTimeMillis()), g.getName(), g.getMembers().size());
     }
 
     @Override
@@ -60,7 +62,7 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild g = event.getGuild();
-        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s Left guild %s with %s users.",
-                Emojis.X, g.getName(), g.getMembers().size());
+        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s %s Left guild %s with %s users.",
+                Emojis.X, TextchatUtils.toBerlinTime(System.currentTimeMillis()), g.getName(), g.getMembers().size());
     }
 }

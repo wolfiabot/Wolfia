@@ -42,7 +42,7 @@ public class KillGameCommand implements ICommand, IOwnerRestricted {
             return false;
         }
 
-        long channelId = -1;
+        final long channelId;
         try {
             channelId = Long.valueOf(commandInfo.args[0]);
         } catch (final NumberFormatException e) {
