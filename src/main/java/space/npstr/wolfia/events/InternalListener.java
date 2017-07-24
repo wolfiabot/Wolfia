@@ -38,16 +38,16 @@ public class InternalListener extends ListenerAdapter {
 
     @Override
     public void onReady(final ReadyEvent event) {
-        Listings.postToBotsDiscordPw();
-        Listings.postToDiscordbotsOrg();
+        Listings.postToBotsDiscordPw(event.getJDA());
+        Listings.postToDiscordbotsOrg(event.getJDA());
 
-        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s Ready!", Emojis.ROCKET);
+        event.getJDA().getTextChannelById(Config.C.logChannelId).sendMessageFormat("%s Ready!", Emojis.ROCKET).queue();
     }
 
     @Override
     public void onGuildJoin(final GuildJoinEvent event) {
-        Listings.postToBotsDiscordPw();
-        Listings.postToDiscordbotsOrg();
+        Listings.postToBotsDiscordPw(event.getJDA());
+        Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild g = event.getGuild();
         Wolfia.handleOutputMessage(Config.C.logChannelId, "%s Joined guild %s with %s users.",
@@ -56,8 +56,8 @@ public class InternalListener extends ListenerAdapter {
 
     @Override
     public void onGuildLeave(final GuildLeaveEvent event) {
-        Listings.postToBotsDiscordPw();
-        Listings.postToDiscordbotsOrg();
+        Listings.postToBotsDiscordPw(event.getJDA());
+        Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild g = event.getGuild();
         Wolfia.handleOutputMessage(Config.C.logChannelId, "%s Left guild %s with %s users.",

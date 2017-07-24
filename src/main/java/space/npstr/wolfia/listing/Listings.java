@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.listing;
 
+import net.dv8tion.jda.core.JDA;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -36,7 +37,7 @@ import java.io.IOException;
  */
 public class Listings {
 
-    private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
+    private static final Logger log = LoggerFactory.getLogger(Listings.class);
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
 
@@ -46,13 +47,13 @@ public class Listings {
     //api docs: https://bots.discord.pw/api
     //according to their discord: post these on guild join, guild leave, and ready events
     //which is bonkers given guild joins and leaves are wonky when discord is having issues
-    public static synchronized void postToBotsDiscordPw() {
+    public static synchronized void postToBotsDiscordPw(final JDA jda) {
         if (Config.C.isDebug) {
             log.info("Skipping posting stats to bots.discord.pw due to running in debug mode");
             return;
         }
 
-        final String payload = new JSONObject().put("server_count", Wolfia.jda.getGuilds().size()).toString();
+        final String payload = new JSONObject().put("server_count", jda.getGuilds().size()).toString();
         if (payload.equals(lastBotsDiscordPwPayload)) {
             log.info("Skipping sending stats to bots.discord.pw since the payload has not changed");
             return;
@@ -60,7 +61,7 @@ public class Listings {
 
         final RequestBody body = RequestBody.create(JSON, payload);
         final Request req = new Request.Builder()
-                .url(String.format("https://bots.discord.pw/api/bots/%s/stats", Wolfia.jda.getSelfUser().getIdLong()))
+                .url(String.format("https://bots.discord.pw/api/bots/%s/stats", jda.getSelfUser().getIdLong()))
                 .addHeader("Authorization", Config.C.botsDiscordPwToken)
                 .post(body)
                 .build();
@@ -82,12 +83,12 @@ public class Listings {
 
     //https://discordbots.org/
     //api docs: https://discordbots.org/api/docs
-    public static synchronized void postToDiscordbotsOrg() {
+    public static synchronized void postToDiscordbotsOrg(final JDA jda) {
         if (Config.C.isDebug) {
             log.info("Skipping posting stats to bots.discord.pw due to running in debug mode");
             return;
         }
-        final String payload = new JSONObject().put("server_count", Wolfia.jda.getGuilds().size()).toString();
+        final String payload = new JSONObject().put("server_count", jda.getGuilds().size()).toString();
         if (payload.equals(lastDiscordbotsOrgPayload)) {
             log.info("Skipping sending stats to discordbots.org since the payload has not changed");
             return;
@@ -95,7 +96,7 @@ public class Listings {
 
         final RequestBody body = RequestBody.create(JSON, payload);
         final Request req = new Request.Builder()
-                .url(String.format("https://discordbots.org/api/bots/%s/stats", Wolfia.jda.getSelfUser().getIdLong()))
+                .url(String.format("https://discordbots.org/api/bots/%s/stats", jda.getSelfUser().getIdLong()))
                 .addHeader("Authorization", Config.C.discordbotsOrgToken)
                 .post(body)
                 .build();
