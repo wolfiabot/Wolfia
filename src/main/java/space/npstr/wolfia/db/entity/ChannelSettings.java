@@ -20,7 +20,6 @@ package space.npstr.wolfia.db.entity;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
-import org.hibernate.annotations.ColumnDefault;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.IEntity;
 
@@ -60,12 +59,10 @@ public class ChannelSettings implements IEntity {
 
     //last time the taglist was posted
     @Column(name = "tag_list_last_used")
-    @ColumnDefault(value = "0")
-    private long tagListLastUsed;
+    private long tagListLastUsed = -1;
 
     //minimum minutes between tags
     @Column(name = "tag_cooldown")
-    @ColumnDefault(value = "5")
     private long tagCooldown = 5;
 
     @Override
