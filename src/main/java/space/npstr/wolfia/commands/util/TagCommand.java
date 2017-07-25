@@ -123,8 +123,9 @@ public class TagCommand implements ICommand {
                         outs.add(out);
                     }
                     out.append(toAdd);
+                } else { //neither a mentionable role nor a member
+                    cleanUp.add(id);
                 }
-                cleanUp.add(id);
             }
             settings.removeTags(cleanUp);
             outs.forEach(sb -> Wolfia.handleOutputMessage(channel, "%s", sb.toString()));
