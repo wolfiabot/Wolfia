@@ -603,7 +603,7 @@ public abstract class Game {
                     this.gameStats.getGameId(), Config.PREFIX + ReplayCommand.COMMAND, this.gameStats.getGameId());
             cleanUp();
             final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
-            Wolfia.handleOutputMessage(Config.C.logChannelId, "%s %s Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
+            Wolfia.handleOutputMessage(Config.C.logChannelId, "%s `%s` Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
                     Emojis.END, TextchatUtils.toBerlinTime(System.currentTimeMillis()), this.gameStats.getGameId(),
                     channel.getGuild().getName(), channel.getGuild().getIdLong(),
                     channel.getName(), channel.getIdLong(), Games.getInfo(this).textRep(), this.mode.textRep, this.players.size());

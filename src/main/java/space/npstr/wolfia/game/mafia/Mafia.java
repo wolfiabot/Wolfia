@@ -195,7 +195,7 @@ public class Mafia extends Game {
 
         // - start the game
         Games.set(this);
-        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s %s Game started in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
+        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s `%s` Game started in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
                 Emojis.VIDEO_GAME, TextchatUtils.toBerlinTime(System.currentTimeMillis()),
                 g.getName(), g.getIdLong(), channel.getName(), channel.getIdLong(),
                 Games.getInfo(this).textRep(), mode.textRep, this.players.size());
