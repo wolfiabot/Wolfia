@@ -79,6 +79,11 @@ public enum Games {
         return GAME_REGISTRY.get(channelId);
     }
 
+    //useful for evaling
+    public static Game get(final String channelId) {
+        return GAME_REGISTRY.get(Long.valueOf(channelId));
+    }
+
     public static void remove(final Game game) {
         GAME_REGISTRY.remove(game.getChannelId());
     }

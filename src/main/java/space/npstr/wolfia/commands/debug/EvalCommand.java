@@ -110,6 +110,7 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
         this.engine.put("guild", guild);
         this.engine.put("game", Games.get(channel.getIdLong()));
         this.engine.put("setup", DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class));
+        this.engine.put("games", Games.class);//access the static methods like this from eval: games.static.myStaticMethod()
 
         final Future<?> future = Wolfia.submit(() -> {
 

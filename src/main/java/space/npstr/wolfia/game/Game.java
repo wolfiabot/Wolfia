@@ -466,6 +466,11 @@ public abstract class Game {
     public void resetRolesAndPermissions(final boolean... complete) {
 
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        if (channel == null) {
+            //we probably left the guild
+            log.warn("Could not find channel {} to reset roles and permissions in there", this.channelId);
+            return;
+        }
         final Guild g = channel.getGuild();
         final List<Permission> missingPermissions = new ArrayList<>();
         final List<Future> toComplete = new ArrayList<>();
@@ -514,7 +519,11 @@ public abstract class Game {
      */
     public void cleanUp() {
         if (this.wolfChat != null) {
-            this.wolfChat.endUsage();
+            try {
+                this.wolfChat.endUsage();
+            } catch (final IllegalStateException ignored) {
+                //dont really care about this one, its fine if usage has been stopped already
+            }
         }
         this.executor.shutdownNow();
         resetRolesAndPermissions();
