@@ -29,6 +29,8 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 
 import java.io.IOException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by napster on 23.07.17.
@@ -42,12 +44,23 @@ public class Listings {
 
 
     private static volatile String lastBotsDiscordPwPayload = "";
+    private static volatile Future botsDiscordPwTask;
+
+
+    public static synchronized void postToBotsDiscordPw(final JDA jda) {
+        if (botsDiscordPwTask != null && !botsDiscordPwTask.isCancelled() && !botsDiscordPwTask.isDone()) {
+            log.info("Skipping posting stats to bots.discord.pw since there is a task to do that running already.");
+            return;
+        }
+
+        postToBotsDiscordPw(jda, 0);
+    }
 
     //https://bots.discord.pw
     //api docs: https://bots.discord.pw/api
     //according to their discord: post these on guild join, guild leave, and ready events
     //which is bonkers given guild joins and leaves are wonky when discord is having issues
-    public static synchronized void postToBotsDiscordPw(final JDA jda) {
+    private static void postToBotsDiscordPw(final JDA jda, final int attempt) {
         if (Config.C.isDebug) {
             log.info("Skipping posting stats to bots.discord.pw due to running in debug mode");
             return;
@@ -59,6 +72,7 @@ public class Listings {
             return;
         }
 
+        final int att = attempt + 1;
         final RequestBody body = RequestBody.create(JSON, payload);
         final Request req = new Request.Builder()
                 .url(String.format("https://bots.discord.pw/api/bots/%s/stats", jda.getSelfUser().getIdLong()))
@@ -68,32 +82,50 @@ public class Listings {
         try {
             final Response response = Wolfia.httpClient.newCall(req).execute();
             if (response.isSuccessful()) {
-                log.info("Successfully posted bot stats to bots.discord.pw, code {}", response.code());
+                log.info("Attempt {} successfully posted bot stats to bots.discord.pw, code {}", att, response.code());
                 lastBotsDiscordPwPayload = payload;
             } else {
-                log.error("Failed to post stats to bots.discord.pw: code {}, body:\n{}", response.code(),
-                        response.body() != null ? response.body().string() : "null");
+                log.warn("Attempt {} failed to post stats to bots.discord.pw: code {}, body:\n{}", att,
+                        response.code(), response.body() != null ? response.body().string() : "null");
+                botsDiscordPwTask = reschedule(() -> postToBotsDiscordPw(jda, att), att);
             }
         } catch (final IOException e) {
-            log.error("Failed to post stats to bots.discord.pw", e);
+            log.warn("Attempt {} failed to post stats to bots.discord.pw", att, e);
+            botsDiscordPwTask = reschedule(() -> postToBotsDiscordPw(jda, att), att);
         }
     }
 
+    //increase delay with growing attempts to avoid overloading the listing servers
+    private static Future reschedule(final Runnable task, final int attempt) {
+        return Wolfia.schedule(task, 10 * attempt, TimeUnit.SECONDS);
+    }
+
     private static volatile String lastDiscordbotsOrgPayload = "";
+    private static volatile Future discordbotsOrgTask;
+
+    public static synchronized void postToDiscordbotsOrg(final JDA jda) {
+        if (discordbotsOrgTask != null && !discordbotsOrgTask.isCancelled() && !discordbotsOrgTask.isDone()) {
+            log.info("Skipping posting stats to discordbots.org since there is a task to do that running already.");
+            return;
+        }
+        postToDiscordbotsOrg(jda, 0);
+    }
 
     //https://discordbots.org/
     //api docs: https://discordbots.org/api/docs
-    public static synchronized void postToDiscordbotsOrg(final JDA jda) {
+    private static void postToDiscordbotsOrg(final JDA jda, final int attempt) {
         if (Config.C.isDebug) {
-            log.info("Skipping posting stats to bots.discord.pw due to running in debug mode");
+            log.info("Skipping posting stats to discordbots.org due to running in debug mode");
             return;
         }
+
         final String payload = new JSONObject().put("server_count", jda.getGuilds().size()).toString();
         if (payload.equals(lastDiscordbotsOrgPayload)) {
             log.info("Skipping sending stats to discordbots.org since the payload has not changed");
             return;
         }
 
+        final int att = attempt + 1;
         final RequestBody body = RequestBody.create(JSON, payload);
         final Request req = new Request.Builder()
                 .url(String.format("https://discordbots.org/api/bots/%s/stats", jda.getSelfUser().getIdLong()))
@@ -103,14 +135,16 @@ public class Listings {
         try {
             final Response response = Wolfia.httpClient.newCall(req).execute();
             if (response.isSuccessful()) {
-                log.info("Successfully posted bot stats to discordbots.org, code {}", response.code());
+                log.info("Attempt {} successfully posted bot stats to discordbots.org, code {}", att, response.code());
                 lastDiscordbotsOrgPayload = payload;
             } else {
-                log.error("Failed to post stats to discordbots.org: code {}, body:\n{}", response.code(),
-                        response.body() != null ? response.body().string() : "null");
+                log.warn("Attempt {} failed to post stats to discordbots.org: code {}, body:\n{}", att,
+                        response.code(), response.body() != null ? response.body().string() : "null");
+                discordbotsOrgTask = reschedule(() -> postToDiscordbotsOrg(jda, att), att);
             }
         } catch (final IOException e) {
-            log.error("Failed to post stats to discordbots.org", e);
+            log.warn("Attempt {} failed to post stats to discordbots.org", attempt, e);
+            discordbotsOrgTask = reschedule(() -> postToDiscordbotsOrg(jda, att), att);
         }
     }
 }
