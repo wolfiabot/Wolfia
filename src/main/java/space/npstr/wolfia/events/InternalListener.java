@@ -18,12 +18,17 @@
 package space.npstr.wolfia.events;
 
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.DbWrapper;
+import space.npstr.wolfia.db.entity.EGuild;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.listing.Listings;
@@ -35,17 +40,18 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  * Created by napster on 23.07.17.
  * <p>
  * Events listened to in here are used for internal purposes
- * <p>
- * todo prevent spamming of these into the log channel during discord hickups
  */
 public class InternalListener extends ListenerAdapter {
+
+    private static final Logger log = LoggerFactory.getLogger(InternalListener.class);
 
     @Override
     public void onReady(final ReadyEvent event) {
         Listings.postToBotsDiscordPw(event.getJDA());
         Listings.postToDiscordbotsOrg(event.getJDA());
 
-        event.getJDA().getTextChannelById(Config.C.logChannelId).sendMessageFormat("%s %s Ready!",
+        //todo this will not work multisharded
+        event.getJDA().getTextChannelById(Config.C.logChannelId).sendMessageFormat("%s `%s` Ready!",
                 Emojis.ROCKET, TextchatUtils.toBerlinTime(System.currentTimeMillis())).queue();
     }
 
@@ -55,8 +61,18 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild g = event.getGuild();
-        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s %s Joined guild %s with %s users.",
-                Emojis.CHECK, TextchatUtils.toBerlinTime(System.currentTimeMillis()), g.getName(), g.getMembers().size());
+        final EGuild guildEntity = DbWrapper.getEntity(g.getIdLong(), EGuild.class);
+        if (guildEntity.isPresent()) { //safeguard against discord shitting itself and spamming these for established guilds
+            log.warn("Joined a guild that is marked as present");
+            return;
+        }
+
+        guildEntity.join();
+        final TextChannel logChannel = Wolfia.jda.getTextChannelById(Config.C.logChannelId);
+        if (logChannel != null) {
+            Wolfia.handleOutputMessage(logChannel, "%s `%s` Joined guild %s with %s users.",
+                    Emojis.CHECK, TextchatUtils.toBerlinTime(System.currentTimeMillis()), g.getName(), g.getMembers().size());
+        }
     }
 
     @Override
@@ -65,14 +81,26 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild g = event.getGuild();
-        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s %s Left guild %s with %s users.",
-                Emojis.X, TextchatUtils.toBerlinTime(System.currentTimeMillis()), g.getName(), g.getMembers().size());
+        DbWrapper.getEntity(g.getIdLong(), EGuild.class).leave();
 
+        int gamesDestroyed = 0;
         //destroy games running in the server that was left
         for (final Game game : Games.getAll().values()) {
             if (game.getGuildId() == g.getIdLong()) {
-                game.destroy(new UserFriendlyException("Bot was kicked from the server " + g.getName() + " " + g.getIdLong()));
+                try {
+                    game.destroy(new UserFriendlyException("Bot was kicked from the server " + g.getName() + " " + g.getIdLong()));
+                    gamesDestroyed++;
+                } catch (final Exception e) {
+                    log.error("Exception when destroying a game in channel `{}` after leaving guild `{}`",
+                            game.getChannelId(), g.getIdLong(), e);
+                }
             }
+        }
+
+        final TextChannel logChannel = Wolfia.jda.getTextChannelById(Config.C.logChannelId);
+        if (logChannel != null) {
+            Wolfia.handleOutputMessage(logChannel, "%s `%s` Left guild %s with %s users, destroyed **%s** games.",
+                    Emojis.X, TextchatUtils.toBerlinTime(System.currentTimeMillis()), g.getName(), g.getMembers().size(), gamesDestroyed);
         }
     }
 }
