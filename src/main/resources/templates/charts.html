@@ -24,6 +24,9 @@
 
     <!--suppress HtmlUnknownTarget -->
     <link rel="stylesheet" type="text/css" href="css/charts.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+            crossorigin="anonymous"></script>
     <!--suppress HtmlUnknownTarget -->
     <script src="scripts/highchart/highcharts.js"></script>
     <!--suppress HtmlUnknownTarget -->
@@ -36,27 +39,52 @@
 <body class="body">
 <div class="chart_column">
     <div class="chart_row">
-        <div class="chart" id="command_execution_duration_livechart"></div>
-        <div class="chart" id="command_execution_duration_last_hour_chart"></div>
-        <div class="chart" id="randomdata_livechart"></div>
+        <div class="chart_container">
+            <div class="chart" id="command_execution_duration_livechart"></div>
+        </div>
+        <div class="chart_container">
+            <div class="chart" id="command_execution_duration_last_hour_chart"></div>
+        </div>
+        <div class="chart_container">
+            <div class="chart" id="randomdata_livechart"></div>
+        </div>
     </div>
     <div class="chart_row">
-        <div class="chart" id="usercount_chart"></div>
-        <div class="chart" id="guildcount_chart"></div>
-        <div class="chart" id="gamesbeingplayedcount_chart"></div>
+        <div class="chart_container">
+            <div class="chart" id="usercount_chart"></div>
+        </div>
+        <div class="chart_container">
+            <div class="chart" id="guildcount_chart"></div>
+        </div>
+        <div class="chart_container">
+            <div class="chart" id="gamesbeingplayedcount_chart"></div>
+        </div>
+
     </div>
     <div class="chart_row last_row">
-        <div class="chart" id="averageload_chart"></div>
-        <div class="chart" id="memory_chart"></div>
-        <div class="chart" id="availableprivateguildscount_chart"></div>
+        <div class="chart_container">
+            <div class="chart" id="averageload_chart"></div>
+        </div>
+        <div class="chart_container">
+            <div class="chart" id="memory_chart"></div>
+        </div>
+        <div class="chart_container">
+            <div class="chart" id="availableprivateguildscount_chart"></div>
+        </div>
     </div>
 </div>
-
+<div id="dark">
+    <div id="overlay"></div>
+</div>
 <script>
     createDateTimeChart("command_execution_duration_livechart",
         getLiveChartOptions("commandstats/averageexecutionduration", "Average Command Execution Duration in ms", [], 1000, 100));
 
     const oneHourMillis = 3600 * 1000;
+    const oneDayMillis = oneHourMillis * 24;
+    const oneWeekMillis = oneDayMillis * 7;
+    const oneMonthMillis = oneDayMillis * 30;
+
     const executionDurationLastHourPeriodicChartOptions = getDefaultChartOptions("", "Command Execution Duration Last Hour in ms");
     executionDurationLastHourPeriodicChartOptions.chart.events.load = function () {
         requestPeriodicData("commandstats/executionduration", this.series[0], 10000, oneHourMillis);
@@ -91,6 +119,44 @@
         requestDataPoint("generalbotstats/freememory/latest", this.series[2], 60000);
     };
     createDateTimeChart("memory_chart", memoryChartOptions);
+
+
+    //overlay stuff below
+    function showOverlay(chartContainer) {
+        const chartDiv = chartContainer.getElementsByClassName("chart")[0];
+        document.getElementById("overlay").appendChild(chartDiv);
+        $("#" + chartDiv.getAttribute("id")).highcharts().reflow(); //ewww jquery
+        chartContainer.setAttribute("id", "frozen");
+        document.getElementById("overlay").style.visibility = "visible";
+        document.getElementById("overlay").style.opacity = 1;
+        document.getElementById("dark").style.visibility = "visible";
+        document.getElementById("dark").style.opacity = 1;
+    }
+
+    function closeOverlay() {
+        const chartDiv = document.getElementById("overlay").firstChild;
+        document.getElementById("frozen").appendChild(chartDiv);
+        $("#" + chartDiv.getAttribute("id")).highcharts().reflow();
+        document.getElementById("frozen").removeAttribute("id");
+        document.getElementById("overlay").style.opacity = 0;
+        document.getElementById("overlay").style.visibility = "hidden";
+        document.getElementById("dark").style.opacity = 0;
+        document.getElementById("dark").style.visibility = "hidden";
+    }
+
+    [].forEach.call(document.getElementsByClassName("chart_container"), function (element) {
+        element.onclick = function () {
+            showOverlay(element);
+        };
+    });
+
+    document.getElementById("dark").onclick = function () {
+        closeOverlay();
+    };
+
+    document.getElementById("overlay").onclick = function (event) {
+        event.stopPropagation();
+    };
 
 </script>
 </body>

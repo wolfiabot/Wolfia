@@ -26,8 +26,39 @@
     height: 34%;
 }
 
-.chart {
+.chart, .chart_container {
     width: 100%;
     height: 100%;
     margin: 0 auto;
+    overflow: hidden;
+}
+
+#overlay {
+    width: 80%;
+    height: 80%;
+    position: fixed;
+    left: 10%;
+    top: 10%;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    z-index: 999;
+    -webkit-transition: opacity 1.5s;
+    transition: opacity 1.5s;
+    opacity: 0;
+    visibility: hidden;
+}
+
+#dark {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-transition: opacity 0.8s;
+    transition: opacity 0.8s;
+    opacity: 0;
+    visibility: hidden;
+}
+
+#frozen {
+    background-color: #252525;
 }
