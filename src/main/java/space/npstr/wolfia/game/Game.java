@@ -355,7 +355,7 @@ public abstract class Game {
                                     " The chosen game and mode requires the channel to be either public, or have an access role set up." +
                                     " Talk to an admin of your server to fix this." +
                                     " Please refer to the documentation under %s",
-                            Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(), App.WEBSITE
+                            Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(), App.DOCS_LINK
                     ));
                 }
                 if (!accessRole.hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
@@ -364,7 +364,7 @@ public abstract class Game {
                                     " Talk to an admin of your server to fix this." +
                                     " Please refer to the documentation under %s",
                             accessRole.getName(), Permission.MESSAGE_WRITE.getName(),
-                            Permission.MESSAGE_READ.getName(), App.WEBSITE
+                            Permission.MESSAGE_READ.getName(), App.DOCS_LINK
                     ));
                 }
             }

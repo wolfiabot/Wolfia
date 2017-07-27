@@ -61,8 +61,8 @@ public class InfoCommand implements ICommand {
         final EmbedBuilder eb = new EmbedBuilder();
         final User self = Wolfia.jda.getSelfUser();
         eb.setThumbnail(self.getEffectiveAvatarUrl());
-        eb.setAuthor(self.getName(), App.WEBSITE, self.getEffectiveAvatarUrl());
-        eb.setTitle(self.getName() + " General Stats", App.WEBSITE);
+        eb.setAuthor(self.getName(), App.SITE_LINK, self.getEffectiveAvatarUrl());
+        eb.setTitle(self.getName() + " General Stats", App.SITE_LINK);
         eb.setDescription(App.DESCRIPTION);
         eb.addField("Bot info", botInfo, false);
         eb.addField("Machine stats", maStats, false);

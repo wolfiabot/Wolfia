@@ -25,6 +25,8 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.commands.game.InCommand;
+import space.npstr.wolfia.commands.game.StartCommand;
 
 import java.util.function.Consumer;
 
@@ -47,11 +49,16 @@ public class HelpCommand implements ICommand {
                         + "\n\nDrop by the Wolfia Lounge to play games, get support, leave feedback, get notified of updates and vote on the roadmap:\n<%s>"
                         + "\n\nCode open sourced on Github:\n<%s>"
                         + "\n\nCreated and hosted by Napster:\n<%s>",
-                e.getAuthor().getName(), e.getJDA().getSelfUser().getName(), App.WEBSITE, App.INVITE_LINK, App.WOLFIA_LOUNGE_INVITE, "https://github.com/napstr/wolfia", "https://npstr.space");
+                e.getAuthor().getName(), e.getJDA().getSelfUser().getName(), App.DOCS_LINK, App.INVITE_LINK,
+                App.WOLFIA_LOUNGE_INVITE, App.GITHUB_LINK, "https://npstr.space");
 
         final Consumer<Message> onSuccess = m -> {
             if (channel.canTalk())
-                Wolfia.handleOutputMessage(channel, "%s, sent you a PM with the help!", e.getAuthor().getAsMention());
+                Wolfia.handleOutputMessage(channel,
+                        "%s, sent you a PM with the help!\nUse `%s` and `%s` to start games.\n`%s` shows a list of commands.",
+                        e.getAuthor().getAsMention(), Config.PREFIX + InCommand.COMMAND,
+                        Config.PREFIX + StartCommand.COMMAND, Config.PREFIX + CommandsCommand.COMMAND
+                );
         };
         final Consumer<Throwable> onFail = t -> {
             if (channel.canTalk())

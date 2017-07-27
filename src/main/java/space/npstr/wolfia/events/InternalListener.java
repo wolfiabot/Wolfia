@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.DbWrapper;
@@ -51,8 +52,8 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToDiscordbotsOrg(event.getJDA());
 
         //todo this will not work multisharded
-        event.getJDA().getTextChannelById(Config.C.logChannelId).sendMessageFormat("%s `%s` Ready!",
-                Emojis.ROCKET, TextchatUtils.toBerlinTime(System.currentTimeMillis())).queue();
+        event.getJDA().getTextChannelById(Config.C.logChannelId).sendMessageFormat("%s `%s` Ready! %s",
+                Emojis.ROCKET, TextchatUtils.toBerlinTime(System.currentTimeMillis()), App.VERSION).queue();
     }
 
     @Override

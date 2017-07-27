@@ -130,14 +130,14 @@ public class Wolfia {
         //set up relational database
         dbManager = new DbManager();
 
+        //fire up spark async
+        submit(Charts::spark);
+
         AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(DbWrapper.loadPrivateGuilds());
         log.info("{} private guilds loaded", AVAILABLE_PRIVATE_GUILD_QUEUE.size());
 
         //start the bot
         wolfia = new Wolfia();
-
-        //fire up spark
-        Charts.spark();
 
         //post stats every 10 minutes
         scheduleAtFixedRate(Wolfia::generalBotStatsToDB, 1, 10, TimeUnit.MINUTES);
@@ -235,6 +235,9 @@ public class Wolfia {
                     .addEventListener(new InternalListener())
                     .setEnableShutdownHook(false)
                     .setGame(Game.of(App.GAME_STATUS))
+                    .setHttpClientBuilder(new OkHttpClient.Builder()
+                            .retryOnConnectionFailure(true)
+                            .readTimeout(30, TimeUnit.SECONDS))
                     .buildBlocking();
         } catch (final Exception e) {
             log.error("could not create JDA object, possibly invalid bot token, exiting", e);

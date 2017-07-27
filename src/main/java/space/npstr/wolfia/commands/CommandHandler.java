@@ -52,6 +52,7 @@ import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.stats.CommandStats;
+import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.HashMap;
@@ -132,6 +133,8 @@ public class CommandHandler {
             final boolean success = command.execute(commandInfo);
             final long executed = System.currentTimeMillis();
             Wolfia.submit(() -> DbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
+        } catch (final UserFriendlyException e) {
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "There was a problem executing your command:\n%s", e.getMessage());
         } catch (final Exception e) {
             final MessageReceivedEvent ev = commandInfo.event;
             Throwable t = e;

@@ -36,9 +36,11 @@ public class App {
     public static String INVITE_LINK = "https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot&permissions=268787777";
     public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";
     public static final long WOLFIA_LOUNGE_ID = 315944983754571796L;
-    public static final String WEBSITE = "https://docs.wolfia.party";
-    public static final String GAME_STATUS = Config.PREFIX + HelpCommand.COMMAND + " | " + WEBSITE;
-    public static String DESCRIPTION = "Play Werewolf/Mafia games on Discord!";
+    public static final String SITE_LINK = "https://wolfia.party";
+    public static final String DOCS_LINK = "https://docs.wolfia.party";
+    public static final String GITHUB_LINK = "https://github.com/napstr/wolfia";
+    public static final String GAME_STATUS = Config.PREFIX + HelpCommand.COMMAND + " | " + SITE_LINK + " | Public β";
+    public static String DESCRIPTION = "Play Werewolf / Mafia and similar games on Discord!";
 
     public static boolean isOwner(final long userId) {
         return OWNER_ID == userId;

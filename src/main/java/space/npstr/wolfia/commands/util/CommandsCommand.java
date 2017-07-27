@@ -40,7 +40,7 @@ public class CommandsCommand implements ICommand {
                         Config.PREFIX + UnvoteCommand.COMMAND + "\n" +
                         Config.PREFIX + VoteCommand.COMMAND + "\n";
 
-        final String botSettingsCommands =
+        final String settingsCommands =
                 Config.PREFIX + ChannelSettingsCommand.COMMAND;
 
         final String statsCommands =
@@ -56,11 +56,11 @@ public class CommandsCommand implements ICommand {
                         Config.PREFIX + TagCommand.COMMAND + "\n";
 
         final EmbedBuilder eb = new EmbedBuilder();
-        final String link = App.WEBSITE + "#commands";
+        final String link = App.DOCS_LINK + "#commands";
         eb.setTitle("Wolfia commands", link);
         eb.addField("Starting a game", gameCommands, true);
         eb.addField("Game actions", ingameCommands, true);
-        eb.addField("Bot Settings", botSettingsCommands, true);
+        eb.addField("Settings", settingsCommands, true);
         eb.addField("Statistics", statsCommands, true);
         eb.addField("Other Commands", otherCommands, true);
         eb.addBlankField(true);

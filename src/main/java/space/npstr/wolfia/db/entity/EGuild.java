@@ -17,8 +17,6 @@
 
 package space.npstr.wolfia.db.entity;
 
-import net.dv8tion.jda.core.entities.Guild;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 
@@ -53,13 +51,6 @@ public class EGuild implements IEntity {
     private boolean present = false;
 
     public EGuild() {
-    }
-
-    //calling this from eval todo remove
-    public static void migrate() {
-        for (final Guild g : Wolfia.jda.getGuilds()) {
-            DbWrapper.getEntity(g.getIdLong(), EGuild.class).join();
-        }
     }
 
     public void join() {
