@@ -28,10 +28,13 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.game.definitions.Scope;
+import space.npstr.wolfia.utils.UserFriendlyException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,6 +86,69 @@ public class RoleAndPermissionUtils {
         }
     }
 
+    /**
+     * This ignores that some permissions include other permissions and checks for explicitly set ones.
+     */
+    public static boolean hasExplicitPermission(final Member member, final TextChannel channel, final Scope scope, final Permission permission) {
+        final long permissions;
+        if (scope == Scope.GUILD) {
+            permissions = PermissionUtil.getExplicitPermission(member);
+        } else if (scope == Scope.CHANNEL) {
+            //careful, this will return a missing permission even though the bot may have it on a guild scope
+            permissions = PermissionUtil.getExplicitPermission(channel, member);
+        } else {
+            throw new IllegalArgumentException("Unknown permission scope: " + scope.name());
+        }
+
+        return isApplied(permissions, permission.getRawValue());
+    }
+
+    //copy pasta from JDAs PermissionUtil
+    private static boolean isApplied(final long permissions, final long perms) {
+        return (permissions & perms) == perms;
+    }
+
+    //acquires the requested permissions for ourselves in that channel
+    //NOTE: some of this code looks very unintuitive due to having to handle explicit permissions separately and denied permissions indirectly
+    //NOTE: so think real hard about it and inform yourself about how discord permissions work and are (currently) handled in JDA before touching this again
+    public static void acquireChannelPermissions(final TextChannel channel, final Permission... permissions) {
+        final Member self = channel.getGuild().getSelfMember();
+
+        //are we prohibited from editing permissions in this channel?
+        if (!hasExplicitPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_PERMISSIONS)) {
+
+            //are we prohibited from editing permissions in this guild?
+            if (!hasExplicitPermission(self, null, Scope.GUILD, Permission.MANAGE_PERMISSIONS)
+                    //or do we have it on a guild scope, but it is denied for us in this channel?
+                    || !hasPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_PERMISSIONS)) {
+                throw new UserFriendlyException(String.format("Please allow me to `%s` in this channel so I " +
+                                "can set myself up to play games and format my posts.\nWant to know what I need and why? Follow this link: %s",
+                        Permission.MANAGE_PERMISSIONS.getName(), App.DOCS_LINK + "#permissions"));
+
+            } else {
+                //allow ourselves to edit permissions in this channel
+                //it is ok to use complete and some waiting in here as this is expected to be run rarely (initial setups only)
+                grant(channel, self, Permission.MANAGE_PERMISSIONS).complete();
+
+                //give it some time to propagate to discord and JDA since we are about to use these permissions
+                final long maxTimeToWait = 10000;
+                final long started = System.currentTimeMillis();
+                try {
+                    while (!hasExplicitPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_PERMISSIONS)) {
+                        if (System.currentTimeMillis() - started > maxTimeToWait) {
+                            throw new RuntimeException("Failed to set permissions up.");
+                        }
+                        Thread.sleep(100);
+                    }
+                } catch (final InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Failed to set permissions up.");
+                }
+            }
+        }
+
+        grant(channel, self, permissions).complete();
+    }
 
     private enum PermissionAction {GRANT, DENY, CLEAR}
 

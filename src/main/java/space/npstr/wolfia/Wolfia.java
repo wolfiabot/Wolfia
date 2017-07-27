@@ -49,6 +49,7 @@ import space.npstr.wolfia.db.entity.stats.MessageOutputStats;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.img.ImgurAlbum;
 import space.npstr.wolfia.utils.img.SimpleCache;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
@@ -343,10 +344,7 @@ public class Wolfia {
         //check for embed permissions in a guild text channel
         if (channel instanceof TextChannel) {
             final TextChannel tc = (TextChannel) channel;
-            if (!tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_EMBED_LINKS)) {
-                handleOutputMessage(channel, "Hey, I am missing the `%s` permission to display my messages properly in this channel.", Permission.MESSAGE_EMBED_LINKS.getName());
-                return Optional.empty();
-            }
+            RoleAndPermissionUtils.acquireChannelPermissions(tc, Permission.MESSAGE_EMBED_LINKS);
         }
         try {
             final RestAction<Message> ra = channel.sendMessage(msgEmbed);

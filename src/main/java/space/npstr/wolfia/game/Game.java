@@ -44,6 +44,7 @@ import space.npstr.wolfia.db.entity.stats.PlayerStats;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
@@ -52,6 +53,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -331,14 +333,18 @@ public abstract class Game {
         final Guild g = channel.getGuild();
 
         //check permissions
+        final Set<Permission> toAcquireInChannelScope = new HashSet<>();
         Games.getInfo(this).getRequiredPermissions(this.mode).forEach((permission, scope) -> {
-            if (!RoleAndPermissionUtils.hasPermission(channel.getGuild().getSelfMember(), channel, scope, permission)) {
-                throw new UserFriendlyException(String.format(
-                        "To run a %s game in %s mode in this channel, I need the permission to `%s` in this %s",
-                        Games.POPCORN.textRep, this.mode.name(), permission.getName(), scope.name().toLowerCase())
-                );
+
+            if (scope == Scope.CHANNEL) {
+                toAcquireInChannelScope.add(permission);
+            } else if (scope == Scope.GUILD) {
+                //todo lets not worry about things we arent even using currently and possibly never will
+            } else {
+                //todo
             }
         });
+        RoleAndPermissionUtils.acquireChannelPermissions(channel, toAcquireInChannelScope.toArray(new Permission[toAcquireInChannelScope.size()]));
 
         if (moderated) {
             //is this a non-public channel, and if yes, has an existing access role been set?

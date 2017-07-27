@@ -132,7 +132,7 @@ The game channel is moderated, which means during a game only the living players
 
 # Permissions:
 
-Wolfia requires some permissions to run games flawlessly.
+Wolfia requires some permissions to run games flawlessly. It will try to automatically set itself up with what it needs, or ask you to give it the required permissions to do so.
 
 Using the official invite link provided at the top of this page, or by running the `w.help` command to invite Wolfia to your server, will have it request the required permissions. If permissions on your server are broken for Wolfia or the required ones have been updated, kicking and reinviting should restore permissions to a working state.
 
