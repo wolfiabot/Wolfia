@@ -48,6 +48,7 @@ import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
+import space.npstr.wolfia.utils.log.DiscordLogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -207,8 +208,8 @@ public class Popcorn extends Game {
 
         // - start the game
         Games.set(this);
-        Wolfia.handleOutputMessage(Config.C.logChannelId, "%s `%s` Game started in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
-                Emojis.VIDEO_GAME, TextchatUtils.toBerlinTime(System.currentTimeMillis()),
+        DiscordLogger.getLogger().log("%s `%s` Game started in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
+                Emojis.VIDEO_GAME, TextchatUtils.berlinTime(),
                 g.getName(), g.getIdLong(), channel.getName(), channel.getIdLong(),
                 Games.getInfo(this).textRep(), mode.textRep, this.players.size());
         this.running = true;

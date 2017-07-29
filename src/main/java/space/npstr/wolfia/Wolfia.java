@@ -52,6 +52,7 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.img.ImgurAlbum;
 import space.npstr.wolfia.utils.img.SimpleCache;
+import space.npstr.wolfia.utils.log.DiscordLogger;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
 import java.io.IOException;
@@ -422,6 +423,9 @@ public class Wolfia {
     private static final Thread SHUTDOWN_HOOK = new Thread(new Runnable() {
         @Override
         public void run() {
+
+            log.info("Shutting down discord logger");
+            DiscordLogger.shutdown();
 
             //okHttpClient claims that a shutdown isn't necessary
 

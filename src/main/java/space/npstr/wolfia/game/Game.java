@@ -49,6 +49,7 @@ import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
+import space.npstr.wolfia.utils.log.DiscordLogger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -539,7 +540,12 @@ public abstract class Game {
     public void destroy(final Throwable reason) {
         String reasonMessage = "No reason provided";
         if (reason != null) reasonMessage = reason.getMessage();
-        log.error("Game in channel {} destroyed due to {}", this.channelId, reasonMessage, reason);
+        final String logMessage = String.format("Game in channel %s destroyed due to %s", this.channelId, reasonMessage);
+        if (reason instanceof UserFriendlyException) {
+            log.info(logMessage, reason);
+        } else {
+            log.error(logMessage, reason);
+        }
         cleanUp();
         Games.remove(this);
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
@@ -609,8 +615,8 @@ public abstract class Game {
                     this.gameStats.getGameId(), Config.PREFIX + ReplayCommand.COMMAND, this.gameStats.getGameId());
             cleanUp();
             final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
-            Wolfia.handleOutputMessage(Config.C.logChannelId, "%s `%s` Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
-                    Emojis.END, TextchatUtils.toBerlinTime(System.currentTimeMillis()), this.gameStats.getGameId(),
+            DiscordLogger.getLogger().log("%s `%s` Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
+                    Emojis.END, TextchatUtils.berlinTime(), this.gameStats.getGameId(),
                     channel.getGuild().getName(), channel.getGuild().getIdLong(),
                     channel.getName(), channel.getIdLong(), Games.getInfo(this).textRep(), this.mode.textRep, this.players.size());
             // removing the game from the registry has to be the very last statement, since if a restart is queued, it

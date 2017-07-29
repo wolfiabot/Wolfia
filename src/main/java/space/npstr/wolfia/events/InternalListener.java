@@ -18,7 +18,6 @@
 package space.npstr.wolfia.events;
 
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
@@ -26,8 +25,6 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.EGuild;
 import space.npstr.wolfia.game.Game;
@@ -36,11 +33,12 @@ import space.npstr.wolfia.listing.Listings;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
+import space.npstr.wolfia.utils.log.DiscordLogger;
 
 /**
  * Created by napster on 23.07.17.
  * <p>
- * Events listened to in here are used for internal purposes
+ * Events listened to in here are used for bot internal, non-game purposes
  */
 public class InternalListener extends ListenerAdapter {
 
@@ -51,9 +49,8 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToBotsDiscordPw(event.getJDA());
         Listings.postToDiscordbotsOrg(event.getJDA());
 
-        //todo this will not work multisharded
-        event.getJDA().getTextChannelById(Config.C.logChannelId).sendMessageFormat("%s `%s` Ready! %s",
-                Emojis.ROCKET, TextchatUtils.toBerlinTime(System.currentTimeMillis()), App.VERSION).queue();
+        DiscordLogger.getLogger().log("%s `%s` Ready! %s",
+                Emojis.ROCKET, TextchatUtils.berlinTime(), App.VERSION);
     }
 
     @Override
@@ -69,11 +66,8 @@ public class InternalListener extends ListenerAdapter {
         }
 
         guildEntity.join();
-        final TextChannel logChannel = Wolfia.jda.getTextChannelById(Config.C.logChannelId);
-        if (logChannel != null) {
-            Wolfia.handleOutputMessage(logChannel, "%s `%s` Joined guild %s with %s users.",
-                    Emojis.CHECK, TextchatUtils.toBerlinTime(System.currentTimeMillis()), g.getName(), g.getMembers().size());
-        }
+        DiscordLogger.getLogger().log("%s `%s` Joined guild %s with %s users.",
+                Emojis.CHECK, TextchatUtils.berlinTime(), g.getName(), g.getMembers().size());
     }
 
     @Override
@@ -98,10 +92,7 @@ public class InternalListener extends ListenerAdapter {
             }
         }
 
-        final TextChannel logChannel = Wolfia.jda.getTextChannelById(Config.C.logChannelId);
-        if (logChannel != null) {
-            Wolfia.handleOutputMessage(logChannel, "%s `%s` Left guild %s with %s users, destroyed **%s** games.",
-                    Emojis.X, TextchatUtils.toBerlinTime(System.currentTimeMillis()), g.getName(), g.getMembers().size(), gamesDestroyed);
-        }
+        DiscordLogger.getLogger().log("%s `%s` Left guild %s with %s users, destroyed **%s** games.",
+                Emojis.X, TextchatUtils.berlinTime(), g.getName(), g.getMembers().size(), gamesDestroyed);
     }
 }
