@@ -47,6 +47,7 @@ import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Phase;
 import space.npstr.wolfia.game.definitions.Roles;
+import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.game.tools.VotingBuilder;
 import space.npstr.wolfia.utils.PeriodicTimer;
 import space.npstr.wolfia.utils.UserFriendlyException;
@@ -99,22 +100,25 @@ public class Mafia extends Game {
 
     @Override
     public EmbedBuilder getStatus() {
-        final EmbedBuilder eb = new EmbedBuilder();
-        eb.addField("Game", Games.MAFIA.textRep + " " + this.mode.textRep, true);
+        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        neb.addField("Game", Games.MAFIA.textRep + " " + this.mode.textRep, true);
         if (!this.running) {
-            eb.addField("", "**Game is not running**", false);
-            return eb;
+            neb.addField("", "**Game is not running**", false);
+            return neb;
         }
-        eb.addField("Phase", this.phase.textRep + " " + this.cycle, true);
+        neb.addField("Phase", this.phase.textRep + " " + this.cycle, true);
         final long timeLeft = this.phaseStarted + (this.phase == Phase.DAY ? this.dayLengthMillis : this.nightLengthMillis) - System.currentTimeMillis();
-        eb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
+        neb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
 
-        eb.addField("Living Players", String.join("\n", getLivingPlayerMentions()), true);
+        final NiceEmbedBuilder.ChunkingField living = new NiceEmbedBuilder.ChunkingField("Living Players", true);
+        living.addAll(getLivingPlayerMentions(), true);
+        neb.addField(living);
+
         final StringBuilder sb = new StringBuilder();
         getLivingWolves().forEach(w -> sb.append(Emojis.SPY));
-        eb.addField("Living Mafia", sb.toString(), true);
+        neb.addField("Living Mafia", sb.toString(), true);
 
-        return eb;
+        return neb;
     }
 
     @SuppressWarnings("unchecked")
@@ -396,7 +400,6 @@ public class Mafia extends Game {
 
         final VotingBuilder veb = new VotingBuilder()
                 .endTime(System.currentTimeMillis() + VOTING_LENGTH_MILLIS)
-                .guildId(channel.getGuild().getIdLong())
                 .mappedEmojis(mapped)
                 .unvoteEmoji(unvoteEmoji)
                 .possibleVoters(livingPlayers);
@@ -501,7 +504,6 @@ public class Mafia extends Game {
 
         final VotingBuilder veb = new VotingBuilder()
                 .endTime(this.phaseStarted + this.nightLengthMillis)
-                .guildId(Wolfia.jda.getTextChannelById(this.channelId).getGuild().getIdLong())
                 .mappedEmojis(mapped)
                 .unvoteEmoji(unvoteEmoji)
                 .possibleVoters(getLivingWolves());

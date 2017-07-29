@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.db.entity;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import org.slf4j.Logger;
@@ -33,7 +32,9 @@ import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.Operation;
+import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.persistence.CollectionTable;
@@ -47,6 +48,7 @@ import javax.persistence.Transient;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -168,32 +170,40 @@ public class SetupEntity implements IEntity {
         //clean up first
         cleanUpInnedPlayers();
 
-        final EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("Setup for channel #" + Wolfia.jda.getTextChannelById(this.channelId).getName());
-        eb.setDescription(Games.get(this.channelId) == null ? "Game has **NOT** started yet." : "Game has started.");
+        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        neb.setTitle("Setup for channel #" + Wolfia.jda.getTextChannelById(this.channelId).getName());
+        neb.setDescription(Games.get(this.channelId) == null ? "Game has **NOT** started yet." : "Game has started.");
 
         //games
         final StringBuilder possibleGames = new StringBuilder();
         Arrays.stream(Games.values()).forEach(g -> possibleGames.append(g == getGame() ? "`[x]` " : "`[ ]` ").append(g.textRep).append("\n"));
-        eb.addField("Game", possibleGames.toString(), true);
+        neb.addField("Game", possibleGames.toString(), true);
 
         //modes
         final StringBuilder possibleModes = new StringBuilder();
         Games.getInfo(getGame()).getSupportedModes().forEach(mode -> possibleModes.append(mode.equals(getMode()) ? "`[x]` " : "`[ ]` ").append(mode).append("\n"));
-        eb.addField("Mode", possibleModes.toString(), true);
+        neb.addField("Mode", possibleModes.toString(), true);
 
         //day length
-        eb.addField("Day length", TextchatUtils.formatMillis(this.dayLengthMillis), true);
+        neb.addField("Day length", TextchatUtils.formatMillis(this.dayLengthMillis), true);
 
         //accepted player numbers
-        eb.addField("Allowed players",
+        neb.addField("Allowed players",
                 Games.getInfo(getGame()).getAcceptablePlayerNumbers(getMode()),
                 true);
 
         //inned players
-        final String listInned = String.join(", ", this.innedUsers.stream().map(u -> "`" + Wolfia.jda.getTextChannelById(this.channelId).getGuild().getMemberById(u).getEffectiveName() + "`").collect(Collectors.toList()));
-        eb.addField("Inned players (**" + this.innedUsers.size() + "**)", listInned, true);
-        return eb.build();
+        final NiceEmbedBuilder.ChunkingField inned = new NiceEmbedBuilder.ChunkingField("Inned players (" + this.innedUsers.size() + ")", true);
+        final List<String> formatted = this.innedUsers.stream().map(userId -> TextchatUtils.userAsMention(userId) + ", ").collect(Collectors.toList());
+        if (!formatted.isEmpty()) {
+            String lastOne = formatted.remove(formatted.size() - 1);
+            lastOne = lastOne.substring(0, lastOne.length() - 2); //remove the last ", "
+            formatted.add(lastOne);
+        }
+        inned.addAll(formatted);
+        neb.addField(inned);
+
+        return neb.build();
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
@@ -238,14 +248,17 @@ public class SetupEntity implements IEntity {
 
             try {
                 game.start(this.channelId, getMode(), inned);
-            } catch (final Exception e) {
-                //start failed
+            } catch (final UserFriendlyException e) {
+                log.warn("Game start aborted due to user friendly exception", e);
                 Games.remove(game);
                 game.cleanUp();
-                log.warn("Game start aborted due to exception", e);
-                Wolfia.handleOutputMessage(this.channelId, "%s, game start aborted due to:\n%s",
-                        TextchatUtils.userAsMention(commandCallerId), e.getMessage());
-                return false;
+                throw new UserFriendlyException(e.getMessage(), e);
+            } catch (final Exception e) {
+                //start failed with a fucked up exception
+                Games.remove(game);
+                game.cleanUp();
+                throw new RuntimeException(String.format("%s, game start aborted due to:\n%s",
+                        TextchatUtils.userAsMention(commandCallerId), e.getMessage()));
             }
             this.innedUsers.clear();
             DbWrapper.merge(this);

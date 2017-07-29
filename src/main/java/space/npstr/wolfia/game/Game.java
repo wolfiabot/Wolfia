@@ -45,6 +45,7 @@ import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
+import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
@@ -636,30 +637,18 @@ public abstract class Game {
 
 
     protected EmbedBuilder listLivingPlayersWithNumbers() {
-        final EmbedBuilder eb = new EmbedBuilder();
+        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
         final TextChannel tc = Wolfia.jda.getTextChannelById(this.channelId);
         final Guild g = tc.getGuild();
-        eb.setTitle("Living players");
-        eb.setDescription("Game: " + Games.getInfo(this).textRep() + " " + this.mode.textRep + " on " + g.getName() + " in #" + tc.getName());
+        neb.setTitle("Living players");
+        neb.setDescription("Game: " + Games.getInfo(this).textRep() + " " + this.mode.textRep + " on " + g.getName() + " in #" + tc.getName());
 
-        //format them into 2 columns
-        final StringBuilder field1 = new StringBuilder();
-        final StringBuilder field2 = new StringBuilder();
-
-        int i = 0;
+        final NiceEmbedBuilder.ChunkingField list = new NiceEmbedBuilder.ChunkingField("", true);
         for (final Player p : getLivingPlayers()) {
-            final StringBuilder toAdd;
-            if (i % 2 == 0) {
-                toAdd = field1;
-            } else {
-                toAdd = field2;
-            }
-            toAdd.append(Emojis.LETTERS[p.number - 1]).append(p.getBothNamesFormatted()).append("\n");
-            i++;
+            list.add(Emojis.LETTERS[p.number - 1] + " " + p.getBothNamesFormatted(), true);
         }
-        eb.addField("", field1.toString(), true);
-        eb.addField("", field2.toString(), true);
-        return eb;
+        neb.addField(list);
+        return neb;
     }
 
     //an way to create ActionStats object with a bunch of default/automatically generated values, like time stamps

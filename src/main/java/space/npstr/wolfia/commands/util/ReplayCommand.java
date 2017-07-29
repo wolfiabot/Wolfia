@@ -17,8 +17,6 @@
 
 package space.npstr.wolfia.commands.util;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +30,12 @@ import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.TeamStats;
 import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -74,7 +75,7 @@ public class ReplayCommand implements ICommand {
             return false;
         }
 
-        final EmbedBuilder eb = new EmbedBuilder();
+        final NiceEmbedBuilder eb = new NiceEmbedBuilder();
 
         //1. post summary like game, mode, players, roles
         eb.setTitle("**Game #" + gameStats.getGameId() + "**");
@@ -90,20 +91,15 @@ public class ReplayCommand implements ICommand {
 
 
         //2. post the actions
-        StringBuilder actions = new StringBuilder();
-        String fieldTitle = "Actions";
-        for (final ActionStats action : gameStats.getActions()) {
+        final List<ActionStats> sortedActions = gameStats.getActions();
+        sortedActions.sort(Comparator.comparingLong(ActionStats::getTimeStampSubmitted));
+        final String fieldTitle = "Actions";
+        final NiceEmbedBuilder.ChunkingField actionsField = new NiceEmbedBuilder.ChunkingField(fieldTitle, false);
+        for (final ActionStats action : sortedActions) {
             final String actionStr = action.toString();
-
-            //split into several fields if needed
-            if (actions.length() + actionStr.length() + 1 > MessageEmbed.VALUE_MAX_LENGTH) {
-                eb.addField(fieldTitle, actions.toString(), false);
-                fieldTitle = "";//empty title for following fields
-                actions = new StringBuilder(); //reset the summary string
-            }
-            actions.append(actionStr).append("\n");
+            actionsField.add(actionStr, true);
         }
-        eb.addField(fieldTitle, actions.toString(), false);
+        eb.addField(actionsField);
 
         //3. post the winners
         eb.addField("Game ended", TextchatUtils.toUtcTime(gameStats.getEndTime()), true);

@@ -42,6 +42,7 @@ import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Phase;
+import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
@@ -94,23 +95,32 @@ public class Popcorn extends Game {
 
     @Override
     public EmbedBuilder getStatus() {
-        final EmbedBuilder eb = new EmbedBuilder();
-        eb.addField("Game", Games.POPCORN.textRep + " " + this.mode.textRep, true);
+        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        neb.addField("Game", Games.POPCORN.textRep + " " + this.mode.textRep, true);
         if (!this.running) {
-            eb.addField("", "**Game is not running**", false);
-            return eb;
+            neb.addField("", "**Game is not running**", false);
+            return neb;
         }
-        eb.addField("Day", Integer.toString(this.day), true);
+        neb.addField("Day", Integer.toString(this.day), true);
         final long timeLeft = this.dayStarted + this.dayLengthMillis - System.currentTimeMillis();
-        eb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
+        neb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
 
-        eb.addField("Living Players", String.join("\n", getLivingPlayerMentions()), true);
+        final NiceEmbedBuilder.ChunkingField living = new NiceEmbedBuilder.ChunkingField("Living Players", true);
+        for (final Player p : getLivingPlayers()) {
+            if (p.userId == this.gunBearer) {
+                living.add(Emojis.GUN + " " + p.asMention(), true);
+            } else {
+                living.add(p.asMention(), true);
+            }
+        }
+        neb.addField(living);
+
         final StringBuilder sb = new StringBuilder();
         getLivingWolves().forEach(w -> sb.append(Emojis.WOLF));
-        eb.addField("Living wolves", sb.toString(), true);
-        eb.addField("Gun holder", TextchatUtils.userAsMention(this.gunBearer), true);
+        neb.addField("Living wolves", sb.toString(), true);
+        neb.addField(Emojis.GUN + " holder", TextchatUtils.userAsMention(this.gunBearer), true);
 
-        return eb;
+        return neb;
     }
 
     @Override
@@ -459,7 +469,7 @@ public class Popcorn extends Game {
             final TextChannel wolfchatChannel = Wolfia.jda.getTextChannelById(wolfchatChannelId);
             final Map<String, Player> options = GameUtils.mapToStrings(getLivingVillage(), Arrays.asList(Emojis.LETTERS));
 
-            Wolfia.handleOutputEmbed(wolfchatChannel,
+            Wolfia.handleOutputMessage(wolfchatChannel, ignored -> Wolfia.handleOutputEmbed(wolfchatChannel,
                     prepareGunDistributionEmbed(options, Collections.unmodifiableMap(this.votes)).build(), m -> {
                         options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, Wolfia.defaultOnFail));
                         Wolfia.jda.addEventListener(new ReactionListener(m,
@@ -477,7 +487,9 @@ public class Popcorn extends Game {
                                 aVoid -> endDistribution(Collections.unmodifiableMap(this.votes),
                                         GunDistributionEndReason.TIMER)
                         ));
-                    });
+                    }),
+                    Wolfia.defaultOnFail,
+                    "Gun distribution!\n%s", String.join(", ", getLivingWolvesMentions()));
         }
 
         //synchronized because it modifies the votes map
@@ -522,12 +534,11 @@ public class Popcorn extends Game {
 
         private EmbedBuilder prepareGunDistributionEmbed(final Map<String, Player> livingVillage,
                                                          final Map<Long, Long> votesCopy) {
-            final EmbedBuilder eb = new EmbedBuilder();
-            final String mentionedWolves = String.join(", ", getLivingWolvesMentions());
+            final NiceEmbedBuilder neb = new NiceEmbedBuilder();
             final long timeLeft = TIME_TO_DISTRIBUTE_GUN_MILLIS - (System.currentTimeMillis() - this.startedMillis);
-            eb.addField("", mentionedWolves + " you have " + TextchatUtils.formatMillis(timeLeft)
+            neb.addField("", "You have " + TextchatUtils.formatMillis(timeLeft)
                     + " to distribute the gun.", false);
-            final StringBuilder sb = new StringBuilder();
+            final NiceEmbedBuilder.ChunkingField villagersField = new NiceEmbedBuilder.ChunkingField("", false);
             livingVillage.forEach((emoji, player) -> {
                 //who is voting for this player to receive the gun?
                 final List<String> voters = new ArrayList<>();
@@ -536,13 +547,13 @@ public class Popcorn extends Game {
                         voters.add(TextchatUtils.userAsMention(voter));
                     }
                 }
-                sb.append(emoji).append(" **").append(voters.size()).append("** votes: ").append(player.getBothNamesFormatted())
-                        .append("\nVoted by: ").append(String.join(", ", voters)).append("\n");
+                villagersField.add(emoji + " **" + voters.size() + "** votes: " + player.getBothNamesFormatted() +
+                        "\nVoted by: " + String.join(", ", voters) + "\n");
             });
-            eb.addField("", sb.toString(), false);
+            neb.addField(villagersField);
             final String info = "**Click the reactions below to decide who to give the gun. Dead wolves voting will be ignored.**";
-            eb.addField("", info, false);
-            return eb;
+            neb.addField("", info, false);
+            return neb;
         }
     }
 

@@ -1,8 +1,5 @@
 package space.npstr.wolfia.game.tools;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.game.GameUtils;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Phase;
@@ -25,19 +22,12 @@ public class VotingBuilder {
 
 
     private long endTime;
-    private long guildId;
     private Map<String, Player> mappedEmojis;
     private String unvoteEmoji;
     private List<Player> possibleVoters;
 
     public VotingBuilder endTime(final long endTime) {
         this.endTime = endTime;
-        return this;
-    }
-
-    //guild where the game is being played in
-    public VotingBuilder guildId(final long guildId) {
-        this.guildId = guildId;
         return this;
     }
 
@@ -56,53 +46,56 @@ public class VotingBuilder {
         return this;
     }
 
-    public EmbedBuilder getEmbed(final Map<Player, Player> votes) {
+    public NiceEmbedBuilder getEmbed(final Map<Player, Player> votes) {
 
-        EmbedBuilder eb = new EmbedBuilder();
-        eb = addTimeLeft(eb, this.endTime - System.currentTimeMillis());
+        NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        neb = addTimeLeft(neb, this.endTime - System.currentTimeMillis());
 
         final List<VoteEntry> processedVotes = processVotes(votes);
-        final String votesStr = renderVotes(processedVotes, true, true).toString();
-        eb.addField("", votesStr, false);
+        neb.addField(renderVotes("", processedVotes, true, true));
 
-        eb = addNotes(eb);
-        return eb;
+        neb = addNotes(neb);
+        return neb;
     }
 
-    public EmbedBuilder getFinalEmbed(final Map<Player, Player> votes, final Phase phase, final int cycle) {
-        final EmbedBuilder eb = new EmbedBuilder();
+    public NiceEmbedBuilder getFinalEmbed(final Map<Player, Player> votes, final Phase phase, final int cycle) {
+        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
 
         final List<VoteEntry> processedVotes = processVotes(votes);
         //descending order by votes received
         processedVotes.sort((o1, o2) -> o2.voters.size() - o1.voters.size());
-        final String votesStr = renderVotes(processedVotes, false, false).toString();
-        eb.addField("Final votecount for " + phase.textRep + " " + cycle + ":", votesStr, false);
 
-        return eb;
+        final String title = "Final votecount for " + phase.textRep + " " + cycle + ":";
+        neb.addField(renderVotes(title, processedVotes, false, false));
+        return neb;
     }
 
-    private StringBuilder renderVotes(final List<VoteEntry> votes, final boolean renderEmojis, final boolean renderZeroVotes) {
-        final StringBuilder sb = new StringBuilder();
+    private NiceEmbedBuilder.ChunkingField renderVotes(final String title, final List<VoteEntry> votes, final boolean renderEmojis, final boolean renderZeroVotes) {
+        final NiceEmbedBuilder.ChunkingField votesField = new NiceEmbedBuilder.ChunkingField(title, false);
+
         for (final VoteEntry ve : votes) {
+            final StringBuilder sb = new StringBuilder();
             if (!renderZeroVotes && ve.voters.isEmpty()) {
                 continue;
             }
-            final Member candidateMember = Wolfia.jda.getGuildById(this.guildId).getMemberById(ve.candidate.userId);
             final List<String> votersAsMentions = GameUtils.asMentions(ve.voters);
             if (renderEmojis) {
                 sb.append(ve.emoji).append(" ");
             }
             sb.append("**").append(ve.voters.size()).append("** votes: ")
-                    .append(candidateMember.getUser().getName()).append(" aka **").append(candidateMember.getEffectiveName())
-                    .append("**\nVoted by: ").append(ve.voters.isEmpty() ? "---" : String.join(", ", votersAsMentions)).append("\n");
+                    .append(ve.candidate.getBothNamesFormatted())
+                    .append("\nVoted by: ").append(ve.voters.isEmpty() ? "---" : String.join(", ", votersAsMentions));
+            votesField.add(sb.toString(), true);
         }
+        final StringBuilder nv = new StringBuilder();
         if (renderEmojis) {
-            sb.append(this.unvoteEmoji).append(" ");
+            nv.append(this.unvoteEmoji).append(" ");
         }
         final Set<Player> nonVoters = getNonVoters(votes.stream().flatMap(ve -> ve.voters.stream()).collect(Collectors.toSet()));
-        sb.append("**Non-voters: **\n").append(String.join(", ", GameUtils.asMentions(nonVoters)));
+        nv.append("**Non-voters: **\n").append(String.join(", ", GameUtils.asMentions(nonVoters)));
 
-        return sb;
+        votesField.add(nv.toString());
+        return votesField;
     }
 
     private List<VoteEntry> processVotes(final Map<Player, Player> votes) {
@@ -127,16 +120,18 @@ public class VotingBuilder {
         return nonVoters;
     }
 
-    private EmbedBuilder addTimeLeft(final EmbedBuilder eb, final long timeLeft) {
-        return eb.addField("", "You have **" + TextchatUtils.formatMillis(timeLeft)
+    private NiceEmbedBuilder addTimeLeft(final NiceEmbedBuilder neb, final long timeLeft) {
+        neb.addField("", "You have **" + TextchatUtils.formatMillis(timeLeft)
                 + "** left to vote.", false);
+        return neb;
     }
 
-    private EmbedBuilder addNotes(final EmbedBuilder eb) {
+    private NiceEmbedBuilder addNotes(final NiceEmbedBuilder neb) {
         final String info = "**Click the reactions below to vote a player." +
                 "\nOnly your last vote will be counted.\nOnly votes by living players will be counted.**" +
                 "\nUpdates every few seconds.";
-        return eb.addField("", info, false);
+        neb.addField("", info, false);
+        return neb;
     }
 
     private class VoteEntry {
