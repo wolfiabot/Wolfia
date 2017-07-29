@@ -64,6 +64,8 @@ public class NiceEmbedBuilder extends EmbedBuilder {
         public ChunkingField(final String name, final boolean inline) {
             this.name = name;
             this.inline = inline;
+            this.current = new StringBuilder().append("");
+            this.content.add(this.current);
         }
 
         //will add the str to the field, if the field would go over the allowed limit, it will create a new field
