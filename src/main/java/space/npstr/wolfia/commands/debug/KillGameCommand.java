@@ -52,7 +52,7 @@ public class KillGameCommand implements ICommand, IOwnerRestricted {
 
         final Game game = Games.get(channelId);
         if (game == null) {
-            commandInfo.reply("There is not game registered for channel " + channelId);
+            commandInfo.reply("There is no game registered for channel " + channelId);
             return false;
         }
 

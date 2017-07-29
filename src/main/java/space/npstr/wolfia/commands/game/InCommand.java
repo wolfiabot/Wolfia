@@ -51,7 +51,7 @@ public class InCommand implements ICommand {
             return false;
         }
 
-        final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+        final SetupEntity setup = DbWrapper.getOrCreateEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
 
 
         //force inn by bot owner
@@ -61,7 +61,7 @@ public class InCommand implements ICommand {
             return true;
         }
 
-        if (DbWrapper.getEntity(commandInfo.event.getAuthor().getIdLong(), Banlist.class).getScope() == Scope.GLOBAL) {
+        if (DbWrapper.getOrCreateEntity(commandInfo.event.getAuthor().getIdLong(), Banlist.class).getScope() == Scope.GLOBAL) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
                     "%s, lol ur banned.",
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));

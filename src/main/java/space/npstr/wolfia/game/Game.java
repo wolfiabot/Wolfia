@@ -85,7 +85,7 @@ public abstract class Game {
     private static final Logger log = LoggerFactory.getLogger(Game.class);
 
     //to be used to execute tasks for each game
-    protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(1,
+    protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10,
             r -> new Thread(r, "game-in-channel-" + Game.this.channelId + "-helper-thread"));
 
     //commonly used fields
@@ -353,7 +353,7 @@ public abstract class Game {
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
-                this.accessRoleId = DbWrapper.getEntity(this.channelId, ChannelSettings.class).getAccessRoleId();
+                this.accessRoleId = DbWrapper.getOrCreateEntity(this.channelId, ChannelSettings.class).getAccessRoleId();
                 final Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
                     throw new UserFriendlyException(String.format(

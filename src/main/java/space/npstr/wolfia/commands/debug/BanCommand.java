@@ -87,7 +87,7 @@ public class BanCommand implements ICommand, IOwnerRestricted {
         final String joined = String.join("**, **", mentions);
         if (action == BanAction.ADD) {
             mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(userId -> {
-                final Banlist userBan = DbWrapper.getEntity(userId, Banlist.class);
+                final Banlist userBan = DbWrapper.getOrCreateEntity(userId, Banlist.class);
                 userBan.setScope(Scope.GLOBAL);
                 DbWrapper.merge(userBan);
             });

@@ -54,7 +54,7 @@ public class PlayerStats implements Serializable {
     @Column(name = "user_id")
     private long userId;
 
-    //nickname on the guild where the main channel of the game is
+    //nickname in the guild where the main channel of the game is
     @Column(name = "nickname")
     private String nickname;
 

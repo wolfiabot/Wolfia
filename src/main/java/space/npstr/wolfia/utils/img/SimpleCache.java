@@ -19,7 +19,6 @@ package space.npstr.wolfia.utils.img;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -55,7 +54,6 @@ public class SimpleCache {
                 tmpFile = File.createTempFile(UUID.randomUUID().toString(), type);
                 //noinspection ConstantConditions
                 is = new URL(url).openStream();
-                final FileWriter writer = new FileWriter(tmpFile);
                 fos = new FileOutputStream(tmpFile);
 
                 final byte[] buffer = new byte[1024 * 10];
@@ -69,7 +67,8 @@ public class SimpleCache {
                 cachedURLFiles.put(url, tmpFile);
                 return tmpFile;
             } catch (final IOException ex) {
-                if (tmpFile != null) tmpFile.delete();
+                if (tmpFile != null) //noinspection ResultOfMethodCallIgnored
+                    tmpFile.delete();
                 throw new RuntimeException(ex);
             }
         }

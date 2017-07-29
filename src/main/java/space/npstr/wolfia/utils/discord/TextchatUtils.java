@@ -134,6 +134,10 @@ public class TextchatUtils {
         return dtf.format(Instant.ofEpochMilli(epochMillis));
     }
 
+    public static String berlinTime() {
+        return toBerlinTime(System.currentTimeMillis());
+    }
+
     public static String toBerlinTime(final long epochMillis) {
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss z").withZone(ZoneId.of("Europe/Berlin"));
         return dtf.format(Instant.ofEpochMilli(epochMillis));

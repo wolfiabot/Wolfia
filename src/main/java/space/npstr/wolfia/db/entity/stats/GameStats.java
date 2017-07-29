@@ -17,8 +17,6 @@
 
 package space.npstr.wolfia.db.entity.stats;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.persistence.CascadeType;
@@ -49,7 +47,6 @@ import java.util.Set;
 public class GameStats implements Serializable {
 
     private static final long serialVersionUID = -577030472501735570L;
-    private static final Logger log = LoggerFactory.getLogger(GameStats.class);
 
     //this is pretty much an auto incremented id generator starting by 1 and going 1 upwards
     //there are no hard guarantees that there wont be any gaps, or that they will be in any order in the table

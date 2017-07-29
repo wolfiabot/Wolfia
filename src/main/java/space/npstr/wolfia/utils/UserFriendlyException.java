@@ -32,6 +32,10 @@ public class UserFriendlyException extends RuntimeException {
 
     }
 
+    public UserFriendlyException(final String message, final Object... args) {
+        super(String.format(message, args));
+    }
+
     public UserFriendlyException(final String message) {
         super(message);
     }

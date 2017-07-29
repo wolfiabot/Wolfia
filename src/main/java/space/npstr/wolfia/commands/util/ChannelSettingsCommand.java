@@ -51,7 +51,7 @@ public class ChannelSettingsCommand implements ICommand {
         final Guild guild = event.getGuild();
 
         //will not be null because it will be initialized with default values if there is none
-        ChannelSettings channelSettings = DbWrapper.getEntity(channel.getIdLong(), ChannelSettings.class);
+        ChannelSettings channelSettings = DbWrapper.getOrCreateEntity(channel.getIdLong(), ChannelSettings.class);
 
 
         if (commandInfo.args.length == 0) {

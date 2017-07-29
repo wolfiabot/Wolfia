@@ -58,7 +58,7 @@ public class TagCommand implements ICommand {
         final Guild guild = event.getGuild();
         final TextChannel channel = event.getTextChannel();
         final Member invoker = event.getMember();
-        final ChannelSettings settings = DbWrapper.getEntity(channel.getIdLong(), ChannelSettings.class);
+        final ChannelSettings settings = DbWrapper.getOrCreateEntity(channel.getIdLong(), ChannelSettings.class);
         final Set<Long> tags = settings.getTags();
 
         String option = "";

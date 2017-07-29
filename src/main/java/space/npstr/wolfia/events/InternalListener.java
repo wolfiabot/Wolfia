@@ -62,7 +62,7 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild g = event.getGuild();
-        final EGuild guildEntity = DbWrapper.getEntity(g.getIdLong(), EGuild.class);
+        final EGuild guildEntity = DbWrapper.getOrCreateEntity(g.getIdLong(), EGuild.class);
         if (guildEntity.isPresent()) { //safeguard against discord shitting itself and spamming these for established guilds
             log.warn("Joined a guild that is marked as present");
             return;
@@ -82,7 +82,7 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild g = event.getGuild();
-        DbWrapper.getEntity(g.getIdLong(), EGuild.class).leave();
+        DbWrapper.getOrCreateEntity(g.getIdLong(), EGuild.class).leave();
 
         int gamesDestroyed = 0;
         //destroy games running in the server that was left

@@ -49,7 +49,7 @@ public class SetupCommand implements ICommand {
         final TextChannel channel = event.getTextChannel();
         final Member invoker = event.getMember();
         //will not be null because it will be initialized with default values if there is none
-        SetupEntity setup = DbWrapper.getEntity(channel.getIdLong(), SetupEntity.class);
+        SetupEntity setup = DbWrapper.getOrCreateEntity(channel.getIdLong(), SetupEntity.class);
 
         //is this an attempt to edit the setup?
         if (commandInfo.args.length > 1) {

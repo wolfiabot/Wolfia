@@ -37,7 +37,7 @@ public class OutCommand implements ICommand {
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
-        final SetupEntity setup = DbWrapper.getEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+        final SetupEntity setup = DbWrapper.getOrCreateEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
         //is this a forced out of a player by an moderator or the bot owner?
         if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
             final Member invoker = commandInfo.event.getMember();
