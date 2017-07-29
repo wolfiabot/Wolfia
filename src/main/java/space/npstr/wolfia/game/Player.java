@@ -17,9 +17,12 @@
 
 package space.npstr.wolfia.game;
 
+import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.entity.CachedUser;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
  * Created by napster on 05.07.17.
@@ -29,19 +32,22 @@ import space.npstr.wolfia.utils.discord.Emojis;
 public class Player {
 
     public final long userId;
+    public final long guildId; //guild where the game is running in
     public final Alignments alignment;
     public final Roles role;
-
-    //1-26; fixed while the game goes on
     public final int number;
 
     private boolean isAlive = true;
 
-    public Player(final long userId, final Alignments alignment, final Roles role, final int number) {
+    public Player(final long userId, final long guildId, final Alignments alignment, final Roles role, final int number) {
         this.userId = userId;
+        this.guildId = guildId;
         this.alignment = alignment;
         this.role = role;
         this.number = number;
+
+        //cache the user on creation of a player
+        Wolfia.submit(() -> CachedUser.get(userId).set(Wolfia.jda.getGuildById(guildId).getMemberById(userId)).save());
     }
 
     public long getUserId() {
@@ -52,18 +58,35 @@ public class Player {
         return this.isAlive;
     }
 
-    public boolean isWolf() {
+    public boolean isBaddie() {
         return this.alignment == Alignments.WOLF;
     }
 
-    public boolean isVillager() {
+    public boolean isGoodie() {
         return this.alignment == Alignments.VILLAGE;
+    }
+
+    public String getName() {
+        return CachedUser.get(this.userId).getName();
+    }
+
+    public String getNick() {
+        return CachedUser.get(this.userId).getNick(this.guildId);
+    }
+
+    public String getBothNamesFormatted() {
+        final CachedUser cu = CachedUser.get(this.userId);
+        return "**" + cu.getName() + "** aka **" + cu.getNick(this.guildId) + "**";//todo escape these from markdown characters to ensure proper formatting
+    }
+
+    public String asMention() {
+        return TextchatUtils.userAsMention(this.userId);
     }
 
     /**
      * @return an emoji representing role and alignment of this player
      */
-    public String getEmoji() {
+    public String getCharacterEmoji() {
         //role specific ones
         if (this.role == Roles.COP) {
             return Emojis.MAGNIFIER;
@@ -80,18 +103,5 @@ public class Player {
             throw new IllegalGameStateException("Can't kill a dead player");
         }
         this.isAlive = false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Long.hashCode(this.userId);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (!(obj instanceof Player)) return false;
-        final Player other = (Player) obj;
-
-        return other.userId == this.userId;
     }
 }

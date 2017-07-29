@@ -192,34 +192,34 @@ public abstract class Game {
 
     protected Set<Player> getVillagers() {
         return this.players.stream()
-                .filter(Player::isVillager)
+                .filter(Player::isGoodie)
                 .collect(Collectors.toSet());
     }
 
     protected List<Player> getLivingVillage() {
         return this.players.stream()
                 .filter(Player::isAlive)
-                .filter(Player::isVillager)
+                .filter(Player::isGoodie)
                 .collect(Collectors.toList());
     }
 
     protected Set<Long> getLivingVillageIds() {
         return this.players.stream()
                 .filter(Player::isAlive)
-                .filter(Player::isVillager)
+                .filter(Player::isGoodie)
                 .map(Player::getUserId)
                 .collect(Collectors.toSet());
     }
 
     protected Set<Player> getWolves() {
         return this.players.stream()
-                .filter(Player::isWolf)
+                .filter(Player::isBaddie)
                 .collect(Collectors.toSet());
     }
 
     protected Set<Long> getWolvesIds() {
         return this.players.stream()
-                .filter(Player::isWolf)
+                .filter(Player::isBaddie)
                 .map(Player::getUserId)
                 .collect(Collectors.toSet());
     }
@@ -227,14 +227,14 @@ public abstract class Game {
     protected List<Player> getLivingWolves() {
         return this.players.stream()
                 .filter(Player::isAlive)
-                .filter(Player::isWolf)
+                .filter(Player::isBaddie)
                 .collect(Collectors.toList());
     }
 
     protected Set<String> getLivingWolvesMentions() {
         return this.players.stream()
                 .filter(Player::isAlive)
-                .filter(Player::isWolf)
+                .filter(Player::isBaddie)
                 .map(p -> TextchatUtils.userAsMention(p.userId))
                 .collect(Collectors.toSet());
     }
@@ -420,7 +420,7 @@ public abstract class Game {
         int i = 0;
         for (final CharakterSetup.Charakter c : charakterSetup.getRandedCharakters()) {
             final long randedUserId = rand.get(i);
-            this.players.add(new Player(randedUserId, c.alignment, c.role, i + 1));
+            this.players.add(new Player(randedUserId, this.guildId, c.alignment, c.role, i + 1));
             i++;
         }
     }
@@ -558,7 +558,7 @@ public abstract class Game {
     }
 
     protected boolean isOnlyVillageLeft() {
-        return getLivingPlayers().stream().allMatch(Player::isVillager);
+        return getLivingPlayers().stream().allMatch(Player::isGoodie);
     }
 
     //this check will probably get much more sophisticated with more complicated roles
@@ -648,14 +648,13 @@ public abstract class Game {
 
         int i = 0;
         for (final Player p : getLivingPlayers()) {
-            final Member m = g.getMemberById(p.userId);
             final StringBuilder toAdd;
             if (i % 2 == 0) {
                 toAdd = field1;
             } else {
                 toAdd = field2;
             }
-            toAdd.append(Emojis.LETTERS[p.number - 1]).append(" **").append(m.getEffectiveName()).append("** aka **").append(m.getUser().getName()).append("**\n");
+            toAdd.append(Emojis.LETTERS[p.number - 1]).append(p.getBothNamesFormatted()).append("\n");
             i++;
         }
         eb.addField("", field1.toString(), true);

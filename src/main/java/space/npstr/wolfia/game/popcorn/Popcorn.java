@@ -20,7 +20,6 @@ package space.npstr.wolfia.game.popcorn;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,18 +158,17 @@ public class Popcorn extends Game {
                 channel.getGuild().getName(), channel.getName(), inviteLink);
 
         for (final Player player : this.getWolves()) {
-            wolfteamNames.append("**").append(Wolfia.jda.getUserById(player.userId).getName()).append("** aka **")
-                    .append(channel.getGuild().getMemberById(player.userId).getEffectiveName()).append("**\n");
+            wolfteamNames.append(player.getBothNamesFormatted()).append("\n");
         }
 
         for (final Player player : this.players) {
             final StringBuilder rolePm = new StringBuilder()
-                    .append("Hi ").append(Wolfia.jda.getUserById(player.userId).getName()).append("!\n")
+                    .append("Hi ").append(player.getName()).append("!\n")
                     .append(player.alignment.rolePmBlockWW).append("\n");
-            if (player.alignment == Alignments.VILLAGE) {
+            if (player.isGoodie()) {
                 rolePm.append("If you shoot a villager, you will die. If the wolves reach parity with the village, you lose.\n");
             }
-            if (player.alignment == Alignments.WOLF) {
+            if (player.isBaddie()) {
                 rolePm.append("If you get shot, you will die. If all wolves get shot, you lose\n");
                 rolePm.append(wolfteamNames);
                 rolePm.append(wolfchatInvite);
@@ -181,7 +179,7 @@ public class Popcorn extends Game {
                     e -> Wolfia.handleOutputMessage(channel,
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                     "or unblock me, then issue `%s%s` to receive your role PM.",
-                            TextchatUtils.userAsMention(player.userId), Config.PREFIX, RolePmCommand.COMMAND),
+                            player.asMention(), Config.PREFIX, RolePmCommand.COMMAND),
                     "%s", rolePm.toString()
             );
             this.rolePMs.put(player.userId, rolePm.toString());
@@ -193,13 +191,14 @@ public class Popcorn extends Game {
                 Games.POPCORN, this.mode.name(), this.players.size());
         final Map<Alignments, TeamStats> teams = new HashMap<>();
         for (final Player player : this.players) {
-            final TeamStats team = teams.getOrDefault(player.alignment,
-                    new TeamStats(this.gameStats, player.alignment, player.alignment.textRepWW, -1));
+            final Alignments alignment = player.alignment;
+            final TeamStats team = teams.getOrDefault(alignment,
+                    new TeamStats(this.gameStats, alignment, alignment.textRepWW, -1));
             final PlayerStats ps = new PlayerStats(team, player.userId,
-                    g.getMemberById(player.userId).getEffectiveName(), player.alignment, player.role);
+                    player.getNick(), alignment, player.role);
             this.playersStats.put(player.userId, ps);
             team.addPlayer(ps);
-            teams.put(player.alignment, team);
+            teams.put(alignment, team);
         }
         for (final TeamStats team : teams.values()) {
             team.setTeamSize(team.getPlayers().size());
@@ -304,7 +303,7 @@ public class Popcorn extends Game {
                     TextchatUtils.userAsMention(toBeKilled), Emojis.GUN);
             doIfGameIsntOver = ignored -> distributeGun();
         } else if (reason == DayEndReason.SHAT) {
-            if (getPlayer(toBeKilled).isWolf()) {
+            if (getPlayer(toBeKilled).isBaddie()) {
                 Wolfia.handleOutputMessage(channel, "%s was a dirty %s!",
                         TextchatUtils.userAsMention(toBeKilled), Emojis.WOLF);
                 doIfGameIsntOver = ignored -> startDay();
@@ -373,7 +372,7 @@ public class Popcorn extends Game {
 
         try {
             final Operation doIfLegal = () -> this.gameStats.addAction(simpleAction(shooterId, Actions.SHOOT, targetId));
-            if (target.isWolf()) {
+            if (target.isBaddie()) {
                 endDay(DayEndReason.SHAT, targetId, shooterId, doIfLegal);
             } else {
                 endDay(DayEndReason.SHAT, shooterId, targetId, doIfLegal);
@@ -537,10 +536,7 @@ public class Popcorn extends Game {
                         voters.add(TextchatUtils.userAsMention(voter));
                     }
                 }
-                final Member m = Wolfia.jda.getTextChannelById(Popcorn.this.channelId).getGuild()
-                        .getMemberById(player.userId);
-                sb.append(emoji).append(" **").append(voters.size()).append("** votes: ")
-                        .append(m.getUser().getName()).append(" aka ").append(m.getEffectiveName())
+                sb.append(emoji).append(" **").append(voters.size()).append("** votes: ").append(player.getBothNamesFormatted())
                         .append("\nVoted by: ").append(String.join(", ", voters)).append("\n");
             });
             eb.addField("", sb.toString(), false);

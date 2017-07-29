@@ -20,7 +20,6 @@ package space.npstr.wolfia.game.mafia;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,16 +148,15 @@ public class Mafia extends Game {
                 channel.getGuild().getName(), channel.getName(), inviteLink);
 
         for (final Player player : getWolves()) {
-            mafiaTeamNames.append("**").append(Wolfia.jda.getUserById(player.userId).getName()).append("** aka **")
-                    .append(channel.getGuild().getMemberById(player.userId).getEffectiveName()).append("**\n");
+            mafiaTeamNames.append(player.getBothNamesFormatted()).append("\n");
         }
 
         for (final Player player : this.players) {
             final StringBuilder rolePm = new StringBuilder()
-                    .append("Hi ").append(Wolfia.jda.getUserById(player.userId).getName()).append("!\n")
+                    .append("Hi ").append(player.getName()).append("!\n")
                     .append(player.alignment.rolePmBlockMaf).append("\n")
                     .append(player.role.rolePmBlock).append("\n");
-            if (player.alignment == Alignments.WOLF) {
+            if (player.isBaddie()) {
                 rolePm.append(mafiaTeamNames);
                 rolePm.append("Wolfchat: ").append(wolfchatInvite).append("\n");
             }
@@ -168,7 +166,7 @@ public class Mafia extends Game {
                     e -> Wolfia.handleOutputMessage(channel,
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                     "or unblock me, then issue `%s%s` to receive your role PM.",
-                            TextchatUtils.userAsMention(player.userId), Config.PREFIX, RolePmCommand.COMMAND),
+                            player.asMention(), Config.PREFIX, RolePmCommand.COMMAND),
                     "%s", rolePm.toString()
             );
             this.rolePMs.put(player.userId, rolePm.toString());
@@ -181,13 +179,14 @@ public class Mafia extends Game {
                 Games.MAFIA, this.mode.name(), this.players.size());
         final Map<Alignments, TeamStats> teams = new HashMap<>();
         for (final Player player : this.players) {
-            final TeamStats team = teams.getOrDefault(player.alignment,
-                    new TeamStats(this.gameStats, player.alignment, player.alignment.textRepMaf, -1));
+            final Alignments alignment = player.alignment;
+            final TeamStats team = teams.getOrDefault(alignment,
+                    new TeamStats(this.gameStats, alignment, alignment.textRepMaf, -1));
             final PlayerStats ps = new PlayerStats(team, player.userId,
-                    g.getMemberById(player.userId).getEffectiveName(), player.alignment, player.role);
+                    player.getNick(), alignment, player.role);
             this.playersStats.put(player.userId, ps);
             team.addPlayer(ps);
-            teams.put(player.alignment, team);
+            teams.put(alignment, team);
         }
         for (final TeamStats team : teams.values()) {
             team.setTeamSize(team.getPlayers().size());
@@ -253,7 +252,7 @@ public class Mafia extends Game {
 
         if (this.phase != Phase.DAY) {
             if (!shutUp) Wolfia.handleOutputMessage(this.channelId, "%s, you can only vote during the day.",
-                    TextchatUtils.userAsMention(voter.userId));
+                    voter.asMention());
             return false;
         }
         final Player candidate;
@@ -262,12 +261,12 @@ public class Mafia extends Game {
         } catch (final IllegalGameStateException e) {
             if (!shutUp)
                 Wolfia.handleOutputMessage(this.channelId, "%s, you have to vote for a player who plays this game.",
-                        TextchatUtils.userAsMention(voter.userId));
+                        voter.asMention());
             return false;
         }
         if (!candidate.isAlive()) {
             if (!shutUp) Wolfia.handleOutputMessage(this.channelId, "%s, you can't vote for a dead player.",
-                    TextchatUtils.userAsMention(voter.userId));
+                    voter.asMention());
             return false;
         }
 
@@ -277,7 +276,7 @@ public class Mafia extends Game {
             this.voteActions.put(voter, simpleAction(voter.userId, Actions.VOTELYNCH, cand));
         }
         if (!shutUp) Wolfia.handleOutputMessage(this.channelId, "%s votes %s for lynch.",
-                TextchatUtils.userAsMention(voter.userId), TextchatUtils.userAsMention(cand));
+                voter.asMention(), TextchatUtils.userAsMention(cand));
         return true;
     }
 
@@ -287,7 +286,7 @@ public class Mafia extends Game {
 
         if (this.phase != Phase.DAY) {
             if (!shutUp) Wolfia.handleOutputMessage(this.channelId, "%s, you can only unvote during the day.",
-                    TextchatUtils.userAsMention(unvoter.userId));
+                    unvoter.asMention());
             return false;
         }
 
@@ -296,7 +295,7 @@ public class Mafia extends Game {
             if (this.votes.get(unvoter) == null) {
                 if (!shutUp)
                     Wolfia.handleOutputMessage(this.channelId, "%s, you can't unvote if you aren't voting in the first place.",
-                            TextchatUtils.userAsMention(unvoter.userId));
+                            unvoter.asMention());
                 return false;
             }
             unvoted = this.votes.remove(unvoter);
@@ -304,7 +303,7 @@ public class Mafia extends Game {
         }
 
         if (!shutUp) Wolfia.handleOutputMessage(this.channelId, "%s unvoted %s.",
-                TextchatUtils.userAsMention(unvoter.userId), TextchatUtils.userAsMention(unvoted.userId));
+                unvoter.asMention(), unvoted.asMention());
         return true;
     }
 
@@ -344,8 +343,7 @@ public class Mafia extends Game {
         }
 
         this.nightActions.put(invoker, simpleAction(invoker.userId, Actions.CHECK, target.userId));
-        final Member m = Wolfia.jda.getTextChannelById(this.channelId).getGuild().getMemberById(target.userId);
-        commandInfo.reply(String.format("You are checking **%s** aka **%s** tonight.", m.getEffectiveName(), m.getUser().getName()));
+        commandInfo.reply(String.format("You are checking %s tonight.", target.getBothNamesFormatted()));
         return true;
     }
 
@@ -447,8 +445,8 @@ public class Mafia extends Game {
 
                                     final long votesAmount = this.votes.values().stream().filter(p -> p.userId == lynchCandidate.userId).count();
                                     Wolfia.handleOutputMessage(channel, "%s has been lynched with %s votes on them!\nThey were **%s %s** %s",
-                                            TextchatUtils.userAsMention(lynchCandidate.userId), votesAmount,
-                                            lynchCandidate.alignment.textRepMaf, lynchCandidate.role.textRep, lynchCandidate.getEmoji());
+                                            lynchCandidate.asMention(), votesAmount,
+                                            lynchCandidate.alignment.textRepMaf, lynchCandidate.role.textRep, lynchCandidate.getCharacterEmoji());
                                     this.gameStats.addActions(this.voteActions.values());
                                 }
 
@@ -549,7 +547,7 @@ public class Mafia extends Game {
 
                                     Wolfia.handleOutputMessage(wolfchatChannel,
                                             "\n@here, %s will be killed! Game about to start/continue, get back to the main chat.\n%s",
-                                            Wolfia.jda.getUserById(nightKillCandidate.userId).getName(),
+                                            nightKillCandidate.getBothNamesFormatted(),
                                             TextchatUtils.getOrCreateInviteLink(Wolfia.jda.getTextChannelById(this.channelId)));
                                     this.gameStats.addActions(nightKillVoteActions.values());
 
@@ -604,10 +602,10 @@ public class Mafia extends Game {
                 try {
                     final long checker = nightAction.getActor();
                     final Player checked = getPlayer(nightAction.getTarget());
-                    final Member m = Wolfia.jda.getTextChannelById(this.channelId).getGuild().getMemberById(checked.userId);
                     Wolfia.handlePrivateOutputMessage(checker, Wolfia.defaultOnFail,
-                            "%s, you checked **%s** aka **%s** on night %s. Their alignment is **%s**",
-                            TextchatUtils.userAsMention(checker), m.getEffectiveName(), m.getUser().getName(), this.cycle, checked.alignment.textRepMaf);
+                            "%s, you checked %s on night %s. Their alignment is **%s**",
+                            TextchatUtils.userAsMention(checker), checked.getBothNamesFormatted(), this.cycle,
+                            checked.alignment.textRepMaf);
                     nightAction.setTimeStampHappened(System.currentTimeMillis());
                     this.gameStats.addAction(nightAction);
                 } catch (final IllegalGameStateException e) {
@@ -619,8 +617,8 @@ public class Mafia extends Game {
         }
 
         Wolfia.handleOutputMessage(this.channelId, "%s has died during the night!\nThey were **%s %s** %s",
-                TextchatUtils.userAsMention(nightKillCandidate.userId), nightKillCandidate.alignment.textRepMaf,
-                nightKillCandidate.role.textRep, nightKillCandidate.getEmoji());
+                nightKillCandidate.asMention(), nightKillCandidate.alignment.textRepMaf,
+                nightKillCandidate.role.textRep, nightKillCandidate.getCharacterEmoji());
 
         if (!isGameOver()) {
             //start the timer only after the message has actually been sent
