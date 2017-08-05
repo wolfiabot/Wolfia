@@ -133,6 +133,8 @@ public class SetupEntity implements IEntity {
     }
 
     public void inUser(final long userId, final Operation success) {
+        //cache any inning users
+        CachedUser.get(userId).set(Wolfia.jda.getTextChannelById(this.channelId).getGuild().getMemberById(userId)).save();
         if (this.innedUsers.contains(userId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s, you have inned already.", TextchatUtils.userAsMention(userId));
         } else {

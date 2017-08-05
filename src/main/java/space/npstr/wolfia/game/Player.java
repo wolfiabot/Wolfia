@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.game;
 
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entity.CachedUser;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
@@ -45,9 +44,6 @@ public class Player {
         this.alignment = alignment;
         this.role = role;
         this.number = number;
-
-        //cache the user on creation of a player
-        Wolfia.submit(() -> CachedUser.get(userId).set(Wolfia.jda.getGuildById(guildId).getMemberById(userId)).save());
     }
 
     public long getUserId() {

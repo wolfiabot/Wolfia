@@ -18,6 +18,8 @@
 package space.npstr.wolfia.db.entity;
 
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.db.PostgresHStoreConverter;
@@ -65,6 +67,9 @@ public class CachedUser implements IEntity {
 
     @CheckReturnValue
     public CachedUser set(final Member member) {
+        if (member == null) {
+            return this; //gracefully ignore null members
+        }
         final CachedUser u = setName(member.getUser().getName());
 
         final String nick = member.getNickname();
