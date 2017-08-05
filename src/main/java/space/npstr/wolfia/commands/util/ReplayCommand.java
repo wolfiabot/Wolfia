@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.stats.ActionStats;
 import space.npstr.wolfia.db.entity.stats.GameStats;
@@ -44,18 +44,26 @@ import java.util.stream.Collectors;
  * <p>
  * Shows replays of games that are over
  */
-public class ReplayCommand implements ICommand {
+public class ReplayCommand extends BaseCommand {
+
+    private static final Logger log = LoggerFactory.getLogger(ReplayCommand.class);
 
     public static final String COMMAND = "replay";
 
-    private static final Logger log = LoggerFactory.getLogger(ReplayCommand.class);
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND + " #gameid"
+                + "\n#Show the replay of a game. Examples:"
+                + "\n  " + Config.PREFIX + COMMAND + " #69"
+                + "\n  " + Config.PREFIX + COMMAND + " 5000";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
 
         final MessageReceivedEvent e = commandInfo.event;
         if (commandInfo.args.length < 1) {
-            Wolfia.handleOutputMessage(e.getTextChannel(), "%s", help());
+            commandInfo.reply(formatHelp(commandInfo.invoker));
             return false;
         }
 
@@ -63,7 +71,7 @@ public class ReplayCommand implements ICommand {
         try {
             gameId = Long.valueOf(commandInfo.args[0].replaceAll("#", ""));
         } catch (final NumberFormatException ex) {
-            Wolfia.handleOutputMessage(e.getTextChannel(), "%s", help());
+            commandInfo.reply(formatHelp(commandInfo.invoker));
             return false;
         }
 
@@ -121,11 +129,5 @@ public class ReplayCommand implements ICommand {
 
         Wolfia.handleOutputEmbed(e.getTextChannel(), eb.build());
         return true;
-    }
-
-
-    @Override
-    public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + " #gameid\nShow the replay of a game.```";
     }
 }

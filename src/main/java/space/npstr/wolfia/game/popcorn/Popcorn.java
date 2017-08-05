@@ -188,7 +188,7 @@ public class Popcorn extends Game {
             Wolfia.handlePrivateOutputMessage(player.userId,
                     e -> Wolfia.handleOutputMessage(channel,
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
-                                    "or unblock me, then issue `%s%s` to receive your role PM.",
+                                    "and/or unblock me, then issue `%s%s` to receive your role PM.",
                             player.asMention(), Config.PREFIX, RolePmCommand.COMMAND),
                     "%s", rolePm.toString()
             );

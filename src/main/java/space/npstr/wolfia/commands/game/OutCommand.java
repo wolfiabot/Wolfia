@@ -23,17 +23,24 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
 
 /**
  * Created by npstr on 23.08.2016
  */
-public class OutCommand implements ICommand {
+public class OutCommand extends BaseCommand {
 
     public static final String COMMAND = "out";
+
+
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND + " [@user]"
+                + "\n#Remove you from the current signup list. Moderators can out other players by mentioning them.";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -58,11 +65,6 @@ public class OutCommand implements ICommand {
             }
         }
         return false;
-    }
-
-    @Override
-    public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + "\nwill remove you from the current signup list\n " + Config.PREFIX + COMMAND + "@user allows moderators to out util players```";
     }
 
 }

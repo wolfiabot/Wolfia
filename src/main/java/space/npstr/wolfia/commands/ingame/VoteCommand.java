@@ -35,7 +35,7 @@ public class VoteCommand extends GameCommand {
 
     @Override
     public String help() {
-        final String usage = Config.PREFIX + COMMAND + " @player\n#";
-        return usage + "Vote the mentioned player.";
+        return Config.PREFIX + COMMAND + " @player"
+                + "\n#Vote the mentioned player.";
     }
 }

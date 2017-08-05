@@ -23,8 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -35,7 +35,7 @@ import javax.persistence.EntityManager;
  * Created by napster on 30.05.17.
  * Stress tests the database
  */
-public class DbTestCommand implements ICommand, IOwnerRestricted {
+public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
 
     private static final Logger log = LoggerFactory.getLogger(DbTestCommand.class);
     public static final String COMMAND = "dbtest";
@@ -44,8 +44,13 @@ public class DbTestCommand implements ICommand, IOwnerRestricted {
 
     // the SQL syntax used here works with both SQLite and PostgreSQL, beware when altering
     private final String DROP_TEST_TABLE = "DROP TABLE IF EXISTS test;";
-    private final String CREATE_TEST_TABLE = "CREATE TABLE IF NOT EXISTS test (id serial, val integer, PRIMARY KEY (id));";
+    private final String CREATE_TEST_TABLE = "CREATE TABLE IF NOT EXISTS test (id SERIAL, val INTEGER, PRIMARY KEY (id));";
     private final String INSERT_TEST_TABLE = "INSERT INTO test (val) VALUES (:val) ";
+
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND + " [n m]\n#Stress test the database with n threads each doing m operations. Results will be shown after max 10 minutes.";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -186,10 +191,5 @@ public class DbTestCommand implements ICommand, IOwnerRestricted {
             if (!failed)
                 this.results[this.number] = Result.SUCCESS;
         }
-    }
-
-    @Override
-    public String help() {
-        return Config.PREFIX + COMMAND + " [n m]\n#Stress test the database with n threads each doing m operations. Results will be shown after max 10 minutes.";
     }
 }

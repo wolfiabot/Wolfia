@@ -23,25 +23,50 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
+import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
+import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.function.Consumer;
 
 /**
  * Created by npstr on 09.09.2016
  */
-public class HelpCommand implements ICommand {
+public class HelpCommand extends BaseCommand {
 
     public final static String COMMAND = "help";
+
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND + " [command]"
+                + "\n#Send you Wolfia's general help and links to documentation, or see the help for a specific command. Examples:"
+                + "\n  " + Config.PREFIX + COMMAND
+                + "\n  " + Config.PREFIX + COMMAND + " shoot";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
         if (Config.C.isDebug && !App.isOwner(commandInfo.event.getAuthor())) {
             return true;//dont answer the help command in debug mode unless it's the owner
         }
+
+        if (commandInfo.args.length > 0) {
+            final BaseCommand command = CommandHandler.getCommand(commandInfo.args[0]);
+            final String answer;
+            if (command == null || command instanceof IOwnerRestricted) {
+                answer = String.format("There is no command registered for `%s`. Use `%s` to see all available commands!",
+                        TextchatUtils.defuseMentions(commandInfo.args[0]), Config.PREFIX + CommandsCommand.COMMAND);
+            } else {
+                answer = TextchatUtils.asMarkdown(command.help());
+            }
+            commandInfo.reply(answer);
+            return true;
+        }
+
         final MessageReceivedEvent e = commandInfo.event;
         final TextChannel channel = e.getTextChannel();
         final String help = String.format("Hi %s,\nyou can find %s's **documentation** and a **full list of commands** under\n<%s>"
@@ -55,23 +80,18 @@ public class HelpCommand implements ICommand {
         final Consumer<Message> onSuccess = m -> {
             if (channel.canTalk())
                 Wolfia.handleOutputMessage(channel,
-                        "%s, sent you a PM with the help!\nUse `%s` and `%s` to start games.\n`%s` shows a list of commands.",
+                        "%s, sent you a PM with the help!\nUse `%s` and `%s` to start games.\n`%s` shows a list of commands.\n`%s [command]` shows help for a specific command.",
                         e.getAuthor().getAsMention(), Config.PREFIX + InCommand.COMMAND,
-                        Config.PREFIX + StartCommand.COMMAND, Config.PREFIX + CommandsCommand.COMMAND
+                        Config.PREFIX + StartCommand.COMMAND, Config.PREFIX + CommandsCommand.COMMAND,
+                        Config.PREFIX + HelpCommand.COMMAND
                 );
         };
         final Consumer<Throwable> onFail = t -> {
             if (channel.canTalk())
-                Wolfia.handleOutputMessage(channel, "%s, cannot send you a PM with the help. Please unblock me or change your privacy settings.", e.getAuthor().getAsMention());
+                Wolfia.handleOutputMessage(channel, "%s, cannot send you a private message with the help. Please unblock me or change your privacy settings.", e.getAuthor().getAsMention());
         };
 
         Wolfia.handlePrivateOutputMessage(e.getAuthor().getIdLong(), onSuccess, onFail, "%s", help);
         return true;
-    }
-
-    @Override
-    public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + " (<command>)\nto see all available commands for this channel "
-                + "or see the help for a specific command```";
     }
 }

@@ -19,6 +19,7 @@ package space.npstr.wolfia.game.mafia;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
@@ -169,7 +170,7 @@ public class Mafia extends Game {
             Wolfia.handlePrivateOutputMessage(player.userId,
                     e -> Wolfia.handleOutputMessage(channel,
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
-                                    "or unblock me, then issue `%s%s` to receive your role PM.",
+                                    "and/or unblock me, then issue `%s%s` to receive your role PM.",
                             player.asMention(), Config.PREFIX, RolePmCommand.COMMAND),
                     "%s", rolePm.toString()
             );
@@ -237,8 +238,19 @@ public class Mafia extends Game {
         } else if (command instanceof UnvoteCommand) {
             return unvote(invoker);
         } else if (command instanceof CheckCommand) {
+
+            if (commandInfo.event.isFromType(ChannelType.TEXT)) {
+                commandInfo.reply("%s, checks can only be issued in private messages.");
+                return false;
+            }
+
+            if (this.phase == Phase.DAY) {
+                commandInfo.reply("%s, checks can't be issued during the day.", commandInfo.event.getAuthor().getAsMention());
+                return false;
+            }
+
             if (invoker.role != Roles.COP) {
-                Wolfia.handleOutputMessage(this.channelId, "%s you can't issue a check when you aren't a cop!",
+                Wolfia.handleOutputMessage(this.channelId, "%s, you can't issue a check when you aren't a cop!",
                         commandInfo.event.getAuthor().getAsMention());
                 return false;
             }

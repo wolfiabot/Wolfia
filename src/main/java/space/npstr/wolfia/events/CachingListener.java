@@ -17,35 +17,33 @@
 
 package space.npstr.wolfia.events;
 
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
+import net.dv8tion.jda.core.events.guild.update.GuildUpdateIconEvent;
+import net.dv8tion.jda.core.events.guild.update.GuildUpdateNameEvent;
+import net.dv8tion.jda.core.events.user.UserAvatarUpdateEvent;
 import net.dv8tion.jda.core.events.user.UserNameUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import space.npstr.wolfia.db.entity.CachedUser;
-import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.utils.UserFriendlyException;
-import space.npstr.wolfia.utils.discord.Emojis;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
-import space.npstr.wolfia.utils.log.DiscordLogger;
+import space.npstr.wolfia.db.entity.EGuild;
 
 /**
  * Created by napster on 28.07.17.
  * <p>
- * This listener keeps track of various user events like leaving guilds, changing nicks, etc
- * This would also be the place to check for users editing their messages (if we wanted to prohibit that) etc
+ * This listener keeps track of various user and guild events like leaving guilds, changing nicks or names, etc and
+ * keeps them in sync with our database
  * <p>
- * Also handles deleted channels
  */
-public class UserEventsListener extends ListenerAdapter {
+public class CachingListener extends ListenerAdapter {
 
 
     @Override
     public void onUserNameUpdate(final UserNameUpdateEvent event) {
         final User user = event.getUser();
         CachedUser.get(user.getIdLong())
-                .setName(user.getName())
+                .set(user)
                 .save();
     }
 
@@ -60,16 +58,25 @@ public class UserEventsListener extends ListenerAdapter {
     //todo a last seen kinda thing for signup auto outing
 
     @Override
-    public void onTextChannelDelete(final TextChannelDeleteEvent event) {
-        final long channelId = event.getChannel().getIdLong();
-        final long guildId = event.getGuild().getIdLong();
+    public void onUserAvatarUpdate(final UserAvatarUpdateEvent event) {
+        CachedUser.get(event.getUser().getIdLong())
+                .set(event.getUser())
+                .save();
+    }
 
-        if (Games.get(channelId) != null) {
-            DiscordLogger.getLogger().log("%s `%s` Destroying game due to deleted channel **#%s** `%s` in guild **%s** `%s`.",
-                    Emojis.BOOM, TextchatUtils.berlinTime(),
-                    event.getChannel().getName(), channelId, event.getGuild().getName(), guildId);
+    @Override
+    public void onGuildUpdateName(final GuildUpdateNameEvent event) {
+        final Guild guild = event.getGuild();
+        EGuild.get(guild.getIdLong())
+                .set(guild)
+                .save();
+    }
 
-            Games.get(channelId).destroy(new UserFriendlyException("Main game channel `%s` in guild `%s` was deleted", channelId, guildId));
-        }
+    @Override
+    public void onGuildUpdateIcon(final GuildUpdateIconEvent event) {
+        final Guild guild = event.getGuild();
+        EGuild.get(guild.getIdLong())
+                .set(guild)
+                .save();
     }
 }

@@ -17,9 +17,12 @@
 
 package space.npstr.wolfia.db.entity;
 
+import net.dv8tion.jda.core.entities.Guild;
+import org.hibernate.annotations.ColumnDefault;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 
+import javax.annotation.CheckReturnValue;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -28,7 +31,9 @@ import javax.persistence.Table;
 /**
  * Created by napster on 25.07.17.
  * <p>
- * Represents a discord guild; just dump data in here
+ * Represents a discord guild
+ * Caches some stuff similar to CachedUser
+ * Just dump data in here
  */
 @Entity
 @Table(name = "guilds")
@@ -50,19 +55,47 @@ public class EGuild implements IEntity {
     @Column(name = "present")
     private boolean present = false;
 
+    @Column(name = "avatar_url")
+    @ColumnDefault(value = "'http://i.imgur.com/Jm9SIGh.png'") //todo remove
+    private String avatarUrl = "http://i.imgur.com/Jm9SIGh.png";
+
+    @Column(name = "name")
+    @ColumnDefault(value = "'Uncached Guild'")//todo remove
+    private String name = "Uncached Guild";
+
+    //for jpa / IEntity
     public EGuild() {
     }
 
-    public void join() {
-        this.joined = System.currentTimeMillis();
-        this.present = true;
-        DbWrapper.merge(this);
+    public static EGuild get(final long guildId) {
+        return DbWrapper.getOrCreateEntity(guildId, EGuild.class);
     }
 
-    public void leave() {
+    public EGuild save() {
+        return DbWrapper.merge(this);
+    }
+
+    public EGuild set(final Guild guild) {
+        if (guild == null) {
+            return this;//gracefully ignore null guilds
+        }
+        return this.setName(guild.getName())
+                .setAvatarUrl(guild.getIconUrl());
+    }
+
+
+    @CheckReturnValue
+    public EGuild join() {
+        this.joined = System.currentTimeMillis();
+        this.present = true;
+        return this;
+    }
+
+    @CheckReturnValue
+    public EGuild leave() {
         this.left = System.currentTimeMillis();
         this.present = false;
-        DbWrapper.merge(this);
+        return this;
     }
 
 
@@ -80,9 +113,8 @@ public class EGuild implements IEntity {
         return Long.hashCode(this.guildId);
     }
 
-    // getters setters boilerplate below
-
     @Override
+    @CheckReturnValue
     public void setId(final long id) {
         this.guildId = id;
     }
@@ -96,23 +128,35 @@ public class EGuild implements IEntity {
         return this.joined;
     }
 
-    public void setJoined(final long joined) {
-        this.joined = joined;
-    }
-
     public long getLeft() {
         return this.left;
-    }
-
-    public void setLeft(final long left) {
-        this.left = left;
     }
 
     public boolean isPresent() {
         return this.present;
     }
 
-    public void setPresent(final boolean present) {
-        this.present = present;
+    public String getAvatarUrl() {
+        return this.avatarUrl;
+    }
+
+    @CheckReturnValue
+    public EGuild setAvatarUrl(final String avatarUrl) {
+        if (avatarUrl == null || "".equals(avatarUrl)) {
+            this.avatarUrl = "http://i.imgur.com/Jm9SIGh.png";
+        } else {
+            this.avatarUrl = avatarUrl;
+        }
+        return this;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    @CheckReturnValue
+    public EGuild setName(final String name) {
+        this.name = name;
+        return this;
     }
 }

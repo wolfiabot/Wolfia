@@ -31,7 +31,7 @@ public class UnvoteCommand extends GameCommand {
 
     @Override
     public String help() {
-        final String usage = Config.PREFIX + COMMAND + "\n#";
-        return usage + "Unvote.";
+        return Config.PREFIX + COMMAND
+                + "\n#Unvote.";
     }
 }

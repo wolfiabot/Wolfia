@@ -19,8 +19,8 @@ package space.npstr.wolfia.commands.stats;
 
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -30,14 +30,16 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  * <p>
  * Display stats for a guild
  */
-public class GuildStatsCommand implements ICommand {
+public class GuildStatsCommand extends BaseCommand {
 
     public static final String COMMAND = "guildstats";
 
     @Override
     public String help() {
-        final String usage = Config.PREFIX + COMMAND + " (<guild id>)\n#";
-        return usage + "Show stats of all games played in this guild, or the provided guild.";
+        return Config.PREFIX + COMMAND + " [guild ID]"
+                + "\n#Show game stats for this guild or another one. Examples:"
+                + "\n  " + Config.PREFIX + COMMAND
+                + "\n  " + Config.PREFIX + COMMAND + " 315944983754571796";
     }
 
     @Override

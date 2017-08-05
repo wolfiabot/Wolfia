@@ -21,26 +21,28 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
  * Created by napster on 08.06.17.
  * <p>
  * Display stats for a user
  */
-public class UserStatsCommand implements ICommand {
+public class UserStatsCommand extends BaseCommand {
 
     public static final String COMMAND = "userstats";
 
 
     @Override
     public String help() {
-        final String usage = Config.PREFIX + COMMAND + " (<@user> or <userId>)\n#";
-        return usage + "Show game stats for a user.";
+        return Config.PREFIX + COMMAND + " [@user or user ID]"
+                + "\n#Show game stats for yourself or another a user. Examples:"
+                + "\n  " + Config.PREFIX + COMMAND
+                + "\n  " + Config.PREFIX + COMMAND + " @Napster"
+                + "\n  " + Config.PREFIX + COMMAND + " 166604053629894657";
     }
 
     @Override
@@ -54,7 +56,7 @@ public class UserStatsCommand implements ICommand {
                 try {
                     userId = Long.valueOf(commandInfo.args[0]);
                 } catch (final NumberFormatException e) {
-                    Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s", TextchatUtils.asMarkdown(help()));
+                    commandInfo.reply(formatHelp(commandInfo.invoker));
                     return false;
                 }
             }

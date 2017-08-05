@@ -46,9 +46,9 @@ import space.npstr.wolfia.db.entity.Hstore;
 import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.stats.GeneralBotStats;
 import space.npstr.wolfia.db.entity.stats.MessageOutputStats;
+import space.npstr.wolfia.events.CachingListener;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
-import space.npstr.wolfia.events.UserEventsListener;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.img.ImgurAlbum;
@@ -235,7 +235,7 @@ public class Wolfia {
                     .setToken(Config.C.discordToken)
                     .addEventListener(this.commandListener)
                     .addEventListener(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
-                    .addEventListener(new UserEventsListener())
+                    .addEventListener(new CachingListener())
                     .addEventListener(new InternalListener())
                     .setEnableShutdownHook(false)
                     .setGame(Game.of(App.GAME_STATUS))

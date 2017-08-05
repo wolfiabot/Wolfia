@@ -33,7 +33,6 @@ import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
-import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -129,18 +128,19 @@ public class SetupEntity implements IEntity {
     public SetupEntity() {
         this.setGame(Games.POPCORN);
         this.setMode(Games.getInfo(Games.POPCORN).getDefaultMode());
-        this.setDayLength(10, TimeUnit.MINUTES);
+        this.setDayLength(5, TimeUnit.MINUTES);
     }
 
-    public void inUser(final long userId, final Operation success) {
+    public boolean inUser(final long userId) {
         //cache any inning users
         CachedUser.get(userId).set(Wolfia.jda.getTextChannelById(this.channelId).getGuild().getMemberById(userId)).save();
         if (this.innedUsers.contains(userId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s, you have inned already.", TextchatUtils.userAsMention(userId));
+            return false;
         } else {
             this.innedUsers.add(userId);
-            success.execute();
             DbWrapper.merge(this);
+            return true;
         }
     }
 
@@ -190,7 +190,7 @@ public class SetupEntity implements IEntity {
         neb.addField("Day length", TextchatUtils.formatMillis(this.dayLengthMillis), true);
 
         //accepted player numbers
-        neb.addField("Allowed players",
+        neb.addField("Accepted players",
                 Games.getInfo(getGame()).getAcceptablePlayerNumbers(getMode()),
                 true);
 

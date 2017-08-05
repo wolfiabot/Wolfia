@@ -24,8 +24,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.GameInfo;
@@ -38,9 +38,19 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * Start setting up a game in a channel
  */
-public class SetupCommand implements ICommand {
+public class SetupCommand extends BaseCommand {
 
     public static final String COMMAND = "setup";
+
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND + " [key value]"
+                + "\n#Set up games in this channel or show the current setup. Examples:\n"
+                + "  " + Config.PREFIX + COMMAND + " game Mafia\n"
+                + "  " + Config.PREFIX + COMMAND + " mode Classic\n"
+                + "  " + Config.PREFIX + COMMAND + " daylength 3\n"
+                + "  " + Config.PREFIX + COMMAND;
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -50,6 +60,12 @@ public class SetupCommand implements ICommand {
         final Member invoker = event.getMember();
         //will not be null because it will be initialized with default values if there is none
         SetupEntity setup = DbWrapper.getOrCreateEntity(channel.getIdLong(), SetupEntity.class);
+
+        if (commandInfo.args.length == 1) {
+            //unsupported input
+            commandInfo.reply(formatHelp(invoker));
+            return false;
+        }
 
         //is this an attempt to edit the setup?
         if (commandInfo.args.length > 1) {
@@ -106,17 +122,6 @@ public class SetupCommand implements ICommand {
                         return false;
                     }
                     break;
-//                case "moderated":
-//                    if (TextchatUtils.isTrue(commandInfo.args[1])) {
-//                        setup.setModerate(true);
-//                    } else if (TextchatUtils.isFalse(commandInfo.args[1])) {
-//                        setup.setModerate(false);
-//                    } else {
-//                        Wolfia.handleOutputMessage(channel, "%s, use `true` or `false` to set this option!", invoker.getAsMention());
-//                        return;
-//                    }
-//                    DbWrapper.merge(setup);
-//                    break;
                 //future ideas:
 //                case "nightlength":
 //                case "roles":
@@ -125,17 +130,12 @@ public class SetupCommand implements ICommand {
 //                    etc
                 default:
                     //didn't understand the input
-                    Wolfia.handleOutputMessage(channel, "%s, I did not understand that input.", invoker.getAsMention());
+                    commandInfo.reply(formatHelp(invoker));
                     return false;
             }
         }
         //show the status quo
         setup.postStatus();
         return true;
-    }
-
-    @Override
-    public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + "\nto start setting up a game in this channel```";
     }
 }

@@ -24,8 +24,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.PrivateGuild;
@@ -39,7 +39,7 @@ import java.io.IOException;
  * <p>
  * //this command will register a guild for use as a place to provide private communications, like wolfchat
  */
-public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted {
+public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerRestricted {
 
     public static final String COMMAND = "register";
 
@@ -47,7 +47,7 @@ public class RegisterPrivateServerCommand implements ICommand, IOwnerRestricted 
 
     @Override
     public String help() {
-        return "Registers a private guild. Reserved for the bot owner.";
+        return "Register a private guild.";
     }
 
     @Override

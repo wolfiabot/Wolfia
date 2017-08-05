@@ -38,6 +38,7 @@ import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.game.SetupCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
+import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
@@ -69,7 +70,7 @@ public class CommandHandler {
 
     private final static Logger log = LoggerFactory.getLogger(CommandHandler.class);
 
-    private static final Map<String, ICommand> COMMAND_REGISTRY = new HashMap<>();
+    private static final Map<String, BaseCommand> COMMAND_REGISTRY = new HashMap<>();
 
     static {
         //game related commands
@@ -84,6 +85,7 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(ShootCommand.COMMAND, new ShootCommand());
         COMMAND_REGISTRY.put(VoteCommand.COMMAND, new VoteCommand());
         COMMAND_REGISTRY.put(UnvoteCommand.COMMAND, new UnvoteCommand());
+        COMMAND_REGISTRY.put(CheckCommand.COMMAND, new CheckCommand());
 
         //stats commands
         COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
@@ -110,9 +112,13 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
     }
 
+    public static BaseCommand getCommand(final String input) {
+        return COMMAND_REGISTRY.get(input);
+    }
+
     public static void handleCommand(final CommandParser.CommandContainer commandInfo) {
         try {
-            final ICommand command = COMMAND_REGISTRY.get(commandInfo.command);
+            final BaseCommand command = COMMAND_REGISTRY.get(commandInfo.command);
             if (command == null) {
                 //unknown command
                 log.info("user {}, channel {}, unknown command issued: {}",

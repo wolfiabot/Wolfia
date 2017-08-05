@@ -25,12 +25,13 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.utils.discord.Emojis;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -44,7 +45,7 @@ import java.util.concurrent.TimeoutException;
  * <p>
  * run js code in the bot
  */
-public class EvalCommand implements ICommand, IOwnerRestricted {
+public class EvalCommand extends BaseCommand implements IOwnerRestricted {
 
     public static final String COMMAND = "eval";
     private static final Logger log = LoggerFactory.getLogger(EvalCommand.class);
@@ -57,11 +58,45 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
     public EvalCommand() {
         this.engine = new ScriptEngineManager().getEngineByName("nashorn");
         try {
-            this.engine.eval("var imports = new JavaImporter(java.io, java.lang, java.util);");
+            this.engine.eval("var imports = new JavaImporter("
+                    + "java.io"
+                    + ",java.lang"
+                    + ",java.util"
+                    + ",Packages.space.npstr.wolfia"
+                    + ",Packages.space.npstr.wolfia.charts"
+                    + ",Packages.space.npstr.wolfia.commands"
+                    + ",Packages.space.npstr.wolfia.commands.debug"
+                    + ",Packages.space.npstr.wolfia.commands.game"
+                    + ",Packages.space.npstr.wolfia.commands.ingame"
+                    + ",Packages.space.npstr.wolfia.commands.stats"
+                    + ",Packages.space.npstr.wolfia.commands.util"
+                    + ",Packages.space.npstr.wolfia.db"
+                    + ",Packages.space.npstr.wolfia.db.entity"
+                    + ",Packages.space.npstr.wolfia.db.entity.stats"
+                    + ",Packages.space.npstr.wolfia.events"
+                    + ",Packages.space.npstr.wolfia.db"
+                    + ",Packages.space.npstr.wolfia.game"
+                    + ",Packages.space.npstr.wolfia.definitions"
+                    + ",Packages.space.npstr.wolfia.mafia"
+                    + ",Packages.space.npstr.wolfia.popcorn"
+                    + ",Packages.space.npstr.wolfia.tools"
+                    + ",Packages.space.npstr.wolfia.listing"
+                    + ",Packages.space.npstr.wolfia.utils"
+                    + ",Packages.space.npstr.wolfia.utils.discord"
+                    + ",Packages.space.npstr.wolfia.utils.img"
+                    + ",Packages.space.npstr.wolfia.utils.log"
+                    + ");");
 
         } catch (final ScriptException ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public String help() {
+        return "Run js code with the Nashorn engine. By default no timeout is set for the task, set a timeout by "
+                + "passing -t as the first argument and the amount of seconds to wait for the task to finish as the second argument. "
+                + "Run with -k or kill as first argument to stop the last submitted eval task if it's still ongoing.";
     }
 
     @Override
@@ -122,23 +157,24 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
                                 + "})();");
 
             } catch (final Exception ex) {
+                commandInfo.event.getMessage().addReaction(Emojis.X).queue();
                 Wolfia.handleOutputMessage(channel, "`%s`\n\n`%sms`",
                         ex.getMessage(), System.currentTimeMillis() - started);
                 log.error("Error occurred in eval", ex);
                 return;
             }
 
-            final String outputS;
+            final String output;
             if (out == null) {
-                outputS = ":ok_hand::skin-tone-3:";
+                output = "";
             } else if (out.toString().contains("\n")) {
-                outputS = "\nEvalCommand: ```\n" + out.toString() + "```";
+                output = "EvalCommand: ```\n" + out.toString() + "```";
             } else {
-                outputS = "\nEvalCommand: `" + out.toString() + "`";
+                output = "EvalCommand: `" + out.toString() + "`";
             }
-
-            Wolfia.handleOutputMessage(channel, "```java\n%s```\n%s `%sms`",
-                    finalSource, outputS, System.currentTimeMillis() - started);
+            commandInfo.event.getMessage().addReaction(Emojis.OK_HAND).queue();
+            Wolfia.handleOutputMessage(channel, "```java\n%s```\n%s\n`%sms`",
+                    finalSource, output, System.currentTimeMillis() - started);
 
         });
         this.lastTask = future;
@@ -161,10 +197,5 @@ public class EvalCommand implements ICommand, IOwnerRestricted {
         };
         script.start();
         return true;
-    }
-
-    @Override
-    public String help() {
-        return "Run js eval code on the bot";
     }
 }

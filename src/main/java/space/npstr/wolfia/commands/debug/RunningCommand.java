@@ -21,8 +21,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.IllegalGameStateException;
@@ -36,9 +36,14 @@ import java.util.Map;
  * <p>
  * List running games
  */
-public class RunningCommand implements ICommand, IOwnerRestricted {
+public class RunningCommand extends BaseCommand implements IOwnerRestricted {
 
     public static final String COMMAND = "running";
+
+    @Override
+    public String help() {
+        return "List all running games";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
@@ -68,10 +73,5 @@ public class RunningCommand implements ICommand, IOwnerRestricted {
 
         commandInfo.reply(String.format("%s games registered.", games.size()));
         return true;
-    }
-
-    @Override
-    public String help() {
-        return "todo"; // todo
     }
 }

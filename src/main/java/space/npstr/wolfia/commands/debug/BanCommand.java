@@ -24,8 +24,8 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.Banlist;
@@ -41,9 +41,14 @@ import java.util.stream.Collectors;
  * <p>
  * Ban users from playing the game.
  */
-public class BanCommand implements ICommand, IOwnerRestricted {
+public class BanCommand extends BaseCommand implements IOwnerRestricted {
 
     public static final String COMMAND = "ban";
+
+    @Override
+    public String help() {
+        return "Globally ban mentioned user from signing up for games.";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -107,10 +112,5 @@ public class BanCommand implements ICommand, IOwnerRestricted {
     private enum BanAction {
         ADD,
         REMOVE
-    }
-
-    @Override
-    public String help() {
-        return "todo"; //todo
     }
 }

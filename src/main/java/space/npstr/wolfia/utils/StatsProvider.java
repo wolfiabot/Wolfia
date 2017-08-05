@@ -24,6 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.DbUtils;
+import space.npstr.wolfia.db.entity.CachedUser;
+import space.npstr.wolfia.db.entity.EGuild;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.utils.discord.Emojis;
 
@@ -203,12 +205,14 @@ public class StatsProvider {
         //add them to the embed
         EmbedBuilder eb = new EmbedBuilder();
         final Guild guild = Wolfia.jda.getGuildById(guildId);
-        if (guild != null) {
-            eb.setTitle(guild.getName() + "'s Wolfia stats:");
-            eb.setThumbnail(guild.getIconUrl());
-        } else {
-            eb.setTitle(guildId + "'s Wolfia stats:");
-            eb.setThumbnail("http://i.imgur.com/Jm9SIGh.png");
+        final EGuild cachedGuild = EGuild.get(guildId).set(guild).save();
+        eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
+        eb.setThumbnail(cachedGuild.getAvatarUrl());
+
+        final long totalGames = collectedValues.get(-1).get(0);
+        if (totalGames <= 0 && guild == null) {
+            eb.setTitle(String.format("Guild with id `%s` does not exist in my database.", guildId));
+            return eb;
         }
 
         //stats for all games in this guild:
@@ -266,12 +270,13 @@ public class StatsProvider {
         //add them to the embed
         final EmbedBuilder eb = new EmbedBuilder();
         final User user = Wolfia.jda.getUserById(userId);
-        if (user != null) {
-            eb.setTitle(user.getName() + "'s Wolfia stats");
-            eb.setThumbnail(user.getEffectiveAvatarUrl());
-        } else {
-            eb.setTitle(userId + "'s Wolfia stats");
-            eb.setThumbnail("http://i.imgur.com/Jm9SIGh.png");
+        final CachedUser cu = CachedUser.get(userId).set(user).save();
+        eb.setTitle(cu.getName() + "'s Wolfia stats");
+        eb.setThumbnail(cu.getAvatarUrl());
+
+        if (totalGamesByUser <= 0 && user == null) {
+            eb.setTitle(String.format("User with id `%s` does not exist in my database.", userId));
+            return eb;
         }
 
         eb.addField("Total games played", totalGamesByUser + "", true);
@@ -289,6 +294,7 @@ public class StatsProvider {
         return eb;
     }
 
+    //todo introduce a proper data structure for this
     private static Map<Integer, List<Long>> collectValues(final Map<Integer, List<Map<String, Object>>> input) {
         final Map<Integer, List<Long>> result = new LinkedHashMap<>();//linked to preserve sorting
         for (final int playerSize : input.keySet()) {

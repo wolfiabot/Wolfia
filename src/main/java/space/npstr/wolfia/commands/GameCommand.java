@@ -28,7 +28,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  * <p>
  * game command are different from regular commands as they can be registered by games
  */
-public abstract class GameCommand implements ICommand {
+public abstract class GameCommand extends BaseCommand {
 
     protected boolean mentionRequired = false;
 
@@ -55,6 +55,9 @@ public abstract class GameCommand implements ICommand {
         }
     }
 
+    /**
+     * @return whether the provided string is a command trigger or not (like "shoot" for the shoot command for example)
+     */
     public boolean isCommandTrigger(final String command) {
         throw new UnsupportedOperationException("isCommandTrigger not implemented for this game command");
     }

@@ -20,8 +20,8 @@ package space.npstr.wolfia.commands.game;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.Banlist;
 import space.npstr.wolfia.db.entity.SetupEntity;
@@ -32,10 +32,16 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 /**
  * Created by npstr on 23.08.2016
  */
-public class InCommand implements ICommand {
+public class InCommand extends BaseCommand {
 
     public static final String COMMAND = "in";
 //    private final int MAX_SIGNUP_TIME = 10 * 60; //10h
+
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND +
+                "\n#Add you to the signup list for this channel. You will play in the next starting game.";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -56,8 +62,8 @@ public class InCommand implements ICommand {
 
         //force inn by bot owner
         if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && App.isOwner(commandInfo.event.getAuthor())) {
-            commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.inUser(u.getIdLong(),
-                    setup::postStatus));
+            commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.inUser(u.getIdLong()));
+            setup.postStatus();
             return true;
         }
 
@@ -68,13 +74,11 @@ public class InCommand implements ICommand {
             return false;
         }
 
-        setup.inUser(commandInfo.event.getAuthor().getIdLong(), setup::postStatus);
-        return true;
-    }
-
-    @Override
-    public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + " <minutes>\nwill add you to the signup list for <minutes> "
-                + "(up to 600 mins) and out you automatically afterwards or earlier if inactive```";
+        if (setup.inUser(commandInfo.event.getAuthor().getIdLong())) {
+            setup.postStatus();
+            return true;
+        } else {
+            return false;
+        }
     }
 }

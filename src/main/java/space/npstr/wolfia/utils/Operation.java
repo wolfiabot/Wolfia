@@ -23,6 +23,7 @@ package space.npstr.wolfia.utils;
  * a super simple action that neither takes arguments nor returns anything
  * to be used as a lamda
  */
+@FunctionalInterface
 public interface Operation {
     void execute();
 }

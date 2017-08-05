@@ -19,8 +19,8 @@ package space.npstr.wolfia.commands.game;
 
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
 import space.npstr.wolfia.game.Game;
@@ -34,9 +34,15 @@ import space.npstr.wolfia.game.definitions.Games;
  * is there a game running, whats it's state?
  * if not, is there a setup created for this channel, whats the status here, inned players etc?
  */
-public class StatusCommand implements ICommand {
+public class StatusCommand extends BaseCommand {
 
     public static final String COMMAND = "status";
+
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND
+                + "\n#Post the current game status or sign up list.";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -50,10 +56,5 @@ public class StatusCommand implements ICommand {
         final SetupEntity setup = DbWrapper.getOrCreateEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
         setup.postStatus();
         return true;
-    }
-
-    @Override
-    public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + "\nposts the current game status or sign up list```";
     }
 }

@@ -26,8 +26,8 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.ChannelSettings;
 
@@ -39,9 +39,18 @@ import java.util.List;
  * <p>
  * sets up the bot (= discord related options, not game related ones), targets owner/admins of a guild
  */
-public class ChannelSettingsCommand implements ICommand {
+public class ChannelSettingsCommand extends BaseCommand {
 
     public static final String COMMAND = "channelsettings";
+
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND + " [key value]"
+                + "\n#Change or show settings for this channel. Examples:"
+                + "\n  " + Config.PREFIX + COMMAND + " accessrole @Mafiaplayer"
+                + "\n  " + Config.PREFIX + COMMAND + " tagcooldown 3"
+                + "\n  " + Config.PREFIX + COMMAND;
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -116,11 +125,5 @@ public class ChannelSettingsCommand implements ICommand {
         }
         Wolfia.handleOutputEmbed(channel, channelSettings.getStatus());
         return true;
-    }
-
-    @Override
-    public String help() {
-        return "```usage: " + Config.PREFIX + COMMAND + " <option> <setting>\nto set up Wolfia in this channel" +
-                "\nExample: " + Config.PREFIX + COMMAND + " accessrole <name or mention of a role>```";
     }
 }

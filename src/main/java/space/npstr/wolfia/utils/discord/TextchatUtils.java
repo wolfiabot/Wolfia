@@ -36,6 +36,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class TextchatUtils {
 
+    public static final String ZERO_WIDTH_SPACE = "\u200B";
+
     public static final int MAX_MESSAGE_LENGTH = 2000;
     public static final List<String> TRUE_TEXT = Arrays.asList("true", "yes", "enable", "y", "on", "1",
             "positive", "+", "add", "start", "join", "ja");
@@ -141,5 +143,9 @@ public class TextchatUtils {
     public static String toBerlinTime(final long epochMillis) {
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss z").withZone(ZoneId.of("Europe/Berlin"));
         return dtf.format(Instant.ofEpochMilli(epochMillis));
+    }
+
+    public static String defuseMentions(final String input) {
+        return input.replaceAll("@", "@" + ZERO_WIDTH_SPACE);
     }
 }

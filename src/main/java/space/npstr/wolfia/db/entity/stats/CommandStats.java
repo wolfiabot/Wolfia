@@ -19,8 +19,8 @@ package space.npstr.wolfia.db.entity.stats;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -84,7 +84,7 @@ public class CommandStats implements Serializable {
     public CommandStats() {
     }
 
-    public CommandStats(final CommandParser.CommandContainer commandContainer, final Class<? extends ICommand> clazz,
+    public CommandStats(final CommandParser.CommandContainer commandContainer, final Class<? extends BaseCommand> clazz,
                         final long executed, final boolean successful) {
 
         final MessageReceivedEvent event = commandContainer.event;

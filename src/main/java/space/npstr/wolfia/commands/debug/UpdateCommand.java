@@ -18,8 +18,8 @@
 package space.npstr.wolfia.commands.debug;
 
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.definitions.Games;
 
@@ -28,10 +28,15 @@ import space.npstr.wolfia.game.definitions.Games;
  * <p>
  * wait for games to be over and run an update
  */
-public class UpdateCommand implements ICommand, IOwnerRestricted {
+public class UpdateCommand extends BaseCommand implements IOwnerRestricted {
 
     public static final String COMMAND = "update";
     private static boolean reminded = false;
+
+    @Override
+    public String help() {
+        return "Restart and update the bot.";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -54,10 +59,5 @@ public class UpdateCommand implements ICommand, IOwnerRestricted {
 
         ShutdownCommand.shutdownAfterGamesAreDoneWithCode(2);
         return true;
-    }
-
-    @Override
-    public String help() {
-        return "restarts and updates the bot";
     }
 }

@@ -19,6 +19,7 @@ package space.npstr.wolfia.events;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -58,16 +59,16 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToBotsDiscordPw(event.getJDA());
         Listings.postToDiscordbotsOrg(event.getJDA());
 
-        final Guild g = event.getGuild();
-        final EGuild guildEntity = DbWrapper.getOrCreateEntity(g.getIdLong(), EGuild.class);
+        final Guild guild = event.getGuild();
+        final EGuild guildEntity = DbWrapper.getOrCreateEntity(guild.getIdLong(), EGuild.class);
         if (guildEntity.isPresent()) { //safeguard against discord shitting itself and spamming these for established guilds
-            log.warn("Joined a guild that is marked as present");
+            log.warn("Joined a guild that is marked as present. Not taking any further action");
             return;
         }
 
-        guildEntity.join();
+        guildEntity.set(guild).join().save();
         DiscordLogger.getLogger().log("%s `%s` Joined guild %s with %s users.",
-                Emojis.CHECK, TextchatUtils.berlinTime(), g.getName(), g.getMembers().size());
+                Emojis.CHECK, TextchatUtils.berlinTime(), guild.getName(), guild.getMembers().size());
     }
 
     @Override
@@ -75,24 +76,38 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToBotsDiscordPw(event.getJDA());
         Listings.postToDiscordbotsOrg(event.getJDA());
 
-        final Guild g = event.getGuild();
-        DbWrapper.getOrCreateEntity(g.getIdLong(), EGuild.class).leave();
+        final Guild guild = event.getGuild();
+        EGuild.get(guild.getIdLong()).set(guild).leave().save();
 
         int gamesDestroyed = 0;
         //destroy games running in the server that was left
         for (final Game game : Games.getAll().values()) {
-            if (game.getGuildId() == g.getIdLong()) {
+            if (game.getGuildId() == guild.getIdLong()) {
                 try {
-                    game.destroy(new UserFriendlyException("Bot was kicked from the server " + g.getName() + " " + g.getIdLong()));
+                    game.destroy(new UserFriendlyException("Bot was kicked from the server " + guild.getName() + " " + guild.getIdLong()));
                     gamesDestroyed++;
                 } catch (final Exception e) {
                     log.error("Exception when destroying a game in channel `{}` after leaving guild `{}`",
-                            game.getChannelId(), g.getIdLong(), e);
+                            game.getChannelId(), guild.getIdLong(), e);
                 }
             }
         }
 
         DiscordLogger.getLogger().log("%s `%s` Left guild %s with %s users, destroyed **%s** games.",
-                Emojis.X, TextchatUtils.berlinTime(), g.getName(), g.getMembers().size(), gamesDestroyed);
+                Emojis.X, TextchatUtils.berlinTime(), guild.getName(), guild.getMembers().size(), gamesDestroyed);
+    }
+
+    @Override
+    public void onTextChannelDelete(final TextChannelDeleteEvent event) {
+        final long channelId = event.getChannel().getIdLong();
+        final long guildId = event.getGuild().getIdLong();
+
+        if (Games.get(channelId) != null) {
+            DiscordLogger.getLogger().log("%s `%s` Destroying game due to deleted channel **#%s** `%s` in guild **%s** `%s`.",
+                    Emojis.BOOM, TextchatUtils.berlinTime(),
+                    event.getChannel().getName(), channelId, event.getGuild().getName(), guildId);
+
+            Games.get(channelId).destroy(new UserFriendlyException("Main game channel `%s` in guild `%s` was deleted", channelId, guildId));
+        }
     }
 }

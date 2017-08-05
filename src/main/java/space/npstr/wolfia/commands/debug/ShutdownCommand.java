@@ -20,8 +20,8 @@ package space.npstr.wolfia.commands.debug;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.definitions.Games;
 
@@ -32,12 +32,17 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * Shut the bot down
  */
-public class ShutdownCommand implements ICommand, IOwnerRestricted {
+public class ShutdownCommand extends BaseCommand implements IOwnerRestricted {
 
     public static final String COMMAND = "shutdown";
     private static final Logger log = LoggerFactory.getLogger(ShutdownCommand.class);
 
     private static boolean shutdownInitiated = false;
+
+    @Override
+    public String help() {
+        return "Shut down the bot.";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -64,10 +69,5 @@ public class ShutdownCommand implements ICommand, IOwnerRestricted {
                 log.info("{} games still running, waiting...", Games.getRunningGamesCount());
             }
         }, 0, 10, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public String help() {
-        return "Shut down the bot.";
     }
 }

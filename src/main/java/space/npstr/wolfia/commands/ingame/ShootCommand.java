@@ -36,7 +36,7 @@ public class ShootCommand extends GameCommand {
 
     @Override
     public String help() {
-        final String usage = Config.PREFIX + COMMAND + " @player\n#";
-        return usage + "Shoot the mentioned player.";
+        return Config.PREFIX + COMMAND + " @player"
+                + "\n#Shoot the mentioned player.";
     }
 }

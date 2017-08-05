@@ -17,9 +17,10 @@
 
 package space.npstr.wolfia.commands.stats;
 
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
 
@@ -28,12 +29,13 @@ import space.npstr.wolfia.utils.StatsProvider;
  * <p>
  * Show stats of the whole bot
  */
-public class BotStatsCommand implements ICommand {
+public class BotStatsCommand extends BaseCommand {
     public static final String COMMAND = "botstats";
 
     @Override
     public String help() {
-        return "Shows stats over all games played of this bot";
+        return Config.PREFIX + COMMAND
+                + "\n#Show game stats for all games ever played with Wolfia.";
     }
 
     @Override

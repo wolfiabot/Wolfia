@@ -26,9 +26,10 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.App;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.ChannelSettings;
 import space.npstr.wolfia.game.IllegalGameStateException;
@@ -47,9 +48,18 @@ import java.util.stream.Collectors;
  * <p>
  * Allows users to sign up for a tag list
  */
-public class TagCommand implements ICommand {
+public class TagCommand extends BaseCommand {
 
     public static final String COMMAND = "tag";
+
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND + " add/remove/[your message]"
+                + "\n#Add or remove yourself from the taglist, or tag members who signed up for the taglist with an optional message. Examples:"
+                + "\n  " + Config.PREFIX + COMMAND + " add"
+                + "\n  " + Config.PREFIX + COMMAND + " remove"
+                + "\n  " + Config.PREFIX + COMMAND + " WANT SUM GAME?";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
@@ -97,10 +107,9 @@ public class TagCommand implements ICommand {
             }
 
             final List<StringBuilder> outs = new ArrayList<>();
-            String message = commandInfo.beheaded.replaceFirst(COMMAND, "").trim()
-                    .replaceAll("@everyone", "@ everyone")
-                    .replaceAll("@here", "@ here");
-            if (!message.isEmpty()) message += ": ";
+            final String message = invoker.getAsMention() + " called the tag list.\n"
+                    + TextchatUtils.defuseMentions(commandInfo.beheaded.replaceFirst(COMMAND, "").trim())
+                    + "\n";
             StringBuilder out = new StringBuilder(message);
             outs.add(out);
 
@@ -200,10 +209,5 @@ public class TagCommand implements ICommand {
         ADD,
         REMOVE,
         TAG
-    }
-
-    @Override
-    public String help() {
-        return "Allows to add and remove yourself from a channel specific tag list";
     }
 }

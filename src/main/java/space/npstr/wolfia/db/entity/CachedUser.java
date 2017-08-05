@@ -19,7 +19,7 @@ package space.npstr.wolfia.db.entity;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.wolfia.Wolfia;
+import org.hibernate.annotations.ColumnDefault;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.db.PostgresHStoreConverter;
@@ -49,6 +49,10 @@ public class CachedUser implements IEntity {
     @Column(name = "name")
     private String name = "Uncached Username";
 
+    @Column(name = "avatar_url")
+    @ColumnDefault(value = "'http://i.imgur.com/Jm9SIGh.png'") //todo remove
+    private String avatarUrl = "http://i.imgur.com/Jm9SIGh.png";
+
     @Column(name = "nicks", columnDefinition = "hstore")
     @Convert(converter = PostgresHStoreConverter.class)
     private final Map<String, String> nicks = new HashMap<>();
@@ -70,16 +74,26 @@ public class CachedUser implements IEntity {
         if (member == null) {
             return this; //gracefully ignore null members
         }
-        final CachedUser u = setName(member.getUser().getName());
+        final CachedUser cu = this.set(member.getUser());
 
         final String nick = member.getNickname();
         if (nick != null)
-            return u.setNick(member.getGuild().getIdLong(), member.getNickname());
+            return cu.setNick(member.getGuild().getIdLong(), member.getNickname());
 
-        return u;
+        return cu;
+    }
+
+    @CheckReturnValue
+    public CachedUser set(final User user) {
+        if (user == null) {
+            return this; //gracefully ignore null users
+        }
+        return this.setName(user.getName())
+                .setAvatarUrl(user.getEffectiveAvatarUrl());
     }
 
     @Override
+    @CheckReturnValue
     public void setId(final long id) {
         this.userId = id;
     }
@@ -110,6 +124,16 @@ public class CachedUser implements IEntity {
     @CheckReturnValue
     public CachedUser setNick(final long guildId, final String nick) {
         this.nicks.put(Long.toString(guildId), nick);
+        return this;
+    }
+
+    public String getAvatarUrl() {
+        return this.avatarUrl;
+    }
+
+    @CheckReturnValue
+    public CachedUser setAvatarUrl(final String avatarUrl) {
+        this.avatarUrl = avatarUrl;
         return this;
     }
 }

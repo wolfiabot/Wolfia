@@ -17,8 +17,8 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.IllegalGameStateException;
@@ -30,9 +30,14 @@ import java.util.Arrays;
 /**
  * Created by napster on 24.07.17.
  */
-public class KillGameCommand implements ICommand, IOwnerRestricted {
+public class KillGameCommand extends BaseCommand implements IOwnerRestricted {
 
     public static final String COMMAND = "killgame";
+
+    @Override
+    public String help() {
+        return "Stop and destroy an ongoing game.";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
@@ -62,10 +67,5 @@ public class KillGameCommand implements ICommand, IOwnerRestricted {
 
         commandInfo.reply("Game in channel " + channelId + " destroyed.");
         return true;
-    }
-
-    @Override
-    public String help() {
-        return "todo"; //todo
     }
 }

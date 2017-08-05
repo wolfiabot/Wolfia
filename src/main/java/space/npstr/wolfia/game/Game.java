@@ -33,6 +33,7 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
+import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.db.DbWrapper;
@@ -361,9 +362,9 @@ public abstract class Game {
                     throw new UserFriendlyException(String.format(
                             "Non-public channel has been detected (`@everyone` is missing `%s` and/or `%s` permissions)." +
                                     " The chosen game and mode requires the channel to be either public, or have an access role set up." +
-                                    " Talk to an admin of your server to fix this." +
+                                    " Talk to an Admin/Moderator of your server to fix this or set the access role up with `%s`." +
                                     " Please refer to the documentation under %s",
-                            Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(), App.DOCS_LINK
+                            Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(), Config.PREFIX + ChannelSettingsCommand.COMMAND
                     ));
                 }
                 if (!accessRole.hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {

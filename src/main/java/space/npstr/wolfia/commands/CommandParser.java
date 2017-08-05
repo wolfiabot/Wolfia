@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
@@ -50,6 +51,7 @@ public class CommandParser {
         public final String[] args; // the actual arguments
         public final MessageReceivedEvent event; //underlying event
         public final long received; //earliest moment of when the event entered our bots' code
+        public final Member invoker;
 
         public CommandContainer(final String rw, final String beheaded, final String[] splitBeheaded,
                                 final String command, final String[] args, final MessageReceivedEvent e,
@@ -61,6 +63,7 @@ public class CommandParser {
             this.args = args;
             this.event = e;
             this.received = received;
+            this.invoker = e.getMember();
         }
 
 
@@ -71,6 +74,10 @@ public class CommandParser {
             } else {
                 Wolfia.handleOutputMessage(this.event.getTextChannel(), reply);
             }
+        }
+
+        public void reply(final String message, final Object... args) {
+            reply(String.format(message, args));
         }
 
         public void reply(final MessageEmbed embed) {

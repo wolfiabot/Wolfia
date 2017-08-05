@@ -17,9 +17,10 @@
 
 package space.npstr.wolfia.commands.game;
 
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.ICommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -29,9 +30,15 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  * <p>
  * resend a role PM to a player
  */
-public class RolePmCommand implements ICommand {
+public class RolePmCommand extends BaseCommand {
 
     public static final String COMMAND = "rolepm";
+
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND
+                + "\n#Send your role for the ongoing game in a private message.";
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -52,14 +59,9 @@ public class RolePmCommand implements ICommand {
 
         final String rolePm = game.getRolePm(userId);
         Wolfia.handlePrivateOutputMessage(userId,
-                e -> Wolfia.handleOutputMessage(channelId, "%s, I cannot send you a private message, please adjust your privacy settings or unblock me.",
+                e -> Wolfia.handleOutputMessage(channelId, "%s, I cannot send you a private message, please unblock me and/or adjust your privacy settings.",
                         TextchatUtils.userAsMention(userId)),
                 rolePm);
         return true;
-    }
-
-    @Override
-    public String help() {
-        return null;
     }
 }
