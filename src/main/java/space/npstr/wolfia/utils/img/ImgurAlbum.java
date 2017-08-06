@@ -51,7 +51,7 @@ public class ImgurAlbum {
 
     public ImgurAlbum(final String imgurAlbum) {
         //update the album every hour or so
-        Wolfia.scheduleAtFixedRate(() -> {
+        Wolfia.scheduledExecutor.scheduleAtFixedRate(() -> {
             populateItems(imgurAlbum);
         }, 0, 1, TimeUnit.HOURS);
     }

@@ -64,7 +64,7 @@ public class DiscordLogger {
 
     private DiscordLogger() {
         //schedule this in the long running executor
-        this.task = Wolfia.schedule(this::sendMessagesLoop, 0, TimeUnit.NANOSECONDS);
+        this.task = Wolfia.scheduledExecutor.schedule(this::sendMessagesLoop, 0, TimeUnit.NANOSECONDS);
     }
 
     private boolean errorSent = false;

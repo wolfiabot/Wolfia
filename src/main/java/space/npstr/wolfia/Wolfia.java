@@ -50,6 +50,7 @@ import space.npstr.wolfia.events.CachingListener;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.img.ImgurAlbum;
 import space.npstr.wolfia.utils.img.SimpleCache;
@@ -63,8 +64,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -80,6 +79,7 @@ public class Wolfia {
     public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE;
     // default on fail handler for all queues()
     public static final Consumer<Throwable> defaultOnFail;
+    public static final ExceptionLoggingExecutor scheduledExecutor;
 
     public static JDA jda;
     public static DbManager dbManager;
@@ -90,7 +90,6 @@ public class Wolfia {
     // for any fire and forget tasks that are expected to run for a short while only
     private static final ExecutorService executor;
     // for long running, repeating and/or scheduled tasks
-    private static final ScheduledThreadPoolExecutor scheduledExecutor;
     private static final ImgurAlbum avatars;
 
     static { //just a few static final singleton things getting set up in here
@@ -99,7 +98,8 @@ public class Wolfia {
         log = LoggerFactory.getLogger(Wolfia.class);
         defaultOnFail = t -> log.error("Exception during queue(): {}", t.getMessage(), t);
         executor = Executors.newCachedThreadPool(r -> new Thread(r, "main-executor"));
-        scheduledExecutor = new ScheduledThreadPoolExecutor(100, r -> new Thread(r, "main-scheduled-executor")); //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
+        //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
+        scheduledExecutor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
         avatars = new ImgurAlbum(Config.C.avatars);
     }
 
@@ -143,7 +143,7 @@ public class Wolfia {
         wolfia = new Wolfia();
 
         //post stats every 10 minutes
-        scheduleAtFixedRate(Wolfia::generalBotStatsToDB, 1, 10, TimeUnit.MINUTES);
+        scheduledExecutor.scheduleAtFixedRate(Wolfia::generalBotStatsToDB, 1, 10, TimeUnit.MINUTES);
 
         //set up a random avatar and change every 6 hours
         final Hstore defaultHstore = Hstore.load();
@@ -155,7 +155,7 @@ public class Wolfia {
         final long initialDelay = lastUpdated - System.currentTimeMillis() + TimeUnit.HOURS.toMillis(6);
         log.info("Updating avatar in {}ms", initialDelay);
 
-        scheduleAtFixedRate(() -> {
+        scheduledExecutor.scheduleAtFixedRate(() -> {
             try {
                 setAvatars(Icon.from(SimpleCache.getImageFromURL(avatars.getNext())));
                 Hstore.load()
@@ -169,37 +169,14 @@ public class Wolfia {
         }, initialDelay, TimeUnit.HOURS.toMillis(6), TimeUnit.MILLISECONDS);
     }
 
-    public static ScheduledFuture<?> scheduleAtFixedRate(final Runnable task, final long initialDelay, final long period, final TimeUnit timeUnit) {
-        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
-        return scheduledExecutor.scheduleAtFixedRate(exceptionSafeTask, initialDelay, period, timeUnit);
-    }
-
-    public static ScheduledFuture<?> schedule(final Runnable task, final long delay, final TimeUnit timeUnit) {
-        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
-        return scheduledExecutor.schedule(exceptionSafeTask, delay, timeUnit);
-    }
-
     /**
      * Use this for any one-off tasks.
      *
      * @return the Future of the submitted task
      */
     public static Future<?> submit(final Runnable task) {
-        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
+        final Runnable exceptionSafeTask = ExceptionLoggingExecutor.wrapExceptionSafe(task);
         return executor.submit(exceptionSafeTask);
-    }
-
-    private static Runnable wrapExceptionSafe(final Runnable task) {
-        // scheduled executor services are sneaky bastards and will silently cancel tasks that throw an uncaught exception
-        // related: http://code.nomad-labs.com/2011/12/09/mother-fk-the-scheduledexecutorservice
-        // we don't really want our tasks to stop getting executed, and we want them to log any exceptions they encounter
-        return () -> {
-            try {
-                task.run();
-            } catch (final Throwable t) {
-                log.error("Task encountered an exception: {}", t.getMessage(), t);
-            }
-        };
     }
 
 

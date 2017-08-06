@@ -52,7 +52,7 @@ public class UpdatingReactionListener extends ReactionListener {
         super(message, filter, reactionCallback, selfDestructMillis, selfDestructCallback);
 
         this.updateCallback = updateCallback;
-        this.updates = Wolfia.scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
+        this.updates = Wolfia.scheduledExecutor.scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
     }
 
     private void update() {

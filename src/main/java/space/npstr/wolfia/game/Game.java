@@ -46,6 +46,7 @@ import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
+import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
@@ -61,9 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -88,8 +87,8 @@ public abstract class Game {
     private static final Logger log = LoggerFactory.getLogger(Game.class);
 
     //to be used to execute tasks for each game
-    protected final ScheduledExecutorService executor = Executors.newScheduledThreadPool(10,
-            r -> new Thread(r, "game-in-channel-" + Game.this.channelId + "-helper-thread"));
+    protected final ExceptionLoggingExecutor executor = new ExceptionLoggingExecutor(10,
+            "game-in-channel-" + Game.this.channelId + "-helper-thread");
 
     //commonly used fields
     protected long channelId = -1;

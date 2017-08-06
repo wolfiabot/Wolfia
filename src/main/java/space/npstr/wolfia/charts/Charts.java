@@ -131,7 +131,7 @@ public class Charts {
         Spark.get("/commandstats/averageexecutionduration/latest",       (rq, rs) -> Charts.getAverageCommandExecutionDuration(rq));
         // @formatter:on
 
-        Wolfia.scheduleAtFixedRate(Charts::updateRand, 0, 1, TimeUnit.SECONDS);
+        Wolfia.scheduledExecutor.scheduleAtFixedRate(Charts::updateRand, 0, 1, TimeUnit.SECONDS);
     }
 
     //########## views
