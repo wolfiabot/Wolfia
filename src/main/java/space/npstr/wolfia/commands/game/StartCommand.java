@@ -22,7 +22,7 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.SetupEntity;
-import space.npstr.wolfia.game.IllegalGameStateException;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 /**
  * Created by npstr on 14.09.2016

@@ -36,12 +36,13 @@ import space.npstr.wolfia.db.entity.stats.TeamStats;
 import space.npstr.wolfia.events.ReactionListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameUtils;
-import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Phase;
+import space.npstr.wolfia.game.exceptions.DayEndedAlreadyException;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.UserFriendlyException;
@@ -81,7 +82,6 @@ public class Popcorn extends Game {
     private int day = -1;
     private long dayLengthMillis = TimeUnit.MINUTES.toMillis(10); //10 minutes default
     private long dayStarted = -1;
-    private final Set<Integer> hasDayEnded = new HashSet<>();
     private long gunBearer = -1;
 
     @Override
@@ -288,15 +288,23 @@ public class Popcorn extends Game {
     }
 
     private synchronized void endDay(final DayEndReason reason, final long toBeKilled, final long survivor,
-                                     final Operation doIfLegal) throws IllegalGameStateException {
+                                     final Operation doIfLegal) throws DayEndedAlreadyException {
         //check if this is a valid call
         if (this.hasDayEnded.contains(this.day)) {
-            throw new IllegalGameStateException("called endDay() for a day that has ended already");
+            throw new DayEndedAlreadyException();
         }
         //an operation that shall only be run if the call to endDay() does not cause an IllegalGameStateException
         doIfLegal.execute();
 
-        getPlayer(toBeKilled).kill();
+        final Player killed;
+        try {
+            killed = getPlayer(toBeKilled);
+            killed.kill();
+        } catch (final IllegalGameStateException e) {
+            //should not happen, but if it does, kill the game
+            this.destroy(e);
+            return;
+        }
         this.gameStats.addAction(simpleAction(survivor, Actions.DEATH, toBeKilled));
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
         final Guild g = channel.getGuild();
@@ -312,8 +320,11 @@ public class Popcorn extends Game {
                     "%s took too long to decide who to shoot! They died and the %s will be redistributed.",
                     TextchatUtils.userAsMention(toBeKilled), Emojis.GUN);
             doIfGameIsntOver = ignored -> distributeGun();
-        } else if (reason == DayEndReason.SHAT) {
-            if (getPlayer(toBeKilled).isBaddie()) {
+        } else { //DayEndReason.SHAT
+            if (reason != DayEndReason.SHAT) {
+                log.error("You introduced a new day end reason but didn't handle it in the code.");
+            }
+            if (killed.isBaddie()) {
                 Wolfia.handleOutputMessage(channel, "%s was a dirty %s!",
                         TextchatUtils.userAsMention(toBeKilled), Emojis.WOLF);
                 doIfGameIsntOver = ignored -> startDay();
@@ -322,8 +333,6 @@ public class Popcorn extends Game {
                         TextchatUtils.userAsMention(survivor), Emojis.COWBOY, TextchatUtils.userAsMention(toBeKilled));
                 doIfGameIsntOver = this::giveGun;
             }
-        } else {
-            throw new IllegalGameStateException("Day ended with unhandled DayEndReason: " + reason.name());
         }
 
         //check win conditions
@@ -388,7 +397,7 @@ public class Popcorn extends Game {
                 endDay(DayEndReason.SHAT, shooterId, targetId, doIfLegal);
             }
             return true;
-        } catch (final IllegalStateException e) {
+        } catch (final DayEndedAlreadyException e) {
             Wolfia.handleOutputMessage(this.channelId, "Too late! Time has run out.");
             return false;
         }
@@ -438,7 +447,7 @@ public class Popcorn extends Game {
                                 final Operation ifLegal = () -> Popcorn.this.gameStats.addAction(simpleAction(
                                         Wolfia.jda.getSelfUser().getIdLong(), Actions.MODKILL, this.game.gunBearer));
                                 this.game.endDay(DayEndReason.TIMER, this.game.gunBearer, -1, ifLegal);
-                            } catch (final IllegalGameStateException ignored) {
+                            } catch (final DayEndedAlreadyException ignored) {
                             }
                         }
                 );

@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.game;
 
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.Collection;

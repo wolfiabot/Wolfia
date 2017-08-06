@@ -18,7 +18,7 @@ import space.npstr.wolfia.commands.ingame.VoteCommand;
 import space.npstr.wolfia.commands.stats.BotStatsCommand;
 import space.npstr.wolfia.commands.stats.GuildStatsCommand;
 import space.npstr.wolfia.commands.stats.UserStatsCommand;
-import space.npstr.wolfia.game.IllegalGameStateException;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 public class CommandsCommand extends BaseCommand {
 

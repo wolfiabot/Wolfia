@@ -19,7 +19,7 @@ package space.npstr.wolfia.commands;
 
 
 import net.dv8tion.jda.core.entities.Member;
-import space.npstr.wolfia.game.IllegalGameStateException;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**

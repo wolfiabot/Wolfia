@@ -41,13 +41,14 @@ import space.npstr.wolfia.events.UpdatingReactionListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.GameUtils;
-import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Phase;
 import space.npstr.wolfia.game.definitions.Roles;
+import space.npstr.wolfia.game.exceptions.DayEndedAlreadyException;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.game.tools.VotingBuilder;
 import space.npstr.wolfia.utils.PeriodicTimer;
@@ -64,6 +65,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -90,6 +92,8 @@ public class Mafia extends Game {
 
     private final Map<Player, ActionStats> nightActions = new HashMap<>();
 
+    private Future phaseEndTimer;
+    private Future phaseEndReminder;
 
     @Override
     public void setDayLength(final long dayLength, final TimeUnit timeUnit) {
@@ -390,10 +394,24 @@ public class Mafia extends Game {
         }
 
         //set a timer that calls endDay()
-        this.executor.schedule(this::endDay, this.dayLengthMillis, TimeUnit.MILLISECONDS);
+        this.phaseEndTimer = this.executor.schedule(() -> {
+            try {
+                this.endDay();
+            } catch (final DayEndedAlreadyException ignored) {
+            }
+        }, this.dayLengthMillis, TimeUnit.MILLISECONDS);
+        this.phaseEndReminder = this.executor.schedule(() -> Wolfia.handleOutputMessage(this.channelId, "One minute left until day end!"),
+                this.dayLengthMillis - 60000, TimeUnit.MILLISECONDS);
     }
 
-    private void endDay() {
+    private synchronized void endDay() throws DayEndedAlreadyException {
+        //check if this is a valid call
+        if (this.hasDayEnded.contains(this.cycle)) {
+            throw new DayEndedAlreadyException();
+        }
+        if (this.phaseEndTimer != null) this.phaseEndTimer.cancel(false);
+        if (this.phaseEndReminder != null) this.phaseEndReminder.cancel(false);
+
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
 
         final List<Player> livingPlayers = getLivingPlayers();
@@ -416,6 +434,7 @@ public class Mafia extends Game {
                 .unvoteEmoji(unvoteEmoji)
                 .possibleVoters(livingPlayers);
 
+        this.hasDayEnded.add(this.cycle);
 
         Wolfia.handleOutputMessage(channel, m -> Wolfia.handleOutputEmbed(channel, veb.getEmbed(Collections.unmodifiableMap(this.votes)).build(), message -> {
                     mapped.keySet().forEach(emoji -> message.addReaction(emoji).queue(null, Wolfia.defaultOnFail));

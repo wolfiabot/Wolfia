@@ -19,8 +19,8 @@ package space.npstr.wolfia.commands;
 
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.IllegalGameStateException;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**

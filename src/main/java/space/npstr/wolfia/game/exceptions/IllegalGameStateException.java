@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.game;
+package space.npstr.wolfia.game.exceptions;
 
 /**
  * Created by napster on 21.05.17.
@@ -26,8 +26,8 @@ public class IllegalGameStateException extends Exception {
 
     private static final long serialVersionUID = -3082580128565589439L;
 
-    //force creation with a message
-    private IllegalGameStateException() {
+    //package private to force creation with a concrete message
+    IllegalGameStateException() {
 
     }
 

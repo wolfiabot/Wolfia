@@ -11,7 +11,7 @@ import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.stats.CommandStats;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.IllegalGameStateException;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.mafia.Mafia;
 
 import java.util.concurrent.TimeUnit;

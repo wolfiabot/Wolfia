@@ -46,6 +46,7 @@ import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.UserFriendlyException;
@@ -99,6 +100,7 @@ public abstract class Game {
     protected volatile boolean running = false;
     protected long accessRoleId;
     protected PrivateGuild wolfChat = null;
+    protected final Set<Integer> hasDayEnded = new HashSet<>();
 
     //stats keeping fields
     protected GameStats gameStats = null;
