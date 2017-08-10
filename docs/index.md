@@ -166,7 +166,7 @@ Nevertheless, and also for the control freaks among us, here is a comprehensive 
 
 # Special mentions:
 - Written in Java using the excellent [JDA (Java Discord API)](https://github.com/DV8FromTheWorld/JDA). They maintain a super helpful crowd in their Discord guild.
-- Several functions and architectural decisions inspired by and/or plain copy pasta'd from [Frederikam's](https://github.com/Frederikam) music bot [FredBoat](https://github.com/Frederikam/FredBoat).
+- Several functions and architectural decisions inspired by and/or plain copy pasta'd from [Frederikam's](https://frederikam.com/) music bot [FredBoat](https://fredboat.com/).
 - Thanks to the folks at [Mafia Universe](http://www.mafiauniverse.com/forums/) and their Discord guild for helping testing and refining the initial version.
 
 * * *
