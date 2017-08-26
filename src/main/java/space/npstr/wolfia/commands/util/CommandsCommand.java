@@ -32,34 +32,40 @@ public class CommandsCommand extends BaseCommand {
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
-        final String gameCommands = "" +
-                Config.PREFIX + InCommand.COMMAND + "\n" +
-                Config.PREFIX + OutCommand.COMMAND + "\n" +
-                Config.PREFIX + SetupCommand.COMMAND + "\n" +
-                Config.PREFIX + StartCommand.COMMAND + "\n" +
-                Config.PREFIX + RolePmCommand.COMMAND + "\n" +
-                Config.PREFIX + StatusCommand.COMMAND + "\n";
+        //@formatter:off
+        final String gameCommands = ""
+                + Config.PREFIX + InCommand.COMMAND + "\n"
+                + Config.PREFIX + OutCommand.COMMAND + "\n"
+                + Config.PREFIX + SetupCommand.COMMAND + "\n"
+                + Config.PREFIX + StartCommand.COMMAND + "\n"
+                + Config.PREFIX + RolePmCommand.COMMAND + "\n"
+                + Config.PREFIX + StatusCommand.COMMAND + "\n"
+                ;
 
-        final String ingameCommands = "" +
-                Config.PREFIX + CheckCommand.COMMAND + "\n" +
-                Config.PREFIX + ShootCommand.COMMAND + "\n" +
-                Config.PREFIX + UnvoteCommand.COMMAND + "\n" +
-                Config.PREFIX + VoteCommand.COMMAND + "\n";
+        final String ingameCommands = ""
+                + Config.PREFIX + CheckCommand.COMMAND + "\n"
+                + Config.PREFIX + ShootCommand.COMMAND + "\n"
+                + Config.PREFIX + UnvoteCommand.COMMAND + "\n"
+                + Config.PREFIX + VoteCommand.COMMAND + "\n"
+                ;
 
         final String settingsCommands =
                 Config.PREFIX + ChannelSettingsCommand.COMMAND;
 
-        final String statsCommands = "" +
-                Config.PREFIX + UserStatsCommand.COMMAND + "\n" +
-                Config.PREFIX + GuildStatsCommand.COMMAND + "\n" +
-                Config.PREFIX + BotStatsCommand.COMMAND + "\n";
+        final String statsCommands = ""
+                + Config.PREFIX + UserStatsCommand.COMMAND + "\n"
+                + Config.PREFIX + GuildStatsCommand.COMMAND + "\n"
+                + Config.PREFIX + BotStatsCommand.COMMAND + "\n"
+                ;
 
-        final String otherCommands = "" +
-                Config.PREFIX + CommandsCommand.COMMAND + "\n" +
-                Config.PREFIX + HelpCommand.COMMAND + "\n" +
-                Config.PREFIX + InfoCommand.COMMAND + "\n" +
-                Config.PREFIX + ReplayCommand.COMMAND + "\n" +
-                Config.PREFIX + TagCommand.COMMAND + "\n";
+        final String otherCommands = ""
+                + Config.PREFIX + CommandsCommand.COMMAND + "\n"
+                + Config.PREFIX + HelpCommand.COMMAND + "\n"
+                + Config.PREFIX + InfoCommand.COMMAND + "\n"
+                + Config.PREFIX + ReplayCommand.COMMAND + "\n"
+                + Config.PREFIX + TagCommand.COMMAND + "\n"
+                ;
+        //@formatter:on
 
         final EmbedBuilder eb = new EmbedBuilder();
         final String link = App.DOCS_LINK + "#commands";
