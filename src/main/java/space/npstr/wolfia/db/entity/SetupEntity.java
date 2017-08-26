@@ -260,7 +260,7 @@ public class SetupEntity implements IEntity {
                 Games.remove(game);
                 game.cleanUp();
                 throw new RuntimeException(String.format("%s, game start aborted due to:\n%s",
-                        TextchatUtils.userAsMention(commandCallerId), e.getMessage()));
+                        TextchatUtils.userAsMention(commandCallerId), e.getMessage()), e);
             }
             this.innedUsers.clear();
             DbWrapper.merge(this);

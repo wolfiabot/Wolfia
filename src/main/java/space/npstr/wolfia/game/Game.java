@@ -365,7 +365,8 @@ public abstract class Game {
                                     " The chosen game and mode requires the channel to be either public, or have an access role set up." +
                                     " Talk to an Admin/Moderator of your server to fix this or set the access role up with `%s`." +
                                     " Please refer to the documentation under %s",
-                            Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(), Config.PREFIX + ChannelSettingsCommand.COMMAND
+                            Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(),
+                            Config.PREFIX + ChannelSettingsCommand.COMMAND, App.DOCS_LINK
                     ));
                 }
                 if (!accessRole.hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
