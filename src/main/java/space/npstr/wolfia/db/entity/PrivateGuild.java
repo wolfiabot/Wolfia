@@ -24,12 +24,21 @@ import net.dv8tion.jda.core.entities.Invite;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.hibernate.annotations.NaturalId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.BaseCommand;
+import space.npstr.wolfia.commands.CommandHandler;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.ingame.NightkillCommand;
+import space.npstr.wolfia.commands.ingame.UnvoteCommand;
+import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.db.IEntity;
+import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -72,7 +81,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
     @Transient
     private long currentChannelId = -1;
 
-    //for Hibernate/JPA and creatign entities
+    //for Hibernate/JPA and creating entities
     public PrivateGuild() {
     }
 
@@ -138,6 +147,45 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
                 aVoid -> Wolfia.handleOutputMessage(this.currentChannelId, "%s, welcome to wolf chat!", event.getMember().getAsMention()),
                 Wolfia.defaultOnFail
         );
+    }
+
+    //todo the checks here are pretty much a duplication of the checks in the CommandListener, resolve that
+    @Override
+    public void onMessageReceived(final MessageReceivedEvent event) {
+        final long received = System.currentTimeMillis();
+        //ignore private channels
+        if (event.getPrivateChannel() != null) {
+            return;
+        }
+
+        //ignore guilds that are not this one
+        if (event.getGuild().getIdLong() != this.guildId) {
+            return;
+        }
+
+        //ignore messages not starting with the prefix (prefix is accepted case insensitive)
+        final String raw = event.getMessage().getRawContent();
+        if (!raw.toLowerCase().startsWith(Config.PREFIX.toLowerCase())) {
+            return;
+        }
+
+        //ignore bot accounts generally
+        if (event.getAuthor().isBot()) {
+            return;
+        }
+
+        //bot should ignore itself
+        if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
+            return;
+        }
+
+        final CommandParser.CommandContainer commandInfo = CommandParser.parse(raw, event, received);
+        CommandListener.getCommandExecutor().execute(() -> CommandHandler.handleCommand(commandInfo, this::filter));
+    }
+
+    private boolean filter(final BaseCommand command) {
+        //allow only nk related commands
+        return command instanceof NightkillCommand || command instanceof VoteCountCommand || command instanceof UnvoteCommand;
     }
 
     public synchronized void beginUsage(final Collection<Long> wolfUserIds) {

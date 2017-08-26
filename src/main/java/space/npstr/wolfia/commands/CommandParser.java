@@ -17,8 +17,8 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
@@ -37,10 +37,11 @@ public class CommandParser {
         final String[] splitBeheaded = beheaded.split(" ");
         Collections.addAll(split, splitBeheaded);
         final String command = split.get(0).toLowerCase();
+        final String argsRaw = rw.substring(Config.PREFIX.length() + command.length()).trim();
         final String[] args = new String[split.size() - 1];
         split.subList(1, split.size()).toArray(args);
 
-        return new CommandContainer(rw, beheaded, splitBeheaded, command, args, e, received);
+        return new CommandContainer(rw, beheaded, splitBeheaded, command, argsRaw, args, e, received);
     }
 
     public static class CommandContainer {
@@ -48,22 +49,24 @@ public class CommandParser {
         public final String beheaded; //without the prefix
         public final String[] splitBeheaded; //without the prefix, split by " "
         public final String command; // the actual command, in lower case
+        public final String argsRaw; //the unsplit arguments
         public final String[] args; // the actual arguments
         public final MessageReceivedEvent event; //underlying event
         public final long received; //earliest moment of when the event entered our bots' code
-        public final Member invoker;
+        public final User invoker;
 
         public CommandContainer(final String rw, final String beheaded, final String[] splitBeheaded,
-                                final String command, final String[] args, final MessageReceivedEvent e,
-                                final long received) {
+                                final String command, final String argsRaw, final String[] args,
+                                final MessageReceivedEvent e, final long received) {
             this.raw = rw;
             this.beheaded = beheaded;
             this.splitBeheaded = splitBeheaded;
             this.command = command;
+            this.argsRaw = argsRaw;
             this.args = args;
             this.event = e;
             this.received = received;
-            this.invoker = e.getMember();
+            this.invoker = e.getAuthor();
         }
 
 

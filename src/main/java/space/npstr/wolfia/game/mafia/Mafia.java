@@ -30,8 +30,10 @@ import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
+import space.npstr.wolfia.commands.ingame.NightkillCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
+import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.db.entity.stats.ActionStats;
 import space.npstr.wolfia.db.entity.stats.GameStats;
 import space.npstr.wolfia.db.entity.stats.PlayerStats;
@@ -59,7 +61,6 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.DiscordLogger;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -78,8 +79,6 @@ public class Mafia extends Game {
 
     private static final Logger log = LoggerFactory.getLogger(Mafia.class);
 
-    private static final long VOTING_LENGTH_MILLIS = TimeUnit.SECONDS.toMillis(30);
-
     private long dayLengthMillis = TimeUnit.MINUTES.toMillis(10); //10 minutes default
     private final long nightLengthMillis = TimeUnit.MINUTES.toMillis(1); //1 minute default
     //current cycle and phase, describing n0, d1, n1, d2, n2 etc...
@@ -90,10 +89,24 @@ public class Mafia extends Game {
     private final Map<Player, Player> votes = new LinkedHashMap<>();//using linked to keep first votes at the top
     private final Map<Player, ActionStats> voteActions = new HashMap<>();
 
+    private final Map<Player, Player> nightkillVotes = new LinkedHashMap<>();//using linked to keep first votes at the top
+    private final Map<Player, ActionStats> nightKillVoteActions = new HashMap<>();
     private final Map<Player, ActionStats> nightActions = new HashMap<>();
 
     private Future phaseEndTimer;
     private Future phaseEndReminder;
+    private final VotingBuilder votingBuilder = new VotingBuilder()
+            .unvoteEmoji(Emojis.X)
+            .header("Day ends in **%timeleft** with a lynch.")
+            .notes(String.format("**Use `%s` to cast a vote on a player.**"
+                    + "\nOnly your last vote will be counted."
+                    + "\nMajority is enabled.", Config.PREFIX + VoteCommand.COMMAND));
+
+    private final VotingBuilder nightKillVotingBuilder = new VotingBuilder()
+            .unvoteEmoji(Emojis.X)
+            .header("Night ends in **%timeleft**.")
+            .notes(String.format("**Use `%s` to cast a vote on a player.**"
+                    + "\nOnly your last vote will be counted.", Config.PREFIX + NightkillCommand.COMMAND));
 
     @Override
     public void setDayLength(final long dayLength, final TimeUnit timeUnit) {
@@ -116,7 +129,7 @@ public class Mafia extends Game {
         neb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
 
         final NiceEmbedBuilder.ChunkingField living = new NiceEmbedBuilder.ChunkingField("Living Players", true);
-        living.addAll(getLivingPlayerMentions(), true);
+        getLivingPlayers().forEach(p -> living.add(p.numberAsEmojis() + " " + p.getBothNamesFormatted(), true));
         neb.addField(living);
 
         final StringBuilder sb = new StringBuilder();
@@ -230,26 +243,32 @@ public class Mafia extends Game {
                     commandInfo.event.getAuthor().getAsMention());
             return false;
         }
-        if (!invoker.isAlive()) {
+        if (invoker.isDead()) {
             Wolfia.handleOutputMessage(this.channelId, "%s shush, you're dead!",
                     commandInfo.event.getAuthor().getAsMention());
             return false;
         }
 
         if (command instanceof VoteCommand) {
-            final long candidate = commandInfo.event.getMessage().getMentionedUsers().get(0).getIdLong();
+            final Player candidate = GameUtils.identifyPlayer(this.players, commandInfo);
+            if (candidate == null) return false;
+
             return vote(invoker, candidate);
         } else if (command instanceof UnvoteCommand) {
+            if (commandInfo.event.getGuild().getIdLong() == this.wolfChat.getId()) {
+                return nkUnvote(invoker, commandInfo);
+            }
+
             return unvote(invoker);
         } else if (command instanceof CheckCommand) {
 
             if (commandInfo.event.isFromType(ChannelType.TEXT)) {
-                commandInfo.reply("%s, checks can only be issued in private messages.");
+                commandInfo.reply("%s, checks can only be issued in private messages!");
                 return false;
             }
 
-            if (this.phase == Phase.DAY) {
-                commandInfo.reply("%s, checks can't be issued during the day.", commandInfo.event.getAuthor().getAsMention());
+            if (this.phase != Phase.NIGHT) {
+                commandInfo.reply("%s, checks can only be issued during the night!", commandInfo.event.getAuthor().getAsMention());
                 return false;
             }
 
@@ -258,7 +277,34 @@ public class Mafia extends Game {
                         commandInfo.event.getAuthor().getAsMention());
                 return false;
             }
-            return check(invoker, (CheckCommand) command, commandInfo);
+
+            final Player target = GameUtils.identifyPlayer(this.players, commandInfo);
+            if (target == null) return false;
+
+            return check(invoker, target, commandInfo);
+        } else if (command instanceof VoteCountCommand) {
+
+            //wolves asked for one, give them a votecount of their nk votes
+            if (this.phase == Phase.NIGHT && commandInfo.event.getGuild().getIdLong() == this.wolfChat.getId()) {
+                commandInfo.reply(this.nightKillVotingBuilder.getEmbed(new HashMap<>(this.nightkillVotes)).build());
+                return true;
+            }
+
+            if (this.phase != Phase.DAY) {
+                commandInfo.reply("%s, vote counts are only shown during the day phase!",
+                        commandInfo.invoker.getAsMention());
+                return false;
+            }
+            commandInfo.reply(this.votingBuilder.getEmbed(new HashMap<>(this.votes)).build());
+            return true;
+
+        } else if (command instanceof NightkillCommand) {
+            //equivalent to the vote command m just for baddies in the night
+
+            final Player candidate = GameUtils.identifyPlayer(this.players, commandInfo);
+            if (candidate == null) return false;
+
+            return nkVote(invoker, candidate, commandInfo);
         } else {
             Wolfia.handleOutputMessage(this.channelId, "%s, the '%s' command is not part of this game.",
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()), commandInfo.command);
@@ -266,37 +312,37 @@ public class Mafia extends Game {
         }
     }
 
-    private boolean vote(final Player voter, final long cand, final boolean... silent) {
-
-        final boolean shutUp = silent.length > 0 && silent[0];
+    private boolean vote(final Player voter, final Player candidate) {
 
         if (this.phase != Phase.DAY) {
-            if (!shutUp) Wolfia.handleOutputMessage(this.channelId, "%s, you can only vote during the day.",
-                    voter.asMention());
+            Wolfia.handleOutputMessage(this.channelId, "%s, you can only vote during the day.", voter.asMention());
             return false;
         }
-        final Player candidate;
-        try {
-            candidate = getPlayer(cand);
-        } catch (final IllegalGameStateException e) {
-            if (!shutUp)
-                Wolfia.handleOutputMessage(this.channelId, "%s, you have to vote for a player who plays this game.",
-                        voter.asMention());
+
+        if (candidate.isDead()) {
+            Wolfia.handleOutputMessage(this.channelId, "%s, you can't vote for a dead player.", voter.asMention());
             return false;
         }
-        if (!candidate.isAlive()) {
-            if (!shutUp) Wolfia.handleOutputMessage(this.channelId, "%s, you can't vote for a dead player.",
-                    voter.asMention());
-            return false;
-        }
+
+        Wolfia.handleOutputMessage(this.channelId, "%s votes %s for lynch.", voter.asMention(), candidate.asMention());
 
         synchronized (this.votes) {
             this.votes.remove(voter);
             this.votes.put(voter, candidate);
-            this.voteActions.put(voter, simpleAction(voter.userId, Actions.VOTELYNCH, cand));
+            this.voteActions.put(voter, simpleAction(voter.userId, Actions.VOTELYNCH, candidate.userId));
+
+            //check for majj
+            final int livingPlayersCount = getLivingPlayers().size();
+            final int majThreshold = (livingPlayersCount / 2);
+            final long mostVotes = GameUtils.mostVotes(this.votes);
+            if (mostVotes > majThreshold) {
+                Wolfia.handleOutputMessage(this.channelId, "Majority was reached!");
+                try {
+                    endDay();
+                } catch (final DayEndedAlreadyException ignored) {
+                }
+            }
         }
-        if (!shutUp) Wolfia.handleOutputMessage(this.channelId, "%s votes %s for lynch.",
-                voter.asMention(), TextchatUtils.userAsMention(cand));
         return true;
     }
 
@@ -327,31 +373,8 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean check(final Player invoker, final CheckCommand command, final CommandParser.CommandContainer commandInfo) {
-
-        if (commandInfo.args.length < 1) {
-            commandInfo.reply(TextchatUtils.asMarkdown(command.help()));
-            return false;
-        }
-
-        final String letter = commandInfo.args[0].toUpperCase();
-        if (letter.length() > 1) {
-            commandInfo.reply(TextchatUtils.asMarkdown(command.help()));
-            return false;
-        }
-
-        final char c = letter.charAt(0);
-        final int playerNumber = c - 64;//according to ascii A = 65
-
-        final Player target;
-        try {
-            target = getPlayerByNumber(playerNumber);
-        } catch (final IllegalGameStateException e) {
-            commandInfo.reply("There is no player associated with the letter " + c + " in this game.");
-            return false;
-        }
-
-        if (!target.isAlive()) {
+    private boolean check(final Player invoker, final Player target, final CommandParser.CommandContainer commandInfo) {
+        if (target.isDead()) {
             commandInfo.reply("You can't check a dead player.");
             return false;
         }
@@ -363,7 +386,7 @@ public class Mafia extends Game {
         }
 
         this.nightActions.put(invoker, simpleAction(invoker.userId, Actions.CHECK, target.userId));
-        commandInfo.reply(String.format("You are checking %s tonight.", target.getBothNamesFormatted()));
+        commandInfo.reply("You are checking %s tonight.", target.getBothNamesFormatted());
         return true;
     }
 
@@ -383,12 +406,17 @@ public class Mafia extends Game {
 
         this.votes.clear();
         this.voteActions.clear();
+        final List<Player> living = getLivingPlayers();
+        this.votingBuilder.endTime(this.phaseStarted + this.dayLengthMillis)
+                .possibleVoters(living)
+                .possibleCandidates(living);
 
         //open channel
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
-        Wolfia.handleOutputMessage(channel, "Day %s started! You have %s minutes to discuss, after which voting will start.",
-                this.cycle, this.dayLengthMillis / 60000);
-        for (final Player player : getLivingPlayers()) {
+        Wolfia.handleOutputMessage(channel, "Day %s started! You have %s minutes to discuss. You may vote a player for lynch with `%s`."
+                        + "\nIf a player is voted by more than half the living players (majority), they will be lynched immediately!",
+                this.cycle, this.dayLengthMillis / 60000, Config.PREFIX + VoteCommand.COMMAND);
+        for (final Player player : living) {
             RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
                     Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);
         }
@@ -421,80 +449,39 @@ public class Mafia extends Game {
                     Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);
         }
 
-        //process lynch
-        final Map<String, Player> mapped = new LinkedHashMap<>();
-        for (final Player p : livingPlayers) {
-            mapped.put(Emojis.LETTERS[p.number - 1], p);
-        }
-        final String unvoteEmoji = Emojis.X;
-
-        final VotingBuilder veb = new VotingBuilder()
-                .endTime(System.currentTimeMillis() + VOTING_LENGTH_MILLIS)
-                .mappedEmojis(mapped)
-                .unvoteEmoji(unvoteEmoji)
-                .possibleVoters(livingPlayers);
-
         this.hasDayEnded.add(this.cycle);
+        this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.DAYEND, -1));
+        synchronized (this.votes) {
+            Wolfia.handleOutputEmbed(channel, this.votingBuilder.getFinalEmbed(this.votes, this.phase, this.cycle).build());
+            final List<Player> lynchCandidates = GameUtils.mostVoted(this.votes, livingPlayers);
+            boolean randedLynch = false;
+            final Player lynchCandidate;
+            if (lynchCandidates.size() > 1) {
+                randedLynch = true;
+                lynchCandidate = GameUtils.rand(lynchCandidates);
+            } else {
+                lynchCandidate = lynchCandidates.get(0);
+            }
 
-        Wolfia.handleOutputMessage(channel, m -> Wolfia.handleOutputEmbed(channel, veb.getEmbed(Collections.unmodifiableMap(this.votes)).build(), message -> {
-                    mapped.keySet().forEach(emoji -> message.addReaction(emoji).queue(null, Wolfia.defaultOnFail));
-                    message.addReaction(unvoteEmoji).queue(null, Wolfia.defaultOnFail);
-                    Wolfia.jda.addEventListener(new UpdatingReactionListener(message,
-                            //filter: living players
-                            this::isLiving,
-                            //on reaction
-                            reactionEvent -> {
-                                final Player voter;
-                                try {
-                                    voter = getPlayer(reactionEvent.getUser().getIdLong());
-                                } catch (final IllegalGameStateException ignored) {
-                                    return; //shouldn't happen but if it does we really dont care how it happens, just ignore it
-                                }
-                                //is this an unvote?
-                                if (reactionEvent.getReaction().getEmote().getName().equals(unvoteEmoji)) {
-                                    unvote(voter, true);
-                                    return;
-                                }
-                                final Player candidate = mapped.get(reactionEvent.getReaction().getEmote().getName());
-                                if (candidate == null) return;
-                                vote(voter, candidate.userId, true);
-                            },
-                            VOTING_LENGTH_MILLIS,
-                            //when voting is done:
-                            aVoid -> {
-                                message.clearReactions().queue(null, Wolfia.defaultOnFail);
-                                this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.DAYEND, -1));
-                                synchronized (this.votes) {
-                                    message.editMessage(veb.getFinalEmbed(Collections.unmodifiableMap(this.votes), this.phase, this.cycle).build())
-                                            .queue(null, Wolfia.defaultOnFail);
-                                    final Player lynchCandidate = GameUtils.mostVoted(this.votes, livingPlayers);
-                                    try {
-                                        lynchCandidate.kill();
-                                        this.gameStats.addAction(simpleAction(-3, Actions.LYNCH, lynchCandidate.userId));
-                                    } catch (final IllegalGameStateException e) {
-                                        //should not happen, but if it does, kill the game
-                                        this.destroy(e);
-                                        return;
-                                    }
+            try {
+                lynchCandidate.kill();
+                this.gameStats.addAction(simpleAction(-3, Actions.LYNCH, lynchCandidate.userId));
+            } catch (final IllegalGameStateException | NullPointerException e) {
+                //should not happen, but if it does, kill the game
+                this.destroy(e);
+                return;
+            }
 
-                                    final long votesAmount = this.votes.values().stream().filter(p -> p.userId == lynchCandidate.userId).count();
-                                    Wolfia.handleOutputMessage(channel, "%s has been lynched with %s votes on them!\nThey were **%s %s** %s",
-                                            lynchCandidate.asMention(), votesAmount,
-                                            lynchCandidate.alignment.textRepMaf, lynchCandidate.role.textRep, lynchCandidate.getCharacterEmoji());
-                                    this.gameStats.addActions(this.voteActions.values());
-                                }
+            final long votesAmount = this.votes.values().stream().filter(p -> p.userId == lynchCandidate.userId).count();
+            Wolfia.handleOutputMessage(channel, "%s has been lynched%s with %s votes on them!\nThey were **%s %s** %s",
+                    lynchCandidate.asMention(), randedLynch ? " at random due to a tie" : "", votesAmount,
+                    lynchCandidate.alignment.textRepMaf, lynchCandidate.role.textRep, lynchCandidate.getCharakterEmoji());
+            this.gameStats.addActions(this.voteActions.values());
+        }
 
-                                if (!isGameOver()) {
-                                    startNight();
-                                }
-                            },
-                            //update every few seconds
-                            TimeUnit.SECONDS.toMillis(5),
-                            aVoid -> message.editMessage(veb.getEmbed(Collections.unmodifiableMap(this.votes)).build())
-                                    .queue(null, Wolfia.defaultOnFail)
-                    ));
-                }), Wolfia.defaultOnFail,
-                "Last minute voting!\n%s", String.join(", ", getLivingPlayerMentions()));
+        if (!isGameOver()) {
+            startNight();
+        }
     }
 
     private void postUpdatingNightMessage() {
@@ -520,76 +507,44 @@ public class Mafia extends Game {
 
         postUpdatingNightMessage();
 
-        //post an voting embed for the wolfs in wolfchat
+        //post a voting embed for the wolfs in wolfchat
         final long wolfchatChannelId = this.wolfChat.getChannelId();
         final TextChannel wolfchatChannel = Wolfia.jda.getTextChannelById(wolfchatChannelId);
 
-        final Map<Player, Player> nightKillVotes = new LinkedHashMap<>();//using linked to keep first votes at the top
-        final Map<Player, ActionStats> nightKillVoteActions = new HashMap<>();
+        this.nightkillVotes.clear();
+        this.nightKillVoteActions.clear();
 
-        final Map<String, Player> mapped = new LinkedHashMap<>();
-        for (final Player p : getLivingVillage()) {
-            mapped.put(Emojis.LETTERS[p.number - 1], p);
-        }
-        final String unvoteEmoji = Emojis.X;
-
-        final VotingBuilder veb = new VotingBuilder()
-                .endTime(this.phaseStarted + this.nightLengthMillis)
-                .mappedEmojis(mapped)
-                .unvoteEmoji(unvoteEmoji)
-                .possibleVoters(getLivingWolves());
+        this.nightKillVotingBuilder.endTime(this.phaseStarted + this.nightLengthMillis)
+                .possibleVoters(getLivingWolves())
+                .possibleCandidates(getLivingVillage());
 
 
-        Wolfia.handleOutputMessage(wolfchatChannel, m -> Wolfia.handleOutputEmbed(wolfchatChannel, veb.getEmbed(nightKillVotes).build(), message -> {
-                    mapped.keySet().forEach(emoji -> message.addReaction(emoji).queue(null, Wolfia.defaultOnFail));
-                    message.addReaction(unvoteEmoji).queue(null, Wolfia.defaultOnFail);
+        Wolfia.handleOutputMessage(wolfchatChannel, m -> Wolfia.handleOutputEmbed(wolfchatChannel, this.nightKillVotingBuilder.getEmbed(this.nightkillVotes).build(), message -> {
                     Wolfia.jda.addEventListener(new UpdatingReactionListener(message,
                             this::isLivingWolf,
-                            //on reaction
-                            reactionEvent -> {
-                                final Player voter;
-                                try {
-                                    voter = getPlayer(reactionEvent.getUser().getIdLong());
-                                } catch (final IllegalGameStateException ignored) {
-                                    return; //shouldn't happen but if it does we really dont care how it happens, just ignore it
-                                }
-                                //is this an unvote?
-                                if (reactionEvent.getReaction().getEmote().getName().equals(unvoteEmoji)) {
-                                    synchronized (nightKillVotes) {
-                                        nightKillVotes.remove(voter);
-                                        nightKillVoteActions.remove(voter);
-                                    }
-                                    return;
-                                }
-                                final Player candidate = mapped.get(reactionEvent.getReaction().getEmote().getName());
-                                if (candidate == null) return;
-                                synchronized (nightKillVotes) {
-                                    nightKillVotes.remove(voter);
-                                    nightKillVotes.put(voter, candidate);
-                                    nightKillVoteActions.put(voter, simpleAction(voter.userId, Actions.VOTENIGHTKILL, candidate.userId));
-                                }
-                            },
+                            __ -> {
+                            },//todo move away from using a reaction listener
                             this.nightLengthMillis,
                             //on destruction
                             aVoid -> {
                                 message.clearReactions().queue(null, Wolfia.defaultOnFail);
-                                synchronized (nightKillVotes) {
-                                    message.editMessage(veb.getFinalEmbed(nightKillVotes, this.phase, this.cycle).build())
+                                synchronized (this.nightkillVotes) {
+                                    message.editMessage(this.nightKillVotingBuilder.getFinalEmbed(this.nightkillVotes, this.phase, this.cycle).build())
                                             .queue(null, Wolfia.defaultOnFail);
-                                    final Player nightKillCandidate = GameUtils.mostVoted(nightKillVotes, getLivingVillage());
+                                    final Player nightKillCandidate = GameUtils.rand(GameUtils.mostVoted(this.nightkillVotes, getLivingVillage()));
 
                                     Wolfia.handleOutputMessage(wolfchatChannel,
                                             "\n@here, %s will be killed! Game about to start/continue, get back to the main chat.\n%s",
                                             nightKillCandidate.getBothNamesFormatted(),
                                             TextchatUtils.getOrCreateInviteLink(Wolfia.jda.getTextChannelById(this.channelId)));
-                                    this.gameStats.addActions(nightKillVoteActions.values());
+                                    this.gameStats.addActions(this.nightKillVoteActions.values());
 
                                     endNight(nightKillCandidate);
                                 }
                             },
                             //update every few seconds
                             TimeUnit.SECONDS.toMillis(10),
-                            aVoid -> message.editMessage(veb.getEmbed(nightKillVotes).build())
+                            aVoid -> message.editMessage(this.nightKillVotingBuilder.getEmbed(this.nightkillVotes).build())
                                     .queue(null, Wolfia.defaultOnFail)
                     ));
                 }), Wolfia.defaultOnFail,
@@ -602,11 +557,11 @@ public class Mafia extends Game {
 
             //cop
             if (p.role == Roles.COP) {
-                final EmbedBuilder livingPlayersWithNumbers = listLivingPlayersWithNumbers();
-                final String out = String.format("**You are a cop. Use `%s%s [A-Z]` to check a players alignment.**\n" +
+                final EmbedBuilder livingPlayersWithNumbers = listLivingPlayersWithNumbers(p);
+                final String out = String.format("**You are a cop. Use `%s [name or number]` to check the alignment of a player.**\n" +
                                 "You will receive the result at the end of the night for the last submitted target. " +
                                 "If you do not submit a check, it will be randed.",
-                        Config.PREFIX, CheckCommand.COMMAND);
+                        Config.PREFIX + CheckCommand.COMMAND);
                 livingPlayersWithNumbers.addField("", out, false);
                 final Collection<Long> randCopTargets = getLivingPlayerIds();
                 randCopTargets.remove(p.userId);//dont randomly check himself
@@ -615,6 +570,53 @@ public class Mafia extends Game {
                 new PrivateChannelListener(p.userId, this.nightLengthMillis, this, new CheckCommand());
             }
         }
+    }
+
+    private boolean nkVote(final Player voter, final Player nightkillVote, final CommandParser.CommandContainer commandInfo) {
+
+        if (this.phase != Phase.NIGHT) {
+            commandInfo.reply("%s, you can only vote during the night.", voter.asMention());
+            return false;
+        }
+
+        if (nightkillVote.isDead()) {
+            commandInfo.reply("%s, you can't vote a dead player for nightkill.", voter.asMention());
+            return false;
+        }
+
+        if (nightkillVote.isBaddie()) { //this needs to be revisited if multiple baddie faction become a thing
+            commandInfo.reply("%s, you can't vote to nightkill a fellow mafioso.", voter.asMention());
+            return false;
+        }
+
+        commandInfo.reply("%s votes %s for nightkill.", voter.asMention(), nightkillVote.asMention());
+
+        synchronized (this.nightkillVotes) {
+            this.nightkillVotes.remove(voter);
+            this.nightkillVotes.put(voter, nightkillVote);
+            this.nightKillVoteActions.put(voter, simpleAction(voter.userId, Actions.VOTENIGHTKILL, nightkillVote.userId));
+        }
+        return true;
+    }
+
+    private boolean nkUnvote(final Player unvoter, final CommandParser.CommandContainer commandInfo) {
+        if (this.phase != Phase.NIGHT) {
+            commandInfo.reply("%s, you can only unvote during the night.", unvoter.asMention());
+            return false;
+        }
+
+        final Player unvoted;
+        synchronized (this.nightkillVotes) {
+            if (this.nightkillVotes.get(unvoter) == null) {
+                commandInfo.reply("%s, you can't unvote if you aren't voting in the first place.", unvoter.asMention());
+                return false;
+            }
+            unvoted = this.nightkillVotes.remove(unvoter);
+            this.nightKillVoteActions.remove(unvoter);
+        }
+
+        commandInfo.reply("%s unvoted %s.", unvoter.asMention(), unvoted.asMention());
+        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -651,7 +653,7 @@ public class Mafia extends Game {
 
         Wolfia.handleOutputMessage(this.channelId, "%s has died during the night!\nThey were **%s %s** %s",
                 nightKillCandidate.asMention(), nightKillCandidate.alignment.textRepMaf,
-                nightKillCandidate.role.textRep, nightKillCandidate.getCharacterEmoji());
+                nightKillCandidate.role.textRep, nightKillCandidate.getCharakterEmoji());
 
         if (!isGameOver()) {
             //start the timer only after the message has actually been sent

@@ -80,6 +80,7 @@
         <avatarUrl>
             http://i.imgur.com/UoiA3OQ.png <!--http://i2.ytimg.com/vi/Yvd0iS5jd50/hqdefault.jpg-->
         </avatarUrl>
+        <tts>false</tts>
 
     </appender>
 

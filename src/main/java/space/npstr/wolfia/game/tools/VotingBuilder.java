@@ -3,10 +3,12 @@ package space.npstr.wolfia.game.tools;
 import space.npstr.wolfia.game.GameUtils;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Phase;
+import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,23 +18,34 @@ import java.util.stream.Collectors;
 /**
  * Created by napster on 16.07.17.
  * <p>
- * Methods for running voting embeds
+ * Easy vote embeds
  */
 public class VotingBuilder {
 
 
+    private String header = "You have **%timeleft** left to vote.";
     private long endTime;
-    private Map<String, Player> mappedEmojis;
-    private String unvoteEmoji;
-    private List<Player> possibleVoters;
+    private String unvoteEmoji = Emojis.X;
+    private List<Player> possibleVoters = Collections.emptyList();
+    private List<Player> possibleCandidates = Collections.emptyList();
+    private String notes = "**Use `%command` to cast a vote on a player." +
+            "\nOnly your last vote will be counted.\nOnly votes by living players will be counted.**" +
+            "\nUpdates every few seconds.";
 
     public VotingBuilder endTime(final long endTime) {
         this.endTime = endTime;
         return this;
     }
 
-    public VotingBuilder mappedEmojis(final Map<String, Player> mappedEmojis) {
-        this.mappedEmojis = mappedEmojis;
+    // any a '%timeleft' strings inside of this will be replaced with a formatted duration till endTime is reached
+    public VotingBuilder header(final String header) {
+        this.header = header;
+        return this;
+    }
+
+    //%command will be substituted
+    public VotingBuilder notes(final String notes) {
+        this.notes = notes;
         return this;
     }
 
@@ -46,10 +59,15 @@ public class VotingBuilder {
         return this;
     }
 
+    public VotingBuilder possibleCandidates(final List<Player> possibleCandidates) {
+        this.possibleCandidates = possibleCandidates;
+        return this;
+    }
+
     public NiceEmbedBuilder getEmbed(final Map<Player, Player> votes) {
 
         NiceEmbedBuilder neb = new NiceEmbedBuilder();
-        neb = addTimeLeft(neb, this.endTime - System.currentTimeMillis());
+        neb = addHeader(neb, this.endTime - System.currentTimeMillis());
 
         final List<VoteEntry> processedVotes = processVotes(votes);
         neb.addField(renderVotes("", processedVotes, true, true));
@@ -100,8 +118,7 @@ public class VotingBuilder {
 
     private List<VoteEntry> processVotes(final Map<Player, Player> votes) {
         final List<VoteEntry> processedVotes = new ArrayList<>();
-        for (final String emoji : this.mappedEmojis.keySet()) {
-            final Player candidate = this.mappedEmojis.get(emoji);
+        for (final Player candidate : this.possibleCandidates) {
             //who is voting for this player?
             final List<Player> voters = new ArrayList<>();
             for (final Player voter : votes.keySet()) {
@@ -109,7 +126,7 @@ public class VotingBuilder {
                     voters.add(voter);
                 }
             }
-            processedVotes.add(new VoteEntry(emoji, candidate, voters));
+            processedVotes.add(new VoteEntry(candidate.numberAsEmojis(), candidate, voters));
         }
         return processedVotes;
     }
@@ -120,17 +137,14 @@ public class VotingBuilder {
         return nonVoters;
     }
 
-    private NiceEmbedBuilder addTimeLeft(final NiceEmbedBuilder neb, final long timeLeft) {
-        neb.addField("", "You have **" + TextchatUtils.formatMillis(timeLeft)
-                + "** left to vote.", false);
+    private NiceEmbedBuilder addHeader(final NiceEmbedBuilder neb, final long timeLeft) {
+        final String headerStr = this.header.replaceAll("%timeleft", TextchatUtils.formatMillis(timeLeft));
+        neb.addField("", headerStr, false);
         return neb;
     }
 
     private NiceEmbedBuilder addNotes(final NiceEmbedBuilder neb) {
-        final String info = "**Click the reactions below to vote a player." +
-                "\nOnly your last vote will be counted.\nOnly votes by living players will be counted.**" +
-                "\nUpdates every few seconds.";
-        neb.addField("", info, false);
+        neb.addField("", this.notes, false);
         return neb;
     }
 

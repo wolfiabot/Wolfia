@@ -21,17 +21,15 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.GameCommand;
 
 /**
- * Created by napster on 06.07.17.
- * <p>
- * Add a vote
+ * Created by napster on 06.08.17.
  */
-public class VoteCommand extends GameCommand {
+public class VoteCountCommand extends GameCommand {
 
-    public static final String COMMAND = "vote";
+    public static final String COMMAND = "votecount";
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " @player"
-                + "\n#Vote the mentioned player for lynch.";
+        return Config.PREFIX + COMMAND
+                + "\n#Post the current votecount.";
     }
 }

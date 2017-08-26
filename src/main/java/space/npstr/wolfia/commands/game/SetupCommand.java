@@ -63,7 +63,7 @@ public class SetupCommand extends BaseCommand {
 
         if (commandInfo.args.length == 1) {
             //unsupported input
-            commandInfo.reply(formatHelp(invoker));
+            commandInfo.reply(formatHelp(invoker.getUser()));
             return false;
         }
 
@@ -130,7 +130,7 @@ public class SetupCommand extends BaseCommand {
 //                    etc
                 default:
                     //didn't understand the input
-                    commandInfo.reply(formatHelp(invoker));
+                    commandInfo.reply(formatHelp(invoker.getUser()));
                     return false;
             }
         }

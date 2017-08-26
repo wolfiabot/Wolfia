@@ -24,9 +24,9 @@ import space.npstr.wolfia.game.mafia.MafiaInfo;
 import space.npstr.wolfia.game.popcorn.Popcorn;
 import space.npstr.wolfia.game.popcorn.PopcornInfo;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by napster on 20.05.17.
@@ -46,8 +46,7 @@ public enum Games {
         this.textRep = textRepresentation;
     }
 
-    //static aboose?
-    private static final Map<Long, Game> GAME_REGISTRY = new HashMap<>();
+    private static final Map<Long, Game> GAME_REGISTRY = new ConcurrentHashMap<>();
 
     private static final Map<Class<? extends Game>, GameInfo> GAME_INFOS = new HashMap<>();
 
@@ -69,7 +68,7 @@ public enum Games {
     }
 
     public static Map<Long, Game> getAll() {
-        return Collections.unmodifiableMap(GAME_REGISTRY);
+        return new HashMap<>(GAME_REGISTRY);
     }
 
     /**

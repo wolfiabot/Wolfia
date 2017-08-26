@@ -30,10 +30,6 @@ public class ShootCommand extends GameCommand {
 
     public static final String COMMAND = "shoot";
 
-    public ShootCommand() {
-        this.mentionRequired = true;
-    }
-
     @Override
     public String help() {
         return Config.PREFIX + COMMAND + " @player"

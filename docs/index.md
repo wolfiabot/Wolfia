@@ -53,10 +53,12 @@ Command    | What it does                                                 | Exam
 
 Command             | What it does                                        | Example usage
 ------------------- | --------------------------------------------------- | -------------
-`w.check`           | check a players alignment                           | `w.check A`
+`w.check`           | check a players alignment                           | `w.check 6`
 `w.shoot`           | shoot another player                                | `w.shoot @player`
 `w.unvote`          | unvote                                              | `w.unvote`
 `w.vote`            | vote a player for lynch                             | `w.vote @player`
+`w.votecount`       | post the current votecount                          | `w.votecount`
+`w.nightkill`       | vote a player for nightkill (in mafia chat only)    | `w.nightkill @player`
 
 
 ### Bot Settings
@@ -91,7 +93,7 @@ Command             | What it does                                        | Exam
 
 ## Mafia
 
-9-26 players
+9+ players
 
 Town ![][t]{:height="15" width="15"} against Mafia ![][m]{:height="15" width="15"}
 

@@ -71,13 +71,13 @@ public class MafiaInfo implements GameInfo {
 
     @Override
     public String getAcceptablePlayerNumbers(final GameMode mode) {
-        return "9 to 26";
+        return "9+";
     }
 
     @Override
     public boolean isAcceptablePlayerCount(final int playerCount, final GameMode mode) {
         if (Config.C.isDebug && playerCount == 4) return true;
-        return 8 < playerCount && playerCount < 27;
+        return 8 < playerCount;
     }
 
     /**

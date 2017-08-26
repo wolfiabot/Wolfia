@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'space.npstr'
-version = '0.8.8_' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
+version = '0.8.9_' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
@@ -24,11 +24,11 @@ repositories {
 
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'net.dv8tion:JDA:3.2.0_241'                                             //discord API
+    compile 'net.dv8tion:JDA:3.2.0_251'                                             //discord API
     compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
     compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
     compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
-    compile 'com.github.napstr:logback-discord-appender:0.0.2'      //log errors to a discord channel through a webhook
+    compile 'com.github.napstr:logback-discord-appender:1.0.0'      //log errors to a discord channel through a webhook
     compile 'com.squareup.okhttp3:okhttp:3.8.1'                                     //http client
 
     //database stuff
@@ -49,6 +49,7 @@ task wrapper(type: Wrapper) {
 processResources {
     filesMatching('**/app.properties') {
         filter {
+            //noinspection GroovyAssignabilityCheck
             it.replace('%APP_VERSION_TOKEN%', version)
         }
     }

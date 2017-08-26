@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands;
 
 
-import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -34,7 +34,7 @@ public abstract class BaseCommand {
     public abstract String help();
 
     //will return a better formatted representation of a commands help
-    public String formatHelp(final Member invoker) {
+    public String formatHelp(final User invoker) {
         return String.format("%s, I did not understand that input. Here's some help:\n%s",
                 invoker.getAsMention(), TextchatUtils.asMarkdown(help()));
     }

@@ -32,6 +32,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 public class Player {
 
     public final long userId;
+    public final long channelId;
     public final long guildId; //guild where the game is running in
     public final Alignments alignment;
     public final Roles role;
@@ -39,8 +40,10 @@ public class Player {
 
     private boolean isAlive = true;
 
-    public Player(final long userId, final long guildId, final Alignments alignment, final Roles role, final int number) {
+    public Player(final long userId, final long channelId, final long guildId, final Alignments alignment,
+                  final Roles role, final int number) {
         this.userId = userId;
+        this.channelId = channelId;
         this.guildId = guildId;
         this.alignment = alignment;
         this.role = role;
@@ -55,6 +58,10 @@ public class Player {
         return this.isAlive;
     }
 
+    public boolean isDead() {
+        return !this.isAlive;
+    }
+
     public boolean isBaddie() {
         return this.alignment == Alignments.WOLF;
     }
@@ -64,16 +71,17 @@ public class Player {
     }
 
     public String getName() {
-        return CachedUser.get(this.userId).getName();
+        return CachedUser.getName(this.userId);
     }
 
     public String getNick() {
-        return CachedUser.get(this.userId).getNick(this.guildId);
+        return CachedUser.getNick(this.userId, this.guildId);
     }
 
     public String getBothNamesFormatted() {
-        final CachedUser cu = CachedUser.get(this.userId);
-        return "**" + cu.getName() + "** aka **" + cu.getNick(this.guildId) + "**";//todo escape these from markdown characters to ensure proper formatting
+        //todo escape these from markdown characters to ensure proper formatting
+        //todo these are the characters to beware of: "*", "_", "`", "~~"
+        return "**" + CachedUser.getName(this.userId) + "** aka **" + CachedUser.getNick(this.userId, this.guildId) + "**";
     }
 
     public String asMention() {
@@ -83,7 +91,7 @@ public class Player {
     /**
      * @return an emoji representing role and alignment of this player
      */
-    public String getCharacterEmoji() {
+    public String getCharakterEmoji() {
         //role specific ones
         if (this.role == Roles.COP) {
             return Emojis.MAGNIFIER;
@@ -95,10 +103,37 @@ public class Player {
         return Emojis.COWBOY;
     }
 
+    public String numberAsEmojis() {
+        final String numberStr = Integer.toString(this.number);
+        final StringBuilder result = new StringBuilder();
+        for (final char c : numberStr.toCharArray()) {
+            final int i = Integer.valueOf(c + "");
+            result.append(Emojis.NUMBERS[i]);
+        }
+        return result.toString();
+    }
+
     public void kill() throws IllegalGameStateException {
         if (!this.isAlive) {
             throw new IllegalGameStateException("Can't kill a dead player");
         }
         this.isAlive = false;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (this.userId ^ (this.userId >>> 32));
+        result = prime * result + (int) (this.channelId ^ (this.channelId >>> 32));
+        result = prime * result + (int) (this.guildId ^ (this.guildId >>> 32));
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof Player)) return false;
+        final Player other = (Player) obj;
+        return this.userId == other.userId && this.channelId == other.channelId;
     }
 }

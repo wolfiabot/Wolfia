@@ -19,6 +19,7 @@ package space.npstr.wolfia.db.entity;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
@@ -45,7 +46,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -71,7 +71,7 @@ public class SetupEntity implements IEntity {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "inned_users")
-    private final Set<Long> innedUsers = new HashSet<>();
+    private final Set<Long> innedUsers = new ConcurrentHashSet<>();
 
     //one of the values of the Games.GAMES enum
     @Column(name = "game")
@@ -133,7 +133,7 @@ public class SetupEntity implements IEntity {
 
     public boolean inUser(final long userId) {
         //cache any inning users
-        CachedUser.get(userId).set(Wolfia.jda.getTextChannelById(this.channelId).getGuild().getMemberById(userId)).save();
+        CachedUser.cache(Wolfia.jda.getTextChannelById(this.channelId).getGuild().getMemberById(userId));
         if (this.innedUsers.contains(userId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s, you have inned already.", TextchatUtils.userAsMention(userId));
             return false;
@@ -238,7 +238,7 @@ public class SetupEntity implements IEntity {
             }
 
             cleanUpInnedPlayers();
-            final Set<Long> inned = Collections.unmodifiableSet(this.innedUsers);
+            final Set<Long> inned = new HashSet<>(this.innedUsers);
             if (!game.isAcceptablePlayerCount(inned.size(), getMode())) {
                 Wolfia.handleOutputMessage(this.channelId,
                         "There aren't enough (or too many) players signed up! Please use `%s%s` for more information",

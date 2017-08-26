@@ -18,8 +18,7 @@
 package space.npstr.wolfia.events;
 
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberNickChangeEvent;
 import net.dv8tion.jda.core.events.guild.update.GuildUpdateIconEvent;
 import net.dv8tion.jda.core.events.guild.update.GuildUpdateNameEvent;
@@ -41,27 +40,24 @@ public class CachingListener extends ListenerAdapter {
 
     @Override
     public void onUserNameUpdate(final UserNameUpdateEvent event) {
-        final User user = event.getUser();
-        CachedUser.get(user.getIdLong())
-                .set(user)
-                .save();
+        CachedUser.cache(event.getUser());
     }
 
     @Override
     public void onGuildMemberNickChange(final GuildMemberNickChangeEvent event) {
-        final Member member = event.getMember();
-        CachedUser.get(member.getUser().getIdLong())
-                .set(member)
-                .save();
+        CachedUser.cache(event.getMember());
     }
 
     //todo a last seen kinda thing for signup auto outing
 
     @Override
     public void onUserAvatarUpdate(final UserAvatarUpdateEvent event) {
-        CachedUser.get(event.getUser().getIdLong())
-                .set(event.getUser())
-                .save();
+        CachedUser.cache(event.getUser());
+    }
+
+    @Override
+    public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
+        CachedUser.cache(event.getMember());
     }
 
     @Override

@@ -56,6 +56,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.DiscordLogger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,6 +118,14 @@ public abstract class Game {
 
     public long getGuildId() {
         return this.guildId;
+    }
+
+    public long getPrivateGuildId() {
+        if (this.wolfChat == null)
+            return -1;
+        else {
+            return this.wolfChat.getId();
+        }
     }
 
     /**
@@ -424,7 +433,7 @@ public abstract class Game {
         int i = 0;
         for (final CharakterSetup.Charakter c : charakterSetup.getRandedCharakters()) {
             final long randedUserId = rand.get(i);
-            this.players.add(new Player(randedUserId, this.guildId, c.alignment, c.role, i + 1));
+            this.players.add(new Player(randedUserId, this.channelId, this.guildId, c.alignment, c.role, i + 1));
             i++;
         }
     }
@@ -639,7 +648,7 @@ public abstract class Game {
     }
 
 
-    protected EmbedBuilder listLivingPlayersWithNumbers() {
+    protected EmbedBuilder listLivingPlayersWithNumbers(final Player... except) {
         final NiceEmbedBuilder neb = new NiceEmbedBuilder();
         final TextChannel tc = Wolfia.jda.getTextChannelById(this.channelId);
         final Guild g = tc.getGuild();
@@ -647,8 +656,11 @@ public abstract class Game {
         neb.setDescription("Game: " + Games.getInfo(this).textRep() + " " + this.mode.textRep + " on " + g.getName() + " in #" + tc.getName());
 
         final NiceEmbedBuilder.ChunkingField list = new NiceEmbedBuilder.ChunkingField("", true);
+        final Set<Player> dontAdd = new HashSet<>(Arrays.asList(except));
         for (final Player p : getLivingPlayers()) {
-            list.add(Emojis.LETTERS[p.number - 1] + " " + p.getBothNamesFormatted(), true);
+            if (!dontAdd.contains(p)) {
+                list.add(p.numberAsEmojis() + " " + p.getBothNamesFormatted(), true);
+            }
         }
         neb.addField(list);
         return neb;

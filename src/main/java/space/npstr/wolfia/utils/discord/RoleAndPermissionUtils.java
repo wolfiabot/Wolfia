@@ -167,7 +167,7 @@ public class RoleAndPermissionUtils {
         } else if (memberOrRole instanceof Member) {
             po = channel.getPermissionOverride((Member) memberOrRole);
         } else {
-            log.warn("Unsupported class of IPermissionHolder detected: {}, returning an empty action" + memberOrRole);
+            log.warn("Unsupported class of IPermissionHolder detected: {}, returning an empty action", memberOrRole);
             return new RestAction.EmptyRestAction<>(Wolfia.jda, null);
         }
 

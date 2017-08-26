@@ -18,7 +18,6 @@
 package space.npstr.wolfia.db.entity;
 
 import net.dv8tion.jda.core.entities.Guild;
-import org.hibernate.annotations.ColumnDefault;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 
@@ -56,11 +55,9 @@ public class EGuild implements IEntity {
     private boolean present = false;
 
     @Column(name = "avatar_url")
-    @ColumnDefault(value = "'http://i.imgur.com/Jm9SIGh.png'") //todo remove
     private String avatarUrl = "http://i.imgur.com/Jm9SIGh.png";
 
     @Column(name = "name")
-    @ColumnDefault(value = "'Uncached Guild'")//todo remove
     private String name = "Uncached Guild";
 
     //for jpa / IEntity

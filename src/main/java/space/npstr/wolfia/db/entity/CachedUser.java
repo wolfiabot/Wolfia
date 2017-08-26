@@ -17,9 +17,10 @@
 
 package space.npstr.wolfia.db.entity;
 
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
-import org.hibernate.annotations.ColumnDefault;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.db.PostgresHStoreConverter;
@@ -50,7 +51,6 @@ public class CachedUser implements IEntity {
     private String name = "Uncached Username";
 
     @Column(name = "avatar_url")
-    @ColumnDefault(value = "'http://i.imgur.com/Jm9SIGh.png'") //todo remove
     private String avatarUrl = "http://i.imgur.com/Jm9SIGh.png";
 
     @Column(name = "nicks", columnDefinition = "hstore")
@@ -61,8 +61,52 @@ public class CachedUser implements IEntity {
     public CachedUser() {
     }
 
-    public static CachedUser get(final long userId) {
+    //always returns the cached object, resulting in a call to the database; for faster lookups consider using hybrid
+    //methods below that try to look up a live user/member first
+    public static CachedUser load(final long userId) {
         return DbWrapper.getOrCreateEntity(userId, CachedUser.class);
+    }
+
+    public static String getName(final long userId) {
+        final User user = Wolfia.jda.getUserById(userId);
+        if (user != null) {
+            return user.getName();
+        } else {
+            return CachedUser.load(userId).name;
+        }
+    }
+
+    public static String getNick(final long userId, final long guildId) {
+        final Guild guild = Wolfia.jda.getGuildById(guildId);
+        if (guild != null) {
+            final Member member = guild.getMemberById(userId);
+            if (member != null) return member.getEffectiveName();
+        }
+
+        return CachedUser.load(userId).getNick(guildId);
+    }
+
+    public static String getAvatarUrl(final long userId) {
+        final User user = Wolfia.jda.getUserById(userId);
+        if (user != null) {
+            return user.getAvatarUrl();
+        } else {
+            return CachedUser.load(userId).avatarUrl;
+        }
+    }
+
+    //call this when you only really want to write data
+    public static CachedUser cache(final Member member) {
+        return CachedUser.load(member.getUser().getIdLong())
+                .set(member)
+                .save();
+    }
+
+    //call this when you only really want to write data
+    public static CachedUser cache(final User user) {
+        return CachedUser.load(user.getIdLong())
+                .set(user)
+                .save();
     }
 
     public CachedUser save() {

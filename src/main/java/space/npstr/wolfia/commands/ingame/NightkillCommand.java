@@ -15,30 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands;
+package space.npstr.wolfia.commands.ingame;
 
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
- * Created by napster on 21.05.17.
- * <p>
- * Game commands are different from regular commands as they can be registered by games.
- * todo some game commands need to work in private channels
- * todo find a decent way to go from private channel -> game that the command belongs to.
- * todo limiting users to only a single ongoing game is an option, but this happens 95% of the time for when there is a
- * todo broken game / game with bad settings and users just want to start a new one, so stopping them from doing that
- * todo would be a frustrating experience
+ * Created by napster on 06.08.17.
  */
-public abstract class GameCommand extends BaseCommand {
+public class NightkillCommand extends GameCommand {
+
+    public static final String COMMAND = "nightkill"; //nk
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
+        //the nightkill command will always be called from a private guild, and only one game is allowed to run in
+        //a private guild at the time
+        Game game = null;
+        for (final Game g : Games.getAll().values()) {
+            if (g.getPrivateGuildId() == commandInfo.event.getGuild().getIdLong()) {
+                game = g;
+                break;
+            }
+        }
 
-        final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
         if (game == null) {
             Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
                     "Hey %s, there is no game currently going on in here.",
@@ -54,10 +60,9 @@ public abstract class GameCommand extends BaseCommand {
         }
     }
 
-    /**
-     * @return whether the provided string is a command trigger or not (like "shoot" for the shoot command for example)
-     */
-    public boolean isCommandTrigger(final String command) {
-        throw new UnsupportedOperationException("isCommandTrigger not implemented for this game command");
+    @Override
+    public String help() {
+        return Config.PREFIX + COMMAND + " @player"
+                + "\n#Vote the mentioned player for nightkill.";
     }
 }

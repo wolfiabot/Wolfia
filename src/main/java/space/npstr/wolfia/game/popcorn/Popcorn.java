@@ -53,9 +53,7 @@ import space.npstr.wolfia.utils.log.DiscordLogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,7 +106,7 @@ public class Popcorn extends Game {
         final NiceEmbedBuilder.ChunkingField living = new NiceEmbedBuilder.ChunkingField("Living Players", true);
         for (final Player p : getLivingPlayers()) {
             if (p.userId == this.gunBearer) {
-                living.add(Emojis.GUN + " " + p.asMention(), true);
+                living.add(Emojis.GUN + " " + p.getBothNamesFormatted(), true);
             } else {
                 living.add(p.asMention(), true);
             }
@@ -479,7 +477,7 @@ public class Popcorn extends Game {
             final Map<String, Player> options = GameUtils.mapToStrings(getLivingVillage(), Arrays.asList(Emojis.LETTERS));
 
             Wolfia.handleOutputMessage(wolfchatChannel, ignored -> Wolfia.handleOutputEmbed(wolfchatChannel,
-                    prepareGunDistributionEmbed(options, Collections.unmodifiableMap(this.votes)).build(), m -> {
+                    prepareGunDistributionEmbed(options, new HashMap<>(this.votes)).build(), m -> {
                         options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, Wolfia.defaultOnFail));
                         Wolfia.jda.addEventListener(new ReactionListener(m,
                                 //filter: only living wolves may vote
@@ -490,10 +488,10 @@ public class Popcorn extends Game {
                                     if (p == null) return;
                                     voted(reactionEvent.getUser().getIdLong(), p.userId);
                                     m.editMessage(prepareGunDistributionEmbed(options,
-                                            Collections.unmodifiableMap(this.votes)).build()).queue(null, Wolfia.defaultOnFail);
+                                            new HashMap<>(this.votes)).build()).queue(null, Wolfia.defaultOnFail);
                                 },
                                 TIME_TO_DISTRIBUTE_GUN_MILLIS,
-                                aVoid -> endDistribution(Collections.unmodifiableMap(this.votes),
+                                aVoid -> endDistribution(new HashMap<>(this.votes),
                                         GunDistributionEndReason.TIMER)
                         ));
                     }),
@@ -509,7 +507,7 @@ public class Popcorn extends Game {
             this.votes.put(voter, candidate);
             //has everyone voted?
             if (this.votes.size() == getLivingWolves().size()) {
-                endDistribution(Collections.unmodifiableMap(this.votes), GunDistributionEndReason.EVERYONE_VOTED);
+                endDistribution(new HashMap<>(this.votes), GunDistributionEndReason.EVERYONE_VOTED);
             }
         }
 
@@ -526,7 +524,7 @@ public class Popcorn extends Game {
             votesCopy.forEach((voter, candidate) ->
                     Popcorn.this.gameStats.addAction(simpleAction(voter, Actions.VOTEGUN, candidate)));
 
-            final long getsGun = GameUtils.mostVoted(votesCopy, getLivingVillageIds());
+            final long getsGun = GameUtils.rand(GameUtils.mostVoted(votesCopy, getLivingVillageIds()));
             String out = "";
             if (reason == GunDistributionEndReason.TIMER) {
                 out = "Time ran out!";

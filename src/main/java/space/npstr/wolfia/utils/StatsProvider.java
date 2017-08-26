@@ -19,7 +19,6 @@ package space.npstr.wolfia.utils;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
@@ -210,8 +209,8 @@ public class StatsProvider {
         eb.setThumbnail(cachedGuild.getAvatarUrl());
 
         final long totalGames = collectedValues.get(-1).get(0);
-        if (totalGames <= 0 && guild == null) {
-            eb.setTitle(String.format("Guild with id `%s` does not exist in my database.", guildId));
+        if (totalGames <= 0) {
+            eb.setTitle(String.format("There have no games been played in the guild (id `%s`).", guildId));
             return eb;
         }
 
@@ -269,13 +268,11 @@ public class StatsProvider {
 
         //add them to the embed
         final EmbedBuilder eb = new EmbedBuilder();
-        final User user = Wolfia.jda.getUserById(userId);
-        final CachedUser cu = CachedUser.get(userId).set(user).save();
-        eb.setTitle(cu.getName() + "'s Wolfia stats");
-        eb.setThumbnail(cu.getAvatarUrl());
+        eb.setTitle(CachedUser.getName(userId) + "'s Wolfia stats");
+        eb.setThumbnail(CachedUser.getAvatarUrl(userId));
 
-        if (totalGamesByUser <= 0 && user == null) {
-            eb.setTitle(String.format("User with id `%s` does not exist in my database.", userId));
+        if (totalGamesByUser <= 0) {
+            eb.setTitle(String.format("User (id `%s`) hasn't played any games.", userId));
             return eb;
         }
 

@@ -12,9 +12,11 @@ import space.npstr.wolfia.commands.game.SetupCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
+import space.npstr.wolfia.commands.ingame.NightkillCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
+import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.commands.stats.BotStatsCommand;
 import space.npstr.wolfia.commands.stats.GuildStatsCommand;
 import space.npstr.wolfia.commands.stats.UserStatsCommand;
@@ -47,6 +49,8 @@ public class CommandsCommand extends BaseCommand {
                 + Config.PREFIX + ShootCommand.COMMAND + "\n"
                 + Config.PREFIX + UnvoteCommand.COMMAND + "\n"
                 + Config.PREFIX + VoteCommand.COMMAND + "\n"
+                + Config.PREFIX + VoteCountCommand.COMMAND + "\n"
+                + Config.PREFIX + NightkillCommand.COMMAND + "\n"
                 ;
 
         final String settingsCommands =

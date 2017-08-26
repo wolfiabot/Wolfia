@@ -15,8 +15,8 @@ public class CheckCommand extends GameCommand {
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " [A-Z]"
-                + "\n#Check the player. Make sure to use the provided letters.";
+        return Config.PREFIX + COMMAND + " number"
+                + "\n#Check the player. Make sure to use the player's number.";
     }
 
     @Override

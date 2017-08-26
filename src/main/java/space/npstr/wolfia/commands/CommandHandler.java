@@ -39,9 +39,11 @@ import space.npstr.wolfia.commands.game.SetupCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
+import space.npstr.wolfia.commands.ingame.NightkillCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
+import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.commands.stats.BotStatsCommand;
 import space.npstr.wolfia.commands.stats.GuildStatsCommand;
 import space.npstr.wolfia.commands.stats.UserStatsCommand;
@@ -58,6 +60,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Created by napster on 12.05.17.
@@ -86,6 +89,8 @@ public class CommandHandler {
         COMMAND_REGISTRY.put(VoteCommand.COMMAND, new VoteCommand());
         COMMAND_REGISTRY.put(UnvoteCommand.COMMAND, new UnvoteCommand());
         COMMAND_REGISTRY.put(CheckCommand.COMMAND, new CheckCommand());
+        COMMAND_REGISTRY.put(VoteCountCommand.COMMAND, new VoteCountCommand());
+        COMMAND_REGISTRY.put(NightkillCommand.COMMAND, new NightkillCommand());
 
         //stats commands
         COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
@@ -116,7 +121,12 @@ public class CommandHandler {
         return COMMAND_REGISTRY.get(input);
     }
 
-    public static void handleCommand(final CommandParser.CommandContainer commandInfo) {
+    /**
+     * @param commandInfo the parsed input of a user
+     * @param filter      a filter, so that the source of the call can control which commands should be handled (or not)
+     *                    the predicate should return true if the command should be handled and false otherwise
+     */
+    public static void handleCommand(final CommandParser.CommandContainer commandInfo, final Predicate<BaseCommand> filter) {
         try {
             final BaseCommand command = COMMAND_REGISTRY.get(commandInfo.command);
             if (command == null) {
@@ -131,6 +141,13 @@ public class CommandHandler {
             if (command instanceof IOwnerRestricted && !App.isOwner(commandInfo.event.getAuthor())) {
                 //not the bot owner
                 log.info("user {}, channel {}, attempted issuing owner restricted command: {}",
+                        commandInfo.event.getAuthor().getIdLong(),
+                        commandInfo.event.getChannel().getIdLong(),
+                        commandInfo.raw);
+                return;
+            }
+            if (!filter.test(command)) {
+                log.info("user {}, channel {}, command: {} was filtered and will not be executed",
                         commandInfo.event.getAuthor().getIdLong(),
                         commandInfo.event.getChannel().getIdLong(),
                         commandInfo.raw);

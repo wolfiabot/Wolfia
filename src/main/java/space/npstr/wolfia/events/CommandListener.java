@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
+import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.util.HelpCommand;
@@ -54,6 +55,10 @@ public class CommandListener extends ListenerAdapter {
         this.IGNORED_GUILDS.add(guildId);
     }
 
+    public static ExecutorService getCommandExecutor() {
+        return commandExecutor;
+    }
+
     //sort the checks here approximately by widest and cheapest filters higher up, and put expensive filters lower
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
@@ -68,7 +73,7 @@ public class CommandListener extends ListenerAdapter {
             return;
         }
 
-        //update user stats
+        //update user stats todo this needs to be added to game related messages sent in private channels and private guilds
         final Game g = Games.get(event.getChannel().getIdLong());
         if (g != null) g.userPosted(event.getMessage());
 
@@ -94,7 +99,12 @@ public class CommandListener extends ListenerAdapter {
         }
 
         log.info("user {}, channel {}, command {}", event.getAuthor().getIdLong(), event.getChannel().getIdLong(), event.getMessage().getRawContent());
-        commandExecutor.submit(() -> CommandHandler.handleCommand(CommandParser.parse(raw, event, received)));
+        final CommandParser.CommandContainer commandInfo = CommandParser.parse(raw, event, received);
+        commandExecutor.submit(() -> CommandHandler.handleCommand(commandInfo, this::filter));
+    }
+
+    private boolean filter(final BaseCommand command) {
+        return true; //allow all commands from the command listener
     }
 
     @Override

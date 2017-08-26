@@ -16,6 +16,10 @@ import space.npstr.wolfia.game.mafia.Mafia;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Listens for commands in a private channels. Current limitation: Playing more than one game there is no way to limit
+ * the issuing of a commands that is valid for both games to only one of them.
+ */
 public class PrivateChannelListener extends ListenerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(Mafia.class);
