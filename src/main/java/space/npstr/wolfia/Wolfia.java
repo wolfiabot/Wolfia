@@ -370,7 +370,11 @@ public class Wolfia {
             log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
                     "error log spam. Fix your code please.");
         }
-        jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
+        try {
+            jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
+        } catch (final Exception e) {
+            if (onFail != null) onFail.accept(e);
+        }
     }
 
     public static void handlePrivateOutputMessage(final long userId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
@@ -378,7 +382,11 @@ public class Wolfia {
             log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
                     "error log spam. Fix your code please.");
         }
-        jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onSuccess, onFail, msg, args), onFail);
+        try {
+            jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onSuccess, onFail, msg, args), onFail);
+        } catch (final Exception e) {
+            if (onFail != null) onFail.accept(e);
+        }
     }
 
     public static void handlePrivateOutputEmbed(final long userId, final Consumer<Throwable> onFail, final MessageEmbed messageEmbed) {
@@ -386,7 +394,11 @@ public class Wolfia {
             log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
                     "error log spam. Fix your code please.");
         }
-        jda.getUserById(userId).openPrivateChannel().queue((privateChannel -> Wolfia.handleOutputEmbed(false, privateChannel, messageEmbed, null, onFail)));
+        try {
+            jda.getUserById(userId).openPrivateChannel().queue((privateChannel -> Wolfia.handleOutputEmbed(false, privateChannel, messageEmbed, null, onFail)));
+        } catch (final Exception e) {
+            if (onFail != null) onFail.accept(e);
+        }
     }
 
 
