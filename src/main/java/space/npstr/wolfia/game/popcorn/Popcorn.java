@@ -105,19 +105,19 @@ public class Popcorn extends Game {
         neb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
 
         final NiceEmbedBuilder.ChunkingField living = new NiceEmbedBuilder.ChunkingField("Living Players", true);
-        for (final Player p : getLivingPlayers()) {
-            if (p.userId == this.gunBearer) {
-                living.add(Emojis.GUN + " " + p.getBothNamesFormatted(), true);
-            } else {
-                living.add(p.asMention(), true);
-            }
-        }
+        getLivingPlayers().forEach(p -> living.add(p.numberAsEmojis() + " " + p.getBothNamesFormatted(), true));
         neb.addField(living);
 
         final StringBuilder sb = new StringBuilder();
         getLivingWolves().forEach(w -> sb.append(Emojis.WOLF));
         neb.addField("Living wolves", sb.toString(), true);
-        neb.addField(Emojis.GUN + " holder", TextchatUtils.userAsMention(this.gunBearer), true);
+
+        String gunHolder = "Unknown " + Emojis.WOLFTHINK;
+        try {
+            gunHolder = getPlayer(this.gunBearer).getBothNamesFormatted();
+        } catch (final IllegalGameStateException ignored) {
+        }
+        neb.addField(Emojis.GUN + " holder", gunHolder, true);
 
         return neb;
     }
@@ -233,8 +233,9 @@ public class Popcorn extends Game {
             throws IllegalGameStateException {
         if (command instanceof ShootCommand) {
             final long shooter = commandInfo.event.getAuthor().getIdLong();
-            final long target = commandInfo.event.getMessage().getMentionedUsers().get(0).getIdLong();
-            return shoot(shooter, target);
+            final Player target = GameUtils.identifyPlayer(this.players, commandInfo);
+            if (target == null) return false;
+            return shoot(shooter, target.userId);
         } else {
             Wolfia.handleOutputMessage(this.channelId, "%s, the '%s' command is not part of this game.",
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()), commandInfo.command);

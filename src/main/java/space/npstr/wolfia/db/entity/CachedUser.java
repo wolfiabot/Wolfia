@@ -121,10 +121,11 @@ public class CachedUser implements IEntity {
         final CachedUser cu = this.set(member.getUser());
 
         final String nick = member.getNickname();
-        if (nick != null)
-            return cu.setNick(member.getGuild().getIdLong(), member.getNickname());
-
-        return cu;
+        if (nick != null) {
+            return cu.setNick(member.getGuild().getIdLong(), nick);
+        } else {
+            return cu.removeNick(member.getGuild().getIdLong());
+        }
     }
 
     @CheckReturnValue
@@ -168,6 +169,12 @@ public class CachedUser implements IEntity {
     @CheckReturnValue
     public CachedUser setNick(final long guildId, final String nick) {
         this.nicks.put(Long.toString(guildId), nick);
+        return this;
+    }
+
+    @CheckReturnValue
+    public CachedUser removeNick(final long guildId) {
+        this.nicks.remove(Long.toString(guildId));
         return this;
     }
 

@@ -81,7 +81,14 @@ public class Player {
     public String getBothNamesFormatted() {
         //todo escape these from markdown characters to ensure proper formatting
         //todo these are the characters to beware of: "*", "_", "`", "~~"
-        return "**" + CachedUser.getName(this.userId) + "** aka **" + CachedUser.getNick(this.userId, this.guildId) + "**";
+        final CachedUser cu = CachedUser.load(this.userId);
+        final String name = cu.getName();
+        final String nick = cu.getNick(this.guildId);
+        if (name.equals(nick)) {
+            return "**" + name + "**";
+        } else {
+            return "**" + nick + "** aka **" + name + "**";
+        }
     }
 
     public String asMention() {
