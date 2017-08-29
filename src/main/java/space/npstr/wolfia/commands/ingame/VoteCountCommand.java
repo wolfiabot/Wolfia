@@ -25,11 +25,13 @@ import space.npstr.wolfia.commands.GameCommand;
  */
 public class VoteCountCommand extends GameCommand {
 
-    public static final String COMMAND = "votecount";
+    public VoteCountCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND
+        return Config.PREFIX + getMainTrigger()
                 + "\n#Post the current votecount.";
     }
 }

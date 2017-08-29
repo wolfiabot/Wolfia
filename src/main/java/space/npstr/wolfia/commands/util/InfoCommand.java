@@ -36,11 +36,13 @@ import static space.npstr.wolfia.Wolfia.jda;
  */
 public class InfoCommand extends BaseCommand {
 
-    public static final String COMMAND = "info";
+    public InfoCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND
+        return Config.PREFIX + getMainTrigger()
                 + "\n#Show some statistics about this bot.";
     }
 

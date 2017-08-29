@@ -40,16 +40,18 @@ import java.util.concurrent.TimeUnit;
  */
 public class SetupCommand extends BaseCommand {
 
-    public static final String COMMAND = "setup";
+    public SetupCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " [key value]"
+        return Config.PREFIX + getMainTrigger() + " [key value]"
                 + "\n#Set up games in this channel or show the current setup. Examples:\n"
-                + "  " + Config.PREFIX + COMMAND + " game Mafia\n"
-                + "  " + Config.PREFIX + COMMAND + " mode Classic\n"
-                + "  " + Config.PREFIX + COMMAND + " daylength 3\n"
-                + "  " + Config.PREFIX + COMMAND;
+                + "  " + Config.PREFIX + getMainTrigger() + " game Mafia\n"
+                + "  " + Config.PREFIX + getMainTrigger() + " mode Classic\n"
+                + "  " + Config.PREFIX + getMainTrigger() + " daylength 3\n"
+                + "  " + Config.PREFIX + getMainTrigger();
     }
 
     @Override

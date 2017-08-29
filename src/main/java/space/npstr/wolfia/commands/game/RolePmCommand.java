@@ -32,11 +32,13 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  */
 public class RolePmCommand extends BaseCommand {
 
-    public static final String COMMAND = "rolepm";
+    public RolePmCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND
+        return Config.PREFIX + getMainTrigger()
                 + "\n#Send your role for the ongoing game in a private message.";
     }
 

@@ -41,15 +41,17 @@ import java.util.List;
  */
 public class ChannelSettingsCommand extends BaseCommand {
 
-    public static final String COMMAND = "channelsettings";
+    public ChannelSettingsCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " [key value]"
+        return Config.PREFIX + getMainTrigger() + " [key value]"
                 + "\n#Change or show settings for this channel. Examples:"
-                + "\n  " + Config.PREFIX + COMMAND + " accessrole @Mafiaplayer"
-                + "\n  " + Config.PREFIX + COMMAND + " tagcooldown 3"
-                + "\n  " + Config.PREFIX + COMMAND;
+                + "\n  " + Config.PREFIX + getMainTrigger() + " accessrole @Mafiaplayer"
+                + "\n  " + Config.PREFIX + getMainTrigger() + " tagcooldown 3"
+                + "\n  " + Config.PREFIX + getMainTrigger();
     }
 
     @Override
@@ -77,7 +79,7 @@ public class ChannelSettingsCommand extends BaseCommand {
 
         //at least 2 arguments?
         if (commandInfo.args.length < 2) {
-            Wolfia.handleOutputMessage(channel, "%s", help());
+            commandInfo.reply(formatHelp(invoker.getUser()));
             return false;
         }
 

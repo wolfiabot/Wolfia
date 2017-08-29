@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -187,7 +188,7 @@ public class Popcorn extends Game {
                     e -> Wolfia.handleOutputMessage(channel,
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                     "and/or unblock me, then issue `%s%s` to receive your role PM.",
-                            player.asMention(), Config.PREFIX, RolePmCommand.COMMAND),
+                            player.asMention(), Config.PREFIX, CommandHandler.mainTrigger(RolePmCommand.class)),
                     "%s", rolePm.toString()
             );
             this.rolePMs.put(player.userId, rolePm.toString());

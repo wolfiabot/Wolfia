@@ -70,6 +70,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static space.npstr.wolfia.commands.CommandHandler.mainTrigger;
+
 /**
  * Created by napster on 02.07.17.
  * <p>
@@ -100,13 +102,13 @@ public class Mafia extends Game {
             .header("Day ends in **%timeleft** with a lynch.")
             .notes(String.format("**Use `%s` to cast a vote on a player.**"
                     + "\nOnly your last vote will be counted."
-                    + "\nMajority is enabled.", Config.PREFIX + VoteCommand.COMMAND));
+                    + "\nMajority is enabled.", Config.PREFIX + mainTrigger(VoteCommand.class)));
 
     private final VotingBuilder nightKillVotingBuilder = new VotingBuilder()
             .unvoteEmoji(Emojis.X)
             .header("Night ends in **%timeleft**.")
             .notes(String.format("**Use `%s` to cast a vote on a player.**"
-                    + "\nOnly your last vote will be counted.", Config.PREFIX + NightkillCommand.COMMAND));
+                    + "\nOnly your last vote will be counted.", Config.PREFIX + mainTrigger(NightkillCommand.class)));
 
     @Override
     public void setDayLength(final long dayLength, final TimeUnit timeUnit) {
@@ -188,7 +190,7 @@ public class Mafia extends Game {
                     e -> Wolfia.handleOutputMessage(channel,
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                     "and/or unblock me, then issue `%s%s` to receive your role PM.",
-                            player.asMention(), Config.PREFIX, RolePmCommand.COMMAND),
+                            player.asMention(), Config.PREFIX, mainTrigger(RolePmCommand.class)),
                     "%s", rolePm.toString()
             );
             this.rolePMs.put(player.userId, rolePm.toString());
@@ -415,7 +417,7 @@ public class Mafia extends Game {
         final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
         Wolfia.handleOutputMessage(channel, "Day %s started! You have %s minutes to discuss. You may vote a player for lynch with `%s`."
                         + "\nIf a player is voted by more than half the living players (majority), they will be lynched immediately!",
-                this.cycle, this.dayLengthMillis / 60000, Config.PREFIX + VoteCommand.COMMAND);
+                this.cycle, this.dayLengthMillis / 60000, Config.PREFIX + mainTrigger(VoteCommand.class));
         for (final Player player : living) {
             RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
                     Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);
@@ -561,13 +563,13 @@ public class Mafia extends Game {
                 final String out = String.format("**You are a cop. Use `%s [name or number]` to check the alignment of a player.**\n" +
                                 "You will receive the result at the end of the night for the last submitted target. " +
                                 "If you do not submit a check, it will be randed.",
-                        Config.PREFIX + CheckCommand.COMMAND);
+                        Config.PREFIX + mainTrigger(CheckCommand.class));
                 livingPlayersWithNumbers.addField("", out, false);
                 final Collection<Long> randCopTargets = getLivingPlayerIds();
                 randCopTargets.remove(p.userId);//dont randomly check himself
                 this.nightActions.put(p, simpleAction(p.userId, Actions.CHECK, GameUtils.rand(randCopTargets)));//preset a random action
                 Wolfia.handlePrivateOutputEmbed(p.userId, Wolfia.defaultOnFail, livingPlayersWithNumbers.build());
-                new PrivateChannelListener(p.userId, this.nightLengthMillis, this, new CheckCommand());
+                new PrivateChannelListener(p.userId, this.nightLengthMillis, this, new CheckCommand("check"));//todo uniform listeners
             }
         }
     }

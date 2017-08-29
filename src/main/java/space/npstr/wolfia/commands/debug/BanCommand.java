@@ -43,7 +43,9 @@ import java.util.stream.Collectors;
  */
 public class BanCommand extends BaseCommand implements IOwnerRestricted {
 
-    public static final String COMMAND = "ban";
+    public BanCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {

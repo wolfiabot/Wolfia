@@ -27,11 +27,13 @@ import space.npstr.wolfia.commands.GameCommand;
  */
 public class VoteCommand extends GameCommand {
 
-    public static final String COMMAND = "vote";
+    public VoteCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " @player"
+        return Config.PREFIX + getMainTrigger() + " @player"
                 + "\n#Vote the mentioned player for lynch.";
     }
 }

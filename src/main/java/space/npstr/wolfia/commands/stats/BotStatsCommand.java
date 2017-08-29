@@ -30,11 +30,14 @@ import space.npstr.wolfia.utils.StatsProvider;
  * Show stats of the whole bot
  */
 public class BotStatsCommand extends BaseCommand {
-    public static final String COMMAND = "botstats";
+
+    public BotStatsCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND
+        return Config.PREFIX + getMainTrigger()
                 + "\n#Show game stats for all games ever played with Wolfia.";
     }
 

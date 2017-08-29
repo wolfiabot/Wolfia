@@ -47,7 +47,6 @@ import java.util.concurrent.TimeoutException;
  */
 public class EvalCommand extends BaseCommand implements IOwnerRestricted {
 
-    public static final String COMMAND = "eval";
     private static final Logger log = LoggerFactory.getLogger(EvalCommand.class);
 
     private Future lastTask;
@@ -55,7 +54,8 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
     //Thanks Fred & Dinos!
     private final ScriptEngine engine;
 
-    public EvalCommand() {
+    public EvalCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
         this.engine = new ScriptEngineManager().getEngineByName("nashorn");
         try {
             this.engine.eval("var imports = new JavaImporter("

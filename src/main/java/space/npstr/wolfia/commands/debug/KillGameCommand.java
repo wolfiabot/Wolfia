@@ -32,7 +32,9 @@ import java.util.Arrays;
  */
 public class KillGameCommand extends BaseCommand implements IOwnerRestricted {
 
-    public static final String COMMAND = "killgame";
+    public KillGameCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {

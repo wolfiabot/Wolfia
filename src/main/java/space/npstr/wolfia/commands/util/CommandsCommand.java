@@ -22,13 +22,17 @@ import space.npstr.wolfia.commands.stats.GuildStatsCommand;
 import space.npstr.wolfia.commands.stats.UserStatsCommand;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
+import static space.npstr.wolfia.commands.CommandHandler.mainTrigger;
+
 public class CommandsCommand extends BaseCommand {
 
-    public static final String COMMAND = "commands";
+    public CommandsCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND
+        return Config.PREFIX + getMainTrigger()
                 + "\n#Show all available commands.";
     }
 
@@ -36,38 +40,39 @@ public class CommandsCommand extends BaseCommand {
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
         //@formatter:off
         final String gameCommands = ""
-                + Config.PREFIX + InCommand.COMMAND + "\n"
-                + Config.PREFIX + OutCommand.COMMAND + "\n"
-                + Config.PREFIX + SetupCommand.COMMAND + "\n"
-                + Config.PREFIX + StartCommand.COMMAND + "\n"
-                + Config.PREFIX + RolePmCommand.COMMAND + "\n"
-                + Config.PREFIX + StatusCommand.COMMAND + "\n"
+                + Config.PREFIX + mainTrigger(InCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(OutCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(SetupCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(StartCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(RolePmCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(StatusCommand.class) + "\n"
                 ;
 
         final String ingameCommands = ""
-                + Config.PREFIX + CheckCommand.COMMAND + "\n"
-                + Config.PREFIX + ShootCommand.COMMAND + "\n"
-                + Config.PREFIX + UnvoteCommand.COMMAND + "\n"
-                + Config.PREFIX + VoteCommand.COMMAND + "\n"
-                + Config.PREFIX + VoteCountCommand.COMMAND + "\n"
-                + Config.PREFIX + NightkillCommand.COMMAND + "\n"
+                + Config.PREFIX + mainTrigger(CheckCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(ShootCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(UnvoteCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(VoteCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(VoteCountCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(NightkillCommand.class) + "\n"
                 ;
 
         final String settingsCommands =
-                Config.PREFIX + ChannelSettingsCommand.COMMAND;
+                  Config.PREFIX + mainTrigger(ChannelSettingsCommand.class)
+                ;
 
         final String statsCommands = ""
-                + Config.PREFIX + UserStatsCommand.COMMAND + "\n"
-                + Config.PREFIX + GuildStatsCommand.COMMAND + "\n"
-                + Config.PREFIX + BotStatsCommand.COMMAND + "\n"
+                + Config.PREFIX + mainTrigger(UserStatsCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(GuildStatsCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(BotStatsCommand.class) + "\n"
                 ;
 
         final String otherCommands = ""
-                + Config.PREFIX + CommandsCommand.COMMAND + "\n"
-                + Config.PREFIX + HelpCommand.COMMAND + "\n"
-                + Config.PREFIX + InfoCommand.COMMAND + "\n"
-                + Config.PREFIX + ReplayCommand.COMMAND + "\n"
-                + Config.PREFIX + TagCommand.COMMAND + "\n"
+                + Config.PREFIX + mainTrigger(CommandsCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(HelpCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(InfoCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(ReplayCommand.class) + "\n"
+                + Config.PREFIX + mainTrigger(TagCommand.class) + "\n"
                 ;
         //@formatter:on
 
@@ -81,7 +86,8 @@ public class CommandsCommand extends BaseCommand {
         eb.addField("Other Commands", otherCommands, true);
         eb.addBlankField(true);
 
-        eb.addField("", "**Head over to** " + link + " **for the full commands reference**", false);
+        eb.addField("", "**Head over to** " + link + " **for the full commands reference" +
+                " or run **`w.help [command]`** for detailed information on a command.**", false);
 
         commandInfo.reply(eb.build());
         return true;

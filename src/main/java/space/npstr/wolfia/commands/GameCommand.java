@@ -35,6 +35,10 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  */
 public abstract class GameCommand extends BaseCommand {
 
+    public GameCommand(final String trigger, final String... triggers) {
+        super(trigger, triggers);
+    }
+
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
 

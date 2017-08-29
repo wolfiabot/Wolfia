@@ -37,8 +37,11 @@ import javax.persistence.EntityManager;
  */
 public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
 
+    public DbTestCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
+
     private static final Logger log = LoggerFactory.getLogger(DbTestCommand.class);
-    public static final String COMMAND = "dbtest";
 
     private enum Result {WORKING, SUCCESS, FAILED}
 
@@ -49,7 +52,7 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " [n m]\n#Stress test the database with n threads each doing m operations. Results will be shown after max 10 minutes.";
+        return Config.PREFIX + getMainTrigger() + " [n m]\n#Stress test the database with n threads each doing m operations. Results will be shown after max 10 minutes.";
     }
 
     @Override

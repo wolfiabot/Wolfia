@@ -33,12 +33,13 @@ import space.npstr.wolfia.db.entity.SetupEntity;
  */
 public class OutCommand extends BaseCommand {
 
-    public static final String COMMAND = "out";
-
+    public OutCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " [@user]"
+        return Config.PREFIX + getMainTrigger() + " [@user]"
                 + "\n#Remove you from the current signup list. Moderators can out other players by mentioning them.";
     }
 

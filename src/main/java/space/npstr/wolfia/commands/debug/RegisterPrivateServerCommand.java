@@ -41,7 +41,9 @@ import java.io.IOException;
  */
 public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerRestricted {
 
-    public static final String COMMAND = "register";
+    public RegisterPrivateServerCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     private static final Logger log = LoggerFactory.getLogger(RegisterPrivateServerCommand.class);
 

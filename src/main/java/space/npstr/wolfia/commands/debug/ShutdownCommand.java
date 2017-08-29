@@ -34,7 +34,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class ShutdownCommand extends BaseCommand implements IOwnerRestricted {
 
-    public static final String COMMAND = "shutdown";
+    public ShutdownCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
+
     private static final Logger log = LoggerFactory.getLogger(ShutdownCommand.class);
 
     private static boolean shutdownInitiated = false;

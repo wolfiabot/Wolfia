@@ -34,13 +34,16 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  */
 public class InCommand extends BaseCommand {
 
-    public static final String COMMAND = "in";
 //    private final int MAX_SIGNUP_TIME = 10 * 60; //10h
+
+    public InCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND +
-                "\n#Add you to the signup list for this channel. You will play in the next starting game.";
+        return Config.PREFIX + getMainTrigger()
+                + "\n#Add you to the signup list for this channel. You will play in the next starting game.";
     }
 
     @Override

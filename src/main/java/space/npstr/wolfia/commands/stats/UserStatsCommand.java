@@ -33,16 +33,17 @@ import space.npstr.wolfia.utils.StatsProvider;
  */
 public class UserStatsCommand extends BaseCommand {
 
-    public static final String COMMAND = "userstats";
-
+    public UserStatsCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " [@user or user ID]"
+        return Config.PREFIX + getMainTrigger() + " [@user or user ID]"
                 + "\n#Show game stats for yourself or another a user. Examples:"
-                + "\n  " + Config.PREFIX + COMMAND
-                + "\n  " + Config.PREFIX + COMMAND + " @Napster"
-                + "\n  " + Config.PREFIX + COMMAND + " 166604053629894657";
+                + "\n  " + Config.PREFIX + getMainTrigger()
+                + "\n  " + Config.PREFIX + getMainTrigger() + " @Napster"
+                + "\n  " + Config.PREFIX + getMainTrigger() + " 166604053629894657";
     }
 
     @Override

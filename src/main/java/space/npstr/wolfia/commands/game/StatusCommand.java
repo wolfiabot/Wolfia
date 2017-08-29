@@ -36,11 +36,13 @@ import space.npstr.wolfia.game.definitions.Games;
  */
 public class StatusCommand extends BaseCommand {
 
-    public static final String COMMAND = "status";
+    public StatusCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND
+        return Config.PREFIX + getMainTrigger()
                 + "\n#Post the current game status or sign up list.";
     }
 

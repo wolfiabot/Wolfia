@@ -46,16 +46,18 @@ import java.util.stream.Collectors;
  */
 public class ReplayCommand extends BaseCommand {
 
-    private static final Logger log = LoggerFactory.getLogger(ReplayCommand.class);
+    public ReplayCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
-    public static final String COMMAND = "replay";
+    private static final Logger log = LoggerFactory.getLogger(ReplayCommand.class);
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " #gameid"
+        return Config.PREFIX + getMainTrigger() + " #gameid"
                 + "\n#Show the replay of a game. Examples:"
-                + "\n  " + Config.PREFIX + COMMAND + " #69"
-                + "\n  " + Config.PREFIX + COMMAND + " 5000";
+                + "\n  " + Config.PREFIX + getMainTrigger() + " #69"
+                + "\n  " + Config.PREFIX + getMainTrigger() + " 5000";
     }
 
     @Override

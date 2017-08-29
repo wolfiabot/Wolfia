@@ -31,11 +31,13 @@ import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
  */
 public class StartCommand extends BaseCommand {
 
-    public final static String COMMAND = "start";
+    public StartCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND
+        return Config.PREFIX + getMainTrigger()
                 + "\n#Start the game. Game will only start if enough players have signed up.";
     }
 

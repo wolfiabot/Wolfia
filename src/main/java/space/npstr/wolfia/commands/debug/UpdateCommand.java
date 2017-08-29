@@ -30,7 +30,10 @@ import space.npstr.wolfia.game.definitions.Games;
  */
 public class UpdateCommand extends BaseCommand implements IOwnerRestricted {
 
-    public static final String COMMAND = "update";
+    public UpdateCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
+
     private static boolean reminded = false;
 
     @Override

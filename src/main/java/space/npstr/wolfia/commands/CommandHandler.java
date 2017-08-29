@@ -75,50 +75,73 @@ public class CommandHandler {
 
     private static final Map<String, BaseCommand> COMMAND_REGISTRY = new HashMap<>();
 
+    private static void registerCommand(final BaseCommand command) {
+        for (final String trigger : command.commandTriggers()) {
+            if (COMMAND_REGISTRY.containsKey(trigger)) {
+                log.error("Duplicate command trigger: {}", trigger);
+            }
+            COMMAND_REGISTRY.put(trigger, command);
+        }
+    }
+
     static {
+        //@formatter:off
+
         //game related commands
-        COMMAND_REGISTRY.put(InCommand.COMMAND, new InCommand());
-        COMMAND_REGISTRY.put(OutCommand.COMMAND, new OutCommand());
-        COMMAND_REGISTRY.put(RolePmCommand.COMMAND, new RolePmCommand());
-        COMMAND_REGISTRY.put(SetupCommand.COMMAND, new SetupCommand());
-        COMMAND_REGISTRY.put(StartCommand.COMMAND, new StartCommand());
-        COMMAND_REGISTRY.put(StatusCommand.COMMAND, new StatusCommand());
+        registerCommand(new InCommand                        ("in", "join"));
+        registerCommand(new OutCommand                       ("out", "leave"));
+        registerCommand(new RolePmCommand                    ("rolepm", "rpm"));
+        registerCommand(new SetupCommand                     ("setup"));
+        registerCommand(new StartCommand                     ("start"));
+        registerCommand(new StatusCommand                    ("status"));
 
         //ingame commands
-        COMMAND_REGISTRY.put(ShootCommand.COMMAND, new ShootCommand());
-        COMMAND_REGISTRY.put(VoteCommand.COMMAND, new VoteCommand());
-        COMMAND_REGISTRY.put(UnvoteCommand.COMMAND, new UnvoteCommand());
-        COMMAND_REGISTRY.put(CheckCommand.COMMAND, new CheckCommand());
-        COMMAND_REGISTRY.put(VoteCountCommand.COMMAND, new VoteCountCommand());
-        COMMAND_REGISTRY.put(NightkillCommand.COMMAND, new NightkillCommand());
+        registerCommand(new ShootCommand                     ("shoot", "s", "blast"));
+        registerCommand(new VoteCommand                      ("vote", "v", "lynch"));
+        registerCommand(new UnvoteCommand                    ("unvote", "u", "uv"));
+        registerCommand(new CheckCommand                     ("check"));
+        registerCommand(new VoteCountCommand                 ("votecount", "vc"));
+        registerCommand(new NightkillCommand                 ("nightkill", "nk"));
 
         //stats commands
-        COMMAND_REGISTRY.put(BotStatsCommand.COMMAND, new BotStatsCommand());
-        COMMAND_REGISTRY.put(GuildStatsCommand.COMMAND, new GuildStatsCommand());
-        COMMAND_REGISTRY.put(UserStatsCommand.COMMAND, new UserStatsCommand());
+        registerCommand(new BotStatsCommand                  ("botstats"));
+        registerCommand(new GuildStatsCommand                ("guildstats"));
+        registerCommand(new UserStatsCommand                 ("userstats"));
 
         //util commands
-        COMMAND_REGISTRY.put(ChannelSettingsCommand.COMMAND, new ChannelSettingsCommand());
-        COMMAND_REGISTRY.put(CommandsCommand.COMMAND, new CommandsCommand());
-        COMMAND_REGISTRY.put(HelpCommand.COMMAND, new HelpCommand());
-        COMMAND_REGISTRY.put(InfoCommand.COMMAND, new InfoCommand());
-        COMMAND_REGISTRY.put(ReplayCommand.COMMAND, new ReplayCommand());
-        COMMAND_REGISTRY.put(TagCommand.COMMAND, new TagCommand());
+        registerCommand(new ChannelSettingsCommand           ("channelsettings", "cs"));
+        registerCommand(new CommandsCommand                  ("commands", "comms"));
+        registerCommand(new HelpCommand                      ("help"));
+        registerCommand(new InfoCommand                      ("info"));
+        registerCommand(new ReplayCommand                    ("replay"));
+        registerCommand(new TagCommand                       ("tag"));
 
         //bot owner/debug commands
-        COMMAND_REGISTRY.put(BanCommand.COMMAND, new BanCommand());
-        COMMAND_REGISTRY.put(DbTestCommand.COMMAND, new DbTestCommand());
-        COMMAND_REGISTRY.put(EvalCommand.COMMAND, new EvalCommand());
-        COMMAND_REGISTRY.put(KillGameCommand.COMMAND, new KillGameCommand());
-        COMMAND_REGISTRY.put(MaintenanceCommand.COMMAND, new MaintenanceCommand());
-        COMMAND_REGISTRY.put(RegisterPrivateServerCommand.COMMAND, new RegisterPrivateServerCommand());
-        COMMAND_REGISTRY.put(RunningCommand.COMMAND, new RunningCommand());
-        COMMAND_REGISTRY.put(ShutdownCommand.COMMAND, new ShutdownCommand());
-        COMMAND_REGISTRY.put(UpdateCommand.COMMAND, new UpdateCommand());
+        registerCommand(new BanCommand                       ("ban"));
+        registerCommand(new DbTestCommand                    ("dbtest"));
+        registerCommand(new EvalCommand                      ("eval"));
+        registerCommand(new KillGameCommand                  ("killgame"));
+        registerCommand(new MaintenanceCommand               ("maint"));
+        registerCommand(new RegisterPrivateServerCommand     ("register"));
+        registerCommand(new RunningCommand                   ("running"));
+        registerCommand(new ShutdownCommand                  ("shutdown"));
+        registerCommand(new UpdateCommand                    ("update"));
+
+        //@formatter:on
     }
 
     public static BaseCommand getCommand(final String input) {
         return COMMAND_REGISTRY.get(input);
+    }
+
+    public static String mainTrigger(final Class<? extends BaseCommand> clazz) {
+        for (final BaseCommand command : COMMAND_REGISTRY.values()) {
+            if (clazz.isInstance(command)) {
+                return command.getMainTrigger();
+            }
+        }
+        log.error("Command {} is not registered in the commandhandler, can't find a main trigger for it", clazz.getSimpleName());
+        return "";
     }
 
     /**
@@ -170,7 +193,7 @@ public class CommandHandler {
             Wolfia.handleOutputMessage(ev.getTextChannel(),
                     "%s, an internal exception happened while executing your command\n`%s`\nSorry about that. Please " +
                             "contact the developer through the website or Discord guild sent to you through `%s`",
-                    ev.getAuthor().getAsMention(), commandInfo.raw, Config.PREFIX + HelpCommand.COMMAND);
+                    ev.getAuthor().getAsMention(), commandInfo.raw, Config.PREFIX + mainTrigger(HelpCommand.class));
         }
     }
 }

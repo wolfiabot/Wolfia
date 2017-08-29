@@ -33,24 +33,28 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.function.Consumer;
 
+import static space.npstr.wolfia.commands.CommandHandler.mainTrigger;
+
 /**
  * Created by npstr on 09.09.2016
  */
 public class HelpCommand extends BaseCommand {
 
-    public final static String COMMAND = "help";
+    public HelpCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " [command]"
+        return Config.PREFIX + getMainTrigger() + " [command]"
                 + "\n#Send you Wolfia's general help and links to documentation, or see the help for a specific command. Examples:"
-                + "\n  " + Config.PREFIX + COMMAND
-                + "\n  " + Config.PREFIX + COMMAND + " shoot";
+                + "\n  " + Config.PREFIX + getMainTrigger()
+                + "\n  " + Config.PREFIX + getMainTrigger() + " shoot";
     }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
-        if (Config.C.isDebug && !App.isOwner(commandInfo.event.getAuthor())) {
+        if (Config.C.isDebug && !App.isOwner(commandInfo.invoker)) {
             return true;//dont answer the help command in debug mode unless it's the owner
         }
 
@@ -59,9 +63,9 @@ public class HelpCommand extends BaseCommand {
             final String answer;
             if (command == null || command instanceof IOwnerRestricted) {
                 answer = String.format("There is no command registered for `%s`. Use `%s` to see all available commands!",
-                        TextchatUtils.defuseMentions(commandInfo.args[0]), Config.PREFIX + CommandsCommand.COMMAND);
+                        TextchatUtils.defuseMentions(commandInfo.args[0]), Config.PREFIX + mainTrigger(CommandsCommand.class));
             } else {
-                answer = TextchatUtils.asMarkdown(command.help());
+                answer = TextchatUtils.asMarkdown(command.getHelp());
             }
             commandInfo.reply(answer);
             return true;
@@ -81,9 +85,9 @@ public class HelpCommand extends BaseCommand {
             if (channel.canTalk())
                 Wolfia.handleOutputMessage(channel,
                         "%s, sent you a PM with the help!\nUse `%s` and `%s` to start games.\n`%s` shows a list of commands.\n`%s [command]` shows help for a specific command.",
-                        e.getAuthor().getAsMention(), Config.PREFIX + InCommand.COMMAND,
-                        Config.PREFIX + StartCommand.COMMAND, Config.PREFIX + CommandsCommand.COMMAND,
-                        Config.PREFIX + HelpCommand.COMMAND
+                        e.getAuthor().getAsMention(), Config.PREFIX + mainTrigger(InCommand.class),
+                        Config.PREFIX + mainTrigger(StartCommand.class), Config.PREFIX + mainTrigger(CommandsCommand.class),
+                        Config.PREFIX + mainTrigger(HelpCommand.class)
                 );
         };
         final Consumer<Throwable> onFail = t -> {

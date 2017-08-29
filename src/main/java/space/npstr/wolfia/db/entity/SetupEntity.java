@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
 import space.npstr.wolfia.commands.debug.ShutdownCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
@@ -242,7 +243,7 @@ public class SetupEntity implements IEntity {
             if (!game.isAcceptablePlayerCount(inned.size(), getMode())) {
                 Wolfia.handleOutputMessage(this.channelId,
                         "There aren't enough (or too many) players signed up! Please use `%s%s` for more information",
-                        Config.PREFIX, StatusCommand.COMMAND);
+                        Config.PREFIX, CommandHandler.mainTrigger(StatusCommand.class));
                 return false;
             }
 

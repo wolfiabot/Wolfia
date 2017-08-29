@@ -31,7 +31,9 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  */
 public class NightkillCommand extends GameCommand {
 
-    public static final String COMMAND = "nightkill"; //nk
+    public NightkillCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
@@ -62,7 +64,7 @@ public class NightkillCommand extends GameCommand {
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " @player"
-                + "\n#Vote the mentioned player for nightkill.";
+        return Config.PREFIX + getMainTrigger() + " name or number"
+                + "\n#Vote a player for nightkill. Make sure to use the player's number if the names are ambiguous";
     }
 }

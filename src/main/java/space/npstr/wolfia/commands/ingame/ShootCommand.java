@@ -27,12 +27,13 @@ import space.npstr.wolfia.commands.GameCommand;
  */
 public class ShootCommand extends GameCommand {
 
-
-    public static final String COMMAND = "shoot";
+    public ShootCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " @player"
+        return Config.PREFIX + getMainTrigger() + " @player"
                 + "\n#Shoot the mentioned player.";
     }
 }

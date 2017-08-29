@@ -27,11 +27,13 @@ import space.npstr.wolfia.commands.GameCommand;
  */
 public class UnvoteCommand extends GameCommand {
 
-    public static final String COMMAND = "unvote";
+    public UnvoteCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND
+        return Config.PREFIX + getMainTrigger()
                 + "\n#Unvote.";
     }
 }

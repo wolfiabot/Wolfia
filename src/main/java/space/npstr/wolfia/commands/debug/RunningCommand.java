@@ -38,7 +38,9 @@ import java.util.Map;
  */
 public class RunningCommand extends BaseCommand implements IOwnerRestricted {
 
-    public static final String COMMAND = "running";
+    public RunningCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {

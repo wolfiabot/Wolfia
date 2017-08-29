@@ -23,7 +23,6 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
  * Created by napster on 10.06.17.
@@ -32,14 +31,16 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  */
 public class GuildStatsCommand extends BaseCommand {
 
-    public static final String COMMAND = "guildstats";
+    public GuildStatsCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " [guild ID]"
+        return Config.PREFIX + getMainTrigger() + " [guild ID]"
                 + "\n#Show game stats for this guild or another one. Examples:"
-                + "\n  " + Config.PREFIX + COMMAND
-                + "\n  " + Config.PREFIX + COMMAND + " 315944983754571796";
+                + "\n  " + Config.PREFIX + getMainTrigger()
+                + "\n  " + Config.PREFIX + getMainTrigger() + " 315944983754571796";
     }
 
     @Override
@@ -51,7 +52,7 @@ public class GuildStatsCommand extends BaseCommand {
             try {
                 guildId = Long.valueOf(commandInfo.args[0]);
             } catch (final NumberFormatException e) {
-                Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s", TextchatUtils.asMarkdown(help()));
+                commandInfo.reply(formatHelp(commandInfo.invoker));
                 return false;
             }
         }

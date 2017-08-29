@@ -94,7 +94,7 @@ public class CommandListener extends ListenerAdapter {
         }
 
         //ignore channels where we don't have sending permissions, with a special exception for the help command
-        if (!event.getTextChannel().canTalk() && !raw.toLowerCase().startsWith((Config.PREFIX + HelpCommand.COMMAND).toLowerCase())) {
+        if (!event.getTextChannel().canTalk() && !raw.toLowerCase().startsWith((Config.PREFIX + CommandHandler.mainTrigger(HelpCommand.class)).toLowerCase())) {
             return;
         }
 

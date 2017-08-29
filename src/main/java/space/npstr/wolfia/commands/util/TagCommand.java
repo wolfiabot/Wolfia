@@ -50,15 +50,17 @@ import java.util.stream.Collectors;
  */
 public class TagCommand extends BaseCommand {
 
-    public static final String COMMAND = "tag";
+    public TagCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     @Override
     public String help() {
-        return Config.PREFIX + COMMAND + " add/remove/[your message]"
+        return Config.PREFIX + getMainTrigger() + " add/remove/[your message]"
                 + "\n#Add or remove yourself from the taglist, or tag members who signed up for the taglist with an optional message. Examples:"
-                + "\n  " + Config.PREFIX + COMMAND + " add"
-                + "\n  " + Config.PREFIX + COMMAND + " remove"
-                + "\n  " + Config.PREFIX + COMMAND + " WANT SUM GAME?";
+                + "\n  " + Config.PREFIX + getMainTrigger() + " add"
+                + "\n  " + Config.PREFIX + getMainTrigger() + " remove"
+                + "\n  " + Config.PREFIX + getMainTrigger() + " WANT SUM GAME?";
     }
 
     @Override
@@ -108,7 +110,7 @@ public class TagCommand extends BaseCommand {
 
             final List<StringBuilder> outs = new ArrayList<>();
             final String message = invoker.getAsMention() + " called the tag list.\n"
-                    + TextchatUtils.defuseMentions(commandInfo.beheaded.replaceFirst(COMMAND, "").trim())
+                    + TextchatUtils.defuseMentions(commandInfo.beheaded.replaceFirst(getMainTrigger(), "").trim())
                     + "\n";
             StringBuilder out = new StringBuilder(message);
             outs.add(out);

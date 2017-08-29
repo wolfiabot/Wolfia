@@ -69,6 +69,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static space.npstr.wolfia.commands.CommandHandler.mainTrigger;
+
 /**
  * Created by npstr on 14.09.2016
  * <p>
@@ -327,7 +329,7 @@ public abstract class Game {
 
         if (!Games.getInfo(this).isAcceptablePlayerCount(innedPlayers.size(), mode)) {
             throw new IllegalArgumentException(String.format("There aren't enough (or too many) players signed up! " +
-                    "Please use `%s%s` for more information", Config.PREFIX, StatusCommand.COMMAND));
+                    "Please use `%s%s` for more information", Config.PREFIX, mainTrigger(StatusCommand.class)));
         }
     }
 
@@ -375,7 +377,7 @@ public abstract class Game {
                                     " Talk to an Admin/Moderator of your server to fix this or set the access role up with `%s`." +
                                     " Please refer to the documentation under %s",
                             Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(),
-                            Config.PREFIX + ChannelSettingsCommand.COMMAND, App.DOCS_LINK
+                            Config.PREFIX + mainTrigger(ChannelSettingsCommand.class), App.DOCS_LINK
                     ));
                 }
                 if (!accessRole.hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
@@ -566,7 +568,7 @@ public abstract class Game {
             Wolfia.handleOutputMessage(channel,
                     "Game has been stopped due to:\n`%s`\nSorry about that. The issue has been logged and will hopefully be fixed soon." +
                             "\nFeel free to join the Wolfia Lounge meanwhile through `%s` for direct support with the issue.",
-                    reasonMessage, Config.PREFIX + HelpCommand.COMMAND);
+                    reasonMessage, Config.PREFIX + mainTrigger(HelpCommand.class));
         }
     }
 
@@ -625,7 +627,7 @@ public abstract class Game {
             }
             DbWrapper.persist(this.gameStats);
             out += String.format("\nThis game's id is **%s**, you can watch its replay with `%s %s`",
-                    this.gameStats.getGameId(), Config.PREFIX + ReplayCommand.COMMAND, this.gameStats.getGameId());
+                    this.gameStats.getGameId(), Config.PREFIX + mainTrigger(ReplayCommand.class), this.gameStats.getGameId());
             cleanUp();
             final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
             DiscordLogger.getLogger().log("%s `%s` Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",

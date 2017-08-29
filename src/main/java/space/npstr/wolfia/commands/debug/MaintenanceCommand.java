@@ -14,7 +14,9 @@ import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
  */
 public class MaintenanceCommand extends BaseCommand implements IOwnerRestricted {
 
-    public static final String COMMAND = "maint";
+    public MaintenanceCommand(final String trigger, final String... aliases) {
+        super(trigger, aliases);
+    }
 
     public static final String MAINTENANCE_FLAG = "maintenanceFlag";
 

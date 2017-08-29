@@ -19,6 +19,7 @@ package space.npstr.wolfia;
 
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
+import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.util.HelpCommand;
 
 import java.util.ResourceBundle;
@@ -39,7 +40,7 @@ public class App {
     public static final String SITE_LINK = "https://wolfia.party";
     public static final String DOCS_LINK = "https://docs.wolfia.party";
     public static final String GITHUB_LINK = "https://github.com/napstr/wolfia";
-    public static final String GAME_STATUS = Config.PREFIX + HelpCommand.COMMAND + " | " + SITE_LINK + " | Public β";
+    public static final String GAME_STATUS = Config.PREFIX + CommandHandler.mainTrigger(HelpCommand.class) + " | " + SITE_LINK + " | Public β";
     public static String DESCRIPTION = "Play Werewolf / Mafia and similar games on Discord!";
 
     public static boolean isOwner(final long userId) {

@@ -19,6 +19,7 @@ package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.Config;
+import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -135,7 +136,7 @@ public class GameUtils {
         final List<Player> found = findPlayer(players, commandInfo);
 
         final String explanation = String.format("Please use a mention or the player number which you can find with " +
-                "`%s` so that I can clearly know who you are targeting.", Config.PREFIX + VoteCountCommand.COMMAND);
+                "`%s` so that I can clearly know who you are targeting.", Config.PREFIX + CommandHandler.mainTrigger(VoteCountCommand.class));
         if (found.isEmpty()) {
             commandInfo.reply("%s, could not identify a player in your command! " + explanation,
                     commandInfo.invoker.getAsMention());
