@@ -51,7 +51,9 @@ import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
+import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.img.ImgurAlbum;
 import space.npstr.wolfia.utils.img.SimpleCache;
 import space.npstr.wolfia.utils.log.DiscordLogger;
@@ -282,6 +284,7 @@ public class Wolfia {
             }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
+            if (onFail != null) onFail.accept(e);
         }
         return Optional.empty();
     }
@@ -407,7 +410,8 @@ public class Wolfia {
     //################# shutdown handling
 
     public static void shutdown(final int code) {
-        log.info("Shutting down with exit code {}", code);
+        DiscordLogger.getLogger().log("%s `%s` Shutting down with exit code %s",
+                Emojis.DOOR, TextchatUtils.berlinTime(), code);
         System.exit(code);
     }
 
@@ -416,7 +420,7 @@ public class Wolfia {
         public void run() {
 
             log.info("Shutting down discord logger");
-            DiscordLogger.shutdown();
+            DiscordLogger.shutdown(10, TimeUnit.SECONDS);
 
             //okHttpClient claims that a shutdown isn't necessary
 
@@ -431,6 +435,7 @@ public class Wolfia {
             try {
                 executor.awaitTermination(30, TimeUnit.SECONDS);
             } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
                 log.warn("Executor did not finish it's tasks after 30 seconds");
             }
 

@@ -56,6 +56,7 @@ public class Emojis {
     public static final String ANGER = "💢";
     public static final String CHECK = "✅";
     public static final String LOADING = "🔄";
+    public static final String DOOR = "🚪";
 
     public static final String BALLOT_BOX = "🗳";
     public static final String FIRE = "🔥";

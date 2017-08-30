@@ -25,8 +25,9 @@ import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -35,11 +36,12 @@ import java.util.function.Consumer;
  * <p>
  * Logs some bot-wide events into a discord channel of our choice
  * Avoid spamming the events as this gets ratelimited easily (5/5s)
+ * Singleton pattern cause I only need one of them, there is not technical reason for it though.
  */
 public class DiscordLogger {
 
     private static final Logger log = LoggerFactory.getLogger(DiscordLogger.class);
-
+    private static final ScheduledExecutorService x = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "discord-logger-executor"));
     private static DiscordLogger discordLogger;
 
     //singleton approach
@@ -50,78 +52,52 @@ public class DiscordLogger {
         return discordLogger;
     }
 
-    public synchronized static void shutdown() {
+    public synchronized static void shutdown(final long timeout, final TimeUnit timeUnit) {
         if (discordLogger != null) {
-            discordLogger.shutdown = true;
-            discordLogger.task.cancel(true);
-        }
-    }
-
-
-    private final LinkedBlockingQueue<String> messageQueue = new LinkedBlockingQueue<>();
-    private boolean shutdown = false;
-    private final Future task;
-
-    private DiscordLogger() {
-        //schedule this in the long running executor
-        this.task = Wolfia.scheduledExecutor.schedule(this::sendMessagesLoop, 0, TimeUnit.NANOSECONDS);
-    }
-
-    private boolean errorSent = false;
-
-    private void sendMessagesLoop() {
-
-        while (!this.shutdown && !Thread.interrupted()) {
-
-            //throw an error if the queue grows too big
-            if (this.messageQueue.size() >= 1000 && !this.errorSent) {
-                log.error("Discord logger queue reached a size of 1000 messages. This is not expected behaviour.");
-                this.errorSent = true;
-            } else if (this.messageQueue.size() < 1000 && this.errorSent) {
-                this.errorSent = false; //queue recovered, allow throwing an error again
-            }
-
-            //log the queue size above a certain threshold
-            if (this.messageQueue.size() > 10) {
-                log.info("Discord logger queue size: {}", this.messageQueue.size());
-            }
-
+            x.shutdown();
             try {
-                final String message = this.messageQueue.take();
-
-                JDA jda = Wolfia.jda;
-                while (jda == null) {
-                    Thread.sleep(1000);
-                    jda = Wolfia.jda;
-                }
-
-                TextChannel channel = jda.getTextChannelById(Config.C.logChannelId);
-                while (channel == null) {
-                    Thread.sleep(1000);
-                    channel = jda.getTextChannelById(Config.C.logChannelId);
-                }
-
-                final Consumer<Message> onSuccess = ignored -> log.info(message);//log into file
-                final Consumer<Throwable> onFail = t -> {
-                    log.error("Exception when sending discord logger message", t);
-                    this.messageQueue.add(message); //readd it to the queue
-                };
-                Wolfia.handleOutputMessage(channel, onSuccess, onFail, message);
-
+                x.awaitTermination(timeout, timeUnit);
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-
         }
-
     }
 
-    public void log(final String message) {
-        this.messageQueue.add(message);
+    private DiscordLogger() {
     }
 
-    public void log(final String message, final Object... objects) {
-        log(String.format(message, objects));
+    private void sendMessage(final String message) {
+        try {
+            JDA jda = Wolfia.jda;
+            while (jda == null) {
+                Thread.sleep(1000);
+                jda = Wolfia.jda;
+            }
+
+            TextChannel channel = jda.getTextChannelById(Config.C.logChannelId);
+            while (channel == null) {
+                Thread.sleep(1000);
+                channel = jda.getTextChannelById(Config.C.logChannelId);
+            }
+
+            final Consumer<Message> onSuccess = ignored -> log.info(message);//log into file
+            final Consumer<Throwable> onFail = t -> {
+                log.error("Exception when sending discord logger message", t);
+                log(message);//readd it to the queue
+            };
+            Wolfia.handleOutputMessage(channel, onSuccess, onFail, message);
+
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public Future log(final String message) {
+        return x.schedule(() -> sendMessage(message), 0, TimeUnit.NANOSECONDS);
+    }
+
+    public Future log(final String message, final Object... objects) {
+        return log(String.format(message, objects));
     }
 
 }
