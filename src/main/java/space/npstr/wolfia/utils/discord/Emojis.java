@@ -116,7 +116,7 @@ public class Emojis {
     public static final String EEK = "<:eek:318452576850804748>";
     public static final String CANTLOOK = "<:cantlook:318452650029088779>";
     public static final String RIP = "<:rip:318205519724675072>";
-    public static final String WOLFTHINK = "<:wolfthinking:320350239795970048>";
+    public static final String WOLFTHINK = "<:wolfthinking:323519533765754890>";
 
 
     //to be called by eval for a quick'n'dirty test whether all emojis that are defined in this class are being
@@ -131,6 +131,7 @@ public class Emojis {
                 result.append("exception");
                 log.error("something something unexpected error while using reflection", e);
             }
+            result.append(" ");
         });
         return result.toString();
     }
