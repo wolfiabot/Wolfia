@@ -12,7 +12,6 @@ import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.stats.CommandStats;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-import space.npstr.wolfia.game.mafia.Mafia;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,7 +21,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class PrivateChannelListener extends ListenerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(Mafia.class);
+    private static final Logger log = LoggerFactory.getLogger(PrivateChannelListener.class);
 
     private final long userId;
     private final GameCommand allowedCommand;

@@ -35,6 +35,7 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.ingame.NightkillCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCountCommand;
@@ -184,12 +185,16 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
         }
 
         final CommandParser.CommandContainer commandInfo = CommandParser.parse(raw, event, received);
-        CommandListener.getCommandExecutor().execute(() -> CommandHandler.handleCommand(commandInfo, this::filter));
+        CommandListener.getCommandExecutor().execute(() -> CommandHandler.handleCommand(commandInfo, this::commandFilter));
     }
 
-    private boolean filter(final BaseCommand command) {
+    private boolean commandFilter(final BaseCommand command) {
         //allow only nk related commands
-        return command instanceof NightkillCommand || command instanceof VoteCountCommand || command instanceof UnvoteCommand;
+        return command instanceof NightkillCommand
+                || command instanceof VoteCountCommand
+                || command instanceof UnvoteCommand
+                || command instanceof StatusCommand
+                ;
     }
 
     public void beginUsage(final Collection<Long> wolfUserIds) {

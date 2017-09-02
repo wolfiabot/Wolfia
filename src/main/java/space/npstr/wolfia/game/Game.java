@@ -286,14 +286,19 @@ public abstract class Game {
     }
 
     //do not post this before the game is over
-    protected String listTeams() {
+    //set wwFlair to true to have werewolf flaor, otherwise mafia flair will be used
+    protected String listTeams(final boolean... wwFlair) {
         if (this.running) {
             log.warn("listTeams() called in a running game");
         }
         final StringBuilder sb = new StringBuilder();
         sb.append("Village: ");
         getVillagers().forEach(p -> sb.append(TextchatUtils.userAsMention(p.userId)).append(" "));
-        sb.append("\nWolves: ");
+        if (wwFlair.length > 0 && wwFlair[0]) {
+            sb.append("\nWolves: ");
+        } else {
+            sb.append("\nMafia: ");
+        }
         getWolves().forEach(p -> sb.append(TextchatUtils.userAsMention(p.userId)).append(" "));
         return sb.toString();
     }
@@ -601,7 +606,7 @@ public abstract class Game {
             gameEnding = true;
             this.running = false;
             if (wwFlair.length > 0 && wwFlair[0]) {
-                out = "All wolves dead! **Village wins.** Thanks for playing!\nTeams:\n" + listTeams();
+                out = "All wolves dead! **Village wins.** Thanks for playing!\nTeams:\n" + listTeams(true);
             } else { //Mafia flair
                 out = "All mafia dead! **Town wins.** Thanks for playing!\nTeams:\n" + listTeams();
             }
@@ -611,7 +616,7 @@ public abstract class Game {
             this.running = false;
             villageWins = false;
             if (wwFlair.length > 0 && wwFlair[0]) {
-                out = "Parity reached! **Wolves win.** Thanks for playing.\nTeams:\n" + listTeams();
+                out = "Parity reached! **Wolves win.** Thanks for playing.\nTeams:\n" + listTeams(true);
             } else { //Mafia Flair
                 out = "Parity reached! **Mafia wins.** Thanks for playing.\nTeams:\n" + listTeams();
             }

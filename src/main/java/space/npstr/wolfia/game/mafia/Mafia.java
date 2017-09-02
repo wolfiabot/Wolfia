@@ -415,9 +415,11 @@ public class Mafia extends Game {
 
         //open channel
         final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
-        Wolfia.handleOutputMessage(channel, "Day %s started! You have %s minutes to discuss. You may vote a player for lynch with `%s`."
+        Wolfia.handleOutputMessage(channel, "Day %s started! You have %s minutes to discuss. You may vote a"
+                        + " player for lynch with `%s`. You can see the current votecount with `%s`."
                         + "\nIf a player is voted by more than half the living players (majority), they will be lynched immediately!",
-                this.cycle, this.dayLengthMillis / 60000, Config.PREFIX + mainTrigger(VoteCommand.class));
+                this.cycle, this.dayLengthMillis / 60000, Config.PREFIX + mainTrigger(VoteCommand.class),
+                Config.PREFIX + mainTrigger(VoteCountCommand.class));
         for (final Player player : living) {
             RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
                     Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);

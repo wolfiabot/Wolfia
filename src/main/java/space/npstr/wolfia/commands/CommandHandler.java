@@ -176,6 +176,9 @@ public class CommandHandler {
                         commandInfo.raw);
                 return;
             }
+            log.info("user {}, channel {}, command {} about to be executed",
+                    commandInfo.event.getAuthor().getIdLong(), commandInfo.event.getChannel().getIdLong(),
+                    commandInfo.event.getMessage().getRawContent());
             final boolean success = command.execute(commandInfo);
             final long executed = System.currentTimeMillis();
             Wolfia.submit(() -> DbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));

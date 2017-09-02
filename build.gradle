@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'space.npstr'
-version = '0.9.0_' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
+version = '0.9.1_' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'net.dv8tion:JDA:3.2.0_251'                                             //discord API
+    compile 'net.dv8tion:JDA:3.2.0_259'                                             //discord API
     compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
     compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
     compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
@@ -42,7 +42,7 @@ dependencies {
     compile 'org.thymeleaf:thymeleaf:3.0.7.RELEASE'
 
     //QA
-    compile group: 'com.google.code.findbugs', name: 'annotations', version: '3.0.1'
+    compile 'com.google.code.findbugs:annotations:3.0.1'
 }
 
 task wrapper(type: Wrapper) {

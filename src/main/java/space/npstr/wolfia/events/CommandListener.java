@@ -98,7 +98,6 @@ public class CommandListener extends ListenerAdapter {
             return;
         }
 
-        log.info("user {}, channel {}, command {}", event.getAuthor().getIdLong(), event.getChannel().getIdLong(), event.getMessage().getRawContent());
         final CommandParser.CommandContainer commandInfo = CommandParser.parse(raw, event, received);
         commandExecutor.submit(() -> CommandHandler.handleCommand(commandInfo, this::filter));
     }

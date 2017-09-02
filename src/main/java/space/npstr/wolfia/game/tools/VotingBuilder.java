@@ -1,6 +1,5 @@
 package space.npstr.wolfia.game.tools;
 
-import space.npstr.wolfia.game.GameUtils;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Phase;
 import space.npstr.wolfia.utils.discord.Emojis;
@@ -96,13 +95,13 @@ public class VotingBuilder {
             if (!renderZeroVotes && ve.voters.isEmpty()) {
                 continue;
             }
-            final List<String> votersAsMentions = GameUtils.asMentions(ve.voters);
+            final List<String> votersNames = ve.voters.stream().map(Player::getBothNamesFormatted).collect(Collectors.toList());
             if (renderEmojis) {
                 sb.append(ve.emoji).append(" ");
             }
             sb.append("**").append(ve.voters.size()).append("** votes: ")
                     .append(ve.candidate.getBothNamesFormatted())
-                    .append("\nVoted by: ").append(ve.voters.isEmpty() ? "---" : String.join(", ", votersAsMentions));
+                    .append("\nVoted by: ").append(ve.voters.isEmpty() ? "---" : String.join(", ", votersNames));
             votesField.add(sb.toString(), true);
         }
         final StringBuilder nv = new StringBuilder();
@@ -110,7 +109,7 @@ public class VotingBuilder {
             nv.append(this.unvoteEmoji).append(" ");
         }
         final Set<Player> nonVoters = getNonVoters(votes.stream().flatMap(ve -> ve.voters.stream()).collect(Collectors.toSet()));
-        nv.append("**Non-voters: **\n").append(String.join(", ", GameUtils.asMentions(nonVoters)));
+        nv.append("**Non-voters: **\n").append(String.join(", ", nonVoters.stream().map(Player::getBothNamesFormatted).collect(Collectors.toList())));
 
         votesField.add(nv.toString());
         return votesField;

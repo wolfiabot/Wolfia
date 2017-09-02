@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.game;
 
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.db.DbWrapper;
@@ -51,8 +50,16 @@ public class StatusCommand extends BaseCommand {
 
         final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
         if (game != null) {
-            Wolfia.handleOutputEmbed(commandInfo.event.getChannel(), game.getStatus().build());
+            commandInfo.reply(game.getStatus().build());
             return true;
+        }
+
+        //was this called from a private guild of an ongoing game? post the status of the corresponding game
+        for (final Game g : Games.getAll().values()) {
+            if (g.getPrivateGuildId() == commandInfo.event.getGuild().getIdLong()) {
+                commandInfo.reply(g.getStatus().build());
+                return true;
+            }
         }
 
         final SetupEntity setup = DbWrapper.getOrCreateEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
