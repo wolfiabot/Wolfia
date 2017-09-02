@@ -52,14 +52,17 @@ public class RoleAndPermissionUtils {
     private static final Logger log = LoggerFactory.getLogger(RoleAndPermissionUtils.class);
 
     /**
+     * Don't call this too close together for the same guild and the same role name as that will result in more than one
+     * role created with the same name.
+     *
      * @param guild Guild aka Server where the bot operates and where from the role shall be retrieved/created
      * @param name  Name of the role that shall be retrieved/created
-     * @return Returns a role with the required name
+     * @return Returns a rest action that will create a role with the provided name in the guild if there isn't one yet
      */
     public static RestAction<Role> getOrCreateRole(final Guild guild, final String name) {
         final Optional<Role> r = guild.getRolesByName(name, true).stream()
                 .filter(role -> role.getName().equals(name)).findFirst();
-        return r.<RestAction<Role>>map(role -> new RestAction.EmptyRestAction<>(Wolfia.jda, role))
+        return r.<RestAction<Role>>map(role -> new RestAction.EmptyRestAction<>(guild.getJDA(), role))
                 .orElseGet(() -> guild.getController().createRole().setName(name));
     }
 
@@ -122,7 +125,7 @@ public class RoleAndPermissionUtils {
                     //or do we have it on a guild scope, but it is denied for us in this channel?
                     || !hasPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_PERMISSIONS)) {
                 throw new UserFriendlyException(String.format("Please allow me to `%s` in this channel so I " +
-                                "can set myself up to play games and format my posts.\nWant to know what I need and why? Follow this link: %s",
+                                "can set myself up to play games and format my posts.%nWant to know what I need and why? Follow this link: %s",
                         Permission.MANAGE_PERMISSIONS.getName(), App.DOCS_LINK + "#permissions"));
 
             } else {
@@ -156,10 +159,10 @@ public class RoleAndPermissionUtils {
     private static RestAction<?> setPermissionsInChannelForRoleOrMember(final Channel channel, final IPermissionHolder memberOrRole,
                                                                         final PermissionAction action, final Permission... permissions) {
         //dont bitch about a nonexisting role/member
-        if (memberOrRole == null) {
-            log.warn("setPermissionsInChannelForRoleOrMember() called with a null member/role. Fix your code dude. " +
+        if (channel == null || memberOrRole == null) {
+            log.error("setPermissionsInChannelForRoleOrMember() called with a null channel or member/role. Fix your code dude. " +
                     "Not gonna be a bitch about this and pretend nothing happened, you owe me a solid.");
-            return new RestAction.EmptyRestAction<>(Wolfia.jda, null);
+            return new RestAction.EmptyRestAction<>(Wolfia.getFirstJda(), null);
         }
         final PermissionOverride po;
         if (memberOrRole instanceof Role) {
@@ -168,7 +171,7 @@ public class RoleAndPermissionUtils {
             po = channel.getPermissionOverride((Member) memberOrRole);
         } else {
             log.warn("Unsupported class of IPermissionHolder detected: {}, returning an empty action", memberOrRole);
-            return new RestAction.EmptyRestAction<>(Wolfia.jda, null);
+            return new RestAction.EmptyRestAction<>(channel.getJDA(), null);
         }
 
         final RestAction ra;
@@ -177,7 +180,7 @@ public class RoleAndPermissionUtils {
                 case GRANT:
                     //do nothing if the permission override already grants the permission
                     if (po.getAllowed().containsAll(Arrays.asList(permissions))) {
-                        ra = new RestAction.EmptyRestAction<>(Wolfia.jda, null);
+                        ra = new RestAction.EmptyRestAction<>(channel.getJDA(), null);
                     } else {
                         ra = po.getManager().grant(permissions);
                     }
@@ -185,7 +188,7 @@ public class RoleAndPermissionUtils {
                 case DENY:
                     //do nothing if the permission override already denies the permission
                     if (po.getDenied().containsAll(Arrays.asList(permissions))) {
-                        ra = new RestAction.EmptyRestAction<>(Wolfia.jda, null);
+                        ra = new RestAction.EmptyRestAction<>(channel.getJDA(), null);
                     } else {
                         ra = po.getManager().deny(permissions);
                     }
@@ -222,7 +225,7 @@ public class RoleAndPermissionUtils {
                     break;
                 case CLEAR:
                     //do nothing if we are trying to clear a nonexisting permission override
-                    ra = new RestAction.EmptyRestAction<>(Wolfia.jda, null);
+                    ra = new RestAction.EmptyRestAction<>(channel.getJDA(), null);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown PermissionAction passed: " + action.name());
@@ -253,7 +256,7 @@ public class RoleAndPermissionUtils {
         if (permissionOverride != null && permissionOverride.getAllowed().isEmpty() && permissionOverride.getDenied().isEmpty()) {
             return permissionOverride.delete();
         } else {
-            return new RestAction.EmptyRestAction<>(Wolfia.jda, null);
+            return new RestAction.EmptyRestAction<>(Wolfia.getFirstJda(), null);
         }
     }
 

@@ -17,6 +17,9 @@
 
 package space.npstr.wolfia.utils.img;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,6 +38,7 @@ import java.util.regex.Pattern;
  */
 public class SimpleCache {
 
+    private static final Logger log = LoggerFactory.getLogger(SimpleCache.class);
     private static final Map<String, File> cachedURLFiles = new HashMap<>();
 
     private SimpleCache() {
@@ -46,16 +50,16 @@ public class SimpleCache {
             return cachedURLFiles.get(url);
         } else {
             final InputStream is;
-            final FileOutputStream fos;
-            File tmpFile = null;
+            final File tmpFile;
             try {
                 final Matcher matcher = Pattern.compile("(\\.\\w+$)").matcher(url);
                 final String type = matcher.find() ? matcher.group(1) : "";
                 tmpFile = File.createTempFile(UUID.randomUUID().toString(), type);
-                //noinspection ConstantConditions
+            } catch (final IOException e) {
+                throw new RuntimeException("Could not create a temporary file");
+            }
+            try (final FileOutputStream fos = new FileOutputStream(tmpFile)) {
                 is = new URL(url).openStream();
-                fos = new FileOutputStream(tmpFile);
-
                 final byte[] buffer = new byte[1024 * 10];
                 int bytesRead;
                 while ((bytesRead = is.read(buffer)) != -1) {
@@ -66,10 +70,11 @@ public class SimpleCache {
 
                 cachedURLFiles.put(url, tmpFile);
                 return tmpFile;
-            } catch (final IOException ex) {
-                if (tmpFile != null) //noinspection ResultOfMethodCallIgnored
-                    tmpFile.delete();
-                throw new RuntimeException(ex);
+            } catch (final IOException e) {
+                if (!tmpFile.delete()) {
+                    log.error("Could not delete temporary file {}", tmpFile.getAbsolutePath());
+                }
+                throw new RuntimeException(e);
             }
         }
     }

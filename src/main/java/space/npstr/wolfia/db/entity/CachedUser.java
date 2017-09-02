@@ -68,7 +68,7 @@ public class CachedUser implements IEntity {
     }
 
     public static String getName(final long userId) {
-        final User user = Wolfia.jda.getUserById(userId);
+        final User user = Wolfia.getUserById(userId);
         if (user != null) {
             return user.getName();
         } else {
@@ -77,7 +77,7 @@ public class CachedUser implements IEntity {
     }
 
     public static String getNick(final long userId, final long guildId) {
-        final Guild guild = Wolfia.jda.getGuildById(guildId);
+        final Guild guild = Wolfia.getGuildById(guildId);
         if (guild != null) {
             final Member member = guild.getMemberById(userId);
             if (member != null) return member.getEffectiveName();
@@ -87,7 +87,7 @@ public class CachedUser implements IEntity {
     }
 
     public static String getAvatarUrl(final long userId) {
-        final User user = Wolfia.jda.getUserById(userId);
+        final User user = Wolfia.getUserById(userId);
         if (user != null) {
             return user.getAvatarUrl();
         } else {

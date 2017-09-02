@@ -114,8 +114,8 @@ public class Player {
         final String numberStr = Integer.toString(this.number);
         final StringBuilder result = new StringBuilder();
         for (final char c : numberStr.toCharArray()) {
-            final int i = Integer.valueOf(c + "");
-            result.append(Emojis.NUMBERS[i]);
+            final int i = Integer.parseInt(c + "");
+            result.append(Emojis.NUMBERS.get(i));
         }
         return result.toString();
     }

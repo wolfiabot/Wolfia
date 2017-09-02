@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.game.popcorn;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.dv8tion.jda.core.Permission;
 import space.npstr.wolfia.game.CharakterSetup;
 import space.npstr.wolfia.game.GameInfo;
@@ -50,6 +51,7 @@ public class PopcornInfo implements GameInfo {
         return GameMode.WILD;
     }
 
+    @SuppressFBWarnings("SF_SWITCH_NO_DEFAULT")
     @Override
     public Map<Permission, Scope> getRequiredPermissions(final GameMode mode) {
         final Map<Permission, Scope> requiredPermissions = new LinkedHashMap<>();

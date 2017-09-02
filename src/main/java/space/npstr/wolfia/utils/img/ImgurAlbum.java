@@ -51,9 +51,7 @@ public class ImgurAlbum {
 
     public ImgurAlbum(final String imgurAlbum) {
         //update the album every hour or so
-        Wolfia.scheduledExecutor.scheduleAtFixedRate(() -> {
-            populateItems(imgurAlbum);
-        }, 0, 1, TimeUnit.HOURS);
+        Wolfia.scheduledExecutor.scheduleAtFixedRate(() -> populateItems(imgurAlbum), 0, 1, TimeUnit.HOURS);
     }
 
     public void setLastIndex(final int lastIndex) {

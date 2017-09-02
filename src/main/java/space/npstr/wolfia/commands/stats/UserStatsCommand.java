@@ -55,7 +55,7 @@ public class UserStatsCommand extends BaseCommand {
             //noinspection Duplicates
             if (commandInfo.args.length > 0) {
                 try {
-                    userId = Long.valueOf(commandInfo.args[0]);
+                    userId = Long.parseLong(commandInfo.args[0]);
                 } catch (final NumberFormatException e) {
                     commandInfo.reply(formatHelp(commandInfo.invoker));
                     return false;

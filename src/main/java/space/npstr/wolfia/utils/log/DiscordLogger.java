@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.utils.log;
 
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
@@ -68,16 +67,14 @@ public class DiscordLogger {
 
     private void sendMessage(final String message) {
         try {
-            JDA jda = Wolfia.jda;
-            while (jda == null) {
+            while (!Wolfia.isStarted()) {
                 Thread.sleep(1000);
-                jda = Wolfia.jda;
             }
 
-            TextChannel channel = jda.getTextChannelById(Config.C.logChannelId);
+            TextChannel channel = Wolfia.getTextChannelById(Config.C.logChannelId);
             while (channel == null) {
                 Thread.sleep(1000);
-                channel = jda.getTextChannelById(Config.C.logChannelId);
+                channel = Wolfia.getTextChannelById(Config.C.logChannelId);
             }
 
             final Consumer<Message> onSuccess = ignored -> log.info(message);//log into file

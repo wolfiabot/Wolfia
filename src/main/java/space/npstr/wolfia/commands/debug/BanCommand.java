@@ -102,9 +102,7 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
                     joined);
             return true;
         } else { //removing
-            mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(userId -> {
-                DbWrapper.deleteEntity(userId, Banlist.class);
-            });
+            mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(userId -> DbWrapper.deleteEntity(userId, Banlist.class));
             Wolfia.handleOutputMessage(channel, "%s, removed **%s** from the global ban list.",
                     invoker.getAsMention(), joined);
             return true;

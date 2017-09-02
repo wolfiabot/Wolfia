@@ -139,7 +139,9 @@ public class TagCommand extends BaseCommand {
                 }
             }
             settings.removeTags(cleanUp);
-            outs.forEach(sb -> Wolfia.handleOutputMessage(channel, "%s", sb.toString()));
+            for (final StringBuilder sb : outs) {
+                Wolfia.handleOutputMessage(channel, "%s", sb.toString());
+            }
             settings.usedTagList();
             DbWrapper.merge(settings);
             return true;

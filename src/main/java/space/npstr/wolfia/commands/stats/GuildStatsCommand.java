@@ -50,7 +50,7 @@ public class GuildStatsCommand extends BaseCommand {
         //noinspection Duplicates
         if (commandInfo.args.length > 0) {
             try {
-                guildId = Long.valueOf(commandInfo.args[0]);
+                guildId = Long.parseLong(commandInfo.args[0]);
             } catch (final NumberFormatException e) {
                 commandInfo.reply(formatHelp(commandInfo.invoker));
                 return false;

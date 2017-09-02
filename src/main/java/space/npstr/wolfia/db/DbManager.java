@@ -55,6 +55,19 @@ public class DbManager {
 
     private static final Logger log = LoggerFactory.getLogger(DbManager.class);
 
+    public static DbManager getInstance() {
+        return DbManagerHolder.INSTANCE;
+    }
+
+    public static EntityManager getEm() {
+        return getInstance().getEntityManager();
+    }
+
+    //holder singleton pattern
+    private static class DbManagerHolder {
+        private static final DbManager INSTANCE = new DbManager();
+    }
+
     private final EntityManagerFactory emf;
     private final HikariDataSource hikariDs;
 
@@ -81,6 +94,7 @@ public class DbManager {
         final Properties hibernateProps = new Properties();
         //this will work fine as long as we never change columns and only add them
         hibernateProps.put("hibernate.hbm2ddl.auto", "update");
+        hibernateProps.put("hibernate.show_sql", "false");
 
         this.emf = new HibernatePersistenceProvider().createContainerEntityManagerFactory(puInfo, hibernateProps);
     }
@@ -204,14 +218,14 @@ public class DbManager {
         File directory;
         final String fullPath;
         final String relPath = pkgName.replace('.', '/');
-        log.debug("ClassDiscovery: Package: " + pkgName + " becomes Path:" + relPath);
+        log.trace("ClassDiscovery: Package: " + pkgName + " becomes Path:" + relPath);
         final URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
-        log.debug("ClassDiscovery: Resource = " + resource);
+        log.trace("ClassDiscovery: Resource = " + resource);
         if (resource == null) {
             throw new DatabaseException("No resource for " + relPath);
         }
         fullPath = resource.getFile();
-        log.debug("ClassDiscovery: FullPath = " + resource);
+        log.trace("ClassDiscovery: FullPath = " + resource);
 
         try {
             directory = new File(resource.toURI());
@@ -220,7 +234,7 @@ public class DbManager {
         } catch (final IllegalArgumentException e) {
             directory = null;
         }
-        log.debug("ClassDiscovery: Directory = " + directory);
+        log.trace("ClassDiscovery: Directory = " + directory);
 
         if (directory != null && directory.exists()) {
             // Get the list of the files contained in the package
@@ -231,7 +245,7 @@ public class DbManager {
                     if (file.endsWith(".class")) {
                         // removes the .class extension
                         final String className = pkgName + '.' + file.substring(0, file.length() - 6);
-                        log.debug("ClassDiscovery: className = " + className);
+                        log.trace("ClassDiscovery: className = " + className);
                         try {
                             classes.add(Class.forName(className));
                         } catch (final ClassNotFoundException e) {
@@ -241,15 +255,14 @@ public class DbManager {
                 }
             }
         } else {
-            try {
-                final String jarPath = fullPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
-                final JarFile jarFile = new JarFile(jarPath);
+            final String jarPath = fullPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
+            try (final JarFile jarFile = new JarFile(jarPath)) {
                 final Enumeration<JarEntry> entries = jarFile.entries();
                 while (entries.hasMoreElements()) {
                     final JarEntry entry = entries.nextElement();
                     final String entryName = entry.getName();
                     if (entryName.startsWith(relPath) && entryName.length() > (relPath.length() + "/".length())) {
-                        log.debug("ClassDiscovery: JarEntry: " + entryName);
+                        log.trace("ClassDiscovery: JarEntry: " + entryName);
                         final String className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
 
                         //skip packages
@@ -257,7 +270,7 @@ public class DbManager {
                             continue;
                         }
                         //just a class
-                        log.debug("ClassDiscovery: className = " + className);
+                        log.trace("ClassDiscovery: className = " + className);
                         try {
                             classes.add(Class.forName(className));
                         } catch (final ClassNotFoundException e) {

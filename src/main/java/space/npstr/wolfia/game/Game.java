@@ -92,7 +92,7 @@ public abstract class Game {
 
     //to be used to execute tasks for each game
     protected final ExceptionLoggingExecutor executor = new ExceptionLoggingExecutor(10,
-            "game-in-channel-" + Game.this.channelId + "-helper-thread");
+            r -> new Thread(r, "game-in-channel-" + Game.this.getChannelId() + "-executor-thread"));
 
     //commonly used fields
     protected long channelId = -1;
@@ -171,6 +171,14 @@ public abstract class Game {
         if (ps != null) {
             ps.bumpPosts(message.getRawContent().length());
         }
+    }
+
+    protected TextChannel getThisChannel() {
+        final TextChannel tc = Wolfia.getTextChannelById(this.channelId);
+        if (tc == null) {
+            throw new NullPointerException(String.format("Could not find channel %s of game", this.channelId));
+        }
+        return tc;
     }
 
     protected boolean isLiving(final Member member) {
@@ -312,7 +320,7 @@ public abstract class Game {
         if (this.running) {
             throw new IllegalStateException("Cannot start a game that is running already");
         }
-        final TextChannel channel = Wolfia.jda.getTextChannelById(channelId);
+        final TextChannel channel = Wolfia.getTextChannelById(channelId);
         if (channelId <= 0 || channel == null) {
             throw new IllegalArgumentException(String.format(
                     "Cannot start a game with invalid/no channel (channelId: %s) set.", channelId)
@@ -344,7 +352,7 @@ public abstract class Game {
      * @throws UserFriendlyException if the bot is missing permissions to run the game in the channel
      */
     protected void doPermissionCheckAndPrepareChannel(final boolean moderated) throws UserFriendlyException {
-        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        final TextChannel channel = getThisChannel();
         final Guild g = channel.getGuild();
 
         //check permissions
@@ -433,7 +441,7 @@ public abstract class Game {
 
         this.players.clear();
         int i = 0;
-        for (final CharakterSetup.Charakter c : charakterSetup.getRandedCharakters()) {
+        for (final Charakter c : charakterSetup.getRandedCharakters()) {
             final long randedUserId = rand.get(i);
             this.players.add(new Player(randedUserId, this.channelId, this.guildId, c.alignment, c.role, i + 1));
             i++;
@@ -463,7 +471,7 @@ public abstract class Game {
      * @throws PermissionException if the bot is missing permissions to edit permission overrides for members and roles
      */
     protected void prepareChannel() throws PermissionException {
-        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        final TextChannel channel = getThisChannel();
         final Guild g = channel.getGuild();
 
         // - ensure write access for the bot in the game channel
@@ -487,7 +495,7 @@ public abstract class Game {
     //revert whatever prepareChannel() did in reverse order
     public void resetRolesAndPermissions(final boolean... complete) {
 
-        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
         if (channel == null) {
             //we probably left the guild
             log.warn("Could not find channel {} to reset roles and permissions in there", this.channelId);
@@ -563,7 +571,7 @@ public abstract class Game {
         }
         cleanUp();
         Games.remove(this);
-        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
         if (channel != null) {
             Wolfia.handleOutputMessage(channel,
                     "Game has been stopped due to:\n`%s`\nSorry about that. The issue has been logged and will hopefully be fixed soon." +
@@ -610,7 +618,7 @@ public abstract class Game {
         }
 
         if (gameEnding) {
-            this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.GAMEEND, -1));
+            this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.GAMEEND, -1));
             this.gameStats.setEndTime(System.currentTimeMillis());
 
             if (villageWins) {
@@ -626,10 +634,10 @@ public abstract class Game {
                         .ifPresent(t -> t.setWinner(true));
             }
             DbWrapper.persist(this.gameStats);
-            out += String.format("\nThis game's id is **%s**, you can watch its replay with `%s %s`",
+            out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
                     this.gameStats.getGameId(), Config.PREFIX + mainTrigger(ReplayCommand.class), this.gameStats.getGameId());
             cleanUp();
-            final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+            final TextChannel channel = getThisChannel();
             DiscordLogger.getLogger().log("%s `%s` Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
                     Emojis.END, TextchatUtils.berlinTime(), this.gameStats.getGameId(),
                     channel.getGuild().getName(), channel.getGuild().getIdLong(),
@@ -652,7 +660,7 @@ public abstract class Game {
 
     protected EmbedBuilder listLivingPlayersWithNumbers(final Player... except) {
         final NiceEmbedBuilder neb = new NiceEmbedBuilder();
-        final TextChannel tc = Wolfia.jda.getTextChannelById(this.channelId);
+        final TextChannel tc = getThisChannel();
         final Guild g = tc.getGuild();
         neb.setTitle("Living players");
         neb.setDescription("Game: " + Games.getInfo(this).textRep() + " " + this.mode.textRep + " on " + g.getName() + " in #" + tc.getName());

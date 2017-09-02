@@ -30,10 +30,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -65,7 +63,7 @@ public class GameStats implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "game", orphanRemoval = true)
     @Column(name = "actions")
-    private List<ActionStats> actions = new ArrayList<>();
+    private Set<ActionStats> actions = new HashSet<>();
 
     @Column(name = "start_time")
     private long startTime;
@@ -161,11 +159,11 @@ public class GameStats implements Serializable {
         this.startingTeams = startingTeams;
     }
 
-    public List<ActionStats> getActions() {
+    public Set<ActionStats> getActions() {
         return this.actions;
     }
 
-    public void setActions(final List<ActionStats> actions) {
+    public void setActions(final Set<ActionStats> actions) {
         this.actions = actions;
     }
 

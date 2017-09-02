@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by napster on 03.07.17.
@@ -96,6 +97,11 @@ public class MessageOutputStats implements Serializable {
         }
         final MessageOutputStats mos = (MessageOutputStats) obj;
         return this.messageId == mos.messageId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.messageId);
     }
 
     public long getMessageId() {

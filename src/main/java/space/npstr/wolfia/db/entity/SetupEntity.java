@@ -19,6 +19,7 @@ package space.npstr.wolfia.db.entity;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,7 +135,7 @@ public class SetupEntity implements IEntity {
 
     public boolean inUser(final long userId) {
         //cache any inning users
-        CachedUser.cache(Wolfia.jda.getTextChannelById(this.channelId).getGuild().getMemberById(userId));
+        CachedUser.cache(getThisChannel().getGuild().getMemberById(userId));
         if (this.innedUsers.contains(userId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s, you have inned already.", TextchatUtils.userAsMention(userId));
             return false;
@@ -154,7 +155,7 @@ public class SetupEntity implements IEntity {
     private void cleanUpInnedPlayers() {
         //did they leave the guild?
         final Set<Long> toBeOuted = new HashSet<>();
-        final Guild g = Wolfia.jda.getTextChannelById(this.channelId).getGuild();
+        final Guild g = getThisChannel().getGuild();
         this.innedUsers.forEach(userId -> {
             if (g.getMemberById(userId) == null) {
                 toBeOuted.add(userId);
@@ -174,7 +175,12 @@ public class SetupEntity implements IEntity {
         cleanUpInnedPlayers();
 
         final NiceEmbedBuilder neb = new NiceEmbedBuilder();
-        neb.setTitle("Setup for channel #" + Wolfia.jda.getTextChannelById(this.channelId).getName());
+        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
+        if (channel == null) {
+            neb.addField("Could not find channel with id " + this.channelId, "", false);
+            return neb.build();
+        }
+        neb.setTitle("Setup for channel #" + channel.getName());
         neb.setDescription(Games.get(this.channelId) == null ? "Game has **NOT** started yet." : "Game has started.");
 
         //games
@@ -260,12 +266,20 @@ public class SetupEntity implements IEntity {
                 //start failed with a fucked up exception
                 Games.remove(game);
                 game.cleanUp();
-                throw new RuntimeException(String.format("%s, game start aborted due to:\n%s",
+                throw new RuntimeException(String.format("%s, game start aborted due to:%n%s",
                         TextchatUtils.userAsMention(commandCallerId), e.getMessage()), e);
             }
             this.innedUsers.clear();
             DbWrapper.merge(this);
             return true;
         }
+    }
+
+    private TextChannel getThisChannel() {
+        final TextChannel tc = Wolfia.getTextChannelById(this.channelId);
+        if (tc == null) {
+            throw new NullPointerException(String.format("Could not find channel %s of setup entity", this.channelId));
+        }
+        return tc;
     }
 }

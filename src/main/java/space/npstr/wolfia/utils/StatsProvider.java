@@ -22,6 +22,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.db.DbUtils;
 import space.npstr.wolfia.db.entity.CachedUser;
 import space.npstr.wolfia.db.entity.EGuild;
@@ -51,9 +52,9 @@ public class StatsProvider {
     private static final Logger log = LoggerFactory.getLogger(StatsProvider.class);
 
     //SQL queries:
-    private class Queries {
+    private static class Queries {
 
-        private class Bot {
+        private static class Bot {
             //average player size bot wide
             private static final String AVERAGE_PLAYERS_SIZE = "SELECT AVG(stats_game.player_size) FROM public.stats_game";
 
@@ -73,7 +74,7 @@ public class StatsProvider {
             private static final String DISTINCT_PLAYER_SIZES = "SELECT DISTINCT stats_game.player_size FROM public.stats_game";
         }
 
-        private class Guild {
+        private static class Guild {
 
             //average player size for a guild
             private static final String AVERAGE_PLAYERS_SIZE = Bot.AVERAGE_PLAYERS_SIZE +
@@ -92,7 +93,7 @@ public class StatsProvider {
 
         }
 
-        private class User {
+        private static class User {
             //return all players a user ever was and join with data for the team and game
             private static final String GENERAL =
                     "SELECT stats_player.total_postlength, stats_player.total_posts, stats_player.alignment, stats_team.is_winner FROM public.stats_player\n" +
@@ -116,7 +117,7 @@ public class StatsProvider {
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = Wolfia.dbManager.getEntityManager();
+        final EntityManager em = DbManager.getEm();
         try {
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Bot.AVERAGE_PLAYERS_SIZE).getSingleResult();
             if (averagePlayerSize == null) averagePlayerSize = new BigDecimal(0);
@@ -148,7 +149,7 @@ public class StatsProvider {
         //add them to the embed
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Wolfia stats:");
-        eb.setThumbnail(Wolfia.jda.getSelfUser().getAvatarUrl());
+        eb.setThumbnail(Wolfia.getSelfUser().getAvatarUrl());
 
         //stats for all games:
         eb.addBlankField(false);
@@ -171,7 +172,7 @@ public class StatsProvider {
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = Wolfia.dbManager.getEntityManager();
+        final EntityManager em = DbManager.getEm();
         try {
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Guild.AVERAGE_PLAYERS_SIZE).setParameter("guildId", guildId).getSingleResult();
             if (averagePlayerSize == null) averagePlayerSize = new BigDecimal(0);
@@ -203,7 +204,7 @@ public class StatsProvider {
 
         //add them to the embed
         EmbedBuilder eb = new EmbedBuilder();
-        final Guild guild = Wolfia.jda.getGuildById(guildId);
+        final Guild guild = Wolfia.getGuildById(guildId);
         final EGuild cachedGuild = EGuild.get(guildId).set(guild).save();
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
         eb.setThumbnail(cachedGuild.getAvatarUrl());
@@ -233,7 +234,7 @@ public class StatsProvider {
         //get data out of the database
         final List<Map<String, Object>> gamesByUser = new ArrayList<>();
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
-        final EntityManager em = Wolfia.dbManager.getEntityManager();
+        final EntityManager em = DbManager.getEm();
         try {
             List<Object[]> result = em.createNativeQuery(Queries.User.GENERAL).setParameter("userId", userId).getResultList();
             gamesByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.GENERAL, em)));
@@ -294,8 +295,9 @@ public class StatsProvider {
     //todo introduce a proper data structure for this
     private static Map<Integer, List<Long>> collectValues(final Map<Integer, List<Map<String, Object>>> input) {
         final Map<Integer, List<Long>> result = new LinkedHashMap<>();//linked to preserve sorting
-        for (final int playerSize : input.keySet()) {
-            final List<Map<String, Object>> gamesxWinningTeam = input.get(playerSize);
+        for (final Map.Entry<Integer, List<Map<String, Object>>> entry : input.entrySet()) {
+            final int playerSize = entry.getKey();
+            final List<Map<String, Object>> gamesxWinningTeam = entry.getValue();
             final long totalGames = gamesxWinningTeam.size();
             final long gamesWonByWolves = gamesxWinningTeam.stream()
                     .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.WOLF).count();
@@ -308,8 +310,9 @@ public class StatsProvider {
     }
 
     private static EmbedBuilder addStatsPerPlayerSize(final EmbedBuilder eb, final Map<Integer, List<Long>> collectedValues) {
-        for (final int playerSize : collectedValues.keySet()) {
-            final List<Long> values = collectedValues.get(playerSize);
+        for (final Map.Entry<Integer, List<Long>> entry : collectedValues.entrySet()) {
+            final int playerSize = entry.getKey();
+            final List<Long> values = entry.getValue();
             String content = Emojis.WOLF + " win " + percentFormat(divide(values.get(1), values.get(0)));
             content += "\n" + Emojis.COWBOY + " win " + percentFormat(divide(values.get(2), values.get(0)));
             eb.addField(values.get(0) + " games with " + playerSize + " players", content, true);

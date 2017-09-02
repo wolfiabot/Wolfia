@@ -24,6 +24,7 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -60,10 +61,10 @@ public class CommandParser {
                                 final MessageReceivedEvent e, final long received) {
             this.raw = rw;
             this.beheaded = beheaded;
-            this.splitBeheaded = splitBeheaded;
+            this.splitBeheaded = Arrays.copyOf(splitBeheaded, splitBeheaded.length);
             this.command = command;
             this.argsRaw = argsRaw;
-            this.args = args;
+            this.args = Arrays.copyOf(args, args.length);
             this.event = e;
             this.received = received;
             this.invoker = e.getAuthor();

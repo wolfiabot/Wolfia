@@ -66,7 +66,7 @@ public abstract class BaseCommand {
 
     //will return a better formatted representation of a commands help
     public String formatHelp(final User invoker) {
-        return String.format("%s, I did not understand that input. Here's some help:\n%s",
+        return String.format("%s, I did not understand that input. Here's some help:%n%s",
                 invoker.getAsMention(), TextchatUtils.asMarkdown(getHelp()));
     }
 

@@ -27,7 +27,6 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.game.definitions.Games;
 
-import static space.npstr.wolfia.Wolfia.jda;
 
 /**
  * Created by napster on 28.05.17.
@@ -48,7 +47,7 @@ public class InfoCommand extends BaseCommand {
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
-        final User owner = jda.getUserById(App.OWNER_ID);
+        final User owner = Wolfia.getUserById(App.OWNER_ID);
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
         maStats += "-> Of which is used:    " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000 + "MB\n";
@@ -59,20 +58,22 @@ public class InfoCommand extends BaseCommand {
 
         String botInfo = "```\n";
         botInfo += "Games being played:     " + Games.getRunningGamesCount() + "\n";
-        botInfo += "Known servers:          " + jda.getGuilds().size() + "\n";
-        botInfo += "Known users in servers: " + jda.getUsers().size() + "\n";
+        botInfo += "Known servers:          " + Wolfia.getGuildsAmount() + "\n";
+        botInfo += "Known users in servers: " + Wolfia.getUsersAmount() + "\n";
         botInfo += "Version:                " + App.VERSION + "\n";
-        botInfo += "JDA responses total:    " + jda.getResponseTotal() + "\n";
+        botInfo += "JDA responses total:    " + Wolfia.getResponseTotal() + "\n";
         botInfo += "JDA version:            " + JDAInfo.VERSION + "\n";
-        botInfo += "Bot owner:              " + owner.getName() + "#" + owner.getDiscriminator() + "\n";
+        if (owner != null) {
+            botInfo += "Bot owner:              " + owner.getName() + "#" + owner.getDiscriminator() + "\n";
+        }
         botInfo += "```";
 
         final EmbedBuilder eb = new EmbedBuilder();
-        final User self = Wolfia.jda.getSelfUser();
+        final User self = Wolfia.getSelfUser();
         eb.setThumbnail(self.getEffectiveAvatarUrl());
         eb.setAuthor(self.getName(), App.SITE_LINK, self.getEffectiveAvatarUrl());
         eb.setTitle(self.getName() + " General Stats", App.SITE_LINK);
-        eb.setDescription(App.DESCRIPTION);
+        eb.setDescription(App.getDescription());
         eb.addField("Bot info", botInfo, false);
         eb.addField("Machine stats", maStats, false);
 

@@ -53,7 +53,6 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.DiscordLogger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -158,12 +157,12 @@ public class Popcorn extends Game {
             this.wolfChat.beginUsage(getWolvesIds());
         }
 
-        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        final TextChannel channel = getThisChannel();
         //inform each player about his role
         final String inviteLink = TextchatUtils.getOrCreateInviteLink(channel);
         final String wolfchatInvite = this.wolfChat != null ? "Wolfchat: " + this.wolfChat.getInvite() + "\n" : "";
         final StringBuilder wolfteamNames = new StringBuilder("Your team is:\n");
-        final String guildChannelAndInvite = String.format("Guild/Server: **%s**\nMain channel: **#%s** %s\n", //invite that may be empty
+        final String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s%n", //invite that may be empty
                 channel.getGuild().getName(), channel.getName(), inviteLink);
 
         for (final Player player : this.getWolves()) {
@@ -221,7 +220,7 @@ public class Popcorn extends Game {
                 g.getName(), g.getIdLong(), channel.getName(), channel.getIdLong(),
                 Games.getInfo(this).textRep(), mode.textRep, this.players.size());
         this.running = true;
-        this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.GAMESTART, -1));
+        this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.GAMESTART, -1));
         //mention the players in the thread
         Wolfia.handleOutputMessage(channel, "Game has started!\n%s\n**%s** wolves are alive!",
                 listLivingPlayers(), getLivingWolves().size());
@@ -244,7 +243,7 @@ public class Popcorn extends Game {
     }
 
     private void distributeGun() {
-        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        final TextChannel channel = getThisChannel();
         if (this.mode == GameMode.WILD) { //essentially a rand
             Wolfia.handleOutputMessage(channel, "Randing the %s", Emojis.GUN);
             giveGun(GameUtils.rand(getLivingVillage()).userId);
@@ -259,7 +258,7 @@ public class Popcorn extends Game {
 
     private void giveGun(final long userId) {
         this.gunBearer = userId;
-        this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.GIVEGUN, userId));
+        this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.GIVEGUN, userId));
         Wolfia.handleOutputMessage(this.channelId, "%s has received the %s !",
                 TextchatUtils.userAsMention(userId), Emojis.GUN);
         startDay();
@@ -268,8 +267,8 @@ public class Popcorn extends Game {
     private void startDay() {
         this.day++;
         this.dayStarted = System.currentTimeMillis();
-        this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.DAYSTART, -1));
-        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.DAYSTART, -1));
+        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
         Wolfia.handleOutputEmbed(channel, getStatus().build());
         Wolfia.handleOutputMessage(channel, "Day %s started! %s, you have %s minutes to shoot someone.",
                 this.day, TextchatUtils.userAsMention(this.gunBearer), this.dayLengthMillis / 60000);
@@ -287,13 +286,16 @@ public class Popcorn extends Game {
         t.start();
     }
 
-    private synchronized void endDay(final DayEndReason reason, final long toBeKilled, final long survivor,
-                                     final Operation doIfLegal) throws DayEndedAlreadyException {
-        //check if this is a valid call
-        if (this.hasDayEnded.contains(this.day)) {
-            throw new DayEndedAlreadyException();
+    private void endDay(final DayEndReason reason, final long toBeKilled, final long survivor,
+                        final Operation doIfLegal) throws DayEndedAlreadyException {
+        synchronized (this.hasDayEnded) {
+            //check if this is a valid call
+            if (this.hasDayEnded.contains(this.day)) {
+                throw new DayEndedAlreadyException();
+            }
+            this.hasDayEnded.add(this.day);
         }
-        //an operation that shall only be run if the call to endDay() does not cause an IllegalGameStateException
+        //an operation that shall only be run if the call to endDay() does not cause an DayEndedAlreadyException
         doIfLegal.execute();
 
         final Player killed;
@@ -306,11 +308,10 @@ public class Popcorn extends Game {
             return;
         }
         this.gameStats.addAction(simpleAction(survivor, Actions.DEATH, toBeKilled));
-        final TextChannel channel = Wolfia.jda.getTextChannelById(this.channelId);
+        final TextChannel channel = getThisChannel();
         final Guild g = channel.getGuild();
 
-        this.hasDayEnded.add(this.day);
-        this.gameStats.addAction(simpleAction(Wolfia.jda.getSelfUser().getIdLong(), Actions.DAYEND, -1));
+        this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.DAYEND, -1));
         Wolfia.handleOutputMessage(channel, "Day %s has ended!", this.day);
 
         //an operation that shall be run if the game isn't over; doing this so we can ge the output from he below if construct sent
@@ -352,12 +353,12 @@ public class Popcorn extends Game {
             log.error("Cant eval shoot outside of DEBUG mode");
             return;
         }
-        shoot(Long.valueOf(shooterId), Long.valueOf(targetId));
+        shoot(Long.parseLong(shooterId), Long.parseLong(targetId));
     }
 
     private boolean shoot(final long shooterId, final long targetId) throws IllegalGameStateException {
         //check various conditions for the shot being legal
-        if (targetId == Wolfia.jda.getSelfUser().getIdLong()) {
+        if (targetId == Wolfia.getSelfUser().getIdLong()) {
             Wolfia.handleOutputMessage(this.channelId, "%s lol can't %s me.",
                     TextchatUtils.userAsMention(shooterId), Emojis.GUN);
             return false;
@@ -445,7 +446,7 @@ public class Popcorn extends Game {
                 Popcorn.this.executor.execute(() -> {
                             try {
                                 final Operation ifLegal = () -> Popcorn.this.gameStats.addAction(simpleAction(
-                                        Wolfia.jda.getSelfUser().getIdLong(), Actions.MODKILL, this.game.gunBearer));
+                                        Wolfia.getSelfUser().getIdLong(), Actions.MODKILL, this.game.gunBearer));
                                 this.game.endDay(DayEndReason.TIMER, this.game.gunBearer, -1, ifLegal);
                             } catch (final DayEndedAlreadyException ignored) {
                             }
@@ -475,13 +476,13 @@ public class Popcorn extends Game {
                     Emojis.GUN, TextchatUtils.formatMillis(TIME_TO_DISTRIBUTE_GUN_MILLIS));
             this.done = false;
             final long wolfchatChannelId = Popcorn.this.wolfChat.getChannelId();
-            final TextChannel wolfchatChannel = Wolfia.jda.getTextChannelById(wolfchatChannelId);
-            final Map<String, Player> options = GameUtils.mapToStrings(getLivingVillage(), Arrays.asList(Emojis.LETTERS));
+            final TextChannel wolfchatChannel = Wolfia.getTextChannelById(wolfchatChannelId);
+            final Map<String, Player> options = GameUtils.mapToStrings(getLivingVillage(), Emojis.LETTERS);
 
             Wolfia.handleOutputMessage(wolfchatChannel, ignored -> Wolfia.handleOutputEmbed(wolfchatChannel,
                     prepareGunDistributionEmbed(options, new HashMap<>(this.votes)).build(), m -> {
                         options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, Wolfia.defaultOnFail));
-                        Wolfia.jda.addEventListener(new ReactionListener(m,
+                        Wolfia.addEventListener(new ReactionListener(m,
                                 //filter: only living wolves may vote
                                 Popcorn.this::isLivingWolf,
                                 //on reaction
@@ -533,10 +534,15 @@ public class Popcorn extends Game {
             } else if (reason == GunDistributionEndReason.EVERYONE_VOTED) {
                 out = "Everyone has voted!";
             }
+            String playerName = "Player Not Found";
+            try {
+                playerName = getPlayer(getsGun).getBothNamesFormatted();
+            } catch (final IllegalGameStateException ignored) {
+            }
             Wolfia.handleOutputMessage(Popcorn.this.wolfChat.getChannelId(), //provided invite link may be empty
                     out + "\n@here, %s gets the %s! Game about to start/continue, get back to the main chat.\n%s",
-                    Wolfia.jda.getUserById(getsGun).getName(), Emojis.GUN,
-                    TextchatUtils.getOrCreateInviteLink(Wolfia.jda.getTextChannelById(Popcorn.this.channelId)));
+                    playerName, Emojis.GUN,
+                    TextchatUtils.getOrCreateInviteLink(Wolfia.getTextChannelById(Popcorn.this.channelId)));
             //give wolves 10 seconds to get back into the chat
             Popcorn.this.executor.schedule(() -> giveGun(getsGun), 10, TimeUnit.SECONDS);
         }
@@ -551,8 +557,10 @@ public class Popcorn extends Game {
             livingVillage.forEach((emoji, player) -> {
                 //who is voting for this player to receive the gun?
                 final List<String> voters = new ArrayList<>();
-                for (final long voter : votesCopy.keySet()) {
-                    if (votesCopy.get(voter).equals(player.userId)) {
+                for (final Map.Entry<Long, Long> entry : votesCopy.entrySet()) {
+                    final long voter = entry.getKey();
+                    final Long vote = entry.getValue();
+                    if (vote.equals(player.userId)) {
                         voters.add(TextchatUtils.userAsMention(voter));
                     }
                 }

@@ -50,13 +50,12 @@ public class RunningCommand extends BaseCommand implements IOwnerRestricted {
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
 
-        //todo whenever jda supports multiple embeds make use of those
         final Map<Long, Game> games = Games.getAll();
         for (final Game game : games.values()) {
             final EmbedBuilder eb = game.getStatus();
             eb.addBlankField(false);
 
-            final TextChannel channel = Wolfia.jda.getTextChannelById(game.getChannelId());
+            final TextChannel channel = Wolfia.getTextChannelById(game.getChannelId());
             String guildName = "Guild not found";
             String channelName = "Channel not found";
             if (channel != null) {

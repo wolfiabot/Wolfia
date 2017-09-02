@@ -34,7 +34,7 @@ public class UpdateCommand extends BaseCommand implements IOwnerRestricted {
         super(trigger, aliases);
     }
 
-    private static boolean reminded = false;
+    private boolean reminded = false;
 
     @Override
     public String help() {
@@ -44,7 +44,7 @@ public class UpdateCommand extends BaseCommand implements IOwnerRestricted {
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
 
-        if (!reminded) {
+        if (!this.reminded) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
                     "%s, you have fucked up in the past so here's a reminder:" +
                             "\n - Did you update the config files?" +
@@ -52,7 +52,7 @@ public class UpdateCommand extends BaseCommand implements IOwnerRestricted {
                             "\n - Did you actually upload the updated code?" +
                             "\nJust run the command again if you're sure you have done everything." +
                             "\n\n_Yours, %s_", commandInfo.event.getAuthor().getAsMention(), commandInfo.event.getJDA().getSelfUser().getName());
-            reminded = true;
+            this.reminded = true;
             return false;
         }
 

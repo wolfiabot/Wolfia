@@ -34,6 +34,7 @@ import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -71,7 +72,7 @@ public class ReplayCommand extends BaseCommand {
 
         final long gameId;
         try {
-            gameId = Long.valueOf(commandInfo.args[0].replaceAll("#", ""));
+            gameId = Long.parseLong(commandInfo.args[0].replaceAll("#", ""));
         } catch (final NumberFormatException ex) {
             commandInfo.reply(formatHelp(commandInfo.invoker));
             return false;
@@ -101,7 +102,7 @@ public class ReplayCommand extends BaseCommand {
 
 
         //2. post the actions
-        final List<ActionStats> sortedActions = gameStats.getActions();
+        final List<ActionStats> sortedActions = new ArrayList<>(gameStats.getActions());
         sortedActions.sort(Comparator.comparingLong(ActionStats::getTimeStampSubmitted));
         final String fieldTitle = "Actions";
         final NiceEmbedBuilder.ChunkingField actionsField = new NiceEmbedBuilder.ChunkingField(fieldTitle, false);

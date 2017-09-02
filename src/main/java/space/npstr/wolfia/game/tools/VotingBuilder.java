@@ -121,8 +121,10 @@ public class VotingBuilder {
         for (final Player candidate : this.possibleCandidates) {
             //who is voting for this player?
             final List<Player> voters = new ArrayList<>();
-            for (final Player voter : votes.keySet()) {
-                if (votes.get(voter).equals(candidate)) {
+            for (final Map.Entry<Player, Player> entry : votes.entrySet()) {
+                final Player voter = entry.getKey();
+                final Player voted = entry.getValue();
+                if (voted.equals(candidate)) {
                     voters.add(voter);
                 }
             }
@@ -148,7 +150,7 @@ public class VotingBuilder {
         return neb;
     }
 
-    private class VoteEntry {
+    private static class VoteEntry {
         public final String emoji;
         public final Player candidate;
         public final Collection<Player> voters;

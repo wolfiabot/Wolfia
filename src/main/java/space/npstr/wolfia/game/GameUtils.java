@@ -87,9 +87,11 @@ public class GameUtils {
 
         final long most = mostVotes;
         final List<C> result = new ArrayList<>();
-        votesAmountToCandidate.forEach((candidate, votesAmount) -> {
+        for (final Map.Entry<C, Long> entry : votesAmountToCandidate.entrySet()) {
+            final C candidate = entry.getKey();
+            final long votesAmount = entry.getValue();
             if (votesAmount == most) result.add(candidate);
-        });
+        }
 
         return result;
     }
@@ -169,7 +171,7 @@ public class GameUtils {
         final String input = commandInfo.argsRaw;
         //by number
         try {
-            final int number = Integer.valueOf(input);
+            final int number = Integer.parseInt(input);
             final Optional<Player> maybe = players.stream().filter(player -> player.number == number).findAny();
             if (maybe.isPresent()) {
                 return Collections.singletonList(maybe.get());
@@ -179,7 +181,7 @@ public class GameUtils {
 
         //by userid
         try {
-            final long userId = Long.valueOf(input);
+            final long userId = Long.parseLong(input);
             final Optional<Player> maybe = players.stream().filter(player -> player.userId == userId).findAny();
             if (maybe.isPresent()) {
                 return Collections.singletonList(maybe.get());
@@ -196,8 +198,8 @@ public class GameUtils {
             distances.put(p, distanceName < distanceNick ? distanceName : distanceNick);
         }
         int smallestDistance = Integer.MAX_VALUE;
-        for (final Player p : distances.keySet()) {
-            final int distance = distances.get(p);
+        for (final Map.Entry<Player, Integer> entry : distances.entrySet()) {
+            final int distance = entry.getValue();
             if (distance < smallestDistance) {
                 smallestDistance = distance;
             }
@@ -207,8 +209,10 @@ public class GameUtils {
             return Collections.emptyList(); //no player found
         } else {
             final List<Player> result = new ArrayList<>();
-            for (final Player p : distances.keySet()) {
-                if (distances.get(p) == smallestDistance) result.add(p);
+            for (final Map.Entry<Player, Integer> entry : distances.entrySet()) {
+                final Player p = entry.getKey();
+                final int distance = entry.getValue();
+                if (distance == smallestDistance) result.add(p);
             }
             return result;
         }

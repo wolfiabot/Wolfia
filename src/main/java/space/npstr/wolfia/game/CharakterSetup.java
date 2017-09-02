@@ -58,17 +58,6 @@ public class CharakterSetup {
         return this.charakters.size();
     }
 
-    //deliberate misspelling with the german word for character to avoid confusion with Java's Character class
-    public class Charakter {
-        public final Alignments alignment;
-        public final Roles role;
-
-        public Charakter(final Alignments alignment, final Roles role) {
-            this.alignment = alignment;
-            this.role = role;
-        }
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();

@@ -30,6 +30,7 @@ import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.persistence.EntityManager;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by napster on 30.05.17.
@@ -46,7 +47,9 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
     private enum Result {WORKING, SUCCESS, FAILED}
 
     // the SQL syntax used here works with both SQLite and PostgreSQL, beware when altering
+    @SuppressWarnings("FieldCanBeLocal")
     private final String DROP_TEST_TABLE = "DROP TABLE IF EXISTS test;";
+    @SuppressWarnings("FieldCanBeLocal")
     private final String CREATE_TEST_TABLE = "CREATE TABLE IF NOT EXISTS test (id SERIAL, val INTEGER, PRIMARY KEY (id));";
     private final String INSERT_TEST_TABLE = "INSERT INTO test (val) VALUES (:val) ";
 
@@ -57,18 +60,18 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
-        return invoke(Wolfia.dbManager, commandInfo.event.getTextChannel(), commandInfo.event.getMember(), commandInfo.args);
+        return invoke(commandInfo.event.getTextChannel(), commandInfo.event.getMember(), commandInfo.args);
     }
 
-    public boolean invoke(final DbManager dbm, final TextChannel channel, final Member invoker, final String[] args) {
+    public boolean invoke(final TextChannel channel, final Member invoker, final String[] args) {
 
         boolean result = false;
 
         int t = 20;
         int o = 2000;
         if (args.length > 1) {
-            t = Integer.valueOf(args[0]);
-            o = Integer.valueOf(args[1]);
+            t = Integer.parseInt(args[0]);
+            o = Integer.parseInt(args[1]);
         }
         final int threads = t;
         final int operations = o;
@@ -77,14 +80,14 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
                     TextchatUtils.userAsMention(invoker.getUser().getIdLong()), threads, operations);
         }
 
-        prepareStressTest(dbm);
+        prepareStressTest();
         final long started = System.currentTimeMillis();
         final Result[] results = new Result[threads];
         final Throwable[] exceptions = new Throwable[threads];
 
         for (int i = 0; i < threads; i++) {
             results[i] = Result.WORKING;
-            new StressTestThread(i, operations, results, exceptions, dbm).start();
+            new StressTestThread(i, operations, results, exceptions).start();
         }
 
         //wait for when it's done and report the results
@@ -135,9 +138,9 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
         return true;
     }
 
-    private void prepareStressTest(final DbManager dbm) {
+    private void prepareStressTest() {
         //drop and recreate the test table
-        final EntityManager em = dbm.getEntityManager();
+        final EntityManager em = DbManager.getEm();
         try {
             em.getTransaction().begin();
             em.createNativeQuery(this.DROP_TEST_TABLE).executeUpdate();
@@ -154,16 +157,14 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
         private final int operations;
         private final Result[] results;
         private final Throwable[] exceptions;
-        private final DbManager dbm;
 
 
-        StressTestThread(final int number, final int operations, final Result[] results, final Throwable[] exceptions, final DbManager dbm) {
+        StressTestThread(final int number, final int operations, final Result[] results, final Throwable[] exceptions) {
             super(StressTestThread.class.getSimpleName() + "-" + number);
             this.number = number;
             this.operations = operations;
             this.results = results;
             this.exceptions = exceptions;
-            this.dbm = dbm;
         }
 
         @Override
@@ -172,11 +173,11 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
             EntityManager em = null;
             try {
                 for (int i = 0; i < this.operations; i++) {
-                    em = this.dbm.getEntityManager();
+                    em = DbManager.getEm();
                     try {
                         em.getTransaction().begin();
                         em.createNativeQuery(DbTestCommand.this.INSERT_TEST_TABLE)
-                                .setParameter("val", (int) (Math.random() * 10000))
+                                .setParameter("val", ThreadLocalRandom.current().nextInt())
                                 .executeUpdate();
                         em.getTransaction().commit();
                     } finally {

@@ -23,8 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Map;
 
 /**
@@ -68,25 +70,27 @@ public class Config {
 
         final File sneakyFile = new File("sneaky.yaml");
         final Yaml yaml = new Yaml();
-        final Map<String, Object> sneaky = (Map<String, Object>) yaml.load(new FileReader(sneakyFile));
-        //change nulls to empty strings
-        sneaky.keySet().forEach((String key) -> sneaky.putIfAbsent(key, ""));
+        try (Reader reader = new InputStreamReader(new FileInputStream(sneakyFile), "UTF-8")) {
+            final Map<String, Object> sneaky = (Map<String, Object>) yaml.load(reader);
+            //change nulls to empty strings
+            sneaky.keySet().forEach((String key) -> sneaky.putIfAbsent(key, ""));
 
-        //where are we running?
-        this.isDebug = (boolean) sneaky.getOrDefault("isDebug", false);
+            //where are we running?
+            this.isDebug = (boolean) sneaky.getOrDefault("isDebug", false);
 
-        final Map<String, String> values;
-        if (this.isDebug) values = (Map) sneaky.get("debug");
-        else values = (Map) sneaky.get("prod");
+            final Map<String, String> values;
+            if (this.isDebug) values = (Map) sneaky.get("debug");
+            else values = (Map) sneaky.get("prod");
 
-        //sneaky stuff
-        this.discordToken = values.getOrDefault("discordToken", "");
-        this.errorLogWebHook = values.getOrDefault("errorLogWebHook", "");
-        this.jdbcUrl = values.getOrDefault("jdbcUrl", "");
-        this.imgurClientId = values.getOrDefault("imgurClientId", "");
-        this.avatars = values.getOrDefault("avatars", "");
-        this.botsDiscordPwToken = values.getOrDefault("botsDiscordPwToken", "");
-        this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
-        this.logChannelId = Long.valueOf(values.getOrDefault("logChannelId", "0"));
+            //sneaky stuff
+            this.discordToken = values.getOrDefault("discordToken", "");
+            this.errorLogWebHook = values.getOrDefault("errorLogWebHook", "");
+            this.jdbcUrl = values.getOrDefault("jdbcUrl", "");
+            this.imgurClientId = values.getOrDefault("imgurClientId", "");
+            this.avatars = values.getOrDefault("avatars", "");
+            this.botsDiscordPwToken = values.getOrDefault("botsDiscordPwToken", "");
+            this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
+            this.logChannelId = Long.parseLong(values.getOrDefault("logChannelId", "0"));
+        }
     }
 }

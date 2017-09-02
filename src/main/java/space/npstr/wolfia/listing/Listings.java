@@ -85,6 +85,7 @@ public class Listings {
                 log.info("Attempt {} successfully posted bot stats to bots.discord.pw, code {}", att, response.code());
                 lastBotsDiscordPwPayload = payload;
             } else {
+                //noinspection ConstantConditions
                 log.warn("Attempt {} failed to post stats to bots.discord.pw: code {}, body:\n{}", att,
                         response.code(), response.body() != null ? response.body().string() : "null");
                 botsDiscordPwTask = reschedule(() -> postToBotsDiscordPw(jda, att), att);
@@ -97,7 +98,7 @@ public class Listings {
 
     //increase delay with growing attempts to avoid overloading the listing servers
     private static Future reschedule(final Runnable task, final int attempt) {
-        return Wolfia.scheduledExecutor.schedule(task, 10 * attempt, TimeUnit.SECONDS);
+        return Wolfia.scheduledExecutor.schedule(task, 10L * attempt, TimeUnit.SECONDS);
     }
 
     private static volatile String lastDiscordbotsOrgPayload = "";
@@ -138,6 +139,7 @@ public class Listings {
                 log.info("Attempt {} successfully posted bot stats to discordbots.org, code {}", att, response.code());
                 lastDiscordbotsOrgPayload = payload;
             } else {
+                //noinspection ConstantConditions
                 log.warn("Attempt {} failed to post stats to discordbots.org: code {}, body:\n{}", att,
                         response.code(), response.body() != null ? response.body().string() : "null");
                 discordbotsOrgTask = reschedule(() -> postToDiscordbotsOrg(jda, att), att);

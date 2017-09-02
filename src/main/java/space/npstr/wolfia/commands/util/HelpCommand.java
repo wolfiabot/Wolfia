@@ -73,11 +73,11 @@ public class HelpCommand extends BaseCommand {
 
         final MessageReceivedEvent e = commandInfo.event;
         final TextChannel channel = e.getTextChannel();
-        final String help = String.format("Hi %s,\nyou can find %s's **documentation** and a **full list of commands** under\n<%s>"
-                        + "\n\n**To invite the bot to your server please follow this link**:\n<%s>"
-                        + "\n\nDrop by the Wolfia Lounge to play games, get support, leave feedback, get notified of updates and vote on the roadmap:\n<%s>"
-                        + "\n\nCode open sourced on Github:\n<%s>"
-                        + "\n\nCreated and hosted by Napster:\n<%s>",
+        final String help = String.format("Hi %s,%nyou can find %s's **documentation** and a **full list of commands** under%n<%s>"
+                        + "%n%n**To invite the bot to your server please follow this link**:%n<%s>"
+                        + "%n%nDrop by the Wolfia Lounge to play games, get support, leave feedback, get notified of updates and vote on the roadmap:%n<%s>"
+                        + "%n%nCode open sourced on Github:%n<%s>"
+                        + "%n%nCreated and hosted by Napster:%n<%s>",
                 e.getAuthor().getName(), e.getJDA().getSelfUser().getName(), App.DOCS_LINK, App.INVITE_LINK,
                 App.WOLFIA_LOUNGE_INVITE, App.GITHUB_LINK, "https://npstr.space");
 

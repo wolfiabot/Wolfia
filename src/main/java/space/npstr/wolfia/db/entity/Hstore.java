@@ -50,7 +50,7 @@ public class Hstore {
 
     @Column(name = "hstorex", columnDefinition = "hstore")
     @Convert(converter = PostgresHStoreConverter.class)
-    public Map<String, String> hstore = new HashMap<>();
+    public final Map<String, String> hstore = new HashMap<>();
 
     //for jpa
     Hstore() {

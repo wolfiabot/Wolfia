@@ -23,6 +23,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Created by napster on 03.07.17.
@@ -110,6 +111,11 @@ public class GeneralBotStats implements Serializable {
         }
         final GeneralBotStats gbs = (GeneralBotStats) obj;
         return this.id == gbs.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.id);
     }
 
     public long getId() {

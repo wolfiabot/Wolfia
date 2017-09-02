@@ -159,19 +159,19 @@ public class PlayerStats implements Serializable {
         this.role = role.name();
     }
 
-    public int getTotalPosts() {
+    public synchronized int getTotalPosts() {
         return this.totalPosts;
     }
 
-    public void setTotalPosts(final int totalPosts) {
+    public synchronized void setTotalPosts(final int totalPosts) {
         this.totalPosts = totalPosts;
     }
 
-    public int getTotalPostLength() {
+    public synchronized int getTotalPostLength() {
         return this.totalPostLength;
     }
 
-    public void setTotalPostLength(final int totalPostLength) {
+    public synchronized void setTotalPostLength(final int totalPostLength) {
         this.totalPostLength = totalPostLength;
     }
 }

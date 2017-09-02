@@ -50,14 +50,14 @@ public class Charts {
     private static final int SINCE_FOREVER = 0;
     private static final int RANGE_ALL = -1;
 
-    private static Charts singleton;
-
     @SuppressWarnings("UnusedReturnValue")
     public static Charts spark() {
-        if (singleton == null) {
-            singleton = new Charts();
-        }
-        return singleton;
+        return ChartsHolder.INSTANCE;
+    }
+
+    //holder singleton pattern
+    private static class ChartsHolder {
+        private static final Charts INSTANCE = new Charts();
     }
 
 
@@ -403,12 +403,12 @@ public class Charts {
 
     private static int extractRange(final Request request, final int defaultValue) {
         final String range = request.queryParams("range");
-        return range == null ? defaultValue : Integer.valueOf(range);
+        return range == null ? defaultValue : Integer.parseInt(range);
     }
 
     private static long extractSince(final Request request, final long defaultValue) {
         final String since = request.queryParams("since");
-        return since == null ? defaultValue : Long.valueOf(since);
+        return since == null ? defaultValue : Long.parseLong(since);
     }
 
     private static String paramsToString(final String query) {

@@ -33,8 +33,8 @@ public class PrivateChannelListener extends ListenerAdapter {
         this.allowedCommand = allowedCommand;
         this.game = game;
 
-        Wolfia.jda.addEventListener(this);
-        Wolfia.scheduledExecutor.schedule(() -> Wolfia.jda.removeEventListener(this), selfDestructMillis, TimeUnit.MILLISECONDS);
+        Wolfia.addEventListener(this);
+        Wolfia.scheduledExecutor.schedule(() -> Wolfia.removeEventListener(this), selfDestructMillis, TimeUnit.MILLISECONDS);
     }
 
     @Override

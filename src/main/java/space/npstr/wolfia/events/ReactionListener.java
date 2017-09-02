@@ -58,7 +58,7 @@ public class ReactionListener extends ListenerAdapter {
 
     protected void destruct() {
         //remove the listener
-        Wolfia.jda.removeEventListener(this);
+        Wolfia.removeEventListener(this);
         this.selfDestructCallback.accept(null);
     }
 

@@ -20,6 +20,7 @@ package space.npstr.wolfia.db.entity;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.IEntity;
 
@@ -121,11 +122,16 @@ public class ChannelSettings implements IEntity {
 
     public MessageEmbed getStatus() {
         final EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("Settings for channel #" + Wolfia.jda.getTextChannelById(this.channelId).getName());
+        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
+        if (channel == null) {
+            eb.addField("Could not find channel with id " + this.channelId, "", false);
+            return eb.build();
+        }
+        eb.setTitle("Settings for channel #" + channel.getName());
         eb.setDescription("Changes to the settings are reserved for channel moderators.");
         String roleName = "[Not set up]";
         if (this.accessRoleId > 0) {
-            final Role accessRole = Wolfia.jda.getTextChannelById(this.channelId).getGuild().getRoleById(this.accessRoleId);
+            final Role accessRole = channel.getGuild().getRoleById(this.accessRoleId);
             if (accessRole == null) {
                 roleName = "[Deleted]";
             } else {

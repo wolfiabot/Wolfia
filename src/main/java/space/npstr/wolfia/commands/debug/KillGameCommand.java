@@ -51,7 +51,7 @@ public class KillGameCommand extends BaseCommand implements IOwnerRestricted {
 
         final long channelId;
         try {
-            channelId = Long.valueOf(commandInfo.args[0]);
+            channelId = Long.parseLong(commandInfo.args[0]);
         } catch (final NumberFormatException e) {
             commandInfo.reply("Invalid channelId provided (not a long)");
             return false;

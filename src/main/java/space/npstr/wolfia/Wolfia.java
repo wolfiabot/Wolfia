@@ -32,8 +32,11 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.OkHttpClient;
@@ -61,7 +64,9 @@ import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -83,10 +88,8 @@ public class Wolfia {
     public static final Consumer<Throwable> defaultOnFail;
     public static final ExceptionLoggingExecutor scheduledExecutor;
 
-    public static JDA jda;
-    public static DbManager dbManager;
-    public static Wolfia wolfia;
-    public static OkHttpClient httpClient = new OkHttpClient();
+    private static Wolfia wolfia;
+    public static final OkHttpClient httpClient = new OkHttpClient();
 
     private static final Logger log;
     // for any fire and forget tasks that are expected to run for a short while only
@@ -104,6 +107,9 @@ public class Wolfia {
         scheduledExecutor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
         avatars = new ImgurAlbum(Config.C.avatars);
     }
+
+    private static boolean started = false;
+    private static final Set<JDA> jdas = new HashSet<>();
 
     public final CommandListener commandListener;
 
@@ -133,9 +139,11 @@ public class Wolfia {
             log.info("Running PRODUCTION configuration");
 
         //set up relational database
-        dbManager = new DbManager();
+        //noinspection ResultOfMethodCallIgnored
+        DbManager.getInstance();
 
         //fire up spark async
+        //noinspection ResultOfMethodCallIgnored
         submit(Charts::spark);
 
         AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(DbWrapper.loadPrivateGuilds());
@@ -149,11 +157,10 @@ public class Wolfia {
 
         //set up a random avatar and change every 6 hours
         final Hstore defaultHstore = Hstore.load();
-        final int lastIndex = Integer.valueOf(defaultHstore.get("avatarLastIndex", "-1"));
+        final int lastIndex = Integer.parseInt(defaultHstore.get("avatarLastIndex", "-1"));
         avatars.setLastIndex(lastIndex);
-        avatars.get(lastIndex);
 
-        final long lastUpdated = Long.valueOf(defaultHstore.get("avatarLastUpdated", "0"));
+        final long lastUpdated = Long.parseLong(defaultHstore.get("avatarLastUpdated", "0"));
         final long initialDelay = lastUpdated - System.currentTimeMillis() + TimeUnit.HOURS.toMillis(6);
         log.info("Updating avatar in {}ms", initialDelay);
 
@@ -169,6 +176,8 @@ public class Wolfia {
                 log.error("Could not set avatar.", e);
             }
         }, initialDelay, TimeUnit.HOURS.toMillis(6), TimeUnit.MILLISECONDS);
+
+        started = true;
     }
 
     /**
@@ -183,15 +192,15 @@ public class Wolfia {
 
 
     private static void generalBotStatsToDB() {
-        if (jda == null) {
-            log.error("Skipping posting of bot stats due to JDA being null");
+        if (!started) {
+            log.error("Skipping posting of bot stats due to not being ready yet");
             return;
         }
         log.info("Writing general bot stats to database");
 
         DbWrapper.persist(new GeneralBotStats(
-                jda.getUsers().size(),
-                jda.getGuilds().size(),
+                getUsersAmount(),
+                getGuildsAmount(),
                 1,
                 Games.getRunningGamesCount(),
                 AVAILABLE_PRIVATE_GUILD_QUEUE.size(),
@@ -204,13 +213,91 @@ public class Wolfia {
         ));
     }
 
+    public static Wolfia getInstance() {
+        return wolfia;
+    }
+
+    /**
+     * @return true if wolfia has started and all systems are expected to be operational
+     */
+    public static boolean isStarted() {
+        return started;
+    }
+
+    // ########## JDA wrapper methods, they get 9000% more useful when sharding
+    public static Guild getGuildById(final long guildId) {
+        for (final JDA jda : jdas) {
+            final Guild g = jda.getGuildById(guildId);
+            if (g != null) return g;
+        }
+        return null;
+    }
+
+    public static int getGuildsAmount() {
+        final HashSet<Long> guildIds = new HashSet<>();
+        for (final JDA jda : jdas) {
+            jda.getGuilds().stream().mapToLong(Guild::getIdLong).forEach(guildIds::add);
+        }
+        return guildIds.size();
+    }
+
+    public static TextChannel getTextChannelById(final long channelId) {
+        for (final JDA jda : jdas) {
+            final TextChannel tc = jda.getTextChannelById(channelId);
+            if (tc != null) return tc;
+        }
+        return null;
+    }
+
+    public static User getUserById(final long userId) {
+        for (final JDA jda : jdas) {
+            final User u = jda.getUserById(userId);
+            if (u != null) return u;
+        }
+        return null;
+    }
+
+    public static int getUsersAmount() {
+        final HashSet<Long> userIds = new HashSet<>();
+        for (final JDA jda : jdas) {
+            jda.getUsers().stream().mapToLong(User::getIdLong).forEach(userIds::add);
+        }
+        return userIds.size();
+    }
+
+    public static SelfUser getSelfUser() {
+        return getFirstJda().getSelfUser();
+    }
+
+    public static void addEventListener(final EventListener eventListener) {
+        for (final JDA jda : jdas) {
+            jda.addEventListener(eventListener);
+        }
+    }
+
+    public static void removeEventListener(final EventListener eventListener) {
+        for (final JDA jda : jdas) {
+            jda.removeEventListener(eventListener);
+        }
+    }
+
+    public static long getResponseTotal() {
+        return jdas.stream().mapToLong(JDA::getResponseTotal).sum();
+    }
+
+    public static JDA getFirstJda() {
+        return jdas.iterator().next();
+    }
+
+    // ##########
+
     private Wolfia() {
         //setting up JDA
         log.info("Setting up JDA and main listener");
         this.commandListener = new CommandListener(
                 AVAILABLE_PRIVATE_GUILD_QUEUE.stream().map(PrivateGuild::getId).collect(Collectors.toList()));
         try {
-            jda = new JDABuilder(AccountType.BOT)
+            final JDA jda = new JDABuilder(AccountType.BOT)
                     .setToken(Config.C.discordToken)
                     .addEventListener(this.commandListener)
                     .addEventListener(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
@@ -222,24 +309,21 @@ public class Wolfia {
                             .retryOnConnectionFailure(true)
                             .readTimeout(30, TimeUnit.SECONDS))
                     .buildBlocking();
+            jdas.add(jda);
         } catch (final Exception e) {
             log.error("could not create JDA object, possibly invalid bot token, exiting", e);
             return;
         }
 
-        jda.asBot().getApplicationInfo().queue(
-                appInfo -> {
-                    App.OWNER_ID = appInfo.getOwner().getIdLong();
-                    App.INVITE_LINK = appInfo.getInviteUrl(0);
-                    App.DESCRIPTION = appInfo.getDescription();
-                },
+        getFirstJda().asBot().getApplicationInfo().queue(
+                appInfo -> App.setDescription(appInfo.getDescription()),
                 t -> log.error("Could not load application info", t));
     }
 
     //set avatar for bot and wolfia lounge
     private static void setAvatars(final Icon icon) {
-        final Guild wolfiaLounge = jda.getGuildById(App.WOLFIA_LOUNGE_ID);
-        jda.getSelfUser().getManager().setAvatar(icon).queue(null, defaultOnFail);
+        final Guild wolfiaLounge = getGuildById(App.WOLFIA_LOUNGE_ID);
+        getSelfUser().getManager().setAvatar(icon).queue(null, defaultOnFail);
         if (!Config.C.isDebug && wolfiaLounge != null && wolfiaLounge.getSelfMember().hasPermission(Permission.MANAGE_SERVER)) {
             wolfiaLounge.getManager().setIcon(icon).queue(null, defaultOnFail);
         }
@@ -294,7 +378,7 @@ public class Wolfia {
     }
 
     public static Optional<Message> handleOutputMessage(final boolean complete, final long channelId, final String msg, final Object... args) {
-        final TextChannel channel = jda.getTextChannelById(channelId);
+        final TextChannel channel = getTextChannelById(channelId);
         return handleOutputMessage(complete, channel, null, null, msg, args);
     }
 
@@ -303,7 +387,7 @@ public class Wolfia {
     }
 
     public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        final TextChannel channel = jda.getTextChannelById(channelId);
+        final TextChannel channel = getTextChannelById(channelId);
         return handleOutputMessage(channel, onSuccess, onFail, msg, args);
     }
 
@@ -312,7 +396,7 @@ public class Wolfia {
     }
 
     public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        final TextChannel channel = jda.getTextChannelById(channelId);
+        final TextChannel channel = getTextChannelById(channelId);
         return handleOutputMessage(false, channel, null, onFail, msg, args);
     }
 
@@ -354,7 +438,7 @@ public class Wolfia {
     }
 
     public static Optional<Message> handleOutputEmbed(final boolean complete, final long channelId, final MessageEmbed msgEmbed) {
-        final TextChannel channel = jda.getTextChannelById(channelId);
+        final TextChannel channel = getTextChannelById(channelId);
         return handleOutputEmbed(complete, channel, msgEmbed, null, null);
     }
 
@@ -374,7 +458,11 @@ public class Wolfia {
                     "error log spam. Fix your code please.");
         }
         try {
-            jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
+            final User u = getUserById(userId);
+            if (u == null) {
+                throw new NullPointerException("No such user: " + userId);
+            }
+            u.openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
         } catch (final Exception e) {
             if (onFail != null) onFail.accept(e);
         }
@@ -386,7 +474,11 @@ public class Wolfia {
                     "error log spam. Fix your code please.");
         }
         try {
-            jda.getUserById(userId).openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onSuccess, onFail, msg, args), onFail);
+            final User u = getUserById(userId);
+            if (u == null) {
+                throw new NullPointerException("No such user: " + userId);
+            }
+            u.openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onSuccess, onFail, msg, args), onFail);
         } catch (final Exception e) {
             if (onFail != null) onFail.accept(e);
         }
@@ -398,7 +490,11 @@ public class Wolfia {
                     "error log spam. Fix your code please.");
         }
         try {
-            jda.getUserById(userId).openPrivateChannel().queue((privateChannel -> Wolfia.handleOutputEmbed(false, privateChannel, messageEmbed, null, onFail)));
+            final User u = getUserById(userId);
+            if (u == null) {
+                throw new NullPointerException("No such user: " + userId);
+            }
+            u.openPrivateChannel().queue((privateChannel -> Wolfia.handleOutputEmbed(false, privateChannel, messageEmbed, null, onFail)));
         } catch (final Exception e) {
             if (onFail != null) onFail.accept(e);
         }
@@ -425,8 +521,8 @@ public class Wolfia {
             //okHttpClient claims that a shutdown isn't necessary
 
             //shutdown JDA
-            log.info("Shutting down JDA");
-            jda.shutdown();
+            log.info("Shutting down JDAs");
+            jdas.forEach(JDA::shutdown);
 
             //shutdown executors
             log.info("Shutting down executors");
@@ -441,7 +537,7 @@ public class Wolfia {
 
             //shutdown DB
             log.info("Shutting down database");
-            dbManager.shutdown();
+            DbManager.getInstance().shutdown();
 
             //shutdown logback logger
             log.info("Shutting down logger :rip:");

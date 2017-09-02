@@ -109,7 +109,7 @@ public class SetupCommand extends BaseCommand {
                     break;
                 case "daylength":
                     try {
-                        final long minutes = Long.valueOf(commandInfo.args[1]);
+                        final long minutes = Long.parseLong(commandInfo.args[1]);
                         if (minutes > 10) {
                             Wolfia.handleOutputMessage(channel, "%s, day lengths of more than 10 minutes are not supported currently.", invoker.getAsMention());
                             return false;

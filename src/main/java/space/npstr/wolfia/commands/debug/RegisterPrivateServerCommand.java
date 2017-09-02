@@ -92,8 +92,8 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
         final PrivateGuild pg = new PrivateGuild(DbWrapper.loadPrivateGuilds().size(), g.getIdLong());
         DbWrapper.persist(pg);
         Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(pg);
-        Wolfia.jda.addEventListener(pg);
-        Wolfia.wolfia.commandListener.addIgnoredGuild(pg.getId());
+        Wolfia.addEventListener(pg);
+        Wolfia.getInstance().commandListener.addIgnoredGuild(pg.getId());
         g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue(null, Wolfia.defaultOnFail);
         return true;
     }

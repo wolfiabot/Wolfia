@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,8 +39,12 @@ public class ExceptionLoggingExecutor {
     private final ScheduledThreadPoolExecutor scheduledExecutor;
 
 
-    public ExceptionLoggingExecutor(final int threads, final String name) {
-        this.scheduledExecutor = new ScheduledThreadPoolExecutor(threads, r -> new Thread(r, name));
+    public ExceptionLoggingExecutor(final int threads, final String threadName) {
+        this.scheduledExecutor = new ScheduledThreadPoolExecutor(threads, r -> new Thread(r, threadName));
+    }
+
+    public ExceptionLoggingExecutor(final int threads, final ThreadFactory threadFactory) {
+        this.scheduledExecutor = new ScheduledThreadPoolExecutor(threads, threadFactory);
     }
 
     public ScheduledFuture<?> scheduleAtFixedRate(final Runnable task, final long initialDelay, final long period, final TimeUnit timeUnit) {

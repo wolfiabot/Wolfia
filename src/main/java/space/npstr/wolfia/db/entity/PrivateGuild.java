@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Invite;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -63,6 +64,8 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
 
     private static final Logger log = LoggerFactory.getLogger(PrivateGuild.class);
     private static final String WOLF_ROLE_NAME = "Wolf";
+    //using a static scope for the lock since entities, while representing the same data, may be distinct objects
+    private static final Object usageLock = new Object();
 
     @NaturalId //unique constraint
     @Column(name = "private_guild_number")
@@ -134,10 +137,11 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
             return;
         }
 
-        //kick everyone who isn't allowed
-        if (!this.allowedUsers.contains(event.getMember().getUser().getIdLong())) {
-            final Consumer whenDone = aVoid -> event.getGuild().getController().kick(event.getMember()).queue(null, Wolfia.defaultOnFail);
-            Wolfia.handlePrivateOutputMessage(event.getMember().getUser().getIdLong(), whenDone, whenDone,
+        final Member joined = event.getMember();
+        //kick the joined user if they aren't on the allowed list
+        if (!this.allowedUsers.contains(joined.getUser().getIdLong())) {
+            final Consumer whenDone = aVoid -> event.getGuild().getController().kick(joined).queue(null, Wolfia.defaultOnFail);
+            Wolfia.handlePrivateOutputMessage(joined.getUser().getIdLong(), whenDone, whenDone,
                     "You are not allowed to join private guild #%s currently.", this.privateGuildNumber);
             return;
         }
@@ -188,14 +192,17 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
         return command instanceof NightkillCommand || command instanceof VoteCountCommand || command instanceof UnvoteCommand;
     }
 
-    public synchronized void beginUsage(final Collection<Long> wolfUserIds) {
-        if (this.inUse) {
-            throw new IllegalStateException("Can't begin the usage of a private guild #" + this.privateGuildNumber + " that is being used already");
+    public void beginUsage(final Collection<Long> wolfUserIds) {
+        synchronized (usageLock) {
+            if (this.inUse) {
+                throw new IllegalStateException("Can't begin the usage of a private guild #" + this.privateGuildNumber + " that is being used already");
+            }
+            this.inUse = true;
         }
-        this.inUse = true;
 
         try {
-            final Guild g = Wolfia.jda.getGuildById(this.guildId);
+            final Guild g = getThisGuild();
+
             cleanUpMembers();
             this.allowedUsers.addAll(wolfUserIds);
 
@@ -214,33 +221,42 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
 
     //kick everyone, except guild owner and bots
     private void cleanUpMembers() {
-        final Guild g = Wolfia.jda.getGuildById(this.guildId);
+        final Guild g = getThisGuild();
         this.allowedUsers.clear();
         g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.getController().kick(m).queue(null, Wolfia.defaultOnFail));
     }
 
-    public synchronized void endUsage() {
-        if (!this.inUse) {
-            throw new IllegalStateException("Can't end the usage of a private guild #" + this.privateGuildNumber + " that is not in use ");
-        }
-        cleanUpMembers();
-        try {//complete() in here to catch errors
-            //revoke all invites
-            for (final TextChannel channel : Wolfia.jda.getGuildById(this.guildId).getTextChannels()) {
-                final List<Invite> invites = channel.getInvites().complete();
-                invites.forEach(i -> i.delete().complete());
+    public void endUsage() {
+        synchronized (usageLock) {
+            if (!this.inUse) {
+                throw new IllegalStateException("Can't end the usage of a private guild #" + this.privateGuildNumber + " that is not in use ");
             }
-            Wolfia.jda.getTextChannelById(this.currentChannelId).delete().complete();
-        } catch (final Exception e) {
-            log.error("Exception while deleting channel {} in private guild #{} {}", this.currentChannelId, this.privateGuildNumber, this.guildId, e);
-            return;//leave the private guild in a "broken state", this can be later fixed manually through eval
+            cleanUpMembers();
+            try {//complete() in here to catch errors
+                //revoke all invites
+                for (final TextChannel channel : getThisGuild().getTextChannels()) {
+                    final List<Invite> invites = channel.getInvites().complete();
+                    invites.forEach(i -> i.delete().complete());
+                }
+                final TextChannel tc = Wolfia.getTextChannelById(this.currentChannelId);
+                if (tc != null) {
+                    tc.delete().complete();
+                } else {
+                    log.error("Did not find channel {} in private guild #{} to delete it.",
+                            this.currentChannelId, this.privateGuildNumber);
+                }
+            } catch (final Exception e) {
+                log.error("Exception while deleting channel {} in private guild #{} {}", this.currentChannelId,
+                        this.privateGuildNumber, this.guildId, e);
+                return;//leave the private guild in a "broken state", this can be later fixed manually through eval
+            }
+            this.inUse = false;
+            Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(this);
         }
-        this.inUse = false;
-        Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(this);
     }
 
     public String getInvite() {
-        final Guild g = Wolfia.jda.getGuildById(this.guildId);
+        final Guild g = getThisGuild();
         TextChannel channel = g.getTextChannelById(this.currentChannelId);
         if (channel == null) channel = g.getPublicChannel();
         return TextchatUtils.getOrCreateInviteLink(channel, () -> {
@@ -250,5 +266,13 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
 
     public long getChannelId() {
         return this.currentChannelId;
+    }
+
+    private Guild getThisGuild() {
+        final Guild g = Wolfia.getGuildById(this.guildId);
+        if (g == null) throw new NullPointerException(String.format("Could not find private guild #%s with id %s",
+                this.privateGuildNumber, this.guildId));
+
+        return g;
     }
 }
