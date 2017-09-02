@@ -67,7 +67,7 @@ public class RunningCommand extends BaseCommand implements IOwnerRestricted {
 
             eb.addField("Started", TextchatUtils.toBerlinTime(game.getStartTime()), true);
             if (channel != null)
-                eb.addField("Invite", TextchatUtils.getOrCreateInviteLink(channel), true);
+                eb.addField("Invite", TextchatUtils.getOrCreateInviteLinkForGuild(channel.getGuild(), channel), true);
 
             commandInfo.reply(eb.build());
         }

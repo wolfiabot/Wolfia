@@ -165,7 +165,7 @@ public class Mafia extends Game {
 
         final TextChannel channel = getThisChannel();
         //inform each player about his role
-        final String inviteLink = TextchatUtils.getOrCreateInviteLink(channel);
+        final String inviteLink = TextchatUtils.getOrCreateInviteLinkForChannel(channel);
         final String wolfchatInvite = this.wolfChat.getInvite();
         final StringBuilder mafiaTeamNames = new StringBuilder("Your team is:/n");
         final String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s%n", //invite that may be empty
@@ -542,7 +542,7 @@ public class Mafia extends Game {
                                     Wolfia.handleOutputMessage(wolfchatChannel,
                                             "\n@here, %s will be killed! Game about to start/continue, get back to the main chat.\n%s",
                                             nightKillCandidate.getBothNamesFormatted(),
-                                            TextchatUtils.getOrCreateInviteLink(Wolfia.getTextChannelById(this.channelId)));
+                                            TextchatUtils.getOrCreateInviteLinkForChannel(Wolfia.getTextChannelById(this.channelId)));
                                     this.gameStats.addActions(this.nightKillVoteActions.values());
 
                                     endNight(nightKillCandidate);

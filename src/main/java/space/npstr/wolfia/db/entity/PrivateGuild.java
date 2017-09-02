@@ -18,7 +18,6 @@
 package space.npstr.wolfia.db.entity;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Invite;
 import net.dv8tion.jda.core.entities.Member;
@@ -212,8 +211,12 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
             this.allowedUsers.addAll(wolfUserIds);
 
             //set up a fresh channel
-            final Channel wolfChannel = g.getController().createTextChannel("wolfchat").complete();
+            final TextChannel wolfChannel = (TextChannel) g.getController().createTextChannel("wolfchat")
+                    .reason("Preparing private guild for a game").complete();
             this.currentChannelId = wolfChannel.getIdLong();
+
+            //send new user joining messages to the fresh channel
+            g.getManager().setSystemChannel(wolfChannel).queue(null, Wolfia.defaultOnFail);
 
             //give the wolfrole access to it
             RoleAndPermissionUtils.grant(wolfChannel, RoleAndPermissionUtils.getOrCreateRole(g, WOLF_ROLE_NAME).complete(),
@@ -245,7 +248,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
                 }
                 final TextChannel tc = Wolfia.getTextChannelById(this.currentChannelId);
                 if (tc != null) {
-                    tc.delete().complete();
+                    tc.delete().reason("Cleaning up private guild after game ended").complete();
                 } else {
                     log.error("Did not find channel {} in private guild #{} to delete it.",
                             this.currentChannelId, this.privateGuildNumber);
@@ -262,9 +265,8 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
 
     public String getInvite() {
         final Guild g = getThisGuild();
-        TextChannel channel = g.getTextChannelById(this.currentChannelId);
-        if (channel == null) channel = g.getPublicChannel();
-        return TextchatUtils.getOrCreateInviteLink(channel, () -> {
+        final TextChannel channel = g.getTextChannelById(this.currentChannelId);
+        return TextchatUtils.getOrCreateInviteLinkForGuild(g, channel, () -> {
             throw new RuntimeException("Could not create invite to private guild " + this.guildId);
         });
     }

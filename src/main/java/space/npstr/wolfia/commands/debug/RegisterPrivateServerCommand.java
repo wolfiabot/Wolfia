@@ -20,6 +20,7 @@ package space.npstr.wolfia.commands.debug;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Icon;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,6 @@ import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.DbWrapper;
 import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 
 import java.io.IOException;
 
@@ -79,11 +79,10 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
         //- deny creating invites
         //- deny reading messages
         g.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue(null, Wolfia.defaultOnFail);
-        //- deny writing messages in #general
-        RoleAndPermissionUtils.deny(g.getPublicChannel(), g.getPublicRole(), Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);
-
-        //set up #general
-        //- post a message about welcoming the scum team, and their channel being set up (just click it on the left side etc.)
+        //- delete #general
+        for (final TextChannel tc : g.getTextChannels()) {
+            tc.delete().reason("Preparing private guild for usage").complete();
+        }
 
 
         //register it

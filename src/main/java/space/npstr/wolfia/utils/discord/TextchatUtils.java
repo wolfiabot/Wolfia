@@ -17,10 +17,13 @@
 
 package space.npstr.wolfia.utils.discord;
 
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Invite;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import space.npstr.wolfia.utils.Operation;
 
+import javax.persistence.PersistenceException;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -68,15 +71,42 @@ public class TextchatUtils {
 
     //this will not always create a new invite, discord/JDA reuses previously created one
     //so no worries about spammed invites in a channel
-    public static String getOrCreateInviteLink(final TextChannel channel, final Operation... onFail) {
+    public static String getOrCreateInviteLinkForChannel(final TextChannel channel, final Operation... onFail) {
         try {
-            return "https://discord.gg/" + channel.createInvite().complete().getCode();
+            return channel.createInvite().complete().getURL();
         } catch (final PermissionException ignored) {
-            if (onFail.length > 0) {
-                onFail[0].execute();
-            }
-            return "";
         }
+        try {
+            final List<Invite> invites = channel.getInvites().complete();
+            if (!invites.isEmpty()) return invites.get(0).getURL();
+        } catch (final PersistenceException ignored) {
+        }
+
+        // if we reached this point, we failed at creating an invite for this channel
+        if (onFail.length > 0) {
+            onFail[0].execute();
+        }
+        return "";
+    }
+
+    //a more aggressive variant of getOrCreateInviteLinkForChannel() which will try to create an invite anywhere into
+    // a guild
+    public static String getOrCreateInviteLinkForGuild(final Guild guild, final TextChannel preferred, final Operation... onFail) {
+        if (preferred != null) {
+            final String preferredInvite = getOrCreateInviteLinkForChannel(preferred);
+            if (!preferredInvite.isEmpty()) return preferredInvite;
+        }
+
+        for (final TextChannel tc : guild.getTextChannels()) {
+            final String invite = getOrCreateInviteLinkForChannel(tc);
+            if (!invite.isEmpty()) return invite;
+        }
+
+        // if we reached this point, we failed at creating an invite for this guild
+        if (onFail.length > 0) {
+            onFail[0].execute();
+        }
+        return "";
     }
 
     public static String percentFormat(final double value) {

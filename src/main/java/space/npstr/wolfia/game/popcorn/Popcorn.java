@@ -159,7 +159,7 @@ public class Popcorn extends Game {
 
         final TextChannel channel = getThisChannel();
         //inform each player about his role
-        final String inviteLink = TextchatUtils.getOrCreateInviteLink(channel);
+        final String inviteLink = TextchatUtils.getOrCreateInviteLinkForChannel(channel);
         final String wolfchatInvite = this.wolfChat != null ? "Wolfchat: " + this.wolfChat.getInvite() + "\n" : "";
         final StringBuilder wolfteamNames = new StringBuilder("Your team is:\n");
         final String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s%n", //invite that may be empty
@@ -542,7 +542,7 @@ public class Popcorn extends Game {
             Wolfia.handleOutputMessage(Popcorn.this.wolfChat.getChannelId(), //provided invite link may be empty
                     out + "\n@here, %s gets the %s! Game about to start/continue, get back to the main chat.\n%s",
                     playerName, Emojis.GUN,
-                    TextchatUtils.getOrCreateInviteLink(Wolfia.getTextChannelById(Popcorn.this.channelId)));
+                    TextchatUtils.getOrCreateInviteLinkForChannel(Wolfia.getTextChannelById(Popcorn.this.channelId)));
             //give wolves 10 seconds to get back into the chat
             Popcorn.this.executor.schedule(() -> giveGun(getsGun), 10, TimeUnit.SECONDS);
         }
