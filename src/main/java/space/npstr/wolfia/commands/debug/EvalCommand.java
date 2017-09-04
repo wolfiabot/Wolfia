@@ -124,7 +124,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
             return true;
         }
 
-        channel.sendTyping().queue(null, Wolfia.defaultOnFail);
+        channel.sendTyping().queue(null, Wolfia.defaultOnFail());
 
         final int timeOut;
         if (commandInfo.args.length > 1 && (commandInfo.args[0].equals("-t") || commandInfo.args[0].equals("timeout"))) {
@@ -157,7 +157,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
                                 + "})();");
 
             } catch (final Exception ex) {
-                commandInfo.event.getMessage().addReaction(Emojis.X).queue();
+                commandInfo.event.getMessage().addReaction(Emojis.X).queue(null, Wolfia.defaultOnFail());
                 Wolfia.handleOutputMessage(channel, "`%s`\n\n`%sms`",
                         ex.getMessage(), System.currentTimeMillis() - started);
                 log.error("Error occurred in eval", ex);
@@ -172,7 +172,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
             } else {
                 output = "EvalCommand: `" + out.toString() + "`";
             }
-            commandInfo.event.getMessage().addReaction(Emojis.OK_HAND).queue();
+            commandInfo.event.getMessage().addReaction(Emojis.OK_HAND).queue(null, Wolfia.defaultOnFail());
             Wolfia.handleOutputMessage(channel, "```java\n%s```\n%s\n`%sms`",
                     finalSource, output, System.currentTimeMillis() - started);
 

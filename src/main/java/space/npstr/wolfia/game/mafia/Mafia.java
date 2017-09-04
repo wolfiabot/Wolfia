@@ -422,7 +422,7 @@ public class Mafia extends Game {
                 Config.PREFIX + mainTrigger(VoteCountCommand.class));
         for (final Player player : living) {
             RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
-                    Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);
+                    Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail());
         }
 
         //set a timer that calls endDay()
@@ -453,7 +453,7 @@ public class Mafia extends Game {
         //close channel
         for (final Player livingPlayer : livingPlayers) {
             RoleAndPermissionUtils.deny(channel, channel.getGuild().getMemberById(livingPlayer.userId),
-                    Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail);
+                    Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail());
         }
 
         this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.DAYEND, -1));
@@ -494,10 +494,10 @@ public class Mafia extends Game {
         final String basic = "Night falls...\n";
         Wolfia.handleOutputMessage(this.channelId, m -> new PeriodicTimer(
                 TimeUnit.SECONDS.toMillis(5),
-                onUpdate -> m.editMessage(basic + nightTimeLeft()).queue(null, Wolfia.defaultOnFail),
+                onUpdate -> m.editMessage(basic + nightTimeLeft()).queue(null, Wolfia.defaultOnFail()),
                 this.phaseStarted + this.nightLengthMillis - System.currentTimeMillis(),
-                onDestruction -> m.editMessage(basic + "Dawn breaks!").queue(null, Wolfia.defaultOnFail)
-        ), Wolfia.defaultOnFail, basic + nightTimeLeft());
+                onDestruction -> m.editMessage(basic + "Dawn breaks!").queue(null, Wolfia.defaultOnFail())
+        ), Wolfia.defaultOnFail(), basic + nightTimeLeft());
     }
 
     private String nightTimeLeft() {
@@ -533,10 +533,10 @@ public class Mafia extends Game {
                             this.nightLengthMillis,
                             //on destruction
                             aVoid -> {
-                                message.clearReactions().queue(null, Wolfia.defaultOnFail);
+                                message.clearReactions().queue(null, Wolfia.defaultOnFail());
                                 synchronized (this.nightkillVotes) {
                                     message.editMessage(this.nightKillVotingBuilder.getFinalEmbed(this.nightkillVotes, this.phase, this.cycle).build())
-                                            .queue(null, Wolfia.defaultOnFail);
+                                            .queue(null, Wolfia.defaultOnFail());
                                     final Player nightKillCandidate = GameUtils.rand(GameUtils.mostVoted(this.nightkillVotes, getLivingVillage()));
 
                                     Wolfia.handleOutputMessage(wolfchatChannel,
@@ -551,9 +551,9 @@ public class Mafia extends Game {
                             //update every few seconds
                             TimeUnit.SECONDS.toMillis(10),
                             aVoid -> message.editMessage(this.nightKillVotingBuilder.getEmbed(this.nightkillVotes).build())
-                                    .queue(null, Wolfia.defaultOnFail)
+                                    .queue(null, Wolfia.defaultOnFail())
                     ));
-                }), Wolfia.defaultOnFail,
+                }), Wolfia.defaultOnFail(),
                 "Nightkill voting!\n%s", String.join(", ", getLivingWolvesMentions()));
 
 
@@ -572,7 +572,7 @@ public class Mafia extends Game {
                 final Collection<Long> randCopTargets = getLivingPlayerIds();
                 randCopTargets.remove(p.userId);//dont randomly check himself
                 this.nightActions.put(p, simpleAction(p.userId, Actions.CHECK, GameUtils.rand(randCopTargets)));//preset a random action
-                Wolfia.handlePrivateOutputEmbed(p.userId, Wolfia.defaultOnFail, livingPlayersWithNumbers.build());
+                Wolfia.handlePrivateOutputEmbed(p.userId, Wolfia.defaultOnFail(), livingPlayersWithNumbers.build());
                 new PrivateChannelListener(p.userId, this.nightLengthMillis, this, new CheckCommand("check"));//todo uniform listeners
             }
         }
@@ -643,7 +643,7 @@ public class Mafia extends Game {
                 try {
                     final long checker = nightAction.getActor();
                     final Player checked = getPlayer(nightAction.getTarget());
-                    Wolfia.handlePrivateOutputMessage(checker, Wolfia.defaultOnFail,
+                    Wolfia.handlePrivateOutputMessage(checker, Wolfia.defaultOnFail(),
                             "%s, you checked %s on night %s. Their alignment is **%s**",
                             TextchatUtils.userAsMention(checker), checked.getBothNamesFormatted(), this.cycle,
                             checked.alignment.textRepMaf);

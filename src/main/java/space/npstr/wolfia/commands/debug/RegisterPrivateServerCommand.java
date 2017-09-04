@@ -66,10 +66,10 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
 
         //set up the looks
         //- give the server a name
-        g.getManager().setName("Wolfia Private Server").queue(null, Wolfia.defaultOnFail);
+        g.getManager().setName("Wolfia Private Server").queue(null, Wolfia.defaultOnFail());
         //- give the server a logo
         try {
-            g.getManager().setIcon(Icon.from(getClass().getResourceAsStream("/img/popcorn_mafia_guy.png"))).queue(null, Wolfia.defaultOnFail);
+            g.getManager().setIcon(Icon.from(getClass().getResourceAsStream("/img/popcorn_mafia_guy.png"))).queue(null, Wolfia.defaultOnFail());
         } catch (final IOException ex) {
             log.error("Could not set icon for guild {}", g.getIdLong(), e);
             return false;
@@ -78,7 +78,7 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
         //set up rights:
         //- deny creating invites
         //- deny reading messages
-        g.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue(null, Wolfia.defaultOnFail);
+        g.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue(null, Wolfia.defaultOnFail());
         //- delete #general
         for (final TextChannel tc : g.getTextChannels()) {
             tc.delete().reason("Preparing private guild for usage").complete();
@@ -93,7 +93,7 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
         Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(pg);
         Wolfia.addEventListener(pg);
         Wolfia.getInstance().commandListener.addIgnoredGuild(pg.getId());
-        g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue(null, Wolfia.defaultOnFail);
+        g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue(null, Wolfia.defaultOnFail());
         return true;
     }
 }

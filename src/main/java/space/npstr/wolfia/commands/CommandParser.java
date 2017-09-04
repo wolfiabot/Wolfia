@@ -74,7 +74,7 @@ public class CommandParser {
         //todo introduce this to the code everywhere
         public void reply(final String reply) {
             if (this.event.getPrivateChannel() != null) {
-                Wolfia.handlePrivateOutputMessage(this.event.getAuthor().getIdLong(), Wolfia.defaultOnFail, reply);
+                Wolfia.handlePrivateOutputMessage(this.event.getAuthor().getIdLong(), Wolfia.defaultOnFail(), reply);
             } else {
                 Wolfia.handleOutputMessage(this.event.getTextChannel(), reply);
             }
@@ -86,7 +86,7 @@ public class CommandParser {
 
         public void reply(final MessageEmbed embed) {
             if (this.event.getPrivateChannel() != null) {
-                Wolfia.handlePrivateOutputEmbed(this.event.getAuthor().getIdLong(), Wolfia.defaultOnFail, embed);
+                Wolfia.handlePrivateOutputEmbed(this.event.getAuthor().getIdLong(), Wolfia.defaultOnFail(), embed);
             } else {
                 Wolfia.handleOutputEmbed(this.event.getTextChannel(), embed);
             }

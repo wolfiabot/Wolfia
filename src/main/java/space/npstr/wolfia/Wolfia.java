@@ -61,6 +61,7 @@ import space.npstr.wolfia.utils.img.ImgurAlbum;
 import space.npstr.wolfia.utils.img.SimpleCache;
 import space.npstr.wolfia.utils.log.DiscordLogger;
 import space.npstr.wolfia.utils.log.JDASimpleLogListener;
+import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -84,8 +85,6 @@ public class Wolfia {
 
     public static final long START_TIME;
     public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE;
-    // default on fail handler for all queues()
-    public static final Consumer<Throwable> defaultOnFail;
     public static final ExceptionLoggingExecutor scheduledExecutor;
 
     private static Wolfia wolfia;
@@ -101,7 +100,6 @@ public class Wolfia {
         START_TIME = System.currentTimeMillis();
         AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
         log = LoggerFactory.getLogger(Wolfia.class);
-        defaultOnFail = t -> log.error("Exception during queue(): {}", t.getMessage(), t);
         executor = Executors.newCachedThreadPool(r -> new Thread(r, "main-executor"));
         //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
         scheduledExecutor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
@@ -112,6 +110,16 @@ public class Wolfia {
     private static final Set<JDA> jdas = new HashSet<>();
 
     public final CommandListener commandListener;
+
+    // will print a proper stack trace for exceptions happening in queue(), showing the code leading up to the call of
+    // the queue() that failed
+    public static Consumer<Throwable> defaultOnFail() {
+        final LogTheStackException ex = new LogTheStackException();
+        return t -> {
+            ex.initCause(t);
+            log.error("Exception during queue(): {}", t.getMessage(), ex);
+        };
+    }
 
     //set up things that are crucial
     //if something fails exit right away
@@ -323,9 +331,9 @@ public class Wolfia {
     //set avatar for bot and wolfia lounge
     private static void setAvatars(final Icon icon) {
         final Guild wolfiaLounge = getGuildById(App.WOLFIA_LOUNGE_ID);
-        getSelfUser().getManager().setAvatar(icon).queue(null, defaultOnFail);
+        getSelfUser().getManager().setAvatar(icon).queue(null, defaultOnFail());
         if (!Config.C.isDebug && wolfiaLounge != null && wolfiaLounge.getSelfMember().hasPermission(Permission.MANAGE_SERVER)) {
-            wolfiaLounge.getManager().setIcon(icon).queue(null, defaultOnFail);
+            wolfiaLounge.getManager().setIcon(icon).queue(null, defaultOnFail());
         }
     }
 
@@ -355,8 +363,11 @@ public class Wolfia {
                 Consumer<Throwable> fail = onFail;
                 if (fail == null) {
                     fail = throwable -> {
-                        if (!(channel instanceof PrivateChannel)) //ignore exceptions when sending to private channels
-                            log.error("Exception when sending a message in channel {}", channel.getIdLong(), throwable);
+                        if (!(channel instanceof PrivateChannel)) { //ignore exceptions when sending to private channels
+                            final LogTheStackException stack = new LogTheStackException();
+                            stack.initCause(throwable);
+                            log.error("Exception when sending a message in channel {}", channel.getIdLong(), stack);
+                        }
                     };
                 }
                 //for stats keeping
@@ -425,7 +436,7 @@ public class Wolfia {
                     submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
                     if (onSuccess != null) onSuccess.accept(message);
                 };
-                ra.queue(wrappedSuccess, onFail != null ? onFail : defaultOnFail);
+                ra.queue(wrappedSuccess, onFail != null ? onFail : defaultOnFail());
             }
         } catch (final PermissionException e) {
             log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
