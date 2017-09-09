@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'space.npstr'
-version = '0.9.1_' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
+version = '0.9.1-' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
@@ -24,12 +24,12 @@ repositories {
 
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'net.dv8tion:JDA:3.2.0_259'                                             //discord API
+    compile 'net.dv8tion:JDA:3.3.0_262'                                             //discord API
     compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
     compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
     compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
     compile 'com.github.napstr:logback-discord-appender:1.0.0'      //log errors to a discord channel through a webhook
-    compile 'com.squareup.okhttp3:okhttp:3.8.1'                                     //http client
+    compile 'com.squareup.okhttp3:okhttp:3.9.0'                                     //http client
 
     //database stuff
     compile 'org.postgresql:postgresql:42.1.4'                                      //postgres jdbc driver

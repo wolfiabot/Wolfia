@@ -58,7 +58,8 @@ public class HelpCommand extends BaseCommand {
             return true;//dont answer the help command in debug mode unless it's the owner
         }
 
-        if (commandInfo.args.length > 0) {
+        final TextChannel tc = commandInfo.event.getTextChannel();
+        if (commandInfo.args.length > 0 && tc != null && tc.canTalk()) {
             final BaseCommand command = CommandHandler.getCommand(commandInfo.args[0]);
             final String answer;
             if (command == null || command instanceof IOwnerRestricted) {
