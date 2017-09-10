@@ -185,18 +185,28 @@ public class CommandHandler {
         } catch (final UserFriendlyException e) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "There was a problem executing your command:\n%s", e.getMessage());
         } catch (final Exception e) {
-            final MessageReceivedEvent ev = commandInfo.event;
-            Throwable t = e;
-            while (t != null) {
-                log.error("Exception `{}` while handling a command in guild {}, channel {}, user {}, invite {}",
-                        t.getMessage(), ev.getGuild().getIdLong(), ev.getChannel().getIdLong(),
-                        ev.getAuthor().getIdLong(), TextchatUtils.getOrCreateInviteLinkForGuild(ev.getGuild(), ev.getTextChannel()), t);
-                t = t.getCause();
+            try {
+                final MessageReceivedEvent ev = commandInfo.event;
+                Throwable t = e;
+                while (t != null) {
+                    String inviteLink = "";
+                    try {
+                        inviteLink = TextchatUtils.getOrCreateInviteLinkForGuild(ev.getGuild(), ev.getTextChannel());
+                    } catch (final Exception ex) {
+                        log.error("Exception during exception handling of command creating an invite", ex);
+                    }
+                    log.error("Exception `{}` while handling a command in guild {}, channel {}, user {}, invite {}",
+                            t.getMessage(), ev.getGuild().getIdLong(), ev.getChannel().getIdLong(),
+                            ev.getAuthor().getIdLong(), inviteLink, t);
+                    t = t.getCause();
+                }
+                Wolfia.handleOutputMessage(ev.getTextChannel(),
+                        "%s, an internal exception happened while executing your command\n`%s`\nSorry about that. Please " +
+                                "contact the developer through the website or Discord guild sent to you through `%s`",
+                        ev.getAuthor().getAsMention(), commandInfo.raw, Config.PREFIX + mainTrigger(HelpCommand.class));
+            } catch (final Exception ex) {
+                log.error("Exception during exception handling of command", ex);
             }
-            Wolfia.handleOutputMessage(ev.getTextChannel(),
-                    "%s, an internal exception happened while executing your command\n`%s`\nSorry about that. Please " +
-                            "contact the developer through the website or Discord guild sent to you through `%s`",
-                    ev.getAuthor().getAsMention(), commandInfo.raw, Config.PREFIX + mainTrigger(HelpCommand.class));
         }
     }
 }
