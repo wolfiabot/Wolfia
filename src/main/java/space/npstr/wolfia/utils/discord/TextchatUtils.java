@@ -23,7 +23,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import space.npstr.wolfia.utils.Operation;
 
-import javax.persistence.PersistenceException;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -79,7 +78,7 @@ public class TextchatUtils {
         try {
             final List<Invite> invites = channel.getInvites().complete();
             if (!invites.isEmpty()) return invites.get(0).getURL();
-        } catch (final PersistenceException ignored) {
+        } catch (final PermissionException ignored) {
         }
 
         // if we reached this point, we failed at creating an invite for this channel
