@@ -38,7 +38,6 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.utils.SimpleLog;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +59,6 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.img.ImgurAlbum;
 import space.npstr.wolfia.utils.img.SimpleCache;
 import space.npstr.wolfia.utils.log.DiscordLogger;
-import space.npstr.wolfia.utils.log.JDASimpleLogListener;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import java.io.IOException;
@@ -125,10 +123,6 @@ public class Wolfia {
     //if something fails exit right away
     public static void main(final String[] args) {
         Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
-
-        //reroute JDA logging to our system
-        SimpleLog.LEVEL = SimpleLog.Level.OFF;
-        SimpleLog.addListener(new JDASimpleLogListener());
 
         log.info(art());
         log.info("Starting Wolfia v" + App.VERSION);

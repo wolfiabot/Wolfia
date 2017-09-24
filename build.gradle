@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     //testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'net.dv8tion:JDA:3.3.0_271'                                             //discord API
+    compile 'net.dv8tion:JDA:3.3.1_279'                                             //discord API
     compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
     compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
     compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
