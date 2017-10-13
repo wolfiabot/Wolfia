@@ -18,6 +18,7 @@
 package space.npstr.wolfia;
 
 
+import io.sentry.Sentry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * /**
@@ -64,6 +66,9 @@ public class Config {
     public final String discordbotsOrgToken;
     public final long logChannelId;
 
+    public final String sentryDsn;
+
+
     @SuppressWarnings(value = "unchecked")
     public Config() throws IOException {
 
@@ -89,6 +94,25 @@ public class Config {
             this.botsDiscordPwToken = values.getOrDefault("botsDiscordPwToken", "");
             this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
             this.logChannelId = Long.parseLong(values.getOrDefault("logChannelId", "0"));
+
+            this.sentryDsn = (String) sneaky.getOrDefault("sentryDsn", "");
+            if (this.sentryDsn != null && !this.sentryDsn.isEmpty()) {
+                Sentry.init(this.sentryDsn).setRelease(getCommitHash());
+            }
         }
+    }
+
+    private static volatile Properties gitProps;
+
+    public synchronized String getCommitHash() {
+        if (gitProps == null) {
+            gitProps = new Properties();
+            try {
+                gitProps.load(Config.class.getClassLoader().getResourceAsStream("version.properties"));
+            } catch (final IOException e) {
+                log.error("Could not load version props", e);
+            }
+        }
+        return gitProps.getProperty("GIT_COMMIT", "unknown");
     }
 }

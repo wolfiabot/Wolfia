@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
+    id 'net.nemerosa.versioning' version '2.0.0'         //provide meta info about the git repo
     id 'com.github.johnrengelman.shadow' version '2.0.1'
     id 'com.sedmelluq.jdaction' version '1.0.2' //check for unused RestActions
     id "com.jfrog.bintray" version "1.7.3"
@@ -35,6 +36,8 @@ dependencies {
     compile 'org.postgresql:postgresql:42.1.4'                                      //postgres jdbc driver
     compile 'org.hibernate:hibernate-core:5.2.10.Final'                             //hibernate + JPA
     compile 'com.zaxxer:HikariCP:2.6.3'                                             //connection pool
+    ext.sentryVersion = '1.5.4'
+    compile group: 'io.sentry', name: 'sentry-logback', version: ext.sentryVersion     // error aggregation
 
     //charts stuff
     compile 'com.sparkjava:spark-core:2.6.0'
@@ -58,9 +61,16 @@ processResources {
     }
 }
 
-compileJava.dependsOn 'clean'
+compileJava.dependsOn 'clean', 'versionFile'
 compileJava.options.encoding = 'UTF-8'
 compileJava.options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+
+versionFile {
+    // Path to the file to be written
+    file = new File("src/main/resources", 'version.properties')
+    // Prefix to apply to the properties
+    prefix = 'GIT_'
+}
 
 bintray {
     user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')

@@ -102,6 +102,12 @@
         </filter>
     </appender>
 
+    <appender name="SENTRY" class="io.sentry.logback.SentryAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+
     <logger name="space.npstr" level="debug">
         <appender-ref ref="STDOUT_WOLFIA_DEBUG"/>
     </logger>
@@ -112,5 +118,6 @@
         <appender-ref ref="ERRORFILE"/>
         <appender-ref ref="DEBUGFILE"/>
         <appender-ref ref="ASYNC_DISCORD"/>
+        <appender-ref ref="SENTRY"/>
     </root>
 </configuration>

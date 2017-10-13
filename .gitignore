@@ -120,3 +120,5 @@ gradle-app.setting
 gradle.properties
 
 /logs/
+
+*version.properties
