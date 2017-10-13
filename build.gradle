@@ -31,7 +31,7 @@ dependencies {
     ext.discordAppenderVersion    = '1.0.0'
     ext.yamlVersion               = '1.18'
     ext.okhttpVersion             = '3.9.0'
-    ext.sqlsauceVersion           = '0.0.2-SNAPSHOT'
+    ext.sqlsauceVersion           = 'ad411083589620ce96e56160285fae18be8976ee'
     ext.sparkVersion              = '2.6.0'
     ext.sparkThymeVersion         = '2.5.5'
     ext.thymeleafVersion          = '3.0.7.RELEASE'
