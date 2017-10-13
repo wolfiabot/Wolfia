@@ -38,7 +38,7 @@
         <file>logs/wolfia.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>logs/wolfia.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/wolfia.log.%d{yyyy-MM-dd}</fileNamePattern>
             <!-- keep 30 days' worth of history -->
             <maxHistory>30</maxHistory>
         </rollingPolicy>
@@ -55,7 +55,7 @@
         <file>logs/error.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>logs/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/error.log.%d{yyyy-MM-dd}</fileNamePattern>
             <!-- keep 30 days' worth of history -->
             <maxHistory>30</maxHistory>
         </rollingPolicy>
@@ -72,7 +72,7 @@
         <file>logs/full.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>logs/full.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>logs/full.log.%d{yyyy-MM-dd}</fileNamePattern>
             <!-- keep 30 days' worth of history capped at 3GB total size -->
             <maxHistory>30</maxHistory>
             <totalSizeCap>3GB</totalSizeCap>
