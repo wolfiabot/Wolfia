@@ -60,7 +60,6 @@ public class Config {
     public final String errorLogWebHook;
     public final String jdbcUrl;
     public final String imgurClientId;
-    public final String avatars;
     public final String botsDiscordPwToken;
     public final String discordbotsOrgToken;
     public final long logChannelId;
@@ -87,7 +86,6 @@ public class Config {
             this.errorLogWebHook = values.getOrDefault("errorLogWebHook", "");
             this.jdbcUrl = values.getOrDefault("jdbcUrl", "");
             this.imgurClientId = values.getOrDefault("imgurClientId", "");
-            this.avatars = values.getOrDefault("avatars", "");
             this.botsDiscordPwToken = values.getOrDefault("botsDiscordPwToken", "");
             this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
             this.logChannelId = Long.parseLong(values.getOrDefault("logChannelId", "0"));

@@ -27,7 +27,6 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -44,7 +43,6 @@ import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.charts.Charts;
 import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.Hstore;
 import space.npstr.wolfia.db.entity.PrivateGuild;
 import space.npstr.wolfia.db.entity.stats.GeneralBotStats;
 import space.npstr.wolfia.db.entity.stats.MessageOutputStats;
@@ -56,12 +54,9 @@ import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-import space.npstr.wolfia.utils.img.ImgurAlbum;
-import space.npstr.wolfia.utils.img.SimpleCache;
 import space.npstr.wolfia.utils.log.DiscordLogger;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.HashSet;
 import java.util.Optional;
@@ -91,8 +86,6 @@ public class Wolfia {
     private static final Logger log;
     // for any fire and forget tasks that are expected to run for a short while only
     private static final ExecutorService executor;
-    // for long running, repeating and/or scheduled tasks
-    private static final ImgurAlbum avatars;
 
     static { //just a few static final singleton things getting set up in here
         START_TIME = System.currentTimeMillis();
@@ -101,7 +94,6 @@ public class Wolfia {
         executor = Executors.newCachedThreadPool(r -> new Thread(r, "main-executor"));
         //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
         scheduledExecutor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
-        avatars = new ImgurAlbum(Config.C.avatars);
     }
 
     private static boolean started = false;
@@ -156,29 +148,6 @@ public class Wolfia {
 
         //post stats every 10 minutes
         scheduledExecutor.scheduleAtFixedRate(Wolfia::generalBotStatsToDB, 1, 10, TimeUnit.MINUTES);
-
-        //set up a random avatar and change every 6 hours
-        final Hstore defaultHstore = Hstore.load();
-        final int lastIndex = Integer.parseInt(defaultHstore.get("avatarLastIndex", "-1"));
-        avatars.setLastIndex(lastIndex);
-
-        final long lastUpdated = Long.parseLong(defaultHstore.get("avatarLastUpdated", "0"));
-        final long initialDelay = lastUpdated - System.currentTimeMillis() + TimeUnit.HOURS.toMillis(6);
-        log.info("Updating avatar in {}ms", initialDelay);
-
-        scheduledExecutor.scheduleAtFixedRate(() -> {
-            try {
-                setAvatars(Icon.from(SimpleCache.getImageFromURL(avatars.getNext())));
-                Hstore.load()
-                        .set("avatarLastIndex", Integer.toString(avatars.getLastIndex()))
-                        .set("avatarLastUpdated", Long.toString(System.currentTimeMillis()))
-                        .save();
-                log.info("Avatar updated");
-            } catch (final IOException e) {
-                log.error("Could not set avatar.", e);
-            }
-        }, initialDelay, TimeUnit.HOURS.toMillis(6), TimeUnit.MILLISECONDS);
-
         started = true;
     }
 
@@ -320,15 +289,6 @@ public class Wolfia {
         getFirstJda().asBot().getApplicationInfo().queue(
                 appInfo -> App.setDescription(appInfo.getDescription()),
                 t -> log.error("Could not load application info", t));
-    }
-
-    //set avatar for bot and wolfia lounge
-    private static void setAvatars(final Icon icon) {
-        final Guild wolfiaLounge = getGuildById(App.WOLFIA_LOUNGE_ID);
-        getSelfUser().getManager().setAvatar(icon).queue(null, defaultOnFail());
-        if (!Config.C.isDebug && wolfiaLounge != null && wolfiaLounge.getSelfMember().hasPermission(Permission.MANAGE_SERVER)) {
-            wolfiaLounge.getManager().setIcon(icon).queue(null, defaultOnFail());
-        }
     }
 
     //################## message handling + tons of overloaded methods
