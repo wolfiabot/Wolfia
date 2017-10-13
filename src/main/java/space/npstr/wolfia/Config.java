@@ -105,14 +105,14 @@ public class Config {
 
 
             //convention: if the host is empty, do not create a tunnel
-            this.sshHost = (String) sneaky.getOrDefault("sshHost", "");
-            this.sshUser = (String) sneaky.getOrDefault("sshUser", "");
-            this.sshKeyFile = (String) sneaky.getOrDefault("sshKeyFile", "");
-            this.sshKeyPassphrase = (String) sneaky.getOrDefault("sshKeyPassphrase", "");
-            this.sshTunnelLocalPort = (int) sneaky.getOrDefault("sshTunnelLocalPort", 0);
-            this.sshTunnelRemotePort = (int) sneaky.getOrDefault("sshTunnelRemotePort", 0);
+            this.sshHost = values.getOrDefault("sshHost", "");
+            this.sshUser = values.getOrDefault("sshUser", "");
+            this.sshKeyFile = values.getOrDefault("sshKeyFile", "");
+            this.sshKeyPassphrase = values.getOrDefault("sshKeyPassphrase", "");
+            this.sshTunnelLocalPort = Integer.parseInt(values.getOrDefault("sshTunnelLocalPort", "0"));
+            this.sshTunnelRemotePort = Integer.parseInt(values.getOrDefault("sshTunnelRemotePort", "0"));
 
-            this.sentryDsn = (String) sneaky.getOrDefault("sentryDsn", "");
+            this.sentryDsn = values.getOrDefault("sentryDsn", "");
             if (this.sentryDsn != null && !this.sentryDsn.isEmpty()) {
                 Sentry.init(this.sentryDsn).setRelease(getCommitHash());
             }
