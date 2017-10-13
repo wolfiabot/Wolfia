@@ -17,11 +17,12 @@
 
 package space.npstr.wolfia.commands.game;
 
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.SetupEntity;
+import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 /**
@@ -42,8 +43,8 @@ public class StartCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
-        final SetupEntity setup = DbWrapper.getOrCreateEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException, DatabaseException {
+        final SetupEntity setup = Wolfia.getInstance().dbWrapper.getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
         return setup.startGame(commandInfo.event.getAuthor().getIdLong());
     }
 }

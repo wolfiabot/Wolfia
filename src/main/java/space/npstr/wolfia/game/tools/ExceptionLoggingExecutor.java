@@ -20,6 +20,8 @@ package space.npstr.wolfia.game.tools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -31,60 +33,111 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * This executor logs exceptions of its tasks.
  */
-public class ExceptionLoggingExecutor {
+public class ExceptionLoggingExecutor extends ScheduledThreadPoolExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(ExceptionLoggingExecutor.class);
 
 
-    private final ScheduledThreadPoolExecutor scheduledExecutor;
-
-
     public ExceptionLoggingExecutor(final int threads, final String threadName) {
-        this.scheduledExecutor = new ScheduledThreadPoolExecutor(threads, r -> new Thread(r, threadName));
+        this(threads, r -> new Thread(r, threadName));
     }
 
     public ExceptionLoggingExecutor(final int threads, final ThreadFactory threadFactory) {
-        this.scheduledExecutor = new ScheduledThreadPoolExecutor(threads, threadFactory);
+        super(threads, threadFactory);
     }
 
-    public ScheduledFuture<?> scheduleAtFixedRate(final Runnable task, final long initialDelay, final long period, final TimeUnit timeUnit) {
-        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
-        return this.scheduledExecutor.scheduleAtFixedRate(exceptionSafeTask, initialDelay, period, timeUnit);
+    @Override
+    public void execute(final Runnable command) {
+        super.execute(wrapRunnableExceptionSafe(command));
     }
 
-    public ScheduledFuture<?> schedule(final Runnable task, final long delay, final TimeUnit timeUnit) {
-        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
-        return this.scheduledExecutor.schedule(exceptionSafeTask, delay, timeUnit);
+    @Nonnull
+    @Override
+    public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit timeUnit) {
+        return super.schedule(wrapRunnableExceptionSafe(command), delay, timeUnit);
     }
 
+    @Nonnull
+    @Override
+    public <V> ScheduledFuture<V> schedule(final Callable<V> callable, final long delay, final TimeUnit unit) {
+        return super.schedule(wrapExceptionSafe(callable), delay, unit);
+    }
+
+    @Nonnull
+    @Override
+    public ScheduledFuture<?> scheduleAtFixedRate(final Runnable command, final long initialDelay, final long period, final TimeUnit unit) {
+        return super.scheduleAtFixedRate(wrapRunnableExceptionSafe(command), initialDelay, period, unit);
+    }
+
+    @Nonnull
+    @Override
+    public ScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay, final long delay, final TimeUnit unit) {
+        return super.scheduleWithFixedDelay(wrapRunnableExceptionSafe(command), initialDelay, delay, unit);
+    }
+
+    @Nonnull
+    @Override
     public Future<?> submit(final Runnable task) {
-        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
-        return this.scheduledExecutor.submit(exceptionSafeTask);
+        return super.submit(wrapRunnableExceptionSafe(task));
     }
 
-    public void execute(final Runnable task) {
-        final Runnable exceptionSafeTask = wrapExceptionSafe(task);
-        this.scheduledExecutor.execute(exceptionSafeTask);
+    @Nonnull
+    @Override
+    public <T> Future<T> submit(final Runnable task, final T result) {
+        return super.submit(wrapRunnableExceptionSafe(task), result);
     }
 
-    public void shutdownNow() {
-        this.scheduledExecutor.shutdownNow();
+    @Nonnull
+    @Override
+    public <T> Future<T> submit(final Callable<T> task) {
+        return super.submit(wrapExceptionSafe(task));
     }
 
-    public void shutdown() {
-        this.scheduledExecutor.shutdown();
+    public static Runnable wrapRunnableExceptionSafe(final Runnable runnable) {
+        return wrapExceptionSafe(new ExceptionalTask(runnable));
     }
 
-    public static Runnable wrapExceptionSafe(final Runnable task) {
+    public static Runnable wrapExceptionSafe(final ExceptionalRunnable runnable) {
         // scheduled executor services are sneaky bastards and will silently cancel tasks that throw an uncaught exception
         // related: http://code.nomad-labs.com/2011/12/09/mother-fk-the-scheduledexecutorservice
         // we don't really want our tasks to stop getting executed, and we want them to log any exceptions they encounter
         return () -> {
             try {
-                task.run();
+                runnable.run();
             } catch (final Throwable t) {
-                log.error("Task encountered an exception: {}", t.getMessage(), t);
+                log.error("Runnable encountered an exception: {}", t.getMessage(), t);
             }
         };
+    }
+
+    //returns null instead of throwing an exception and possibly canceling the task
+    public static <V> Callable<V> wrapExceptionSafe(final Callable<V> callable) {
+        return () -> {
+            try {
+                return callable.call();
+            } catch (final Throwable t) {
+                log.error("Callable encountered an exception: {}", t.getMessage(), t);
+                return null;
+            }
+        };
+    }
+
+    //these allow us to submit tasks with checked exceptions. bad practice? idk.
+    @FunctionalInterface
+    public interface ExceptionalRunnable {
+        void run() throws Exception;
+    }
+
+    public static class ExceptionalTask implements ExceptionalRunnable {
+        private final Runnable task;
+
+        public ExceptionalTask(final Runnable task) {
+            this.task = task;
+        }
+
+        @Override
+        public void run() throws Exception {
+            this.task.run();
+        }
     }
 }

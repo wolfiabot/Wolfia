@@ -40,12 +40,14 @@ import net.dv8tion.jda.core.requests.RestAction;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseConnection;
+import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlstack.DatabaseWrapper;
+import space.npstr.sqlstack.ssh.SshTunnel;
 import space.npstr.wolfia.charts.Charts;
-import space.npstr.wolfia.db.DbManager;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.PrivateGuild;
-import space.npstr.wolfia.db.entity.stats.GeneralBotStats;
-import space.npstr.wolfia.db.entity.stats.MessageOutputStats;
+import space.npstr.wolfia.db.entities.PrivateGuild;
+import space.npstr.wolfia.db.entities.stats.GeneralBotStats;
+import space.npstr.wolfia.db.entities.stats.MessageOutputStats;
 import space.npstr.wolfia.events.CachingListener;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
@@ -61,9 +63,6 @@ import java.lang.management.ManagementFactory;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -78,28 +77,26 @@ public class Wolfia {
 
     public static final long START_TIME;
     public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE;
-    public static final ExceptionLoggingExecutor scheduledExecutor;
+    public static final ExceptionLoggingExecutor executor;
 
     private static Wolfia wolfia;
     public static final OkHttpClient httpClient = new OkHttpClient();
 
     private static final Logger log;
-    // for any fire and forget tasks that are expected to run for a short while only
-    private static final ExecutorService executor;
 
     static { //just a few static final singleton things getting set up in here
         START_TIME = System.currentTimeMillis();
         AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
         log = LoggerFactory.getLogger(Wolfia.class);
-        executor = Executors.newCachedThreadPool(r -> new Thread(r, "main-executor"));
         //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
-        scheduledExecutor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
+        executor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
     }
 
     private static boolean started = false;
     private static final Set<JDA> jdas = new HashSet<>();
 
     public final CommandListener commandListener;
+    public final DatabaseWrapper dbWrapper;
 
     // will print a proper stack trace for exceptions happening in queue(), showing the code leading up to the call of
     // the queue() that failed
@@ -133,43 +130,54 @@ public class Wolfia {
             log.info("Running PRODUCTION configuration");
 
         //set up relational database
-        //noinspection ResultOfMethodCallIgnored
-        DbManager.getInstance();
+        final DatabaseConnection databaseConnection;
+        final DatabaseWrapper databaseWrapper;
+        try {
+            databaseConnection = new DatabaseConnection.Builder("postgres", Config.C.jdbcUrl)
+                    .setDriverClassName("org.postgresql.Driver")
+                    .addEntityPackage("space.npstr.wolfia.db.entities")
+                    .setAppName("Wolfia_" + (Config.C.isDebug ? "DEBUG" : "PROD") + "_" + App.VERSION)
+                    .setSshDetails((Config.C.sshHost == null || Config.C.sshHost.isEmpty()) ? null :
+                            new SshTunnel.SshDetails(Config.C.sshHost, Config.C.sshUser)
+                                    .setLocalPort(Config.C.sshTunnelLocalPort)
+                                    .setRemotePort(Config.C.sshTunnelRemotePort)
+                                    .setKeyFile(Config.C.sshKeyFile)
+                                    .setPassphrase(Config.C.sshKeyPassphrase)
+                    ).build();
+            databaseWrapper = new DatabaseWrapper(databaseConnection);
+        } catch (final DatabaseException e) {
+            log.error("Failed to set up database connection, exiting", e);
+            return;
+        }
 
         //fire up spark async
-        //noinspection ResultOfMethodCallIgnored
-        submit(Charts::spark);
+        executor.submit(Charts::spark);
 
-        AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(DbWrapper.loadPrivateGuilds());
-        log.info("{} private guilds loaded", AVAILABLE_PRIVATE_GUILD_QUEUE.size());
+        try {
+            AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(databaseWrapper.selectJPQLQuery("FROM PrivateGuild", null, PrivateGuild.class));
+            log.info("{} private guilds loaded", AVAILABLE_PRIVATE_GUILD_QUEUE.size());
+        } catch (final DatabaseException e) {
+            log.error("Failed to load private guilds, exiting", e);
+            return;
+        }
 
         //start the bot
-        wolfia = new Wolfia();
+        wolfia = new Wolfia(databaseWrapper);
 
         //post stats every 10 minutes
-        scheduledExecutor.scheduleAtFixedRate(Wolfia::generalBotStatsToDB, 1, 10, TimeUnit.MINUTES);
+        executor.scheduleAtFixedRate(ExceptionLoggingExecutor.wrapExceptionSafe(Wolfia::generalBotStatsToDB),
+                1, 10, TimeUnit.MINUTES);
         started = true;
     }
 
-    /**
-     * Use this for any one-off tasks.
-     *
-     * @return the Future of the submitted task
-     */
-    public static Future<?> submit(final Runnable task) {
-        final Runnable exceptionSafeTask = ExceptionLoggingExecutor.wrapExceptionSafe(task);
-        return executor.submit(exceptionSafeTask);
-    }
-
-
-    private static void generalBotStatsToDB() {
+    private static void generalBotStatsToDB() throws DatabaseException {
         if (!started) {
             log.error("Skipping posting of bot stats due to not being ready yet");
             return;
         }
         log.info("Writing general bot stats to database");
 
-        DbWrapper.persist(new GeneralBotStats(
+        getInstance().dbWrapper.persist(new GeneralBotStats(
                 getUsersAmount(),
                 getGuildsAmount(),
                 1,
@@ -262,7 +270,8 @@ public class Wolfia {
 
     // ##########
 
-    private Wolfia() {
+    private Wolfia(final DatabaseWrapper databaseWrapper) {
+        this.dbWrapper = databaseWrapper;
         //setting up JDA
         log.info("Setting up JDA and main listener");
         this.commandListener = new CommandListener(
@@ -311,7 +320,7 @@ public class Wolfia {
             final RestAction<Message> ra = channel.sendMessage(mb.build());
             if (complete) {
                 final Message message = ra.complete();
-                submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                executor.submit(() -> getInstance().dbWrapper.persist(new MessageOutputStats(message)));
                 return Optional.of(message);
             } else {
                 Consumer<Throwable> fail = onFail;
@@ -326,7 +335,7 @@ public class Wolfia {
                 }
                 //for stats keeping
                 final Consumer<Message> wrappedSuccess = (message) -> {
-                    submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                    executor.submit(() -> getInstance().dbWrapper.persist(new MessageOutputStats(message)));
                     if (onSuccess != null) onSuccess.accept(message);
                 };
                 ra.queue(wrappedSuccess, fail);
@@ -382,12 +391,12 @@ public class Wolfia {
             final RestAction<Message> ra = channel.sendMessage(msgEmbed);
             if (complete) {
                 final Message message = ra.complete();
-                submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                executor.submit(() -> getInstance().dbWrapper.persist(new MessageOutputStats(message)));
                 return Optional.of(message);
             } else {
                 //for stats keeping
                 final Consumer<Message> wrappedSuccess = (message) -> {
-                    submit(() -> DbWrapper.persist(new MessageOutputStats(message)));
+                    executor.submit(() -> getInstance().dbWrapper.persist(new MessageOutputStats(message)));
                     if (onSuccess != null) onSuccess.accept(message);
                 };
                 ra.queue(wrappedSuccess, onFail != null ? onFail : defaultOnFail());
@@ -490,9 +499,8 @@ public class Wolfia {
             jdas.forEach(JDA::shutdown);
 
             //shutdown executors
-            log.info("Shutting down executors");
+            log.info("Shutting down executor");
             executor.shutdown();
-            scheduledExecutor.shutdown();
             try {
                 executor.awaitTermination(30, TimeUnit.SECONDS);
             } catch (final InterruptedException e) {
@@ -502,7 +510,7 @@ public class Wolfia {
 
             //shutdown DB
             log.info("Shutting down database");
-            DbManager.getInstance().shutdown();
+            getInstance().dbWrapper.unwrap().shutdown();
 
             //shutdown logback logger
             log.info("Shutting down logger :rip:");

@@ -27,6 +27,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
@@ -36,12 +37,11 @@ import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.ChannelSettings;
-import space.npstr.wolfia.db.entity.PrivateGuild;
-import space.npstr.wolfia.db.entity.stats.ActionStats;
-import space.npstr.wolfia.db.entity.stats.GameStats;
-import space.npstr.wolfia.db.entity.stats.PlayerStats;
+import space.npstr.wolfia.db.entities.ChannelSettings;
+import space.npstr.wolfia.db.entities.PrivateGuild;
+import space.npstr.wolfia.db.entities.stats.ActionStats;
+import space.npstr.wolfia.db.entities.stats.GameStats;
+import space.npstr.wolfia.db.entities.stats.PlayerStats;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
@@ -356,7 +356,7 @@ public abstract class Game {
      * @param moderated moderated games require additional permissions
      * @throws UserFriendlyException if the bot is missing permissions to run the game in the channel
      */
-    protected void doPermissionCheckAndPrepareChannel(final boolean moderated) throws UserFriendlyException {
+    protected void doPermissionCheckAndPrepareChannel(final boolean moderated) throws UserFriendlyException, DatabaseException {
         final TextChannel channel = getThisChannel();
         final Guild g = channel.getGuild();
 
@@ -381,7 +381,7 @@ public abstract class Game {
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
-                this.accessRoleId = DbWrapper.getOrCreateEntity(this.channelId, ChannelSettings.class).getAccessRoleId();
+                this.accessRoleId = Wolfia.getInstance().dbWrapper.getOrCreate(this.channelId, ChannelSettings.class).getAccessRoleId();
                 final Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
                     throw new UserFriendlyException(String.format(
@@ -638,9 +638,14 @@ public abstract class Game {
                         .findFirst()
                         .ifPresent(t -> t.setWinner(true));
             }
-            DbWrapper.persist(this.gameStats);
-            out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
-                    this.gameStats.getGameId(), Config.PREFIX + mainTrigger(ReplayCommand.class), this.gameStats.getGameId());
+            try {
+                Wolfia.getInstance().dbWrapper.persist(this.gameStats);
+                out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
+                        this.gameStats.getGameId(), Config.PREFIX + mainTrigger(ReplayCommand.class), this.gameStats.getGameId());
+            } catch (final DatabaseException e) {
+                log.error("Db blew up saving game stats", e);
+                out += "The database it not available currently, a replay of this game will not be available.";
+            }
             cleanUp();
             final TextChannel channel = getThisChannel();
             DiscordLogger.getLogger().log("%s `%s` Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
@@ -710,7 +715,7 @@ public abstract class Game {
      * @param mode         the chosen game mode
      * @param innedPlayers the players who signed up
      */
-    public abstract void start(long channelId, GameInfo.GameMode mode, Set<Long> innedPlayers);
+    public abstract void start(long channelId, GameInfo.GameMode mode, Set<Long> innedPlayers) throws DatabaseException;
 
     /**
      * Let the game handle a command a user issued

@@ -20,13 +20,14 @@ package space.npstr.wolfia.commands.game;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.SetupEntity;
+import space.npstr.wolfia.db.entities.SetupEntity;
 
 /**
  * Created by npstr on 23.08.2016
@@ -44,8 +45,8 @@ public class OutCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
-        final SetupEntity setup = DbWrapper.getOrCreateEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
+        final SetupEntity setup = Wolfia.getInstance().dbWrapper.getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
         //is this a forced out of a player by an moderator or the bot owner?
         if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
             final Member invoker = commandInfo.event.getMember();
@@ -54,7 +55,9 @@ public class OutCommand extends BaseCommand {
                 Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out players.", invoker.getAsMention());
                 return false;
             } else {
-                commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.outUser(u.getIdLong()));
+                for (final User u : commandInfo.event.getMessage().getMentionedUsers()) {
+                    setup.outUser(u.getIdLong());
+                }
                 setup.postStatus();
                 return true;
             }

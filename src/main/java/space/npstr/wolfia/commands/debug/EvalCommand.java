@@ -24,12 +24,12 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.IOwnerRestricted;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.SetupEntity;
+import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.Emojis;
 
@@ -71,8 +71,8 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
                     + ",Packages.space.npstr.wolfia.commands.stats"
                     + ",Packages.space.npstr.wolfia.commands.util"
                     + ",Packages.space.npstr.wolfia.db"
-                    + ",Packages.space.npstr.wolfia.db.entity"
-                    + ",Packages.space.npstr.wolfia.db.entity.stats"
+                    + ",Packages.space.npstr.wolfia.db.entities"
+                    + ",Packages.space.npstr.wolfia.db.entities.stats"
                     + ",Packages.space.npstr.wolfia.events"
                     + ",Packages.space.npstr.wolfia.db"
                     + ",Packages.space.npstr.wolfia.game"
@@ -100,7 +100,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
         final long started = System.currentTimeMillis();
         final Guild guild = commandInfo.event.getGuild();
         final TextChannel channel = commandInfo.event.getTextChannel();
@@ -144,10 +144,10 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
         this.engine.put("message", message);
         this.engine.put("guild", guild);
         this.engine.put("game", Games.get(channel.getIdLong()));
-        this.engine.put("setup", DbWrapper.getOrCreateEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class));
+        this.engine.put("setup", Wolfia.getInstance().dbWrapper.getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class));
         this.engine.put("games", Games.class);//access the static methods like this from eval: games.static.myStaticMethod()
 
-        final Future<?> future = Wolfia.submit(() -> {
+        final Future<?> future = Wolfia.executor.submit(() -> {
 
             final Object out;
             try {

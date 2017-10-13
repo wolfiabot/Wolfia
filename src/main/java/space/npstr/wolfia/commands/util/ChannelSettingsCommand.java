@@ -23,13 +23,13 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.ChannelSettings;
+import space.npstr.wolfia.db.entities.ChannelSettings;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,14 +55,14 @@ public class ChannelSettingsCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
         final MessageReceivedEvent event = commandInfo.event;
         final TextChannel channel = event.getTextChannel();
         final Member invoker = event.getMember();
         final Guild guild = event.getGuild();
 
         //will not be null because it will be initialized with default values if there is none
-        ChannelSettings channelSettings = DbWrapper.getOrCreateEntity(channel.getIdLong(), ChannelSettings.class);
+        final ChannelSettings channelSettings = Wolfia.getInstance().dbWrapper.getOrCreate(channel.getIdLong(), ChannelSettings.class);
 
 
         if (commandInfo.args.length == 0) {
@@ -104,8 +104,8 @@ public class ChannelSettingsCommand extends BaseCommand {
                         accessRole = rolesByName.get(0);
                     }
                 }
-                channelSettings.setAccessRoleId(accessRole.getIdLong());
-                channelSettings = DbWrapper.merge(channelSettings);
+                channelSettings.setAccessRoleId(accessRole.getIdLong())
+                        .save();
                 break;
             case "tagcooldown":
                 try {
@@ -113,8 +113,8 @@ public class ChannelSettingsCommand extends BaseCommand {
                     if (tagCooldown < 0) {
                         tagCooldown = 0L;
                     }
-                    channelSettings.setTagCooldown(tagCooldown);
-                    channelSettings = DbWrapper.merge(channelSettings);
+                    channelSettings.setTagCooldown(tagCooldown)
+                            .save();
                 } catch (final NumberFormatException e) {
                     Wolfia.handleOutputMessage(channel, "%s, please use a number of minutes to set the tags cooldown.", invoker.getAsMention());
                     return false;

@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'space.npstr'
-version = '0.9.1-' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
+version = '0.9.2-' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
@@ -24,28 +24,31 @@ repositories {
 }
 
 dependencies {
-    //testCompile group: 'junit', name: 'junit', version: '4.11'
-    compile 'net.dv8tion:JDA:3.3.1_279'                                             //discord API
-    compile 'org.slf4j:slf4j-api:1.7.25'                                            //logging framework
-    compile 'ch.qos.logback:logback-classic:1.2.3'                                  //logging framework
-    compile 'org.yaml:snakeyaml:1.18'                                               //parse yaml files
-    compile 'com.github.napstr:logback-discord-appender:1.0.0'      //log errors to a discord channel through a webhook
-    compile 'com.squareup.okhttp3:okhttp:3.9.0'                                     //http client
+    //@formatter:off
+    ext.jdaVersion                = '3.3.1_287'
+    ext.logbackVersion            = '1.2.3'
+    ext.sentryVersion             = '1.5.4'
+    ext.discordAppenderVersion    = '1.0.0'
+    ext.yamlVersion               = '1.18'
+    ext.okhttpVersion             = '3.9.0'
+    ext.sqlsauceVersion           = '0.0.2-SNAPSHOT'
+    ext.sparkVersion              = '2.6.0'
+    ext.sparkThymeVersion         = '2.5.5'
+    ext.thymeleafVersion          = '3.0.7.RELEASE'
 
-    //database stuff
-    compile 'org.postgresql:postgresql:42.1.4'                                      //postgres jdbc driver
-    compile 'org.hibernate:hibernate-core:5.2.10.Final'                             //hibernate + JPA
-    compile 'com.zaxxer:HikariCP:2.6.3'                                             //connection pool
-    ext.sentryVersion = '1.5.4'
-    compile group: 'io.sentry', name: 'sentry-logback', version: ext.sentryVersion     // error aggregation
+    compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
+    compile group: 'ch.qos.logback', name: 'logback-classic',          version: ext.logbackVersion         //logging framework
+    compile group: 'space.npstr',    name: 'logback-discord-appender', version: ext.discordAppenderVersion //log to discord todo deprecate in favor of sentry
+    compile group: 'io.sentry',      name: 'sentry-logback',           version: ext.sentryVersion          //error aggregation
+    compile group: 'org.yaml',       name: 'snakeyaml',                version: ext.yamlVersion            //parse yaml files
+    compile group: 'com.squareup.okhttp3', name: 'okhttp',             version: ext.okhttpVersion          //http client
+    compile group: 'space.npstr',    name: 'sqlsauce',                 version: ext.sqlsauceVersion        //db stack
 
     //charts stuff
-    compile 'com.sparkjava:spark-core:2.6.0'
-    compile 'com.sparkjava:spark-template-thymeleaf:2.5.5'
-    compile 'org.thymeleaf:thymeleaf:3.0.7.RELEASE'
-
-    //QA
-    compile 'com.google.code.findbugs:annotations:3.0.1'
+    compile group: 'com.sparkjava',  name: 'spark-core',               version: ext.sparkVersion
+    compile group: 'com.sparkjava',  name: 'spark-template-thymeleaf', version: ext.sparkThymeVersion
+    compile group: 'org.thymeleaf',  name: 'thymeleaf',                version: ext.thymeleafVersion
+    //@formatter:on
 }
 
 task wrapper(type: Wrapper) {

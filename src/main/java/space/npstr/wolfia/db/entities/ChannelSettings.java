@@ -15,15 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db.entity;
+package space.npstr.wolfia.db.entities;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import space.npstr.sqlstack.entities.SaucedEntity;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.db.IEntity;
 
+import javax.annotation.Nonnull;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -43,7 +44,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "settings_channel")
-public class ChannelSettings implements IEntity {
+public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
 
     @Id
     @Column(name = "channel_id")
@@ -66,13 +67,16 @@ public class ChannelSettings implements IEntity {
     @Column(name = "tag_cooldown")
     private long tagCooldown = 5;
 
+    @Nonnull
     @Override
-    public void setId(final long id) {
+    public ChannelSettings setId(final Long id) {
         this.channelId = id;
+        return this;
     }
 
+    @Nonnull
     @Override
-    public long getId() {
+    public Long getId() {
         return this.channelId;
     }
 
@@ -80,24 +84,30 @@ public class ChannelSettings implements IEntity {
         return this.accessRoleId;
     }
 
-    public void setAccessRoleId(final long accessRoleId) {
+    @Nonnull
+    public ChannelSettings setAccessRoleId(final long accessRoleId) {
         this.accessRoleId = accessRoleId;
+        return this;
     }
 
     public Set<Long> getTags() {
         return this.tags;
     }
 
-    public void addTag(final long id) {
+    @Nonnull
+    public ChannelSettings addTag(final long id) {
         this.tags.add(id);
+        return this;
     }
 
     public void addTags(final Collection<Long> ids) {
         this.tags.addAll(ids);
     }
 
-    public void removeTag(final long id) {
+    @Nonnull
+    public ChannelSettings removeTag(final long id) {
         this.tags.remove(id);
+        return this;
     }
 
     public void removeTags(final Collection<Long> ids) {
@@ -108,16 +118,20 @@ public class ChannelSettings implements IEntity {
         return this.tagListLastUsed;
     }
 
-    public void usedTagList() {
+    @Nonnull
+    public ChannelSettings usedTagList() {
         this.tagListLastUsed = System.currentTimeMillis();
+        return this;
     }
 
     public long getTagCooldown() {
         return this.tagCooldown;
     }
 
-    public void setTagCooldown(final long tagCooldown) {
+    @Nonnull
+    public ChannelSettings setTagCooldown(final long tagCooldown) {
         this.tagCooldown = tagCooldown;
+        return this;
     }
 
     public MessageEmbed getStatus() {

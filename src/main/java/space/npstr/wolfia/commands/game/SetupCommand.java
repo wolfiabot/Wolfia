@@ -21,13 +21,13 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.SetupEntity;
+import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 
@@ -55,13 +55,13 @@ public class SetupCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
 
         final MessageReceivedEvent event = commandInfo.event;
         final TextChannel channel = event.getTextChannel();
         final Member invoker = event.getMember();
         //will not be null because it will be initialized with default values if there is none
-        SetupEntity setup = DbWrapper.getOrCreateEntity(channel.getIdLong(), SetupEntity.class);
+        SetupEntity setup = Wolfia.getInstance().dbWrapper.getOrCreate(channel.getIdLong(), SetupEntity.class);
 
         if (commandInfo.args.length == 1) {
             //unsupported input
@@ -90,9 +90,9 @@ public class SetupCommand extends BaseCommand {
             switch (option.toLowerCase()) {
                 case "game":
                     try {
-                        setup.setGame(Games.valueOf(commandInfo.args[1].toUpperCase()));
-                        setup.setMode(Games.getInfo(setup.getGame()).getDefaultMode());
-                        setup = DbWrapper.merge(setup);
+                        setup = setup.setGame(Games.valueOf(commandInfo.args[1].toUpperCase()))
+                                .setMode(Games.getInfo(setup.getGame()).getDefaultMode())
+                                .save();
                     } catch (final IllegalArgumentException ex) {
                         Wolfia.handleOutputMessage(channel, "%s, no such game is supported by this bot: ", invoker.getAsMention(), commandInfo.args[1]);
                         return false;
@@ -100,8 +100,8 @@ public class SetupCommand extends BaseCommand {
                     break;
                 case "mode":
                     try {
-                        setup.setMode(GameInfo.GameMode.valueOf(commandInfo.args[1].toUpperCase()));
-                        setup = DbWrapper.merge(setup);
+                        setup = setup.setMode(GameInfo.GameMode.valueOf(commandInfo.args[1].toUpperCase()))
+                                .save();
                     } catch (final IllegalArgumentException ex) {
                         Wolfia.handleOutputMessage(channel, "%s, no such mode is supported by this game: %s", invoker.getAsMention(), commandInfo.args[1]);
                         return false;
@@ -117,8 +117,8 @@ public class SetupCommand extends BaseCommand {
                             Wolfia.handleOutputMessage(channel, "%s, day length must be at least one minute.", invoker.getAsMention());
                             return false;
                         }
-                        setup.setDayLength(minutes, TimeUnit.MINUTES);
-                        setup = DbWrapper.merge(setup);
+                        setup = setup.setDayLength(minutes, TimeUnit.MINUTES)
+                                .save();
                     } catch (final NumberFormatException ex) {
                         Wolfia.handleOutputMessage(channel, "%s, use a number to set the day length!", invoker.getAsMention());
                         return false;

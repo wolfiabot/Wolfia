@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db.entity;
+package space.npstr.wolfia.db.entities;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -29,6 +29,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.hibernate.annotations.NaturalId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.entities.IEntity;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -38,11 +39,11 @@ import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.ingame.NightkillCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCountCommand;
-import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -60,7 +61,7 @@ import java.util.function.Consumer;
  */
 @Entity
 @Table(name = "private_guilds")
-public class PrivateGuild extends ListenerAdapter implements IEntity {
+public class PrivateGuild extends ListenerAdapter implements IEntity<Long, PrivateGuild> {
 
     private static final Logger log = LoggerFactory.getLogger(PrivateGuild.class);
     private static final String WOLF_ROLE_NAME = "Wolf";
@@ -98,13 +99,16 @@ public class PrivateGuild extends ListenerAdapter implements IEntity {
         return this.privateGuildNumber;
     }
 
+    @Nonnull
     @Override
-    public void setId(final long id) {
+    public PrivateGuild setId(final Long id) {
         this.guildId = id;
+        return this;
     }
 
+    @Nonnull
     @Override
-    public long getId() {
+    public Long getId() {
         return this.guildId;
     }
 

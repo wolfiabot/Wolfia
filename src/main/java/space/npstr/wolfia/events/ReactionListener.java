@@ -53,7 +53,7 @@ public class ReactionListener extends ListenerAdapter {
         this.callback = callback;
         this.selfDestructCallback = selfDestructCallback;
 
-        Wolfia.scheduledExecutor.schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
+        Wolfia.executor.schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
     }
 
     protected void destruct() {

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db.entity;
+package space.npstr.wolfia.db.entities;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
@@ -23,14 +23,14 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlstack.entities.SaucedEntity;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
 import space.npstr.wolfia.commands.debug.ShutdownCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.IEntity;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
@@ -39,6 +39,7 @@ import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -61,7 +62,7 @@ import java.util.stream.Collectors;
  */
 @Entity
 @Table(name = "setups")
-public class SetupEntity implements IEntity {
+public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
 
     @Transient
     private static final Logger log = LoggerFactory.getLogger(SetupEntity.class);
@@ -88,13 +89,16 @@ public class SetupEntity implements IEntity {
     private long dayLengthMillis = TimeUnit.MINUTES.toMillis(10);
 
     //some basic getters/setters
+    @Nonnull
     @Override
-    public void setId(final long id) {
+    public SetupEntity setId(final Long id) {
         this.channelId = id;
+        return this;
     }
 
+    @Nonnull
     @Override
-    public long getId() {
+    public Long getId() {
         return this.channelId;
     }
 
@@ -102,28 +106,34 @@ public class SetupEntity implements IEntity {
         return Games.valueOf(this.game);
     }
 
-    public void setGame(final Games game) {
+    @Nonnull
+    public SetupEntity setGame(@Nonnull final Games game) {
         this.game = game.name();
+        return this;
     }
 
     public GameInfo.GameMode getMode() {
         return GameInfo.GameMode.valueOf(this.mode);
     }
 
-    public void setMode(final GameInfo.GameMode mode) throws IllegalArgumentException {
+    @Nonnull
+    public SetupEntity setMode(@Nonnull final GameInfo.GameMode mode) throws IllegalArgumentException {
         if (!Games.getInfo(getGame()).getSupportedModes().contains(mode)) {
             final String message = String.format("Game %s does not support mode %s", getGame().name(), mode);
             throw new IllegalArgumentException(message);
         }
         this.mode = mode.name();
+        return this;
     }
 
     public long getDayLengthMillis() {
         return this.dayLengthMillis;
     }
 
-    public void setDayLength(final long dayLength, final TimeUnit timeUnit) {
+    @Nonnull
+    public SetupEntity setDayLength(final long dayLength, @Nonnull final TimeUnit timeUnit) {
         this.dayLengthMillis = timeUnit.toMillis(dayLength);
+        return this;
     }
 
     //create a fresh setup; default game is Popcorn, default mode is Wild
@@ -133,26 +143,26 @@ public class SetupEntity implements IEntity {
         this.setDayLength(5, TimeUnit.MINUTES);
     }
 
-    public boolean inUser(final long userId) {
+    public boolean inUser(final long userId) throws DatabaseException {
         //cache any inning users
-        CachedUser.cache(getThisChannel().getGuild().getMemberById(userId));
+        CachedUser.cache(Wolfia.getInstance().dbWrapper, getThisChannel().getGuild().getMemberById(userId));
         if (this.innedUsers.contains(userId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s, you have inned already.", TextchatUtils.userAsMention(userId));
             return false;
         } else {
             this.innedUsers.add(userId);
-            DbWrapper.merge(this);
+            save();
             return true;
         }
     }
 
-    public boolean outUser(final long userId) {
+    public boolean outUser(final long userId) throws DatabaseException {
         final boolean outted = this.innedUsers.remove(userId);
-        DbWrapper.merge(this);
+        save();
         return outted;
     }
 
-    private void cleanUpInnedPlayers() {
+    private void cleanUpInnedPlayers() throws DatabaseException {
         //did they leave the guild?
         final Set<Long> toBeOuted = new HashSet<>();
         final Guild g = getThisChannel().getGuild();
@@ -161,16 +171,18 @@ public class SetupEntity implements IEntity {
                 toBeOuted.add(userId);
             }
         });
-        toBeOuted.forEach(this::outUser);
+        for (final Long userId : toBeOuted) {
+            outUser(userId);
+        }
 
         //todo whenever time based ins are a thing, this is probably the place to check them
     }
 
-    public void postStatus() {
+    public void postStatus() throws DatabaseException {
         Wolfia.handleOutputEmbed(this.channelId, getStatus());
     }
 
-    public MessageEmbed getStatus() {
+    public MessageEmbed getStatus() throws DatabaseException {
         //clean up first
         cleanUpInnedPlayers();
 
@@ -216,7 +228,7 @@ public class SetupEntity implements IEntity {
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
-    public synchronized boolean startGame(final long commandCallerId) throws IllegalGameStateException {
+    public synchronized boolean startGame(final long commandCallerId) throws IllegalGameStateException, DatabaseException {
         //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
         synchronized (SetupEntity.class) {
             if (MaintenanceCommand.getMaintenanceFlag() || ShutdownCommand.getShutdownFlag()) {
@@ -270,7 +282,7 @@ public class SetupEntity implements IEntity {
                         TextchatUtils.userAsMention(commandCallerId), e.getMessage()), e);
             }
             this.innedUsers.clear();
-            DbWrapper.merge(this);
+            save();
             return true;
         }
     }

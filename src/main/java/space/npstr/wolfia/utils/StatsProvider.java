@@ -21,11 +21,11 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlstack.DbUtils;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.db.DbManager;
-import space.npstr.wolfia.db.DbUtils;
-import space.npstr.wolfia.db.entity.CachedUser;
-import space.npstr.wolfia.db.entity.EGuild;
+import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.utils.discord.Emojis;
 
@@ -117,7 +117,7 @@ public class StatsProvider {
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = DbManager.getEm();
+        final EntityManager em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
         try {
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Bot.AVERAGE_PLAYERS_SIZE).getSingleResult();
             if (averagePlayerSize == null) averagePlayerSize = new BigDecimal(0);
@@ -167,12 +167,12 @@ public class StatsProvider {
 
 
     @SuppressWarnings("unchecked")
-    public static EmbedBuilder getGuildStats(final long guildId) {
+    public static EmbedBuilder getGuildStats(final long guildId) throws DatabaseException {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = DbManager.getEm();
+        final EntityManager em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
         try {
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Guild.AVERAGE_PLAYERS_SIZE).setParameter("guildId", guildId).getSingleResult();
             if (averagePlayerSize == null) averagePlayerSize = new BigDecimal(0);
@@ -205,7 +205,7 @@ public class StatsProvider {
         //add them to the embed
         EmbedBuilder eb = new EmbedBuilder();
         final Guild guild = Wolfia.getGuildById(guildId);
-        final EGuild cachedGuild = EGuild.get(guildId).set(guild).save();
+        final EGuild cachedGuild = EGuild.load(Wolfia.getInstance().dbWrapper, guildId).set(guild).save();
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
         eb.setThumbnail(cachedGuild.getAvatarUrl());
 
@@ -230,11 +230,11 @@ public class StatsProvider {
     }
 
     @SuppressWarnings("unchecked")
-    public static EmbedBuilder getUserStats(final long userId) {
+    public static EmbedBuilder getUserStats(final long userId) throws DatabaseException {
         //get data out of the database
         final List<Map<String, Object>> gamesByUser = new ArrayList<>();
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
-        final EntityManager em = DbManager.getEm();
+        final EntityManager em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
         try {
             List<Object[]> result = em.createNativeQuery(Queries.User.GENERAL).setParameter("userId", userId).getResultList();
             gamesByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.GENERAL, em)));
@@ -269,8 +269,8 @@ public class StatsProvider {
 
         //add them to the embed
         final EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(CachedUser.getName(userId) + "'s Wolfia stats");
-        eb.setThumbnail(CachedUser.getAvatarUrl(userId));
+        eb.setTitle(CachedUser.getName(Wolfia.getInstance().dbWrapper, userId) + "'s Wolfia stats");
+        eb.setThumbnail(CachedUser.getAvatarUrl(Wolfia.getInstance().dbWrapper, userId));
 
         if (totalGamesByUser <= 0) {
             eb.setTitle(String.format("User (id `%s`) hasn't played any games.", userId));

@@ -15,11 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db.entity;
+package space.npstr.wolfia.db.entities;
 
-import space.npstr.wolfia.db.IEntity;
+import space.npstr.sqlstack.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Scope;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -30,7 +31,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "banlist")
-public class Banlist implements IEntity {
+public class Banlist extends SaucedEntity<Long, Banlist> {
 
     //user ids banned from playing
     @Id
@@ -50,13 +51,16 @@ public class Banlist implements IEntity {
     }
 
 
+    @Nonnull
     @Override
-    public void setId(final long id) {
+    public Banlist setId(final Long id) {
         this.userId = id;
+        return this;
     }
 
+    @Nonnull
     @Override
-    public long getId() {
+    public Long getId() {
         return this.userId;
     }
 
@@ -64,7 +68,9 @@ public class Banlist implements IEntity {
         return Scope.valueOf(this.scope);
     }
 
-    public void setScope(final Scope scope) {
+    @Nonnull
+    public Banlist setScope(@Nonnull final Scope scope) {
         this.scope = scope.name();
+        return this;
     }
 }

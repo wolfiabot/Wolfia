@@ -24,12 +24,13 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlstack.DatabaseWrapper;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.IOwnerRestricted;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.PrivateGuild;
+import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import java.io.IOException;
@@ -55,12 +56,12 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
     @Override
     public synchronized boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
 
-        final MessageReceivedEvent e = commandInfo.event;
-        final Guild g = e.getGuild();
+        final MessageReceivedEvent event = commandInfo.event;
+        final Guild g = event.getGuild();
 
         //make sure we have admin rights
         if (!g.getSelfMember().hasPermission(Permission.ADMINISTRATOR)) {
-            Wolfia.handleOutputMessage(e.getTextChannel(), "%s, gimme admin perms first.", e.getAuthor().getAsMention());
+            Wolfia.handleOutputMessage(event.getTextChannel(), "%s, gimme admin perms first.", event.getAuthor().getAsMention());
             return false;
         }
 
@@ -70,8 +71,8 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
         //- give the server a logo
         try {
             g.getManager().setIcon(Icon.from(getClass().getResourceAsStream("/img/popcorn_mafia_guy.png"))).queue(null, Wolfia.defaultOnFail());
-        } catch (final IOException ex) {
-            log.error("Could not set icon for guild {}", g.getIdLong(), e);
+        } catch (final IOException e) {
+            log.error("Could not set icon for guild {}", g.getIdLong(), event);
             return false;
         }
 
@@ -88,12 +89,19 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
         //register it
         //setting the private guild number in this manual way is ugly, but Hibernate/JPA are being super retarded about autogenerating non-ids
         //since this command should only run occasionally, and never in some kind of race condition (fingers crossed), I will allow this
-        final PrivateGuild pg = new PrivateGuild(DbWrapper.loadPrivateGuilds().size(), g.getIdLong());
-        DbWrapper.persist(pg);
-        Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(pg);
-        Wolfia.addEventListener(pg);
-        Wolfia.getInstance().commandListener.addIgnoredGuild(pg.getId());
-        g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue(null, Wolfia.defaultOnFail());
+        final DatabaseWrapper dbWrapper = Wolfia.getInstance().dbWrapper;
+        try {
+            final int number = Math.toIntExact(dbWrapper.selectJPQLQuery("SELECT COUNT (pg) FROM PrivateGuild pg", Long.class).get(0));
+            PrivateGuild pg = new PrivateGuild(number, g.getIdLong());
+            pg = dbWrapper.persist(pg);
+            Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(pg);
+            Wolfia.addEventListener(pg);
+            Wolfia.getInstance().commandListener.addIgnoredGuild(pg.getId());
+            g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue(null, Wolfia.defaultOnFail());
+        } catch (final DatabaseException e) {
+            log.error("Db blew up saving private guild", e);
+            return false;
+        }
         return true;
     }
 }

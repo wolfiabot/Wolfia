@@ -19,6 +19,7 @@ package space.npstr.wolfia.commands;
 
 
 import net.dv8tion.jda.core.entities.User;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -41,7 +42,7 @@ public abstract class BaseCommand {
     }
 
     //executes the command
-    protected abstract boolean execute(CommandParser.CommandContainer commandInfo) throws IllegalGameStateException;
+    protected abstract boolean execute(CommandParser.CommandContainer commandInfo) throws IllegalGameStateException, DatabaseException;
 
     //return a help string that should explain the usage of this command
     protected abstract String help();

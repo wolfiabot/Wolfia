@@ -66,6 +66,14 @@ public class Config {
     public final String discordbotsOrgToken;
     public final long logChannelId;
 
+
+    public final String sshHost;
+    public final String sshUser;
+    public final String sshKeyFile;
+    public final String sshKeyPassphrase;
+    public final int sshTunnelLocalPort;
+    public final int sshTunnelRemotePort;
+
     public final String sentryDsn;
 
 
@@ -94,6 +102,15 @@ public class Config {
             this.botsDiscordPwToken = values.getOrDefault("botsDiscordPwToken", "");
             this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
             this.logChannelId = Long.parseLong(values.getOrDefault("logChannelId", "0"));
+
+
+            //convention: if the host is empty, do not create a tunnel
+            this.sshHost = (String) sneaky.getOrDefault("sshHost", "");
+            this.sshUser = (String) sneaky.getOrDefault("sshUser", "");
+            this.sshKeyFile = (String) sneaky.getOrDefault("sshKeyFile", "");
+            this.sshKeyPassphrase = (String) sneaky.getOrDefault("sshKeyPassphrase", "");
+            this.sshTunnelLocalPort = (int) sneaky.getOrDefault("sshTunnelLocalPort", 0);
+            this.sshTunnelRemotePort = (int) sneaky.getOrDefault("sshTunnelRemotePort", 0);
 
             this.sentryDsn = (String) sneaky.getOrDefault("sentryDsn", "");
             if (this.sentryDsn != null && !this.sentryDsn.isEmpty()) {

@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.stats;
 
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -44,7 +45,7 @@ public class GuildStatsCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException, DatabaseException {
         long guildId = commandInfo.event.getGuild().getIdLong();
 
         //noinspection Duplicates

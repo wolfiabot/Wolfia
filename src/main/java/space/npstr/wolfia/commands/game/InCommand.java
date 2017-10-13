@@ -17,14 +17,15 @@
 
 package space.npstr.wolfia.commands.game;
 
+import net.dv8tion.jda.core.entities.User;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.Banlist;
-import space.npstr.wolfia.db.entity.SetupEntity;
+import space.npstr.wolfia.db.entities.Banlist;
+import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -47,7 +48,7 @@ public class InCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
 
 //        long timeForSignup = Long.valueOf(args[0]);
 //        timeForSignup = timeForSignup < this.MAX_SIGNUP_TIME ? timeForSignup : this.MAX_SIGNUP_TIME;
@@ -60,17 +61,19 @@ public class InCommand extends BaseCommand {
             return false;
         }
 
-        final SetupEntity setup = DbWrapper.getOrCreateEntity(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+        final SetupEntity setup = Wolfia.getInstance().dbWrapper.getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
 
 
         //force inn by bot owner
         if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && App.isOwner(commandInfo.event.getAuthor())) {
-            commandInfo.event.getMessage().getMentionedUsers().forEach(u -> setup.inUser(u.getIdLong()));
+            for (final User u : commandInfo.event.getMessage().getMentionedUsers()) {
+                setup.inUser(u.getIdLong());
+            }
             setup.postStatus();
             return true;
         }
 
-        if (DbWrapper.getOrCreateEntity(commandInfo.event.getAuthor().getIdLong(), Banlist.class).getScope() == Scope.GLOBAL) {
+        if (Wolfia.getInstance().dbWrapper.getOrCreate(commandInfo.event.getAuthor().getIdLong(), Banlist.class).getScope() == Scope.GLOBAL) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
                     "%s, lol ur banned.",
                     TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));

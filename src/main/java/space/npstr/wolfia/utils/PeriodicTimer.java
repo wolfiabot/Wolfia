@@ -21,10 +21,10 @@ public class PeriodicTimer {
                          final long selfDestructMillis, final Consumer<Void> selfDestructCallback) {
 
         this.updateCallback = updateCallback;
-        this.updates = Wolfia.scheduledExecutor.scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
+        this.updates = Wolfia.executor.scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
 
         this.selfDestructCallback = selfDestructCallback;
-        Wolfia.scheduledExecutor.schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
+        Wolfia.executor.schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
     }
 
     private void update() {

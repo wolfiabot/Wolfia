@@ -26,7 +26,6 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.IOwnerRestricted;
-import space.npstr.wolfia.db.DbManager;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.persistence.EntityManager;
@@ -140,7 +139,7 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
 
     private void prepareStressTest() {
         //drop and recreate the test table
-        final EntityManager em = DbManager.getEm();
+        final EntityManager em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
         try {
             em.getTransaction().begin();
             em.createNativeQuery(this.DROP_TEST_TABLE).executeUpdate();
@@ -173,7 +172,7 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
             EntityManager em = null;
             try {
                 for (int i = 0; i < this.operations; i++) {
-                    em = DbManager.getEm();
+                    em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
                     try {
                         em.getTransaction().begin();
                         em.createNativeQuery(DbTestCommand.this.INSERT_TEST_TABLE)

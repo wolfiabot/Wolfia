@@ -20,14 +20,14 @@ package space.npstr.wolfia.commands.util;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.stats.ActionStats;
-import space.npstr.wolfia.db.entity.stats.GameStats;
-import space.npstr.wolfia.db.entity.stats.TeamStats;
+import space.npstr.wolfia.db.entities.stats.ActionStats;
+import space.npstr.wolfia.db.entities.stats.GameStats;
+import space.npstr.wolfia.db.entities.stats.TeamStats;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
@@ -36,7 +36,9 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -62,7 +64,7 @@ public class ReplayCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException, DatabaseException {
 
         final MessageReceivedEvent e = commandInfo.event;
         if (commandInfo.args.length < 1) {
@@ -78,13 +80,17 @@ public class ReplayCommand extends BaseCommand {
             return false;
         }
 
-        final GameStats gameStats = DbWrapper.loadSingleGameStats(gameId);
+        final String sql = "SELECT g FROM GameStats g JOIN FETCH g.startingTeams t JOIN FETCH g.actions a JOIN FETCH t.players p WHERE g.gameId = :gameId";
+        final Map<String, Object> params = new HashMap<>();
+        params.put("gameId", gameId);
+        final List<GameStats> gameStatsList = Wolfia.getInstance().dbWrapper.selectJPQLQuery(sql, params, GameStats.class);
 
-        if (gameStats == null) {
+        if (gameStatsList.isEmpty()) {
             Wolfia.handleOutputMessage(e.getTextChannel(), "%s, there is no such game in the database.",
                     e.getAuthor().getAsMention());
             return false;
         }
+        final GameStats gameStats = gameStatsList.get(0);
 
         final NiceEmbedBuilder eb = new NiceEmbedBuilder();
 

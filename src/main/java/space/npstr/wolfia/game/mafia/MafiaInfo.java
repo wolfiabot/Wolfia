@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.game.mafia;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import net.dv8tion.jda.core.Permission;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.game.CharakterSetup;
@@ -52,7 +51,6 @@ public class MafiaInfo implements GameInfo {
         return GameMode.LITE;
     }
 
-    @SuppressFBWarnings("SF_SWITCH_NO_DEFAULT")
     @Override
     public Map<Permission, Scope> getRequiredPermissions(final GameMode mode) {
         final Map<Permission, Scope> requiredPermissions = new LinkedHashMap<>();

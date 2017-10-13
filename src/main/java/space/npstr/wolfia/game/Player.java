@@ -17,7 +17,11 @@
 
 package space.npstr.wolfia.game;
 
-import space.npstr.wolfia.db.entity.CachedUser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
+import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -30,6 +34,8 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  * Representing a player in a game
  */
 public class Player {
+
+    private static final Logger log = LoggerFactory.getLogger(Player.class);
 
     public final long userId;
     public final long channelId;
@@ -71,19 +77,34 @@ public class Player {
     }
 
     public String getName() {
-        return CachedUser.getName(this.userId);
+        try {
+            return CachedUser.getName(Wolfia.getInstance().dbWrapper, this.userId);
+        } catch (final DatabaseException e) {
+            return "Anonymous";
+        }
     }
 
     public String getNick() {
-        return CachedUser.getNick(this.userId, this.guildId);
+        try {
+            return CachedUser.getNick(Wolfia.getInstance().dbWrapper, this.userId, this.guildId);
+        } catch (final DatabaseException e) {
+            return "Anonymous";
+        }
     }
 
     public String getBothNamesFormatted() {
         //todo escape these from markdown characters to ensure proper formatting
         //todo these are the characters to beware of: "*", "_", "`", "~~"
-        final CachedUser cu = CachedUser.load(this.userId);
-        final String name = cu.getName();
-        final String nick = cu.getNick(this.guildId);
+        String name = "Anonymous";
+        String nick = "Anonymous";
+        try {
+            final CachedUser cu = CachedUser.load(Wolfia.getInstance().dbWrapper, this.userId);
+            name = cu.getName();
+            nick = cu.getNick(this.guildId);
+        } catch (final DatabaseException e) {
+            log.error("Db blew up why looking up cache user {}", this.userId, e);
+        }
+
         if (name.equals(nick)) {
             return "**" + name + "**";
         } else {

@@ -98,7 +98,7 @@ public class Listings {
 
     //increase delay with growing attempts to avoid overloading the listing servers
     private static Future reschedule(final Runnable task, final int attempt) {
-        return Wolfia.scheduledExecutor.schedule(task, 10L * attempt, TimeUnit.SECONDS);
+        return Wolfia.executor.schedule(task, 10L * attempt, TimeUnit.SECONDS);
     }
 
     private static volatile String lastDiscordbotsOrgPayload = "";

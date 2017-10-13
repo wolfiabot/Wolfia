@@ -25,9 +25,10 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.EGuild;
+import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.listing.Listings;
@@ -60,13 +61,17 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild guild = event.getGuild();
-        final EGuild guildEntity = DbWrapper.getOrCreateEntity(guild.getIdLong(), EGuild.class);
-        if (guildEntity.isPresent()) { //safeguard against discord shitting itself and spamming these for established guilds
-            log.warn("Joined a guild that is marked as present. Not taking any further action");
-            return;
-        }
+        try {
+            final EGuild guildEntity = Wolfia.getInstance().dbWrapper.getOrCreate(guild.getIdLong(), EGuild.class);
+            if (guildEntity.isPresent()) { //safeguard against discord shitting itself and spamming these for established guilds
+                log.warn("Joined a guild that is marked as present. Not taking any further action");
+                return;
+            }
 
-        guildEntity.set(guild).join().save();
+            guildEntity.set(guild).join().save();
+        } catch (final DatabaseException e) {
+            log.error("Db blew up while saving join event for guild {}", guild.getIdLong(), e);
+        }
         DiscordLogger.getLogger().log("%s `%s` Joined guild %s with %s users.",
                 Emojis.CHECK, TextchatUtils.berlinTime(), guild.getName(), guild.getMembers().size());
     }
@@ -77,7 +82,11 @@ public class InternalListener extends ListenerAdapter {
         Listings.postToDiscordbotsOrg(event.getJDA());
 
         final Guild guild = event.getGuild();
-        EGuild.get(guild.getIdLong()).set(guild).leave().save();
+        try {
+            EGuild.load(Wolfia.getInstance().dbWrapper, guild.getIdLong()).set(guild).leave().save();
+        } catch (final DatabaseException e) {
+            log.error("Db blew up while saving leave event for guild {}", guild.getIdLong(), e);
+        }
 
         int gamesDestroyed = 0;
         //destroy games running in the server that was left

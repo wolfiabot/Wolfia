@@ -25,13 +25,13 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.ChannelSettings;
+import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -64,13 +64,13 @@ public class TagCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException, DatabaseException {
 
         final MessageReceivedEvent event = commandInfo.event;
         final Guild guild = event.getGuild();
         final TextChannel channel = event.getTextChannel();
         final Member invoker = event.getMember();
-        final ChannelSettings settings = DbWrapper.getOrCreateEntity(channel.getIdLong(), ChannelSettings.class);
+        final ChannelSettings settings = Wolfia.getInstance().dbWrapper.getOrCreate(channel.getIdLong(), ChannelSettings.class);
         final Set<Long> tags = settings.getTags();
 
         String option = "";
@@ -142,8 +142,8 @@ public class TagCommand extends BaseCommand {
             for (final StringBuilder sb : outs) {
                 Wolfia.handleOutputMessage(channel, "%s", sb.toString());
             }
-            settings.usedTagList();
-            DbWrapper.merge(settings);
+            settings.usedTagList()
+                    .save();
             return true;
         }
 
@@ -159,8 +159,8 @@ public class TagCommand extends BaseCommand {
                             invoker.getAsMention());
                     return false;
                 } else {
-                    settings.addTag(invoker.getUser().getIdLong());
-                    DbWrapper.merge(settings);
+                    settings.addTag(invoker.getUser().getIdLong())
+                            .save();
                     Wolfia.handleOutputMessage(channel, "%s, you have been added to the tag list of this " +
                             "channel.", invoker.getAsMention());
                     return true;
@@ -171,8 +171,8 @@ public class TagCommand extends BaseCommand {
                             "channel.", invoker.getAsMention());
                     return false;
                 } else {
-                    settings.removeTag(invoker.getUser().getIdLong());
-                    DbWrapper.merge(settings);
+                    settings.removeTag(invoker.getUser().getIdLong())
+                            .save();
                     Wolfia.handleOutputMessage(channel, "%s, you have been removed from the tag list of this " +
                             "channel", invoker.getAsMention());
                     return true;
@@ -194,14 +194,14 @@ public class TagCommand extends BaseCommand {
             if (action == TagAction.ADD) {
                 mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::addTag);
                 mentionedRoles.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::addTag);
-                DbWrapper.merge(settings);
+                settings.save();
                 Wolfia.handleOutputMessage(channel, "%s, added **%s** to the tag list.", invoker.getAsMention(),
                         joined);
                 return true;
             } else { //removing
                 mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::removeTag);
                 mentionedRoles.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::removeTag);
-                DbWrapper.merge(settings);
+                settings.save();
                 Wolfia.handleOutputMessage(channel, "%s, removed **%s** from the tag list.",
                         invoker.getAsMention(), joined);
                 return true;

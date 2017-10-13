@@ -20,6 +20,7 @@ package space.npstr.wolfia.commands;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
@@ -53,8 +54,7 @@ import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InfoCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.stats.CommandStats;
+import space.npstr.wolfia.db.entities.stats.CommandStats;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -181,9 +181,12 @@ public class CommandHandler {
                     commandInfo.event.getMessage().getRawContent());
             final boolean success = command.execute(commandInfo);
             final long executed = System.currentTimeMillis();
-            Wolfia.submit(() -> DbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
+            Wolfia.executor.submit(() -> Wolfia.getInstance().dbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
         } catch (final UserFriendlyException e) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "There was a problem executing your command:\n%s", e.getMessage());
+        } catch (final DatabaseException e) {
+            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "The database is not available currently. Please try again later. Sorry for the inconvenience!");
+            log.error("Db blew up while handling command", e);
         } catch (final Exception e) {
             try {
                 final MessageReceivedEvent ev = commandInfo.event;

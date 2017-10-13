@@ -21,11 +21,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.stats.CommandStats;
-import space.npstr.wolfia.db.entity.stats.GeneralBotStats;
+import space.npstr.wolfia.db.entities.stats.CommandStats;
+import space.npstr.wolfia.db.entities.stats.GeneralBotStats;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Spark;
@@ -131,7 +131,7 @@ public class Charts {
         Spark.get("/commandstats/averageexecutionduration/latest",       (rq, rs) -> Charts.getAverageCommandExecutionDuration(rq));
         // @formatter:on
 
-        Wolfia.scheduledExecutor.scheduleAtFixedRate(Charts::updateRand, 0, 1, TimeUnit.SECONDS);
+        Wolfia.executor.scheduleAtFixedRate(Charts::updateRand, 0, 1, TimeUnit.SECONDS);
     }
 
     //########## views
@@ -139,7 +139,7 @@ public class Charts {
     /**
      * Loads and show all the charts
      */
-    private static ModelAndView charts() {
+    private static ModelAndView charts() throws DatabaseException {
         log.info("serving charts");
 
         final Map<String, Object> model = new HashMap<>();
@@ -189,89 +189,89 @@ public class Charts {
 
     //########## general bot stats api
 
-    private static JSONObject getGeneralBotStats(final Request request) {
+    private static JSONObject getGeneralBotStats(final Request request) throws DatabaseException {
         final int range = request != null ? extractRange(request, RANGE_ALL) : RANGE_ALL;
         final long since = request != null ? extractSince(request, SINCE_FOREVER) : SINCE_FOREVER;
         return getGeneralBotStats(range, since);
     }
 
-    private static JSONObject getLatestGeneralBotStats() {
+    private static JSONObject getLatestGeneralBotStats() throws DatabaseException {
         return getGeneralBotStats(1, SINCE_FOREVER);
     }
 
-    private static JSONArray getUserCount(final Request request) {
+    private static JSONArray getUserCount(final Request request) throws DatabaseException {
         return getGeneralBotStats(extractRange(request, RANGE_ALL), extractSince(request, SINCE_FOREVER))
                 .getJSONArray("userCountData");
     }
 
-    private static JSONArray getGuildCount(final Request request) {
+    private static JSONArray getGuildCount(final Request request) throws DatabaseException {
         return getGeneralBotStats(extractRange(request, RANGE_ALL), extractSince(request, SINCE_FOREVER))
                 .getJSONArray("guildCountData");
     }
 
-    private static JSONArray getGamesBeingPlayedCount(final Request request) {
+    private static JSONArray getGamesBeingPlayedCount(final Request request) throws DatabaseException {
         return getGeneralBotStats(extractRange(request, RANGE_ALL), extractSince(request, SINCE_FOREVER))
                 .getJSONArray("gamesBeingPlayedCountData");
     }
 
-    private static JSONArray getAvailablePrivateGuildsCount(final Request request) {
+    private static JSONArray getAvailablePrivateGuildsCount(final Request request) throws DatabaseException {
         return getGeneralBotStats(extractRange(request, RANGE_ALL), extractSince(request, SINCE_FOREVER))
                 .getJSONArray("availablePrivateGuildsCountData");
     }
 
-    private static JSONArray getFreeMemory(final Request request) {
+    private static JSONArray getFreeMemory(final Request request) throws DatabaseException {
         return getGeneralBotStats(extractRange(request, RANGE_ALL), extractSince(request, SINCE_FOREVER))
                 .getJSONArray("freeMemoryData");
     }
 
-    private static JSONArray getMaxMemory(final Request request) {
+    private static JSONArray getMaxMemory(final Request request) throws DatabaseException {
         return getGeneralBotStats(extractRange(request, RANGE_ALL), extractSince(request, SINCE_FOREVER))
                 .getJSONArray("maxMemoryData");
     }
 
-    private static JSONArray getTotalMemory(final Request request) {
+    private static JSONArray getTotalMemory(final Request request) throws DatabaseException {
         return getGeneralBotStats(extractRange(request, RANGE_ALL), extractSince(request, SINCE_FOREVER))
                 .getJSONArray("totalMemoryData");
     }
 
-    private static JSONArray getAverageLoad(final Request request) {
+    private static JSONArray getAverageLoad(final Request request) throws DatabaseException {
         return getGeneralBotStats(extractRange(request, RANGE_ALL), extractSince(request, SINCE_FOREVER))
                 .getJSONArray("averageLoadData");
     }
 
-    private static JSONArray getLatestUserCount() {
+    private static JSONArray getLatestUserCount() throws DatabaseException {
         return getGeneralBotStats(1, SINCE_FOREVER).getJSONArray("userCountData").getJSONArray(0);
     }
 
-    private static JSONArray getLatestGuildCount() {
+    private static JSONArray getLatestGuildCount() throws DatabaseException {
         return getGeneralBotStats(1, SINCE_FOREVER).getJSONArray("guildCountData").getJSONArray(0);
     }
 
-    private static JSONArray getLatestGamesBeingPlayedCount() {
+    private static JSONArray getLatestGamesBeingPlayedCount() throws DatabaseException {
         return getGeneralBotStats(1, SINCE_FOREVER).getJSONArray("gamesBeingPlayedCountData").getJSONArray(0);
     }
 
-    private static JSONArray getLatestAvailablePrivateGuildsCount() {
+    private static JSONArray getLatestAvailablePrivateGuildsCount() throws DatabaseException {
         return getGeneralBotStats(1, SINCE_FOREVER).getJSONArray("availablePrivateGuildsCountData").getJSONArray(0);
     }
 
-    private static JSONArray getLatestFreeMemory() {
+    private static JSONArray getLatestFreeMemory() throws DatabaseException {
         return getGeneralBotStats(1, SINCE_FOREVER).getJSONArray("freeMemoryData").getJSONArray(0);
     }
 
-    private static JSONArray getLatestMaxMemory() {
+    private static JSONArray getLatestMaxMemory() throws DatabaseException {
         return getGeneralBotStats(1, SINCE_FOREVER).getJSONArray("maxMemoryData").getJSONArray(0);
     }
 
-    private static JSONArray getLatestTotalMemory() {
+    private static JSONArray getLatestTotalMemory() throws DatabaseException {
         return getGeneralBotStats(1, SINCE_FOREVER).getJSONArray("totalMemoryData").getJSONArray(0);
     }
 
-    private static JSONArray getLatestAverageLoad() {
+    private static JSONArray getLatestAverageLoad() throws DatabaseException {
         return getGeneralBotStats(1, SINCE_FOREVER).getJSONArray("averageLoadData").getJSONArray(0);
     }
 
-    private static JSONObject getGeneralBotStats(final int range, final long since) {
+    private static JSONObject getGeneralBotStats(final int range, final long since) throws DatabaseException {
         final JSONObject result = new JSONObject();
 
         final JSONArray userCountData = new JSONArray();
@@ -313,7 +313,7 @@ public class Charts {
     //we could always select with ORDER BY DESC and reverse, but that would mean we have to reverse the look ups without
     //a limit (the biggest ones), and this sounds like bad idea longterm
     //NOTE: we can have the database do this for us if we use plain SQL queries instead of JPQL
-    private static List<GeneralBotStats> loadGeneralBotStats(final int limit, final long since) {
+    private static List<GeneralBotStats> loadGeneralBotStats(final int limit, final long since) throws DatabaseException {
         String query = "SELECT * FROM (%s) AS foo ORDER BY foo.time_stamp ASC";
         String subquery = "SELECT * FROM stats_general_bot WHERE stats_general_bot.time_stamp > :since ORDER BY stats_general_bot.time_stamp DESC";
         final Map<String, Object> parameters = new HashMap<>();
@@ -325,14 +325,14 @@ public class Charts {
         }
 
         query = String.format(query, subquery);
-        return DbWrapper.selectPlainSqlQueryList(query, parameters, GeneralBotStats.class);
+        return Wolfia.getInstance().dbWrapper.selectPlainSqlQueryList(query, parameters, GeneralBotStats.class);
     }
 
 
     //########## command stats api
 
 
-    private static JSONArray getCommandExecutionDuration(final Request request) {
+    private static JSONArray getCommandExecutionDuration(final Request request) throws DatabaseException {
         return getCommandStats(extractRange(request, RANGE_ALL), extractSince(request, SINCE_FOREVER))
                 .getJSONArray("executionDuration");
     }
@@ -341,14 +341,14 @@ public class Charts {
     /**
      * @return average command execution duration
      */
-    private static JSONArray getAverageCommandExecutionDuration(final Request request) {
+    private static JSONArray getAverageCommandExecutionDuration(final Request request) throws DatabaseException {
         final int range = request != null ? extractRange(request, 100) : 100; //get the average over the last 100 commands
         final long since = request != null ? extractSince(request, SINCE_FOREVER) : SINCE_FOREVER;
         final long averageCommandExecutionDuration = loadAverageCommandExecutionDuration(range, since);
         return jsonArrayFrom(System.currentTimeMillis(), averageCommandExecutionDuration);
     }
 
-    private static long loadAverageCommandExecutionDuration(final int limit, final long since) {
+    private static long loadAverageCommandExecutionDuration(final int limit, final long since) throws DatabaseException {
         String query = "SELECT AVG(foo.execution_duration) FROM (%s) AS foo";
         String subquery = "SELECT * FROM stats_commands WHERE stats_commands.executed_time > :since ORDER BY stats_commands.executed_time DESC";
         final Map<String, Object> parameters = new HashMap<>();
@@ -360,11 +360,11 @@ public class Charts {
         }
 
         query = String.format(query, subquery);
-        return DbWrapper.selectPlainSqlQuerySingleResult(query, parameters, BigDecimal.class).longValue();
+        return Wolfia.getInstance().dbWrapper.selectPlainSqlQuerySingleResult(query, parameters, BigDecimal.class).longValue();
 
     }
 
-    private static JSONObject getCommandStats(final int range, final long since) {
+    private static JSONObject getCommandStats(final int range, final long since) throws DatabaseException {
         final JSONObject result = new JSONObject();
 
         final JSONArray executionDuration = new JSONArray();
@@ -379,7 +379,7 @@ public class Charts {
         return result;
     }
 
-    private static List<CommandStats> loadCommandStats(final int limit, final long since) {
+    private static List<CommandStats> loadCommandStats(final int limit, final long since) throws DatabaseException {
         String query = "SELECT * FROM (%s) AS foo ORDER BY foo.executed_time ASC";
         String subquery = "SELECT * FROM stats_commands WHERE stats_commands.executed_time > :since ORDER BY stats_commands.executed_time DESC";
         final Map<String, Object> parameters = new HashMap<>();
@@ -391,7 +391,7 @@ public class Charts {
         }
 
         query = String.format(query, subquery);
-        return DbWrapper.selectPlainSqlQueryList(query, parameters, CommandStats.class);
+        return Wolfia.getInstance().dbWrapper.selectPlainSqlQueryList(query, parameters, CommandStats.class);
     }
 
 

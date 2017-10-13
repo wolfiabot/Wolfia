@@ -24,6 +24,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandParser;
@@ -34,10 +35,10 @@ import space.npstr.wolfia.commands.ingame.NightkillCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCountCommand;
-import space.npstr.wolfia.db.entity.stats.ActionStats;
-import space.npstr.wolfia.db.entity.stats.GameStats;
-import space.npstr.wolfia.db.entity.stats.PlayerStats;
-import space.npstr.wolfia.db.entity.stats.TeamStats;
+import space.npstr.wolfia.db.entities.stats.ActionStats;
+import space.npstr.wolfia.db.entities.stats.GameStats;
+import space.npstr.wolfia.db.entities.stats.PlayerStats;
+import space.npstr.wolfia.db.entities.stats.TeamStats;
 import space.npstr.wolfia.events.PrivateChannelListener;
 import space.npstr.wolfia.events.UpdatingReactionListener;
 import space.npstr.wolfia.game.Game;
@@ -144,7 +145,7 @@ public class Mafia extends Game {
     @SuppressWarnings("unchecked")
     @Override
     public synchronized void start(final long channelId, final GameInfo.GameMode mode, final Set<Long> innedPlayers)
-            throws UserFriendlyException {
+            throws UserFriendlyException, DatabaseException {
         try {//wrap into our own exceptions
             doArgumentChecksAndSet(channelId, mode, innedPlayers);
         } catch (final IllegalArgumentException e) {

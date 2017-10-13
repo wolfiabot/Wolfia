@@ -15,17 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db.entity;
+package space.npstr.wolfia.db.entities;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
+import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlstack.DatabaseWrapper;
+import space.npstr.sqlstack.converters.PostgresHStoreConverter;
+import space.npstr.sqlstack.entities.SaucedEntity;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.IEntity;
-import space.npstr.wolfia.db.PostgresHStoreConverter;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -41,7 +43,7 @@ import java.util.Map;
  */
 @Entity
 @Table(name = "cached_users")
-public class CachedUser implements IEntity {
+public class CachedUser extends SaucedEntity<Long, CachedUser> {
 
     @Id
     @Column(name = "user_id")
@@ -63,54 +65,50 @@ public class CachedUser implements IEntity {
 
     //always returns the cached object, resulting in a call to the database; for faster lookups consider using hybrid
     //methods below that try to look up a live user/member first
-    public static CachedUser load(final long userId) {
-        return DbWrapper.getOrCreateEntity(userId, CachedUser.class);
+    public static CachedUser load(final DatabaseWrapper dbWrapper, final long userId) throws DatabaseException {
+        return dbWrapper.getOrCreate(userId, CachedUser.class);
     }
 
-    public static String getName(final long userId) {
+    public static String getName(final DatabaseWrapper dbWrapper, final long userId) throws DatabaseException {
         final User user = Wolfia.getUserById(userId);
         if (user != null) {
             return user.getName();
         } else {
-            return CachedUser.load(userId).name;
+            return CachedUser.load(dbWrapper, userId).name;
         }
     }
 
-    public static String getNick(final long userId, final long guildId) {
+    public static String getNick(final DatabaseWrapper dbWrapper, final long userId, final long guildId) throws DatabaseException {
         final Guild guild = Wolfia.getGuildById(guildId);
         if (guild != null) {
             final Member member = guild.getMemberById(userId);
             if (member != null) return member.getEffectiveName();
         }
 
-        return CachedUser.load(userId).getNick(guildId);
+        return CachedUser.load(dbWrapper, userId).getNick(guildId);
     }
 
-    public static String getAvatarUrl(final long userId) {
+    public static String getAvatarUrl(final DatabaseWrapper dbWrapper, final long userId) throws DatabaseException {
         final User user = Wolfia.getUserById(userId);
         if (user != null) {
             return user.getAvatarUrl();
         } else {
-            return CachedUser.load(userId).avatarUrl;
+            return CachedUser.load(dbWrapper, userId).avatarUrl;
         }
     }
 
     //call this when you only really want to write data
-    public static CachedUser cache(final Member member) {
-        return CachedUser.load(member.getUser().getIdLong())
+    public static CachedUser cache(final DatabaseWrapper dbWrapper, final Member member) throws DatabaseException {
+        return CachedUser.load(dbWrapper, member.getUser().getIdLong())
                 .set(member)
                 .save();
     }
 
     //call this when you only really want to write data
-    public static CachedUser cache(final User user) {
-        return CachedUser.load(user.getIdLong())
+    public static CachedUser cache(final DatabaseWrapper dbWrapper, final User user) throws DatabaseException {
+        return CachedUser.load(dbWrapper, user.getIdLong())
                 .set(user)
                 .save();
-    }
-
-    public CachedUser save() {
-        return DbWrapper.merge(this);
     }
 
     @CheckReturnValue
@@ -137,14 +135,17 @@ public class CachedUser implements IEntity {
                 .setAvatarUrl(user.getEffectiveAvatarUrl());
     }
 
+    @Nonnull
     @Override
     @CheckReturnValue
-    public void setId(final long id) {
+    public CachedUser setId(final Long id) {
         this.userId = id;
+        return this;
     }
 
+    @Nonnull
     @Override
-    public long getId() {
+    public Long getId() {
         return this.userId;
     }
 

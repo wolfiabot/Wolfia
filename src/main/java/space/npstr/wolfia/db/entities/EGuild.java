@@ -15,13 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db.entity;
+package space.npstr.wolfia.db.entities;
 
 import net.dv8tion.jda.core.entities.Guild;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.IEntity;
+import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlstack.DatabaseWrapper;
+import space.npstr.sqlstack.entities.SaucedEntity;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -36,7 +38,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "guilds")
-public class EGuild implements IEntity {
+public class EGuild extends SaucedEntity<Long, EGuild> {
 
     @Id
     @Column(name = "guild_id", nullable = false)
@@ -64,13 +66,10 @@ public class EGuild implements IEntity {
     public EGuild() {
     }
 
-    public static EGuild get(final long guildId) {
-        return DbWrapper.getOrCreateEntity(guildId, EGuild.class);
+    public static EGuild load(final DatabaseWrapper dbWrapper, final long guildId) throws DatabaseException {
+        return dbWrapper.getOrCreate(guildId, EGuild.class);
     }
 
-    public EGuild save() {
-        return DbWrapper.merge(this);
-    }
 
     public EGuild set(final Guild guild) {
         if (guild == null) {
@@ -110,14 +109,17 @@ public class EGuild implements IEntity {
         return Long.hashCode(this.guildId);
     }
 
+    @Nonnull
     @Override
     @CheckReturnValue
-    public void setId(final long id) {
+    public EGuild setId(final Long id) {
         this.guildId = id;
+        return this;
     }
 
+    @Nonnull
     @Override
-    public long getId() {
+    public Long getId() {
         return this.guildId;
     }
 

@@ -25,8 +25,9 @@ import net.dv8tion.jda.core.events.guild.update.GuildUpdateNameEvent;
 import net.dv8tion.jda.core.events.user.UserAvatarUpdateEvent;
 import net.dv8tion.jda.core.events.user.UserNameUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import space.npstr.wolfia.db.entity.CachedUser;
-import space.npstr.wolfia.db.entity.EGuild;
+import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.db.entities.EGuild;
 
 /**
  * Created by napster on 28.07.17.
@@ -40,39 +41,40 @@ public class CachingListener extends ListenerAdapter {
 
     @Override
     public void onUserNameUpdate(final UserNameUpdateEvent event) {
-        CachedUser.cache(event.getUser());
+        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getInstance().dbWrapper, event.getUser()));
     }
 
     @Override
     public void onGuildMemberNickChange(final GuildMemberNickChangeEvent event) {
-        CachedUser.cache(event.getMember());
+        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getInstance().dbWrapper, event.getMember()));
     }
 
     //todo a last seen kinda thing for signup auto outing
 
     @Override
     public void onUserAvatarUpdate(final UserAvatarUpdateEvent event) {
-        CachedUser.cache(event.getUser());
+        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getInstance().dbWrapper, event.getUser()));
     }
 
     @Override
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
-        CachedUser.cache(event.getMember());
+        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getInstance().dbWrapper, event.getMember()));
     }
 
     @Override
     public void onGuildUpdateName(final GuildUpdateNameEvent event) {
         final Guild guild = event.getGuild();
-        EGuild.get(guild.getIdLong())
+        Wolfia.executor.submit(() -> EGuild.load(Wolfia.getInstance().dbWrapper, guild.getIdLong())
                 .set(guild)
-                .save();
+                .save()
+        );
     }
 
     @Override
     public void onGuildUpdateIcon(final GuildUpdateIconEvent event) {
         final Guild guild = event.getGuild();
-        EGuild.get(guild.getIdLong())
+        Wolfia.executor.submit(() -> EGuild.load(Wolfia.getInstance().dbWrapper, guild.getIdLong())
                 .set(guild)
-                .save();
+                .save());
     }
 }

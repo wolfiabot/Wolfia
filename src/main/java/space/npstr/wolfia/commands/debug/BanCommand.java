@@ -22,13 +22,13 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.sqlstack.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.commands.IOwnerRestricted;
-import space.npstr.wolfia.db.DbWrapper;
-import space.npstr.wolfia.db.entity.Banlist;
+import space.npstr.wolfia.db.entities.Banlist;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -53,7 +53,7 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
 
 
         final MessageReceivedEvent event = commandInfo.event;
@@ -93,16 +93,18 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
         mentions.addAll(mentionedUsers.stream().map(User::getAsMention).collect(Collectors.toList()));
         final String joined = String.join("**, **", mentions);
         if (action == BanAction.ADD) {
-            mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(userId -> {
-                final Banlist userBan = DbWrapper.getOrCreateEntity(userId, Banlist.class);
-                userBan.setScope(Scope.GLOBAL);
-                DbWrapper.merge(userBan);
-            });
+            for (final long userId : mentionedUsers.stream().map(ISnowflake::getIdLong).collect(Collectors.toList())) {
+                Wolfia.getInstance().dbWrapper.getOrCreate(userId, Banlist.class)
+                        .setScope(Scope.GLOBAL)
+                        .save();
+            }
             Wolfia.handleOutputMessage(channel, "%s, added **%s** to the global ban list.", invoker.getAsMention(),
                     joined);
             return true;
         } else { //removing
-            mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(userId -> DbWrapper.deleteEntity(userId, Banlist.class));
+            for (final long userId : mentionedUsers.stream().map(ISnowflake::getIdLong).collect(Collectors.toList())) {
+                Wolfia.getInstance().dbWrapper.deleteEntity(userId, Banlist.class);
+            }
             Wolfia.handleOutputMessage(channel, "%s, removed **%s** from the global ban list.",
                     invoker.getAsMention(), joined);
             return true;
