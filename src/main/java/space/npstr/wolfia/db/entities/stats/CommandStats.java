@@ -19,16 +19,16 @@ package space.npstr.wolfia.db.entities.stats;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import space.npstr.sqlstack.entities.SaucedEntity;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
-import java.io.Serializable;
 
 /**
  * Created by napster on 03.07.17.
@@ -37,7 +37,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "stats_commands")
-public class CommandStats implements Serializable {
+public class CommandStats extends SaucedEntity<Long, CommandStats> {
 
     private static final long serialVersionUID = -587366706601508808L;
 
@@ -59,8 +59,7 @@ public class CommandStats implements Serializable {
     @Column(name = "guild_id")
     private long guildId;
 
-    @Lob
-    @Column(name = "raw_message", length = 2000)
+    @Column(name = "raw_message", length = 2000, columnDefinition = "text")
     private String rawMessage;
 
     @Column(name = "command_class")
@@ -114,8 +113,17 @@ public class CommandStats implements Serializable {
     }
 
 
-    public long getCommandId() {
+    @Nonnull
+    @Override
+    public Long getId() {
         return this.commandId;
+    }
+
+    @Nonnull
+    @Override
+    public CommandStats setId(final Long id) {
+        this.commandId = id;
+        return this;
     }
 
     public long getInvokerId() {

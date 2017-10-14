@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
+import space.npstr.sqlstack.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
@@ -24,6 +25,7 @@ import space.npstr.wolfia.game.definitions.Phase;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -32,7 +34,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
 
 /**
  * Created by napster on 30.05.17.
@@ -41,7 +42,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "stats_action")
-public class ActionStats implements Serializable {
+public class ActionStats extends SaucedEntity<Long, ActionStats> {
 
     private static final long serialVersionUID = -6803073458836067860L;
 
@@ -142,10 +143,10 @@ public class ActionStats implements Serializable {
         switch (Actions.valueOf(this.actionType)) {
 
             case GAMESTART:
-                result += String.format("%s: Game **#%s** starts.", Emojis.VIDEO_GAME, getGame().getGameId());
+                result += String.format("%s: Game **#%s** starts.", Emojis.VIDEO_GAME, getGame().getId());
                 break;
             case GAMEEND:
-                result += String.format("%s: Game **#%s** ends.", Emojis.END, getGame().getGameId());
+                result += String.format("%s: Game **#%s** ends.", Emojis.END, getGame().getId());
                 break;
             case DAYSTART:
                 result += String.format("%s: Day **%s** starts.", Emojis.SUNNY, getCycle());
@@ -205,7 +206,7 @@ public class ActionStats implements Serializable {
                     return "`" + player.getNickname() + "` " + (player.getAlignment() == Alignments.VILLAGE ? Emojis.COWBOY : baddieEmoji);
             }
         }
-        final String message = String.format("No such player %s in this game %s", userId, this.game.getGameId());
+        final String message = String.format("No such player %s in this game %s", userId, this.game.getId());
         throw new IllegalArgumentException(message);
     }
 
@@ -214,12 +215,17 @@ public class ActionStats implements Serializable {
     ActionStats() {
     }
 
-    public long getId() {
+    @Override
+    @Nonnull
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(final long id) {
+    @Nonnull
+    @Override
+    public ActionStats setId(final Long id) {
         this.id = id;
+        return this;
     }
 
     public GameStats getGame() {

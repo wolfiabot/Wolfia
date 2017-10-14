@@ -17,9 +17,11 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
+import space.npstr.sqlstack.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -28,7 +30,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
 
 /**
  * Created by napster on 30.05.17.
@@ -37,7 +38,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "stats_player")
-public class PlayerStats implements Serializable {
+public class PlayerStats extends SaucedEntity<Long, PlayerStats> {
 
     private static final long serialVersionUID = -4581124627322215168L;
 
@@ -111,12 +112,17 @@ public class PlayerStats implements Serializable {
     PlayerStats() {
     }
 
-    public long getId() {
+    @Override
+    @Nonnull
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(final long id) {
+    @Nonnull
+    @Override
+    public PlayerStats setId(final Long id) {
         this.id = id;
+        return this;
     }
 
     public TeamStats getTeam() {

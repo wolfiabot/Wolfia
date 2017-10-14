@@ -95,7 +95,7 @@ public class ReplayCommand extends BaseCommand {
         final NiceEmbedBuilder eb = new NiceEmbedBuilder();
 
         //1. post summary like game, mode, players, roles
-        eb.setTitle("**Game #" + gameStats.getGameId() + "**");
+        eb.setTitle("**Game #" + gameStats.getId() + "**");
         eb.setDescription(gameStats.getGameType().textRep + " " + gameStats.getGameMode());
         eb.addField("Game started", TextchatUtils.toUtcTime(gameStats.getStartTime()), true);
 

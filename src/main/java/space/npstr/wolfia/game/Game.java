@@ -641,7 +641,7 @@ public abstract class Game {
             try {
                 Wolfia.getInstance().dbWrapper.persist(this.gameStats);
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
-                        this.gameStats.getGameId(), Config.PREFIX + mainTrigger(ReplayCommand.class), this.gameStats.getGameId());
+                        this.gameStats.getId(), Config.PREFIX + mainTrigger(ReplayCommand.class), this.gameStats.getId());
             } catch (final DatabaseException e) {
                 log.error("Db blew up saving game stats", e);
                 out += "The database it not available currently, a replay of this game will not be available.";
@@ -649,7 +649,7 @@ public abstract class Game {
             cleanUp();
             final TextChannel channel = getThisChannel();
             DiscordLogger.getLogger().log("%s `%s` Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
-                    Emojis.END, TextchatUtils.berlinTime(), this.gameStats.getGameId(),
+                    Emojis.END, TextchatUtils.berlinTime(), this.gameStats.getId(),
                     channel.getGuild().getName(), channel.getGuild().getIdLong(),
                     channel.getName(), channel.getIdLong(), Games.getInfo(this).textRep(), this.mode.textRep, this.players.size());
             // removing the game from the registry has to be the very last statement, since if a restart is queued, it
@@ -657,7 +657,7 @@ public abstract class Game {
             Wolfia.handleOutputMessage(this.channelId,
                     ignoredMessage -> Games.remove(this),
                     throwable -> {
-                        log.error("Failed to send last message of game #{}", this.gameStats.getGameId(), throwable);
+                        log.error("Failed to send last message of game #{}", this.gameStats.getId(), throwable);
                         Games.remove(this);
                     },
                     "%s", out);
