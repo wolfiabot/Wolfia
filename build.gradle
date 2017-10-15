@@ -25,7 +25,7 @@ repositories {
 
 dependencies {
     //@formatter:off
-    ext.jdaVersion                = '3.3.1_287'
+    ext.jdaVersion                = '3.3.1_289'
     ext.logbackVersion            = '1.2.3'
     ext.sentryVersion             = '1.5.4'
     ext.discordAppenderVersion    = '1.0.0'
