@@ -35,6 +35,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by napster on 29.07.17.
@@ -187,5 +188,15 @@ public class CachedUser extends SaucedEntity<Long, CachedUser> {
     public CachedUser setAvatarUrl(final String avatarUrl) {
         this.avatarUrl = avatarUrl;
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.userId);
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return (obj instanceof CachedUser) && ((CachedUser) obj).userId == this.userId;
     }
 }
