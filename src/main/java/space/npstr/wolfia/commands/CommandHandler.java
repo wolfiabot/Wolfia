@@ -60,6 +60,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.function.Predicate;
 
 /**
@@ -181,7 +182,11 @@ public class CommandHandler {
                     commandInfo.event.getMessage().getRawContent());
             final boolean success = command.execute(commandInfo);
             final long executed = System.currentTimeMillis();
-            Wolfia.executor.submit(() -> Wolfia.getInstance().dbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
+            try {
+                Wolfia.executor.submit(() -> Wolfia.getInstance().dbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
+            } catch (final RejectedExecutionException ignored) {
+                //may happen on shutdown
+            }
         } catch (final UserFriendlyException e) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "There was a problem executing your command:\n%s", e.getMessage());
         } catch (final DatabaseException e) {

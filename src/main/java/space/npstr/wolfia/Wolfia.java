@@ -61,6 +61,7 @@ import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import java.lang.management.ManagementFactory;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -500,12 +501,13 @@ public class Wolfia {
 
             //shutdown executors
             log.info("Shutting down executor");
-            executor.shutdown();
+            final List<Runnable> runnables = executor.shutdownNow();
+            log.info("{} runnables canceled", runnables.size());
             try {
                 executor.awaitTermination(30, TimeUnit.SECONDS);
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
-                log.warn("Executor did not finish it's tasks after 30 seconds");
+                log.warn("Interrupted while awaiting executor termination");
             }
 
             //shutdown DB
