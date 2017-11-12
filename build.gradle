@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'space.npstr'
-version = '0.9.2-' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
+version = '0.10.0-' + (System.getenv('CI') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
@@ -78,18 +78,23 @@ versionFile {
     prefix = 'GIT_'
 }
 
+shadowJar {
+    archiveName = "wolfia.jar"
+}
+
 bintray {
     user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
     key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
     filesSpec {
         from 'build/libs'
         into '.'
+        rename '(.+)\\.(.+)', '$1-' + project.version + '.$2'
     }
     dryRun = false
     publish = true
     pkg {
         repo = 'wolfia'
-        name = 'alpha'
+        name = 'beta'
         userOrg = user
         version {
             name = project.version
