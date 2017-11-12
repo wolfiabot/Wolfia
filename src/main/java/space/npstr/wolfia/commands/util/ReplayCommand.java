@@ -20,7 +20,7 @@ package space.npstr.wolfia.commands.util;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -64,7 +64,8 @@ public class ReplayCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException, DatabaseException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo)
+            throws IllegalGameStateException, DatabaseException {
 
         final MessageReceivedEvent e = commandInfo.event;
         if (commandInfo.args.length < 1) {
@@ -83,7 +84,7 @@ public class ReplayCommand extends BaseCommand {
         final String sql = "SELECT g FROM GameStats g JOIN FETCH g.startingTeams t JOIN FETCH g.actions a JOIN FETCH t.players p WHERE g.gameId = :gameId";
         final Map<String, Object> params = new HashMap<>();
         params.put("gameId", gameId);
-        final List<GameStats> gameStatsList = Wolfia.getInstance().dbWrapper.selectJPQLQuery(sql, params, GameStats.class);
+        final List<GameStats> gameStatsList = Wolfia.getInstance().dbWrapper.selectJpqlQuery(sql, params, GameStats.class);
 
         if (gameStatsList.isEmpty()) {
             Wolfia.handleOutputMessage(e.getTextChannel(), "%s, there is no such game in the database.",

@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
@@ -75,7 +75,7 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
     private int cycle;
 
     //day or night or whatever else, defined in the Phase enum
-    @Column(name = "phase")
+    @Column(name = "phase", columnDefinition = "text")
     private String phase;
 
     //userId of the discord user; there might be special negative values for factional actors/targets in the future
@@ -83,7 +83,7 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
     private long actor;
 
     //defined in the Actions enum
-    @Column(name = "action_type")
+    @Column(name = "action_type", columnDefinition = "text")
     private String actionType;
 
     //userId of the discord user

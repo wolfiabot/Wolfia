@@ -21,7 +21,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entities.stats.CommandStats;
@@ -313,7 +313,8 @@ public class Charts {
     //we could always select with ORDER BY DESC and reverse, but that would mean we have to reverse the look ups without
     //a limit (the biggest ones), and this sounds like bad idea longterm
     //NOTE: we can have the database do this for us if we use plain SQL queries instead of JPQL
-    private static List<GeneralBotStats> loadGeneralBotStats(final int limit, final long since) throws DatabaseException {
+    private static List<GeneralBotStats> loadGeneralBotStats(final int limit, final long since)
+            throws DatabaseException {
         String query = "SELECT * FROM (%s) AS foo ORDER BY foo.time_stamp ASC";
         String subquery = "SELECT * FROM stats_general_bot WHERE stats_general_bot.time_stamp > :since ORDER BY stats_general_bot.time_stamp DESC";
         final Map<String, Object> parameters = new HashMap<>();
@@ -325,7 +326,7 @@ public class Charts {
         }
 
         query = String.format(query, subquery);
-        return Wolfia.getInstance().dbWrapper.selectPlainSqlQueryList(query, parameters, GeneralBotStats.class);
+        return Wolfia.getInstance().dbWrapper.selectSqlQuery(query, parameters, GeneralBotStats.class);
     }
 
 
@@ -348,7 +349,8 @@ public class Charts {
         return jsonArrayFrom(System.currentTimeMillis(), averageCommandExecutionDuration);
     }
 
-    private static long loadAverageCommandExecutionDuration(final int limit, final long since) throws DatabaseException {
+    private static long loadAverageCommandExecutionDuration(final int limit, final long since)
+            throws DatabaseException {
         String query = "SELECT AVG(foo.execution_duration) FROM (%s) AS foo";
         String subquery = "SELECT * FROM stats_commands WHERE stats_commands.executed_time > :since ORDER BY stats_commands.executed_time DESC";
         final Map<String, Object> parameters = new HashMap<>();
@@ -360,7 +362,7 @@ public class Charts {
         }
 
         query = String.format(query, subquery);
-        return Wolfia.getInstance().dbWrapper.selectPlainSqlQuerySingleResult(query, parameters, BigDecimal.class).longValue();
+        return Wolfia.getInstance().dbWrapper.selectSqlQuerySingleResult(query, parameters, BigDecimal.class).longValue();
 
     }
 
@@ -391,7 +393,7 @@ public class Charts {
         }
 
         query = String.format(query, subquery);
-        return Wolfia.getInstance().dbWrapper.selectPlainSqlQueryList(query, parameters, CommandStats.class);
+        return Wolfia.getInstance().dbWrapper.selectSqlQuery(query, parameters, CommandStats.class);
     }
 
 

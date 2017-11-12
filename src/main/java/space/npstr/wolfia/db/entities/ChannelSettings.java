@@ -21,7 +21,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.Wolfia;
 
 import javax.annotation.Nonnull;

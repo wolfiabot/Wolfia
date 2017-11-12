@@ -25,7 +25,7 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
@@ -64,7 +64,8 @@ public class TagCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException, DatabaseException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo)
+            throws IllegalGameStateException, DatabaseException {
 
         final MessageReceivedEvent event = commandInfo.event;
         final Guild guild = event.getGuild();

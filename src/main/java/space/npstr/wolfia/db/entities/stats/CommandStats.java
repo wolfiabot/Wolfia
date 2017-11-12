@@ -19,7 +19,7 @@ package space.npstr.wolfia.db.entities.stats;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 
@@ -62,7 +62,7 @@ public class CommandStats extends SaucedEntity<Long, CommandStats> {
     @Column(name = "raw_message", length = 2000, columnDefinition = "text")
     private String rawMessage;
 
-    @Column(name = "command_class")
+    @Column(name = "command_class", columnDefinition = "text")
     private String commandClass;
 
     @Column(name = "sent_time")

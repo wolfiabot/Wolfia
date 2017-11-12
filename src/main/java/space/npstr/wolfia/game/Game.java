@@ -27,7 +27,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
@@ -356,7 +356,8 @@ public abstract class Game {
      * @param moderated moderated games require additional permissions
      * @throws UserFriendlyException if the bot is missing permissions to run the game in the channel
      */
-    protected void doPermissionCheckAndPrepareChannel(final boolean moderated) throws UserFriendlyException, DatabaseException {
+    protected void doPermissionCheckAndPrepareChannel(final boolean moderated)
+            throws UserFriendlyException, DatabaseException {
         final TextChannel channel = getThisChannel();
         final Guild g = channel.getGuild();
 
