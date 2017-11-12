@@ -6,7 +6,7 @@ env:
 language: java
 
 jdk:
-  - oraclejdk8
+  - oraclejdk9
 
 script:
   - ./gradlew shadowJar bintrayUpload --info
