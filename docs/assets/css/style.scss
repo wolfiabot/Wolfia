@@ -19,6 +19,20 @@ section {
   text-align: center;
 }
 
+.right {
+  text-align: right;
+}
+
+.logo-image a img {
+  max-width: 60%;
+  height: auto;
+}
+
+.flex-parent {
+  display: flex;
+  justify-content: space-between;
+}
+
 .invite-image a img {
   max-width: 100%;
   @media screen and (min-width: 600px) {

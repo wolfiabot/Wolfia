@@ -10,15 +10,30 @@ layout: default
 
 * * *
 
-# Join the Wolfia Lounge
-
-- Play games
-- Get support
-- Leave feedback
-- Get notified of updates
-- Vote on the roadmap of Wolfia
-
-[![Join Wolfia Lounge](https://discordapp.com/api/guilds/315944983754571796/embed.png?style=banner2)](https://discord.gg/nvcfX3q)
+<div class="flex-parent">
+    <div class="flex-child">
+        <h1 id="join-the-wolfia-lounge">Join the Wolfia Lounge</h1>
+        <ul>
+            <li>Play games</li>
+            <li>Get support</li>
+            <li>Leave feedback</li>
+            <li>Get notified of updates</li>
+            <li>Vote on the roadmap of Wolfia</li>
+        </ul>
+        <p>
+            <a href="https://discord.gg/nvcfX3q">
+                <img src="https://discordapp.com/api/guilds/315944983754571796/embed.png?style=banner2" alt="Join Wolfia Lounge">
+            </a>
+        </p>
+    </div>
+    <div class="flex-child">
+        <p class="logo-image right">
+            <a href="https://discord.gg/nvcfX3q">
+                <img src="https://i.imgur.com/7Ie8tB3.png" alt="Wolfia logo">
+            </a>
+        </p>
+    </div>
+</div>
 
 * * *
 
