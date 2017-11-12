@@ -4,7 +4,7 @@ plugins {
     id 'idea'
     id 'net.nemerosa.versioning' version '2.0.0'         //provide meta info about the git repo
     id 'com.github.johnrengelman.shadow' version '2.0.1'
-    id 'com.sedmelluq.jdaction' version '1.0.2' //check for unused RestActions
+//    id 'com.sedmelluq.jdaction' version '1.0.2' //check for unused RestActions incompatible with java9
     id "com.jfrog.bintray" version "1.7.3"
 }
 
@@ -13,8 +13,8 @@ version = '0.9.2-' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMB
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 9.0
+targetCompatibility = 9.0
 
 repositories {
     jcenter()                               // JDA, maybe others
@@ -25,16 +25,16 @@ repositories {
 
 dependencies {
     //@formatter:off
-    ext.jdaVersion                = '3.3.1_289'
+    ext.jdaVersion                = '3.3.1_303'
     ext.logbackVersion            = '1.2.3'
-    ext.sentryVersion             = '1.5.4'
+    ext.sentryVersion             = '1.6.2'
     ext.discordAppenderVersion    = '1.0.0'
-    ext.yamlVersion               = '1.18'
+    ext.yamlVersion               = '1.19'
     ext.okhttpVersion             = '3.9.0'
-    ext.sqlsauceVersion           = 'b19e2d25c291c8920a722c317f8c72a19997a360'
-    ext.sparkVersion              = '2.6.0'
+    ext.sqlsauceVersion           = '02ac2794988f47fc6b6833ae6b4439981124fd44'
+    ext.sparkVersion              = '2.7.0'
     ext.sparkThymeVersion         = '2.5.5'
-    ext.thymeleafVersion          = '3.0.7.RELEASE'
+    ext.thymeleafVersion          = '3.0.9.RELEASE'
 
     compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
     compile group: 'ch.qos.logback', name: 'logback-classic',          version: ext.logbackVersion         //logging framework
@@ -51,8 +51,11 @@ dependencies {
     //@formatter:on
 }
 
+import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
+
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.5'
+    gradleVersion = '4.2.1'
+    distributionType = DistributionType.ALL
 }
 
 processResources {

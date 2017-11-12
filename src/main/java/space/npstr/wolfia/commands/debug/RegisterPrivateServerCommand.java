@@ -24,8 +24,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.sqlstack.DatabaseException;
-import space.npstr.sqlstack.DatabaseWrapper;
+import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
@@ -54,7 +54,8 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
     }
 
     @Override
-    public synchronized boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public synchronized boolean execute(final CommandParser.CommandContainer commandInfo)
+            throws IllegalGameStateException {
 
         final MessageReceivedEvent event = commandInfo.event;
         final Guild g = event.getGuild();
@@ -91,7 +92,7 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
         //since this command should only run occasionally, and never in some kind of race condition (fingers crossed), I will allow this
         final DatabaseWrapper dbWrapper = Wolfia.getInstance().dbWrapper;
         try {
-            final int number = Math.toIntExact(dbWrapper.selectJPQLQuery("SELECT COUNT (pg) FROM PrivateGuild pg", Long.class).get(0));
+            final int number = Math.toIntExact(dbWrapper.selectJpqlQuery("SELECT COUNT (pg) FROM PrivateGuild pg", Long.class).get(0));
             PrivateGuild pg = new PrivateGuild(number, g.getIdLong());
             pg = dbWrapper.persist(pg);
             Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(pg);

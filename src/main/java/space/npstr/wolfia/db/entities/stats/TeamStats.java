@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Alignments;
 
 import javax.annotation.Nonnull;
@@ -60,12 +60,12 @@ public class TeamStats extends SaucedEntity<Long, TeamStats> {
     private Set<PlayerStats> players = new HashSet<>();
 
     //defined in the Alignments enum
-    @Column(name = "alignment")
+    @Column(name = "alignment", columnDefinition = "text")
     private String alignment;
 
     //watch out: teams of the same alignment (example: wolves) may not have the same name, or the equals function will
     //go haywire
-    @Column(name = "name")
+    @Column(name = "name", columnDefinition = "text")
     private String name;
 
     @Column(name = "is_winner")

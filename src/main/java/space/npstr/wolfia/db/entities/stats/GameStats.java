@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
@@ -76,19 +76,19 @@ public class GameStats extends SaucedEntity<Long, GameStats> {
     private long guildId;
 
     //name of the guild at the time of creation
-    @Column(name = "guild_name")
+    @Column(name = "guild_name", columnDefinition = "text")
     private String guildName;
 
     @Column(name = "channel_id")
     private long channelId;
 
-    @Column(name = "channel_name")
+    @Column(name = "channel_name", columnDefinition = "text")
     private String channelName;
 
-    @Column(name = "game_type")
+    @Column(name = "game_type", columnDefinition = "text")
     private String gameType;
 
-    @Column(name = "game_mode")
+    @Column(name = "game_mode", columnDefinition = "text")
     private String gameMode;
 
     @Column(name = "player_size")

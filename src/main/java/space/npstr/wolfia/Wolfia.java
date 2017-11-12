@@ -40,14 +40,16 @@ import net.dv8tion.jda.core.requests.RestAction;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.sqlstack.DatabaseConnection;
-import space.npstr.sqlstack.DatabaseException;
-import space.npstr.sqlstack.DatabaseWrapper;
-import space.npstr.sqlstack.ssh.SshTunnel;
+import space.npstr.sqlsauce.DatabaseConnection;
+import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.DatabaseWrapper;
+import space.npstr.sqlsauce.migration.Migrations;
+import space.npstr.sqlsauce.ssh.SshTunnel;
 import space.npstr.wolfia.charts.Charts;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.stats.GeneralBotStats;
 import space.npstr.wolfia.db.entities.stats.MessageOutputStats;
+import space.npstr.wolfia.db.migrations.m00001FixCharacterVaryingColumns;
 import space.npstr.wolfia.events.CachingListener;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
@@ -136,6 +138,7 @@ public class Wolfia {
         try {
             databaseConnection = new DatabaseConnection.Builder("postgres", Config.C.jdbcUrl)
                     .setDriverClassName("org.postgresql.Driver")
+                    .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")
                     .addEntityPackage("space.npstr.wolfia.db.entities")
                     .setAppName("Wolfia_" + (Config.C.isDebug ? "DEBUG" : "PROD") + "_" + App.VERSION)
                     .setSshDetails((Config.C.sshHost == null || Config.C.sshHost.isEmpty()) ? null :
@@ -146,6 +149,11 @@ public class Wolfia {
                                     .setPassphrase(Config.C.sshKeyPassphrase)
                     ).build();
             databaseWrapper = new DatabaseWrapper(databaseConnection);
+
+            final Migrations migrations = new Migrations();
+            migrations.registerMigration(new m00001FixCharacterVaryingColumns());
+            migrations.runMigrations(databaseConnection);
+            
         } catch (final DatabaseException e) {
             log.error("Failed to set up database connection, exiting", e);
             return;
@@ -155,7 +163,7 @@ public class Wolfia {
         executor.submit(Charts::spark);
 
         try {
-            AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(databaseWrapper.selectJPQLQuery("FROM PrivateGuild", null, PrivateGuild.class));
+            AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(databaseWrapper.selectJpqlQuery("FROM PrivateGuild", null, PrivateGuild.class));
             log.info("{} private guilds loaded", AVAILABLE_PRIVATE_GUILD_QUEUE.size());
         } catch (final DatabaseException e) {
             log.error("Failed to load private guilds, exiting", e);

@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.db.entities;
 
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Scope;
 
 import javax.annotation.Nonnull;

@@ -20,11 +20,10 @@ package space.npstr.wolfia.db.entities;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
-import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.sqlstack.DatabaseException;
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandHandler;
@@ -48,10 +47,12 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -74,14 +75,14 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "inned_users")
-    private final Set<Long> innedUsers = new ConcurrentHashSet<>();
+    private final Set<Long> innedUsers = ConcurrentHashMap.newKeySet();
 
     //one of the values of the Games.GAMES enum
-    @Column(name = "game")
+    @Column(name = "game", columnDefinition = "text")
     private String game = "";
 
     //optional mode, for example CLASSIC or WILD for Popcorn games
-    @Column(name = "mode")
+    @Column(name = "mode", columnDefinition = "text")
     private String mode = "";
 
     //day length in milliseconds
@@ -228,7 +229,8 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
-    public synchronized boolean startGame(final long commandCallerId) throws IllegalGameStateException, DatabaseException {
+    public synchronized boolean startGame(final long commandCallerId)
+            throws IllegalGameStateException, DatabaseException {
         //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
         synchronized (SetupEntity.class) {
             if (MaintenanceCommand.getMaintenanceFlag() || ShutdownCommand.getShutdownFlag()) {
@@ -251,8 +253,8 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
 
             final Game game;
             try {
-                game = this.getGame().clazz.newInstance();
-            } catch (IllegalAccessException | InstantiationException e) {
+                game = this.getGame().clazz.getConstructor().newInstance();
+            } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
                 throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
             }
 

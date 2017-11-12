@@ -20,10 +20,10 @@ package space.npstr.wolfia.db.entities;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.sqlstack.DatabaseException;
-import space.npstr.sqlstack.DatabaseWrapper;
-import space.npstr.sqlstack.converters.PostgresHStoreConverter;
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.DatabaseWrapper;
+import space.npstr.sqlsauce.converters.PostgresHStoreConverter;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.Wolfia;
 
 import javax.annotation.CheckReturnValue;
@@ -50,10 +50,10 @@ public class CachedUser extends SaucedEntity<Long, CachedUser> {
     @Column(name = "user_id")
     private long userId;
 
-    @Column(name = "name")
+    @Column(name = "name", columnDefinition = "text")
     private String name = "Uncached Username";
 
-    @Column(name = "avatar_url")
+    @Column(name = "avatar_url", columnDefinition = "text")
     private String avatarUrl = "http://i.imgur.com/Jm9SIGh.png";
 
     @Column(name = "nicks", columnDefinition = "hstore")
@@ -79,7 +79,8 @@ public class CachedUser extends SaucedEntity<Long, CachedUser> {
         }
     }
 
-    public static String getNick(final DatabaseWrapper dbWrapper, final long userId, final long guildId) throws DatabaseException {
+    public static String getNick(final DatabaseWrapper dbWrapper, final long userId, final long guildId)
+            throws DatabaseException {
         final Guild guild = Wolfia.getGuildById(guildId);
         if (guild != null) {
             final Member member = guild.getMemberById(userId);

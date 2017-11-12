@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 
@@ -56,14 +56,14 @@ public class PlayerStats extends SaucedEntity<Long, PlayerStats> {
     private long userId;
 
     //nickname in the guild where the main channel of the game is
-    @Column(name = "nickname")
+    @Column(name = "nickname", columnDefinition = "text")
     private String nickname;
 
-    @Column(name = "alignment")
+    @Column(name = "alignment", columnDefinition = "text")
     private String alignment;
 
     //defined in the Roles enum
-    @Column(name = "role")
+    @Column(name = "role", columnDefinition = "text")
     private String role;
 
     @Column(name = "total_posts")

@@ -23,7 +23,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandHandler;
@@ -488,7 +488,7 @@ public class Popcorn extends Game {
                                 Popcorn.this::isLivingWolf,
                                 //on reaction
                                 reactionEvent -> {
-                                    final Player p = options.get(reactionEvent.getReaction().getEmote().getName());
+                                    final Player p = options.get(reactionEvent.getReaction().getReactionEmote().getName());
                                     if (p == null) return;
                                     voted(reactionEvent.getUser().getIdLong(), p.userId);
                                     m.editMessage(prepareGunDistributionEmbed(options,

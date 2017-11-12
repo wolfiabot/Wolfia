@@ -1,8 +1,8 @@
 package space.npstr.wolfia.commands.debug;
 
-import space.npstr.sqlstack.DatabaseException;
-import space.npstr.sqlstack.DatabaseWrapper;
-import space.npstr.sqlstack.entities.Hstore;
+import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.DatabaseWrapper;
+import space.npstr.sqlsauce.entities.Hstore;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
@@ -28,7 +28,8 @@ public class MaintenanceCommand extends BaseCommand implements IOwnerRestricted 
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException, DatabaseException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo)
+            throws IllegalGameStateException, DatabaseException {
         flipMaintenancFlag();
         Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s, set the maintenance flag to **%s**",
                 commandInfo.event.getAuthor().getAsMention(), getMaintenanceFlag());

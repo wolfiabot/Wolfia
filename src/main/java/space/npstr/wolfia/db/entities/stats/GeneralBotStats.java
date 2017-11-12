@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Column;

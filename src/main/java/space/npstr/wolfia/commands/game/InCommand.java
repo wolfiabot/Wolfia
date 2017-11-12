@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;

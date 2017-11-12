@@ -18,9 +18,9 @@
 package space.npstr.wolfia.db.entities;
 
 import net.dv8tion.jda.core.entities.Guild;
-import space.npstr.sqlstack.DatabaseException;
-import space.npstr.sqlstack.DatabaseWrapper;
-import space.npstr.sqlstack.entities.SaucedEntity;
+import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.DatabaseWrapper;
+import space.npstr.sqlsauce.entities.SaucedEntity;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
@@ -56,10 +56,10 @@ public class EGuild extends SaucedEntity<Long, EGuild> {
     @Column(name = "present")
     private boolean present = false;
 
-    @Column(name = "avatar_url")
+    @Column(name = "avatar_url", columnDefinition = "text")
     private String avatarUrl = "http://i.imgur.com/Jm9SIGh.png";
 
-    @Column(name = "name")
+    @Column(name = "name", columnDefinition = "text")
     private String name = "Uncached Guild";
 
     //for jpa / IEntity

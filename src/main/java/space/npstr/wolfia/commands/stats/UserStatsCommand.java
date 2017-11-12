@@ -19,7 +19,7 @@ package space.npstr.wolfia.commands.stats;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.sqlstack.DatabaseException;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -48,7 +48,8 @@ public class UserStatsCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException, DatabaseException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo)
+            throws IllegalGameStateException, DatabaseException {
         final Message m = commandInfo.event.getMessage();
         long userId = m.getAuthor().getIdLong();
 
