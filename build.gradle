@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'space.npstr'
-version = '0.9.2-' + (System.getenv('TRAVIS') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
+version = '0.10.0-' + (System.getenv('CI') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
@@ -76,6 +76,10 @@ versionFile {
     file = new File("src/main/resources", 'version.properties')
     // Prefix to apply to the properties
     prefix = 'GIT_'
+}
+
+shadowJar {
+    archiveName = "wolfia.jar"
 }
 
 bintray {

@@ -1,0 +1,25 @@
+version: '3'
+services:
+
+  bot:
+    #build: .
+    image: napstr/wolfia:master
+    restart: on-failure:3
+    network_mode: "host" #to reach the local database
+    ports:
+      - 4567:4567
+    volumes:
+      - ./sneaky.yaml:/opt/wolfia/sneaky.yaml
+      - ./logs:/opt/wolfia/logs
+      - ./logs/gc:/opt/wolfia/logs/gc
+    entrypoint:
+      - java
+      - -jar
+      - -Xmx512m
+      - -XX:+HeapDumpOnOutOfMemoryError
+      - -XX:HeapDumpPath=emergencydump.hprof
+      - -Xlog:gc*:logs/gc/gc-%t.log
+      - -XX:+UseG1GC
+      - -XX:+ParallelRefProcEnabled
+      - -XX:+UseStringDeduplication
+      - wolfia.jar
