@@ -94,7 +94,7 @@ bintray {
     publish = true
     pkg {
         repo = 'wolfia'
-        name = 'alpha'
+        name = 'beta'
         userOrg = user
         version {
             name = project.version

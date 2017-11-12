@@ -17,7 +17,7 @@ jdk:
   - oraclejdk9
 
 script:
-  - ./gradlew shadowJar bintrayUpload --info
+  - ./gradlew shadowJar --info
   - TAG_NAME=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
   - docker build --tag "napstr/wolfia:$TAG_NAME" .
 
@@ -25,3 +25,4 @@ after_success:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
   - docker push napstr/wolfia:$TAG_NAME
   - docker logout
+  - ./gradlew bintrayUpload --info
