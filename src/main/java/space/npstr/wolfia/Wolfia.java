@@ -573,6 +573,7 @@ public class Wolfia {
             }
         });
         try {
+            //is this value is changed, make sure to adjust the one in docker-update.sh
             waitForGamesToEnd.get(2, TimeUnit.HOURS); //should be enough until the forseeable future
             //todo persist games (big changes)
         } catch (ExecutionException | InterruptedException | TimeoutException ignored) {
