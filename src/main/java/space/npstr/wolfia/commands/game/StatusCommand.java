@@ -63,7 +63,7 @@ public class StatusCommand extends BaseCommand {
             }
         }
 
-        final SetupEntity setup = Wolfia.getInstance().dbWrapper.getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+        final SetupEntity setup = Wolfia.getDbWrapper().getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
         setup.postStatus();
         return true;
     }

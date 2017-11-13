@@ -183,7 +183,7 @@ public class CommandHandler {
             final boolean success = command.execute(commandInfo);
             final long executed = System.currentTimeMillis();
             try {
-                Wolfia.executor.submit(() -> Wolfia.getInstance().dbWrapper.persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
+                Wolfia.executor.submit(() -> Wolfia.getDbWrapper().persist(new CommandStats(commandInfo, command.getClass(), executed, success)));
             } catch (final RejectedExecutionException ignored) {
                 //may happen on shutdown
             }

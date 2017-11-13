@@ -139,7 +139,7 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
 
     private void prepareStressTest() {
         //drop and recreate the test table
-        final EntityManager em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
+        final EntityManager em = Wolfia.getDbWrapper().unwrap().getEntityManager();
         try {
             em.getTransaction().begin();
             em.createNativeQuery(this.DROP_TEST_TABLE).executeUpdate();
@@ -172,7 +172,7 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
             EntityManager em = null;
             try {
                 for (int i = 0; i < this.operations; i++) {
-                    em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
+                    em = Wolfia.getDbWrapper().unwrap().getEntityManager();
                     try {
                         em.getTransaction().begin();
                         em.createNativeQuery(DbTestCommand.this.INSERT_TEST_TABLE)

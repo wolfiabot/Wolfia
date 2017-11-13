@@ -1,7 +1,6 @@
 package space.npstr.wolfia.commands.debug;
 
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.sqlsauce.entities.Hstore;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -37,12 +36,11 @@ public class MaintenanceCommand extends BaseCommand implements IOwnerRestricted 
     }
 
     public static boolean getMaintenanceFlag() throws DatabaseException {
-        return Boolean.valueOf(Hstore.loadAndGet(Wolfia.getInstance().dbWrapper, MAINTENANCE_FLAG, Boolean.FALSE.toString()));
+        return Boolean.valueOf(Hstore.loadAndGet(Wolfia.getDbWrapper(), MAINTENANCE_FLAG, Boolean.FALSE.toString()));
     }
 
     public static void flipMaintenancFlag() throws DatabaseException {
-        final DatabaseWrapper dbWrapper = Wolfia.getInstance().dbWrapper;
-        final Hstore hstore = Hstore.load(dbWrapper);
+        final Hstore hstore = Hstore.load(Wolfia.getDbWrapper());
         final String maintenance = hstore.get(MAINTENANCE_FLAG, Boolean.FALSE.toString());
         hstore.set(MAINTENANCE_FLAG, Boolean.toString(!Boolean.valueOf(maintenance))).save();
     }

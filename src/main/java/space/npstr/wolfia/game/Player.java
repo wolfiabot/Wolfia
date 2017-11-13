@@ -78,7 +78,7 @@ public class Player {
 
     public String getName() {
         try {
-            return CachedUser.getName(Wolfia.getInstance().dbWrapper, this.userId);
+            return CachedUser.getName(Wolfia.getDbWrapper(), this.userId);
         } catch (final DatabaseException e) {
             return "Anonymous";
         }
@@ -86,7 +86,7 @@ public class Player {
 
     public String getNick() {
         try {
-            return CachedUser.getNick(Wolfia.getInstance().dbWrapper, this.userId, this.guildId);
+            return CachedUser.getNick(Wolfia.getDbWrapper(), this.userId, this.guildId);
         } catch (final DatabaseException e) {
             return "Anonymous";
         }
@@ -98,7 +98,7 @@ public class Player {
         String name = "Anonymous";
         String nick = "Anonymous";
         try {
-            final CachedUser cu = CachedUser.load(Wolfia.getInstance().dbWrapper, this.userId);
+            final CachedUser cu = CachedUser.load(Wolfia.getDbWrapper(), this.userId);
             name = cu.getName();
             nick = cu.getNick(this.guildId);
         } catch (final DatabaseException e) {

@@ -382,7 +382,7 @@ public abstract class Game {
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
-                this.accessRoleId = Wolfia.getInstance().dbWrapper.getOrCreate(this.channelId, ChannelSettings.class).getAccessRoleId();
+                this.accessRoleId = Wolfia.getDbWrapper().getOrCreate(this.channelId, ChannelSettings.class).getAccessRoleId();
                 final Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
                     throw new UserFriendlyException(String.format(
@@ -640,7 +640,7 @@ public abstract class Game {
                         .ifPresent(t -> t.setWinner(true));
             }
             try {
-                Wolfia.getInstance().dbWrapper.persist(this.gameStats);
+                Wolfia.getDbWrapper().persist(this.gameStats);
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
                         this.gameStats.getId(), Config.PREFIX + mainTrigger(ReplayCommand.class), this.gameStats.getId());
             } catch (final DatabaseException e) {

@@ -45,7 +45,7 @@ public class StartCommand extends BaseCommand {
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo)
             throws IllegalGameStateException, DatabaseException {
-        final SetupEntity setup = Wolfia.getInstance().dbWrapper.getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+        final SetupEntity setup = Wolfia.getDbWrapper().getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
         return setup.startGame(commandInfo.event.getAuthor().getIdLong());
     }
 }

@@ -80,7 +80,7 @@ public class Listings {
                 .post(body)
                 .build();
         try {
-            final Response response = Wolfia.httpClient.newCall(req).execute();
+            final Response response = Wolfia.defaultHttpClient.newCall(req).execute();
             if (response.isSuccessful()) {
                 log.info("Attempt {} successfully posted bot stats to bots.discord.pw, code {}", att, response.code());
                 lastBotsDiscordPwPayload = payload;
@@ -134,7 +134,7 @@ public class Listings {
                 .post(body)
                 .build();
         try {
-            final Response response = Wolfia.httpClient.newCall(req).execute();
+            final Response response = Wolfia.defaultHttpClient.newCall(req).execute();
             if (response.isSuccessful()) {
                 log.info("Attempt {} successfully posted bot stats to discordbots.org, code {}", att, response.code());
                 lastDiscordbotsOrgPayload = payload;

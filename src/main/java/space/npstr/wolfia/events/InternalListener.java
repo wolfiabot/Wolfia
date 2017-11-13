@@ -62,7 +62,7 @@ public class InternalListener extends ListenerAdapter {
 
         final Guild guild = event.getGuild();
         try {
-            final EGuild guildEntity = Wolfia.getInstance().dbWrapper.getOrCreate(guild.getIdLong(), EGuild.class);
+            final EGuild guildEntity = Wolfia.getDbWrapper().getOrCreate(guild.getIdLong(), EGuild.class);
             if (guildEntity.isPresent()) { //safeguard against discord shitting itself and spamming these for established guilds
                 log.warn("Joined a guild that is marked as present. Not taking any further action");
                 return;
@@ -83,7 +83,7 @@ public class InternalListener extends ListenerAdapter {
 
         final Guild guild = event.getGuild();
         try {
-            EGuild.load(Wolfia.getInstance().dbWrapper, guild.getIdLong()).set(guild).leave().save();
+            EGuild.load(Wolfia.getDbWrapper(), guild.getIdLong()).set(guild).leave().save();
         } catch (final DatabaseException e) {
             log.error("Db blew up while saving leave event for guild {}", guild.getIdLong(), e);
         }

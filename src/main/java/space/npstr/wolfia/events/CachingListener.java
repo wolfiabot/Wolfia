@@ -41,30 +41,30 @@ public class CachingListener extends ListenerAdapter {
 
     @Override
     public void onUserNameUpdate(final UserNameUpdateEvent event) {
-        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getInstance().dbWrapper, event.getUser()));
+        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getDbWrapper(), event.getUser()));
     }
 
     @Override
     public void onGuildMemberNickChange(final GuildMemberNickChangeEvent event) {
-        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getInstance().dbWrapper, event.getMember()));
+        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getDbWrapper(), event.getMember()));
     }
 
     //todo a last seen kinda thing for signup auto outing
 
     @Override
     public void onUserAvatarUpdate(final UserAvatarUpdateEvent event) {
-        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getInstance().dbWrapper, event.getUser()));
+        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getDbWrapper(), event.getUser()));
     }
 
     @Override
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
-        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getInstance().dbWrapper, event.getMember()));
+        Wolfia.executor.submit(() -> CachedUser.cache(Wolfia.getDbWrapper(), event.getMember()));
     }
 
     @Override
     public void onGuildUpdateName(final GuildUpdateNameEvent event) {
         final Guild guild = event.getGuild();
-        Wolfia.executor.submit(() -> EGuild.load(Wolfia.getInstance().dbWrapper, guild.getIdLong())
+        Wolfia.executor.submit(() -> EGuild.load(Wolfia.getDbWrapper(), guild.getIdLong())
                 .set(guild)
                 .save()
         );
@@ -73,7 +73,7 @@ public class CachingListener extends ListenerAdapter {
     @Override
     public void onGuildUpdateIcon(final GuildUpdateIconEvent event) {
         final Guild guild = event.getGuild();
-        Wolfia.executor.submit(() -> EGuild.load(Wolfia.getInstance().dbWrapper, guild.getIdLong())
+        Wolfia.executor.submit(() -> EGuild.load(Wolfia.getDbWrapper(), guild.getIdLong())
                 .set(guild)
                 .save());
     }

@@ -75,7 +75,7 @@ public class PrivateChannelListener extends ListenerAdapter {
                 }
                 final long executed = System.currentTimeMillis();
                 try {
-                    Wolfia.getInstance().dbWrapper.persist(new CommandStats(commandInfo, this.allowedCommand.getClass(), executed, success));
+                    Wolfia.getDbWrapper().persist(new CommandStats(commandInfo, this.allowedCommand.getClass(), executed, success));
                 } catch (final DatabaseException e) {
                     log.error("Db blew up saving command stats", e);
                 }

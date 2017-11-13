@@ -117,8 +117,9 @@ public class StatsProvider {
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
+        final EntityManager em = Wolfia.getDbWrapper().unwrap().getEntityManager();
         try {
+            em.getTransaction().begin();
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Bot.AVERAGE_PLAYERS_SIZE).getSingleResult();
             if (averagePlayerSize == null) averagePlayerSize = new BigDecimal(0);
 
@@ -137,6 +138,7 @@ public class StatsProvider {
                 result = em.createNativeQuery(Queries.Bot.WINNING_TEAMS_FOR_PLAYER_SIZE).setParameter("playerSize", playerSize).getResultList();
                 gamesxWinningTeamByPlayerSize.put(playerSize, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Bot.WINNING_TEAMS_FOR_PLAYER_SIZE, em)));
             }
+            em.getTransaction().commit();
         } catch (final SQLException e) {
             log.error("SQL exception when querying bot stats", e);
         } finally {
@@ -172,8 +174,9 @@ public class StatsProvider {
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
+        final EntityManager em = Wolfia.getDbWrapper().unwrap().getEntityManager();
         try {
+            em.getTransaction().begin();
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Guild.AVERAGE_PLAYERS_SIZE).setParameter("guildId", guildId).getSingleResult();
             if (averagePlayerSize == null) averagePlayerSize = new BigDecimal(0);
 
@@ -192,6 +195,7 @@ public class StatsProvider {
                 result = em.createNativeQuery(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE).setParameter("guildId", guildId).setParameter("playerSize", playerSize).getResultList();
                 gamesxWinningTeamInGuildByPlayerSize.put(playerSize, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE, em)));
             }
+            em.getTransaction().commit();
         } catch (final SQLException e) {
             log.error("SQL exception when querying stats for guild {}", guildId, e);
         } finally {
@@ -205,7 +209,7 @@ public class StatsProvider {
         //add them to the embed
         EmbedBuilder eb = new EmbedBuilder();
         final Guild guild = Wolfia.getGuildById(guildId);
-        final EGuild cachedGuild = EGuild.load(Wolfia.getInstance().dbWrapper, guildId).set(guild).save();
+        final EGuild cachedGuild = EGuild.load(Wolfia.getDbWrapper(), guildId).set(guild).save();
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
         eb.setThumbnail(cachedGuild.getAvatarUrl());
 
@@ -234,12 +238,14 @@ public class StatsProvider {
         //get data out of the database
         final List<Map<String, Object>> gamesByUser = new ArrayList<>();
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
-        final EntityManager em = Wolfia.getInstance().dbWrapper.unwrap().getEntityManager();
+        final EntityManager em = Wolfia.getDbWrapper().unwrap().getEntityManager();
         try {
+            em.getTransaction().begin();
             List<Object[]> result = em.createNativeQuery(Queries.User.GENERAL).setParameter("userId", userId).getResultList();
             gamesByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.GENERAL, em)));
             result = em.createNativeQuery(Queries.User.SHATS).setParameter("userId", userId).getResultList();
             shatsByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.SHATS, em)));
+            em.getTransaction().commit();
         } catch (final SQLException e) {
             log.error("SQL exception when querying stats for user {}", userId, e);
         } finally {
@@ -269,8 +275,8 @@ public class StatsProvider {
 
         //add them to the embed
         final EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(CachedUser.getName(Wolfia.getInstance().dbWrapper, userId) + "'s Wolfia stats");
-        eb.setThumbnail(CachedUser.getAvatarUrl(Wolfia.getInstance().dbWrapper, userId));
+        eb.setTitle(CachedUser.getName(Wolfia.getDbWrapper(), userId) + "'s Wolfia stats");
+        eb.setThumbnail(CachedUser.getAvatarUrl(Wolfia.getDbWrapper(), userId));
 
         if (totalGamesByUser <= 0) {
             eb.setTitle(String.format("User (id `%s`) hasn't played any games.", userId));

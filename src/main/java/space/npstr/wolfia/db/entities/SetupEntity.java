@@ -146,7 +146,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
 
     public boolean inUser(final long userId) throws DatabaseException {
         //cache any inning users
-        CachedUser.cache(Wolfia.getInstance().dbWrapper, getThisChannel().getGuild().getMemberById(userId));
+        CachedUser.cache(Wolfia.getDbWrapper(), getThisChannel().getGuild().getMemberById(userId));
         if (this.innedUsers.contains(userId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s, you have inned already.", TextchatUtils.userAsMention(userId));
             return false;
