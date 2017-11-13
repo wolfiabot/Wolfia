@@ -2,19 +2,25 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id 'net.nemerosa.versioning' version '2.0.0'         //provide meta info about the git repo
+    id 'com.gorylenko.gradle-git-properties' version '1.4.17' //provide meta info about the git repo
     id 'com.github.johnrengelman.shadow' version '2.0.1'
 //    id 'com.sedmelluq.jdaction' version '1.0.2' //check for unused RestActions incompatible with java9
     id "com.jfrog.bintray" version "1.7.3"
 }
 
+ext {
+    moduleName = 'wolfia'
+    buildNumber = (System.getenv('CI') ? System.getenv('BUILD_NUMBER') : 'DEV')
+}
 group = 'space.npstr'
-version = '0.10.0-' + (System.getenv('CI') ? System.getenv('TRAVIS_BUILD_NUMBER') : 'SNAPSHOT')
+//noinspection GroovyAssignabilityCheck
+version = '0.10.0-' + project.ext.buildNumber
+
 
 mainClassName = "space.npstr.wolfia.Wolfia"
 
-sourceCompatibility = 9.0
-targetCompatibility = 9.0
+sourceCompatibility = 9
+targetCompatibility = 9
 
 repositories {
     jcenter()                               // JDA, maybe others
@@ -51,6 +57,8 @@ dependencies {
     //@formatter:on
 }
 
+
+import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
 task wrapper(type: Wrapper) {
@@ -59,24 +67,21 @@ task wrapper(type: Wrapper) {
 }
 
 processResources {
-    filesMatching('**/app.properties') {
-        filter {
-            //noinspection GroovyAssignabilityCheck
-            it.replace('%APP_VERSION_TOKEN%', version)
-        }
+    //inject values into app.properties
+    filesMatching("**/app.properties") {
+        filter ReplaceTokens, tokens: [
+                "project.version"   : project.version,
+                "project.groupId"   : project.group,
+                "project.artifactId": project.ext.moduleName,
+                "env.BUILD_NUMBER"  : project.ext.buildNumber,
+                "env.BUILD_TIME"    : System.currentTimeMillis() + ''
+        ]
     }
 }
 
-compileJava.dependsOn 'clean', 'versionFile'
+compileJava.dependsOn 'clean'
 compileJava.options.encoding = 'UTF-8'
 compileJava.options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-
-versionFile {
-    // Path to the file to be written
-    file = new File("src/main/resources", 'version.properties')
-    // Prefix to apply to the properties
-    prefix = 'GIT_'
-}
 
 shadowJar {
     archiveName = "wolfia.jar"

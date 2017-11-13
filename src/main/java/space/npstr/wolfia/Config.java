@@ -22,6 +22,7 @@ import io.sentry.Sentry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import space.npstr.wolfia.utils.GitRepoState;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * /**
@@ -83,7 +83,7 @@ public class Config {
         final File sneakyFile = new File("sneaky.yaml");
         final Yaml yaml = new Yaml();
         try (Reader reader = new InputStreamReader(new FileInputStream(sneakyFile), "UTF-8")) {
-            final Map<String, Object> sneaky = (Map<String, Object>) yaml.load(reader);
+            final Map<String, Object> sneaky = yaml.load(reader);
             //change nulls to empty strings
             sneaky.keySet().forEach((String key) -> sneaky.putIfAbsent(key, ""));
 
@@ -114,22 +114,8 @@ public class Config {
 
             this.sentryDsn = values.getOrDefault("sentryDsn", "");
             if (this.sentryDsn != null && !this.sentryDsn.isEmpty()) {
-                Sentry.init(this.sentryDsn).setRelease(getCommitHash());
+                Sentry.init(this.sentryDsn).setRelease(GitRepoState.getGitRepositoryState().commitId);
             }
         }
-    }
-
-    private static volatile Properties gitProps;
-
-    public synchronized String getCommitHash() {
-        if (gitProps == null) {
-            gitProps = new Properties();
-            try {
-                gitProps.load(Config.class.getClassLoader().getResourceAsStream("version.properties"));
-            } catch (final IOException e) {
-                log.error("Could not load version props", e);
-            }
-        }
-        return gitProps.getProperty("GIT_COMMIT", "unknown");
     }
 }

@@ -23,6 +23,7 @@ import com.github.napstr.logback.DiscordAppender;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
@@ -55,12 +56,14 @@ import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
+import space.npstr.wolfia.utils.GitRepoState;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.DiscordLogger;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
+import javax.annotation.Nonnull;
 import java.lang.management.ManagementFactory;
 import java.util.HashSet;
 import java.util.List;
@@ -114,10 +117,20 @@ public class Wolfia {
     //set up things that are crucial
     //if something fails exit right away
     public static void main(final String[] args) {
+        //just post the info to the console
+        if (args.length > 0 &&
+                (args[0].equalsIgnoreCase("-v")
+                        || args[0].equalsIgnoreCase("--version")
+                        || args[0].equalsIgnoreCase("-version"))) {
+            System.out.println("Version flag detected. Printing version info, then exiting.");
+            System.out.println(getVersionInfo());
+            System.out.println("Version info printed, exiting.");
+            return;
+        }
+
         Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
 
-        log.info(art());
-        log.info("Starting Wolfia v" + App.VERSION);
+        log.info(getVersionInfo());
 
         //add webhookURI to Discord log appender
         if (Config.C.errorLogWebHook != null && !"".equals(Config.C.errorLogWebHook)) {
@@ -153,7 +166,7 @@ public class Wolfia {
             final Migrations migrations = new Migrations();
             migrations.registerMigration(new m00001FixCharacterVaryingColumns());
             migrations.runMigrations(databaseConnection);
-            
+
         } catch (final DatabaseException e) {
             log.error("Failed to set up database connection, exiting", e);
             return;
@@ -494,70 +507,77 @@ public class Wolfia {
         System.exit(code);
     }
 
-    private static final Thread SHUTDOWN_HOOK = new Thread(new Runnable() {
-        @Override
-        public void run() {
+    private static final Thread SHUTDOWN_HOOK = new Thread(() -> {
+        log.info("Shutting down discord logger");
+        DiscordLogger.shutdown(10, TimeUnit.SECONDS);
 
-            log.info("Shutting down discord logger");
-            DiscordLogger.shutdown(10, TimeUnit.SECONDS);
+        //okHttpClient claims that a shutdown isn't necessary
 
-            //okHttpClient claims that a shutdown isn't necessary
+        //shutdown JDA
+        log.info("Shutting down JDAs");
+        jdas.forEach(JDA::shutdown);
 
-            //shutdown JDA
-            log.info("Shutting down JDAs");
-            jdas.forEach(JDA::shutdown);
-
-            //shutdown executors
-            log.info("Shutting down executor");
-            final List<Runnable> runnables = executor.shutdownNow();
-            log.info("{} runnables canceled", runnables.size());
-            try {
-                executor.awaitTermination(30, TimeUnit.SECONDS);
-            } catch (final InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.warn("Interrupted while awaiting executor termination");
-            }
-
-            //shutdown DB
-            log.info("Shutting down database");
-            getInstance().dbWrapper.unwrap().shutdown();
-
-            //shutdown logback logger
-            log.info("Shutting down logger :rip:");
-            final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-            loggerContext.stop();
+        //shutdown executors
+        log.info("Shutting down executor");
+        final List<Runnable> runnables = executor.shutdownNow();
+        log.info("{} runnables canceled", runnables.size());
+        try {
+            executor.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted while awaiting executor termination");
         }
-    });
+
+        //shutdown DB
+        log.info("Shutting down database");
+        getInstance().dbWrapper.unwrap().shutdown();
+
+        //shutdown logback logger
+        log.info("Shutting down logger :rip:");
+        final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        loggerContext.stop();
+    }, "shutdown-hook");
+
+    @Nonnull
+    private static String getVersionInfo() {
+        return art
+                + "\n"
+                + "\n\tVersion:       " + App.VERSION
+                + "\n\tBuild:         " + App.BUILD_NUMBER
+                + "\n\tBuild time:    " + TextchatUtils.toBerlinTime(App.BUILD_TIME)
+                + "\n\tCommit:        " + GitRepoState.getGitRepositoryState().commitIdAbbrev + " (" + GitRepoState.getGitRepositoryState().branch + ")"
+                + "\n\tCommit time:   " + TextchatUtils.toBerlinTime(GitRepoState.getGitRepositoryState().commitTime * 1000)
+                + "\n\tJVM:           " + System.getProperty("java.version")
+                + "\n\tJDA:           " + JDAInfo.VERSION
+                + "\n";
+    }
 
     //########## vanity
-    private static String art() {
-
-        return "" +
-                "\n                              __" +
-                "\n                            .d$$b" +
-                "\n                           .' TO$;\\" +
-                "\n        Wolfia            /  : TP._;" +
-                "\n    Werewolf & Mafia     / _.;  :Tb|" +
-                "\n      Discord bot       /   /   ;j$j" +
-                "\n                    _.-\"       d$$$$" +
-                "\n                  .' ..       d$$$$;" +
-                "\n                 /  /P'      d$$$$P. |\\" +
-                "\n                /   \"      .d$$$P' |\\^\"l" +
-                "\n              .'           `T$P^\"\"\"\"\"  :" +
-                "\n          ._.'      _.'                ;" +
-                "\n       `-.-\".-'-' ._.       _.-\"    .-\"" +
-                "\n     `.-\" _____  ._              .-\"" +
-                "\n    -(.g$$$$$$$b.              .'" +
-                "\n      \"\"^^T$$$P^)            .(:" +
-                "\n        _/  -\"  /.'         /:/;" +
-                "\n     ._.'-'`-'  \")/         /;/;" +
-                "\n  `-.-\"..--\"\"   \" /         /  ;" +
-                "\n .-\" ..--\"\"        -'          :" +
-                "\n ..--\"\"--.-\"         (\\      .-(\\" +
-                "\n   ..--\"\"              `-\\(\\/;`" +
-                "\n     _.                      :" +
-                "\n                             ;`-" +
-                "\n                            :\\" +
-                "\n                            ;";
-    }
+    private static final String art = "\n"
+            + "\n                              __"
+            + "\n                            .d$$b"
+            + "\n                           .' TO$;\\"
+            + "\n        Wolfia            /  : TP._;"
+            + "\n    Werewolf & Mafia     / _.;  :Tb|"
+            + "\n      Discord bot       /   /   ;j$j"
+            + "\n                    _.-\"       d$$$$"
+            + "\n                  .' ..       d$$$$;"
+            + "\n                 /  /P'      d$$$$P. |\\"
+            + "\n                /   \"      .d$$$P' |\\^\"l"
+            + "\n              .'           `T$P^\"\"\"\"\"  :"
+            + "\n          ._.'      _.'                ;"
+            + "\n       `-.-\".-'-' ._.       _.-\"    .-\""
+            + "\n     `.-\" _____  ._              .-\""
+            + "\n    -(.g$$$$$$$b.              .'"
+            + "\n      \"\"^^T$$$P^)            .(:"
+            + "\n        _/  -\"  /.'         /:/;"
+            + "\n     ._.'-'`-'  \")/         /;/;"
+            + "\n  `-.-\"..--\"\"   \" /         /  ;"
+            + "\n .-\" ..--\"\"        -'          :"
+            + "\n ..--\"\"--.-\"         (\\      .-(\\"
+            + "\n   ..--\"\"              `-\\(\\/;`"
+            + "\n     _.                      :"
+            + "\n                             ;`-"
+            + "\n                            :\\"
+            + "\n                            ;";
 }

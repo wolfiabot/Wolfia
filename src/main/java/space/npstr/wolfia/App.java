@@ -33,6 +33,11 @@ public class App {
 
     private static final ResourceBundle props = ResourceBundle.getBundle("app");
     public static final String VERSION = props.getString("version");
+    public static final String GROUP_ID = props.getString("groupId");
+    public static final String ARTIFACT_ID = props.getString("artifactId");
+    public static final String BUILD_NUMBER = props.getString("buildNumber");
+    public static final long BUILD_TIME = Long.parseLong(props.getString("buildTime"));
+
     public static final long OWNER_ID = 166604053629894657L;//Napster
     public static final String INVITE_LINK = "https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot&permissions=268787777";
     public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";
