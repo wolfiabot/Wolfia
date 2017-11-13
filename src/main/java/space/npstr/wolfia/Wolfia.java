@@ -76,8 +76,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -540,13 +543,44 @@ public class Wolfia {
 
     //################# shutdown handling
 
+    public static final int EXIT_CODE_SHUTDOWN = 0;
+    public static final int EXIT_CODE_RESTART = 2;
+
+    private static boolean shuttingDown = false;
+
+    public static boolean isShuttingDown() {
+        return shuttingDown;
+    }
+
+
     public static void shutdown(final int code) {
         DiscordLogger.getLogger().log("%s `%s` Shutting down with exit code %s",
                 Emojis.DOOR, TextchatUtils.berlinTime(), code);
+        log.info("Exiting with code {}", code);
         System.exit(code);
     }
 
     private static final Thread SHUTDOWN_HOOK = new Thread(() -> {
+        log.info("Shutdown hook triggered! {} games still ongoing.", Games.getRunningGamesCount());
+        shuttingDown = true;
+        Future waitForGamesToEnd = executor.submit(() -> {
+            while (Games.getRunningGamesCount() > 0) {
+                log.info("Waiting on {} games to finish.", Games.getRunningGamesCount());
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        });
+        try {
+            waitForGamesToEnd.get(2, TimeUnit.HOURS); //should be enough until the forseeable future
+            //todo persist games (big changes)
+        } catch (ExecutionException | InterruptedException | TimeoutException ignored) {
+        }
+        if (Games.getRunningGamesCount() > 0) {
+            log.error("Killing {} games while exiting", Games.getRunningGamesCount());
+        }
+
         log.info("Shutting down discord logger");
         DiscordLogger.shutdown(10, TimeUnit.SECONDS);
 

@@ -17,12 +17,16 @@
 
 package space.npstr.wolfia.commands;
 
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +59,7 @@ public class CommandParser {
         public final MessageReceivedEvent event; //underlying event
         public final long received; //earliest moment of when the event entered our bots' code
         public final User invoker;
+        public final MessageChannel channel;
 
         public CommandContainer(final String rw, final String beheaded, final String[] splitBeheaded,
                                 final String command, final String argsRaw, final String[] args,
@@ -68,6 +73,7 @@ public class CommandParser {
             this.event = e;
             this.received = received;
             this.invoker = e.getAuthor();
+            this.channel = e.getChannel();
         }
 
 
@@ -90,6 +96,23 @@ public class CommandParser {
             } else {
                 Wolfia.handleOutputEmbed(this.event.getTextChannel(), embed);
             }
+        }
+
+        public void replyWithName(@Nonnull final String message) {
+            reply(getEffectiveName() + ", " + message);
+        }
+
+        public void replyWithMention(@Nonnull final String message) {
+            reply(this.invoker.getAsMention() + ", " + message);
+        }
+
+        //name or nickname of the author issuing the command
+        @Nonnull
+        @CheckReturnValue
+        public String getEffectiveName() {
+            return this.channel instanceof TextChannel
+                    ? ((TextChannel) this.channel).getGuild().getMember(this.invoker).getEffectiveName()
+                    : this.invoker.getName();
         }
     }
 }

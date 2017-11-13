@@ -28,7 +28,6 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
-import space.npstr.wolfia.commands.debug.ShutdownCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
@@ -233,7 +232,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
             throws IllegalGameStateException, DatabaseException {
         //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
         synchronized (SetupEntity.class) {
-            if (MaintenanceCommand.getMaintenanceFlag() || ShutdownCommand.getShutdownFlag()) {
+            if (MaintenanceCommand.getMaintenanceFlag() || Wolfia.isShuttingDown()) {
                 Wolfia.handleOutputMessage(this.channelId, "The bot is under maintenance. Please try starting a game later.");
                 return false;
             }

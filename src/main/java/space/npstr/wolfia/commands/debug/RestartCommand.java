@@ -25,12 +25,10 @@ import space.npstr.wolfia.game.definitions.Games;
 
 /**
  * Created by napster on 28.05.17.
- * <p>
- * wait for games to be over and run an update
  */
-public class UpdateCommand extends BaseCommand implements IOwnerRestricted {
+public class RestartCommand extends BaseCommand implements IOwnerRestricted {
 
-    public UpdateCommand(final String trigger, final String... aliases) {
+    public RestartCommand(final String trigger, final String... aliases) {
         super(trigger, aliases);
     }
 
@@ -38,11 +36,17 @@ public class UpdateCommand extends BaseCommand implements IOwnerRestricted {
 
     @Override
     public String help() {
-        return "Restart and update the bot.";
+        return "Restart the bot.";
     }
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) {
+
+        if (Wolfia.isShuttingDown()) {
+            commandInfo.replyWithName(String.format("restart has been queued already! **%s** games still running.",
+                    Games.getRunningGamesCount()));
+            return false;
+        }
 
         if (!this.reminded) {
             Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
@@ -57,10 +61,10 @@ public class UpdateCommand extends BaseCommand implements IOwnerRestricted {
         }
 
         Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),
-                "%s, **%s** games are still running. Will update as soon as they are over.",
+                "%s, **%s** games are still running. Will restart as soon as they are over.",
                 commandInfo.event.getAuthor().getAsMention(), Games.getRunningGamesCount());
 
-        ShutdownCommand.shutdownAfterGamesAreDoneWithCode(2);
+        new Thread(() -> Wolfia.shutdown(Wolfia.EXIT_CODE_RESTART), "shutdown-thread").start();
         return true;
     }
 }

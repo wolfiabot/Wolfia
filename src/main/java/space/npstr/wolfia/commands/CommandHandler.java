@@ -30,9 +30,9 @@ import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.KillGameCommand;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
 import space.npstr.wolfia.commands.debug.RegisterPrivateServerCommand;
+import space.npstr.wolfia.commands.debug.RestartCommand;
 import space.npstr.wolfia.commands.debug.RunningCommand;
 import space.npstr.wolfia.commands.debug.ShutdownCommand;
-import space.npstr.wolfia.commands.debug.UpdateCommand;
 import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.OutCommand;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -126,7 +126,7 @@ public class CommandHandler {
         registerCommand(new RegisterPrivateServerCommand     ("register"));
         registerCommand(new RunningCommand                   ("running"));
         registerCommand(new ShutdownCommand                  ("shutdown"));
-        registerCommand(new UpdateCommand                    ("update"));
+        registerCommand(new RestartCommand                   ("restart"));
 
         //@formatter:on
     }
