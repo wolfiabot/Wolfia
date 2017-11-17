@@ -31,7 +31,6 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.listing.Listings;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -48,18 +47,12 @@ public class InternalListener extends ListenerAdapter {
 
     @Override
     public void onReady(final ReadyEvent event) {
-        Listings.postToBotsDiscordPw(event.getJDA());
-        Listings.postToDiscordbotsOrg(event.getJDA());
-
         DiscordLogger.getLogger().log("%s `%s` Ready! %s",
                 Emojis.ROCKET, TextchatUtils.berlinTime(), App.VERSION);
     }
 
     @Override
     public void onGuildJoin(final GuildJoinEvent event) {
-        Listings.postToBotsDiscordPw(event.getJDA());
-        Listings.postToDiscordbotsOrg(event.getJDA());
-
         final Guild guild = event.getGuild();
         try {
             final EGuild guildEntity = Wolfia.getDbWrapper().getOrCreate(guild.getIdLong(), EGuild.class);
@@ -78,9 +71,6 @@ public class InternalListener extends ListenerAdapter {
 
     @Override
     public void onGuildLeave(final GuildLeaveEvent event) {
-        Listings.postToBotsDiscordPw(event.getJDA());
-        Listings.postToDiscordbotsOrg(event.getJDA());
-
         final Guild guild = event.getGuild();
         try {
             EGuild.load(Wolfia.getDbWrapper(), guild.getIdLong()).set(guild).leave().save();

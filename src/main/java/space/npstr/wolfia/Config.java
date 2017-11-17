@@ -64,6 +64,7 @@ public class Config {
     public final String imgurClientId;
     public final String botsDiscordPwToken;
     public final String discordbotsOrgToken;
+    public final String carbonitexKey;
     public final long logChannelId;
 
 
@@ -101,6 +102,7 @@ public class Config {
             this.imgurClientId = values.getOrDefault("imgurClientId", "");
             this.botsDiscordPwToken = values.getOrDefault("botsDiscordPwToken", "");
             this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
+            this.carbonitexKey = values.getOrDefault("carbonitexKey", "");
             this.logChannelId = Long.parseLong(values.getOrDefault("logChannelId", "0"));
 
 

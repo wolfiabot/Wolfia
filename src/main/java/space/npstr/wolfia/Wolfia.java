@@ -61,6 +61,7 @@ import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
+import space.npstr.wolfia.listings.Listings;
 import space.npstr.wolfia.utils.GitRepoState;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
@@ -207,6 +208,7 @@ public class Wolfia {
                 .addEventListener(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
                 .addEventListener(new CachingListener())
                 .addEventListener(new InternalListener())
+                .addEventListener(new Listings())
                 .setEnableShutdownHook(false)
                 .setGame(Game.of(App.GAME_STATUS))
                 .setHttpClientBuilder(getDefaultHttpClientBuilder())
@@ -341,6 +343,19 @@ public class Wolfia {
 
     public static JDA getFirstJda() {
         return jdas.iterator().next();
+    }
+
+    public static long getTotalGuildSize() {
+        return Wolfia.jdas.stream().mapToLong(jda -> jda.getGuildCache().size()).sum();
+    }
+
+    public static boolean allShardsUp() {
+        for (final JDA jda : jdas) {
+            if (jda.getStatus() != JDA.Status.CONNECTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static int getRecommendedShardCount(final String token) throws IOException {

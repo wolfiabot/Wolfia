@@ -80,7 +80,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
                     + ",Packages.space.npstr.wolfia.mafia"
                     + ",Packages.space.npstr.wolfia.popcorn"
                     + ",Packages.space.npstr.wolfia.tools"
-                    + ",Packages.space.npstr.wolfia.listing"
+                    + ",Packages.space.npstr.wolfia.listings"
                     + ",Packages.space.npstr.wolfia.utils"
                     + ",Packages.space.npstr.wolfia.utils.discord"
                     + ",Packages.space.npstr.wolfia.utils.img"
