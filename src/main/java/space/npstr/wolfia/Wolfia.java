@@ -248,6 +248,41 @@ public class Wolfia {
         executor.scheduleAtFixedRate(ExceptionLoggingExecutor.wrapExceptionSafe(Wolfia::generalBotStatsToDB),
                 1, 10, TimeUnit.MINUTES);
         started = true;
+
+
+        //sync guild cache
+        final Collection<DatabaseException> guildSyncDbExceptions = DiscordGuild.sync(
+                jdas.stream().flatMap(jda -> jda.getGuildCache().stream()),
+                (guildId) -> getGuildById(guildId) != null,
+                EGuild.class
+        );
+        if (!guildSyncDbExceptions.isEmpty()) {
+            log.error("{} db exceptions thrown when caching AkiGuilds after start", guildSyncDbExceptions.size());
+            for (final DatabaseException e : guildSyncDbExceptions) {
+                log.error("Db blew up when caching AkiGuild", e);
+            }
+        }
+
+        //sync user cache
+        for (final JDA jda : jdas) {
+            executor.execute(() -> {
+                final long started = System.currentTimeMillis();
+                log.info("Caching users for shard {} started", jda.getShardInfo().getShardId());
+                final Collection<DatabaseException> userCacheDbExceptions = DiscordUser.cacheAll(
+                        jda.getGuildCache().stream()
+                                .flatMap(guild -> guild.getMemberCache().stream()),
+                        CachedUser.class
+                );
+                if (!userCacheDbExceptions.isEmpty()) {
+                    log.error("{} db exceptions thrown when caching AkiUsers after start", userCacheDbExceptions.size());
+                    for (final DatabaseException e : userCacheDbExceptions) {
+                        log.error("Db blew up when caching AkiUser", e);
+                    }
+                }
+                log.info("Caching users for shard {} done in {}ms",
+                        jda.getShardInfo().getShardId(), System.currentTimeMillis() - started);
+            });
+        }
     }
 
     private Wolfia() {
