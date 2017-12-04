@@ -39,7 +39,7 @@ public class CommandParser {
     public static CommandContainer parse(final String rw, final MessageReceivedEvent e, final long received) {
         final ArrayList<String> split = new ArrayList<>();
         final String beheaded = rw.substring(Config.PREFIX.length()).trim();
-        final String[] splitBeheaded = beheaded.split(" ");
+        final String[] splitBeheaded = beheaded.split("\\s+");
         Collections.addAll(split, splitBeheaded);
         final String command = split.get(0).toLowerCase();
         final String argsRaw = rw.substring(Config.PREFIX.length() + command.length()).trim();
