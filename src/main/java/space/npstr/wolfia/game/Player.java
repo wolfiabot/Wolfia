@@ -17,15 +17,20 @@
 
 package space.npstr.wolfia.game;
 
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 05.07.17.
@@ -75,6 +80,7 @@ public class Player {
         return this.alignment == Alignments.VILLAGE;
     }
 
+    @Nonnull
     public String getName() {
         try {
             return CachedUser.load(this.userId).getName();
@@ -83,9 +89,23 @@ public class Player {
         }
     }
 
+    @Nonnull
     public String getNick() {
-        try {
-            return CachedUser.load(this.userId).getNick(this.guildId);
+        try {//todo this code needs to go to a common place
+            final Guild guild = Wolfia.getGuildById(this.guildId);
+            if (guild != null) {
+                final Member member = guild.getMemberById(this.userId);
+                if (member != null) {
+                    return member.getEffectiveName();
+                }
+            }
+            final CachedUser cu = CachedUser.load(this.userId);
+            final String nick = cu.getNick(this.guildId);
+            if (nick != null) {
+                return nick;
+            } else {
+                return cu.getName();
+            }
         } catch (final DatabaseException e) {
             return "Anonymous";
         }

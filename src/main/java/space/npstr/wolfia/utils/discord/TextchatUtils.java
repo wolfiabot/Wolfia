@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import space.npstr.wolfia.utils.Operation;
 
+import javax.annotation.Nonnull;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -132,7 +133,7 @@ public class TextchatUtils {
      * <p>
      * expected complexity: O(b + a*b)  (a and b = lengths of a and b)
      */
-    public static int levenshteinDist(final String x, final String y) {
+    public static int levenshteinDist(@Nonnull final String x, @Nonnull final String y) {
         final String a = x.toLowerCase();
         final String b = y.toLowerCase();
         final int[] costs = new int[b.length() + 1];
