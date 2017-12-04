@@ -12,7 +12,7 @@ ext {
     moduleName = 'wolfia'
     buildNumber = (System.getenv('CI') ? System.getenv('BUILD_NUMBER') : 'DEV')
 }
-group = 'space.npstr'
+group = 'space.npstr.Wolfia'
 //noinspection GroovyAssignabilityCheck
 version = '0.10.0-' + project.ext.buildNumber
 
