@@ -216,7 +216,7 @@ public class Wolfia {
                 .addEventListener(new InternalListener())
                 .addEventListener(new Listings())
                 .setEnableShutdownHook(false)
-                .setGame(Game.of(App.GAME_STATUS))
+                .setGame(Game.watching(App.GAME_STATUS))
                 .setHttpClientBuilder(getDefaultHttpClientBuilder())
                 .setReconnectQueue(sessionReconnectQueue);
 
