@@ -14,7 +14,7 @@ ext {
 }
 group = 'space.npstr.Wolfia'
 //noinspection GroovyAssignabilityCheck
-version = '0.10.0-' + project.ext.buildNumber
+version = '0.10.1-' + project.ext.buildNumber
 
 
 mainClassName = "space.npstr.wolfia.Wolfia"
@@ -33,13 +33,14 @@ dependencies {
     //@formatter:off
     ext.jdaVersion                = '3.3.1_308'
     ext.logbackVersion            = '1.2.3'
-    ext.sentryVersion             = '1.6.2'
+    ext.sentryVersion             = '1.6.3'
     ext.discordAppenderVersion    = '1.0.0'
     ext.yamlVersion               = '1.19'
-    ext.okhttpVersion             = '3.9.0'
-    ext.sparkVersion              = '2.7.0'
-    ext.sparkThymeVersion         = '2.5.5'
+    ext.okhttpVersion             = '3.9.1'
     ext.sqlsauceVersion           = 'c72fafdf9356b8ddc3316e8fadbf2b44c019d923'
+    ext.jaxbApiVersion            = '2.3.0'
+    ext.sparkVersion              = '2.7.1'
+    ext.sparkThymeVersion         = '2.7.1'
     ext.thymeleafVersion          = '3.0.9.RELEASE'
 
     compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
