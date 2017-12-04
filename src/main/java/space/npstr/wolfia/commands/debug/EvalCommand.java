@@ -160,7 +160,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
                 commandInfo.event.getMessage().addReaction(Emojis.X).queue(null, Wolfia.defaultOnFail());
                 Wolfia.handleOutputMessage(channel, "`%s`\n\n`%sms`",
                         ex.getMessage(), System.currentTimeMillis() - started);
-                log.error("Error occurred in eval", ex);
+                log.info("Error occurred in eval", ex);
                 return;
             }
 
