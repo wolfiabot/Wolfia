@@ -23,17 +23,6 @@
         </filter>
     </appender>
 
-    <appender name="STDOUT_WOLFIA_DEBUG" class="ch.qos.logback.core.ConsoleAppender">
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>DEBUG</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
-        <encoder>
-            <pattern>%-40(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
     <appender name="INFOFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/wolfia.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -69,10 +58,10 @@
     </appender>
 
     <appender name="DEBUGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>logs/full.log</file>
+        <file>logs/debug.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
-            <fileNamePattern>logs/full.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <fileNamePattern>logs/debug.log.%d{yyyy-MM-dd}</fileNamePattern>
             <!-- keep 30 days' worth of history capped at 3GB total size -->
             <maxHistory>30</maxHistory>
             <totalSizeCap>3GB</totalSizeCap>
@@ -102,14 +91,60 @@
         </filter>
     </appender>
 
+    <!-- Gives us a nice JDA log with only JDA output -->
+    <appender name="JDA" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/jda.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/jda.log.%d{yyyyMMdd}</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%-40(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!-- shut up JDA debug logs from main debug file-->
+    <logger name="net.dv8tion" level="DEBUG" additivity="false">
+        <appender-ref ref="JDA"/>
+
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="INFOFILE"/>
+        <appender-ref ref="ERRORFILE"/>
+        <appender-ref ref="ASYNC_DISCORD"/>
+        <appender-ref ref="SENTRY"/>
+    </logger>
+
+    <!-- show debug logs of our own things in STDOUT, perfect for debugging -->
+    <appender name="STDOUTDEBUG" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%-40(%d{HH:mm:ss.SSS} [%thread]) %highlight([%-5level]) %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="space.npstr" level="debug" additivity="true">
+        <appender-ref ref="STDOUTDEBUG"/>
+    </logger>
+
+    <!-- Send logs with the provided level or higher to sentry -->
     <appender name="SENTRY" class="io.sentry.logback.SentryAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>
         </filter>
     </appender>
 
-    <logger name="space.npstr" level="debug">
-        <appender-ref ref="STDOUT_WOLFIA_DEBUG"/>
+    <!-- shut up hibernate debug logs -->
+    <logger name="org.hibernate" level="DEBUG" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="INFOFILE"/>
+        <appender-ref ref="ERRORFILE"/>
+        <appender-ref ref="ASYNC_DISCORD"/>
+        <appender-ref ref="SENTRY"/>
     </logger>
 
     <root level="debug">
