@@ -25,10 +25,7 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.UserFriendlyException;
@@ -54,17 +51,6 @@ public class InternalListener extends ListenerAdapter {
     @Override
     public void onGuildJoin(final GuildJoinEvent event) {
         final Guild guild = event.getGuild();
-        try {
-            final EGuild guildEntity = Wolfia.getDbWrapper().getOrCreate(guild.getIdLong(), EGuild.class);
-            if (guildEntity.isPresent()) { //safeguard against discord shitting itself and spamming these for established guilds
-                log.warn("Joined a guild that is marked as present. Not taking any further action");
-                return;
-            }
-
-            guildEntity.set(guild).join().save();
-        } catch (final DatabaseException e) {
-            log.error("Db blew up while saving join event for guild {}", guild.getIdLong(), e);
-        }
         DiscordLogger.getLogger().log("%s `%s` Joined guild %s with %s users.",
                 Emojis.CHECK, TextchatUtils.berlinTime(), guild.getName(), guild.getMembers().size());
     }
@@ -72,11 +58,6 @@ public class InternalListener extends ListenerAdapter {
     @Override
     public void onGuildLeave(final GuildLeaveEvent event) {
         final Guild guild = event.getGuild();
-        try {
-            EGuild.load(Wolfia.getDbWrapper(), guild.getIdLong()).set(guild).leave().save();
-        } catch (final DatabaseException e) {
-            log.error("Db blew up while saving leave event for guild {}", guild.getIdLong(), e);
-        }
 
         int gamesDestroyed = 0;
         //destroy games running in the server that was left

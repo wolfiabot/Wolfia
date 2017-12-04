@@ -46,7 +46,7 @@ public class OutCommand extends BaseCommand {
 
     @Override
     public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
-        final SetupEntity setup = Wolfia.getDbWrapper().getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+        final SetupEntity setup = SetupEntity.load(commandInfo.event.getChannel().getIdLong());
         //is this a forced out of a player by an moderator or the bot owner?
         if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
             final Member invoker = commandInfo.event.getMember();

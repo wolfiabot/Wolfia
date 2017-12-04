@@ -61,7 +61,7 @@ public class SetupCommand extends BaseCommand {
         final TextChannel channel = event.getTextChannel();
         final Member invoker = event.getMember();
         //will not be null because it will be initialized with default values if there is none
-        SetupEntity setup = Wolfia.getDbWrapper().getOrCreate(channel.getIdLong(), SetupEntity.class);
+        SetupEntity setup = SetupEntity.load(channel.getIdLong());
 
         if (commandInfo.args.length == 1) {
             //unsupported input

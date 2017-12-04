@@ -71,7 +71,7 @@ public class TagCommand extends BaseCommand {
         final Guild guild = event.getGuild();
         final TextChannel channel = event.getTextChannel();
         final Member invoker = event.getMember();
-        final ChannelSettings settings = Wolfia.getDbWrapper().getOrCreate(channel.getIdLong(), ChannelSettings.class);
+        final ChannelSettings settings = ChannelSettings.load(channel.getIdLong());
         final Set<Long> tags = settings.getTags();
 
         String option = "";

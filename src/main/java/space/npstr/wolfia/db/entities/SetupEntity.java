@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.SaucedEntity;
+import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandHandler;
@@ -145,7 +146,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
 
     public boolean inUser(final long userId) throws DatabaseException {
         //cache any inning users
-        CachedUser.cache(Wolfia.getDbWrapper(), getThisChannel().getGuild().getMemberById(userId));
+        CachedUser.cache(getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
         if (this.innedUsers.contains(userId)) {
             Wolfia.handleOutputMessage(this.channelId, "%s, you have inned already.", TextchatUtils.userAsMention(userId));
             return false;
@@ -294,5 +295,10 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
             throw new NullPointerException(String.format("Could not find channel %s of setup entity", this.channelId));
         }
         return tc;
+    }
+
+    @Nonnull
+    public static SetupEntity load(final long channelId) throws DatabaseException {
+        return SaucedEntity.load(EntityKey.of(channelId, SetupEntity.class));
     }
 }

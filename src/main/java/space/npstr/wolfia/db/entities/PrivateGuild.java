@@ -112,6 +112,12 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         return this.guildId;
     }
 
+    @Nonnull
+    @Override
+    public Class<PrivateGuild> getClazz() {
+        return PrivateGuild.class;
+    }
+
     public boolean inUse() {
         return this.inUse;
     }

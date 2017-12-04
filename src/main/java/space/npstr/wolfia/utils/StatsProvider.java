@@ -112,7 +112,7 @@ public class StatsProvider {
 
     //this should be rather similar to getGuildStats
     @SuppressWarnings("unchecked")
-    public static EmbedBuilder getBotStats() {
+    public static EmbedBuilder getBotStats() throws DatabaseException {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
@@ -209,7 +209,7 @@ public class StatsProvider {
         //add them to the embed
         EmbedBuilder eb = new EmbedBuilder();
         final Guild guild = Wolfia.getGuildById(guildId);
-        final EGuild cachedGuild = EGuild.load(Wolfia.getDbWrapper(), guildId).set(guild).save();
+        final EGuild cachedGuild = EGuild.load(guildId).set(guild).save();
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
         eb.setThumbnail(cachedGuild.getAvatarUrl());
 
@@ -275,8 +275,9 @@ public class StatsProvider {
 
         //add them to the embed
         final EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(CachedUser.getName(Wolfia.getDbWrapper(), userId) + "'s Wolfia stats");
-        eb.setThumbnail(CachedUser.getAvatarUrl(Wolfia.getDbWrapper(), userId));
+        final CachedUser cu = CachedUser.load(userId);
+        eb.setTitle(cu.getName() + "'s Wolfia stats");
+        eb.setThumbnail(cu.getEffectiveAvatarUrl());
 
         if (totalGamesByUser <= 0) {
             eb.setTitle(String.format("User (id `%s`) hasn't played any games.", userId));

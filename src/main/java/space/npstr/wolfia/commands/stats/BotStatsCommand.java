@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.stats;
 
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -42,7 +43,8 @@ public class BotStatsCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(final CommandParser.CommandContainer commandInfo)
+            throws DatabaseException, IllegalGameStateException {
         Wolfia.handleOutputEmbed(commandInfo.event.getTextChannel(), StatsProvider.getBotStats().build());
         return true;
     }

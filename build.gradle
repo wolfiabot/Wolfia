@@ -37,9 +37,9 @@ dependencies {
     ext.discordAppenderVersion    = '1.0.0'
     ext.yamlVersion               = '1.19'
     ext.okhttpVersion             = '3.9.0'
-    ext.sqlsauceVersion           = '02ac2794988f47fc6b6833ae6b4439981124fd44'
     ext.sparkVersion              = '2.7.0'
     ext.sparkThymeVersion         = '2.5.5'
+    ext.sqlsauceVersion           = 'c72fafdf9356b8ddc3316e8fadbf2b44c019d923'
     ext.thymeleafVersion          = '3.0.9.RELEASE'
 
     compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
@@ -48,7 +48,10 @@ dependencies {
     compile group: 'io.sentry',      name: 'sentry-logback',           version: ext.sentryVersion          //error aggregation
     compile group: 'org.yaml',       name: 'snakeyaml',                version: ext.yamlVersion            //parse yaml files
     compile group: 'com.squareup.okhttp3', name: 'okhttp',             version: ext.okhttpVersion          //http client
-    compile group: 'space.npstr',    name: 'sqlsauce',                 version: ext.sqlsauceVersion        //db stack
+    compile group: 'space.npstr.SqlSauce', name: 'sqlsauce-core',      version: ext.sqlsauceVersion        //db stack
+    compile group: 'space.npstr.SqlSauce', name: 'discord-entities',   version: ext.sqlsauceVersion        //moar db entities
+    compile group: 'javax.xml.bind', name: 'jaxb-api',                 version: ext.jaxbApiVersion         //required by hibernate for java 9
+
 
     //charts stuff
     compile group: 'com.sparkjava',  name: 'spark-core',               version: ext.sparkVersion

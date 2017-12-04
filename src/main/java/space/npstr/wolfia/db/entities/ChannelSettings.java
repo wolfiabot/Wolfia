@@ -21,7 +21,9 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.SaucedEntity;
+import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Wolfia;
 
 import javax.annotation.Nonnull;
@@ -157,5 +159,11 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
         eb.addField("Tag list cooldown", this.tagCooldown + " minutes", true);
 
         return eb.build();
+    }
+
+
+    @Nonnull
+    public static ChannelSettings load(final long channelId) throws DatabaseException {
+        return SaucedEntity.load(EntityKey.of(channelId, ChannelSettings.class));
     }
 }

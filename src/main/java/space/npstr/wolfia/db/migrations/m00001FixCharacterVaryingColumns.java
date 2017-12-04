@@ -21,6 +21,7 @@ import space.npstr.sqlsauce.DatabaseConnection;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.migration.Migration;
 
+import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +29,10 @@ import java.util.List;
 /**
  * Created by napster on 12.11.17.
  */
-public class m00001FixCharacterVaryingColumns implements Migration {
+public class m00001FixCharacterVaryingColumns extends Migration {
 
     @Override
-    public void up(final DatabaseConnection databaseConnection) throws DatabaseException {
+    public void up(@Nonnull final DatabaseConnection databaseConnection) throws DatabaseException {
 
         final List<String> queries = new ArrayList<>();
 

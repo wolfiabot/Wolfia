@@ -382,7 +382,7 @@ public abstract class Game {
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
-                this.accessRoleId = Wolfia.getDbWrapper().getOrCreate(this.channelId, ChannelSettings.class).getAccessRoleId();
+                this.accessRoleId = ChannelSettings.load(this.channelId).getAccessRoleId();
                 final Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
                     throw new UserFriendlyException(String.format(

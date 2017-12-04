@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands.game;
 
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandParser;
 import space.npstr.wolfia.db.entities.SetupEntity;
@@ -63,7 +62,7 @@ public class StatusCommand extends BaseCommand {
             }
         }
 
-        final SetupEntity setup = Wolfia.getDbWrapper().getOrCreate(commandInfo.event.getChannel().getIdLong(), SetupEntity.class);
+        final SetupEntity setup = SetupEntity.load(commandInfo.event.getChannel().getIdLong());
         setup.postStatus();
         return true;
     }

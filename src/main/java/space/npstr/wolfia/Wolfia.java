@@ -49,14 +49,20 @@ import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseConnection;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
-import space.npstr.sqlsauce.migration.Migrations;
+import space.npstr.sqlsauce.entities.discord.DiscordGuild;
+import space.npstr.sqlsauce.entities.discord.DiscordUser;
+import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
+import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.sqlsauce.ssh.SshTunnel;
 import space.npstr.wolfia.charts.Charts;
+import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.stats.GeneralBotStats;
 import space.npstr.wolfia.db.entities.stats.MessageOutputStats;
 import space.npstr.wolfia.db.migrations.m00001FixCharacterVaryingColumns;
-import space.npstr.wolfia.events.CachingListener;
+import space.npstr.wolfia.db.migrations.m00002CachedUserToDiscordUser;
+import space.npstr.wolfia.db.migrations.m00003EGuildToDiscordGuild;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.game.definitions.Games;
@@ -73,6 +79,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -151,7 +158,6 @@ public class Wolfia {
         //set up relational database
         try {
             final DatabaseConnection databaseConnection = new DatabaseConnection.Builder("postgres", Config.C.jdbcUrl)
-                    .setDriverClassName("org.postgresql.Driver")
                     .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")
                     .addEntityPackage("space.npstr.wolfia.db.entities")
                     .setAppName("Wolfia_" + (Config.C.isDebug ? "DEBUG" : "PROD") + "_" + App.VERSION)
@@ -161,16 +167,15 @@ public class Wolfia {
                                     .setRemotePort(Config.C.sshTunnelRemotePort)
                                     .setKeyFile(Config.C.sshKeyFile)
                                     .setPassphrase(Config.C.sshKeyPassphrase)
-                    ).build();
+                    )
+                    .addMigration(new m00001FixCharacterVaryingColumns())
+                    .addMigration(new m00002CachedUserToDiscordUser())
+                    .addMigration(new m00003EGuildToDiscordGuild())
+                    .build();
             dbWrapper = new DatabaseWrapper(databaseConnection);
-
-            final Migrations migrations = new Migrations();
-            migrations.registerMigration(new m00001FixCharacterVaryingColumns());
-            migrations.runMigrations(databaseConnection);
-
-        } catch (final DatabaseException e) {
+        } catch (final Exception e) {
             log.error("Failed to set up database connection, exiting", e);
-            return;
+            System.exit(2);
         }
 
         //fire up spark async
@@ -181,7 +186,7 @@ public class Wolfia {
             log.info("{} private guilds loaded", AVAILABLE_PRIVATE_GUILD_QUEUE.size());
         } catch (final DatabaseException e) {
             log.error("Failed to load private guilds, exiting", e);
-            return;
+            System.exit(2);
         }
 
         //set up JDA
@@ -206,7 +211,8 @@ public class Wolfia {
                 .setToken(Config.C.discordToken)
                 .addEventListener(commandListener)
                 .addEventListener(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
-                .addEventListener(new CachingListener())
+                .addEventListener(new UserMemberCachingListener<>(CachedUser.class))
+                .addEventListener(new GuildCachingListener<>(EGuild.class))
                 .addEventListener(new InternalListener())
                 .addEventListener(new Listings())
                 .setEnableShutdownHook(false)

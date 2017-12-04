@@ -62,7 +62,7 @@ public class ChannelSettingsCommand extends BaseCommand {
         final Guild guild = event.getGuild();
 
         //will not be null because it will be initialized with default values if there is none
-        final ChannelSettings channelSettings = Wolfia.getDbWrapper().getOrCreate(channel.getIdLong(), ChannelSettings.class);
+        final ChannelSettings channelSettings = ChannelSettings.load(channel.getIdLong());
 
 
         if (commandInfo.args.length == 0) {

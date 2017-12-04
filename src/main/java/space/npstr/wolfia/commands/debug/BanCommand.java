@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -88,13 +89,13 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
 
         final List<User> mentionedUsers = event.getMessage().getMentionedUsers();
 
-        //user signing up other users/roles
         final List<String> mentions = new ArrayList<>();
         mentions.addAll(mentionedUsers.stream().map(User::getAsMention).collect(Collectors.toList()));
         final String joined = String.join("**, **", mentions);
         if (action == BanAction.ADD) {
             for (final long userId : mentionedUsers.stream().map(ISnowflake::getIdLong).collect(Collectors.toList())) {
-                Wolfia.getDbWrapper().getOrCreate(userId, Banlist.class)
+                //noinspection ResultOfMethodCallIgnored
+                Banlist.load(userId)
                         .setScope(Scope.GLOBAL)
                         .save();
             }
@@ -103,7 +104,7 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
             return true;
         } else { //removing
             for (final long userId : mentionedUsers.stream().map(ISnowflake::getIdLong).collect(Collectors.toList())) {
-                Wolfia.getDbWrapper().deleteEntity(userId, Banlist.class);
+                Wolfia.getDbWrapper().deleteEntity(EntityKey.of(userId, Banlist.class));
             }
             Wolfia.handleOutputMessage(channel, "%s, removed **%s** from the global ban list.",
                     invoker.getAsMention(), joined);

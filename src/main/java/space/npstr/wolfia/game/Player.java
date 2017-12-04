@@ -20,7 +20,6 @@ package space.npstr.wolfia.game;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
@@ -78,7 +77,7 @@ public class Player {
 
     public String getName() {
         try {
-            return CachedUser.getName(Wolfia.getDbWrapper(), this.userId);
+            return CachedUser.load(this.userId).getName();
         } catch (final DatabaseException e) {
             return "Anonymous";
         }
@@ -86,7 +85,7 @@ public class Player {
 
     public String getNick() {
         try {
-            return CachedUser.getNick(Wolfia.getDbWrapper(), this.userId, this.guildId);
+            return CachedUser.load(this.userId).getNick(this.guildId);
         } catch (final DatabaseException e) {
             return "Anonymous";
         }
@@ -98,7 +97,7 @@ public class Player {
         String name = "Anonymous";
         String nick = "Anonymous";
         try {
-            final CachedUser cu = CachedUser.load(Wolfia.getDbWrapper(), this.userId);
+            final CachedUser cu = CachedUser.load(this.userId);
             name = cu.getName();
             nick = cu.getNick(this.guildId);
         } catch (final DatabaseException e) {

@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -58,11 +59,12 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
         return invoke(commandInfo.event.getTextChannel(), commandInfo.event.getMember(), commandInfo.args);
     }
 
-    public boolean invoke(final TextChannel channel, final Member invoker, final String[] args) {
+    public boolean invoke(final TextChannel channel, final Member invoker, final String[] args)
+            throws DatabaseException {
 
         boolean result = false;
 
@@ -137,7 +139,7 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
         return true;
     }
 
-    private void prepareStressTest() {
+    private void prepareStressTest() throws DatabaseException {
         //drop and recreate the test table
         final EntityManager em = Wolfia.getDbWrapper().unwrap().getEntityManager();
         try {
