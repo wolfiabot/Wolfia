@@ -33,6 +33,7 @@ import space.npstr.wolfia.commands.debug.RegisterPrivateServerCommand;
 import space.npstr.wolfia.commands.debug.RestartCommand;
 import space.npstr.wolfia.commands.debug.RunningCommand;
 import space.npstr.wolfia.commands.debug.ShutdownCommand;
+import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.OutCommand;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -74,6 +75,9 @@ public class CommandHandler {
 
     private final static Logger log = LoggerFactory.getLogger(CommandHandler.class);
 
+    public static final String COMM_TRIGGER_HELP = "help";
+
+
     private static final Map<String, BaseCommand> COMMAND_REGISTRY = new HashMap<>();
 
     private static void registerCommand(final BaseCommand command) {
@@ -112,7 +116,7 @@ public class CommandHandler {
         //util commands
         registerCommand(new ChannelSettingsCommand           ("channelsettings", "cs"));
         registerCommand(new CommandsCommand                  ("commands", "comms"));
-        registerCommand(new HelpCommand                      ("help"));
+        registerCommand(new HelpCommand                      (COMM_TRIGGER_HELP));
         registerCommand(new InfoCommand                      ("info"));
         registerCommand(new ReplayCommand                    ("replay"));
         registerCommand(new TagCommand                       ("tag"));
@@ -124,9 +128,10 @@ public class CommandHandler {
         registerCommand(new KillGameCommand                  ("killgame"));
         registerCommand(new MaintenanceCommand               ("maint"));
         registerCommand(new RegisterPrivateServerCommand     ("register"));
+        registerCommand(new RestartCommand                   ("restart"));
         registerCommand(new RunningCommand                   ("running"));
         registerCommand(new ShutdownCommand                  ("shutdown"));
-        registerCommand(new RestartCommand                   ("restart"));
+        registerCommand(new SyncCommand                      ("sync"));
 
         //@formatter:on
     }

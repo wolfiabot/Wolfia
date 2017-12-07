@@ -21,7 +21,6 @@ import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.commands.CommandHandler;
-import space.npstr.wolfia.commands.util.HelpCommand;
 
 import java.util.ResourceBundle;
 
@@ -46,7 +45,7 @@ public class App {
     public static final String SITE_LINK = "https://wolfia.party";
     public static final String DOCS_LINK = "https://docs.wolfia.party";
     public static final String GITHUB_LINK = "https://github.com/napstr/wolfia";
-    public static final String GAME_STATUS = Config.PREFIX + CommandHandler.mainTrigger(HelpCommand.class) + " | " + SITE_LINK + " | Public β";
+    public static final String GAME_STATUS = Config.PREFIX + CommandHandler.COMM_TRIGGER_HELP + " | " + SITE_LINK + " | Public β";
 
     private static ApplicationInfo appInfo;
 

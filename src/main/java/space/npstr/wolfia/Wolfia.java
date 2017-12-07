@@ -49,12 +49,11 @@ import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseConnection;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
-import space.npstr.sqlsauce.entities.discord.DiscordGuild;
-import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
 import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.sqlsauce.ssh.SshTunnel;
 import space.npstr.wolfia.charts.Charts;
+import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.db.entities.PrivateGuild;
@@ -243,6 +242,10 @@ public class Wolfia {
             return;
         }
 
+        //wait for all shards to be online, then start doing things that expect the full bot to be online
+        while (!allShardsUp()) {
+            Thread.sleep(1000);
+        }
 
         //post stats every 10 minutes
         executor.scheduleAtFixedRate(ExceptionLoggingExecutor.wrapExceptionSafe(Wolfia::generalBotStatsToDB),
@@ -251,38 +254,9 @@ public class Wolfia {
 
 
         //sync guild cache
-        final Collection<DatabaseException> guildSyncDbExceptions = DiscordGuild.sync(
-                jdas.stream().flatMap(jda -> jda.getGuildCache().stream()),
-                (guildId) -> getGuildById(guildId) != null,
-                EGuild.class
-        );
-        if (!guildSyncDbExceptions.isEmpty()) {
-            log.error("{} db exceptions thrown when caching AkiGuilds after start", guildSyncDbExceptions.size());
-            for (final DatabaseException e : guildSyncDbExceptions) {
-                log.error("Db blew up when caching AkiGuild", e);
-            }
-        }
-
-        //sync user cache
-        for (final JDA jda : jdas) {
-            executor.execute(() -> {
-                final long started = System.currentTimeMillis();
-                log.info("Caching users for shard {} started", jda.getShardInfo().getShardId());
-                final Collection<DatabaseException> userCacheDbExceptions = DiscordUser.cacheAll(
-                        jda.getGuildCache().stream()
-                                .flatMap(guild -> guild.getMemberCache().stream()),
-                        CachedUser.class
-                );
-                if (!userCacheDbExceptions.isEmpty()) {
-                    log.error("{} db exceptions thrown when caching AkiUsers after start", userCacheDbExceptions.size());
-                    for (final DatabaseException e : userCacheDbExceptions) {
-                        log.error("Db blew up when caching AkiUser", e);
-                    }
-                }
-                log.info("Caching users for shard {} done in {}ms",
-                        jda.getShardInfo().getShardId(), System.currentTimeMillis() - started);
-            });
-        }
+        // this takes a few seconds to do, so do it as the last thing of the main method, or put it into it's own thread
+        SyncCommand.syncGuilds(executor, jdas.stream().flatMap(jda -> jda.getGuildCache().stream()), null);
+        //user cache is not synced on each start as it takes a lot of time and resources. see SyncComm for manual triggering
     }
 
     private Wolfia() {
@@ -384,6 +358,11 @@ public class Wolfia {
 
     public static JDA getFirstJda() {
         return jdas.iterator().next();
+    }
+
+    @Nonnull
+    public static Collection<JDA> getShards() {
+        return jdas;
     }
 
     public static long getTotalGuildSize() {
