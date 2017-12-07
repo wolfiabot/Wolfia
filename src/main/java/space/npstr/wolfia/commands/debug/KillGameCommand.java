@@ -18,13 +18,14 @@
 package space.npstr.wolfia.commands.debug;
 
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserFriendlyException;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 /**
@@ -36,38 +37,39 @@ public class KillGameCommand extends BaseCommand implements IOwnerRestricted {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
         return "Stop and destroy an ongoing game.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(@Nonnull final CommandContext context) throws IllegalGameStateException {
 
-        if (commandInfo.args.length < 1) {
-            commandInfo.reply("Please provide the channelId of the game you want to kill.");
+        if (!context.hasArguments()) {
+            context.reply("Please provide the channelId of the game you want to kill.");
             return false;
         }
 
         final long channelId;
         try {
-            channelId = Long.parseLong(commandInfo.args[0]);
+            channelId = Long.parseLong(context.args[0]);
         } catch (final NumberFormatException e) {
-            commandInfo.reply("Invalid channelId provided (not a long)");
+            context.reply("Invalid channelId provided (not a long)");
             return false;
         }
 
         final Game game = Games.get(channelId);
         if (game == null) {
-            commandInfo.reply("There is no game registered for channel " + channelId);
+            context.reply("There is no game registered for channel " + channelId);
             return false;
         }
 
-        String reason = String.join(" ", Arrays.copyOfRange(commandInfo.args, 1, commandInfo.args.length)).trim();
+        String reason = String.join(" ", Arrays.copyOfRange(context.args, 1, context.args.length)).trim();
         if (reason.isEmpty()) reason = "Game killed by bot owner.";
         game.destroy(new UserFriendlyException(reason));
 
-        commandInfo.reply("Game in channel " + channelId + " destroyed.");
+        context.reply("Game in channel " + channelId + " destroyed.");
         return true;
     }
 }

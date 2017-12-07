@@ -22,11 +22,12 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.BaseCommand;
+import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.CommandHandler;
-import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 
@@ -94,12 +95,21 @@ public class CommandListener extends ListenerAdapter {
         }
 
         //ignore channels where we don't have sending permissions, with a special exception for the help command
-        if (!event.getTextChannel().canTalk() && !raw.toLowerCase().startsWith((Config.PREFIX + CommandHandler.mainTrigger(HelpCommand.class)).toLowerCase())) {
+        if (!event.getTextChannel().canTalk() && !raw.toLowerCase().startsWith((Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP).toLowerCase())) {
             return;
         }
 
-        final CommandParser.CommandContainer commandInfo = CommandParser.parse(raw, event, received);
-        commandExecutor.submit(() -> CommandHandler.handleCommand(commandInfo, this::filter));
+        final CommandContext context;
+        try {
+            context = CommandContext.parse(event);
+        } catch (final DatabaseException e) {
+            log.error("Db blew up parsing a private command", e);
+            return;
+        }
+        if (context == null) {
+            return;
+        }
+        commandExecutor.submit(() -> CommandHandler.handleCommand(context, this::filter));
     }
 
     private boolean filter(final BaseCommand command) {

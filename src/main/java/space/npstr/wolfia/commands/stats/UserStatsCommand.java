@@ -17,15 +17,14 @@
 
 package space.npstr.wolfia.commands.stats;
 
-import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 08.06.17.
@@ -38,38 +37,38 @@ public class UserStatsCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " [@user or user ID]"
+        return invocation() + " [@user or user ID]"
                 + "\n#Show game stats for yourself or another a user. Examples:"
-                + "\n  " + Config.PREFIX + getMainTrigger()
-                + "\n  " + Config.PREFIX + getMainTrigger() + " @Napster"
-                + "\n  " + Config.PREFIX + getMainTrigger() + " 166604053629894657";
+                + "\n  " + invocation()
+                + "\n  " + invocation() + " @Napster"
+                + "\n  " + invocation() + " 166604053629894657";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo)
+    public boolean execute(@Nonnull final CommandContext context)
             throws IllegalGameStateException, DatabaseException {
-        final Message m = commandInfo.event.getMessage();
-        long userId = m.getAuthor().getIdLong();
 
-        if (m.getMentionedUsers().size() < 1) {
+        long userId = context.invoker.getIdLong();
+        if (context.msg.getMentionedUsers().isEmpty()) {
             //noinspection Duplicates
-            if (commandInfo.args.length > 0) {
+            if (context.hasArguments()) {
                 try {
-                    userId = Long.parseLong(commandInfo.args[0]);
+                    userId = Long.parseLong(context.args[0]);
                 } catch (final NumberFormatException e) {
-                    commandInfo.reply(formatHelp(commandInfo.invoker));
+                    context.help();
                     return false;
                 }
             }
 
-            Wolfia.handleOutputEmbed(m.getChannel(), StatsProvider.getUserStats(userId).build());
+            context.reply(StatsProvider.getUserStats(userId).build());
             return true;
         }
 
-        for (final User u : m.getMentionedUsers()) {
-            Wolfia.handleOutputEmbed(m.getChannel(), StatsProvider.getUserStats(u.getIdLong()).build());
+        for (final User u : context.msg.getMentionedUsers()) {
+            context.reply(StatsProvider.getUserStats(u.getIdLong()).build());
         }
         return true;
     }

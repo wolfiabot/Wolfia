@@ -17,11 +17,9 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.sqlsauce.entities.SaucedEntity;
-import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Column;
@@ -83,15 +81,14 @@ public class CommandStats extends SaucedEntity<Long, CommandStats> {
     public CommandStats() {
     }
 
-    public CommandStats(final CommandParser.CommandContainer commandContainer, final Class<? extends BaseCommand> clazz,
-                        final long executed, final boolean successful) {
+    @Deprecated //we are going to use proper metrics in the future
+    public CommandStats(@Nonnull final CommandContext context, final long executed, final boolean successful) {
 
-        final MessageReceivedEvent event = commandContainer.event;
-        final Message message = event.getMessage();
+        final MessageReceivedEvent event = context.event;
 
-        this.invokerId = event.getAuthor().getIdLong();
-        this.channelId = event.getChannel().getIdLong();
-        switch (message.getChannelType()) {
+        this.invokerId = context.invoker.getIdLong();
+        this.channelId = context.channel.getIdLong();
+        switch (context.msg.getChannelType()) {
             case TEXT: //Guild
                 this.isPrivate = false;
                 this.guildId = event.getGuild().getIdLong();
@@ -101,12 +98,12 @@ public class CommandStats extends SaucedEntity<Long, CommandStats> {
                 this.guildId = -1;
                 break;
             default:
-                throw new IllegalArgumentException("Unexpected channel type of message " + message.getIdLong());
+                throw new IllegalArgumentException("Unexpected channel type of message " + context.msg.getIdLong());
         }
-        this.rawMessage = message.getRawContent();
-        this.commandClass = clazz.getSimpleName();
-        this.sent = message.getCreationTime().toInstant().toEpochMilli();
-        this.received = commandContainer.received;
+        this.rawMessage = context.msg.getRawContent();
+        this.commandClass = context.command.getClass().getSimpleName();
+        this.sent = context.msg.getCreationTime().toInstant().toEpochMilli();
+        this.received = 0;//due to deprecation
         this.executed = executed;
         this.duration = executed - this.received;
         this.successful = successful;

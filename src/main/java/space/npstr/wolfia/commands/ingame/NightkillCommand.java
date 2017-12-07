@@ -17,14 +17,14 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.CommandParser;
+import net.dv8tion.jda.core.entities.Guild;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 06.08.17.
@@ -35,36 +35,36 @@ public class NightkillCommand extends GameCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public String help() {
+        return invocation() + " name or number"
+                + "\n#Vote a player for nightkill. Make sure to use the player's number if the names are ambiguous";
+    }
+
+    @Override
+    public boolean execute(@Nonnull final CommandContext context) {
         //the nightkill command will always be called from a private guild, and only one game is allowed to run in
         //a private guild at the time
         Game game = null;
         for (final Game g : Games.getAll().values()) {
-            if (g.getPrivateGuildId() == commandInfo.event.getGuild().getIdLong()) {
+            final Guild guild = context.getGuild();
+            if (guild != null && guild.getIdLong() == g.getPrivateGuildId()) {
                 game = g;
                 break;
             }
         }
 
         if (game == null) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
-                    "Hey %s, there is no game currently going on in here.",
-                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
+            context.replyWithMention("there is no game currently going on in here.");
             return false;
         }
 
         try {
-            return game.issueCommand(this, commandInfo);
+            return game.issueCommand(this, context);
         } catch (final IllegalGameStateException e) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", e.getMessage());
+            context.reply(e.getMessage());
             return false;
         }
-    }
-
-    @Override
-    public String help() {
-        return Config.PREFIX + getMainTrigger() + " name or number"
-                + "\n#Vote a player for nightkill. Make sure to use the player's number if the names are ambiguous";
     }
 }

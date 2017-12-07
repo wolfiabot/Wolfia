@@ -17,14 +17,12 @@
 
 package space.npstr.wolfia.commands.util;
 
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
 import space.npstr.wolfia.db.entities.stats.GameStats;
 import space.npstr.wolfia.db.entities.stats.TeamStats;
@@ -34,6 +32,7 @@ import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -55,29 +54,29 @@ public class ReplayCommand extends BaseCommand {
 
     private static final Logger log = LoggerFactory.getLogger(ReplayCommand.class);
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " #gameid"
+        return invocation() + " #gameid"
                 + "\n#Show the replay of a game. Examples:"
-                + "\n  " + Config.PREFIX + getMainTrigger() + " #69"
-                + "\n  " + Config.PREFIX + getMainTrigger() + " 5000";
+                + "\n  " + invocation() + " #69"
+                + "\n  " + invocation() + " 9001";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo)
+    public boolean execute(@Nonnull final CommandContext context)
             throws IllegalGameStateException, DatabaseException {
 
-        final MessageReceivedEvent e = commandInfo.event;
-        if (commandInfo.args.length < 1) {
-            commandInfo.reply(formatHelp(commandInfo.invoker));
+        if (!context.hasArguments()) {
+            context.help();
             return false;
         }
 
         final long gameId;
         try {
-            gameId = Long.parseLong(commandInfo.args[0].replaceAll("#", ""));
+            gameId = Long.parseLong(context.args[0].replaceAll("#", ""));
         } catch (final NumberFormatException ex) {
-            commandInfo.reply(formatHelp(commandInfo.invoker));
+            context.help();
             return false;
         }
 
@@ -87,8 +86,7 @@ public class ReplayCommand extends BaseCommand {
         final List<GameStats> gameStatsList = Wolfia.getDbWrapper().selectJpqlQuery(sql, params, GameStats.class);
 
         if (gameStatsList.isEmpty()) {
-            Wolfia.handleOutputMessage(e.getTextChannel(), "%s, there is no such game in the database.",
-                    e.getAuthor().getAsMention());
+            context.replyWithMention("there is no such game in the database.");
             return false;
         }
         final GameStats gameStats = gameStatsList.get(0);
@@ -137,7 +135,7 @@ public class ReplayCommand extends BaseCommand {
         }
         eb.addField("Winners", winText, true);
 
-        Wolfia.handleOutputEmbed(e.getTextChannel(), eb.build());
+        context.reply(eb.build());
         return true;
     }
 }

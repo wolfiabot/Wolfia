@@ -31,12 +31,9 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
-import space.npstr.wolfia.commands.game.StatusCommand;
-import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
-import space.npstr.wolfia.commands.util.HelpCommand;
-import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
@@ -68,8 +65,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static space.npstr.wolfia.commands.CommandHandler.mainTrigger;
 
 /**
  * Created by npstr on 14.09.2016
@@ -342,7 +337,7 @@ public abstract class Game {
 
         if (!Games.getInfo(this).isAcceptablePlayerCount(innedPlayers.size(), mode)) {
             throw new IllegalArgumentException(String.format("There aren't enough (or too many) players signed up! " +
-                    "Please use `%s%s` for more information", Config.PREFIX, mainTrigger(StatusCommand.class)));
+                    "Please use `%s` for more information", Config.PREFIX + CommRegistry.COMM_TRIGGER_STATUS));
         }
     }
 
@@ -391,7 +386,7 @@ public abstract class Game {
                                     " Talk to an Admin/Moderator of your server to fix this or set the access role up with `%s`." +
                                     " Please refer to the documentation under %s",
                             Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(),
-                            Config.PREFIX + mainTrigger(ChannelSettingsCommand.class), App.DOCS_LINK
+                            Config.PREFIX + CommRegistry.COMM_TRIGGER_CHANNELSETTINGS, App.DOCS_LINK
                     ));
                 }
                 if (!accessRole.hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
@@ -582,7 +577,7 @@ public abstract class Game {
             Wolfia.handleOutputMessage(channel,
                     "Game has been stopped due to:\n`%s`\nSorry about that. The issue has been logged and will hopefully be fixed soon." +
                             "\nFeel free to join the Wolfia Lounge meanwhile through `%s` for direct support with the issue.",
-                    reasonMessage, Config.PREFIX + mainTrigger(HelpCommand.class));
+                    reasonMessage, Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP);
         }
     }
 
@@ -642,7 +637,7 @@ public abstract class Game {
             try {
                 Wolfia.getDbWrapper().persist(this.gameStats);
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
-                        this.gameStats.getId(), Config.PREFIX + mainTrigger(ReplayCommand.class), this.gameStats.getId());
+                        this.gameStats.getId(), Config.PREFIX + CommRegistry.COMM_TRIGGER_REPLAY, this.gameStats.getId());
             } catch (final DatabaseException e) {
                 log.error("Db blew up saving game stats", e);
                 out += "The database it not available currently, a replay of this game will not be available.";
@@ -721,11 +716,11 @@ public abstract class Game {
     /**
      * Let the game handle a command a user issued
      *
-     * @param command     the issued command
-     * @param commandInfo the context of the issued command
+     * @param command the issued command
+     * @param context the context of the issued command
      * @return true if the command was executed successful
      * @throws IllegalGameStateException if the command entered led to an illegal game state
      */
-    public abstract boolean issueCommand(GameCommand command, CommandParser.CommandContainer commandInfo)
+    public abstract boolean issueCommand(GameCommand command, CommandContext context)
             throws IllegalGameStateException;
 }

@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.game.definitions;
 
+import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.mafia.Mafia;
@@ -24,6 +25,7 @@ import space.npstr.wolfia.game.mafia.MafiaInfo;
 import space.npstr.wolfia.game.popcorn.Popcorn;
 import space.npstr.wolfia.game.popcorn.PopcornInfo;
 
+import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,6 +78,10 @@ public enum Games {
      */
     public static Game get(final long channelId) {
         return GAME_REGISTRY.get(channelId);
+    }
+
+    public static Game get(@Nonnull final TextChannel channel) {
+        return get(channel.getIdLong());
     }
 
     //useful for evaling

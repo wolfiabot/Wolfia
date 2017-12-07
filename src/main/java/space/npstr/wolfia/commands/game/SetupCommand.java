@@ -18,19 +18,18 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,83 +43,84 @@ public class SetupCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " [key value]"
+        return invocation() + " [key value]"
                 + "\n#Set up games in this channel or show the current setup. Examples:\n"
-                + "  " + Config.PREFIX + getMainTrigger() + " game Mafia\n"
-                + "  " + Config.PREFIX + getMainTrigger() + " mode Classic\n"
-                + "  " + Config.PREFIX + getMainTrigger() + " daylength 3\n"
-                + "  " + Config.PREFIX + getMainTrigger();
+                + "  " + invocation() + " game Mafia\n"
+                + "  " + invocation() + " mode Classic\n"
+                + "  " + invocation() + " daylength 3\n"
+                + "  " + invocation();
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
 
-        final MessageReceivedEvent event = commandInfo.event;
-        final TextChannel channel = event.getTextChannel();
-        final Member invoker = event.getMember();
-        //will not be null because it will be initialized with default values if there is none
+        if (context.channel.getType() != ChannelType.TEXT) {
+            context.reply("Setup are for guild channels only");
+            return false;
+        }
+        final TextChannel channel = (TextChannel) context.channel;
         SetupEntity setup = SetupEntity.load(channel.getIdLong());
 
-        if (commandInfo.args.length == 1) {
+        if (context.args.length == 1) {
             //unsupported input
-            commandInfo.reply(formatHelp(invoker.getUser()));
+            context.help();
             return false;
         }
 
         //is this an attempt to edit the setup?
-        if (commandInfo.args.length > 1) {
+        if (context.args.length > 1) {
             //is there a game going on?
             if (Games.get(channel.getIdLong()) != null) {
-                Wolfia.handleOutputMessage(channel,
-                        "%s, there is a game going on in this channel, please wait until it is over to adjust the setup!",
-                        invoker.getAsMention());
+                context.replyWithMention("there is a game going on in this channel, please wait until it is over to adjust the setup!");
                 return false;
             }
 
             //is the user allowed to do that?
-            if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && !App.isOwner(invoker)) {
-                Wolfia.handleOutputMessage(channel, "%s, you need the following permission to edit the setup of this channel: %s",
-                        invoker.getAsMention(), Permission.MESSAGE_MANAGE.getName());
+            final Member member = context.getMember();
+            if (member == null || (!member.hasPermission(channel, Permission.MESSAGE_MANAGE) && !context.isOwner())) {
+                context.replyWithMention("you need the following permission to edit the setup of this channel: "
+                        + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
                 return false;
             }
 
-            final String option = commandInfo.args[0];
+            final String option = context.args[0];
             switch (option.toLowerCase()) {
                 case "game":
                     try {
-                        setup = setup.setGame(Games.valueOf(commandInfo.args[1].toUpperCase()))
+                        setup = setup.setGame(Games.valueOf(context.args[1].toUpperCase()))
                                 .setMode(Games.getInfo(setup.getGame()).getDefaultMode())
                                 .save();
                     } catch (final IllegalArgumentException ex) {
-                        Wolfia.handleOutputMessage(channel, "%s, no such game is supported by this bot: ", invoker.getAsMention(), commandInfo.args[1]);
+                        context.replyWithMention("no such game is supported by this bot: " + TextchatUtils.defuseMentions(context.args[1]));
                         return false;
                     }
                     break;
                 case "mode":
                     try {
-                        setup = setup.setMode(GameInfo.GameMode.valueOf(commandInfo.args[1].toUpperCase()))
+                        setup = setup.setMode(GameInfo.GameMode.valueOf(context.args[1].toUpperCase()))
                                 .save();
                     } catch (final IllegalArgumentException ex) {
-                        Wolfia.handleOutputMessage(channel, "%s, no such mode is supported by this game: %s", invoker.getAsMention(), commandInfo.args[1]);
+                        context.replyWithMention("no such mode is supported by this game: " + TextchatUtils.defuseMentions(context.args[1]));
                         return false;
                     }
                     break;
                 case "daylength":
                     try {
-                        final long minutes = Long.parseLong(commandInfo.args[1]);
+                        final long minutes = Long.parseLong(context.args[1]);
                         if (minutes > 10) {
-                            Wolfia.handleOutputMessage(channel, "%s, day lengths of more than 10 minutes are not supported currently.", invoker.getAsMention());
+                            context.replyWithMention("day lengths of more than 10 minutes are not supported currently.");
                             return false;
                         } else if (minutes < 1) {
-                            Wolfia.handleOutputMessage(channel, "%s, day length must be at least one minute.", invoker.getAsMention());
+                            context.replyWithMention("day length must be at least one minute.");
                             return false;
                         }
                         setup = setup.setDayLength(minutes, TimeUnit.MINUTES)
                                 .save();
                     } catch (final NumberFormatException ex) {
-                        Wolfia.handleOutputMessage(channel, "%s, use a number to set the day length!", invoker.getAsMention());
+                        context.replyWithMention("use a number to set the day length!");
                         return false;
                     }
                     break;
@@ -132,12 +132,12 @@ public class SetupCommand extends BaseCommand {
 //                    etc
                 default:
                     //didn't understand the input
-                    commandInfo.reply(formatHelp(invoker.getUser()));
+                    context.help();
                     return false;
             }
         }
         //show the status quo
-        setup.postStatus();
+        context.reply(setup.getStatus());
         return true;
     }
 }

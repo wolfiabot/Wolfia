@@ -17,13 +17,12 @@
 
 package space.npstr.wolfia.commands.game;
 
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 27.05.17.
@@ -36,34 +35,32 @@ public class RolePmCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger()
-                + "\n#Send your role for the ongoing game in a private message.";
+        return invocation() + "\n#Send your role for the ongoing game in a private message.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
-        final long userId = commandInfo.event.getAuthor().getIdLong();
-        final long channelId = commandInfo.event.getChannel().getIdLong();
+    public boolean execute(@Nonnull final CommandContext context) {
+        final long userId = context.invoker.getIdLong();
+        final long channelId = context.channel.getIdLong();
 
         final Game game = Games.get(channelId);
         if (game == null) {
-            Wolfia.handleOutputMessage(channelId, "%s, there is no game going on in %s.",
-                    TextchatUtils.userAsMention(userId), commandInfo.event.getTextChannel().getAsMention());
+            context.replyWithMention("there is no game going on in here for which I could you a role pm.");
             return false;
         }
 
         if (!game.isUserPlaying(userId)) {
-            Wolfia.handleOutputMessage(channelId, "%s, you aren't playing in this game.", TextchatUtils.userAsMention(userId));
+            context.replyWithMention("you aren't playing in this game.");
             return false;
         }
 
         final String rolePm = game.getRolePm(userId);
-        Wolfia.handlePrivateOutputMessage(userId,
-                e -> Wolfia.handleOutputMessage(channelId, "%s, I cannot send you a private message, please unblock me and/or adjust your privacy settings.",
-                        TextchatUtils.userAsMention(userId)),
-                rolePm);
+
+        context.replyPrivate(rolePm, null,
+                __ -> context.replyWithMention("I cannot send you a private message, please unblock me and/or adjust your privacy settings."));
         return true;
     }
 }

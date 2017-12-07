@@ -17,11 +17,11 @@
 
 package space.npstr.wolfia.commands;
 
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 21.05.17.
@@ -40,20 +40,18 @@ public abstract class GameCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(@Nonnull final CommandContext context) {
 
-        final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
+        final Game game = Games.get(context.channel.getIdLong());
         if (game == null) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(),
-                    "Hey %s, there is no game currently going on in here.",
-                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
+            context.replyWithMention("there is no game currently going on in here."); //todo say "w.in" to join and "w.start" to start
             return false;
         }
 
         try {
-            return game.issueCommand(this, commandInfo);
+            return game.issueCommand(this, context);
         } catch (final IllegalGameStateException e) {
-            Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", e.getMessage());
+            context.reply(e.getMessage());
             return false;
         }
     }

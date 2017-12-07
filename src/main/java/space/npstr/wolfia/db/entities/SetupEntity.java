@@ -27,9 +27,8 @@ import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.CommandHandler;
+import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
-import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
@@ -179,10 +178,6 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
         //todo whenever time based ins are a thing, this is probably the place to check them
     }
 
-    public void postStatus() throws DatabaseException {
-        Wolfia.handleOutputEmbed(this.channelId, getStatus());
-    }
-
     public MessageEmbed getStatus() throws DatabaseException {
         //clean up first
         cleanUpInnedPlayers();
@@ -262,8 +257,8 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
             final Set<Long> inned = new HashSet<>(this.innedUsers);
             if (!game.isAcceptablePlayerCount(inned.size(), getMode())) {
                 Wolfia.handleOutputMessage(this.channelId,
-                        "There aren't enough (or too many) players signed up! Please use `%s%s` for more information",
-                        Config.PREFIX, CommandHandler.mainTrigger(StatusCommand.class));
+                        "There aren't enough (or too many) players signed up! Please use `%s` for more information",
+                        Config.PREFIX + CommRegistry.COMM_TRIGGER_STATUS);
                 return false;
             }
 

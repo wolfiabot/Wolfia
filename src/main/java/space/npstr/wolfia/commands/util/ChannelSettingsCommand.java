@@ -18,19 +18,16 @@
 package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,60 +42,64 @@ public class ChannelSettingsCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " [key value]"
+        return invocation() + " [key value]"
                 + "\n#Change or show settings for this channel. Examples:"
-                + "\n  " + Config.PREFIX + getMainTrigger() + " accessrole @Mafiaplayer"
-                + "\n  " + Config.PREFIX + getMainTrigger() + " tagcooldown 3"
-                + "\n  " + Config.PREFIX + getMainTrigger();
+                + "\n  " + invocation() + " accessrole @Mafiaplayer"
+                + "\n  " + invocation() + " tagcooldown 3"
+                + "\n  " + invocation();
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
-        final MessageReceivedEvent event = commandInfo.event;
-        final TextChannel channel = event.getTextChannel();
-        final Member invoker = event.getMember();
-        final Guild guild = event.getGuild();
+    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
+        if (context.channel.getType() != ChannelType.TEXT) {
+            context.reply("Channel settings are for guilds only.");
+            return false;
+        }
+        final TextChannel channel = (TextChannel) context.channel;
 
         //will not be null because it will be initialized with default values if there is none
         final ChannelSettings channelSettings = ChannelSettings.load(channel.getIdLong());
 
 
-        if (commandInfo.args.length == 0) {
-            Wolfia.handleOutputEmbed(channel, channelSettings.getStatus());
+        if (!context.hasArguments()) {
+            context.reply(channelSettings.getStatus());
             return true;
         }
 
         //is the user allowed to do that?
-        if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && !App.isOwner(invoker)) {
-            Wolfia.handleOutputMessage(channel, "%s, you need the following permission to edit the settings of this channel: %s",
-                    invoker.getAsMention(), Permission.MESSAGE_MANAGE.getName());
+        final Member member = context.getMember();
+        if (member == null || (!member.hasPermission(channel, Permission.MESSAGE_MANAGE) && !context.isOwner())) {
+            context.replyWithMention("you need the following permission to edit the settings of this channel: "
+                    + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
             return false;
         }
 
         //at least 2 arguments?
-        if (commandInfo.args.length < 2) {
-            commandInfo.reply(formatHelp(invoker.getUser()));
+        if (context.args.length < 2) {
+            context.help();
             return false;
         }
 
-        final String option = commandInfo.args[0];
+        final String option = context.args[0];
         switch (option.toLowerCase()) {
             case "accessrole":
                 final Role accessRole;
-                if (event.getMessage().getMentionedRoles().size() > 0) {
-                    accessRole = event.getMessage().getMentionedRoles().get(0);
+                if (!context.msg.getMentionedRoles().isEmpty()) {
+                    accessRole = context.msg.getMentionedRoles().get(0);
                 } else {
-                    final String roleName = String.join(" ", Arrays.copyOfRange(commandInfo.args, 1, commandInfo.args.length)).trim();
-                    final List<Role> rolesByName = guild.getRolesByName(roleName, true);
+                    final String roleName = String.join(" ", Arrays.copyOfRange(context.args, 1, context.args.length)).trim();
+                    final List<Role> rolesByName = channel.getGuild().getRolesByName(roleName, true);
                     if ("everyone".equals(roleName)) {
-                        accessRole = guild.getPublicRole();
+                        accessRole = channel.getGuild().getPublicRole();
                     } else if (rolesByName.isEmpty()) {
-                        Wolfia.handleOutputMessage(channel, "%s, there is no such role in this guild.", invoker.getAsMention());
+                        context.replyWithMention("there is no such role in this guild.");
                         return false;
                     } else if (rolesByName.size() > 1) {
-                        Wolfia.handleOutputMessage(channel, "%s, there is more than one role with that name in this guild.", invoker.getAsMention());
+                        context.replyWithMention("there is more than one role with that name in this guild, use a "
+                                + "mention to let me know which one you mean.");
                         return false;
                     } else {
                         accessRole = rolesByName.get(0);
@@ -109,23 +110,23 @@ public class ChannelSettingsCommand extends BaseCommand {
                 break;
             case "tagcooldown":
                 try {
-                    Long tagCooldown = Long.valueOf(commandInfo.args[1]);
+                    Long tagCooldown = Long.valueOf(context.args[1]);
                     if (tagCooldown < 0) {
                         tagCooldown = 0L;
                     }
                     channelSettings.setTagCooldown(tagCooldown)
                             .save();
                 } catch (final NumberFormatException e) {
-                    Wolfia.handleOutputMessage(channel, "%s, please use a number of minutes to set the tags cooldown.", invoker.getAsMention());
+                    context.replyWithMention("please use a number of minutes to set the tags cooldown.");
                     return false;
                 }
                 break;
             default:
-                //didn't understand the input, will show the status quo
-                Wolfia.handleOutputMessage(channel, "%s, I did not understand that input.", invoker.getAsMention());
+                context.help();
                 return false;
         }
-        Wolfia.handleOutputEmbed(channel, channelSettings.getStatus());
+
+        context.reply(channelSettings.getStatus());
         return true;
     }
 }

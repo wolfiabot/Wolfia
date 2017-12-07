@@ -19,11 +19,11 @@ package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.commands.CommandHandler;
-import space.npstr.wolfia.commands.CommandParser;
-import space.npstr.wolfia.commands.game.StatusCommand;
+import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -134,19 +134,18 @@ public class GameUtils {
     /**
      * @return the exact player found, or null and post a message
      */
-    public static Player identifyPlayer(final Collection<Player> players, final CommandParser.CommandContainer commandInfo) {
-        final List<Player> found = findPlayer(players, commandInfo);
+    public static Player identifyPlayer(final Collection<Player> players, @Nonnull final CommandContext context) {
+        final List<Player> found = findPlayer(players, context);
 
         final String explanation = String.format("Please use a mention or the player number which you can find with " +
-                "`%s` so that I can clearly know who you are targeting.", Config.PREFIX + CommandHandler.mainTrigger(StatusCommand.class));
+                "`%s` so that I can clearly know who you are targeting.", Config.PREFIX + CommRegistry.COMM_TRIGGER_STATUS);
         if (found.isEmpty()) {
-            commandInfo.reply("%s, could not identify a player in your command! " + explanation,
-                    commandInfo.invoker.getAsMention());
+            context.replyWithMention("could not identify a player in your command! " + explanation);
             return null;
         }
         if (found.size() > 1) {
-            commandInfo.reply("%s, found more than one player for `%s`." + explanation,
-                    commandInfo.invoker.getAsMention(), TextchatUtils.defuseMentions(commandInfo.argsRaw));
+            context.replyWithMention("found more than one player for `"
+                    + TextchatUtils.defuseMentions(context.rawArgs) + "`. " + explanation);
             return null;
         }
 
@@ -158,17 +157,17 @@ public class GameUtils {
      * Will return an empty list if no match was found, a list with a single play if there was one match, or a list with
      * more than one of player in case of more than one hit. It is up to the caller to handle the cases.
      */
-    public static List<Player> findPlayer(final Collection<Player> players, final CommandParser.CommandContainer commandInfo, final int... levenshteinThreshold) {
+    public static List<Player> findPlayer(final Collection<Player> players, @Nonnull final CommandContext context, final int... levenshteinThreshold) {
 
         //by mention
-        for (final User u : commandInfo.event.getMessage().getMentionedUsers()) {
+        for (final User u : context.msg.getMentionedUsers()) {
             final Optional<Player> maybe = players.stream().filter(player -> player.userId == u.getIdLong()).findAny();
             if (maybe.isPresent()) {
                 return Collections.singletonList(maybe.get());
             }
         }
 
-        final String input = commandInfo.argsRaw;
+        final String input = context.rawArgs;
         //by number
         try {
             final int number = Integer.parseInt(input);

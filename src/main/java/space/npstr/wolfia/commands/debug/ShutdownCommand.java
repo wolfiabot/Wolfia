@@ -19,9 +19,11 @@ package space.npstr.wolfia.commands.debug;
 
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.definitions.Games;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 21.06.17.
@@ -34,25 +36,25 @@ public class ShutdownCommand extends BaseCommand implements IOwnerRestricted {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
         return "Shut down the bot.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(@Nonnull final CommandContext context) {
 
         if (Wolfia.isShuttingDown()) {
-            commandInfo.replyWithName(String.format("shutdown has been queued already! **%s** games still running.",
+            context.replyWithName(String.format("shutdown has been queued already! **%s** games still running.",
                     Games.getRunningGamesCount()));
             return false;
         }
 
-        Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),
-                "%s, **%s** games are still running. Will shut down as soon as they are over.",
-                commandInfo.event.getAuthor().getAsMention(), Games.getRunningGamesCount());
+        final String message = String.format("**%s** games are still running. Will shut down as soon as they are over.",
+                Games.getRunningGamesCount());
+        context.replyWithMention(message, __ -> new Thread(() -> Wolfia.shutdown(Wolfia.EXIT_CODE_SHUTDOWN), "shutdown-thread").start());
 
-        new Thread(() -> Wolfia.shutdown(Wolfia.EXIT_CODE_SHUTDOWN), "shutdown-thread").start();
         return true;
     }
 }

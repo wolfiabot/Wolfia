@@ -18,12 +18,12 @@
 package space.npstr.wolfia.commands.stats;
 
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 10.06.17.
@@ -36,16 +36,17 @@ public class BotStatsCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger()
+        return invocation()
                 + "\n#Show game stats for all games ever played with Wolfia.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo)
+    public boolean execute(@Nonnull final CommandContext context)
             throws DatabaseException, IllegalGameStateException {
-        Wolfia.handleOutputEmbed(commandInfo.event.getTextChannel(), StatsProvider.getBotStats().build());
+        context.reply(StatsProvider.getBotStats().build());
         return true;
     }
 }

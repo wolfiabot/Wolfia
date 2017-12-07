@@ -17,13 +17,14 @@
 
 package space.npstr.wolfia.commands.stats;
 
+import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 10.06.17.
@@ -36,29 +37,38 @@ public class GuildStatsCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " [guild ID]"
+        return invocation() + " [guild ID]"
                 + "\n#Show game stats for this guild or another one. Examples:"
-                + "\n  " + Config.PREFIX + getMainTrigger()
-                + "\n  " + Config.PREFIX + getMainTrigger() + " 315944983754571796";
+                + "\n  " + invocation()
+                + "\n  " + invocation() + " 315944983754571796";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo)
+    public boolean execute(@Nonnull final CommandContext context)
             throws IllegalGameStateException, DatabaseException {
-        long guildId = commandInfo.event.getGuild().getIdLong();
 
-        //noinspection Duplicates
-        if (commandInfo.args.length > 0) {
+        if (context.hasArguments()) {
             try {
-                guildId = Long.parseLong(commandInfo.args[0]);
+                final long guildId = Long.parseLong(context.args[0]);
+                context.reply(StatsProvider.getGuildStats(guildId).build());
+                return true;
             } catch (final NumberFormatException e) {
-                commandInfo.reply(formatHelp(commandInfo.invoker));
+                context.help();
                 return false;
             }
         }
-        Wolfia.handleOutputEmbed(commandInfo.event.getTextChannel(), StatsProvider.getGuildStats(guildId).build());
+
+        final Guild guild = context.getGuild();
+        if (guild == null) {
+            context.help();
+            return false;
+        }
+        
+        final long guildId = context.getGuild().getIdLong();
+        context.reply(StatsProvider.getGuildStats(guildId).build());
         return true;
     }
 }

@@ -17,18 +17,18 @@
 
 package space.npstr.wolfia.commands.game;
 
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.Banlist;
 import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by npstr on 23.08.2016
@@ -41,47 +41,48 @@ public class InCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger()
-                + "\n#Add you to the signup list for this channel. You will play in the next starting game.";
+        return invocation() + "\n#Add you to the signup list for this channel. You will play in the next starting game.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
 
 //        long timeForSignup = Long.valueOf(args[0]);
 //        timeForSignup = timeForSignup < this.MAX_SIGNUP_TIME ? timeForSignup : this.MAX_SIGNUP_TIME;
 
+        if (context.channel.getType() != ChannelType.TEXT) {
+            context.reply("This command is for guilds only!");
+            return false;
+        }
+        final TextChannel channel = (TextChannel) context.channel;
+
         //is there a game going on?
-        if (Games.get(commandInfo.event.getTextChannel().getIdLong()) != null) {
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
-                    "%s, the game has already started! Please wait until it is over to join.",
-                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
+        if (Games.get(channel) != null) {
+            context.replyWithMention("the game has already started! Please wait until it is over to join.");
             return false;
         }
 
-        final SetupEntity setup = SetupEntity.load(commandInfo.event.getChannel().getIdLong());
+        final SetupEntity setup = SetupEntity.load(channel.getIdLong());
 
-
-        //force inn by bot owner
-        if (commandInfo.event.getMessage().getMentionedUsers().size() > 0 && App.isOwner(commandInfo.event.getAuthor())) {
-            for (final User u : commandInfo.event.getMessage().getMentionedUsers()) {
+        //force in by bot owner ( ͡° ͜ʖ ͡°)
+        if (!context.msg.getMentionedUsers().isEmpty() && context.isOwner()) {
+            for (final User u : context.msg.getMentionedUsers()) {
                 setup.inUser(u.getIdLong());
             }
-            setup.postStatus();
+            context.reply(setup.getStatus());
             return true;
         }
 
-        if (Banlist.load(commandInfo.event.getAuthor().getIdLong()).getScope() == Scope.GLOBAL) {
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
-                    "%s, lol ur banned.",
-                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()));
+        if (Banlist.load(context.invoker.getIdLong()).getScope() == Scope.GLOBAL) {
+            context.replyWithMention("lol ur banned.");
             return false;
         }
 
-        if (setup.inUser(commandInfo.event.getAuthor().getIdLong())) {
-            setup.postStatus();
+        if (setup.inUser(context.invoker.getIdLong())) {
+            context.reply(setup.getStatus());
             return true;
         } else {
             return false;

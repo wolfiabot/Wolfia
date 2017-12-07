@@ -18,24 +18,21 @@
 package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -54,29 +51,33 @@ public class TagCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " add/remove/[your message]"
+        return invocation() + " add/remove/[your message]"
                 + "\n#Add or remove yourself from the taglist, or tag members who signed up for the taglist with an optional message. Examples:"
-                + "\n  " + Config.PREFIX + getMainTrigger() + " add"
-                + "\n  " + Config.PREFIX + getMainTrigger() + " remove"
-                + "\n  " + Config.PREFIX + getMainTrigger() + " WANT SUM GAME?";
+                + "\n  " + invocation() + " add"
+                + "\n  " + invocation() + " remove"
+                + "\n  " + invocation() + " WANT SUM GAME?";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo)
+    public boolean execute(@Nonnull final CommandContext context)
             throws IllegalGameStateException, DatabaseException {
 
-        final MessageReceivedEvent event = commandInfo.event;
-        final Guild guild = event.getGuild();
-        final TextChannel channel = event.getTextChannel();
-        final Member invoker = event.getMember();
+        if (context.channel.getType() != ChannelType.TEXT) {
+            context.reply("This is a private channel, there is noone in here to tag but us two ( ͡° ͜ʖ ͡°)");
+            return false;
+        }
+        final TextChannel channel = (TextChannel) context.channel;
+
+
         final ChannelSettings settings = ChannelSettings.load(channel.getIdLong());
         final Set<Long> tags = settings.getTags();
 
         String option = "";
-        if (commandInfo.args.length > 0) {
-            option = commandInfo.args[0];
+        if (context.hasArguments()) {
+            option = context.args[0];
         }
 
         TagAction action = TagAction.TAG;
@@ -88,31 +89,30 @@ public class TagCommand extends BaseCommand {
 
         if (action == TagAction.TAG) {
 
-            if (Games.get(channel.getIdLong()) != null) {
-                Wolfia.handleOutputMessage(channel, "%s, I will not post the tag list during an ongoing game.",
-                        invoker.getAsMention());
+            if (Games.get(context.channel.getIdLong()) != null) {
+                context.replyWithMention("I will not post the tag list during an ongoing game.");
                 return false;
             }
 
             if (System.currentTimeMillis() - settings.getTagListLastUsed()
                     < TimeUnit.MINUTES.toMillis(settings.getTagCooldown())) {
-                Wolfia.handleOutputMessage(channel, "%s, you need to wait at least %s minutes between calling " +
-                        "the tag list.", invoker.getAsMention(), settings.getTagCooldown());
+                final String answer = String.format("you need to wait at least %s minutes between calling the tag list.",
+                        settings.getTagCooldown());
+                context.replyWithMention(answer);
                 return false;
             }
 
             //the tag can only be used by a user who is on the taglist himself
-            if (!tags.contains(invoker.getUser().getIdLong()) &&
-                    invoker.getRoles().stream().mapToLong(Role::getIdLong).noneMatch(tags::contains)) {
-                Wolfia.handleOutputMessage(channel, "%s, you can't use the taglist when you aren't part of it " +
-                        "yourself.", invoker.getAsMention());
+            final Member m = context.getMember();
+            if (!tags.contains(context.invoker.getIdLong()) && m != null &&
+                    m.getRoles().stream().mapToLong(Role::getIdLong).noneMatch(tags::contains)) {
+                context.replyWithMention("you can't use the taglist when you aren't part of it yourself.");//todo say w.tag + to add yourself to it
                 return false;
             }
 
             final List<StringBuilder> outs = new ArrayList<>();
-            final String message = invoker.getAsMention() + " called the tag list.\n"
-                    + TextchatUtils.defuseMentions(commandInfo.beheaded.replaceFirst(getMainTrigger(), "").trim())
-                    + "\n";
+            final String message = context.invoker.getAsMention() + " called the tag list.\n"
+                    + TextchatUtils.defuseMentions(context.rawArgs).trim() + "\n";
             StringBuilder out = new StringBuilder(message);
             outs.add(out);
 
@@ -120,12 +120,12 @@ public class TagCommand extends BaseCommand {
             for (final long id : tags) {
                 //is it a mentionable role?
                 String toAdd = "";
-                final Role role = guild.getRoleById(id);
+                final Role role = channel.getGuild().getRoleById(id);
                 if (role != null && role.isMentionable()) {
                     toAdd = role.getAsMention() + " ";
                 }
                 //is it a member of the guild?
-                final Member member = guild.getMemberById(id);
+                final Member member = channel.getGuild().getMemberById(id);
                 if (member != null) {
                     toAdd = member.getAsMention() + " ";
                 }
@@ -141,7 +141,7 @@ public class TagCommand extends BaseCommand {
             }
             settings.removeTags(cleanUp);
             for (final StringBuilder sb : outs) {
-                Wolfia.handleOutputMessage(channel, "%s", sb.toString());
+                context.reply(sb.toString());
             }
             settings.usedTagList()
                     .save();
@@ -149,43 +149,40 @@ public class TagCommand extends BaseCommand {
         }
 
 
-        final List<User> mentionedUsers = event.getMessage().getMentionedUsers();
-        final List<Role> mentionedRoles = event.getMessage().getMentionedRoles();
+        final List<User> mentionedUsers = context.msg.getMentionedUsers();
+        final List<Role> mentionedRoles = context.msg.getMentionedRoles();
 
         //user signing up / removing themselves
         if (mentionedUsers.isEmpty() && mentionedRoles.isEmpty()) {
             if (action == TagAction.ADD) {
-                if (tags.contains(invoker.getUser().getIdLong())) {
-                    Wolfia.handleOutputMessage(channel, "%s, you are already on the tag list of this channel.",
-                            invoker.getAsMention());
+                if (tags.contains(context.invoker.getIdLong())) {
+                    context.replyWithMention("you are already on the tag list of this channel.");
                     return false;
                 } else {
-                    settings.addTag(invoker.getUser().getIdLong())
+                    settings.addTag(context.invoker.getIdLong())
                             .save();
-                    Wolfia.handleOutputMessage(channel, "%s, you have been added to the tag list of this " +
-                            "channel.", invoker.getAsMention());
+                    context.replyWithMention("you have been added to the tag list of this channel.");
                     return true;
                 }
             } else { //removing
-                if (!tags.contains(invoker.getUser().getIdLong())) {
-                    Wolfia.handleOutputMessage(channel, "%s, you are already removed from the tag list of this " +
-                            "channel.", invoker.getAsMention());
+                if (!tags.contains(context.invoker.getIdLong())) {
+                    context.replyWithMention("you are already removed from the tag list of this channel.");
                     return false;
                 } else {
-                    settings.removeTag(invoker.getUser().getIdLong())
+                    settings.removeTag(context.invoker.getIdLong())
                             .save();
-                    Wolfia.handleOutputMessage(channel, "%s, you have been removed from the tag list of this " +
-                            "channel", invoker.getAsMention());
+                    context.replyWithMention("you have been removed from the tag list of this channel");
                     return true;
                 }
             }
 
         } else { //user signing up other users/roles
             //is the user allowed to do that?
-            if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && !App.isOwner(invoker)) {
-                Wolfia.handleOutputMessage(channel, "%s, you need the following permission in this channel to " +
-                                "add or remove other users or roles from the taglist of this channel: %s",
-                        invoker.getAsMention(), Permission.MESSAGE_MANAGE.getName());
+            final Member m = context.getMember();
+            if (m == null || (!m.hasPermission(channel, Permission.MESSAGE_MANAGE) && !context.isOwner())) {
+                context.replyWithMention("you need the following permission in this channel to "
+                        + "add or remove other users or roles from the taglist of this channel: "
+                        + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
                 return false;
             }
             final List<String> mentions = new ArrayList<>();
@@ -196,15 +193,13 @@ public class TagCommand extends BaseCommand {
                 mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::addTag);
                 mentionedRoles.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::addTag);
                 settings.save();
-                Wolfia.handleOutputMessage(channel, "%s, added **%s** to the tag list.", invoker.getAsMention(),
-                        joined);
+                context.replyWithMention(String.format("added **%s** to the tag list.", joined));
                 return true;
             } else { //removing
                 mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::removeTag);
                 mentionedRoles.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::removeTag);
                 settings.save();
-                Wolfia.handleOutputMessage(channel, "%s, removed **%s** from the tag list.",
-                        invoker.getAsMention(), joined);
+                context.replyWithMention(String.format("removed **%s** from the tag list.", joined));
                 return true;
             }
         }

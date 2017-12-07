@@ -14,7 +14,7 @@ ext {
 }
 group = 'space.npstr.Wolfia'
 //noinspection GroovyAssignabilityCheck
-version = '0.10.1-' + project.ext.buildNumber
+version = '0.11.0-' + project.ext.buildNumber
 
 
 mainClassName = "space.npstr.wolfia.Wolfia"
@@ -39,6 +39,8 @@ dependencies {
     ext.okhttpVersion             = '3.9.1'
     ext.sqlsauceVersion           = '0a857c0fb7f3266b136a61714b58bab8d60d6a0b'
     ext.jaxbApiVersion            = '2.3.0'
+    ext.caffeineVersion            = '2.6.0'
+
     ext.sparkVersion              = '2.7.1'
     ext.sparkThymeVersion         = '2.7.1'
     ext.thymeleafVersion          = '3.0.9.RELEASE'
@@ -52,6 +54,8 @@ dependencies {
     compile group: 'space.npstr.SqlSauce', name: 'sqlsauce-core',      version: ext.sqlsauceVersion        //db stack
     compile group: 'space.npstr.SqlSauce', name: 'discord-entities',   version: ext.sqlsauceVersion        //moar db entities
     compile group: 'javax.xml.bind', name: 'jaxb-api',                 version: ext.jaxbApiVersion         //required by hibernate for java 9
+    compile group: 'com.github.ben-manes.caffeine', name:'caffeine',   version:ext.caffeineVersion         // caches
+
 
 
     //charts stuff

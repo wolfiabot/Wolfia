@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.db.entities.stats.CommandStats;
 import space.npstr.wolfia.game.Game;
@@ -38,8 +38,6 @@ public class PrivateChannelListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
-        final long received = System.currentTimeMillis();
-
         //ignore any channels what arent the one we are looking for
         if (event.getPrivateChannel() == null || event.getPrivateChannel().getUser().getIdLong() != this.userId) {
             return;
@@ -61,21 +59,30 @@ public class PrivateChannelListener extends ListenerAdapter {
             return;
         }
 
-        final CommandParser.CommandContainer commandInfo = CommandParser.parse(raw, event, received);
+        final CommandContext context;
+        try {
+            context = CommandContext.parse(event);
+        } catch (final DatabaseException e) {
+            log.error("Db blew up parsing a private command", e);
+            return;
+        }
+        if (context == null) {
+            return;
+        }
 
         //todo find a way to unify private channel commands in the CommandHandler
-        if (this.allowedCommand.isCommandTrigger(commandInfo.command)) {
+        if (this.allowedCommand.name.equals(context.command.name)) {
             log.info("user {}, channel {}, command {}", event.getAuthor().getIdLong(), event.getChannel().getIdLong(), event.getMessage().getRawContent());
             Wolfia.executor.submit(() -> {
                 boolean success = false;
                 try {
-                    success = this.game.issueCommand(this.allowedCommand, commandInfo);
+                    success = this.game.issueCommand(this.allowedCommand, context);
                 } catch (final IllegalGameStateException e) {
-                    Wolfia.handleOutputMessage(commandInfo.event.getChannel(), "%s", e.getMessage());
+                    context.reply(e.getMessage());
                 }
                 final long executed = System.currentTimeMillis();
                 try {
-                    Wolfia.getDbWrapper().persist(new CommandStats(commandInfo, this.allowedCommand.getClass(), executed, success));
+                    Wolfia.getDbWrapper().persist(new CommandStats(context, executed, success));
                 } catch (final DatabaseException e) {
                     log.error("Db blew up saving command stats", e);
                 }

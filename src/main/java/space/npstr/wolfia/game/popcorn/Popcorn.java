@@ -26,10 +26,9 @@ import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.CommandHandler;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
-import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
 import space.npstr.wolfia.db.entities.stats.GameStats;
@@ -49,10 +48,12 @@ import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.Operation;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.DiscordLogger;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -187,8 +188,8 @@ public class Popcorn extends Game {
             Wolfia.handlePrivateOutputMessage(player.userId,
                     e -> Wolfia.handleOutputMessage(channel,
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
-                                    "and/or unblock me, then issue `%s%s` to receive your role PM.",
-                            player.asMention(), Config.PREFIX, CommandHandler.mainTrigger(RolePmCommand.class)),
+                                    "and/or unblock me, then issue `%s` to receive your role PM.",
+                            player.asMention(), Config.PREFIX + CommRegistry.COMM_TRIGGER_ROLEPM),
                     "%s", rolePm.toString()
             );
             this.rolePMs.put(player.userId, rolePm.toString());
@@ -229,16 +230,15 @@ public class Popcorn extends Game {
     }
 
     @Override
-    public boolean issueCommand(final GameCommand command, final CommandParser.CommandContainer commandInfo)
+    public boolean issueCommand(final GameCommand command, @Nonnull final CommandContext context)
             throws IllegalGameStateException {
         if (command instanceof ShootCommand) {
-            final long shooter = commandInfo.event.getAuthor().getIdLong();
-            final Player target = GameUtils.identifyPlayer(this.players, commandInfo);
+            final long shooter = context.invoker.getIdLong();
+            final Player target = GameUtils.identifyPlayer(this.players, context);
             if (target == null) return false;
             return shoot(shooter, target.userId);
         } else {
-            Wolfia.handleOutputMessage(this.channelId, "%s, the '%s' command is not part of this game.",
-                    TextchatUtils.userAsMention(commandInfo.event.getAuthor().getIdLong()), commandInfo.command);
+            context.replyWithMention("the '" + context.command.name + "' command is not part of this game.");
             return false;
         }
     }
@@ -270,14 +270,16 @@ public class Popcorn extends Game {
         this.dayStarted = System.currentTimeMillis();
         this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.DAYSTART, -1));
         final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
-        Wolfia.handleOutputEmbed(channel, getStatus().build());
-        Wolfia.handleOutputMessage(channel, "Day %s started! %s, you have %s minutes to shoot someone.",
-                this.day, TextchatUtils.userAsMention(this.gunBearer), this.dayLengthMillis / 60000);
+        if (channel != null) { //todo handle properly
+            RestActions.sendMessage(channel, getStatus().build());
+            RestActions.sendMessage(channel, String.format("Day %s started! %s, you have %s minutes to shoot someone.",
+                    this.day, TextchatUtils.userAsMention(this.gunBearer), this.dayLengthMillis / 60000));
 
-        if (this.mode != GameMode.WILD) {
-            for (final Player player : getLivingPlayers()) {
-                RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
-                        Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail());
+            if (this.mode != GameMode.WILD) {
+                for (final Player player : getLivingPlayers()) {
+                    RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
+                            Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail());
+                }
             }
         }
 
@@ -480,27 +482,33 @@ public class Popcorn extends Game {
             final TextChannel wolfchatChannel = Wolfia.getTextChannelById(wolfchatChannelId);
             final Map<String, Player> options = GameUtils.mapToStrings(getLivingVillage(), Emojis.LETTERS);
 
-            Wolfia.handleOutputMessage(wolfchatChannel, ignored -> Wolfia.handleOutputEmbed(wolfchatChannel,
-                    prepareGunDistributionEmbed(options, new HashMap<>(this.votes)).build(), m -> {
-                        options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, Wolfia.defaultOnFail()));
-                        Wolfia.addEventListener(new ReactionListener(m,
-                                //filter: only living wolves may vote
-                                Popcorn.this::isLivingWolf,
-                                //on reaction
-                                reactionEvent -> {
-                                    final Player p = options.get(reactionEvent.getReaction().getReactionEmote().getName());
-                                    if (p == null) return;
-                                    voted(reactionEvent.getUser().getIdLong(), p.userId);
-                                    m.editMessage(prepareGunDistributionEmbed(options,
-                                            new HashMap<>(this.votes)).build()).queue(null, Wolfia.defaultOnFail());
-                                },
-                                TIME_TO_DISTRIBUTE_GUN_MILLIS,
-                                aVoid -> endDistribution(new HashMap<>(this.votes),
-                                        GunDistributionEndReason.TIMER)
-                        ));
-                    }),
-                    Wolfia.defaultOnFail(),
-                    "Gun distribution!\n%s", String.join(", ", getLivingWolvesMentions()));
+            if (wolfchatChannel == null) {
+                return;//todo handle properly
+            }
+
+            RestActions.sendMessage(wolfchatChannel, "Gun distribution!\n" + String.join(", ", getLivingWolvesMentions()),
+                    __ -> RestActions.sendMessage(wolfchatChannel,
+                            prepareGunDistributionEmbed(options, new HashMap<>(this.votes)).build(),
+                            m -> {
+                                options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, Wolfia.defaultOnFail()));
+                                Wolfia.addEventListener(new ReactionListener(m,
+                                        //filter: only living wolves may vote
+                                        Popcorn.this::isLivingWolf,
+                                        //on reaction
+                                        reactionEvent -> {
+                                            final Player p = options.get(reactionEvent.getReaction().getReactionEmote().getName());
+                                            if (p == null) return;
+                                            voted(reactionEvent.getUser().getIdLong(), p.userId);
+                                            m.editMessage(prepareGunDistributionEmbed(options,
+                                                    new HashMap<>(this.votes)).build()).queue(null, Wolfia.defaultOnFail());
+                                        },
+                                        TIME_TO_DISTRIBUTE_GUN_MILLIS,
+                                        aVoid -> endDistribution(new HashMap<>(this.votes),
+                                                GunDistributionEndReason.TIMER)
+                                ));
+                            },
+                            Wolfia.defaultOnFail()),
+                    Wolfia.defaultOnFail());
         }
 
         //synchronized because it modifies the votes map

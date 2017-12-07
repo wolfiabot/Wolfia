@@ -17,23 +17,20 @@
 
 package space.npstr.wolfia.commands.util;
 
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandHandler;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
-import space.npstr.wolfia.commands.game.InCommand;
-import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import java.util.function.Consumer;
-
-import static space.npstr.wolfia.commands.CommandHandler.mainTrigger;
 
 /**
  * Created by npstr on 09.09.2016
@@ -44,59 +41,62 @@ public class HelpCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " [command]"
+        return invocation() + " [command]"
                 + "\n#Send you Wolfia's general help and links to documentation, or see the help for a specific command. Examples:"
-                + "\n  " + Config.PREFIX + getMainTrigger()
-                + "\n  " + Config.PREFIX + getMainTrigger() + " shoot";
+                + "\n  " + invocation()
+                + "\n  " + invocation() + " shoot";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
-        if (Config.C.isDebug && !App.isOwner(commandInfo.invoker)) {
+    public boolean execute(@Nonnull final CommandContext context) {
+        if (Config.C.isDebug && !context.isOwner()) {
             return true;//dont answer the help command in debug mode unless it's the owner
         }
 
-        final TextChannel tc = commandInfo.event.getTextChannel();
-        if (commandInfo.args.length > 0 && tc != null && tc.canTalk()) {
-            final BaseCommand command = CommandHandler.getCommand(commandInfo.args[0]);
+        final MessageChannel channel = context.channel;
+        if (context.hasArguments() && channel.getType() == ChannelType.TEXT && ((TextChannel) channel).canTalk()) {
+            final BaseCommand command = CommRegistry.getRegistry().getCommand(context.args[0]);
             final String answer;
             if (command == null || command instanceof IOwnerRestricted) {
                 answer = String.format("There is no command registered for `%s`. Use `%s` to see all available commands!",
-                        TextchatUtils.defuseMentions(commandInfo.args[0]), Config.PREFIX + mainTrigger(CommandsCommand.class));
+                        TextchatUtils.defuseMentions(context.args[0]), Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS);
             } else {
                 answer = TextchatUtils.asMarkdown(command.getHelp());
             }
-            commandInfo.reply(answer);
+            context.reply(answer);
             return true;
         }
 
-        final MessageReceivedEvent e = commandInfo.event;
-        final TextChannel channel = e.getTextChannel();
         final String help = String.format("Hi %s,%nyou can find %s's **documentation** and a **full list of commands** under%n<%s>"
                         + "%n%n**To invite the bot to your server please follow this link**:%n<%s>"
                         + "%n%nDrop by the Wolfia Lounge to play games, get support, leave feedback, get notified of updates and vote on the roadmap:%n<%s>"
                         + "%n%nCode open sourced on Github:%n<%s>"
                         + "%n%nCreated and hosted by Napster:%n<%s>",
-                e.getAuthor().getName(), e.getJDA().getSelfUser().getName(), App.DOCS_LINK, App.INVITE_LINK,
+                context.invoker.getName(), context.invoker.getJDA().getSelfUser().getName(), App.DOCS_LINK, App.INVITE_LINK,
                 App.WOLFIA_LOUNGE_INVITE, App.GITHUB_LINK, "https://npstr.space");
 
         final Consumer<Message> onSuccess = m -> {
-            if (channel.canTalk())
-                Wolfia.handleOutputMessage(channel,
-                        "%s, sent you a PM with the help!\nUse `%s` and `%s` to start games.\n`%s` shows a list of commands.\n`%s [command]` shows help for a specific command.",
-                        e.getAuthor().getAsMention(), Config.PREFIX + mainTrigger(InCommand.class),
-                        Config.PREFIX + mainTrigger(StartCommand.class), Config.PREFIX + mainTrigger(CommandsCommand.class),
-                        Config.PREFIX + mainTrigger(HelpCommand.class)
-                );
+            if (channel.getType() == ChannelType.TEXT && ((TextChannel) channel).canTalk()) {
+                final String answer = String.format("sent you a PM with the help!"
+                                + "\nUse `%s` and `%s` to start games."
+                                + "\nSay `%s` to show all commands."
+                                + "\nSay `%s [command]` to show help for a specific command.",
+                        Config.PREFIX + CommRegistry.COMM_TRIGGER_IN, Config.PREFIX + CommRegistry.COMM_TRIGGER_START,
+                        Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS,
+                        Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS);
+                context.replyWithMention(answer);
+            }
         };
         final Consumer<Throwable> onFail = t -> {
-            if (channel.canTalk())
-                Wolfia.handleOutputMessage(channel, "%s, cannot send you a private message with the help. Please unblock me or change your privacy settings.", e.getAuthor().getAsMention());
+            if (channel.getType() == ChannelType.TEXT && ((TextChannel) channel).canTalk())
+                context.replyWithMention("can't send you a private message with the help."
+                        + " Please unblock me or change your privacy settings.");
         };
 
-        Wolfia.handlePrivateOutputMessage(e.getAuthor().getIdLong(), onSuccess, onFail, "%s", help);
+        context.replyPrivate(help, onSuccess, onFail);
         return true;
     }
 }
