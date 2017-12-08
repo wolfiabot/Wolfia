@@ -69,7 +69,9 @@ public class CommandContext extends MessageContext {
             return null;
         }
 
-        final String[] args = input.split("\\s+"); //split by any length of white space characters (including new lines)
+        //split by any length of white space characters
+        // the \p{javaSpaceChar} instead of the better known \s is used because it actually includes unicode whitespaces
+        final String[] args = input.split("\\p{javaSpaceChar}+");
         if (args.length < 1) {
             return null; //while this shouldn't technically be possible due to the preprocessing of the input, better be safe than throw exceptions
         }
