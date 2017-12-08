@@ -17,22 +17,21 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.Banlist;
+import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by napster on 07.07.17.
@@ -40,6 +39,7 @@ import java.util.stream.Collectors;
  * Ban users from playing the game.
  */
 public class BanCommand extends BaseCommand implements IOwnerRestricted {
+    private static final Logger log = LoggerFactory.getLogger(BanCommand.class);
 
     public BanCommand(final String trigger, final String... aliases) {
         super(trigger, aliases);
@@ -65,6 +65,29 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
             option = context.args[0];
         }
 
+        if (option.equalsIgnoreCase("list")) {
+            final List<Banlist> bans = Wolfia.getDbWrapper().loadAll(Banlist.class);
+            String out = bans.stream()
+                    .filter(ban -> ban.getScope() == Scope.GLOBAL)
+                    .map(ban -> {
+                        String result = ban.getId() + " " + TextchatUtils.userAsMention(ban.getId()) + " ";
+                        try {
+                            CachedUser user = CachedUser.load(ban.getId());
+                            result += user.getEffectiveName(context.getGuild(), Wolfia::getUserById);
+                        } catch (DatabaseException e) {
+                            log.error("Db exploded looking up a use of id {}", ban.getId(), e);
+                        }
+                        return result;
+                    }).reduce("", (a, b) -> a + "\n" + b);
+            if (out.isEmpty()) {
+                out = "No global bans in effect!";
+            } else {
+                out = "List of global bans:\n" + out;
+            }
+            context.reply(out);
+            return true;
+        }
+
         BanAction action = null;
         if (TextchatUtils.isTrue(option)) {
             action = BanAction.ADD;
@@ -79,26 +102,39 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
             return false;
         }
 
+        if (context.args.length < 2) {
+            context.reply("Please mention at least one user or use an id.");
+            return false;
+        }
 
-        final List<User> mentionedUsers = context.msg.getMentionedUsers();
-
-        final List<String> mentions = new ArrayList<>();
-        mentions.addAll(mentionedUsers.stream().map(User::getAsMention).collect(Collectors.toList()));
-        final String joined = String.join("**, **", mentions);
-        if (action == BanAction.ADD) {
-            for (final long userId : mentionedUsers.stream().map(ISnowflake::getIdLong).collect(Collectors.toList())) {
-                //noinspection ResultOfMethodCallIgnored
-                Banlist.load(userId)
-                        .setScope(Scope.GLOBAL)
-                        .save();
+        long userId;
+        try {
+            userId = Long.parseUnsignedLong(context.args[1]);
+        } catch (final NumberFormatException ignored) {
+            final List<User> mentionedUsers = context.msg.getMentionedUsers();
+            if (mentionedUsers.isEmpty()) {
+                context.reply("Please mention at least one user or use an id.");
+                return false;
+            } else {
+                userId = mentionedUsers.get(0).getIdLong();
             }
-            context.replyWithMention(String.format("added **%s** to the global ban list.", joined));
+        }
+
+        if (action == BanAction.ADD) {
+            //noinspection ResultOfMethodCallIgnored
+            Banlist.load(userId)
+                    .setScope(Scope.GLOBAL)
+                    .save();
+            context.replyWithMention(String.format("added **%s** (%s) to the global ban list.",
+                    CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
             return true;
         } else { //removing
-            for (final long userId : mentionedUsers.stream().map(ISnowflake::getIdLong).collect(Collectors.toList())) {
-                Wolfia.getDbWrapper().deleteEntity(EntityKey.of(userId, Banlist.class));
-            }
-            context.replyWithMention(String.format("removed **%s** from the global ban list.", joined));
+            //noinspection ResultOfMethodCallIgnored
+            Banlist.load(userId)
+                    .setScope(Scope.NONE)
+                    .save();
+            context.replyWithMention(String.format("removed **%s** (%s) from the global ban list.",
+                    CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
             return true;
         }
     }
