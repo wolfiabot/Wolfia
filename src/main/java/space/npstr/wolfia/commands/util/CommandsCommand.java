@@ -59,6 +59,7 @@ public class CommandsCommand extends BaseCommand {
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_INFO + "\n"
+                + Config.PREFIX + CommRegistry.COMM_TRIGGER_INVITE + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_REPLAY + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_TAG + "\n"
                 ;

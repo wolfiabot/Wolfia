@@ -48,6 +48,7 @@ import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
 import space.npstr.wolfia.commands.util.CommandsCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InfoCommand;
+import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
 
@@ -109,6 +110,7 @@ public class CommRegistry {
     public static final String COMM_TRIGGER_COMMANDS = "commands";
     public static final String COMM_TRIGGER_HELP = "help";
     public static final String COMM_TRIGGER_INFO = "info";
+    public static final String COMM_TRIGGER_INVITE = "invite";
     public static final String COMM_TRIGGER_REPLAY = "replay";
     public static final String COMM_TRIGGER_TAG = "tag";
 
@@ -142,6 +144,7 @@ public class CommRegistry {
         registerCommand(new CommandsCommand                  (COMM_TRIGGER_COMMANDS, "comms"));
         registerCommand(new HelpCommand                      (COMM_TRIGGER_HELP));
         registerCommand(new InfoCommand                      (COMM_TRIGGER_INFO));
+        registerCommand(new InviteCommand                    (COMM_TRIGGER_INVITE, "inv"));
         registerCommand(new ReplayCommand                    (COMM_TRIGGER_REPLAY));
         registerCommand(new TagCommand                       (COMM_TRIGGER_TAG));
 
