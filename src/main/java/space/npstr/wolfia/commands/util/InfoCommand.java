@@ -24,6 +24,7 @@ import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
@@ -70,7 +71,7 @@ public class InfoCommand extends BaseCommand {
         }
         botInfo += "```";
 
-        final EmbedBuilder eb = new EmbedBuilder();
+        final EmbedBuilder eb = Context.getDefaultEmbedBuilder();
         final User self = Wolfia.getSelfUser();
         eb.setThumbnail(self.getEffectiveAvatarUrl());
         eb.setAuthor(self.getName(), App.SITE_LINK, self.getEffectiveAvatarUrl());

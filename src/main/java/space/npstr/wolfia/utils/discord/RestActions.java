@@ -61,7 +61,7 @@ public class RestActions {
 
     //todo reported to JDA (jagrosh), check back for a fix
     @Nonnull
-    public static MessageBuilder getClearThreadLocalMessageBuilder() {
+    public static MessageBuilder getMessageBuilder() {
         return new MessageBuilder();
 //        return threadLocalMessageBuilder.get().clear();
     }
@@ -69,7 +69,7 @@ public class RestActions {
     //NOTE: these seem borked, they appear to be overwritten when used with a delay, due to a collection of fields
     // shared with the builder and the embed objects it builds
     @Nonnull
-    public static EmbedBuilder getClearThreadLocalEmbedBuilder() {
+    public static EmbedBuilder getEmbedBuilder() {
         return new EmbedBuilder();
 //        return threadLocalEmbedBuilder.get()
 //                .clearFields()
@@ -86,12 +86,12 @@ public class RestActions {
     //May not be an empty string, as MessageBuilder#build() will throw an exception
     @Nonnull
     public static Message from(final String string) {
-        return getClearThreadLocalMessageBuilder().append(string).build();
+        return getMessageBuilder().append(string).build();
     }
 
     @Nonnull
     public static Message from(final MessageEmbed embed) {
-        return getClearThreadLocalMessageBuilder().setEmbed(embed).build();
+        return getMessageBuilder().setEmbed(embed).build();
     }
 
 

@@ -65,7 +65,7 @@ public class VotingBuilder {
 
     public NiceEmbedBuilder getEmbed(final Map<Player, Player> votes) {
 
-        NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
         neb = addHeader(neb, this.endTime - System.currentTimeMillis());
 
         final List<VoteEntry> processedVotes = processVotes(votes);
@@ -76,7 +76,7 @@ public class VotingBuilder {
     }
 
     public NiceEmbedBuilder getFinalEmbed(final Map<Player, Player> votes, final Phase phase, final int cycle) {
-        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
 
         final List<VoteEntry> processedVotes = processVotes(votes);
         //descending order by votes received

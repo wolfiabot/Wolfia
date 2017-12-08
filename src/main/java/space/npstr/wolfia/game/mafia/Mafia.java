@@ -121,7 +121,7 @@ public class Mafia extends Game {
 
     @Override
     public EmbedBuilder getStatus() {
-        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
         neb.addField("Game", Games.MAFIA.textRep + " " + this.mode.textRep, true);
         if (!this.running) {
             neb.addField("", "**Game is not running**", false);

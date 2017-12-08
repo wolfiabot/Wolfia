@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DbUtils;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.game.definitions.Alignments;
@@ -149,7 +150,7 @@ public class StatsProvider {
         final Map<Integer, List<Long>> collectedValues = collectValues(gamesxWinningTeamByPlayerSize);
 
         //add them to the embed
-        EmbedBuilder eb = new EmbedBuilder();
+        EmbedBuilder eb = Context.getDefaultEmbedBuilder();
         eb.setTitle("Wolfia stats:");
         eb.setThumbnail(Wolfia.getSelfUser().getAvatarUrl());
 
@@ -207,7 +208,7 @@ public class StatsProvider {
 
 
         //add them to the embed
-        EmbedBuilder eb = new EmbedBuilder();
+        EmbedBuilder eb = Context.getDefaultEmbedBuilder();
         final Guild guild = Wolfia.getGuildById(guildId);
         final EGuild cachedGuild = EGuild.load(guildId).set(guild).save();
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
@@ -274,7 +275,7 @@ public class StatsProvider {
                 .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.WOLF).count();
 
         //add them to the embed
-        final EmbedBuilder eb = new EmbedBuilder();
+        final EmbedBuilder eb = Context.getDefaultEmbedBuilder();
         final CachedUser cu = CachedUser.load(userId);
         eb.setTitle(cu.getName() + "'s Wolfia stats");
         eb.setThumbnail(cu.getEffectiveAvatarUrl());

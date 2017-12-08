@@ -228,7 +228,7 @@ public class TextchatUtils {
     @Nonnull
     private static Message prefaceWithString(@Nonnull final String preface, @Nonnull final String msg) {
         final String message = ensureSpace(msg);
-        return RestActions.getClearThreadLocalMessageBuilder()
+        return RestActions.getMessageBuilder()
                 .append(preface)
                 .append(",")
                 .append(message)

@@ -680,7 +680,7 @@ public abstract class Game {
 
 
     protected EmbedBuilder listLivingPlayersWithNumbers(final Player... except) {
-        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
         final TextChannel gameChannel = fetchGameChannel();
         final Guild g = gameChannel.getGuild();
         neb.setTitle("Living players");

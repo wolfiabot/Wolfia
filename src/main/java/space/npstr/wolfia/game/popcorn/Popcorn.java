@@ -95,7 +95,7 @@ public class Popcorn extends Game {
 
     @Override
     public EmbedBuilder getStatus() {
-        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
         neb.addField("Game", Games.POPCORN.textRep + " " + this.mode.textRep, true);
         if (!this.running) {
             neb.addField("", "**Game is not running**", false);
@@ -553,7 +553,7 @@ public class Popcorn extends Game {
 
         private EmbedBuilder prepareGunDistributionEmbed(final Map<String, Player> livingVillage,
                                                          final Map<Long, Long> votesCopy) {
-            final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+            final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
             final long timeLeft = TIME_TO_DISTRIBUTE_GUN_MILLIS - (System.currentTimeMillis() - this.startedMillis);
             neb.addField("", "You have " + TextchatUtils.formatMillis(timeLeft)
                     + " to distribute the gun.", false);

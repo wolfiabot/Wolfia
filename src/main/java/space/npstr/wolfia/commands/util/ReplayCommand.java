@@ -91,7 +91,7 @@ public class ReplayCommand extends BaseCommand {
         }
         final GameStats gameStats = gameStatsList.get(0);
 
-        final NiceEmbedBuilder eb = new NiceEmbedBuilder();
+        final NiceEmbedBuilder eb = NiceEmbedBuilder.defaultBuilder();
 
         //1. post summary like game, mode, players, roles
         eb.setTitle("**Game #" + gameStats.getId() + "**");

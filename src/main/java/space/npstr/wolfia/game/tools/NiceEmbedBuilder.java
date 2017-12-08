@@ -19,7 +19,9 @@ package space.npstr.wolfia.game.tools;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
+import space.npstr.wolfia.commands.Context;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,10 +29,41 @@ import java.util.List;
 /**
  * Created by napster on 27.07.17.
  * <p>
- * An embed builder that accepts NiceEmbedFields which respect value length and chunk themselves up into acceptable lengths
+ * An embed builder that accepts ChunkingFields which respect value length and chunk themselves up into acceptable lengths
  */
 public class NiceEmbedBuilder extends EmbedBuilder {
 
+//    private static final ThreadLocal<NiceEmbedBuilder> threadLocalNiceEmbedBuilder = ThreadLocal.withInitial(NiceEmbedBuilder::new);
+
+    /**
+     * @return a general purpose preformatted nice builder for embeds
+     */
+    @Nonnull
+    //todo explore whether we could clone it from the regular default embed builder after jdas message-rw is merged
+    public static NiceEmbedBuilder defaultBuilder() {
+        final NiceEmbedBuilder neb = builder();
+        neb.setColor(Context.BLACKIA);
+        return neb;
+    }
+
+    @Nonnull //todo see note for threadlocal stuff in RestActions
+    public static NiceEmbedBuilder builder() {
+        return new NiceEmbedBuilder();
+//        final NiceEmbedBuilder neb = threadLocalNiceEmbedBuilder.get();
+//        neb.clearFields()
+//                .setTitle(null)
+//                .setDescription(null)
+//                .setTimestamp(null)
+//                .setColor(null)
+//                .setThumbnail(null)
+//                .setAuthor(null, null, null)
+//                .setFooter(null, null)
+//                .setImage(null);
+//        return neb;
+    }
+
+    private NiceEmbedBuilder() {
+    }
 
     //default trim is true
     public NiceEmbedBuilder addField(final ChunkingField field, final boolean... trim) {

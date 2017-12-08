@@ -184,7 +184,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
         //clean up first
         cleanUpInnedPlayers();
 
-        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
         final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
         if (channel == null) {
             neb.addField("Could not find channel with id " + this.channelId, "", false);

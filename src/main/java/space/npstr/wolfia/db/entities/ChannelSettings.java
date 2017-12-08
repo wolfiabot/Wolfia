@@ -25,6 +25,7 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.Context;
 
 import javax.annotation.Nonnull;
 import javax.persistence.CollectionTable;
@@ -137,7 +138,7 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     }
 
     public MessageEmbed getStatus() {
-        final EmbedBuilder eb = new EmbedBuilder();
+        final EmbedBuilder eb = Context.getDefaultEmbedBuilder();
         final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
         if (channel == null) {
             eb.addField("Could not find channel with id " + this.channelId, "", false);

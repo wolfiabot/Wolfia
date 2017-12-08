@@ -103,7 +103,7 @@ public abstract class Context {
     }
 
     public void reply(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
-        reply(RestActions.getClearThreadLocalMessageBuilder().append(message).build(), onSuccess);
+        reply(RestActions.getMessageBuilder().append(message).build(), onSuccess);
     }
 
     public void reply(@Nonnull final Message message) {
@@ -111,7 +111,7 @@ public abstract class Context {
     }
 
     public void reply(@Nonnull final String message) {
-        reply(RestActions.getClearThreadLocalMessageBuilder().append(message).build(), null);
+        reply(RestActions.getMessageBuilder().append(message).build(), null);
     }
 
     public void replyWithName(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
@@ -158,7 +158,7 @@ public abstract class Context {
     }
 
     public void replyImage(@Nonnull final String url, @Nullable final String message) {
-        reply(RestActions.getClearThreadLocalMessageBuilder()
+        reply(RestActions.getMessageBuilder()
                 .setEmbed(embedImage(url))
                 .append(message != null ? message : "")
                 .build()
@@ -179,12 +179,17 @@ public abstract class Context {
         return tc.getGuild().getSelfMember().hasPermission(tc, permissions);
     }
 
+    public static Color BLACKIA = new Color(0, 24, 48); //blueish black that reminds of a clear nights sky
+
+    /**
+     * @return a general purpose preformatted builder for embeds
+     */
     @Nonnull
     public static EmbedBuilder getDefaultEmbedBuilder() {
 //        User self = channel.getJDA().getSelfUser();
-        return RestActions.getClearThreadLocalEmbedBuilder()
+        return RestActions.getEmbedBuilder()
 //                .setFooter(self.getName(), self.getEffectiveAvatarUrl())
-                .setColor(Color.BLACK)
+                .setColor(BLACKIA)
 //                .setThumbnail(self.getEffectiveAvatarUrl())
 //                .setTimestamp(context.event.getMessage().getCreationTime())
 //                .setAuthor(self.getName(), Main.AKI_BOT_INVITE, self.getEffectiveAvatarUrl())
