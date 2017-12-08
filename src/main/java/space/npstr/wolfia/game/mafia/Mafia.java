@@ -417,7 +417,7 @@ public class Mafia extends Game {
                 Config.PREFIX + CommRegistry.COMM_TRIGGER_VOTECOUNT));
         for (final Player player : living) {
             RoleAndPermissionUtils.grant(gameChannel, gameChannel.getGuild().getMemberById(player.userId),
-                    Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail());
+                    Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
         }
 
         //set a timer that calls endDay()
@@ -448,7 +448,7 @@ public class Mafia extends Game {
         //close channel
         for (final Player livingPlayer : livingPlayers) {
             RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(livingPlayer.userId),
-                    Permission.MESSAGE_WRITE).queue(null, Wolfia.defaultOnFail());
+                    Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
         }
 
         this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.DAYEND, -1));
@@ -493,7 +493,7 @@ public class Mafia extends Game {
                         onUpdate -> RestActions.editMessage(m, basic + nightTimeLeft()),
                         this.phaseStarted + this.nightLengthMillis - System.currentTimeMillis(),
                         onDestruction -> RestActions.editMessage(m, basic + "Dawn breaks!")
-                ), Wolfia.defaultOnFail());
+                ));
     }
 
     private String nightTimeLeft() {
@@ -529,10 +529,9 @@ public class Mafia extends Game {
                             this.nightLengthMillis,
                             //on destruction
                             aVoid -> {
-                                message.clearReactions().queue(null, Wolfia.defaultOnFail());
+                                message.clearReactions().queue(null, RestActions.defaultOnFail());
                                 synchronized (this.nightkillVotes) {
-                                    message.editMessage(this.nightKillVotingBuilder.getFinalEmbed(this.nightkillVotes, this.phase, this.cycle).build())
-                                            .queue(null, Wolfia.defaultOnFail());
+                                    RestActions.editMessage(message, this.nightKillVotingBuilder.getFinalEmbed(this.nightkillVotes, this.phase, this.cycle).build());
                                     final Player nightKillCandidate = GameUtils.rand(GameUtils.mostVoted(this.nightkillVotes, getLivingVillage()));
 
                                     RestActions.sendMessage(wolfchatChannel, String.format(
@@ -546,10 +545,9 @@ public class Mafia extends Game {
                             },
                             //update every few seconds
                             TimeUnit.SECONDS.toMillis(10),
-                            aVoid -> message.editMessage(this.nightKillVotingBuilder.getEmbed(this.nightkillVotes).build())
-                                    .queue(null, Wolfia.defaultOnFail())
+                            aVoid -> RestActions.editMessage(message, this.nightKillVotingBuilder.getEmbed(this.nightkillVotes).build())
                     ));
-                }, Wolfia.defaultOnFail()), Wolfia.defaultOnFail()
+                })
         );
 
 
@@ -568,7 +566,7 @@ public class Mafia extends Game {
                 final Collection<Long> randCopTargets = getLivingPlayerIds();
                 randCopTargets.remove(p.userId);//dont randomly check himself
                 this.nightActions.put(p, simpleAction(p.userId, Actions.CHECK, GameUtils.rand(randCopTargets)));//preset a random action
-                p.sendMessage(livingPlayersWithNumbers.build(), Wolfia.defaultOnFail());
+                p.sendMessage(livingPlayersWithNumbers.build(), RestActions.defaultOnFail());
                 new PrivateChannelListener(p.userId, this.nightLengthMillis, this, new CheckCommand("check"));//todo uniform listeners
             }
         }
@@ -641,7 +639,7 @@ public class Mafia extends Game {
                     final Player checked = getPlayer(nightAction.getTarget());
                     checker.sendMessage(String.format("%s, you checked %s on night %s. Their alignment is **%s**",
                             checker.asMention(), checked.getBothNamesFormatted(), this.cycle,
-                            checked.alignment.textRepMaf), Wolfia.defaultOnFail());
+                            checked.alignment.textRepMaf), RestActions.defaultOnFail());
                     nightAction.setTimeStampHappened(System.currentTimeMillis());
                     this.gameStats.addAction(nightAction);
                 } catch (final IllegalGameStateException e) {

@@ -495,7 +495,7 @@ public abstract class Game {
 
         // - no writing access and reaction adding for @everyone/access role in the game channel during the game
         RoleAndPermissionUtils.deny(gameChannel, g.getRoleById(this.accessRoleId),
-                Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue(null, Wolfia.defaultOnFail());
+                Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue(null, RestActions.defaultOnFail());
     }
 
     /**

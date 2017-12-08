@@ -32,6 +32,7 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
+import space.npstr.wolfia.utils.discord.RestActions;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -74,10 +75,10 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
 
         //set up the looks
         //- give the server a name
-        g.getManager().setName("Wolfia Private Server").queue(null, Wolfia.defaultOnFail());
+        g.getManager().setName("Wolfia Private Server").queue(null, RestActions.defaultOnFail());
         //- give the server a logo
         try {
-            g.getManager().setIcon(Icon.from(getClass().getResourceAsStream("/img/popcorn_mafia_guy.png"))).queue(null, Wolfia.defaultOnFail());
+            g.getManager().setIcon(Icon.from(getClass().getResourceAsStream("/img/popcorn_mafia_guy.png"))).queue(null, RestActions.defaultOnFail());
         } catch (final IOException e) {
             log.error("Could not set icon for guild {}", g.getIdLong(), e);
             return false;
@@ -86,7 +87,7 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
         //set up rights:
         //- deny creating invites
         //- deny reading messages
-        g.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue(null, Wolfia.defaultOnFail());
+        g.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue(null, RestActions.defaultOnFail());
         //- delete #general
         for (final TextChannel tc : g.getTextChannels()) {
             tc.delete().reason("Preparing private guild for usage").complete();
@@ -104,7 +105,7 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
             Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(pg);
             Wolfia.addEventListener(pg);
             Wolfia.getCommandListener().addIgnoredGuild(pg.getId());
-            g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue(null, Wolfia.defaultOnFail());
+            g.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue(null, RestActions.defaultOnFail());
         } catch (final DatabaseException e) {
             log.error("Db blew up saving private guild", e);
             return false;

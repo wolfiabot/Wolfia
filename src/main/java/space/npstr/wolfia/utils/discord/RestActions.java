@@ -14,6 +14,9 @@ import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.core.requests.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.db.entities.stats.MessageOutputStats;
+import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -224,82 +227,6 @@ public class RestActions {
         );
     }
 
-//    // ********************************************************************************
-//    //                            File sending methods
-//    // ********************************************************************************
-//
-//    /**
-//     * @param channel   The channel that should be messaged
-//     * @param file      File to be sent
-//     * @param message   Optional message
-//     * @param onSuccess Optional success handler
-//     * @param onFail    Optional exception handler
-//     */
-//    public static void sendFile(@Nonnull MessageChannel channel, @Nonnull File file, @Nullable Message message,
-//                                @Nullable Consumer<Message> onSuccess, @Nullable Consumer<Throwable> onFail) {
-//        sendFile0(
-//                channel,
-//                file,
-//                message,
-//                onSuccess,
-//                onFail
-//        );
-//    }
-//
-//    public static void sendFile(@Nonnull MessageChannel channel, @Nonnull File file, @Nullable Message message,
-//                                @Nullable Consumer<Message> onSuccess) {
-//        sendFile0(
-//                channel,
-//                file,
-//                message,
-//                onSuccess,
-//                null
-//        );
-//    }
-//
-//    public static void sendFile(@Nonnull MessageChannel channel, @Nonnull File file, @Nullable Message message) {
-//        sendFile0(
-//                channel,
-//                file,
-//                message,
-//                null,
-//                null
-//        );
-//    }
-//
-//    public static void sendFile(@Nonnull MessageChannel channel, @Nonnull File file,
-//                                @Nullable Consumer<Message> onSuccess, @Nullable Consumer<Throwable> onFail) {
-//        sendFile0(
-//                channel,
-//                file,
-//                null,
-//                onSuccess,
-//                onFail
-//        );
-//    }
-//
-//    public static void sendFile(@Nonnull MessageChannel channel, @Nonnull File file,
-//                                @Nullable Consumer<Message> onSuccess) {
-//        sendFile0(
-//                channel,
-//                file,
-//                null,
-//                onSuccess,
-//                null
-//        );
-//    }
-//
-//    public static void sendFile(@Nonnull MessageChannel channel, @Nonnull File file) {
-//        sendFile0(
-//                channel,
-//                file,
-//                null,
-//                null,
-//                null
-//        );
-//    }
-
-
     // ********************************************************************************
     //                            Message editing methods
     // ********************************************************************************
@@ -336,6 +263,16 @@ public class RestActions {
                 oldMessage.getChannel(),
                 oldMessage.getIdLong(),
                 from(newContent),
+                null,
+                null
+        );
+    }
+
+    public static void editMessage(@Nonnull final Message oldMessage, @Nonnull final MessageEmbed newEmbed) {
+        editMessage0(
+                oldMessage.getChannel(),
+                oldMessage.getIdLong(),
+                from(newEmbed),
                 null,
                 null
         );
@@ -449,6 +386,7 @@ public class RestActions {
                                      @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
         final Consumer<Message> successWrapper = m -> {
 //            Metrics.successfulRestActions.labels("sendMessage").inc();
+            Wolfia.executor.submit(() -> Wolfia.getDbWrapper().persist(new MessageOutputStats(message)));
             if (onSuccess != null) {
                 onSuccess.accept(m);
             }
@@ -479,42 +417,6 @@ public class RestActions {
             }
         }
     }
-
-    //commented out until message-rw is fixed, as we dont use send files anyways right now
-//    //class internal file sending method
-//    private static void sendFile0(@Nonnull MessageChannel channel, @Nonnull File file, @Nullable Message message,
-//                                  @Nullable Consumer<Message> onSuccess, @Nullable Consumer<Throwable> onFail) {
-//        Consumer<Message> successWrapper = m -> {
-//            Metrics.successfulRestActions.labels("sendFile").inc();
-//            if (onSuccess != null) {
-//                onSuccess.accept(m);
-//            }
-//        };
-//        Consumer<Throwable> failureWrapper = t -> {
-//            if (onFail != null) {
-//                onFail.accept(t);
-//            } else {
-//                String info = String.format("Could not send file %s to channel %s in guild %s",
-//                        file.getAbsolutePath(), channel.getId(),
-//                        (channel instanceof TextChannel) ? ((TextChannel) channel).getGuild().getIdLong() : "null");
-//                getJdaRestActionFailureHandler(info).accept(t);
-//            }
-//        };
-//
-//        try {
-//            // ATTENTION: Do not use JDA's MessageChannel#sendFile(File file, Message message)
-//            // as it will skip permission checks, since TextChannel does not override that method
-//            // this is scheduled to be fixed through JDA's message-rw branch
-//            channel.sendFile(FileUtils.readFileToByteArray(file), file.getName(), message).queue(successWrapper, failureWrapper);
-//        } catch (InsufficientPermissionException e) {
-//            if (onFail != null) {
-//                onFail.accept(e);
-//            }
-//            handleInsufficientPermissionsException(channel, e);
-//        } catch (IOException e) {
-//            log.error("Could not send file {}, it appears to be borked", file.getAbsolutePath(), e);
-//        }
-//    }
 
     //class internal editing method
     private static void editMessage0(@Nonnull final MessageChannel channel, final long oldMessageId, @Nonnull final Message newMessage,
@@ -553,22 +455,29 @@ public class RestActions {
         sendMessage(channel, "Please give me the permission to " + " **" + e.getPermission().getName() + "!**");
     }
 
+    //default vanilla version of the rest action failure handler below
+    public static Consumer<Throwable> defaultOnFail() {
+        return getJdaRestActionFailureHandler("Exception during generic queue()");
+    }
+
 
     //handles failed JDA rest actions by logging them with an informational string and optionally ignoring some error response codes
-    //todo unite with Wolfia.defaultOnFail
+    // will print a proper stack trace for exceptions happening in queue(), showing the code leading up to the call of
+    // the queue() that failed
     public static Consumer<Throwable> getJdaRestActionFailureHandler(final String info, final ErrorResponse... ignored) {
+        final LogTheStackException ex = new LogTheStackException();
         return t -> {
+            ex.initCause(t);
             if (t instanceof ErrorResponseException) {
                 final ErrorResponseException e = (ErrorResponseException) t;
 //                Metrics.failedRestActions.labels(Integer.toString(e.getErrorCode())).inc();
                 if (Arrays.asList(ignored).contains(e.getErrorResponse())
                         || e.getErrorCode() == -1 //socket timeout, fuck those
-                        || e.getErrorCode() == ErrorResponse.MISSING_ACCESS.getCode() //how even? means we're not in the server (anymore) ? definitely dont need to log this
                         ) {
                     return;
                 }
             }
-            log.error(info, t);
+            log.error("{}\n{}", info, t.getMessage(), ex);
         };
     }
 }

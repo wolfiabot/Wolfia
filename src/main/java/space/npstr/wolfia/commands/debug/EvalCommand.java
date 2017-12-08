@@ -27,6 +27,7 @@ import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.RestActions;
 
 import javax.annotation.Nonnull;
 import javax.script.ScriptEngine;
@@ -149,7 +150,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
                                 + "})();");
 
             } catch (final Exception ex) {
-                context.msg.addReaction(Emojis.X).queue(null, Wolfia.defaultOnFail());
+                context.msg.addReaction(Emojis.X).queue(null, RestActions.defaultOnFail());
                 context.reply(String.format("`%s`\n\n`%sms`",
                         ex.getMessage(), System.currentTimeMillis() - started));
                 log.info("Error occurred in eval", ex);
@@ -164,7 +165,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
             } else {
                 output = "EvalCommand: `" + out.toString() + "`";
             }
-            context.msg.addReaction(Emojis.OK_HAND).queue(null, Wolfia.defaultOnFail());
+            context.msg.addReaction(Emojis.OK_HAND).queue(null, RestActions.defaultOnFail());
             context.reply(String.format("```java\n%s```\n%s\n`%sms`",
                     finalSource, output, System.currentTimeMillis() - started));
 

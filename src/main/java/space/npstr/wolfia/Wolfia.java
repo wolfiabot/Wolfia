@@ -77,7 +77,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -101,16 +100,6 @@ public class Wolfia {
     private static boolean started = false;
     private static CommandListener commandListener;
     private static DatabaseWrapper dbWrapper;
-
-    // will print a proper stack trace for exceptions happening in queue(), showing the code leading up to the call of
-    // the queue() that failed
-    public static Consumer<Throwable> defaultOnFail() {
-        final LogTheStackException ex = new LogTheStackException();
-        return t -> {
-            ex.initCause(t);
-            log.error("Exception during queue(): {}", t.getMessage(), ex);
-        };
-    }
 
     //set up things that are crucial
     //if something fails exit right away
@@ -407,184 +396,6 @@ public class Wolfia {
                 .retryOnConnectionFailure(true);
     }
 
-    //################## message handling + tons of overloaded methods
-
-    //calling with complete = true will ignore onsuccess and on fail, but return an optional with the message
-//    private static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel,
-//                                                         final Consumer<Message> onSuccess, final Consumer<Throwable> onFail,
-//                                                         final String msg, final Object... args) {
-//        if (complete && (onSuccess != null || onFail != null)) {
-//            log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
-//        }
-//        if (channel == null) {
-//            throw new IllegalArgumentException("Provided channel is null");
-//        }
-//        final MessageBuilder mb = new MessageBuilder();
-//        if (args.length == 0) {
-//            mb.append(msg);
-//        } else {
-//            mb.appendFormat(msg, args);
-//        }
-//        try {
-//            final RestAction<Message> ra = channel.sendMessage(mb.build());
-//            if (complete) {
-//                final Message message = ra.complete();
-//                executor.submit(() -> dbWrapper.persist(new MessageOutputStats(message)));
-//                return Optional.of(message);
-//            } else {
-//                Consumer<Throwable> fail = onFail;
-//                if (fail == null) {
-//                    fail = throwable -> {
-//                        if (!(channel instanceof PrivateChannel)) { //ignore exceptions when sending to private channels
-//                            final LogTheStackException stack = new LogTheStackException();
-//                            stack.initCause(throwable);
-//                            log.error("Exception when sending a message in channel {}", channel.getIdLong(), stack);
-//                        }
-//                    };
-//                }
-//                //for stats keeping
-//                final Consumer<Message> wrappedSuccess = (message) -> {
-//                    executor.submit(() -> dbWrapper.persist(new MessageOutputStats(message)));
-//                    if (onSuccess != null) onSuccess.accept(message);
-//                };
-//                ra.queue(wrappedSuccess, fail);
-//            }
-//        } catch (final PermissionException e) {
-//            log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
-//            if (onFail != null) onFail.accept(e);
-//        }
-//        return Optional.empty();
-//    }
-
-//    public static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final String msg, final Object... args) {
-//        return handleOutputMessage(complete, channel, null, null, msg, args);
-//    }
-
-//    public static Optional<Message> handleOutputMessage(final boolean complete, final long channelId, final String msg, final Object... args) {
-//        final TextChannel channel = getTextChannelById(channelId);
-//        return handleOutputMessage(complete, channel, null, null, msg, args);
-//    }
-
-//    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-//        return handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
-//    }
-
-//    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-//        final TextChannel channel = getTextChannelById(channelId);
-//        return handleOutputMessage(channel, onSuccess, onFail, msg, args);
-//    }
-
-//    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
-//        return handleOutputMessage(false, channel, null, null, msg, args);
-//    }
-
-//    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-//        final TextChannel channel = getTextChannelById(channelId);
-//        return handleOutputMessage(false, channel, null, onFail, msg, args);
-//    }
-
-//    public static Optional<Message> handleOutputMessage(final long channelId, final String msg, final Object... args) {
-//        return handleOutputMessage(channelId, null, msg, args);
-//    }
-
-//    //embeds
-//    private static Optional<Message> handleOutputEmbed(final boolean complete, final MessageChannel channel,
-//                                                       final MessageEmbed msgEmbed, final Consumer<Message> onSuccess,
-//                                                       final Consumer<Throwable> onFail) {
-//        //check for embed permissions in a guild text channel
-//        if (channel instanceof TextChannel) {
-//            final TextChannel tc = (TextChannel) channel;
-//            RoleAndPermissionUtils.acquireChannelPermissions(tc, Permission.MESSAGE_EMBED_LINKS);
-//        }
-//        try {
-//            final RestAction<Message> ra = channel.sendMessage(msgEmbed);
-//            if (complete) {
-//                final Message message = ra.complete();
-//                executor.submit(() -> dbWrapper.persist(new MessageOutputStats(message)));
-//                return Optional.of(message);
-//            } else {
-//                //for stats keeping
-//                final Consumer<Message> wrappedSuccess = (message) -> {
-//                    executor.submit(() -> dbWrapper.persist(new MessageOutputStats(message)));
-//                    if (onSuccess != null) onSuccess.accept(message);
-//                };
-//                ra.queue(wrappedSuccess, onFail != null ? onFail : defaultOnFail());
-//            }
-//        } catch (final PermissionException e) {
-//            log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
-//        }
-//        return Optional.empty();
-//    }
-
-//    public static Optional<Message> handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed) {
-//        return handleOutputEmbed(false, channel, msgEmbed, null, null);
-//    }
-
-//    public static Optional<Message> handleOutputEmbed(final boolean complete, final long channelId, final MessageEmbed msgEmbed) {
-//        final TextChannel channel = getTextChannelById(channelId);
-//        return handleOutputEmbed(complete, channel, msgEmbed, null, null);
-//    }
-
-//    public static Optional<Message> handleOutputEmbed(final long channelId, final MessageEmbed msgEmbed) {
-//        return handleOutputEmbed(false, channelId, msgEmbed);
-//    }
-
-//    public static Optional<Message> handleOutputEmbed(final MessageChannel channel, final MessageEmbed msgEmbed, final Consumer<Message> onSuccess) {
-//        return handleOutputEmbed(false, channel, msgEmbed, onSuccess, null);
-//    }
-
-
-    //send a message to a user privately
-//    public static void handlePrivateOutputMessage(final long userId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-//        if (onFail == null) {
-//            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
-//                    "error log spam. Fix your code please.");
-//        }
-//        try {
-//            final User u = getUserById(userId);
-//            if (u == null) {
-//                throw new NullPointerException("No such user: " + userId);
-//            }
-//            u.openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
-//        } catch (final Exception e) {
-//            if (onFail != null) onFail.accept(e);
-//        }
-//    }
-
-//    public static void handlePrivateOutputMessage(final long userId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-//        if (onFail == null) {
-//            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
-//                    "error log spam. Fix your code please.");
-//        }
-//        try {
-//            final User u = getUserById(userId);
-//            if (u == null) {
-//                throw new NullPointerException("No such user: " + userId);
-//            }
-//            u.openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, onSuccess, onFail, msg, args), onFail);
-//        } catch (final Exception e) {
-//            if (onFail != null) onFail.accept(e);
-//        }
-//    }
-
-//    public static void handlePrivateOutputEmbed(final long userId, final Consumer<Throwable> onFail, final MessageEmbed messageEmbed) {
-//        if (onFail == null) {
-//            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
-//                    "error log spam. Fix your code please.");
-//        }
-//        try {
-//            final User u = getUserById(userId);
-//            if (u == null) {
-//                throw new NullPointerException("No such user: " + userId);
-//            }
-//            u.openPrivateChannel().queue((privateChannel -> Wolfia.handleOutputEmbed(false, privateChannel, messageEmbed, null, onFail)));
-//        } catch (final Exception e) {
-//            if (onFail != null) onFail.accept(e);
-//        }
-//    }
-
-
-    //################# end of message handling
 
     //################# shutdown handling
 

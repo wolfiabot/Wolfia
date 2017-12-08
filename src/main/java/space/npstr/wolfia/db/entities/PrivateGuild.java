@@ -152,7 +152,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         final Member joined = event.getMember();
         //kick the joined user if they aren't on the allowed list
         if (!this.allowedUsers.contains(joined.getUser().getIdLong())) {
-            final Consumer whenDone = aVoid -> event.getGuild().getController().kick(joined).queue(null, Wolfia.defaultOnFail());
+            final Consumer whenDone = aVoid -> event.getGuild().getController().kick(joined).queue(null, RestActions.defaultOnFail());
             final String message = String.format("You are not allowed to join private guild #%s currently.", this.privateGuildNumber);
             RestActions.sendPrivateMessage(joined.getUser(), message, whenDone, whenDone);
             return;
@@ -161,8 +161,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME).complete();
         event.getGuild().getController().addRolesToMember(event.getMember(), wolf).queue(
                 aVoid -> RestActions.sendMessage(Wolfia.fetchChannel(this.currentChannelId),
-                        event.getMember().getAsMention() + ", welcome to wolf chat!"),
-                Wolfia.defaultOnFail()
+                        event.getMember().getAsMention() + ", welcome to wolf chat!")
         );
     }
 
@@ -238,11 +237,11 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
             this.currentChannelId = wolfChannel.getIdLong();
 
             //send new user joining messages to the fresh channel
-            g.getManager().setSystemChannel(wolfChannel).queue(null, Wolfia.defaultOnFail());
+            g.getManager().setSystemChannel(wolfChannel).queue(null, RestActions.defaultOnFail());
 
             //give the wolfrole access to it
             RoleAndPermissionUtils.grant(wolfChannel, RoleAndPermissionUtils.getOrCreateRole(g, WOLF_ROLE_NAME).complete(),
-                    Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue(null, Wolfia.defaultOnFail());
+                    Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue(null, RestActions.defaultOnFail());
         } catch (final Exception e) {
             endUsage();
             throw new RuntimeException("Could not begin the usage of private guild #" + this.privateGuildNumber, e);
@@ -253,7 +252,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     private void cleanUpMembers() {
         final Guild g = getThisGuild();
         this.allowedUsers.clear();
-        g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.getController().kick(m).queue(null, Wolfia.defaultOnFail()));
+        g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.getController().kick(m).queue(null, RestActions.defaultOnFail()));
     }
 
     public void endUsage() {
