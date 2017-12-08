@@ -132,7 +132,7 @@ public class Mafia extends Game {
         neb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
 
         final NiceEmbedBuilder.ChunkingField living = new NiceEmbedBuilder.ChunkingField("Living Players", true);
-        getLivingPlayers().forEach(p -> living.add(p.numberAsEmojis() + " " + p.getBothNamesFormatted(), true));
+        getLivingPlayers().forEach(p -> living.add(p.numberAsEmojis() + " " + p.bothNamesFormatted(), true));
         neb.addField(living);
 
         final StringBuilder sb = new StringBuilder();
@@ -173,7 +173,7 @@ public class Mafia extends Game {
                 gameChannel.getGuild().getName(), gameChannel.getName(), inviteLink);
 
         for (final Player player : getWolves()) {
-            mafiaTeamNames.append(player.getBothNamesFormatted()).append("\n");
+            mafiaTeamNames.append(player.bothNamesFormatted()).append("\n");
         }
 
         for (final Player player : this.players) {
@@ -383,7 +383,7 @@ public class Mafia extends Game {
         }
 
         this.nightActions.put(invoker, simpleAction(invoker.userId, Actions.CHECK, target.userId));
-        context.reply("You are checking " + target.getBothNamesFormatted() + " tonight");
+        context.reply("You are checking " + target.bothNamesFormatted() + " tonight");
         return true;
     }
 
@@ -536,7 +536,7 @@ public class Mafia extends Game {
 
                                     RestActions.sendMessage(wolfchatChannel, String.format(
                                             "\n@here, %s will be killed! Game about to start/continue, get back to the main chat.\n%s",
-                                            nightKillCandidate.getBothNamesFormatted(),
+                                            nightKillCandidate.bothNamesFormatted(),
                                             TextchatUtils.getOrCreateInviteLinkForChannel(Wolfia.getTextChannelById(this.channelId))));
                                     this.gameStats.addActions(this.nightKillVoteActions.values());
 
@@ -638,7 +638,7 @@ public class Mafia extends Game {
                     final Player checker = getPlayer(nightAction.getActor());
                     final Player checked = getPlayer(nightAction.getTarget());
                     checker.sendMessage(String.format("%s, you checked %s on night %s. Their alignment is **%s**",
-                            checker.asMention(), checked.getBothNamesFormatted(), this.cycle,
+                            checker.asMention(), checked.bothNamesFormatted(), this.cycle,
                             checked.alignment.textRepMaf), RestActions.defaultOnFail());
                     nightAction.setTimeStampHappened(System.currentTimeMillis());
                     this.gameStats.addAction(nightAction);

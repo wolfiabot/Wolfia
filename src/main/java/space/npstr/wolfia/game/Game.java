@@ -690,7 +690,7 @@ public abstract class Game {
         final Set<Player> dontAdd = new HashSet<>(Arrays.asList(except));
         for (final Player p : getLivingPlayers()) {
             if (!dontAdd.contains(p)) {
-                list.add(p.numberAsEmojis() + " " + p.getBothNamesFormatted(), true);
+                list.add(p.numberAsEmojis() + " " + p.bothNamesFormatted(), true);
             }
         }
         neb.addField(list);

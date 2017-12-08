@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Alignments;
@@ -36,6 +37,7 @@ import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
 /**
@@ -86,25 +88,37 @@ public class Player {
         return this.alignment == Alignments.VILLAGE;
     }
 
+    /**
+     * @return the discord user (global) name of this player.
+     * May return a placeholder for unknown users in weird edge cases
+     */
     @Nonnull
     public String getName() {
+        final User user = Wolfia.getUserById(this.userId);
+        if (user != null) {
+            return user.getName();
+        }
         try {
             return CachedUser.load(this.userId).getName();
         } catch (final DatabaseException e) {
-            return "Anonymous";
+            return DiscordUser.UNKNOWN_NAME;
         }
     }
 
+    /**
+     * @return the discord user nick name of this player in the guild of where the game is happening.
+     * May return a placeholder for unknown users in weird edge cases
+     */
     @Nonnull
     public String getNick() {
-        try {//todo this code needs to go to a common place
-            final Guild guild = Wolfia.getGuildById(this.guildId);
-            if (guild != null) {
-                final Member member = guild.getMemberById(this.userId);
-                if (member != null) {
-                    return member.getEffectiveName();
-                }
+        final Guild guild = Wolfia.getGuildById(this.guildId);
+        if (guild != null) {
+            final Member member = guild.getMemberById(this.userId);
+            if (member != null) {
+                return member.getEffectiveName();
             }
+        }
+        try {
             final CachedUser cu = CachedUser.load(this.userId);
             final String nick = cu.getNick(this.guildId);
             if (nick != null) {
@@ -113,15 +127,27 @@ public class Player {
                 return cu.getName();
             }
         } catch (final DatabaseException e) {
-            return "Anonymous";
+            return DiscordUser.UNKNOWN_NAME;
         }
     }
 
-    public String getBothNamesFormatted() {
-        //todo escape these from markdown characters to ensure proper formatting
-        //todo these are the characters to beware of: "*", "_", "`", "~~"
-        String name = "Anonymous";
-        String nick = "Anonymous";
+    /**
+     * @return Name of this player in the form of **name** OR **nick** aka ** name**, where the name is this discord
+     * users global name and the nick is the optional nick in the guild of the main game channel
+     * May return a placeholder for unknown users in weird edge cases
+     */
+    @Nonnull
+    public String bothNamesFormatted() {
+        final Guild guild = Wolfia.getGuildById(this.guildId);
+        if (guild != null) {
+            final Member member = guild.getMemberById(this.userId);
+            if (member != null) {
+                return formatNameAndNick(member.getUser().getName(), member.getNickname());
+            }
+        }
+
+        String name = DiscordUser.UNKNOWN_NAME;
+        String nick = DiscordUser.UNKNOWN_NAME;
         try {
             final CachedUser cu = CachedUser.load(this.userId);
             name = cu.getName();
@@ -129,14 +155,19 @@ public class Player {
         } catch (final DatabaseException e) {
             log.error("Db blew up why looking up cache user {}", this.userId, e);
         }
+        return formatNameAndNick(name, nick);
+    }
 
-        if (name.equals(nick)) {
-            return "**" + name + "**";
+    @Nonnull
+    private String formatNameAndNick(@Nonnull final String name, @Nullable final String nick) {
+        if (name.equals(nick) || nick == null) {
+            return "**" + TextchatUtils.escapeMarkdown(name) + "**";
         } else {
-            return "**" + nick + "** aka **" + name + "**";
+            return "**" + TextchatUtils.escapeMarkdown(nick) + "** aka **" + TextchatUtils.escapeMarkdown(name) + "**";
         }
     }
 
+    @Nonnull
     public String asMention() {
         return TextchatUtils.userAsMention(this.userId);
     }

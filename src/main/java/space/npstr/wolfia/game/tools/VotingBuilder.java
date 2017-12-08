@@ -95,12 +95,12 @@ public class VotingBuilder {
             if (!renderZeroVotes && ve.voters.isEmpty()) {
                 continue;
             }
-            final List<String> votersNames = ve.voters.stream().map(Player::getBothNamesFormatted).collect(Collectors.toList());
+            final List<String> votersNames = ve.voters.stream().map(Player::bothNamesFormatted).collect(Collectors.toList());
             if (renderEmojis) {
                 sb.append(ve.emoji).append(" ");
             }
             sb.append("**").append(ve.voters.size()).append("** votes: ")
-                    .append(ve.candidate.getBothNamesFormatted())
+                    .append(ve.candidate.bothNamesFormatted())
                     .append("\nVoted by: ").append(ve.voters.isEmpty() ? "---" : String.join(", ", votersNames));
             votesField.add(sb.toString(), true);
         }
@@ -109,7 +109,7 @@ public class VotingBuilder {
             nv.append(this.unvoteEmoji).append(" ");
         }
         final Set<Player> nonVoters = getNonVoters(votes.stream().flatMap(ve -> ve.voters.stream()).collect(Collectors.toSet()));
-        nv.append("**Non-voters: **\n").append(String.join(", ", nonVoters.stream().map(Player::getBothNamesFormatted).collect(Collectors.toList())));
+        nv.append("**Non-voters: **\n").append(String.join(", ", nonVoters.stream().map(Player::bothNamesFormatted).collect(Collectors.toList())));
 
         votesField.add(nv.toString());
         return votesField;

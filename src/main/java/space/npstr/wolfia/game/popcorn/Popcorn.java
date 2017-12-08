@@ -106,7 +106,7 @@ public class Popcorn extends Game {
         neb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
 
         final NiceEmbedBuilder.ChunkingField living = new NiceEmbedBuilder.ChunkingField("Living Players", true);
-        getLivingPlayers().forEach(p -> living.add(p.numberAsEmojis() + " " + p.getBothNamesFormatted(), true));
+        getLivingPlayers().forEach(p -> living.add(p.numberAsEmojis() + " " + p.bothNamesFormatted(), true));
         neb.addField(living);
 
         final StringBuilder sb = new StringBuilder();
@@ -115,7 +115,7 @@ public class Popcorn extends Game {
 
         String gunHolder = "Unknown " + Emojis.WOLFTHINK;
         try {
-            gunHolder = getPlayer(this.gunBearer).getBothNamesFormatted();
+            gunHolder = getPlayer(this.gunBearer).bothNamesFormatted();
         } catch (final IllegalGameStateException ignored) {
         }
         neb.addField(Emojis.GUN + " holder", gunHolder, true);
@@ -168,7 +168,7 @@ public class Popcorn extends Game {
                 gameChannel.getGuild().getName(), gameChannel.getName(), inviteLink);
 
         for (final Player player : this.getWolves()) {
-            wolfteamNames.append(player.getBothNamesFormatted()).append("\n");
+            wolfteamNames.append(player.bothNamesFormatted()).append("\n");
         }
 
         for (final Player player : this.players) {
@@ -539,7 +539,7 @@ public class Popcorn extends Game {
             }
             String playerName = "Player Not Found";
             try {
-                playerName = getPlayer(getsGun).getBothNamesFormatted();
+                playerName = getPlayer(getsGun).bothNamesFormatted();
             } catch (final IllegalGameStateException ignored) {
             }
             final TextChannel baddieChannel = Popcorn.this.fetchBaddieChannel();
@@ -568,7 +568,7 @@ public class Popcorn extends Game {
                         voters.add(TextchatUtils.userAsMention(voter));
                     }
                 }
-                villagersField.add(emoji + " **" + voters.size() + "** votes: " + player.getBothNamesFormatted() +
+                villagersField.add(emoji + " **" + voters.size() + "** votes: " + player.bothNamesFormatted() +
                         "\nVoted by: " + String.join(", ", voters) + "\n");
             });
             neb.addField(villagersField);
