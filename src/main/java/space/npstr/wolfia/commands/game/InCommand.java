@@ -70,7 +70,7 @@ public class InCommand extends BaseCommand {
         //force in by bot owner ( ͡° ͜ʖ ͡°)
         if (!context.msg.getMentionedUsers().isEmpty() && context.isOwner()) {
             for (final User u : context.msg.getMentionedUsers()) {
-                setup.inUser(u.getIdLong());
+                setup.inUser(u.getIdLong(), context);
             }
             context.reply(setup.getStatus());
             return true;
@@ -81,7 +81,7 @@ public class InCommand extends BaseCommand {
             return false;
         }
 
-        if (setup.inUser(context.invoker.getIdLong())) {
+        if (setup.inUser(context.invoker.getIdLong(), context)) {
             context.reply(setup.getStatus());
             return true;
         } else {

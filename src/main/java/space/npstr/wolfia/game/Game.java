@@ -48,10 +48,12 @@ import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.DiscordLogger;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -168,13 +170,23 @@ public abstract class Game {
         }
     }
 
-    protected TextChannel getThisChannel() {
-        final TextChannel tc = Wolfia.getTextChannelById(this.channelId);
-        if (tc == null) {
-            throw new NullPointerException(String.format("Could not find channel %s of game", this.channelId));
-        }
-        return tc;
+    /**
+     * @return the main game channel
+     */
+    @Nonnull
+    protected TextChannel fetchGameChannel() {
+        return Wolfia.fetchChannel(this.channelId);
     }
+
+    /**
+     * @return the baddie game channel
+     * Might throw an exception if called in the wrong game mode or never return
+     */
+    @Nonnull
+    protected TextChannel fetchBaddieChannel() {
+        return Wolfia.fetchChannel(this.wolfChat.getChannelId());
+    }
+
 
     protected boolean isLiving(final Member member) {
         return isLiving(member.getUser().getIdLong());
@@ -353,8 +365,8 @@ public abstract class Game {
      */
     protected void doPermissionCheckAndPrepareChannel(final boolean moderated)
             throws UserFriendlyException, DatabaseException {
-        final TextChannel channel = getThisChannel();
-        final Guild g = channel.getGuild();
+        final TextChannel gameChannel = fetchGameChannel();
+        final Guild g = gameChannel.getGuild();
 
         //check permissions
         final Set<Permission> toAcquireInChannelScope = new HashSet<>();
@@ -368,12 +380,12 @@ public abstract class Game {
                 //todo
             }
         });
-        RoleAndPermissionUtils.acquireChannelPermissions(channel, toAcquireInChannelScope.toArray(new Permission[toAcquireInChannelScope.size()]));
+        RoleAndPermissionUtils.acquireChannelPermissions(gameChannel, toAcquireInChannelScope.toArray(new Permission[toAcquireInChannelScope.size()]));
 
         if (moderated) {
             //is this a non-public channel, and if yes, has an existing access role been set?
             final boolean isChannelPublic = g.getPublicRole()
-                    .hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ);
+                    .hasPermission(gameChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ);
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
@@ -389,7 +401,7 @@ public abstract class Game {
                             Config.PREFIX + CommRegistry.COMM_TRIGGER_CHANNELSETTINGS, App.DOCS_LINK
                     ));
                 }
-                if (!accessRole.hasPermission(channel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
+                if (!accessRole.hasPermission(gameChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
                     throw new UserFriendlyException(String.format(
                             "The configured access role `%s` is missing `%s` and/or `%s` permissions in this channel." +
                                     " Talk to an admin of your server to fix this." +
@@ -401,7 +413,7 @@ public abstract class Game {
             }
 
             //is the bot allowed to manage permissions for this channel?
-            if (!g.getSelfMember().hasPermission(channel, Permission.MANAGE_PERMISSIONS)) {
+            if (!g.getSelfMember().hasPermission(gameChannel, Permission.MANAGE_PERMISSIONS)) {
                 throw new UserFriendlyException(String.format(
                         "To run a %s game in %s mode in this channel, I need the permission to `%s` in this channel",
                         Games.POPCORN.textRep, this.mode.name(), Permission.MANAGE_PERMISSIONS)
@@ -412,8 +424,8 @@ public abstract class Game {
             try {
                 prepareChannel();
             } catch (final PermissionException e) {
-                log.error("Could not prepare channel {}, id: {}, due to missing permission: {}", channel.getName(),
-                        channel.getId(), e.getPermission().getName(), e);
+                log.error("Could not prepare channel {}, id: {}, due to missing permission: {}", gameChannel.getName(),
+                        gameChannel.getId(), e.getPermission().getName(), e);
                 throw new UserFriendlyException(String.format(
                         "The bot is missing the permission `%s` to run the selected game and mode in this channel.",
                         e.getPermission().getName()
@@ -449,10 +461,11 @@ public abstract class Game {
         }
     }
 
+    //todo there seems to be an API for bots creating their own guilds? totally should use that instead
     protected PrivateGuild allocatePrivateGuild() throws UserFriendlyException {
         PrivateGuild pg = Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.poll();
         if (pg == null) {
-            Wolfia.handleOutputMessage(this.channelId,
+            RestActions.sendMessage(fetchGameChannel(),
                     "Acquiring a private server for the wolves...this may take a while.");
             log.error("Ran out of free private guilds. Please add moar.");
             try { //oh yeah...we are waiting till infinity if necessary
@@ -472,16 +485,16 @@ public abstract class Game {
      * @throws PermissionException if the bot is missing permissions to edit permission overrides for members and roles
      */
     protected void prepareChannel() throws PermissionException {
-        final TextChannel channel = getThisChannel();
-        final Guild g = channel.getGuild();
+        final TextChannel gameChannel = fetchGameChannel();
+        final Guild g = gameChannel.getGuild();
 
         // - ensure write access for the bot in the game channel
         // this can be done with complete() as most of the time (after the first game) it will already be in place
         // and will prevent messages getting lost due to queue() sometimes taking a while
-        RoleAndPermissionUtils.grant(channel, g.getSelfMember(), Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).complete();
+        RoleAndPermissionUtils.grant(gameChannel, g.getSelfMember(), Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).complete();
 
         // - no writing access and reaction adding for @everyone/access role in the game channel during the game
-        RoleAndPermissionUtils.deny(channel, g.getRoleById(this.accessRoleId),
+        RoleAndPermissionUtils.deny(gameChannel, g.getRoleById(this.accessRoleId),
                 Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue(null, Wolfia.defaultOnFail());
     }
 
@@ -527,11 +540,11 @@ public abstract class Game {
         }
 
         if (missingPermissions.size() > 0) {
-            Wolfia.handleOutputMessage(channel,
-                    "Tried to clean up channel, but was missing the following permissions: `%s`",
-                    String.join("`, `",
-                            missingPermissions.stream().map(Permission::getName).distinct().collect(Collectors.toList())
-                    ));
+            RestActions.sendMessage(channel,
+                    String.format("Tried to clean up channel, but was missing the following permissions: `%s`",
+                            String.join("`, `",
+                                    missingPermissions.stream().map(Permission::getName).distinct().collect(Collectors.toList())
+                            )));
         }
 
         if (complete.length > 0 && complete[0]) {
@@ -574,10 +587,13 @@ public abstract class Game {
         Games.remove(this);
         final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
         if (channel != null) {
-            Wolfia.handleOutputMessage(channel,
-                    "Game has been stopped due to:\n`%s`\nSorry about that. The issue has been logged and will hopefully be fixed soon." +
-                            "\nFeel free to join the Wolfia Lounge meanwhile through `%s` for direct support with the issue.",
-                    reasonMessage, Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP);
+            RestActions.sendMessage(channel,
+                    String.format("Game has been stopped due to:"
+                                    + "\n`%s`"
+                                    + "\nSorry about that. The issue has been logged and will hopefully be fixed soon."
+                                    + "\nIf you want to help solve this as fast as possible, please join our support guild."
+                                    + "\nSay `%s` to receive an invite.",
+                            reasonMessage, Config.PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
         }
     }
 
@@ -643,20 +659,19 @@ public abstract class Game {
                 out += "The database it not available currently, a replay of this game will not be available.";
             }
             cleanUp();
-            final TextChannel channel = getThisChannel();
+            final TextChannel gameChannel = fetchGameChannel();
             DiscordLogger.getLogger().log("%s `%s` Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
                     Emojis.END, TextchatUtils.berlinTime(), this.gameStats.getId(),
-                    channel.getGuild().getName(), channel.getGuild().getIdLong(),
-                    channel.getName(), channel.getIdLong(), Games.getInfo(this).textRep(), this.mode.textRep, this.players.size());
+                    gameChannel.getGuild().getName(), gameChannel.getGuild().getIdLong(),
+                    gameChannel.getName(), gameChannel.getIdLong(), Games.getInfo(this).textRep(), this.mode.textRep, this.players.size());
             // removing the game from the registry has to be the very last statement, since if a restart is queued, it
             // waits for an empty games registry
-            Wolfia.handleOutputMessage(this.channelId,
+            RestActions.sendMessage(fetchGameChannel(), out,
                     ignoredMessage -> Games.remove(this),
                     throwable -> {
                         log.error("Failed to send last message of game #{}", this.gameStats.getId(), throwable);
                         Games.remove(this);
-                    },
-                    "%s", out);
+                    });
             return true;
         }
 
@@ -666,10 +681,10 @@ public abstract class Game {
 
     protected EmbedBuilder listLivingPlayersWithNumbers(final Player... except) {
         final NiceEmbedBuilder neb = new NiceEmbedBuilder();
-        final TextChannel tc = getThisChannel();
-        final Guild g = tc.getGuild();
+        final TextChannel gameChannel = fetchGameChannel();
+        final Guild g = gameChannel.getGuild();
         neb.setTitle("Living players");
-        neb.setDescription("Game: " + Games.getInfo(this).textRep() + " " + this.mode.textRep + " on " + g.getName() + " in #" + tc.getName());
+        neb.setDescription("Game: " + Games.getInfo(this).textRep() + " " + this.mode.textRep + " on " + g.getName() + " in #" + gameChannel.getName());
 
         final NiceEmbedBuilder.ChunkingField list = new NiceEmbedBuilder.ChunkingField("", true);
         final Set<Player> dontAdd = new HashSet<>(Arrays.asList(except));

@@ -190,20 +190,20 @@ public class Player {
         return this.userId == other.userId && this.channelId == other.channelId;
     }
 
-    public void send(@Nonnull final String content, @Nonnull final Consumer<Throwable> onFail) {
-        send(RestActions.from(content), onFail);
+    public void sendMessage(@Nonnull final String content, @Nonnull final Consumer<Throwable> onFail) {
+        sendMessage(RestActions.from(content), onFail);
     }
 
 
-    public void send(@Nonnull final MessageEmbed embed, @Nonnull final Consumer<Throwable> onFail) {
-        send(RestActions.from(embed), onFail);
+    public void sendMessage(@Nonnull final MessageEmbed embed, @Nonnull final Consumer<Throwable> onFail) {
+        sendMessage(RestActions.from(embed), onFail);
     }
 
     /**
      * Send a private message to the user behind this player. May supply the failure handler with a UserNotPresentException
      * if the user is not present in the bot
      */
-    public void send(@Nonnull final Message message, @Nonnull final Consumer<Throwable> onFail) {
+    public void sendMessage(@Nonnull final Message message, @Nonnull final Consumer<Throwable> onFail) {
         final User user = Wolfia.getUserById(this.userId);
         if (user != null) {
             RestActions.sendPrivateMessage(user, message, null, onFail);

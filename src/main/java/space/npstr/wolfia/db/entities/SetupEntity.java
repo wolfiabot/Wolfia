@@ -28,6 +28,7 @@ import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
@@ -35,6 +36,7 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.UserFriendlyException;
+import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
@@ -143,11 +145,11 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
         this.setDayLength(5, TimeUnit.MINUTES);
     }
 
-    public boolean inUser(final long userId) throws DatabaseException {
+    public boolean inUser(final long userId, @Nonnull final Context context) throws DatabaseException {
         //cache any inning users
         CachedUser.cache(getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
         if (this.innedUsers.contains(userId)) {
-            Wolfia.handleOutputMessage(this.channelId, "%s, you have inned already.", TextchatUtils.userAsMention(userId));
+            context.replyWithMention("you have inned already.");
             return false;
         } else {
             this.innedUsers.add(userId);
@@ -226,23 +228,24 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     //needs to be synchronized so only one incoming command at a time can be in here
     public synchronized boolean startGame(final long commandCallerId)
             throws IllegalGameStateException, DatabaseException {
+        final TextChannel channel = Wolfia.fetchChannel(this.channelId);
         //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
         synchronized (SetupEntity.class) {
             if (MaintenanceCommand.getMaintenanceFlag() || Wolfia.isShuttingDown()) {
-                Wolfia.handleOutputMessage(this.channelId, "The bot is under maintenance. Please try starting a game later.");
+                RestActions.sendMessage(channel, "The bot is under maintenance. Please try starting a game later.");
                 return false;
             }
 
             if (!this.innedUsers.contains(commandCallerId)) {
-                Wolfia.handleOutputMessage(this.channelId, "%s: Only players that inned can start the game!", TextchatUtils.userAsMention(commandCallerId));
+                RestActions.sendMessage(channel, String.format("%s, only players that inned can start the game! Say `%s` to join!",
+                        TextchatUtils.userAsMention(commandCallerId), Config.PREFIX + CommRegistry.COMM_TRIGGER_IN));
                 return false;
             }
 
             //is there a game running already in this channel?
             if (Games.get(this.channelId) != null) {
-                Wolfia.handleOutputMessage(this.channelId,
-                        "%s, there is already a game going on in this channel!",
-                        TextchatUtils.userAsMention(commandCallerId));
+                RestActions.sendMessage(channel, TextchatUtils.userAsMention(commandCallerId)
+                        + ", there is already a game going on in this channel!");
                 return false;
             }
 
@@ -256,9 +259,9 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
             cleanUpInnedPlayers();
             final Set<Long> inned = new HashSet<>(this.innedUsers);
             if (!game.isAcceptablePlayerCount(inned.size(), getMode())) {
-                Wolfia.handleOutputMessage(this.channelId,
+                RestActions.sendMessage(channel, String.format(
                         "There aren't enough (or too many) players signed up! Please use `%s` for more information",
-                        Config.PREFIX + CommRegistry.COMM_TRIGGER_STATUS);
+                        Config.PREFIX + CommRegistry.COMM_TRIGGER_STATUS));
                 return false;
             }
 

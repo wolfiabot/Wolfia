@@ -25,6 +25,7 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entities.stats.CommandStats;
 import space.npstr.wolfia.utils.UserFriendlyException;
+import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
@@ -165,10 +166,13 @@ public class CommandHandler {
                             ev.getAuthor().getIdLong(), inviteLink, t);
                     t = t.getCause();
                 }
-                Wolfia.handleOutputMessage(ev.getTextChannel(),
-                        "%s, an internal exception happened while executing your command\n`%s`\nSorry about that. Please " +
-                                "contact the developer through the website or Discord guild sent to you through `%s`",
-                        ev.getAuthor().getAsMention(), context.msg.getRawContent(), Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP);
+                RestActions.sendMessage(ev.getTextChannel(),
+                        String.format("%s, an internal exception happened while executing your command:"
+                                        + "\n`%s`"
+                                        + "\nSorry about that. The issue has been logged and will hopefully be fixed soon."
+                                        + "\nIf you want to help solve this as fast as possible, please join our support guild."
+                                        + "\nSay `%s` to receive an invite.",
+                                ev.getAuthor().getAsMention(), context.msg.getRawContent(), Config.PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
             } catch (final Exception ex) {
                 log.error("Exception during exception handling of command", ex);
             }

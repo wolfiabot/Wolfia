@@ -24,19 +24,13 @@ import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.JDAInfo;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.requests.Requester;
-import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -56,7 +50,6 @@ import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.stats.GeneralBotStats;
-import space.npstr.wolfia.db.entities.stats.MessageOutputStats;
 import space.npstr.wolfia.db.migrations.m00001FixCharacterVaryingColumns;
 import space.npstr.wolfia.db.migrations.m00002CachedUserToDiscordUser;
 import space.npstr.wolfia.db.migrations.m00003EGuildToDiscordGuild;
@@ -77,7 +70,6 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -212,7 +204,7 @@ public class Wolfia {
                 .addEventListener(new InternalListener())
                 .addEventListener(new Listings())
                 .setEnableShutdownHook(false)
-                .setGame(Game.watching(App.GAME_STATUS))
+                .setGame(Game.playing(App.GAME_STATUS))
                 .setHttpClientBuilder(getDefaultHttpClientBuilder())
                 .setReconnectQueue(sessionReconnectQueue);
 
@@ -243,11 +235,11 @@ public class Wolfia {
         while (!allShardsUp()) {
             Thread.sleep(1000);
         }
+        started = true;
 
         //post stats every 10 minutes
         executor.scheduleAtFixedRate(ExceptionLoggingExecutor.wrapExceptionSafe(Wolfia::generalBotStatsToDB),
-                1, 10, TimeUnit.MINUTES);
-        started = true;
+                0, 10, TimeUnit.MINUTES);
 
 
         //sync guild cache
@@ -318,6 +310,25 @@ public class Wolfia {
             if (textChannel != null) return textChannel;
         }
         return null;
+    }
+
+    //this method assumes that the id itself is legit and not a mistake
+    // it is an attempt to improve the occasional inconsistency of discord which makes looking up channels a gamble
+    // the main feature being the @Nonnull return contract, over the @Nullable contract of looking the channel up in JDA
+    //todo what happens if we leave a server? do we get stuck in here? maybe make this throw an exception eventually and exit?
+    @Nonnull
+    public static TextChannel fetchChannel(final long channelId) {
+        TextChannel tc = Wolfia.getTextChannelById(channelId);
+        while (tc == null) {
+            log.error("Could not find channel {}, retrying in a moment", channelId, new LogTheStackException());
+            try {
+                Thread.sleep(5000);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            tc = Wolfia.getTextChannelById(channelId);
+        }
+        return tc;
     }
 
     @Nullable
@@ -399,51 +410,51 @@ public class Wolfia {
     //################## message handling + tons of overloaded methods
 
     //calling with complete = true will ignore onsuccess and on fail, but return an optional with the message
-    private static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel,
-                                                         final Consumer<Message> onSuccess, final Consumer<Throwable> onFail,
-                                                         final String msg, final Object... args) {
-        if (complete && (onSuccess != null || onFail != null)) {
-            log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
-        }
-        if (channel == null) {
-            throw new IllegalArgumentException("Provided channel is null");
-        }
-        final MessageBuilder mb = new MessageBuilder();
-        if (args.length == 0) {
-            mb.append(msg);
-        } else {
-            mb.appendFormat(msg, args);
-        }
-        try {
-            final RestAction<Message> ra = channel.sendMessage(mb.build());
-            if (complete) {
-                final Message message = ra.complete();
-                executor.submit(() -> dbWrapper.persist(new MessageOutputStats(message)));
-                return Optional.of(message);
-            } else {
-                Consumer<Throwable> fail = onFail;
-                if (fail == null) {
-                    fail = throwable -> {
-                        if (!(channel instanceof PrivateChannel)) { //ignore exceptions when sending to private channels
-                            final LogTheStackException stack = new LogTheStackException();
-                            stack.initCause(throwable);
-                            log.error("Exception when sending a message in channel {}", channel.getIdLong(), stack);
-                        }
-                    };
-                }
-                //for stats keeping
-                final Consumer<Message> wrappedSuccess = (message) -> {
-                    executor.submit(() -> dbWrapper.persist(new MessageOutputStats(message)));
-                    if (onSuccess != null) onSuccess.accept(message);
-                };
-                ra.queue(wrappedSuccess, fail);
-            }
-        } catch (final PermissionException e) {
-            log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
-            if (onFail != null) onFail.accept(e);
-        }
-        return Optional.empty();
-    }
+//    private static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel,
+//                                                         final Consumer<Message> onSuccess, final Consumer<Throwable> onFail,
+//                                                         final String msg, final Object... args) {
+//        if (complete && (onSuccess != null || onFail != null)) {
+//            log.warn("called handleOutputMessage() with complete set to true AND an onSuccess or onFail handler. check your code, dude");
+//        }
+//        if (channel == null) {
+//            throw new IllegalArgumentException("Provided channel is null");
+//        }
+//        final MessageBuilder mb = new MessageBuilder();
+//        if (args.length == 0) {
+//            mb.append(msg);
+//        } else {
+//            mb.appendFormat(msg, args);
+//        }
+//        try {
+//            final RestAction<Message> ra = channel.sendMessage(mb.build());
+//            if (complete) {
+//                final Message message = ra.complete();
+//                executor.submit(() -> dbWrapper.persist(new MessageOutputStats(message)));
+//                return Optional.of(message);
+//            } else {
+//                Consumer<Throwable> fail = onFail;
+//                if (fail == null) {
+//                    fail = throwable -> {
+//                        if (!(channel instanceof PrivateChannel)) { //ignore exceptions when sending to private channels
+//                            final LogTheStackException stack = new LogTheStackException();
+//                            stack.initCause(throwable);
+//                            log.error("Exception when sending a message in channel {}", channel.getIdLong(), stack);
+//                        }
+//                    };
+//                }
+//                //for stats keeping
+//                final Consumer<Message> wrappedSuccess = (message) -> {
+//                    executor.submit(() -> dbWrapper.persist(new MessageOutputStats(message)));
+//                    if (onSuccess != null) onSuccess.accept(message);
+//                };
+//                ra.queue(wrappedSuccess, fail);
+//            }
+//        } catch (final PermissionException e) {
+//            log.error("Could not post a message in channel {} due to missing permission {}", channel.getId(), e.getPermission().name(), e);
+//            if (onFail != null) onFail.accept(e);
+//        }
+//        return Optional.empty();
+//    }
 
 //    public static Optional<Message> handleOutputMessage(final boolean complete, final MessageChannel channel, final String msg, final Object... args) {
 //        return handleOutputMessage(complete, channel, null, null, msg, args);
@@ -454,27 +465,27 @@ public class Wolfia {
 //        return handleOutputMessage(complete, channel, null, null, msg, args);
 //    }
 
-    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        return handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
-    }
+//    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+//        return handleOutputMessage(false, channel, onSuccess, onFail, msg, args);
+//    }
 
-    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        final TextChannel channel = getTextChannelById(channelId);
-        return handleOutputMessage(channel, onSuccess, onFail, msg, args);
-    }
+//    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+//        final TextChannel channel = getTextChannelById(channelId);
+//        return handleOutputMessage(channel, onSuccess, onFail, msg, args);
+//    }
 
-    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
-        return handleOutputMessage(false, channel, null, null, msg, args);
-    }
+//    public static Optional<Message> handleOutputMessage(final MessageChannel channel, final String msg, final Object... args) {
+//        return handleOutputMessage(false, channel, null, null, msg, args);
+//    }
 
-    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        final TextChannel channel = getTextChannelById(channelId);
-        return handleOutputMessage(false, channel, null, onFail, msg, args);
-    }
+//    public static Optional<Message> handleOutputMessage(final long channelId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+//        final TextChannel channel = getTextChannelById(channelId);
+//        return handleOutputMessage(false, channel, null, onFail, msg, args);
+//    }
 
-    public static Optional<Message> handleOutputMessage(final long channelId, final String msg, final Object... args) {
-        return handleOutputMessage(channelId, null, msg, args);
-    }
+//    public static Optional<Message> handleOutputMessage(final long channelId, final String msg, final Object... args) {
+//        return handleOutputMessage(channelId, null, msg, args);
+//    }
 
 //    //embeds
 //    private static Optional<Message> handleOutputEmbed(final boolean complete, final MessageChannel channel,
@@ -524,21 +535,21 @@ public class Wolfia {
 
 
     //send a message to a user privately
-    public static void handlePrivateOutputMessage(final long userId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
-        if (onFail == null) {
-            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
-                    "error log spam. Fix your code please.");
-        }
-        try {
-            final User u = getUserById(userId);
-            if (u == null) {
-                throw new NullPointerException("No such user: " + userId);
-            }
-            u.openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
-        } catch (final Exception e) {
-            if (onFail != null) onFail.accept(e);
-        }
-    }
+//    public static void handlePrivateOutputMessage(final long userId, final Consumer<Throwable> onFail, final String msg, final Object... args) {
+//        if (onFail == null) {
+//            log.error("Trying to send a private message without an onFail handler :smh:. This may lead to unnecessary " +
+//                    "error log spam. Fix your code please.");
+//        }
+//        try {
+//            final User u = getUserById(userId);
+//            if (u == null) {
+//                throw new NullPointerException("No such user: " + userId);
+//            }
+//            u.openPrivateChannel().queue((privateChannel) -> Wolfia.handleOutputMessage(privateChannel, null, onFail, msg, args), onFail);
+//        } catch (final Exception e) {
+//            if (onFail != null) onFail.accept(e);
+//        }
+//    }
 
 //    public static void handlePrivateOutputMessage(final long userId, final Consumer<Message> onSuccess, final Consumer<Throwable> onFail, final String msg, final Object... args) {
 //        if (onFail == null) {

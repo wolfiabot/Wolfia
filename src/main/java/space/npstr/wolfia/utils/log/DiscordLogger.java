@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.utils.discord.RestActions;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -82,7 +83,7 @@ public class DiscordLogger {
                 log.error("Exception when sending discord logger message", t);
                 log(message);//readd it to the queue
             };
-            Wolfia.handleOutputMessage(channel, onSuccess, onFail, message);
+            RestActions.sendMessage(channel, message, onSuccess, onFail);
 
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();

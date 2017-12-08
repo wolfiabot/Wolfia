@@ -160,7 +160,8 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
 
         final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME).complete();
         event.getGuild().getController().addRolesToMember(event.getMember(), wolf).queue(
-                aVoid -> Wolfia.handleOutputMessage(this.currentChannelId, "%s, welcome to wolf chat!", event.getMember().getAsMention()),
+                aVoid -> RestActions.sendMessage(Wolfia.fetchChannel(this.currentChannelId),
+                        event.getMember().getAsMention() + ", welcome to wolf chat!"),
                 Wolfia.defaultOnFail()
         );
     }
