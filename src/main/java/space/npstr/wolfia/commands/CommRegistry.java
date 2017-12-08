@@ -82,7 +82,7 @@ public class CommRegistry {
     @Nullable
     public BaseCommand getCommand(@Nonnull final String input) {
         return this.commands.stream()
-                .filter(command -> input.startsWith(command.name) || command.aliases.contains(input))
+                .filter(command -> input.equalsIgnoreCase(command.name) || command.aliases.contains(input.toLowerCase()))
                 .findFirst()
                 .orElse(null);
     }
