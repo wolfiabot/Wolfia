@@ -15,38 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.stats;
+package space.npstr.wolfia.commands.util;
+
 
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
 
 /**
- * Created by napster on 10.06.17.
- * <p>
- * Show stats of the whole bot
+ * Created by napster on 21.11.17.
  */
-public class BotStatsCommand extends BaseCommand {
+public class InviteCommand extends BaseCommand {
 
-    public BotStatsCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public InviteCommand(@Nonnull final String name, @Nonnull final String... aliases) {
+        super(name, aliases);
     }
 
     @Nonnull
     @Override
-    public String help() {
+    protected String help() {
         return invocation()
-                + "\n#Show game stats for all games ever played with Wolfia.";
+                + "\n#Post invite links for Wolfia and the Wolfia Lounge.";
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context)
-            throws DatabaseException, IllegalGameStateException {
-        context.reply(StatsProvider.getBotStats().build());
+    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
+        context.reply(String.format("**Wolfia Bot Invite**:\n<%s>\n**Wolfia Lounge**:\n%s",
+                App.INVITE_LINK, App.WOLFIA_LOUNGE_INVITE));
         return true;
     }
 }

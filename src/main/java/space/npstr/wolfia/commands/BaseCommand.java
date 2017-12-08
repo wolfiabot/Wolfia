@@ -24,43 +24,39 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-import java.util.ArrayList;
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by npstr on 23.08.2016
  */
 public abstract class BaseCommand {
 
-    private final List<String> commandTriggers;
+    public final String name;
+    public final List<String> aliases;
 
-    public BaseCommand(final String trigger, final String... aliases) {
-        this.commandTriggers = new ArrayList<>();
-        this.commandTriggers.add(trigger);
-        this.commandTriggers.addAll(Arrays.asList(aliases));
+    public BaseCommand(@Nonnull final String name, @Nonnull final String... aliases) {
+        this.name = name;
+        this.aliases = Arrays.asList(aliases);
     }
 
     //executes the command
-    protected abstract boolean execute(CommandParser.CommandContainer commandInfo)
+    protected abstract boolean execute(@Nonnull CommandContext context)
             throws IllegalGameStateException, DatabaseException;
 
     //return a help string that should explain the usage of this command
+    @Nonnull
     protected abstract String help();
 
     //returns a help string with aliases, if there are any
     public String getHelp() {
-        final List<String> aliases = new ArrayList<>();
-
-        for (final String trigger : this.commandTriggers) {
-            if (trigger.equals(getMainTrigger())) {
-                continue;
-            }
-            aliases.add(Config.PREFIX + trigger);
-        }
-
-        if (!aliases.isEmpty()) {
-            return help() + "\nAlias: " + String.join(", ", aliases);
+        if (!this.aliases.isEmpty()) {
+            final List<String> prefixedAliases = this.aliases.stream()
+                    .map(alias -> Config.PREFIX + alias)
+                    .collect(Collectors.toList());
+            return help() + "\nAlias: " + String.join(", ", prefixedAliases);
         } else {
             return help();
         }
@@ -72,12 +68,9 @@ public abstract class BaseCommand {
                 invoker.getAsMention(), TextchatUtils.asMarkdown(getHelp()));
     }
 
-    //returns the main string representing the command which was the former COMMAND fields
-    public String getMainTrigger() {
-        return this.commandTriggers.get(0);
-    }
-
-    public List<String> commandTriggers() {
-        return this.commandTriggers;
+    //how to invoke this command with its main trigger
+    @Nonnull
+    protected String invocation() {
+        return Config.PREFIX + this.name;
     }
 }

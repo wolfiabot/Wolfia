@@ -3,10 +3,10 @@ layout: default
 ---
 
 {: .invite-image.center}
-[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot&permissions=268787777)
+[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://discordapp.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot)
 
 {:.center}
-[Click the banner above to invite Wolfia](https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot&permissions=268787777)
+[Click the banner above to invite Wolfia](https://discordapp.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot)
 
 * * *
 
@@ -99,6 +99,7 @@ Command             | What it does                                        | Exam
 `w.commands`        | show a list of all available commands               | `w.commands`
 `w.help`            | send some help your way                             | `w.help`
 `w.info`            | show some general information about Wolfia          | `w.info`
+`w.invite`          | post invite links for Wolfia and the Wolfia Lounge  | `w.inv`
 `w.replay`          | show the replay of a game                           | `w.replay #gameid`
 `w.tag`             | post or sign up for the tag list of the channel     | `w.tag add` `w.tag remove` `w.tag add @role`
 

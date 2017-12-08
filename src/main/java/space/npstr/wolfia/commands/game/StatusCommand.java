@@ -17,13 +17,15 @@
 
 package space.npstr.wolfia.commands.game;
 
+import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by npstr on 24.08.2016
@@ -39,31 +41,32 @@ public class StatusCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger()
-                + "\n#Post the current game status or sign up list.";
+        return invocation() + "\n#Post the current game status or sign up list.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
 
-        final Game game = Games.get(commandInfo.event.getChannel().getIdLong());
+        final Game game = Games.get(context.getChannel().getIdLong());
         if (game != null) {
-            commandInfo.reply(game.getStatus().build());
+            context.reply(game.getStatus().build());
             return true;
         }
 
         //was this called from a private guild of an ongoing game? post the status of the corresponding game
         for (final Game g : Games.getAll().values()) {
-            if (g.getPrivateGuildId() == commandInfo.event.getGuild().getIdLong()) {
-                commandInfo.reply(g.getStatus().build());
+            final Guild guild = context.getGuild();
+            if (guild != null && guild.getIdLong() == g.getPrivateGuildId()) {
+                context.reply(g.getStatus().build());
                 return true;
             }
         }
 
-        final SetupEntity setup = SetupEntity.load(commandInfo.event.getChannel().getIdLong());
-        setup.postStatus();
+        final SetupEntity setup = SetupEntity.load(context.channel.getIdLong());
+        context.reply(setup.getStatus());
         return true;
     }
 }

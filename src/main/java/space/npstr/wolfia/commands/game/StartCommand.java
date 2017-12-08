@@ -18,11 +18,12 @@
 package space.npstr.wolfia.commands.game;
 
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by npstr on 14.09.2016
@@ -35,16 +36,17 @@ public class StartCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger()
+        return invocation()
                 + "\n#Start the game. Game will only start if enough players have signed up.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo)
+    public boolean execute(@Nonnull final CommandContext context)
             throws IllegalGameStateException, DatabaseException {
-        final SetupEntity setup = SetupEntity.load(commandInfo.event.getChannel().getIdLong());
-        return setup.startGame(commandInfo.event.getAuthor().getIdLong());
+        final SetupEntity setup = SetupEntity.load(context.getChannel().getIdLong());
+        return setup.startGame(context.invoker.getIdLong());
     }
 }

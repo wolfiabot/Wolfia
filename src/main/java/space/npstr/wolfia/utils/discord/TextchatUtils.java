@@ -19,7 +19,10 @@ package space.npstr.wolfia.utils.discord;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Invite;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import space.npstr.wolfia.utils.Operation;
 
@@ -180,5 +183,61 @@ public class TextchatUtils {
 
     public static String defuseMentions(final String input) {
         return input.replaceAll("@", "@" + ZERO_WIDTH_SPACE);
+    }
+
+
+    private static final List<Character> MARKDOWN_CHARS = Arrays.asList('*', '`', '~', '_');
+
+    //thanks fredboat
+    @Nonnull
+    public static String escapeMarkdown(@Nonnull final String str) {
+        final StringBuilder revisedString = new StringBuilder(str.length());
+        for (final Character n : str.toCharArray()) {
+            if (MARKDOWN_CHARS.contains(n)) {
+                revisedString.append("\\");
+            }
+            revisedString.append(n);
+        }
+        return revisedString.toString();
+    }
+
+    @Nonnull
+    public static Message prefaceWithName(@Nonnull final User user, @Nonnull final String msg, final boolean escape) {
+        String name = user.getName();
+        if (escape) {
+            name = escapeMarkdown(name);
+        }
+        return prefaceWithString(name, msg);
+    }
+
+    @Nonnull
+    public static Message prefaceWithName(@Nonnull final Member member, @Nonnull final String msg, final boolean escape) {
+        String name = member.getEffectiveName();
+        if (escape) {
+            name = escapeMarkdown(name);
+        }
+        return prefaceWithString(name, msg);
+    }
+
+    @Nonnull
+    public static Message prefaceWithMention(@Nonnull final User user, @Nonnull final String msg) {
+        return prefaceWithString(user.getAsMention(), msg);
+    }
+
+    //thanks fredboat
+    @Nonnull
+    private static Message prefaceWithString(@Nonnull final String preface, @Nonnull final String msg) {
+        final String message = ensureSpace(msg);
+        return RestActions.getClearThreadLocalMessageBuilder()
+                .append(preface)
+                .append(",")
+                .append(message)
+                .build();
+    }
+
+    //thanks fredboat
+    @Nonnull
+    private static String ensureSpace(@Nonnull final String msg) {
+        return msg.charAt(0) == ' ' ? msg : " " + msg;
     }
 }

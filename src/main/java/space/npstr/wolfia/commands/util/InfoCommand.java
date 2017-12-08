@@ -21,11 +21,12 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.definitions.Games;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -39,14 +40,15 @@ public class InfoCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger()
+        return invocation()
                 + "\n#Show some statistics about this bot.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(@Nonnull final CommandContext context) {
         final User owner = Wolfia.getUserById(App.OWNER_ID);
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
@@ -78,7 +80,7 @@ public class InfoCommand extends BaseCommand {
         eb.addField("Machine stats", maStats, false);
 
 
-        Wolfia.handleOutputEmbed(commandInfo.event.getTextChannel(), eb.build());
+        context.reply(eb.build());
         return true;
     }
 }

@@ -17,18 +17,15 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -53,33 +50,27 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
     private final String CREATE_TEST_TABLE = "CREATE TABLE IF NOT EXISTS test (id SERIAL, val INTEGER, PRIMARY KEY (id));";
     private final String INSERT_TEST_TABLE = "INSERT INTO test (val) VALUES (:val) ";
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " [n m]\n#Stress test the database with n threads each doing m operations. Results will be shown after max 10 minutes.";
+        return invocation() + " [n m]\n#Stress test the database with n threads each doing m operations. Results will be shown after max 10 minutes.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
-        return invoke(commandInfo.event.getTextChannel(), commandInfo.event.getMember(), commandInfo.args);
-    }
-
-    public boolean invoke(final TextChannel channel, final Member invoker, final String[] args)
-            throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
 
         boolean result = false;
 
         int t = 20;
         int o = 2000;
-        if (args.length > 1) {
-            t = Integer.parseInt(args[0]);
-            o = Integer.parseInt(args[1]);
+        if (context.args.length > 1) {
+            t = Integer.parseInt(context.args[0]);
+            o = Integer.parseInt(context.args[1]);
         }
         final int threads = t;
         final int operations = o;
-        if (channel != null && invoker != null) {
-            Wolfia.handleOutputMessage(channel, "%s, beginning stress test with %s threads each doing %s operations.",
-                    TextchatUtils.userAsMention(invoker.getUser().getIdLong()), threads, operations);
-        }
+        context.replyWithMention("beginning db stress test with " + threads + " threads each doing " + operations + " operations.");
+
 
         prepareStressTest();
         final long started = System.currentTimeMillis();
@@ -123,10 +114,7 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
         out.append("\n Time taken: ").append(System.currentTimeMillis() - started).append("ms for ")
                 .append(threads * operations).append(" requested operations.`");
         log.info(out.toString());
-        if (channel != null && invoker != null) {
-            Wolfia.handleOutputMessage(channel, TextchatUtils.userAsMention(invoker.getUser().getIdLong()) + "\n" + out);
-        }
-
+        context.replyWithMention("\n" + out);
         return result;
     }
 

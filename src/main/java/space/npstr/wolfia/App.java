@@ -20,7 +20,7 @@ package space.npstr.wolfia;
 import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.wolfia.commands.CommandHandler;
+import space.npstr.wolfia.commands.CommRegistry;
 
 import java.util.ResourceBundle;
 
@@ -39,13 +39,14 @@ public class App {
     public static final long BUILD_TIME = Long.parseLong(props.getString("buildTime"));
 
     public static final long OWNER_ID = 166604053629894657L;//Napster
-    public static final String INVITE_LINK = "https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot&permissions=268787777";
-    public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";
+    //https://discordapp.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot
+    public static final String INVITE_LINK = "https://url.npstr.space/wolfia/bot";
+    public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";//https://url.npstr.space/wolfia/guild but this doesnt show the embed
     public static final long WOLFIA_LOUNGE_ID = 315944983754571796L;
     public static final String SITE_LINK = "https://wolfia.party";
     public static final String DOCS_LINK = "https://docs.wolfia.party";
     public static final String GITHUB_LINK = "https://github.com/napstr/wolfia";
-    public static final String GAME_STATUS = Config.PREFIX + CommandHandler.COMM_TRIGGER_HELP + " | " + SITE_LINK + " | Public β";
+    public static final String GAME_STATUS = Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP + " | " + SITE_LINK + " | Public β";
 
     private static ApplicationInfo appInfo;
 

@@ -22,13 +22,14 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
 /**
@@ -42,13 +43,14 @@ public class RunningCommand extends BaseCommand implements IOwnerRestricted {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
         return "List all running games";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws IllegalGameStateException {
+    public boolean execute(@Nonnull final CommandContext context) throws IllegalGameStateException {
 
         final Map<Long, Game> games = Games.getAll();
         for (final Game game : games.values()) {
@@ -69,10 +71,10 @@ public class RunningCommand extends BaseCommand implements IOwnerRestricted {
             if (channel != null)
                 eb.addField("Invite", TextchatUtils.getOrCreateInviteLinkForGuild(channel.getGuild(), channel), true);
 
-            commandInfo.reply(eb.build());
+            context.reply(eb.build());
         }
 
-        commandInfo.reply(String.format("%s games registered.", games.size()));
+        context.reply(String.format("%s games registered.", games.size()));
         return true;
     }
 }

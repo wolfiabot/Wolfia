@@ -18,16 +18,16 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.SetupEntity;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by npstr on 23.08.2016
@@ -38,33 +38,40 @@ public class OutCommand extends BaseCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " [@user]"
+        return invocation() + " [@user]"
                 + "\n#Remove you from the current signup list. Moderators can out other players by mentioning them.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
-        final SetupEntity setup = SetupEntity.load(commandInfo.event.getChannel().getIdLong());
+    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
+        if (context.channel.getType() != ChannelType.TEXT) {
+            context.reply("This command is for guilds only.");
+            return false;
+        }
+        final TextChannel channel = (TextChannel) context.channel;
+        final SetupEntity setup = SetupEntity.load(channel.getIdLong());
         //is this a forced out of a player by an moderator or the bot owner?
-        if (commandInfo.event.getMessage().getMentionedUsers().size() > 0) {
-            final Member invoker = commandInfo.event.getMember();
-            final TextChannel channel = commandInfo.event.getTextChannel();
-            if (!invoker.hasPermission(channel, Permission.MESSAGE_MANAGE) && !App.isOwner(invoker)) {
-                Wolfia.handleOutputMessage(channel, "%s, you need to have the MESSAGE_MANAGE permission for this channel to be able to out players.", invoker.getAsMention());
+        if (!context.msg.getMentionedUsers().isEmpty()) {
+            final Member member = context.getMember();
+
+            if (member == null || (!member.hasPermission(channel, Permission.MESSAGE_MANAGE) && !context.isOwner())) {
+                context.replyWithMention("you need to have the following permission in this channel to be able to out players: "
+                        + "**" + Permission.MESSAGE_MANAGE.name() + "**");
                 return false;
             } else {
-                for (final User u : commandInfo.event.getMessage().getMentionedUsers()) {
+                for (final User u : context.msg.getMentionedUsers()) {
                     setup.outUser(u.getIdLong());
                 }
-                setup.postStatus();
+                context.reply(setup.getStatus());
                 return true;
             }
         } else {
             //handling a regular out
-            if (setup.outUser(commandInfo.event.getAuthor().getIdLong())) {
-                setup.postStatus();
+            if (setup.outUser(context.invoker.getIdLong())) {
+                context.reply(setup.getStatus());
                 return true;
             }
         }

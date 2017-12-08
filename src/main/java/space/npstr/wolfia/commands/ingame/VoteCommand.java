@@ -17,8 +17,9 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.GameCommand;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 06.07.17.
@@ -31,9 +32,10 @@ public class VoteCommand extends GameCommand {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
-        return Config.PREFIX + getMainTrigger() + " @player"
+        return invocation() + " @player"
                 + "\n#Vote the mentioned player for lynch.";
     }
 }

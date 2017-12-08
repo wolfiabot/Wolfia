@@ -4,9 +4,11 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.Hstore;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 14.07.17.
@@ -21,17 +23,17 @@ public class MaintenanceCommand extends BaseCommand implements IOwnerRestricted 
 
     public static final String MAINTENANCE_FLAG = "maintenanceFlag";
 
+    @Nonnull
     @Override
     public String help() {
         return "Set the maintenance flag";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo)
+    public boolean execute(@Nonnull final CommandContext context)
             throws IllegalGameStateException, DatabaseException {
-        flipMaintenancFlag();
-        Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(), "%s, set the maintenance flag to **%s**",
-                commandInfo.event.getAuthor().getAsMention(), getMaintenanceFlag());
+        flipMaintenanceFlag();
+        context.replyWithMention("set the maintenance flag to **" + getMaintenanceFlag() + "**");
         return true;
     }
 
@@ -39,7 +41,7 @@ public class MaintenanceCommand extends BaseCommand implements IOwnerRestricted 
         return Boolean.valueOf(Hstore.loadAndGet(Wolfia.getDbWrapper(), MAINTENANCE_FLAG, Boolean.FALSE.toString()));
     }
 
-    public static void flipMaintenancFlag() throws DatabaseException {
+    public static void flipMaintenanceFlag() throws DatabaseException {
         final Hstore hstore = Hstore.load(Wolfia.getDbWrapper());
         final String maintenance = hstore.get(MAINTENANCE_FLAG, Boolean.FALSE.toString());
         hstore.set(MAINTENANCE_FLAG, Boolean.toString(!Boolean.valueOf(maintenance))).save();

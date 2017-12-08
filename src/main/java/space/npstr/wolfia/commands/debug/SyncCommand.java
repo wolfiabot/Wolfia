@@ -26,7 +26,7 @@ import space.npstr.sqlsauce.entities.discord.DiscordGuild;
 import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.EGuild;
@@ -55,6 +55,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
     private final ExecutorService syncService;
 
 
+    @Nonnull
     @Override
     protected String help() {
         return "Force a sync of the guilds and/or users present in the bot with the data saved in the database.";
@@ -70,32 +71,32 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
 
         boolean actionFound = false;
-        if (commandInfo.raw.toLowerCase().contains(ACTION_GUILDS)) {
+        if (context.msg.getRawContent().toLowerCase().contains(ACTION_GUILDS)) {
             actionFound = true;
-            commandInfo.reply("Starting guilds sync.");
+            context.reply("Starting guilds sync.");
             syncGuilds(
                     this.syncService,
                     Wolfia.getShards().stream().flatMap(jda -> jda.getGuildCache().stream()),
-                    (duration, amount) -> commandInfo.reply(amount + " guilds synced in " + duration + "ms")
+                    (duration, amount) -> context.reply(amount + " guilds synced in " + duration + "ms")
             );
         }
 
-        if (commandInfo.raw.toLowerCase().contains(ACTION_USERS)) {
+        if (context.msg.getRawContent().toLowerCase().contains(ACTION_USERS)) {
             actionFound = true;
-            commandInfo.reply("Starting users caching.");
+            context.reply("Starting users caching.");
             cacheUsers(
                     Wolfia.getShards(),
-                    result -> commandInfo.reply("Shard " + result.shardId + ": "
+                    result -> context.reply("Shard " + result.shardId + ": "
                             + result.amount + " users cached in "
                             + result.duration + "ms")
             );
         }
 
         if (!actionFound) {
-            commandInfo.reply("Did not find any action in your input, use one of these in your message:"
+            context.reply("Did not find any action in your input, use one of these in your message:"
                     + "\n" + ACTION_GUILDS
                     + "\n" + ACTION_USERS
             );

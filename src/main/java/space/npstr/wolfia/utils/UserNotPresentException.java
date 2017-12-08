@@ -15,24 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.ingame;
-
-import space.npstr.wolfia.commands.GameCommand;
-
-import javax.annotation.Nonnull;
+package space.npstr.wolfia.utils;
 
 /**
- * Created by napster on 06.08.17.
+ * Created by napster on 07.12.17.
  */
-public class VoteCountCommand extends GameCommand {
+public class UserNotPresentException extends RuntimeException {
 
-    public VoteCountCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
-    }
-
-    @Nonnull
-    @Override
-    public String help() {
-        return invocation() + "\n#Post the current votecount.";
+    public UserNotPresentException(final long id) {
+        super("User with id " + id + " not present in the bot.");
     }
 }

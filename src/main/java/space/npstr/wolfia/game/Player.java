@@ -19,6 +19,9 @@ package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
@@ -27,10 +30,13 @@ import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
+import space.npstr.wolfia.utils.UserNotPresentException;
 import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 /**
  * Created by napster on 05.07.17.
@@ -182,5 +188,27 @@ public class Player {
         if (!(obj instanceof Player)) return false;
         final Player other = (Player) obj;
         return this.userId == other.userId && this.channelId == other.channelId;
+    }
+
+    public void sendMessage(@Nonnull final String content, @Nonnull final Consumer<Throwable> onFail) {
+        sendMessage(RestActions.from(content), onFail);
+    }
+
+
+    public void sendMessage(@Nonnull final MessageEmbed embed, @Nonnull final Consumer<Throwable> onFail) {
+        sendMessage(RestActions.from(embed), onFail);
+    }
+
+    /**
+     * Send a private message to the user behind this player. May supply the failure handler with a UserNotPresentException
+     * if the user is not present in the bot
+     */
+    public void sendMessage(@Nonnull final Message message, @Nonnull final Consumer<Throwable> onFail) {
+        final User user = Wolfia.getUserById(this.userId);
+        if (user != null) {
+            RestActions.sendPrivateMessage(user, message, null, onFail);
+        } else {
+            onFail.accept(new UserNotPresentException(this.userId));
+        }
     }
 }

@@ -19,9 +19,11 @@ package space.npstr.wolfia.commands.debug;
 
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.definitions.Games;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 28.05.17.
@@ -34,37 +36,35 @@ public class RestartCommand extends BaseCommand implements IOwnerRestricted {
 
     private boolean reminded = false;
 
+    @Nonnull
     @Override
     public String help() {
         return "Restart the bot.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) {
+    public boolean execute(@Nonnull final CommandContext context) {
 
         if (Wolfia.isShuttingDown()) {
-            commandInfo.replyWithName(String.format("restart has been queued already! **%s** games still running.",
+            context.replyWithName(String.format("restart has been queued already! **%s** games still running.",
                     Games.getRunningGamesCount()));
             return false;
         }
 
         if (!this.reminded) {
-            Wolfia.handleOutputMessage(commandInfo.event.getTextChannel(),
-                    "%s, you have fucked up in the past so here's a reminder:" +
-                            "\n - Did you update the config files?" +
-                            "\n - Any database migration necessary/implemented?" +
-                            "\n - Did you actually upload the updated code?" +
-                            "\nJust run the command again if you're sure you have done everything." +
-                            "\n\n_Yours, %s_", commandInfo.event.getAuthor().getAsMention(), commandInfo.event.getJDA().getSelfUser().getName());
+            context.replyWithMention("you have fucked up in the past so here's a reminder:" +
+                    "\n - Did you update the config files?" +
+                    "\n - Any database migration necessary/implemented?" +
+                    "\n - Did you actually upload the updated code?" +
+                    "\nJust run the command again if you're sure you have done everything." +
+                    "\n\n_Yours, " + context.msg.getJDA().getSelfUser().getName() + "_");
             this.reminded = true;
             return false;
         }
 
-        Wolfia.handleOutputMessage(true, commandInfo.event.getTextChannel(),
-                "%s, **%s** games are still running. Will restart as soon as they are over.",
-                commandInfo.event.getAuthor().getAsMention(), Games.getRunningGamesCount());
-
-        new Thread(() -> Wolfia.shutdown(Wolfia.EXIT_CODE_RESTART), "shutdown-thread").start();
+        final String message = String.format("**%s** games are still running. Will restart as soon as they are over.",
+                Games.getRunningGamesCount());
+        context.replyWithMention(message, __ -> new Thread(() -> Wolfia.shutdown(Wolfia.EXIT_CODE_RESTART), "shutdown-thread").start());
         return true;
     }
 }

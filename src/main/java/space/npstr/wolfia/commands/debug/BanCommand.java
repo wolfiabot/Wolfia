@@ -18,21 +18,18 @@
 package space.npstr.wolfia.commands.debug;
 
 import net.dv8tion.jda.core.entities.ISnowflake;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.fp.types.EntityKey;
-import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandParser;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.Banlist;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -48,29 +45,24 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
         super(trigger, aliases);
     }
 
+    @Nonnull
     @Override
     public String help() {
         return "Globally ban mentioned user from signing up for games.";
     }
 
     @Override
-    public boolean execute(final CommandParser.CommandContainer commandInfo) throws DatabaseException {
-
-
-        final MessageReceivedEvent event = commandInfo.event;
-        final TextChannel channel = event.getTextChannel();
-        final Member invoker = event.getMember();
+    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
 
         //is the user allowed to do that?
-        if (!App.isOwner(invoker)) {
-            Wolfia.handleOutputMessage(channel, "%s, you are not allowed to use the global banlist.",
-                    invoker.getAsMention());
+        if (!context.isOwner()) {
+            context.replyWithMention("you are not allowed to use the global banlist.");
             return false;
         }
 
         String option = "";
-        if (commandInfo.args.length > 0) {
-            option = commandInfo.args[0];
+        if (context.hasArguments()) {
+            option = context.args[0];
         }
 
         BanAction action = null;
@@ -81,13 +73,14 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
         }
 
         if (action == null) {
-            Wolfia.handleOutputMessage(channel, "%s, you didn't provide a ban action. Use `%s` or `%s`.",
-                    invoker.getAsMention(), TextchatUtils.TRUE_TEXT.get(0), TextchatUtils.FALSE_TEXT.get(0));
+            final String answer = String.format("you didn't provide a ban action. Use `%s` or `%s`.",
+                    TextchatUtils.TRUE_TEXT.get(0), TextchatUtils.FALSE_TEXT.get(0));
+            context.replyWithMention(answer);
             return false;
         }
 
 
-        final List<User> mentionedUsers = event.getMessage().getMentionedUsers();
+        final List<User> mentionedUsers = context.msg.getMentionedUsers();
 
         final List<String> mentions = new ArrayList<>();
         mentions.addAll(mentionedUsers.stream().map(User::getAsMention).collect(Collectors.toList()));
@@ -99,15 +92,13 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
                         .setScope(Scope.GLOBAL)
                         .save();
             }
-            Wolfia.handleOutputMessage(channel, "%s, added **%s** to the global ban list.", invoker.getAsMention(),
-                    joined);
+            context.replyWithMention(String.format("added **%s** to the global ban list.", joined));
             return true;
         } else { //removing
             for (final long userId : mentionedUsers.stream().map(ISnowflake::getIdLong).collect(Collectors.toList())) {
                 Wolfia.getDbWrapper().deleteEntity(EntityKey.of(userId, Banlist.class));
             }
-            Wolfia.handleOutputMessage(channel, "%s, removed **%s** from the global ban list.",
-                    invoker.getAsMention(), joined);
+            context.replyWithMention(String.format("removed **%s** from the global ban list.", joined));
             return true;
         }
     }
