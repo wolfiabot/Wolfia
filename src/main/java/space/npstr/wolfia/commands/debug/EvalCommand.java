@@ -70,17 +70,18 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
                     + ",Packages.space.npstr.wolfia.db"
                     + ",Packages.space.npstr.wolfia.db.entities"
                     + ",Packages.space.npstr.wolfia.db.entities.stats"
+                    + ",Packages.space.npstr.wolfia.db.migrations"
                     + ",Packages.space.npstr.wolfia.events"
                     + ",Packages.space.npstr.wolfia.db"
                     + ",Packages.space.npstr.wolfia.game"
-                    + ",Packages.space.npstr.wolfia.definitions"
-                    + ",Packages.space.npstr.wolfia.mafia"
-                    + ",Packages.space.npstr.wolfia.popcorn"
-                    + ",Packages.space.npstr.wolfia.tools"
+                    + ",Packages.space.npstr.wolfia.game.definitions"
+                    + ",Packages.space.npstr.wolfia.game.exceptions"
+                    + ",Packages.space.npstr.wolfia.game.mafia"
+                    + ",Packages.space.npstr.wolfia.game.popcorn"
+                    + ",Packages.space.npstr.wolfia.game.tools"
                     + ",Packages.space.npstr.wolfia.listings"
                     + ",Packages.space.npstr.wolfia.utils"
                     + ",Packages.space.npstr.wolfia.utils.discord"
-                    + ",Packages.space.npstr.wolfia.utils.img"
                     + ",Packages.space.npstr.wolfia.utils.log"
                     + ");");
 
@@ -139,6 +140,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
         this.engine.put("game", Games.get(context.channel.getIdLong()));
         this.engine.put("setup", SetupEntity.load(context.channel.getIdLong()));
         this.engine.put("games", Games.class);//access the static methods like this from eval: games.static.myStaticMethod()
+        this.engine.put("db", Wolfia.getDbWrapper());
 
         final Future<?> future = Wolfia.executor.submit(() -> {
 
