@@ -58,7 +58,7 @@ public class CommandContext extends MessageContext {
         String input;
 
         final String prefix = Config.PREFIX;
-        if (raw.startsWith(prefix)) {
+        if (raw.toLowerCase().startsWith(prefix.toLowerCase())) {
             input = raw.substring(prefix.length());
         } else {
             return null;
