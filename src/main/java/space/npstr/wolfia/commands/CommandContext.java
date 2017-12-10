@@ -54,7 +54,7 @@ public class CommandContext extends MessageContext {
     public static CommandContext parse(final MessageReceivedEvent event)//, final Histogram.Timer received)
             throws DatabaseException {
 
-        final String raw = event.getMessage().getRawContent();
+        final String raw = event.getMessage().getContentRaw();
         String input;
 
         final String prefix = Config.PREFIX;

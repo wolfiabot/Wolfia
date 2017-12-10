@@ -166,7 +166,7 @@ public abstract class Game {
         final long userId = message.getAuthor().getIdLong();
         final PlayerStats ps = this.playersStats.get(userId);
         if (ps != null) {
-            ps.bumpPosts(message.getRawContent().length());
+            ps.bumpPosts(message.getContentRaw().length());
         }
     }
 

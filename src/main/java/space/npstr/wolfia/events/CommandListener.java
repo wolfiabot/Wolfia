@@ -79,7 +79,7 @@ public class CommandListener extends ListenerAdapter {
         if (g != null) g.userPosted(event.getMessage());
 
         //ignore messages not starting with the prefix (prefix is accepted case insensitive)
-        final String raw = event.getMessage().getRawContent();
+        final String raw = event.getMessage().getContentRaw();
         if (!raw.toLowerCase().startsWith(Config.PREFIX.toLowerCase())) {
             return;
         }

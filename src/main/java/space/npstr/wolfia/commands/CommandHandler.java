@@ -128,16 +128,16 @@ public class CommandHandler {
             if (context.command instanceof IOwnerRestricted && !context.isOwner()) {
                 //not the bot owner
                 log.info("user {}, channel {}, attempted issuing owner restricted command: {}",
-                        context.invoker, context.channel, context.msg.getRawContent());
+                        context.invoker, context.channel, context.msg.getContentRaw());
                 return;
             }
             if (!filter.test(context.command)) {
                 log.info("user {}, channel {}, command: {} was filtered and will not be executed",
-                        context.invoker, context.channel, context.msg.getRawContent());
+                        context.invoker, context.channel, context.msg.getContentRaw());
                 return;
             }
             log.info("user {}, channel {}, command {} about to be executed",
-                    context.invoker, context.channel, context.msg.getRawContent());
+                    context.invoker, context.channel, context.msg.getContentRaw());
             final boolean success = context.invoke();
             final long executed = System.currentTimeMillis();
             try {
@@ -172,7 +172,7 @@ public class CommandHandler {
                                         + "\nSorry about that. The issue has been logged and will hopefully be fixed soon."
                                         + "\nIf you want to help solve this as fast as possible, please join our support guild."
                                         + "\nSay `%s` to receive an invite.",
-                                ev.getAuthor().getAsMention(), context.msg.getRawContent(), Config.PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
+                                ev.getAuthor().getAsMention(), context.msg.getContentRaw(), Config.PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
             } catch (final Exception ex) {
                 log.error("Exception during exception handling of command", ex);
             }

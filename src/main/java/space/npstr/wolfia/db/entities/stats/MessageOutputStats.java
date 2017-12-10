@@ -83,7 +83,7 @@ public class MessageOutputStats extends SaucedEntity<Long, MessageOutputStats> {
             default:
                 throw new IllegalArgumentException("Unexpected channel type of message " + message.getIdLong());
         }
-        this.rawMessage = message.getRawContent();
+        this.rawMessage = message.getContentRaw();
         this.length = this.rawMessage.length();
         this.isEmbed = !message.getEmbeds().isEmpty();
         this.timeStamp = message.getCreationTime().toInstant().toEpochMilli();

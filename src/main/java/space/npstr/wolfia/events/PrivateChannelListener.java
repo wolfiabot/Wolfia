@@ -44,7 +44,7 @@ public class PrivateChannelListener extends ListenerAdapter {
         }
 
         //ignore messages not starting with the prefix (prefix is accepted case insensitive)
-        final String raw = event.getMessage().getRawContent();
+        final String raw = event.getMessage().getContentRaw();
         if (!raw.toLowerCase().startsWith(Config.PREFIX.toLowerCase())) {
             return;
         }
@@ -72,7 +72,7 @@ public class PrivateChannelListener extends ListenerAdapter {
 
         //todo find a way to unify private channel commands in the CommandHandler
         if (this.allowedCommand.name.equals(context.command.name)) {
-            log.info("user {}, channel {}, command {}", event.getAuthor().getIdLong(), event.getChannel().getIdLong(), event.getMessage().getRawContent());
+            log.info("user {}, channel {}, command {}", event.getAuthor().getIdLong(), event.getChannel().getIdLong(), event.getMessage().getContentRaw());
             Wolfia.executor.submit(() -> {
                 boolean success = false;
                 try {
