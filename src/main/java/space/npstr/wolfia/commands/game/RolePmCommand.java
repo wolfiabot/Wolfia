@@ -19,8 +19,10 @@ package space.npstr.wolfia.commands.game;
 
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
 
@@ -42,22 +44,25 @@ public class RolePmCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
-        final long userId = context.invoker.getIdLong();
-        final long channelId = context.channel.getIdLong();
-
-        final Game game = Games.get(channelId);
-        if (game == null) {
-            context.replyWithMention("there is no game going on in here for which I could you a role pm.");
+    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
+        final GuildCommandContext context = commandContext.requireGuild();
+        if (context == null) {
             return false;
         }
 
-        if (!game.isUserPlaying(userId)) {
+        final Game game = Games.get(context.textChannel);
+        if (game == null) {
+            context.replyWithMention("there is no game going on in here for which I could send you a role pm.");
+            return false;
+        }
+
+
+        if (!game.isUserPlaying(context.member)) {
             context.replyWithMention("you aren't playing in this game.");
             return false;
         }
 
-        final String rolePm = game.getRolePm(userId);
+        final String rolePm = game.getRolePm(context.member);
 
         context.replyPrivate(rolePm, null,
                 __ -> context.replyWithMention("I cannot send you a private message, please unblock me and/or adjust your privacy settings."));

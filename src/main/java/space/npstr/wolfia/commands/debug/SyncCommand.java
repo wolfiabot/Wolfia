@@ -74,7 +74,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
     public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
 
         boolean actionFound = false;
-        if (context.msg.getRawContent().toLowerCase().contains(ACTION_GUILDS)) {
+        if (context.msg.getContentRaw().toLowerCase().contains(ACTION_GUILDS)) {
             actionFound = true;
             context.reply("Starting guilds sync.");
             syncGuilds(
@@ -84,7 +84,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
             );
         }
 
-        if (context.msg.getRawContent().toLowerCase().contains(ACTION_USERS)) {
+        if (context.msg.getContentRaw().toLowerCase().contains(ACTION_USERS)) {
             actionFound = true;
             context.reply("Starting users caching.");
             cacheUsers(

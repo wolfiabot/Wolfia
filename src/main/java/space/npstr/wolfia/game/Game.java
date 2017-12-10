@@ -24,6 +24,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,6 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
@@ -94,7 +94,6 @@ public abstract class Game {
     //commonly used fields
     protected long channelId = -1;
     protected long guildId = -1;
-    protected final Map<Long, String> rolePMs = new HashMap<>();
     protected GameInfo.GameMode mode;
     protected final List<Player> players = new ArrayList<>();
     protected volatile boolean running = false;
@@ -130,8 +129,19 @@ public abstract class Game {
     /**
      * @return the role pm of a user
      */
-    public String getRolePm(final long userId) {
-        return this.rolePMs.get(userId);
+    @Nonnull
+    public String getRolePm(final long userId) throws IllegalGameStateException {
+        return getPlayer(userId).getRolePm();
+    }
+
+    @Nonnull
+    public String getRolePm(@Nonnull final User user) throws IllegalGameStateException {
+        return getRolePm(user.getIdLong());
+    }
+
+    @Nonnull
+    public String getRolePm(@Nonnull final Member member) throws IllegalGameStateException {
+        return getRolePm(member.getUser());
     }
 
     /**
@@ -139,6 +149,14 @@ public abstract class Game {
      */
     public boolean isUserPlaying(final long userId) {
         return this.players.stream().anyMatch(p -> p.userId == userId);
+    }
+
+    public boolean isUserPlaying(@Nonnull final User user) {
+        return isUserPlaying(user.getIdLong());
+    }
+
+    public boolean isUserPlaying(@Nonnull final Member member) {
+        return isUserPlaying(member.getUser());
     }
 
     /**
@@ -166,7 +184,7 @@ public abstract class Game {
         final long userId = message.getAuthor().getIdLong();
         final PlayerStats ps = this.playersStats.get(userId);
         if (ps != null) {
-            ps.bumpPosts(message.getRawContent().length());
+            ps.bumpPosts(message.getContentRaw().length());
         }
     }
 
@@ -175,7 +193,7 @@ public abstract class Game {
      */
     @Nonnull
     protected TextChannel fetchGameChannel() {
-        return Wolfia.fetchChannel(this.channelId);
+        return Wolfia.fetchTextChannel(this.channelId);
     }
 
     /**
@@ -184,7 +202,7 @@ public abstract class Game {
      */
     @Nonnull
     protected TextChannel fetchBaddieChannel() {
-        return Wolfia.fetchChannel(this.wolfChat.getChannelId());
+        return Wolfia.fetchTextChannel(this.wolfChat.getChannelId());
     }
 
 
@@ -201,6 +219,7 @@ public abstract class Game {
         return false;
     }
 
+    @Nonnull
     protected Player getPlayer(final long userId) throws IllegalGameStateException {
         for (final Player p : this.players) {
             if (p.userId == userId) {
@@ -208,6 +227,16 @@ public abstract class Game {
             }
         }
         throw new IllegalGameStateException("Requested player " + userId + " is not in the player list");
+    }
+
+    @Nonnull
+    public Player getPlayer(@Nonnull final User user) throws IllegalGameStateException {
+        return getPlayer(user.getIdLong());
+    }
+
+    @Nonnull
+    public Player getPlayer(@Nonnull final Member member) throws IllegalGameStateException {
+        return getPlayer(member.getUser());
     }
 
     protected Player getPlayerByNumber(final int number) throws IllegalGameStateException {
@@ -731,11 +760,10 @@ public abstract class Game {
     /**
      * Let the game handle a command a user issued
      *
-     * @param command the issued command
      * @param context the context of the issued command
      * @return true if the command was executed successful
      * @throws IllegalGameStateException if the command entered led to an illegal game state
      */
-    public abstract boolean issueCommand(GameCommand command, CommandContext context)
+    public abstract boolean issueCommand(@Nonnull CommandContext context)
             throws IllegalGameStateException;
 }

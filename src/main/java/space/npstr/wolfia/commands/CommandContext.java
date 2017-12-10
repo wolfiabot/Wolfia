@@ -18,14 +18,20 @@
 package space.npstr.wolfia.commands;
 
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
@@ -37,6 +43,8 @@ import java.util.regex.Pattern;
  * Don't save these anywhere as they hold references to JDA objects, just pass them down through (short-lived) command execution
  */
 public class CommandContext extends MessageContext {
+
+    private static final Logger log = LoggerFactory.getLogger(CommandContext.class);
 
 
     //@formatter:off
@@ -54,7 +62,7 @@ public class CommandContext extends MessageContext {
     public static CommandContext parse(final MessageReceivedEvent event)//, final Histogram.Timer received)
             throws DatabaseException {
 
-        final String raw = event.getMessage().getRawContent();
+        final String raw = event.getMessage().getContentRaw();
         String input;
 
         final String prefix = Config.PREFIX;
@@ -90,8 +98,8 @@ public class CommandContext extends MessageContext {
         }
     }
 
-    private CommandContext(@Nonnull final MessageReceivedEvent event, @Nonnull final String trigger,
-                           @Nonnull final String[] args, @Nonnull final String rawArgs, @Nonnull final BaseCommand command) {
+    protected CommandContext(@Nonnull final MessageReceivedEvent event, @Nonnull final String trigger,
+                             @Nonnull final String[] args, @Nonnull final String rawArgs, @Nonnull final BaseCommand command) {
 //                           @Nonnull final Histogram.Timer received) {
         super(event);
         this.trigger = trigger;
@@ -125,5 +133,31 @@ public class CommandContext extends MessageContext {
         final boolean success = this.command.execute(this);
 //        this.received.observeDuration();
         return success;
+    }
+
+    /**
+     * Transforms this context into a guild context, telling the invoker to run the command in a guild if requested
+     *
+     * @param answerUser set to false to not tell the invoker about running the command in a guild
+     *                   <p>
+     * @return a GuildCommandContext if this command was issued in a guild, null otherwise
+     */
+    @Nullable
+    public GuildCommandContext requireGuild(@Nonnull final boolean... answerUser) {
+        if (this.channel.getType() == ChannelType.TEXT) {
+            final TextChannel tc = (TextChannel) this.channel;
+            final Guild g = tc.getGuild();
+            final Member m = this.event.getMember();
+            if (m != null) {
+                return new GuildCommandContext(this, g, m, tc);
+            } else {
+                log.warn("Uh oh member is unexpectedly null when transforming CommandContext to GuildCommandContext");
+            }
+        }
+
+        if (answerUser.length == 0 || answerUser[0]) {
+            replyWithMention("please run this command in a guild channel.");
+        }
+        return null;
     }
 }

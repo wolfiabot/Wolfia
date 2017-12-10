@@ -18,14 +18,14 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.SetupEntity;
+import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
 
@@ -46,18 +46,28 @@ public class OutCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
-        if (context.channel.getType() != ChannelType.TEXT) {
-            context.reply("This command is for guilds only.");
+    public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
+
+        final GuildCommandContext context = commandContext.requireGuild();
+        if (context == null) {
             return false;
         }
-        final TextChannel channel = (TextChannel) context.channel;
-        final SetupEntity setup = SetupEntity.load(channel.getIdLong());
+
+        if (Games.get(context.textChannel) != null) {
+            context.replyWithMention("please sign up/sign out for the next game after the current one is over.");
+            return false;
+        }
+
+        //check for private guilds where we dont want games to be started
+        if (PrivateGuild.isPrivateGuild(context.guild)) {
+            context.replyWithMention("you can't play games in a private guild.");
+            return false;
+        }
+
+        final SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
         //is this a forced out of a player by an moderator or the bot owner?
         if (!context.msg.getMentionedUsers().isEmpty()) {
-            final Member member = context.getMember();
-
-            if (member == null || (!member.hasPermission(channel, Permission.MESSAGE_MANAGE) && !context.isOwner())) {
+            if (!context.member.hasPermission(context.textChannel, Permission.MESSAGE_MANAGE) && !context.isOwner()) {
                 context.replyWithMention("you need to have the following permission in this channel to be able to out players: "
                         + "**" + Permission.MESSAGE_MANAGE.name() + "**");
                 return false;

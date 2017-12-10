@@ -24,26 +24,18 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.hibernate.annotations.NaturalId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.IEntity;
-import space.npstr.wolfia.Config;
+import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.CommandHandler;
-import space.npstr.wolfia.commands.game.StatusCommand;
-import space.npstr.wolfia.commands.ingame.NightkillCommand;
-import space.npstr.wolfia.commands.ingame.UnvoteCommand;
-import space.npstr.wolfia.commands.ingame.VoteCountCommand;
-import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
+import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import javax.annotation.Nonnull;
 import javax.persistence.Column;
@@ -124,6 +116,12 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         return this.inUse;
     }
 
+
+    public static boolean isPrivateGuild(@Nonnull final Guild guild) throws DatabaseException {
+        final EntityKey<Long, PrivateGuild> key = EntityKey.of(guild.getIdLong(), PrivateGuild.class);
+        return Wolfia.getDbWrapper().getEntity(key) != null;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -160,61 +158,9 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
 
         final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME).complete();
         event.getGuild().getController().addRolesToMember(event.getMember(), wolf).queue(
-                aVoid -> RestActions.sendMessage(Wolfia.fetchChannel(this.currentChannelId),
+                aVoid -> RestActions.sendMessage(Wolfia.fetchTextChannel(this.currentChannelId),
                         event.getMember().getAsMention() + ", welcome to wolf chat!")
         );
-    }
-
-    //todo the checks here are pretty much a duplication of the checks in the CommandListener, resolve that
-    @Override
-    public void onMessageReceived(final MessageReceivedEvent event) {
-        //ignore private channels
-        if (event.getPrivateChannel() != null) {
-            return;
-        }
-
-        //ignore guilds that are not this one
-        if (event.getGuild().getIdLong() != this.guildId) {
-            return;
-        }
-
-        //ignore messages not starting with the prefix (prefix is accepted case insensitive)
-        final String raw = event.getMessage().getRawContent();
-        if (!raw.toLowerCase().startsWith(Config.PREFIX.toLowerCase())) {
-            return;
-        }
-
-        //ignore bot accounts generally
-        if (event.getAuthor().isBot()) {
-            return;
-        }
-
-        //bot should ignore itself
-        if (event.getAuthor().getId().equals(event.getJDA().getSelfUser().getId())) {
-            return;
-        }
-
-        final CommandContext context;
-        try {
-            context = CommandContext.parse(event);
-        } catch (final DatabaseException e) {
-            log.error("Db blew up parsing a private command", e);
-            return;
-        }
-        if (context == null) {
-            return;
-        }
-
-        CommandListener.getCommandExecutor().execute(() -> CommandHandler.handleCommand(context, this::commandFilter));
-    }
-
-    private boolean commandFilter(final BaseCommand command) {
-        //allow only nk related commands
-        return command instanceof NightkillCommand
-                || command instanceof VoteCountCommand
-                || command instanceof UnvoteCommand
-                || command instanceof StatusCommand
-                ;
     }
 
     public void beginUsage(final Collection<Long> wolfUserIds) {
@@ -226,7 +172,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         }
 
         try {
-            final Guild g = getThisGuild();
+            final Guild g = fetchThisGuild();
 
             cleanUpMembers();
             this.allowedUsers.addAll(wolfUserIds);
@@ -250,7 +196,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
 
     //kick everyone, except guild owner and bots
     private void cleanUpMembers() {
-        final Guild g = getThisGuild();
+        final Guild g = fetchThisGuild();
         this.allowedUsers.clear();
         g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.getController().kick(m).queue(null, RestActions.defaultOnFail()));
     }
@@ -263,7 +209,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
             cleanUpMembers();
             try {//complete() in here to catch errors
                 //revoke all invites
-                for (final TextChannel channel : getThisGuild().getTextChannels()) {
+                for (final TextChannel channel : fetchThisGuild().getTextChannels()) {
                     final List<Invite> invites = channel.getInvites().complete();
                     invites.forEach(i -> i.delete().complete());
                 }
@@ -285,22 +231,32 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     }
 
     public String getInvite() {
-        final Guild g = getThisGuild();
+        final Guild g = fetchThisGuild();
         final TextChannel channel = g.getTextChannelById(this.currentChannelId);
-        return TextchatUtils.getOrCreateInviteLinkForGuild(g, channel, () -> {
-            throw new RuntimeException("Could not create invite to private guild " + this.guildId);
-        });
+        return TextchatUtils.getOrCreateInviteLinkForGuild(g, channel,
+                () -> log.error("Could not create invite to private guild #{}, id {}", this.privateGuildNumber, this.guildId));
     }
 
     public long getChannelId() {
         return this.currentChannelId;
     }
 
-    private Guild getThisGuild() {
-        final Guild g = Wolfia.getGuildById(this.guildId);
-        if (g == null) throw new NullPointerException(String.format("Could not find private guild #%s with id %s",
-                this.privateGuildNumber, this.guildId));
-
+    //this method assumes that the id itself is legit and not a mistake and we are member of this private guild
+    // it is an attempt to improve the occasional inconsistency of discord which makes looking up entities a gamble
+    // the main feature being the @Nonnull return contract, over the @Nullable contract of looking the entity up in JDA
+    @Nonnull
+    private Guild fetchThisGuild() {
+        Guild g = Wolfia.getGuildById(this.guildId);
+        while (g == null) {
+            log.error("Could not find private guild #{} with id {}, trying in a moment",
+                    this.privateGuildNumber, this.guildId, new LogTheStackException());
+            try {
+                Thread.sleep(5000);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            g = Wolfia.getGuildById(this.guildId);
+        }
         return g;
     }
 }

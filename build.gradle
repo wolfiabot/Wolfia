@@ -31,13 +31,13 @@ repositories {
 
 dependencies {
     //@formatter:off
-    ext.jdaVersion                = '3.3.1_308'
+    ext.jdaVersion                = 'd12001bb08d37e19e8743d6a98748c98a094bd12' //message-rw branch
     ext.logbackVersion            = '1.2.3'
     ext.sentryVersion             = '1.6.3'
     ext.discordAppenderVersion    = '1.0.0'
     ext.yamlVersion               = '1.19'
     ext.okhttpVersion             = '3.9.1'
-    ext.sqlsauceVersion           = 'ad370042cfdb9874b935a1874180f401a00287ce'
+    ext.sqlsauceVersion           = '6f65ef5493595165a5f2c7695ad3edad4ec30046'
     ext.jaxbApiVersion            = '2.3.0'
     ext.caffeineVersion            = '2.6.0'
 
@@ -45,7 +45,8 @@ dependencies {
     ext.sparkThymeVersion         = '2.7.1'
     ext.thymeleafVersion          = '3.0.9.RELEASE'
 
-    compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
+//    compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
+    compile group: 'com.github.DV8FromTheWorld', name: 'JDA',          version: ext.jdaVersion             //discord API per jitpack
     compile group: 'ch.qos.logback', name: 'logback-classic',          version: ext.logbackVersion         //logging framework
     compile group: 'space.npstr',    name: 'logback-discord-appender', version: ext.discordAppenderVersion //log to discord
     compile group: 'io.sentry',      name: 'sentry-logback',           version: ext.sentryVersion          //error aggregation

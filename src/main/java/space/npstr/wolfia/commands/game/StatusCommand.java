@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.commands.game;
 
-import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
@@ -48,9 +48,14 @@ public class StatusCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
 
-        final Game game = Games.get(context.getChannel().getIdLong());
+        final GuildCommandContext context = commandContext.requireGuild();
+        if (context == null) {
+            return false;
+        }
+
+        final Game game = Games.get(context.textChannel.getIdLong());
         if (game != null) {
             context.reply(game.getStatus().build());
             return true;
@@ -58,14 +63,13 @@ public class StatusCommand extends BaseCommand {
 
         //was this called from a private guild of an ongoing game? post the status of the corresponding game
         for (final Game g : Games.getAll().values()) {
-            final Guild guild = context.getGuild();
-            if (guild != null && guild.getIdLong() == g.getPrivateGuildId()) {
+            if (context.guild.getIdLong() == g.getPrivateGuildId()) {
                 context.reply(g.getStatus().build());
                 return true;
             }
         }
 
-        final SetupEntity setup = SetupEntity.load(context.channel.getIdLong());
+        final SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
         context.reply(setup.getStatus());
         return true;
     }

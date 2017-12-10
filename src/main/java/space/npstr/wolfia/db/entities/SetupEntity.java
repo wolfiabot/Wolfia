@@ -228,7 +228,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     //needs to be synchronized so only one incoming command at a time can be in here
     public synchronized boolean startGame(final long commandCallerId)
             throws IllegalGameStateException, DatabaseException {
-        final TextChannel channel = Wolfia.fetchChannel(this.channelId);
+        final TextChannel channel = Wolfia.fetchTextChannel(this.channelId);
         //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
         synchronized (SetupEntity.class) {
             if (MaintenanceCommand.getMaintenanceFlag() || Wolfia.isShuttingDown()) {
@@ -270,7 +270,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
             try {
                 game.start(this.channelId, getMode(), inned);
             } catch (final UserFriendlyException e) {
-                log.warn("Game start aborted due to user friendly exception", e);
+                log.info("Game start aborted due to user friendly exception", e);
                 Games.remove(game);
                 game.cleanUp();
                 throw new UserFriendlyException(e.getMessage(), e);

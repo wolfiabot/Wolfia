@@ -79,16 +79,17 @@ public class HelpCommand extends BaseCommand {
                 App.WOLFIA_LOUNGE_INVITE, App.GITHUB_LINK, "https://npstr.space");
 
         final Consumer<Message> onSuccess = m -> {
-            if (channel.getType() == ChannelType.TEXT && ((TextChannel) channel).canTalk()) {
-                final String answer = String.format("sent you a PM with the help!"
-                                + "\nUse `%s` and `%s` to start games."
-                                + "\nSay `%s` to show all commands."
-                                + "\nSay `%s [command]` to show help for a specific command.",
-                        Config.PREFIX + CommRegistry.COMM_TRIGGER_IN, Config.PREFIX + CommRegistry.COMM_TRIGGER_START,
-                        Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS,
-                        Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS);
-                context.replyWithMention(answer);
+            if (channel.getType() == ChannelType.TEXT && !((TextChannel) channel).canTalk()) {
+                return;
             }
+            final String answer = String.format("sent you a PM with the help!"
+                            + "\nUse `%s` and `%s` to start games."
+                            + "\nSay `%s` to show all commands."
+                            + "\nSay `%s [command]` to show help for a specific command.",
+                    Config.PREFIX + CommRegistry.COMM_TRIGGER_IN, Config.PREFIX + CommRegistry.COMM_TRIGGER_START,
+                    Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS,
+                    Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS);
+            context.replyWithMention(answer);
         };
         final Consumer<Throwable> onFail = t -> {
             if (channel.getType() == ChannelType.TEXT && ((TextChannel) channel).canTalk())

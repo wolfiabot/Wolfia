@@ -27,6 +27,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import space.npstr.wolfia.utils.Operation;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -97,7 +98,8 @@ public class TextchatUtils {
 
     //a more aggressive variant of getOrCreateInviteLinkForChannel() which will try to create an invite anywhere into
     // a guild
-    public static String getOrCreateInviteLinkForGuild(final Guild guild, final TextChannel preferred, final Operation... onFail) {
+    public static String getOrCreateInviteLinkForGuild(@Nonnull final Guild guild, @Nullable final TextChannel preferred,
+                                                       final Operation... onFail) {
         if (preferred != null) {
             final String preferredInvite = getOrCreateInviteLinkForChannel(preferred);
             if (!preferredInvite.isEmpty()) return preferredInvite;

@@ -52,14 +52,18 @@ public class Player {
     public final long userId;
     public final long channelId;
     public final long guildId; //guild where the game is running in
+    @Nonnull
     public final Alignments alignment;
+    @Nonnull
     public final Roles role;
     public final int number;
 
+    @Nonnull
+    private String rolePm = "This player has no role pm.";
     private boolean isAlive = true;
 
-    public Player(final long userId, final long channelId, final long guildId, final Alignments alignment,
-                  final Roles role, final int number) {
+    public Player(final long userId, final long channelId, final long guildId, @Nonnull final Alignments alignment,
+                  @Nonnull final Roles role, final int number) {
         this.userId = userId;
         this.channelId = channelId;
         this.guildId = guildId;
@@ -78,6 +82,15 @@ public class Player {
 
     public boolean isDead() {
         return !this.isAlive;
+    }
+
+    @Nonnull
+    public String getRolePm() {
+        return this.rolePm;
+    }
+
+    public void setRolePm(@Nonnull final String rolePm) {
+        this.rolePm = rolePm;
     }
 
     public boolean isBaddie() {

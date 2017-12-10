@@ -364,7 +364,7 @@ public class RestActions {
 //                    __ -> Metrics.successfulRestActions.labels("deleteMessage").inc(),
                     null,
                     getJdaRestActionFailureHandler(String.format("Could not delete message %s in channel %s with content\n%s",
-                            message.getId(), message.getChannel().getId(), message.getRawContent()),
+                            message.getId(), message.getChannel().getId(), message.getContentRaw()),
                             ErrorResponse.UNKNOWN_MESSAGE) //user deleted their message, dun care
             );
         } catch (final InsufficientPermissionException e) {
@@ -396,7 +396,7 @@ public class RestActions {
                 onFail.accept(t);
             } else {
                 final String info = String.format("Could not sent message\n%s\nwith %s embeds to channel %s in guild %s",
-                        message.getRawContent(), message.getEmbeds().size(), channel.getId(),
+                        message.getContentRaw(), message.getEmbeds().size(), channel.getId(),
                         (channel instanceof TextChannel) ? ((TextChannel) channel).getGuild().getIdLong() : "private");
                 getJdaRestActionFailureHandler(info).accept(t);
             }
@@ -413,7 +413,7 @@ public class RestActions {
             } else {
                 //do not call RestActions#handleInsufficientPermissionsException() from here as that will result in a loop
                 log.warn("Could not send message with content {} and {} embeds to channel {} due to missing permission {}",
-                        message.getRawContent(), message.getEmbeds().size(), channel.getIdLong(), e.getPermission().getName(), e);
+                        message.getContentRaw(), message.getEmbeds().size(), channel.getIdLong(), e.getPermission().getName(), e);
             }
         }
     }
@@ -434,7 +434,7 @@ public class RestActions {
                 final String info = String.format("Could not edit message %s in channel %s in guild %s with new content %s and %s embeds",
                         oldMessageId, channel.getId(),
                         (channel instanceof TextChannel) ? ((TextChannel) channel).getGuild().getIdLong() : "null",
-                        newMessage.getRawContent(), newMessage.getEmbeds().size());
+                        newMessage.getContentRaw(), newMessage.getEmbeds().size());
                 getJdaRestActionFailureHandler(info).accept(t);
             }
         };

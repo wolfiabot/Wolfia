@@ -17,13 +17,13 @@
 
 package space.npstr.wolfia.commands.game;
 
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.db.entities.Banlist;
+import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
@@ -48,24 +48,29 @@ public class InCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
 
 //        long timeForSignup = Long.valueOf(args[0]);
 //        timeForSignup = timeForSignup < this.MAX_SIGNUP_TIME ? timeForSignup : this.MAX_SIGNUP_TIME;
 
-        if (context.channel.getType() != ChannelType.TEXT) {
-            context.reply("This command is for guilds only!");
+        final GuildCommandContext context = commandContext.requireGuild();
+        if (context == null) {
             return false;
         }
-        final TextChannel channel = (TextChannel) context.channel;
 
         //is there a game going on?
-        if (Games.get(channel) != null) {
+        if (Games.get(context.textChannel) != null) {
             context.replyWithMention("the game has already started! Please wait until it is over to join.");
             return false;
         }
 
-        final SetupEntity setup = SetupEntity.load(channel.getIdLong());
+        //check for private guilds where we dont want games to be started
+        if (PrivateGuild.isPrivateGuild(context.guild)) {
+            context.replyWithMention("you can't play games in a private guild.");
+            return false;
+        }
+
+        final SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
 
         //force in by bot owner ( ͡° ͜ʖ ͡°)
         if (!context.msg.getMentionedUsers().isEmpty() && context.isOwner()) {
