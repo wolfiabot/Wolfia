@@ -29,6 +29,7 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.NightkillCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
@@ -248,16 +249,25 @@ public class Mafia extends Game {
 
         //we can compare classes with == as long as we are using the same classloader (which we are)
         if (context.command instanceof VoteCommand) {
+            if (context.channel.getIdLong() != this.channelId) {
+                context.replyWithMention("you can issue that command only in the main game channel.");
+                return false; //ignore vote commands not in game chat
+            }
             final Player candidate = GameUtils.identifyPlayer(this.players, context);
             if (candidate == null) return false;
 
-            return vote(invoker, candidate);
+            return vote(invoker, candidate, context);
         } else if (context.command instanceof UnvoteCommand) {
+            if (context.channel.getIdLong() != this.channelId) {
+                context.replyWithMention("you can issue that command only in the main game channel.");
+                return false; //ignore vote commands not in game chat
+            }
+
             if (context.getGuild() != null && context.getGuild().getIdLong() == this.wolfChat.getId()) {
                 return nkUnvote(invoker, context);
             }
 
-            return unvote(invoker);
+            return unvote(invoker, context);
         } else if (context.command instanceof CheckCommand) {
 
             if (context.channel.getType() != ChannelType.PRIVATE) {
@@ -288,7 +298,7 @@ public class Mafia extends Game {
             }
 
             if (this.phase != Phase.DAY) {
-                context.replyWithMention("vote counts are only shown during the day phase!");
+                context.replyWithMention("vote counts are only shown during the day phase.");
                 return false;
             }
             context.reply(this.votingBuilder.getEmbed(new HashMap<>(this.votes)).build());
@@ -307,16 +317,16 @@ public class Mafia extends Game {
         }
     }
 
-    private boolean vote(final Player voter, final Player candidate) {
+    private boolean vote(@Nonnull final Player voter, @Nonnull final Player candidate, @Nonnull final Context context) {
 
         final TextChannel gameChannel = fetchGameChannel();
         if (this.phase != Phase.DAY) {
-            RestActions.sendMessage(gameChannel, voter.asMention() + ", you can only vote during the day.");
+            context.reply(voter.asMention() + ", you can only vote during the day.");
             return false;
         }
 
         if (candidate.isDead()) {
-            RestActions.sendMessage(gameChannel, voter.asMention() + ", you can't vote for a dead player.");
+            context.reply(voter.asMention() + ", you can't vote for a dead player.");
             return false;
         }
 
@@ -332,7 +342,7 @@ public class Mafia extends Game {
             final int majThreshold = (livingPlayersCount / 2);
             final long mostVotes = GameUtils.mostVotes(this.votes);
             if (mostVotes > majThreshold) {
-                RestActions.sendMessage(gameChannel, "Majority was reached!");
+                RestActions.sendMessage(gameChannel, Emojis.ANGRY_BUBBLE + "Majority was reached!");
                 try {
                     endDay();
                 } catch (final DayEndedAlreadyException ignored) {
@@ -342,13 +352,13 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean unvote(final Player unvoter, final boolean... silent) {
+    private boolean unvote(@Nonnull final Player unvoter, @Nonnull final Context context, final boolean... silent) {
 
         final boolean shutUp = silent.length > 0 && silent[0];
         final TextChannel gameChannel = fetchGameChannel();
         if (this.phase != Phase.DAY) {
             if (!shutUp)
-                RestActions.sendMessage(gameChannel, unvoter.asMention() + ", you can only unvote during the day.");
+                context.reply(unvoter.asMention() + ", you can only unvote during the day.");
             return false;
         }
 
@@ -356,7 +366,7 @@ public class Mafia extends Game {
         synchronized (this.votes) {
             if (this.votes.get(unvoter) == null) {
                 if (!shutUp)
-                    RestActions.sendMessage(gameChannel, unvoter.asMention() + ", you can't unvote if you aren't voting in the first place.");
+                    context.reply(unvoter.asMention() + ", you can't unvote if you aren't voting in the first place.");
                 return false;
             }
             unvoted = this.votes.remove(unvoter);

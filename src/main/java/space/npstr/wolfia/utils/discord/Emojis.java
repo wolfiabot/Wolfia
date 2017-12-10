@@ -63,6 +63,7 @@ public class Emojis {
     public static final String FIRE = "🔥";
     public static final String MAGNIFIER = "🔍";
     public static final String SPY = "🕵";
+    public static final String ANGRY_BUBBLE = "🗯";
 
 
     public static final String NUMBER_0 = "0⃣";
