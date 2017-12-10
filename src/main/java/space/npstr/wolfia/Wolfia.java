@@ -77,7 +77,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 /**
  * Created by npstr on 22.08.2016
@@ -168,10 +167,7 @@ public class Wolfia {
 
         //set up JDA
         log.info("Setting up JDA and main listener");
-        commandListener = new CommandListener(AVAILABLE_PRIVATE_GUILD_QUEUE.stream()
-                .map(PrivateGuild::getId)
-                .collect(Collectors.toList())
-        );
+        commandListener = new CommandListener();
 
         int recommendedShardCount = 0;
         while (recommendedShardCount < 1) {
@@ -302,11 +298,11 @@ public class Wolfia {
     }
 
     //this method assumes that the id itself is legit and not a mistake
-    // it is an attempt to improve the occasional inconsistency of discord which makes looking up channels a gamble
-    // the main feature being the @Nonnull return contract, over the @Nullable contract of looking the channel up in JDA
+    // it is an attempt to improve the occasional inconsistency of discord which makes looking up entities a gamble
+    // the main feature being the @Nonnull return contract, over the @Nullable contract of looking the entity up in JDA
     //todo what happens if we leave a server? do we get stuck in here? maybe make this throw an exception eventually and exit?
     @Nonnull
-    public static TextChannel fetchChannel(final long channelId) {
+    public static TextChannel fetchTextChannel(final long channelId) {
         TextChannel tc = Wolfia.getTextChannelById(channelId);
         while (tc == null) {
             log.error("Could not find channel {}, retrying in a moment", channelId, new LogTheStackException());

@@ -18,13 +18,11 @@
 package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 
 import javax.annotation.Nonnull;
@@ -53,15 +51,14 @@ public class ChannelSettingsCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
-        if (context.channel.getType() != ChannelType.TEXT) {
-            context.reply("Channel settings are for guilds only.");
+    public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
+        final GuildCommandContext context = commandContext.requireGuild();
+        if (context == null) {
             return false;
         }
-        final TextChannel channel = (TextChannel) context.channel;
 
         //will not be null because it will be initialized with default values if there is none
-        final ChannelSettings channelSettings = ChannelSettings.load(channel.getIdLong());
+        final ChannelSettings channelSettings = ChannelSettings.load(context.textChannel.getIdLong());
 
 
         if (!context.hasArguments()) {
@@ -70,8 +67,7 @@ public class ChannelSettingsCommand extends BaseCommand {
         }
 
         //is the user allowed to do that?
-        final Member member = context.getMember();
-        if (member == null || (!member.hasPermission(channel, Permission.MESSAGE_MANAGE) && !context.isOwner())) {
+        if (!context.member.hasPermission(context.textChannel, Permission.MESSAGE_MANAGE) && !context.isOwner()) {
             context.replyWithMention("you need the following permission to edit the settings of this channel: "
                     + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
             return false;
@@ -91,9 +87,9 @@ public class ChannelSettingsCommand extends BaseCommand {
                     accessRole = context.msg.getMentionedRoles().get(0);
                 } else {
                     final String roleName = String.join(" ", Arrays.copyOfRange(context.args, 1, context.args.length)).trim();
-                    final List<Role> rolesByName = channel.getGuild().getRolesByName(roleName, true);
+                    final List<Role> rolesByName = context.guild.getRolesByName(roleName, true);
                     if ("everyone".equals(roleName)) {
-                        accessRole = channel.getGuild().getPublicRole();
+                        accessRole = context.guild.getPublicRole();
                     } else if (rolesByName.isEmpty()) {
                         context.replyWithMention("there is no such role in this guild.");
                         return false;

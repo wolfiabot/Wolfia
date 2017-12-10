@@ -17,9 +17,9 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
+import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -43,28 +43,27 @@ public class NightkillCommand extends GameCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
-        //the nightkill command will always be called from a private guild, and only one game is allowed to run in
+    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
+        final GuildCommandContext context = commandContext.requireGuild();
+        if (context == null) {
+            return false;
+        }
+
+        //the nightkill command is expected to be called from a private guild, and only one game is allowed to run in
         //a private guild at the time
         Game game = null;
         for (final Game g : Games.getAll().values()) {
-            final Guild guild = context.getGuild();
-            if (guild != null && guild.getIdLong() == g.getPrivateGuildId()) {
+            if (context.guild.getIdLong() == g.getPrivateGuildId()) {
                 game = g;
                 break;
             }
         }
 
         if (game == null) {
-            context.replyWithMention("there is no game currently going on in here.");
+            context.replyWithMention("this command needs to be called from wolfchat/mafiachat!");
             return false;
         }
 
-        try {
-            return game.issueCommand(this, context);
-        } catch (final IllegalGameStateException e) {
-            context.reply(e.getMessage());
-            return false;
-        }
+        return game.issueCommand(context);
     }
 }

@@ -28,7 +28,6 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
 import space.npstr.wolfia.db.entities.stats.GameStats;
@@ -185,13 +184,13 @@ public class Popcorn extends Game {
             }
             rolePm.append(guildChannelAndInvite);
 
+            player.setRolePm(rolePm.toString());
             player.sendMessage(rolePm.toString(),
                     e -> RestActions.sendMessage(gameChannel, String.format(
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                     "and/or unblock me, then issue `%s` to receive your role PM.",
                             player.asMention(), Config.PREFIX + CommRegistry.COMM_TRIGGER_ROLEPM))
             );
-            this.rolePMs.put(player.userId, rolePm.toString());
         }
 
         final Guild g = gameChannel.getGuild();
@@ -229,9 +228,9 @@ public class Popcorn extends Game {
     }
 
     @Override
-    public boolean issueCommand(final GameCommand command, @Nonnull final CommandContext context)
+    public boolean issueCommand(@Nonnull final CommandContext context)
             throws IllegalGameStateException {
-        if (command instanceof ShootCommand) {
+        if (context.command instanceof ShootCommand) {
             final long shooter = context.invoker.getIdLong();
             final Player target = GameUtils.identifyPlayer(this.players, context);
             if (target == null) return false;

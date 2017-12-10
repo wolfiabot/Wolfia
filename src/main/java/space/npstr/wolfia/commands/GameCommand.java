@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -27,11 +28,6 @@ import javax.annotation.Nonnull;
  * Created by napster on 21.05.17.
  * <p>
  * Game commands are different from regular commands as they can be registered by games.
- * todo some game commands need to work in private channels
- * todo find a decent way to go from private channel -> game that the command belongs to.
- * todo limiting users to only a single ongoing game is an option, but this happens 95% of the time for when there is a
- * todo broken game / game with bad settings and users just want to start a new one, so stopping them from doing that
- * todo would be a frustrating experience
  */
 public abstract class GameCommand extends BaseCommand {
 
@@ -40,26 +36,29 @@ public abstract class GameCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
+    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
+        final GuildCommandContext context = commandContext.requireGuild();
+        if (context == null) {
+            return false;
+        }
 
-        final Game game = Games.get(context.channel.getIdLong());
+        Game game = Games.get(context.textChannel);
         if (game == null) {
-            context.replyWithMention("there is no game currently going on in here."); //todo say "w.in" to join and "w.start" to start
-            return false;
+            //private guild?
+            for (final Game g : Games.getAll().values()) {
+                if (context.guild.getIdLong() == g.getPrivateGuildId()) {
+                    game = g;
+                    break;
+                }
+            }
+
+            if (game == null) {
+                context.replyWithMention(String.format("there is no game currently going on in here. Say `%s` to get started!",
+                        Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                return false;
+            }
         }
 
-        try {
-            return game.issueCommand(this, context);
-        } catch (final IllegalGameStateException e) {
-            context.reply(e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * @return whether the provided string is a command trigger or not (like "shoot" for the shoot command for example)
-     */
-    public boolean isCommandTrigger(final String command) {
-        throw new UnsupportedOperationException("isCommandTrigger not implemented for this game command");
+        return game.issueCommand(context);
     }
 }

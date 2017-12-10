@@ -18,12 +18,10 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
@@ -55,14 +53,13 @@ public class SetupCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
-
-        if (context.channel.getType() != ChannelType.TEXT) {
-            context.reply("Setup are for guild channels only");
+    public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
+        final GuildCommandContext context = commandContext.requireGuild();
+        if (context == null) {
             return false;
         }
-        final TextChannel channel = (TextChannel) context.channel;
-        SetupEntity setup = SetupEntity.load(channel.getIdLong());
+
+        SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
 
         if (context.args.length == 1) {
             //unsupported input
@@ -73,14 +70,13 @@ public class SetupCommand extends BaseCommand {
         //is this an attempt to edit the setup?
         if (context.args.length > 1) {
             //is there a game going on?
-            if (Games.get(channel.getIdLong()) != null) {
+            if (Games.get(context.textChannel) != null) {
                 context.replyWithMention("there is a game going on in this channel, please wait until it is over to adjust the setup!");
                 return false;
             }
 
             //is the user allowed to do that?
-            final Member member = context.getMember();
-            if (member == null || (!member.hasPermission(channel, Permission.MESSAGE_MANAGE) && !context.isOwner())) {
+            if (!context.member.hasPermission(context.textChannel, Permission.MESSAGE_MANAGE) && !context.isOwner()) {
                 context.replyWithMention("you need the following permission to edit the setup of this channel: "
                         + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
                 return false;

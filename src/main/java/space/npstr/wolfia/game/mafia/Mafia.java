@@ -29,7 +29,6 @@ import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.NightkillCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
@@ -39,7 +38,6 @@ import space.npstr.wolfia.db.entities.stats.ActionStats;
 import space.npstr.wolfia.db.entities.stats.GameStats;
 import space.npstr.wolfia.db.entities.stats.PlayerStats;
 import space.npstr.wolfia.db.entities.stats.TeamStats;
-import space.npstr.wolfia.events.PrivateChannelListener;
 import space.npstr.wolfia.events.UpdatingReactionListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
@@ -187,13 +185,13 @@ public class Mafia extends Game {
             }
             rolePm.append(guildChannelAndInvite);
 
+            player.setRolePm(rolePm.toString());
             player.sendMessage(rolePm.toString(),
                     e -> RestActions.sendMessage(gameChannel,
                             String.format("%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                             "and/or unblock me, then issue `%s` to receive your role PM.",
                                     player.asMention(), Config.PREFIX + CommRegistry.COMM_TRIGGER_ROLEPM))
             );
-            this.rolePMs.put(player.userId, rolePm.toString());
         }
 
 
@@ -234,7 +232,7 @@ public class Mafia extends Game {
     }
 
     @Override
-    public boolean issueCommand(final GameCommand command, @Nonnull final CommandContext context)
+    public boolean issueCommand(@Nonnull final CommandContext context)
             throws IllegalGameStateException {
         final Player invoker;
         try {
@@ -248,18 +246,19 @@ public class Mafia extends Game {
             return false;
         }
 
-        if (command instanceof VoteCommand) {
+        //we can compare classes with == as long as we are using the same classloader (which we are)
+        if (context.command instanceof VoteCommand) {
             final Player candidate = GameUtils.identifyPlayer(this.players, context);
             if (candidate == null) return false;
 
             return vote(invoker, candidate);
-        } else if (command instanceof UnvoteCommand) {
+        } else if (context.command instanceof UnvoteCommand) {
             if (context.getGuild() != null && context.getGuild().getIdLong() == this.wolfChat.getId()) {
                 return nkUnvote(invoker, context);
             }
 
             return unvote(invoker);
-        } else if (command instanceof CheckCommand) {
+        } else if (context.command instanceof CheckCommand) {
 
             if (context.channel.getType() != ChannelType.PRIVATE) {
                 context.replyWithMention("checks can only be issued in private messages!");
@@ -280,7 +279,7 @@ public class Mafia extends Game {
             if (target == null) return false;
 
             return check(invoker, target, context);
-        } else if (command instanceof VoteCountCommand) {
+        } else if (context.command instanceof VoteCountCommand) {
 
             //wolves asked for one, give them a votecount of their nk votes
             if (this.phase == Phase.NIGHT && context.getGuild() != null && context.getGuild().getIdLong() == this.wolfChat.getId()) {
@@ -295,7 +294,7 @@ public class Mafia extends Game {
             context.reply(this.votingBuilder.getEmbed(new HashMap<>(this.votes)).build());
             return true;
 
-        } else if (command instanceof NightkillCommand) {
+        } else if (context.command instanceof NightkillCommand) {
             //equivalent to the vote command m just for baddies in the night
 
             final Player candidate = GameUtils.identifyPlayer(this.players, context);
@@ -567,7 +566,6 @@ public class Mafia extends Game {
                 randCopTargets.remove(p.userId);//dont randomly check himself
                 this.nightActions.put(p, simpleAction(p.userId, Actions.CHECK, GameUtils.rand(randCopTargets)));//preset a random action
                 p.sendMessage(livingPlayersWithNumbers.build(), RestActions.defaultOnFail());
-                new PrivateChannelListener(p.userId, this.nightLengthMillis, this, new CheckCommand("check"));//todo uniform listeners
             }
         }
     }

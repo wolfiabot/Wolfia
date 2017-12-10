@@ -18,15 +18,16 @@
 package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.BaseCommand;
+import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -62,17 +63,16 @@ public class TagCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context)
+    public boolean execute(@Nonnull final CommandContext commandContext)
             throws IllegalGameStateException, DatabaseException {
 
-        if (context.channel.getType() != ChannelType.TEXT) {
-            context.reply("This is a private channel, there is noone in here to tag but us two ( ͡° ͜ʖ ͡°)");
+        final GuildCommandContext context = commandContext.requireGuild(false);
+        if (context == null) {
+            commandContext.reply("This is a private channel, there is noone in here to tag but us two ( ͡° ͜ʖ ͡°)");
             return false;
         }
-        final TextChannel channel = (TextChannel) context.channel;
 
-
-        final ChannelSettings settings = ChannelSettings.load(channel.getIdLong());
+        final ChannelSettings settings = ChannelSettings.load(context.textChannel.getIdLong());
         final Set<Long> tags = settings.getTags();
 
         String option = "";
@@ -89,7 +89,7 @@ public class TagCommand extends BaseCommand {
 
         if (action == TagAction.TAG) {
 
-            if (Games.get(context.channel.getIdLong()) != null) {
+            if (Games.get(context.textChannel) != null) {
                 context.replyWithMention("I will not post the tag list during an ongoing game.");
                 return false;
             }
@@ -103,15 +103,15 @@ public class TagCommand extends BaseCommand {
             }
 
             //the tag can only be used by a user who is on the taglist himself
-            final Member m = context.getMember();
-            if (!tags.contains(context.invoker.getIdLong()) && m != null &&
-                    m.getRoles().stream().mapToLong(Role::getIdLong).noneMatch(tags::contains)) {
-                context.replyWithMention("you can't use the taglist when you aren't part of it yourself.");//todo say w.tag + to add yourself to it
+            if (!tags.contains(context.invoker.getIdLong())
+                    && context.member.getRoles().stream().mapToLong(Role::getIdLong).noneMatch(tags::contains)) {
+                context.replyWithMention(String.format("you can't use the taglist when you aren't part of it yourself. "
+                        + "Say `%s` to add yourself to it.", Config.PREFIX + CommRegistry.COMM_TRIGGER_TAG + " +"));
                 return false;
             }
 
             final List<StringBuilder> outs = new ArrayList<>();
-            final String message = context.invoker.getAsMention() + " called the tag list.\n"
+            final String message = context.member.getAsMention() + " called the tag list.\n"
                     + TextchatUtils.defuseMentions(context.rawArgs).trim() + "\n";
             StringBuilder out = new StringBuilder(message);
             outs.add(out);
@@ -120,12 +120,12 @@ public class TagCommand extends BaseCommand {
             for (final long id : tags) {
                 //is it a mentionable role?
                 String toAdd = "";
-                final Role role = channel.getGuild().getRoleById(id);
+                final Role role = context.guild.getRoleById(id);
                 if (role != null && role.isMentionable()) {
                     toAdd = role.getAsMention() + " ";
                 }
                 //is it a member of the guild?
-                final Member member = channel.getGuild().getMemberById(id);
+                final Member member = context.guild.getMemberById(id);
                 if (member != null) {
                     toAdd = member.getAsMention() + " ";
                 }
@@ -178,8 +178,7 @@ public class TagCommand extends BaseCommand {
 
         } else { //user signing up other users/roles
             //is the user allowed to do that?
-            final Member m = context.getMember();
-            if (m == null || (!m.hasPermission(channel, Permission.MESSAGE_MANAGE) && !context.isOwner())) {
+            if (!context.member.hasPermission(context.textChannel, Permission.MESSAGE_MANAGE) && !context.isOwner()) {
                 context.replyWithMention("you need the following permission in this channel to "
                         + "add or remove other users or roles from the taglist of this channel: "
                         + "**" + Permission.MESSAGE_MANAGE.getName() + "**");

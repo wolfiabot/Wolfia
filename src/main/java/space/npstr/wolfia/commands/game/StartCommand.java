@@ -20,7 +20,10 @@ package space.npstr.wolfia.commands.game;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.SetupEntity;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
@@ -44,9 +47,27 @@ public class StartCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context)
+    public boolean execute(@Nonnull final CommandContext commandContext)
             throws IllegalGameStateException, DatabaseException {
-        final SetupEntity setup = SetupEntity.load(context.getChannel().getIdLong());
+
+
+        final GuildCommandContext context = commandContext.requireGuild();
+        if (context == null) {
+            return false;
+        }
+
+        if (Games.get(context.textChannel) != null) {
+            context.replyWithMention("please start the next game after the current one is over.");
+            return false;
+        }
+
+        //check for private guilds where we dont want games to be started
+        if (PrivateGuild.isPrivateGuild(context.guild)) {
+            context.replyWithMention("you can't play games in a private guild.");
+            return false;
+        }
+
+        final SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
         return setup.startGame(context.invoker.getIdLong());
     }
 }

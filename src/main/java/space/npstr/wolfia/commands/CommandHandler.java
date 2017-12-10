@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +25,15 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entities.stats.CommandStats;
+import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.function.Predicate;
 
 /**
  * Created by napster on 12.05.17.
@@ -43,96 +46,45 @@ public class CommandHandler {
 
     private final static Logger log = LoggerFactory.getLogger(CommandHandler.class);
 
-//    public static final String COMM_TRIGGER_HELP = "help";
-//
-//
-//    private static final Map<String, BaseCommand> COMMAND_REGISTRY = new HashMap<>();
-//
-//    private static void registerCommand(final BaseCommand command) {
-//        for (final String trigger : command.aliases) {
-//            if (COMMAND_REGISTRY.containsKey(trigger)) {
-//                log.error("Duplicate command trigger: {}", trigger);
-//            }
-//            COMMAND_REGISTRY.put(trigger, command);
-//        }
-//    }
-//
-//    static {
-//        //@formatter:off
-//
-//        //game related commands
-//        registerCommand(new InCommand                        ("in", "join"));
-//        registerCommand(new OutCommand                       ("out", "leave"));
-//        registerCommand(new RolePmCommand                    ("rolepm", "rpm"));
-//        registerCommand(new SetupCommand                     ("setup"));
-//        registerCommand(new StartCommand                     ("start"));
-//        registerCommand(new StatusCommand                    ("status"));
-//
-//        //ingame commands
-//        registerCommand(new ShootCommand                     ("shoot", "s", "blast"));
-//        registerCommand(new VoteCommand                      ("vote", "v", "lynch"));
-//        registerCommand(new UnvoteCommand                    ("unvote", "u", "uv"));
-//        registerCommand(new CheckCommand                     ("check"));
-//        registerCommand(new VoteCountCommand                 ("votecount", "vc"));
-//        registerCommand(new NightkillCommand                 ("nightkill", "nk"));
-//
-//        //stats commands
-//        registerCommand(new BotStatsCommand                  ("botstats"));
-//        registerCommand(new GuildStatsCommand                ("guildstats"));
-//        registerCommand(new UserStatsCommand                 ("userstats"));
-//
-//        //util commands
-//        registerCommand(new ChannelSettingsCommand           ("channelsettings", "cs"));
-//        registerCommand(new CommandsCommand                  ("commands", "comms"));
-//        registerCommand(new HelpCommand                      (COMM_TRIGGER_HELP));
-//        registerCommand(new InfoCommand                      ("info"));
-//        registerCommand(new ReplayCommand                    ("replay"));
-//        registerCommand(new TagCommand                       ("tag"));
-//
-//        //bot owner/debug commands
-//        registerCommand(new BanCommand                       ("ban"));
-//        registerCommand(new DbTestCommand                    ("dbtest"));
-//        registerCommand(new EvalCommand                      ("eval"));
-//        registerCommand(new KillGameCommand                  ("killgame"));
-//        registerCommand(new MaintenanceCommand               ("maint"));
-//        registerCommand(new RegisterPrivateServerCommand     ("register"));
-//        registerCommand(new RestartCommand                   ("restart"));
-//        registerCommand(new RunningCommand                   ("running"));
-//        registerCommand(new ShutdownCommand                  ("shutdown"));
-//        registerCommand(new SyncCommand                      ("sync"));
-//
-//        //@formatter:on
-//    }
-//
-//    public static BaseCommand getCommand(final String input) {
-//        return COMMAND_REGISTRY.get(input);
-//    }
-//
-//    public static String mainTrigger(final Class<? extends BaseCommand> clazz) {
-//        for (final BaseCommand command : COMMAND_REGISTRY.values()) {
-//            if (clazz.isInstance(command)) {
-//                return command.name;
-//            }
-//        }
-//        log.error("Command {} is not registered in the commandhandler, can't find a main trigger for it", clazz.getSimpleName());
-//        return "";
-//    }
+    public static void handleMessage(@Nonnull final MessageReceivedEvent event) {
+        //ignore bot accounts generally
+        if (event.getAuthor().isBot()) {
+            return;
+        }
+
+        //ignore channels where we don't have sending permissions, with a special exception for the help command
+        if (event.getTextChannel() != null && !event.getTextChannel().canTalk()
+                && !event.getMessage().getContentRaw().toLowerCase().startsWith((Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP).toLowerCase())) {
+            return;
+        }
+
+        //update user stats
+        final Game g = Games.get(event.getChannel().getIdLong());
+        if (g != null) g.userPosted(event.getMessage());
+
+
+        final CommandContext context;
+        try {
+            context = CommandContext.parse(event);
+        } catch (final DatabaseException e) {
+            log.error("Db blew up parsing a command", e);
+            return;
+        }
+        if (context == null) {
+            return;
+        }
+
+        handleCommand(context);
+    }
 
     /**
      * @param context the parsed input of a user
-     * @param filter  a filter, so that the source of the call can control which commands should be handled (or not)
-     *                the predicate should return true if the command should be handled and false otherwise
      */
-    public static void handleCommand(@Nonnull final CommandContext context, @Nonnull final Predicate<BaseCommand> filter) {
+    public static void handleCommand(@Nonnull final CommandContext context) {
         try {
             if (context.command instanceof IOwnerRestricted && !context.isOwner()) {
                 //not the bot owner
                 log.info("user {}, channel {}, attempted issuing owner restricted command: {}",
-                        context.invoker, context.channel, context.msg.getContentRaw());
-                return;
-            }
-            if (!filter.test(context.command)) {
-                log.info("user {}, channel {}, command: {} was filtered and will not be executed",
                         context.invoker, context.channel, context.msg.getContentRaw());
                 return;
             }
@@ -147,6 +99,8 @@ public class CommandHandler {
             }
         } catch (final UserFriendlyException e) {
             context.reply("There was a problem executing your command:\n" + e.getMessage());
+        } catch (final IllegalGameStateException e) {
+            context.reply(e.getMessage());
         } catch (final DatabaseException e) {
             log.error("Db blew up while handling command", e);
             context.reply("The database is not available currently. Please try again later. Sorry for the inconvenience!");
@@ -157,12 +111,17 @@ public class CommandHandler {
                 while (t != null) {
                     String inviteLink = "";
                     try {
-                        inviteLink = TextchatUtils.getOrCreateInviteLinkForGuild(ev.getGuild(), ev.getTextChannel());
+                        final TextChannel tc = ev.getTextChannel();
+                        if (tc == null) {
+                            inviteLink = "PRIVATE";
+                        } else {
+                            inviteLink = TextchatUtils.getOrCreateInviteLinkForGuild(tc.getGuild(), tc);
+                        }
                     } catch (final Exception ex) {
                         log.error("Exception during exception handling of command creating an invite", ex);
                     }
                     log.error("Exception `{}` while handling a command in guild {}, channel {}, user {}, invite {}",
-                            t.getMessage(), ev.getGuild().getIdLong(), ev.getChannel().getIdLong(),
+                            t.getMessage(), ev.getGuild(), ev.getChannel().getIdLong(),
                             ev.getAuthor().getIdLong(), inviteLink, t);
                     t = t.getCause();
                 }

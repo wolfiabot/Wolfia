@@ -26,6 +26,7 @@ import space.npstr.wolfia.game.popcorn.Popcorn;
 import space.npstr.wolfia.game.popcorn.PopcornInfo;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -76,10 +77,12 @@ public enum Games {
     /**
      * @return game that is running in the specified channel; may return null
      */
+    @Nullable
     public static Game get(final long channelId) {
         return GAME_REGISTRY.get(channelId);
     }
 
+    @Nullable
     public static Game get(@Nonnull final TextChannel channel) {
         return get(channel.getIdLong());
     }
