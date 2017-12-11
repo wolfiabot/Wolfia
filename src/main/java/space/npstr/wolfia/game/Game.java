@@ -562,8 +562,8 @@ public abstract class Game {
         try {
             final Role accessRole = g.getRoleById(this.accessRoleId);
             if (accessRole != null) {
-                toComplete.add(RoleAndPermissionUtils.grant(channel, accessRole, Permission.MESSAGE_WRITE).submit());
-                toComplete.add(RoleAndPermissionUtils.clear(channel, accessRole, Permission.MESSAGE_ADD_REACTION).submit());
+                //todo don't grant MESSAGE_ADD_REACTION if it wasn't granted. we need both things happening in a single RestAction to work properly
+                toComplete.add(RoleAndPermissionUtils.grant(channel, accessRole, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).submit());
             }
         } catch (final PermissionException e) {
             missingPermissions.add(e.getPermission());
