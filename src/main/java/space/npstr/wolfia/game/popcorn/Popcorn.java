@@ -131,7 +131,7 @@ public class Popcorn extends Game {
 
         this.executor.shutdown();
         if (this.mode != GameMode.WILD) { //nothing to do for the wild mode
-            resetRolesAndPermissions();
+            resetRolesAndPermissions(true);
         }
     }
 

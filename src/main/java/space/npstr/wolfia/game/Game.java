@@ -600,7 +600,7 @@ public abstract class Game {
             }
         }
         this.executor.shutdownNow();
-        resetRolesAndPermissions();
+        resetRolesAndPermissions(true);
     }
 
     //public for eval usage
