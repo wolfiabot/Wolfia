@@ -20,9 +20,9 @@ package space.npstr.wolfia;
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import com.github.napstr.logback.DiscordAppender;
-import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
@@ -31,7 +31,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.requests.Requester;
-import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -70,8 +69,6 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -93,8 +90,7 @@ public class Wolfia {
 
 
     private static final Logger log = LoggerFactory.getLogger(Wolfia.class);
-    private static final Set<JDA> jdas = ConcurrentHashMap.newKeySet();
-    private static final SessionReconnectQueue sessionReconnectQueue = new SessionReconnectQueue();
+    private static ShardManager shardManager;
 
     private static boolean started = false;
     private static CommandListener commandListener;
@@ -169,48 +165,33 @@ public class Wolfia {
         log.info("Setting up JDA and main listener");
         commandListener = new CommandListener();
 
-        int recommendedShardCount = 0;
-        while (recommendedShardCount < 1) {
-            try {
-                recommendedShardCount = getRecommendedShardCount(Config.C.discordToken);
-                log.info("Received recommended shard count: {}", recommendedShardCount);
-            } catch (final IOException e) {
-                log.error("Exception when getting recommended shard count, trying again in a bit", e);
-                Thread.sleep(5000);
-            }
-        }
+//        int recommendedShardCount = 0;
+//        while (recommendedShardCount < 1) {
+//            try {
+//                recommendedShardCount = getRecommendedShardCount(Config.C.discordToken);
+//                log.info("Received recommended shard count: {}", recommendedShardCount);
+//            } catch (final IOException e) {
+//                log.error("Exception when getting recommended shard count, trying again in a bit", e);
+//                Thread.sleep(5000);
+//            }
+//        }
 
-        final JDABuilder jdaBuilder = new JDABuilder(AccountType.BOT)
-                .setToken(Config.C.discordToken)
-                .addEventListener(commandListener)
-                .addEventListener(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
-                .addEventListener(new UserMemberCachingListener<>(CachedUser.class))
-                .addEventListener(new GuildCachingListener<>(EGuild.class))
-                .addEventListener(new InternalListener())
-                .addEventListener(new Listings())
-                .setEnableShutdownHook(false)
-                .setGame(Game.of(App.GAME_STATUS))
-                .setHttpClientBuilder(getDefaultHttpClientBuilder())
-                .setReconnectQueue(sessionReconnectQueue);
 
         //create all necessary shards
         try {
-            for (int i = 0; i < recommendedShardCount; i++) {
-                jdaBuilder.useSharding(i, recommendedShardCount);
-                log.info("Building shard {} of {}", i, recommendedShardCount);
-                final JDA jda = jdaBuilder.buildAsync();
-                if (i == 0) {
-                    jda.asBot().getApplicationInfo().queue(
-                            App::setAppInfo,
-                            t -> log.error("Could not load application info", t));
-                }
-                jdas.add(jda);
-                Thread.sleep(5500);
-
-                if (Config.C.isDebug) {
-                    break; //one shard is enough, we can talk to it via DMs
-                }
-            }
+            shardManager = new DefaultShardManagerBuilder()
+                    .setToken(Config.C.discordToken)
+                    .setGame(Game.playing(App.GAME_STATUS))
+                    .addEventListeners(commandListener)
+                    .addEventListeners(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
+                    .addEventListeners(new UserMemberCachingListener<>(CachedUser.class))
+                    .addEventListeners(new GuildCachingListener<>(EGuild.class))
+                    .addEventListeners(new InternalListener())
+                    .addEventListeners(new Listings())
+                    .setHttpClientBuilder(getDefaultHttpClientBuilder())
+                    .setEnableShutdownHook(false)
+                    .setAudioEnabled(false)
+                    .build();
         } catch (final Exception e) {
             log.error("could not create JDA object, possibly invalid bot token, exiting", e);
             return;
@@ -222,6 +203,10 @@ public class Wolfia {
         }
         started = true;
 
+        shardManager.getApplicationInfo().queue(
+                App::setAppInfo,
+                t -> log.error("Could not load application info", t));
+
         //post stats every 10 minutes
         executor.scheduleAtFixedRate(ExceptionLoggingExecutor.wrapExceptionSafe(Wolfia::generalBotStatsToDB),
                 0, 10, TimeUnit.MINUTES);
@@ -229,7 +214,7 @@ public class Wolfia {
 
         //sync guild cache
         // this takes a few seconds to do, so do it as the last thing of the main method, or put it into it's own thread
-        SyncCommand.syncGuilds(executor, jdas.stream().flatMap(jda -> jda.getGuildCache().stream()), null);
+        SyncCommand.syncGuilds(executor, shardManager.getGuildCache().stream(), null);
         //user cache is not synced on each start as it takes a lot of time and resources. see SyncComm for manual triggering
     }
 
@@ -277,24 +262,16 @@ public class Wolfia {
     // ########## JDA wrapper methods, they get 9000% more useful when sharding
     @Nullable
     public static Guild getGuildById(final long guildId) {
-        for (final JDA jda : jdas) {
-            final Guild guild = jda.getGuildById(guildId);
-            if (guild != null) return guild;
-        }
-        return null;
+        return shardManager.getGuildById(guildId);
     }
 
     public static long getGuildsAmount() {
-        return jdas.stream().mapToLong(jda -> jda.getGuildCache().size()).sum();
+        return shardManager.getGuildCache().size();
     }
 
     @Nullable
     public static TextChannel getTextChannelById(final long channelId) {
-        for (final JDA jda : jdas) {
-            final TextChannel textChannel = jda.getTextChannelById(channelId);
-            if (textChannel != null) return textChannel;
-        }
-        return null;
+        return shardManager.getTextChannelById(channelId);
     }
 
     //this method assumes that the id itself is legit and not a mistake
@@ -318,15 +295,12 @@ public class Wolfia {
 
     @Nullable
     public static User getUserById(final long userId) {
-        for (final JDA jda : jdas) {
-            final User user = jda.getUserById(userId);
-            if (user != null) return user;
-        }
-        return null;
+        return shardManager.getUserById(userId);
     }
 
     public static long getUsersAmount() {
-        return jdas.stream().flatMap(jda -> jda.getUsers().stream()).distinct().count();
+        //UnifiedShardCacheViewImpl#stream calls distinct for us
+        return shardManager.getUserCache().stream().count();
     }
 
     public static SelfUser getSelfUser() {
@@ -334,36 +308,31 @@ public class Wolfia {
     }
 
     public static void addEventListener(final EventListener eventListener) {
-        for (final JDA jda : jdas) {
-            jda.addEventListener(eventListener);
-        }
+        shardManager.addEventListener(eventListener);
     }
 
     public static void removeEventListener(final EventListener eventListener) {
-        for (final JDA jda : jdas) {
-            jda.removeEventListener(eventListener);
-        }
+        shardManager.removeEventListener(eventListener);
     }
 
     public static long getResponseTotal() {
-        return jdas.stream().mapToLong(JDA::getResponseTotal).sum();
+        return shardManager.getShards().stream().mapToLong(JDA::getResponseTotal).sum();
     }
 
     public static JDA getFirstJda() {
-        return jdas.iterator().next();
+        return shardManager.getShards().iterator().next();
     }
 
     @Nonnull
     public static Collection<JDA> getShards() {
-        return jdas;
-    }
-
-    public static long getTotalGuildSize() {
-        return Wolfia.jdas.stream().mapToLong(jda -> jda.getGuildCache().size()).sum();
+        return shardManager.getShards();
     }
 
     public static boolean allShardsUp() {
-        for (final JDA jda : jdas) {
+        if (shardManager.getShards().size() < shardManager.getShardsTotal()) {
+            return false;
+        }
+        for (final JDA jda : shardManager.getShards()) {
             if (jda.getStatus() != JDA.Status.CONNECTED) {
                 return false;
             }
@@ -440,8 +409,8 @@ public class Wolfia {
         //okHttpClient claims that a shutdown isn't necessary
 
         //shutdown JDA
-        log.info("Shutting down JDAs");
-        jdas.forEach(JDA::shutdown);
+        log.info("Shutting down shards");
+        shardManager.shutdown();
 
         //shutdown executors
         log.info("Shutting down executor");

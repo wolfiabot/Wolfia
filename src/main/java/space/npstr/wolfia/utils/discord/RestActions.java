@@ -45,7 +45,7 @@ public class RestActions {
     // this makes it way easier to track stats + handle failures of such delayed RestActions
     // instead of implementing a ton of overloaded methods in this class
     public static final ScheduledExecutorService restService = Executors.newScheduledThreadPool(10,
-            runnable -> new Thread(runnable, "central-messaging-scheduler"));
+            runnable -> new Thread(runnable, "rest-actions-scheduler"));
 
 
     // ********************************************************************************
@@ -56,31 +56,17 @@ public class RestActions {
     // a per-thread scope
     // this makes sense since the vast majority of message processing in the main JDA threads
 
-//    private static ThreadLocal<MessageBuilder> threadLocalMessageBuilder = ThreadLocal.withInitial(MessageBuilder::new);
-//    private static ThreadLocal<EmbedBuilder> threadLocalEmbedBuilder = ThreadLocal.withInitial(EmbedBuilder::new);
+    private static final ThreadLocal<MessageBuilder> threadLocalMessageBuilder = ThreadLocal.withInitial(MessageBuilder::new);
+    private static final ThreadLocal<EmbedBuilder> threadLocalEmbedBuilder = ThreadLocal.withInitial(EmbedBuilder::new);
 
-    //todo reported to JDA (jagrosh), check back for a fix
     @Nonnull
     public static MessageBuilder getMessageBuilder() {
-        return new MessageBuilder();
-//        return threadLocalMessageBuilder.get().clear();
+        return threadLocalMessageBuilder.get().clear();
     }
 
-    //NOTE: these seem borked, they appear to be overwritten when used with a delay, due to a collection of fields
-    // shared with the builder and the embed objects it builds
     @Nonnull
     public static EmbedBuilder getEmbedBuilder() {
-        return new EmbedBuilder();
-//        return threadLocalEmbedBuilder.get()
-//                .clearFields()
-//                .setTitle(null)
-//                .setDescription(null)
-//                .setTimestamp(null)
-//                .setColor(null)
-//                .setThumbnail(null)
-//                .setAuthor(null, null, null)
-//                .setFooter(null, null)
-//                .setImage(null);
+        return threadLocalEmbedBuilder.get().clear();
     }
 
     //May not be an empty string, as MessageBuilder#build() will throw an exception

@@ -43,7 +43,7 @@ public class Carbonitex extends Listing {
     protected String createPayload(@Nonnull final JDA jda) {
         return new JSONObject()
                 .put("key", Config.C.carbonitexKey)
-                .put("servercount", Wolfia.getTotalGuildSize())
+                .put("servercount", Wolfia.getGuildsAmount())
                 .toString();
     }
 
