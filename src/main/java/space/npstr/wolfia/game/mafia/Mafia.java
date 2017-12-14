@@ -174,7 +174,7 @@ public class Mafia extends Game {
         //inform each player about his role
         final String inviteLink = TextchatUtils.getOrCreateInviteLinkForChannel(gameChannel);
         final String wolfchatInvite = this.wolfChat.getInvite();
-        final StringBuilder mafiaTeamNames = new StringBuilder("Your team is:/n");
+        final StringBuilder mafiaTeamNames = new StringBuilder("Your team is:\n");
         final String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s%n", //invite that may be empty
                 gameChannel.getGuild().getName(), gameChannel.getName(), inviteLink);
 
@@ -484,16 +484,27 @@ public class Mafia extends Game {
             invoker.items.remove(hasPresent);
         }
 
-        final Item.Items openedPresent = GameUtils.rand(Arrays.asList(Item.Items.GUN, Item.Items.MAGNIFIER, Item.Items.BOMB));
+        final Item.Items openedPresent = GameUtils.rand(Arrays.asList(Item.Items.GUN, Item.Items.MAGNIFIER, Item.Items.BOMB, Item.Items.ANGEL));
         invoker.items.add(new Item(hasPresent.sourceId, openedPresent));
         this.gameStats.addAction(simpleAction(invoker.userId, Actions.OPEN_PRESENT, invoker.userId).setAdditionalInfo(openedPresent.name()));
 
         context.reply("You received a " + openedPresent.emoji + "! This has the following effect:\n" + openedPresent.explanation);
 
-        //noinspection UnnecessaryLocalVariable
-        final Player dying = invoker;
-
         if (openedPresent == Item.Items.BOMB) {
+
+            //use up an angel if this person has one
+            final Optional<Item> angel = invoker.items.stream().filter(i -> i.item == Item.Items.ANGEL).findAny();
+            if (angel.isPresent()) {
+                invoker.items.remove(angel.get());
+                invoker.sendMessage(String.format("Your present contained a %s, but luckily one of your %ss saved you! Say `%s` to see what items you have left.",
+                        Item.Items.BOMB, Item.Items.ANGEL, Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+                RestActions.sendMessage(fetchGameChannel(), "An explosion is heard, but nobody dies.");
+                return true;
+            }
+
+            //noinspection UnnecessaryLocalVariable
+            final Player dying = invoker;
+
             try {
                 dying.kill();
             } catch (final IllegalGameStateException ignore) {
@@ -536,21 +547,34 @@ public class Mafia extends Game {
         //noinspection UnnecessaryLocalVariable
         final Player dying = target;
 
+        this.gameStats.addAction(simpleAction(invoker.userId, Actions.SHOOT, dying.userId));
+
+        //use up a gun if the invoker has one
+        final Optional<Item> gun = invoker.items.stream().filter(i -> i.item == Item.Items.GUN).findAny();
+        if (gun.isPresent()) {
+            invoker.items.remove(gun.get());
+            invoker.sendMessage(String.format("You used up one of your %ss. Say `%s` to see what items you have left.",
+                    Item.Items.GUN, Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+        }
+
+        //use up an angel if the target has one
+        final Optional<Item> angel = target.items.stream().filter(i -> i.item == Item.Items.ANGEL).findAny();
+        if (angel.isPresent()) {
+            target.items.remove(angel.get());
+            target.sendMessage(String.format("One of your %ss saved you! Say `%s` to see what items you have left.",
+                    Item.Items.ANGEL, Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+            RestActions.sendMessage(fetchGameChannel(), "A shot rings out, but nobody dies.");
+            return true;
+        }
+
         try {
             dying.kill();
         } catch (final IllegalGameStateException ignore) {
             //lets ignore this for now and just log it
             log.error("Dead player got a bomb from present", ignore);
         }
-        this.gameStats.addAction(simpleAction(invoker.userId, Actions.SHOOT, dying.userId));
+        this.gameStats.addAction(simpleAction(invoker.userId, Actions.DEATH, dying.userId));
 
-        //use up a gun if this person has one
-        final Optional<Item> gun = invoker.items.stream().filter(i -> i.item == Item.Items.GUN).findAny();
-        if (gun.isPresent()) {
-            invoker.items.remove(gun.get());
-            invoker.sendMessage(String.format("You used up your %s. Say `%s` to see what items you have left.",
-                    Item.Items.GUN, Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
-        }
 
         //remove votes of dead player and ppl voting the dead player
         clearVotesForPlayer(dying, context);
@@ -790,6 +814,7 @@ public class Mafia extends Game {
                                 + "\n" + Item.Items.GUN + " Allows the target player to shoot another player during the day."
                                 + "\n" + Item.Items.MAGNIFIER + " Allows the target player to check another player's alignment during the night."
                                 + "\n" + Item.Items.BOMB + " Kills the target player immediately."
+                                + "\n" + Item.Items.ANGEL + " Protects the target from death once, but not from the lynch."
                                 + "\n\nIf you don't submit an action, a random living player will receive the present.",
                         Config.PREFIX + CommRegistry.COMM_TRIGGER_HOHOHO, Item.Items.PRESENT);
                 livingPlayersWithNumbers.addField("", out, false);
@@ -857,17 +882,9 @@ public class Mafia extends Game {
     }
 
     @SuppressWarnings("unchecked")
-    private void endNight(final Player nightKillCandidate) {
+    private void endNight(@Nonnull final Player nightKillCandidate) {
 
         this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.NIGHTEND, -1));
-        try {
-            nightKillCandidate.kill();
-            this.gameStats.addAction(simpleAction(-2, Actions.DEATH, nightKillCandidate.userId));
-        } catch (final IllegalGameStateException e) {
-            //should not happen, but if it does, kill the game
-            this.destroy(e);
-            return;
-        }
 
         for (final ActionStats nightAction : this.nightActions.values()) {
             if (nightAction.getActionType() == Actions.CHECK) {
@@ -907,8 +924,26 @@ public class Mafia extends Game {
         }
 
         final TextChannel gameChannel = fetchGameChannel();
-        RestActions.sendMessage(gameChannel, String.format("%s has died during the night!\n%s",
-                nightKillCandidate.asMention(), getReveal(nightKillCandidate)));
+        //use up an angel if the target has one
+        final Optional<Item> angel = nightKillCandidate.items.stream().filter(i -> i.item == Item.Items.ANGEL).findAny();
+        if (angel.isPresent()) {
+            nightKillCandidate.items.remove(angel.get());
+            nightKillCandidate.sendMessage(String.format("One of your %ss saved you! Say `%s` to see what items you have left.",
+                    Item.Items.ANGEL, Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+            RestActions.sendMessage(gameChannel, "Nobody died during the night.");
+            return;
+        } else {
+            try {
+                nightKillCandidate.kill();
+                this.gameStats.addAction(simpleAction(-2, Actions.DEATH, nightKillCandidate.userId));
+            } catch (final IllegalGameStateException e) {
+                //should not happen, but if it does, kill the game
+                this.destroy(e);
+                return;
+            }
+            RestActions.sendMessage(gameChannel, String.format("%s has died during the night!\n%s",
+                    nightKillCandidate.asMention(), getReveal(nightKillCandidate)));
+        }
 
         if (!isGameOver()) {
             //start the timer only after the message has actually been sent

@@ -59,6 +59,9 @@ public class Item {
         // kills the player holding it
         BOMB(Emojis.BOMB, "Kills you immediately " + Emojis.BOOM),
 
+        // protect the player from death (but not from lynch)
+        ANGEL(Emojis.ANGEL, "You will be protected from death once, but not from getting lynched."),
+
         //
         ;
 

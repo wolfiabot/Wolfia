@@ -67,6 +67,7 @@ public class Emojis {
     public static final String SANTA = "🎅";
     public static final String BOMB = "💣";
     public static final String PRESENT = "🎁";
+    public static final String ANGEL = "👼";
 
 
     public static final String NUMBER_0 = "0⃣";
