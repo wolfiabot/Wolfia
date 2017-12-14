@@ -108,7 +108,7 @@ public class VotingBuilder {
         if (renderEmojis) {
             nv.append(this.unvoteEmoji).append(" ");
         }
-        final Set<Player> nonVoters = getNonVoters(votes.stream().flatMap(ve -> ve.voters.stream()).collect(Collectors.toSet()));
+        final Set<Player> nonVoters = getNonVoters(votes.stream().flatMap(ve -> ve.voters.stream()).filter(Player::isAlive).collect(Collectors.toSet()));
         nv.append("**Non-voters: **\n").append(String.join(", ", nonVoters.stream().map(Player::bothNamesFormatted).collect(Collectors.toList())));
 
         votesField.add(nv.toString());
