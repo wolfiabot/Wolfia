@@ -787,7 +787,7 @@ public class Mafia extends Game {
                 final EmbedBuilder livingPlayersWithNumbers = listLivingPlayersWithNumbers(p);
                 final String out = String.format("**You are Santa Claus. Use `%s [name or number]` to send a %s to another player.**%n"
                                 + "If they decide to open the present, it may contain one of the following things at random:"
-                                + "\n" + Item.Items.GUN + " Allows the target player to shoot another player at any time."
+                                + "\n" + Item.Items.GUN + " Allows the target player to shoot another player during the day."
                                 + "\n" + Item.Items.MAGNIFIER + " Allows the target player to check another player's alignment during the night."
                                 + "\n" + Item.Items.BOMB + " Kills the target player immediately."
                                 + "\n\nIf you don't submit an action, a random living player will receive the present.",
