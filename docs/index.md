@@ -126,7 +126,7 @@ Power roles:
 The Cop ![][cop]{:height="15" width="15"} investigates the alignment of a player at night.
 
 ### Xmas Mafia
-6+ players
+7+ players
 
 Power roles:  
 The Cop ![][cop]{:height="15" width="15"} investigates the alignment of a player at night.  
