@@ -64,6 +64,9 @@ public class Emojis {
     public static final String MAGNIFIER = "🔍";
     public static final String SPY = "🕵";
     public static final String ANGRY_BUBBLE = "🗯";
+    public static final String SANTA = "🎅";
+    public static final String BOMB = "💣";
+    public static final String PRESENT = "🎁";
 
 
     public static final String NUMBER_0 = "0⃣";

@@ -140,7 +140,8 @@ public class RoleAndPermissionUtils {
                 try {
                     while (!hasExplicitPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_PERMISSIONS)) {
                         if (System.currentTimeMillis() - started > maxTimeToWait) {
-                            throw new RuntimeException("Failed to set permissions up.");
+                            throw new UserFriendlyException("I failed to give myself the required permissions. Please read "
+                                    + App.DOCS_LINK + "#permissions or reinvite me.");
                         }
                         Thread.sleep(100);
                     }

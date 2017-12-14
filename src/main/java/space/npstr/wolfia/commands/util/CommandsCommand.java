@@ -43,6 +43,9 @@ public class CommandsCommand extends BaseCommand {
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_VOTECOUNT + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_NIGHTKILL + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_CHECK + "\n"
+                + Config.PREFIX + CommRegistry.COMM_TRIGGER_HOHOHO + " _(xmas mode only)_\n"
+                + Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS + " _(xmas mode only)_\n"
+                + Config.PREFIX + CommRegistry.COMM_TRIGGER_OPENPRESENT + " _(xmas mode only)_\n"
                 ;
 
         final String settingsCommands =

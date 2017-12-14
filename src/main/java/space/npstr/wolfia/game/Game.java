@@ -206,11 +206,15 @@ public abstract class Game {
     }
 
 
-    protected boolean isLiving(final Member member) {
-        return isLiving(member.getUser().getIdLong());
+    public boolean isLiving(final Member member) {
+        return isLiving(member.getUser());
     }
 
-    protected boolean isLiving(final long userId) {
+    public boolean isLiving(final User user) {
+        return isLiving(user.getIdLong());
+    }
+
+    public boolean isLiving(final long userId) {
         for (final Player p : this.players) {
             if (p.userId == userId && p.isAlive()) {
                 return true;

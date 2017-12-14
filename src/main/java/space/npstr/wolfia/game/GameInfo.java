@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.Permission;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
@@ -33,16 +34,26 @@ public interface GameInfo {
 
     //WILD and CLASSIC are used by Popcorn
     //PURE and LITE are used by Mafia
+    //XMAS is a seasonal mode
     enum GameMode {
         WILD("Wild"),
         CLASSIC("Classic"),
         PURE("Pure"),
-        LITE("Lite");
+        LITE("Lite"),
+        XMAS("Xmas"),
+        //
+        ;
 
         public final String textRep;
 
         GameMode(final String textRep) {
             this.textRep = textRep;
+        }
+
+
+        @Override
+        public String toString() {
+            return this.textRep;
         }
     }
 
@@ -60,7 +71,8 @@ public interface GameInfo {
 
     boolean isAcceptablePlayerCount(int playerCount, GameMode mode);
 
-    CharakterSetup getCharacterSetup(GameMode mode, int playerCount);
+    @Nonnull
+    CharakterSetup getCharacterSetup(@Nonnull GameMode mode, int playerCount);
 
     String textRep();
 

@@ -79,6 +79,8 @@ import java.util.concurrent.TimeoutException;
  * Created by npstr on 22.08.2016
  * <p>
  * Main class of Wolfia
+ * //general list of todos etc
+ * //todo rename role pm/dm -> rolecard
  */
 public class Wolfia {
 

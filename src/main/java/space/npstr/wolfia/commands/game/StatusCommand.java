@@ -18,7 +18,9 @@
 package space.npstr.wolfia.commands.game;
 
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.BaseCommand;
+import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.db.entities.SetupEntity;
@@ -47,30 +49,46 @@ public class StatusCommand extends BaseCommand {
         return invocation() + "\n#Post the current game status or sign up list.";
     }
 
+    @SuppressWarnings("Duplicates")
     @Override
     public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
+        //this command may be called from any channel. if its a private channel, look for ongoing games of the invoker
 
-        final GuildCommandContext context = commandContext.requireGuild();
-        if (context == null) {
-            return false;
-        }
+        final GuildCommandContext context = commandContext.requireGuild(false);
+        if (context != null) { // find game through guild / textchannel
+            Game game = Games.get(context.textChannel);
+            if (game == null) {
+                //private guild?
+                for (final Game g : Games.getAll().values()) {
+                    if (context.guild.getIdLong() == g.getPrivateGuildId()) {
+                        game = g;
+                        break;
+                    }
+                }
 
-        final Game game = Games.get(context.textChannel.getIdLong());
-        if (game != null) {
+                if (game == null) {
+                    final SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
+                    context.reply(setup.getStatus());
+                    return true;
+                }
+            }
             context.reply(game.getStatus().build());
             return true;
-        }
-
-        //was this called from a private guild of an ongoing game? post the status of the corresponding game
-        for (final Game g : Games.getAll().values()) {
-            if (context.guild.getIdLong() == g.getPrivateGuildId()) {
-                context.reply(g.getStatus().build());
-                return true;
+        } else {//handle it being issued in a private channel
+            //todo handle a player being part of multiple games properly
+            boolean issued = false;
+            for (final Game g : Games.getAll().values()) {
+                if (g.isUserPlaying(commandContext.invoker)) {
+                    commandContext.reply(g.getStatus().build());
+                    issued = true;
+                }
             }
+            if (!issued) {
+                commandContext.replyWithMention(String.format("you aren't playing in any game currently. Say `%s` to get started!",
+                        Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                return false;
+            }
+            return true;
         }
-
-        final SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
-        context.reply(setup.getStatus());
-        return true;
     }
 }

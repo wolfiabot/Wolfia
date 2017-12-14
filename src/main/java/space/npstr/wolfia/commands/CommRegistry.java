@@ -36,7 +36,10 @@ import space.npstr.wolfia.commands.game.SetupCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
+import space.npstr.wolfia.commands.ingame.HohohoCommand;
+import space.npstr.wolfia.commands.ingame.ItemsCommand;
 import space.npstr.wolfia.commands.ingame.NightkillCommand;
+import space.npstr.wolfia.commands.ingame.OpenPresentCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
@@ -101,6 +104,10 @@ public class CommRegistry {
     public static final String COMM_TRIGGER_CHECK = "check";
     public static final String COMM_TRIGGER_VOTECOUNT = "votecount";
     public static final String COMM_TRIGGER_NIGHTKILL = "nightkill";
+    public static final String COMM_TRIGGER_HOHOHO = "hohoho";
+    public static final String COMM_TRIGGER_OPENPRESENT = "openpresent";
+    public static final String COMM_TRIGGER_OPENPRESENT_ALIAS = "op";
+    public static final String COMM_TRIGGER_ITEMS = "items";
 
     public static final String COMM_TRIGGER_BOTSTATS = "botstats";
     public static final String COMM_TRIGGER_GUILDSTATS = "guildstats";
@@ -124,7 +131,7 @@ public class CommRegistry {
         registerCommand(new RolePmCommand                    (COMM_TRIGGER_ROLEPM, "rpm"));
         registerCommand(new SetupCommand                     (COMM_TRIGGER_SETUP));
         registerCommand(new StartCommand                     (COMM_TRIGGER_START));
-        registerCommand(new StatusCommand                    (COMM_TRIGGER_STATUS));
+        registerCommand(new StatusCommand                    (COMM_TRIGGER_STATUS, "st"));
 
         //ingame commands
         registerCommand(new ShootCommand                     (COMM_TRIGGER_SHOOT, "s", "blast"));
@@ -133,6 +140,9 @@ public class CommRegistry {
         registerCommand(new CheckCommand                     (COMM_TRIGGER_CHECK));
         registerCommand(new VoteCountCommand                 (COMM_TRIGGER_VOTECOUNT, "vc"));
         registerCommand(new NightkillCommand                 (COMM_TRIGGER_NIGHTKILL, "nk"));
+        registerCommand(new HohohoCommand                    (COMM_TRIGGER_HOHOHO, "ho"));
+        registerCommand(new OpenPresentCommand               (COMM_TRIGGER_OPENPRESENT, "open", COMM_TRIGGER_OPENPRESENT_ALIAS));
+        registerCommand(new ItemsCommand                     (COMM_TRIGGER_ITEMS));
 
         //stats commands
         registerCommand(new BotStatsCommand                  (COMM_TRIGGER_BOTSTATS));

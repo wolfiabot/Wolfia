@@ -29,6 +29,7 @@ import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Alignments;
+import space.npstr.wolfia.game.definitions.Item;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserNotPresentException;
@@ -38,6 +39,8 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
@@ -57,6 +60,8 @@ public class Player {
     @Nonnull
     public final Roles role;
     public final int number;
+
+    public final List<Item> items = new CopyOnWriteArrayList<>();
 
     @Nonnull
     private String rolePm = "This player has no role pm.";
@@ -99,6 +104,10 @@ public class Player {
 
     public boolean isGoodie() {
         return this.alignment == Alignments.VILLAGE;
+    }
+
+    public boolean hasItemOfType(@Nonnull final Item.Items item) {
+        return this.items.stream().anyMatch(i -> i.item.equals(item));
     }
 
     /**
@@ -192,6 +201,8 @@ public class Player {
         //role specific ones
         if (this.role == Roles.COP) {
             return Emojis.MAGNIFIER;
+        } else if (this.role == Roles.SANTA) {
+            return Emojis.SANTA;
         }
         //alignment specific ones
         if (this.alignment == Alignments.WOLF) {

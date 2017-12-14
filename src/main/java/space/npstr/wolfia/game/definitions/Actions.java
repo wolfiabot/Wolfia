@@ -40,7 +40,11 @@ public enum Actions {
     LYNCH,
     VOTENIGHTKILL,
 
+    //roles stuff
     CHECK,
+    GIVE_PRESENT,
+    OPEN_PRESENT,
+
 
     //popcorn related
     SHOOT,

@@ -31,7 +31,10 @@ import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
+import space.npstr.wolfia.commands.ingame.HohohoCommand;
 import space.npstr.wolfia.commands.ingame.NightkillCommand;
+import space.npstr.wolfia.commands.ingame.OpenPresentCommand;
+import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCountCommand;
@@ -47,6 +50,7 @@ import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.definitions.Item;
 import space.npstr.wolfia.game.definitions.Phase;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.game.exceptions.DayEndedAlreadyException;
@@ -62,11 +66,14 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.DiscordLogger;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -271,17 +278,17 @@ public class Mafia extends Game {
         } else if (context.command instanceof CheckCommand) {
 
             if (context.channel.getType() != ChannelType.PRIVATE) {
-                context.replyWithMention("checks can only be issued in private messages!");
+                context.replyWithMention("checks can only be issued in private messages.");
                 return false;
             }
 
             if (this.phase != Phase.NIGHT) {
-                context.replyWithMention("checks can only be issued during the night!");
+                context.replyWithMention("checks can only be issued during the night.");
                 return false;
             }
 
-            if (invoker.role != Roles.COP) {
-                context.replyWithMention("you can't issue a check when you aren't a cop!");
+            if (invoker.role != Roles.COP && !invoker.hasItemOfType(Item.Items.MAGNIFIER)) {
+                context.replyWithMention("you can't issue a check when you aren't a cop and don't own a " + Item.Items.MAGNIFIER + ".");
                 return false;
             }
 
@@ -289,6 +296,53 @@ public class Mafia extends Game {
             if (target == null) return false;
 
             return check(invoker, target, context);
+        } else if (context.command instanceof HohohoCommand) {
+            if (context.channel.getType() != ChannelType.PRIVATE) {
+                context.replyWithMention("presents can only be given in private messages.");
+                return false;
+            }
+
+            if (this.phase != Phase.NIGHT) {
+                context.replyWithMention("presents can only be given during the night.");
+                return false;
+            }
+
+            if (invoker.role != Roles.SANTA) {
+                context.replyWithMention("you can't send presents when you aren't santa.");
+                return false;
+            }
+
+            final Player target = GameUtils.identifyPlayer(this.players, context);
+            if (target == null) return false;
+
+            return givePresent(invoker, target, context);
+        } else if (context.command instanceof OpenPresentCommand) {
+            if (context.channel.getType() != ChannelType.PRIVATE) {
+                context.replyWithMention("presents can only be opened in private messages.");
+                return false;
+            }
+
+            return openPresent(invoker, context);
+        } else if (context.command instanceof ShootCommand) {
+            if (context.channel.getType() != ChannelType.PRIVATE) {
+                context.replyWithMention("shots in this game/mode can only be issued in private messages.");
+                return false;
+            }
+
+            if (!invoker.hasItemOfType(Item.Items.GUN)) {
+                context.reply("You can't shoot if you don't own a " + Item.Items.GUN + ".");
+                return false;
+            }
+
+            if (this.phase != Phase.DAY) {
+                context.reply("You can only shoot during the day.");
+                return false;
+            }
+
+            final Player target = GameUtils.identifyPlayer(this.players, context);
+            if (target == null) return false;
+
+            return shoot(invoker, target, context);
         } else if (context.command instanceof VoteCountCommand) {
 
             //wolves asked for one, give them a votecount of their nk votes
@@ -380,7 +434,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean check(final Player invoker, final Player target, @Nonnull final CommandContext context) {
+    private boolean check(@Nonnull final Player invoker, @Nonnull final Player target, @Nonnull final CommandContext context) {
         if (target.isDead()) {
             context.reply("You can't check a dead player.");
             return false;
@@ -396,12 +450,166 @@ public class Mafia extends Game {
         return true;
     }
 
+    private boolean givePresent(@Nonnull final Player invoker, @Nonnull final Player target, @Nonnull final CommandContext context) {
+        if (target.isDead()) {
+            context.reply("You can't give a present to a dead player.");
+            return false;
+        }
+
+        if (target.equals(invoker)) {
+            context.reply("Sorry, you've been very naughty. You can't give a present to yourself.");
+            return false;
+        }
+
+        this.nightActions.put(invoker, simpleAction(invoker.userId, Actions.GIVE_PRESENT, target.userId));
+        context.reply("You are climbing down " + target.bothNamesFormatted() + "'s chimney tonight and leaving them a " + Item.Items.PRESENT);
+        return true;
+    }
+
+    private boolean openPresent(@Nonnull final Player invoker, @Nonnull final CommandContext context) {
+
+        Item hasPresent = null;
+        for (final Item item : invoker.items) {
+            if (item.item == Item.Items.PRESENT) {
+                hasPresent = item;
+                break;
+            }
+        }
+        if (hasPresent == null) {
+            final String message = String.format("You don't have any presents to open. Say `%s` to see your items.",
+                    Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS);
+            context.reply(message);
+            return false;
+        } else {
+            invoker.items.remove(hasPresent);
+        }
+
+        final Item.Items openedPresent = GameUtils.rand(Arrays.asList(Item.Items.GUN, Item.Items.MAGNIFIER, Item.Items.BOMB));
+        invoker.items.add(new Item(hasPresent.sourceId, openedPresent));
+        this.gameStats.addAction(simpleAction(invoker.userId, Actions.OPEN_PRESENT, invoker.userId).setAdditionalInfo(openedPresent.name()));
+
+        context.reply("You received a " + openedPresent.emoji + "! This has the following effect:\n" + openedPresent.explanation);
+
+        //noinspection UnnecessaryLocalVariable
+        final Player dying = invoker;
+
+        if (openedPresent == Item.Items.BOMB) {
+            try {
+                dying.kill();
+            } catch (final IllegalGameStateException ignore) {
+                //lets ignore this for now and just log it
+                log.error("Dead player got a bomb from present", ignore);
+            }
+            this.gameStats.addAction(simpleAction(hasPresent.sourceId, Actions.DEATH, dying.userId));
+
+            //remove votes of dead player and ppl voting the dead player
+            clearVotesForPlayer(dying, context);
+            clearNkVotesForPlayer(dying, context);
+
+            //remove writing permissions
+            final TextChannel gameChannel = fetchGameChannel();
+            RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(dying.userId),//todo breaks nonnull contract
+                    Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
+
+            //send info
+            final String message = String.format("%s %s opened a %s and found a lit %s inside, killing them immediately.\n%s",
+                    Emojis.BOOM, dying.asMention(), Item.Items.PRESENT, Item.Items.BOMB, getReveal(dying));
+            RestActions.sendMessage(fetchGameChannel(), message);
+            if (this.phase == Phase.NIGHT) {
+                RestActions.sendMessage(fetchBaddieChannel(), message);
+            }
+            isGameOver();
+        }
+        return true;
+    }
+
+    private boolean shoot(@Nonnull final Player invoker, @Nonnull final Player target, @Nonnull final CommandContext context) {
+        if (invoker.equals(target)) {
+            context.reply(String.format("Please don't %s yourself, that would make a big mess.", Emojis.GUN));
+            return false;
+        } else if (target.isDead()) {
+            context.reply(String.format("You have to %s a living player of this game.", Emojis.GUN));
+            context.reply(listLivingPlayersWithNumbers(invoker));
+            return false;
+        }
+
+        //noinspection UnnecessaryLocalVariable
+        final Player dying = target;
+
+        try {
+            dying.kill();
+        } catch (final IllegalGameStateException ignore) {
+            //lets ignore this for now and just log it
+            log.error("Dead player got a bomb from present", ignore);
+        }
+        this.gameStats.addAction(simpleAction(invoker.userId, Actions.SHOOT, dying.userId));
+
+        //use up a gun if this person has one
+        final Optional<Item> gun = invoker.items.stream().filter(i -> i.item == Item.Items.GUN).findAny();
+        if (gun.isPresent()) {
+            invoker.items.remove(gun.get());
+            invoker.sendMessage(String.format("You used up your %s. Say `%s` to see what items you have left.",
+                    Item.Items.GUN, Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+        }
+
+        //remove votes of dead player and ppl voting the dead player
+        clearVotesForPlayer(dying, context);
+        clearNkVotesForPlayer(dying, context);
+
+        //remove writing permissions
+        final TextChannel gameChannel = fetchGameChannel();
+        RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(dying.userId),//todo breaks nonnull contract
+                Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
+
+        //send info
+        final String message = String.format("%s has been shot! They die immediately.\n%s",
+                dying.asMention(), getReveal(dying));
+        RestActions.sendMessage(fetchGameChannel(), message);
+        if (this.phase == Phase.NIGHT) {
+            RestActions.sendMessage(fetchBaddieChannel(), message);
+        }
+        isGameOver();
+        return true;
+    }
+
+    private void clearVotesForPlayer(@Nonnull final Player player, @Nonnull final Context context) {
+        final Set<Player> toUnvote = new HashSet<>();
+        for (final Map.Entry<Player, Player> vote : this.votes.entrySet()) {
+            final Player voter = vote.getKey();
+            final Player candidate = vote.getValue();
+            if (voter.equals(player)) {
+                toUnvote.add(voter);
+            } else if (candidate.equals(player)) {
+                toUnvote.add(voter);
+            }
+        }
+        for (final Player unvoter : toUnvote) {
+            unvote(unvoter, context, true);
+        }
+    }
+
+    private void clearNkVotesForPlayer(@Nonnull final Player player, @Nonnull final Context context) {
+        final Set<Player> toUnvoteNk = new HashSet<>();
+        for (final Map.Entry<Player, Player> vote : this.nightkillVotes.entrySet()) {
+            final Player voter = vote.getKey();
+            final Player candidate = vote.getValue();
+            if (voter.equals(player)) {
+                toUnvoteNk.add(voter);
+            } else if (candidate.equals(player)) {
+                toUnvoteNk.add(voter);
+            }
+        }
+        for (final Player unvoter : toUnvoteNk) {
+            nkUnvote(unvoter, context, true);
+        }
+    }
+
     //simplifies the giant constructor of an action by providing it with game/mode specific defaults
     @Override
     protected ActionStats simpleAction(final long actor, final Actions action, final long target) {
         final long now = System.currentTimeMillis();
         return new ActionStats(this.gameStats, this.actionOrder.incrementAndGet(),
-                now, now, this.cycle, this.phase, actor, action, target);
+                now, now, this.cycle, this.phase, actor, action, target, null);
     }
 
     private void startDay() {
@@ -563,7 +771,6 @@ public class Mafia extends Game {
         //notify other roles of their possible night actions
 
         for (final Player p : getLivingPlayers()) {
-
             //cop
             if (p.role == Roles.COP) {
                 final EmbedBuilder livingPlayersWithNumbers = listLivingPlayersWithNumbers(p);
@@ -573,8 +780,22 @@ public class Mafia extends Game {
                         Config.PREFIX + CommRegistry.COMM_TRIGGER_CHECK);
                 livingPlayersWithNumbers.addField("", out, false);
                 final Collection<Long> randCopTargets = getLivingPlayerIds();
-                randCopTargets.remove(p.userId);//dont randomly check himself
+                randCopTargets.remove(p.userId);//dont randomly check themselves
                 this.nightActions.put(p, simpleAction(p.userId, Actions.CHECK, GameUtils.rand(randCopTargets)));//preset a random action
+                p.sendMessage(livingPlayersWithNumbers.build(), RestActions.defaultOnFail());
+            } else if (p.role == Roles.SANTA) {
+                final EmbedBuilder livingPlayersWithNumbers = listLivingPlayersWithNumbers(p);
+                final String out = String.format("**You are Santa Claus. Use `%s [name or number]` to send a %s to another player.**%n"
+                                + "If they decide to open the present, it may contain one of the following things at random:"
+                                + "\n" + Item.Items.GUN + " Allows the target player to shoot another player at any time."
+                                + "\n" + Item.Items.MAGNIFIER + " Allows the target player to check another player's alignment during the night."
+                                + "\n" + Item.Items.BOMB + " Kills the target player immediately."
+                                + "\n\nIf you don't submit an action, a random living player will receive the present.",
+                        Config.PREFIX + CommRegistry.COMM_TRIGGER_HOHOHO, Item.Items.PRESENT);
+                livingPlayersWithNumbers.addField("", out, false);
+                final Collection<Long> randSantaTargets = getLivingPlayerIds();
+                randSantaTargets.remove(p.userId);//dont randomly gift themselves
+                this.nightActions.put(p, simpleAction(p.userId, Actions.GIVE_PRESENT, GameUtils.rand(randSantaTargets)));//preset a random action
                 p.sendMessage(livingPlayersWithNumbers.build(), RestActions.defaultOnFail());
             }
         }
@@ -607,23 +828,31 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean nkUnvote(final Player unvoter, @Nonnull final CommandContext context) {
+    private boolean nkUnvote(final Player unvoter, @Nonnull final Context context, final boolean... silent) {
+        final boolean shutUp = silent.length > 0 && silent[0];
+
         if (this.phase != Phase.NIGHT) {
-            context.replyWithMention("you can only unvote during the night.");
+            if (!shutUp) {
+                context.replyWithMention("you can only unvote during the night.");
+            }
             return false;
         }
 
         final Player unvoted;
         synchronized (this.nightkillVotes) {
             if (this.nightkillVotes.get(unvoter) == null) {
-                context.replyWithMention("you can't unvote if you aren't voting in the first place.");
+                if (!shutUp) {
+                    context.replyWithMention("you can't unvote if you aren't voting in the first place.");
+                }
                 return false;
             }
             unvoted = this.nightkillVotes.remove(unvoter);
             this.nightKillVoteActions.remove(unvoter);
         }
 
-        context.reply(String.format("%s unvoted %s.", unvoter.asMention(), unvoted.asMention()));
+        if (!shutUp) {
+            RestActions.sendMessage(fetchBaddieChannel(), String.format("%s unvoted %s.", unvoter.asMention(), unvoted.asMention()));
+        }
         return true;
     }
 
@@ -650,8 +879,27 @@ public class Mafia extends Game {
                             checked.alignment.textRepMaf), RestActions.defaultOnFail());
                     nightAction.setTimeStampHappened(System.currentTimeMillis());
                     this.gameStats.addAction(nightAction);
+
+                    //use up a mag if this player has one
+                    final Optional<Item> mag = checker.items.stream().filter(i -> i.item == Item.Items.MAGNIFIER).findAny();
+                    if (mag.isPresent()) {
+                        checker.items.remove(mag.get());
+                        checker.sendMessage(String.format("You used up your %s. Say `%s` to see what items you have left.",
+                                Item.Items.MAGNIFIER, Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+                    }
                 } catch (final IllegalGameStateException e) {
                     log.error("Checked player {} not a player of the ongoing game in {}.", nightAction.getTarget(), this.channelId);
+                }
+            } else if (nightAction.getActionType() == Actions.GIVE_PRESENT) {
+                try {
+                    final Player receiver = getPlayer(nightAction.getTarget());
+                    final String message = String.format("Someone left a %s under your Xmas tree! Say `%s` to open it, if you dare.",
+                            Item.Items.PRESENT.emoji, Config.PREFIX + CommRegistry.COMM_TRIGGER_OPENPRESENT);
+                    receiver.sendMessage(message, RestActions.defaultOnFail());
+                    receiver.items.add(new Item(nightAction.getActor(), Item.Items.PRESENT));
+                    this.gameStats.addAction(nightAction);
+                } catch (final IllegalGameStateException e) {
+                    log.error("Player {} getting a present not a player of the ongoing game in {}.", nightAction.getTarget(), this.channelId);
                 }
             } else {
                 log.error("Unsupported night action encountered: " + nightAction.getActionType());
@@ -659,9 +907,8 @@ public class Mafia extends Game {
         }
 
         final TextChannel gameChannel = fetchGameChannel();
-        RestActions.sendMessage(gameChannel, String.format("%s has died during the night!\nThey were **%s %s** %s",
-                nightKillCandidate.asMention(), nightKillCandidate.alignment.textRepMaf,
-                nightKillCandidate.role.textRep, nightKillCandidate.getCharakterEmoji()));
+        RestActions.sendMessage(gameChannel, String.format("%s has died during the night!\n%s",
+                nightKillCandidate.asMention(), getReveal(nightKillCandidate)));
 
         if (!isGameOver()) {
             //start the timer only after the message has actually been sent
@@ -670,5 +917,10 @@ public class Mafia extends Game {
                     String.join(", ", getLivingPlayerMentions())),
                     c, c);
         }
+    }
+
+    @Nonnull
+    private static String getReveal(@Nonnull final Player dying) {
+        return String.format("They were **%s %s** %s", dying.alignment.textRepMaf, dying.role.textRep, dying.getCharakterEmoji());
     }
 }

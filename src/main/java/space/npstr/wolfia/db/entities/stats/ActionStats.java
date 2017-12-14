@@ -17,15 +17,20 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.entities.SaucedEntity;
+import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.definitions.Item;
 import space.npstr.wolfia.game.definitions.Phase;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -44,6 +49,7 @@ import javax.persistence.Table;
 @Table(name = "stats_action")
 public class ActionStats extends SaucedEntity<Long, ActionStats> {
 
+    private static final Logger log = LoggerFactory.getLogger(ActionStats.class);
     private static final long serialVersionUID = -6803073458836067860L;
 
     //dont really care about this one, its for the database
@@ -90,7 +96,13 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
     @Column(name = "target")
     private long target;
 
-    public ActionStats(final GameStats game, final int order, final long timeStampSubmitted, final long timeStampHappened, final int cycle, final Phase phase, final long actor, final Actions action, final long target) {
+    //save any additional info of an action in here
+    @Column(name = "additional_info", columnDefinition = "text", nullable = true)
+    private String additionalInfo;
+
+    public ActionStats(final GameStats game, final int order, final long timeStampSubmitted,
+                       final long timeStampHappened, final int cycle, final Phase phase, final long actor,
+                       final Actions action, final long target, @Nullable final String additionalInfo) {
         this.game = game;
         this.order = order;
         this.timeStampSubmitted = timeStampSubmitted;
@@ -100,6 +112,7 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
         this.actor = actor;
         this.actionType = action.name();
         this.target = target;
+        this.additionalInfo = additionalInfo;
     }
 
     @Override
@@ -190,6 +203,12 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
             case GIVEGUN:
                 result += String.format("%s: %s receives the gun", Emojis.GUN, getFormattedNickFromStats(this.target));
                 break;
+            case GIVE_PRESENT:
+                result += String.format("%s: %s gives %s a present", Item.Items.PRESENT, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
+                break;
+            case OPEN_PRESENT:
+                result += String.format("%s: %s opens a present and receives a %s", Item.Items.PRESENT, getFormattedNickFromStats(this.target), Item.Items.valueOf(this.additionalInfo));
+                break;
             default:
                 throw new IllegalArgumentException("Encountered an action that is not defined/has no text representation: " + this.actionType);
         }
@@ -207,12 +226,13 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
             }
         }
         final String message = String.format("No such player %s in this game %s", userId, this.game.getId());
-        throw new IllegalArgumentException(message);
+        log.error(message, new IllegalArgumentException(message));
+        return DiscordUser.UNKNOWN_NAME;
     }
 
     //########## boilerplate code below
 
-    ActionStats() {
+    protected ActionStats() {
     }
 
     @Override
@@ -298,5 +318,18 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
 
     public void setTarget(final long target) {
         this.target = target;
+    }
+
+    @Nullable
+    public String getAdditionalInfo() {
+        return this.additionalInfo;
+    }
+
+    /**
+     * @return itself for chaining
+     */
+    public ActionStats setAdditionalInfo(@Nullable final String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+        return this;
     }
 }

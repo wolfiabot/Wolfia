@@ -411,7 +411,7 @@ public class Popcorn extends Game {
     protected ActionStats simpleAction(final long actor, final Actions action, final long target) {
         final long now = System.currentTimeMillis();
         return new ActionStats(this.gameStats, this.actionOrder.incrementAndGet(),
-                now, now, this.day, Phase.DAY, actor, action, target);
+                now, now, this.day, Phase.DAY, actor, action, target, null);
     }
 
 

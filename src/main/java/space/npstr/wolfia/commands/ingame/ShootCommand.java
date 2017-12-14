@@ -17,7 +17,14 @@
 
 package space.npstr.wolfia.commands.ingame;
 
+import space.npstr.wolfia.Config;
+import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
+import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
 
@@ -37,5 +44,51 @@ public class ShootCommand extends GameCommand {
     public String help() {
         return invocation() + " @player"
                 + "\n#Shoot the mentioned player.";
+    }
+
+    @SuppressWarnings("Duplicates")
+    @Override
+    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
+        //this command may be called in a guild for popcorn and a private channel for mafia
+
+        final GuildCommandContext context = commandContext.requireGuild(false);
+        if (context != null) { // find game through guild / textchannel
+            Game game = Games.get(context.textChannel);
+            if (game == null) {
+                //private guild?
+                for (final Game g : Games.getAll().values()) {
+                    if (context.guild.getIdLong() == g.getPrivateGuildId()) {
+                        game = g;
+                        break;
+                    }
+                }
+
+                if (game == null) {
+                    context.replyWithMention(String.format("there is no game currently going on in here. Say `%s` to get started!",
+                            Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                    return false;
+                }
+            }
+
+            return game.issueCommand(context);
+        } else {//handle it being issued in a private channel
+            //todo handle a player being part of multiple games properly
+            boolean issued = false;
+            boolean success = false;
+            for (final Game g : Games.getAll().values()) {
+                if (g.isUserPlaying(commandContext.invoker)) {
+                    if (g.issueCommand(commandContext)) {
+                        success = true;
+                    }
+                    issued = true;
+                }
+            }
+            if (!issued) {
+                commandContext.replyWithMention(String.format("you aren't playing in any game currently. Say `%s` to get started!",
+                        Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                return false;
+            }
+            return success;
+        }
     }
 }

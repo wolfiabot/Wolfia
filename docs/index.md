@@ -54,37 +54,40 @@ Uptime over last 7 days:
 
 ### Starting a game
 
-Command    | What it does                                                 | Example usage
+Command    | What it does                                                 | Example usage / aliases
 ---------- | ------------------------------------------------------------ | -------------
 `w.in`     | sign up for a game                                           | `w.in`
 `w.out`    | drop from the sign up list; moderators can out other players | `w.out` `w.out @player`
 `w.setup`  | set up the game in the current channel                       | `w.setup daylength 5` `w.setup game mafia` `w.setup mode classic`
 `w.start`  | start a game                                                 | `w.start`
-`w.rolepm` | ask the bot to resend you your rolepm for the ongoing game   | `w.rolepm`
-`w.status` | show the current status of an ongoing game or sign ups       | `w.status`
+`w.rolepm` | ask the bot to resend you your rolepm for the ongoing game   | `w.rpm`
+`w.status` | show the current status of an ongoing game or sign ups       | `w.st`
 
 
 ### Game actions
 
-Command             | What it does                                        | Example usage
+Command             | What it does                                        | Example usage / aliases
 ------------------- | --------------------------------------------------- | -------------
 `w.check`           | check a players alignment                           | `w.check 6`
-`w.shoot`           | shoot another player                                | `w.shoot @player`
-`w.unvote`          | unvote                                              | `w.unvote`
-`w.vote`            | vote a player for lynch                             | `w.vote @player`
-`w.votecount`       | post the current votecount                          | `w.votecount`
-`w.nightkill`       | vote a player for nightkill (in mafia chat only)    | `w.nightkill @player`
+`w.shoot`           | shoot another player                                | `w.s @player`
+`w.unvote`          | unvote                                              | `w.u`
+`w.vote`            | vote a player for lynch                             | `w.v @player`
+`w.votecount`       | post the current votecount                          | `w.vc`
+`w.nightkill`       | vote a player for nightkill (in mafia chat only)    | `w.nk @player`
+`w.hohoho`          | give a player a present (xmas mode only)            | `w.ho 5`
+`w.items`           | list the items that you own (xmas mode only)        | `w.items`
+`w.openpresent`     | open a present that you received (xmas mode only)   | `w.op`
 
 
 ### Bot Settings
 
-Command             | What it does                                        | Example usage
+Command             | What it does                                        | Example usage / aliases
 ------------------- | --------------------------------------------------- | -------------
-`w.channelsettings` | set up settings for this channel                    | `w.channelsettings accessrole Mafiaplayer` `w.channelsettings tagcooldown 10`
+`w.channelsettings` | set up settings for this channel                    | `w.cs accessrole Mafiaplayer` `w.channelsettings tagcooldown 10`
 
 ### Statistics
 
-Command             | What it does                                        | Example usage
+Command             | What it does                                        | Example usage / aliases
 ------------------- | --------------------------------------------------- | -------------
 `w.userstats`       | show stats of a user                                | `w.userstats @user`
 `w.guildstats`      | show stats of the current guild                     | `w.guildstats` `w.guildstats <guildId>`
@@ -94,14 +97,14 @@ Command             | What it does                                        | Exam
 
 ### Other Commands
 
-Command             | What it does                                        | Example usage
+Command             | What it does                                        | Example usage / aliases
 ------------------- | --------------------------------------------------- | -------------
-`w.commands`        | show a list of all available commands               | `w.commands`
+`w.commands`        | show a list of all available commands               | `w.comms`
 `w.help`            | send some help your way                             | `w.help`
 `w.info`            | show some general information about Wolfia          | `w.info`
 `w.invite`          | post invite links for Wolfia and the Wolfia Lounge  | `w.inv`
 `w.replay`          | show the replay of a game                           | `w.replay #gameid`
-`w.tag`             | post or sign up for the tag list of the channel     | `w.tag add` `w.tag remove` `w.tag add @role`
+`w.tag`             | post or sign up for the tag list of the channel     | `w.tag +` `w.tag -` `w.tag + @role`
 
 * * *
 
@@ -109,17 +112,26 @@ Command             | What it does                                        | Exam
 
 ## Mafia
 
-9+ players
-
 Town ![][t]{:height="15" width="15"} against Mafia ![][m]{:height="15" width="15"}
+
+- The Mafia knows their team, they receive an invite to mafia chat with their role pms
+- During the day everyone votes to lynch one of the players
+- During the night the Mafia kills players
+- Town wins when all Mafia are dead, Mafia wins when they reach parity.
+
+### Mafia Lite
+9+ players
 
 Power roles:  
 The Cop ![][cop]{:height="15" width="15"} investigates the alignment of a player at night.
 
-- The Mafia knows their team
-- During the day everyone votes to lynch one of the players
-- During the night the Mafia kills players
-- Town wins when all Mafia are dead, Mafia wins when they reach parity.
+### Xmas Mafia
+6+ players
+
+Power roles:  
+The Cop ![][cop]{:height="15" width="15"} investigates the alignment of a player at night.  
+(Many) Santas ![][santa]{:height="15" width="15"} who give out presents to other players, which contain useful, but also
+dangerous items.
 
 
 ## Popcorn
@@ -131,14 +143,14 @@ Village ![][v]{:height="15" width="15"} against Wolves ![][w]{:height="15" width
 - If the ![][v]{:height="15" width="15"} shoots another ![][v]{:height="15" width="15"}, the shooter dies, and the ![][gun]{:height="15" width="15"} goes to the ![][v]{:height="15" width="15"} that was shot at.
 - ![][v]{:height="15" width="15"}s win when all ![][w]{:height="15" width="15"}s are dead, ![][w]{:height="15" width="15"}s win when they reach parity.
 
-### Wild
+### Popcorn Wild
 
 3+ players
 
 The Wild mode randomizes who gets the ![][gun]{:height="15" width="15"}.
 The channel is never be closed, non-players and dead players can post all the time.
 
-### Classic
+### Popcorn Classic
 
 3-26 players
 
@@ -199,3 +211,4 @@ Coded with lots of ![](https://canary.discordapp.com/assets/25c09e6fde32411da2b0
 [t]:https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg
 [gun]:https://canary.discordapp.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg
 [cop]:https://canary.discordapp.com/assets/3896096ba07324c04ed0fe7e1acc3643.svg
+[santa]:https://canary.discordapp.com/assets/37017a416c2a6ab030f0de3db9f6e73e.svg

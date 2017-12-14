@@ -25,6 +25,7 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.game.definitions.Scope;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -96,8 +97,9 @@ public class PopcornInfo implements GameInfo {
     //https://weebs.are-la.me/e1613c.png
     //https://i.npstr.space/iyF.png
     //https://i.npstr.space/hsi.png
+    @Nonnull
     @Override
-    public CharakterSetup getCharacterSetup(final GameMode mode, final int playerCount) {
+    public CharakterSetup getCharacterSetup(@Nonnull final GameMode mode, final int playerCount) {
 
         if (!isAcceptablePlayerCount(playerCount, mode)) {
             throw new IllegalArgumentException(String.format(

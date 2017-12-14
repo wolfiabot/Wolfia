@@ -33,33 +33,23 @@ import java.util.List;
  */
 public class NiceEmbedBuilder extends EmbedBuilder {
 
-//    private static final ThreadLocal<NiceEmbedBuilder> threadLocalNiceEmbedBuilder = ThreadLocal.withInitial(NiceEmbedBuilder::new);
+    private static final ThreadLocal<NiceEmbedBuilder> threadLocalNiceEmbedBuilder = ThreadLocal.withInitial(NiceEmbedBuilder::new);
 
     /**
      * @return a general purpose preformatted nice builder for embeds
      */
     @Nonnull
-    //todo explore whether we could clone it from the regular default embed builder after jdas message-rw is merged
     public static NiceEmbedBuilder defaultBuilder() {
         final NiceEmbedBuilder neb = builder();
         neb.setColor(Context.BLACKIA);
         return neb;
     }
 
-    @Nonnull //todo see note for threadlocal stuff in RestActions
+    @Nonnull
     public static NiceEmbedBuilder builder() {
-        return new NiceEmbedBuilder();
-//        final NiceEmbedBuilder neb = threadLocalNiceEmbedBuilder.get();
-//        neb.clearFields()
-//                .setTitle(null)
-//                .setDescription(null)
-//                .setTimestamp(null)
-//                .setColor(null)
-//                .setThumbnail(null)
-//                .setAuthor(null, null, null)
-//                .setFooter(null, null)
-//                .setImage(null);
-//        return neb;
+        final NiceEmbedBuilder neb = threadLocalNiceEmbedBuilder.get();
+        neb.clear();
+        return neb;
     }
 
     private NiceEmbedBuilder() {
