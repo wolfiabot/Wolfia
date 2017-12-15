@@ -108,22 +108,26 @@ public class VotingBuilder {
         if (renderEmojis) {
             nv.append(this.unvoteEmoji).append(" ");
         }
-        final Set<Player> nonVoters = getNonVoters(votes.stream().flatMap(ve -> ve.voters.stream()).filter(Player::isAlive).collect(Collectors.toSet()));
+        final Set<Player> nonVoters = getNonVoters(votes.stream().flatMap(ve -> ve.voters.stream()).collect(Collectors.toSet()));
         nv.append("**Non-voters: **\n").append(String.join(", ", nonVoters.stream().map(Player::bothNamesFormatted).collect(Collectors.toList())));
 
         votesField.add(nv.toString());
         return votesField;
     }
 
+    //also cleans out dead players
     private List<VoteEntry> processVotes(final Map<Player, Player> votes) {
         final List<VoteEntry> processedVotes = new ArrayList<>();
         for (final Player candidate : this.possibleCandidates) {
+            if (candidate.isDead()) {
+                continue;
+            }
             //who is voting for this player?
             final List<Player> voters = new ArrayList<>();
             for (final Map.Entry<Player, Player> entry : votes.entrySet()) {
                 final Player voter = entry.getKey();
                 final Player voted = entry.getValue();
-                if (voted.equals(candidate)) {
+                if (voted.equals(candidate) && voter.isAlive()) {
                     voters.add(voter);
                 }
             }
