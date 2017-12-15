@@ -770,6 +770,9 @@ public class Mafia extends Game {
                             this.nightLengthMillis,
                             //on destruction
                             aVoid -> {
+                                if (!this.running) {//game ended meanwhile.
+                                    return;
+                                }
                                 message.clearReactions().queue(null, RestActions.defaultOnFail());
                                 synchronized (this.nightkillVotes) {
                                     RestActions.editMessage(message, this.nightKillVotingBuilder.getFinalEmbed(this.nightkillVotes, this.phase, this.cycle).build());
