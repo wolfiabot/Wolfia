@@ -400,6 +400,7 @@ public class Wolfia {
             waitForGamesToEnd.get(2, TimeUnit.HOURS); //should be enough until the forseeable future
             //todo persist games (big changes)
         } catch (ExecutionException | InterruptedException | TimeoutException ignored) {
+            log.error("dafuq", ignored);
         }
         if (Games.getRunningGamesCount() > 0) {
             log.error("Killing {} games while exiting", Games.getRunningGamesCount());

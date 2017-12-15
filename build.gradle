@@ -14,7 +14,7 @@ ext {
 }
 group = 'space.npstr.Wolfia'
 //noinspection GroovyAssignabilityCheck
-version = '0.12.0-' + project.ext.buildNumber
+version = '0.13.2-' + project.ext.buildNumber
 
 
 mainClassName = "space.npstr.wolfia.Wolfia"
@@ -31,7 +31,7 @@ repositories {
 
 dependencies {
     //@formatter:off
-    ext.jdaVersion                = '3.3.1_312'
+    ext.jdaVersion                = '3.3.1_315'
     ext.logbackVersion            = '1.2.3'
     ext.sentryVersion             = '1.6.3'
     ext.discordAppenderVersion    = '1.0.0'
