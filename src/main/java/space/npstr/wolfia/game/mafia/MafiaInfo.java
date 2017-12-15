@@ -126,7 +126,7 @@ public class MafiaInfo implements GameInfo {
                 cops = Math.max(1, (int) Math.floor(playerCount / 10.0));
             }
             //a bit more mafs, 33%, cause lolbalance
-            final int mafias = (int) Math.floor((playerCount) / 3.0);
+            final int mafias = (int) Math.floor((playerCount - 1) / 3.0);
             final int santas = playerCount - (cops + mafias);
             return new CharakterSetup()
                     .addRoleAndAlignment(Alignments.VILLAGE, Roles.COP, cops)
