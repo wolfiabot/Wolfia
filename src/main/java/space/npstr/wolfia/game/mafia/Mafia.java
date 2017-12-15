@@ -931,7 +931,6 @@ public class Mafia extends Game {
             nightKillCandidate.sendMessage(String.format("One of your %ss saved you! Say `%s` to see what items you have left.",
                     Item.Items.ANGEL, Config.PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
             RestActions.sendMessage(gameChannel, "Nobody died during the night.");
-            return;
         } else {
             try {
                 nightKillCandidate.kill();
