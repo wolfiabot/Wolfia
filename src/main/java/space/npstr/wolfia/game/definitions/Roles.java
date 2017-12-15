@@ -28,8 +28,8 @@ public enum Roles {
     VANILLA("Vanilla", "Your role is **Vanilla**. Your vote is your weapon. "),
     COP("Cop", String.format("Your role is **Cop** %s. Each night you may check a player's alignment.", Emojis.MAGNIFIER)),
     SANTA("Santa", String.format("Your role is **Santa** %s. You may hand out a %s to a player each night.\n" +
-                    "The present has a random chance to contain a %s, %s or %s.", Emojis.SANTA,
-            Item.Items.PRESENT.emoji, Item.Items.GUN.emoji, Item.Items.MAGNIFIER.emoji, Item.Items.BOMB.emoji));
+                    "The present has a random chance to contain a %s, %s, %s or %s.", Emojis.SANTA,
+            Item.Items.PRESENT, Item.Items.GUN, Item.Items.MAGNIFIER, Item.Items.BOMB, Item.Items.ANGEL));
 
     public final String textRep;
 
