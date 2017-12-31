@@ -16,13 +16,21 @@ language: java
 jdk:
   - oraclejdk9
 
+cache:
+  directories:
+    - "$HOME/.m2"
+    - "$HOME/.gradle"
+    - ".gradle/wrapper"
+    - ".gradle/caches"
+
 script:
-  - ./gradlew shadowJar --info
-  - TAG_NAME=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
-  - docker build --tag "napstr/wolfia:$TAG_NAME" .
+  - "./gradlew shadowJar --info"
+  - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
+  - echo $IMAGE_TAG
+  - docker build --tag "napstr/wolfia:$IMAGE_TAG" .
 
 after_success:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - docker push napstr/wolfia:$TAG_NAME
+  - docker push napstr/wolfia:$IMAGE_TAG
   - docker logout
   - ./gradlew bintrayUpload --info
