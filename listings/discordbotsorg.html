@@ -3,9 +3,31 @@
         document.body.style.background = "#252525";
         document.body.style.color = "#e8e8e8";
         document.body.style.color = "'OpenSansLight', 'Helvetica Neue', Helvetica, Arial, sans-serif";
+
+
+        const longdesc = document.getElementsByClassName("longdescription").item(0);
+        longdesc.parentNode.style.margin = "10px";
+        longdesc.parentNode.style.width = "100%";
+        longdesc.parentNode.style.maxWidth = "100%";
+        longdesc.style.minHeight = "5000px";
+
+        const content = document.getElementsByClassName("content").item(0);
+        content.style.backgroundColor = "transparent";
+        content.style.minHeight = "5000px";
     });
+
+    function addNewStyle(newStyle) {
+        let styleElement = document.getElementById('styles_js');
+        if (!styleElement) {
+            styleElement = document.createElement('style');
+            styleElement.type = 'text/css';
+            styleElement.id = 'styles_js';
+            document.getElementsByTagName('head')[0].appendChild(styleElement);
+        }
+        styleElement.appendChild(document.createTextNode(newStyle));
+    }
+
+    addNewStyle('.longdescription iframe {height:5000px !important;min-height:5000px !important}')
 </script>
 
-<iframe src="https://docs.wolfia.party" width="93%" height="100%"
-        style="height: 100%; border: none; display: flex; position: absolute;">
-</iframe>
+<iframe name="wolfia-iframe" src="https://docs.wolfia.party" frameborder="0"></iframe>
