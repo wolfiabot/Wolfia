@@ -103,6 +103,7 @@ Command             | What it does                                        | Exam
 `w.help`            | send some help your way                             | `w.help`
 `w.info`            | show some general information about Wolfia          | `w.info`
 `w.invite`          | post invite links for Wolfia and the Wolfia Lounge  | `w.inv`
+`w.rank`            | add or remove a rank in the WolfiaLounge            | `w.rank AlphaWolves`
 `w.replay`          | show the replay of a game                           | `w.replay #gameid`
 `w.tag`             | post or sign up for the tag list of the channel     | `w.tag +` `w.tag -` `w.tag + @role`
 

@@ -7,7 +7,6 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.Context;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
 
@@ -25,7 +24,7 @@ public class CommandsCommand extends BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws IllegalGameStateException {
+    public boolean execute(@Nonnull final CommandContext context) {
         //@formatter:off
         final String gameCommands = ""
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_IN + "\n"
@@ -63,6 +62,7 @@ public class CommandsCommand extends BaseCommand {
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_INFO + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_INVITE + "\n"
+                + Config.PREFIX + CommRegistry.COMM_TRIGGER_RANK + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_REPLAY + "\n"
                 + Config.PREFIX + CommRegistry.COMM_TRIGGER_TAG + "\n"
                 ;

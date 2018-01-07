@@ -156,6 +156,29 @@ public class TextchatUtils {
         return costs[b.length()];
     }
 
+    /**
+     * Runs the levenshtein distance algorithm over the provided strings
+     *
+     * @return returns true if the distance is equal or smaller than maxDist, false otherwise
+     */
+    public static boolean isSimilar(@Nonnull final String x, @Nonnull final String y, final int maxDistance) {
+        return levenshteinDist(x, y) <= maxDistance;
+    }
+
+    /**
+     * Same as {@link TextchatUtils#isSimilar(String, String, int)}, just with a default maxDistance of 3
+     */
+    public static boolean isSimilar(@Nonnull final String x, @Nonnull final String y) {
+        return isSimilar(x, y, 3);
+    }
+
+    /**
+     * Same as {@link TextchatUtils#isSimilar(String, String)}, but forces string to be lower case before comparing them
+     */
+    public static boolean isSimilarLower(@Nonnull final String x, @Nonnull final String y) {
+        return isSimilar(x.toLowerCase(), y.toLowerCase());
+    }
+
     //just kept around to eval-test the above levenshtein code
     public static String levenshteinTest() {
         final String[] data = {"kitten", "sitting", "saturday", "sunday", "rosettacode", "raisethysword"};

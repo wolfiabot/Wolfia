@@ -35,12 +35,14 @@ import space.npstr.wolfia.utils.discord.RestActions;
  */
 public class WolfiaGuildListener extends ListenerAdapter {
 
+    public static final long SPAM_CHANNEL_ID = 388705267916734465L; //#spam-and-bot-commands
+    public static final long ANNOUNCEMENTS_ROLE_ID = 390997867332108298L; //@Announcements
+    public static final long ALPHAWOLVES_ROLE_ID = 389492617567797258L; //@AlphaWolves
+
     private static final Logger log = LoggerFactory.getLogger(WolfiaGuildListener.class);
     private static final String welcomePattern = "Welcome %s to the **Wolfia Lounge**! Please take a moment and read "
             + "<#326353722701774848> for information, rules, and how to play games. Don't forget to enjoy and have "
             + "fun! " + Emojis.WINK;
-    private static final long SPAM_CHANNEL_ID = 388705267916734465L; //#spam-and-bot-commands
-    private static final long ANNOUNCEMENTS_ROLE_ID = 390997867332108298L; //@Announcements
 
     @Override
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
@@ -54,7 +56,7 @@ public class WolfiaGuildListener extends ListenerAdapter {
         if (spam != null) {
             RestActions.sendMessage(spam, String.format(welcomePattern, event.getMember().getAsMention()));
         } else {
-            log.warn("Did the spam channel disappear in the Wolfie Lounge?");
+            log.warn("Did the spam channel disappear in the Wolfia Lounge?");
         }
 
         //add role announcements
@@ -62,7 +64,7 @@ public class WolfiaGuildListener extends ListenerAdapter {
         if (announcements != null) {
             event.getGuild().getController().addSingleRoleToMember(event.getMember(), announcements).queue();
         } else {
-            log.warn("Did the Announcements role disappear in the Wolfie Lounge?");
+            log.warn("Did the Announcements role disappear in the Wolfia Lounge?");
         }
     }
 }
