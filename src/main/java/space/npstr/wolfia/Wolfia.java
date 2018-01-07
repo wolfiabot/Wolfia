@@ -54,6 +54,7 @@ import space.npstr.wolfia.db.migrations.m00002CachedUserToDiscordUser;
 import space.npstr.wolfia.db.migrations.m00003EGuildToDiscordGuild;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
+import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.listings.Listings;
@@ -190,6 +191,7 @@ public class Wolfia {
                     .addEventListeners(new GuildCachingListener<>(EGuild.class))
                     .addEventListeners(new InternalListener())
                     .addEventListeners(new Listings())
+                    .addEventListeners(new WolfiaGuildListener())
                     .setHttpClientBuilder(getDefaultHttpClientBuilder())
                     .setEnableShutdownHook(false)
                     .setAudioEnabled(false)

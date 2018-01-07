@@ -1,0 +1,68 @@
+/*
+ * Copyright (C) 2017 Dennis Neufeld
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package space.npstr.wolfia.events;
+
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import space.npstr.wolfia.App;
+import space.npstr.wolfia.Config;
+import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.RestActions;
+
+/**
+ * Created by napster on 07.01.18.
+ * <p>
+ * Handles special events for the official Wolfia guild
+ */
+public class WolfiaGuildListener extends ListenerAdapter {
+
+    private static final Logger log = LoggerFactory.getLogger(WolfiaGuildListener.class);
+    private static final String welcomePattern = "Welcome %s to the **Wolfia Lounge**! Please take a moment and read "
+            + "<#326353722701774848> for information, rules, and how to play games. Don't forget to enjoy and have "
+            + "fun! " + Emojis.WINK;
+    private static final long SPAM_CHANNEL_ID = 388705267916734465L; //#spam-and-bot-commands
+    private static final long ANNOUNCEMENTS_ROLE_ID = 390997867332108298L; //@Announcements
+
+    @Override
+    public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
+        if (event.getGuild().getIdLong() != App.WOLFIA_LOUNGE_ID
+                || Config.C.isDebug) {
+            return;
+        }
+
+        //send greetings to spam channel
+        final TextChannel spam = event.getGuild().getTextChannelById(SPAM_CHANNEL_ID);
+        if (spam != null) {
+            RestActions.sendMessage(spam, String.format(welcomePattern, event.getMember().getAsMention()));
+        } else {
+            log.warn("Did the spam channel disappear in the Wolfie Lounge?");
+        }
+
+        //add role announcements
+        final Role announcements = event.getGuild().getRoleById(ANNOUNCEMENTS_ROLE_ID);
+        if (announcements != null) {
+            event.getGuild().getController().addSingleRoleToMember(event.getMember(), announcements).queue();
+        } else {
+            log.warn("Did the Announcements role disappear in the Wolfie Lounge?");
+        }
+    }
+}

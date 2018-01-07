@@ -47,6 +47,7 @@ public class Emojis {
     public static final String ROCKET = "🚀";
     public static final String BOOM = "💥";
     public static final String OK_HAND = "👌";
+    public static final String WINK = "😉";
 
     public static final String SUNNY = "☀";
     public static final String FULL_MOON = "🌕";
