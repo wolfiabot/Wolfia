@@ -12,10 +12,11 @@ services:
       - ./sneaky.yaml:/opt/wolfia/sneaky.yaml
       - ./logs:/opt/wolfia/logs
       - ./logs/gc:/opt/wolfia/logs/gc
+    stop_grace_period: 7200s #should really be enough to finish all games
     entrypoint:
       - java
       - -jar
-      - -Xmx512m
+      - -Xmx2g
       - -XX:+HeapDumpOnOutOfMemoryError
       - -XX:HeapDumpPath=emergencydump.hprof
       - -Xlog:gc*:logs/gc/gc-%t.log
