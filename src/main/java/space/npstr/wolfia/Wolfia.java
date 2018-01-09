@@ -348,7 +348,7 @@ public class Wolfia {
         final Request request = new Request.Builder()
                 .url(Requester.DISCORD_API_PREFIX + "gateway/bot")
                 .header("Authorization", "Bot " + token)
-                .header("User-agent", Requester.USER_AGENT)
+                .header("user-agent", Requester.USER_AGENT)
                 .build();
         try (final Response response = defaultHttpClient.newCall(request).execute()) {
             //noinspection ConstantConditions

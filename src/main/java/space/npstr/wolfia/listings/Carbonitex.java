@@ -22,6 +22,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 
@@ -52,6 +53,7 @@ public class Carbonitex extends Listing {
     protected Request.Builder createRequest(final long botId, @Nonnull final String payload) {
         final RequestBody body = RequestBody.create(JSON, payload);
         return new Request.Builder()
+                .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
                 .url("https://www.carbonitex.net/discord/data/botdata.php")
                 .post(body);
     }
