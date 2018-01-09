@@ -525,7 +525,7 @@ public class Mafia extends Game {
             //send info
             final String message = String.format("%s %s opened a %s and found a lit %s inside, killing them immediately.\n%s",
                     Emojis.BOOM, dying.asMention(), Item.Items.PRESENT, Item.Items.BOMB, getReveal(dying));
-            RestActions.sendMessage(fetchGameChannel(), message);
+            RestActions.sendMessage(gameChannel, message);
             if (this.phase == Phase.NIGHT) {
                 RestActions.sendMessage(fetchBaddieChannel(), message);
             }
@@ -588,7 +588,7 @@ public class Mafia extends Game {
         //send info
         final String message = String.format("%s has been shot! They die immediately.\n%s",
                 dying.asMention(), getReveal(dying));
-        RestActions.sendMessage(fetchGameChannel(), message);
+        RestActions.sendMessage(gameChannel, message);
         if (this.phase == Phase.NIGHT) {
             RestActions.sendMessage(fetchBaddieChannel(), message);
         }
