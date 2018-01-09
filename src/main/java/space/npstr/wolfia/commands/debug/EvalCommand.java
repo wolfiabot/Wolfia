@@ -72,7 +72,6 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
                     + ",Packages.space.npstr.wolfia.db.entities.stats"
                     + ",Packages.space.npstr.wolfia.db.migrations"
                     + ",Packages.space.npstr.wolfia.events"
-                    + ",Packages.space.npstr.wolfia.db"
                     + ",Packages.space.npstr.wolfia.game"
                     + ",Packages.space.npstr.wolfia.game.definitions"
                     + ",Packages.space.npstr.wolfia.game.exceptions"
@@ -86,7 +85,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
                     + ");");
 
         } catch (final ScriptException ex) {
-            ex.printStackTrace();
+            log.error("Failed to init eval command", ex);
         }
     }
 

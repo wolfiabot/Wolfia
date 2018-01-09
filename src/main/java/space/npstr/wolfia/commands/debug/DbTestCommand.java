@@ -103,7 +103,7 @@ public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
                 out.append("failed to get it done in ").append(maxTime / 1000).append(" seconds");
                 result = false;
             } else if (results[i] == Result.FAILED) {
-                exceptions[i].printStackTrace();
+                log.error("Db stress test thread {} failed", i, exceptions[i]);
                 out.append("failed with an exception: ").append(exceptions[i].toString());
                 result = false;
             } else if (results[i] == Result.SUCCESS) {
