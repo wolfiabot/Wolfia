@@ -49,9 +49,6 @@ import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.stats.GeneralBotStats;
-import space.npstr.wolfia.db.migrations.m00001FixCharacterVaryingColumns;
-import space.npstr.wolfia.db.migrations.m00002CachedUserToDiscordUser;
-import space.npstr.wolfia.db.migrations.m00003EGuildToDiscordGuild;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.events.WolfiaGuildListener;
@@ -143,9 +140,9 @@ public class Wolfia {
                                     .setKeyFile(Config.C.sshKeyFile)
                                     .setPassphrase(Config.C.sshKeyPassphrase)
                     )
-                    .addMigration(new m00001FixCharacterVaryingColumns())
-                    .addMigration(new m00002CachedUserToDiscordUser())
-                    .addMigration(new m00003EGuildToDiscordGuild())
+//                    .addMigration(new m00001FixCharacterVaryingColumns())
+//                    .addMigration(new m00002CachedUserToDiscordUser())
+//                    .addMigration(new m00003EGuildToDiscordGuild())
                     .build();
             dbWrapper = new DatabaseWrapper(databaseConnection);
         } catch (final Exception e) {

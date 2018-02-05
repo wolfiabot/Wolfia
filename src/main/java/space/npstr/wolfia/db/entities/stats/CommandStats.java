@@ -100,7 +100,7 @@ public class CommandStats extends SaucedEntity<Long, CommandStats> {
             default:
                 throw new IllegalArgumentException("Unexpected channel type of message " + context.msg.getIdLong());
         }
-        this.rawMessage = context.msg.getRawContent();
+        this.rawMessage = context.msg.getContentRaw();
         this.commandClass = context.command.getClass().getSimpleName();
         this.sent = context.msg.getCreationTime().toInstant().toEpochMilli();
         this.received = 0;//due to deprecation

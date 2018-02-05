@@ -2,10 +2,10 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id 'com.gorylenko.gradle-git-properties' version '1.4.17' //provide meta info about the git repo
-    id 'com.github.johnrengelman.shadow' version '2.0.1'
+    id 'com.gorylenko.gradle-git-properties' version '1.4.20' //provide meta info about the git repo
+    id 'com.github.johnrengelman.shadow' version '2.0.2'
 //    id 'com.sedmelluq.jdaction' version '1.0.2' //check for unused RestActions incompatible with java9
-    id "com.jfrog.bintray" version "1.7.3"
+    id "com.jfrog.bintray" version "1.8.0"
 }
 
 ext {
@@ -25,21 +25,22 @@ targetCompatibility = 9
 repositories {
     jcenter()                               // JDA, maybe others
     mavenCentral()                          // everything else
+    maven { url 'https://dl.bintray.com/napster/SqlSauce' }
     mavenLocal()                            // local maven repo, mostly for testing stuff
     maven { url 'https://jitpack.io' }      //for getting builds from github
 }
 
 dependencies {
     //@formatter:off
-    ext.jdaVersion                = '3.3.1_315'
+    ext.jdaVersion                = '3.5.0_334'
     ext.logbackVersion            = '1.2.3'
-    ext.sentryVersion             = '1.6.3'
+    ext.sentryVersion             = '1.6.7'
     ext.discordAppenderVersion    = '1.0.0'
     ext.yamlVersion               = '1.19'
     ext.okhttpVersion             = '3.9.1'
-    ext.sqlsauceVersion           = '6f65ef5493595165a5f2c7695ad3edad4ec30046'
+    ext.sqlsauceVersion           = '0.0.8'
     ext.jaxbApiVersion            = '2.3.0'
-    ext.caffeineVersion            = '2.6.0'
+    ext.caffeineVersion            = '2.6.1'
 
     ext.sparkVersion              = '2.7.1'
     ext.sparkThymeVersion         = '2.7.1'
@@ -70,7 +71,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.2.1'
+    gradleVersion = '4.4.1'
     distributionType = DistributionType.ALL
 }
 
