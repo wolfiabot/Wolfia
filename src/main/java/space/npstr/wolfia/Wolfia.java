@@ -329,6 +329,11 @@ public class Wolfia {
         return shardManager.getShards();
     }
 
+    @Nonnull
+    public static ShardManager getShardManager() {
+        return shardManager;
+    }
+
     public static boolean allShardsUp() {
         if (shardManager.getShards().size() < shardManager.getShardsTotal()) {
             return false;
