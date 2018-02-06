@@ -17,14 +17,17 @@
 
 package space.npstr.wolfia.commands;
 
+import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.db.entities.stats.CommandStats;
+import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -34,6 +37,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by napster on 12.05.17.
@@ -72,6 +76,25 @@ public class CommandHandler {
         }
         if (context == null) {
             return;
+        }
+
+        //filter for _special_ ppl in the Wolfia guild
+        final GuildCommandContext guildContext = context.requireGuild(false);
+        if (guildContext != null && guildContext.guild.getIdLong() == App.WOLFIA_LOUNGE_ID) {
+            final Category parent = guildContext.getTextChannel().getParent();
+            //noinspection StatementWithEmptyBody
+            if (guildContext.getTextChannel().getIdLong() == WolfiaGuildListener.SPAM_CHANNEL_ID //spam channel is k
+                    || (parent != null && parent.getIdLong() == WolfiaGuildListener.GAME_CATEGORY_ID) //game channels are k
+                    || context.invoker.getIdLong() == App.OWNER_ID) { //owner is k
+                //allowed
+            } else {
+                context.replyWithMention("read the **rules** in <#" + WolfiaGuildListener.RULES_CHANNEL_ID + ">.",
+                        message -> RestActions.restService.schedule(
+                                () -> RestActions.deleteMessage(message), 5, TimeUnit.SECONDS)
+                );
+                RestActions.restService.schedule(context::deleteMessage, 5, TimeUnit.SECONDS);
+                return;
+            }
         }
 
         handleCommand(context);
