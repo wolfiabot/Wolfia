@@ -17,11 +17,8 @@
 
 package space.npstr.wolfia.events;
 
-import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.commands.CommandHandler;
 
 /**
@@ -29,18 +26,11 @@ import space.npstr.wolfia.commands.CommandHandler;
  */
 public class CommandListener extends ListenerAdapter {
 
-    private final static Logger log = LoggerFactory.getLogger(CommandListener.class);
-
     public CommandListener() {
     }
 
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
         CommandHandler.handleMessage(event);
-    }
-
-    @Override
-    public void onReady(final ReadyEvent event) {
-        log.info("Logged in as: " + event.getJDA().getSelfUser().getName());
     }
 }

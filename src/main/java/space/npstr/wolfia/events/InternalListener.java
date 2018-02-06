@@ -44,6 +44,7 @@ public class InternalListener extends ListenerAdapter {
 
     @Override
     public void onReady(final ReadyEvent event) {
+        log.info("Logged in as: " + event.getJDA().getSelfUser().getName());
         DiscordLogger.getLogger().log("%s `%s` Ready! %s",
                 Emojis.ROCKET, TextchatUtils.berlinTime(), App.VERSION);
     }
