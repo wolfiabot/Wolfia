@@ -30,7 +30,7 @@ script:
   - docker build --tag "napstr/wolfia:$IMAGE_TAG" .
 
 after_success:
-  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
   - docker push napstr/wolfia:$IMAGE_TAG
   - docker logout
   - ./gradlew bintrayUpload --info
