@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
 import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
-import space.npstr.wolfia.charts.Charts;
 import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.entities.CachedUser;
@@ -127,9 +126,6 @@ public class Wolfia {
 
         //set up relational database
         database = new Database();
-
-        //fire up spark async
-        executor.submit(Charts::spark);
 
         try {
             AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(getDatabase().getWrapper().selectJpqlQuery("FROM PrivateGuild", null, PrivateGuild.class));

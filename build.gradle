@@ -42,10 +42,6 @@ dependencies {
     ext.caffeineVersion           = '2.6.2'
     ext.dsProxyVersion            = '1.4.8'
 
-    ext.sparkVersion              = '2.7.2'
-    ext.sparkThymeVersion         = '2.7.1'
-    ext.thymeleafVersion          = '3.0.9.RELEASE'
-
     compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
     compile group: 'ch.qos.logback', name: 'logback-classic',          version: ext.logbackVersion         //logging framework
     compile group: 'space.npstr',    name: 'logback-discord-appender', version: ext.discordAppenderVersion //log to discord
@@ -56,14 +52,8 @@ dependencies {
     compile group: 'space.npstr.SqlSauce', name: 'discord-entities',   version: ext.sqlsauceVersion        //moar db entities
     compile group: 'javax.xml.bind', name: 'jaxb-api',                 version: ext.jaxbApiVersion         //required by hibernate for java 9
     compile group: 'com.github.ben-manes.caffeine', name:'caffeine',   version: ext.caffeineVersion        // caches
-    compile group: 'net.ttddyy',     name: 'datasource-proxy',         version: ext.dsProxyVersion    // log proxy for db queries
+    compile group: 'net.ttddyy',     name: 'datasource-proxy',         version: ext.dsProxyVersion         // log proxy for db queries
 
-
-
-    //charts stuff
-    compile group: 'com.sparkjava',  name: 'spark-core',               version: ext.sparkVersion
-    compile group: 'com.sparkjava',  name: 'spark-template-thymeleaf', version: ext.sparkThymeVersion
-    compile group: 'org.thymeleaf',  name: 'thymeleaf',                version: ext.thymeleafVersion
     //@formatter:on
 }
 
