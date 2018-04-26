@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.db;
 
+import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseConnection;
@@ -26,6 +28,7 @@ import space.npstr.wolfia.Config;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by napster on 26.04.18.
@@ -88,6 +91,10 @@ public class Database {
 //                    .addMigration(new m00001FixCharacterVaryingColumns())
 //                    .addMigration(new m00002CachedUserToDiscordUser())
 //                    .addMigration(new m00003EGuildToDiscordGuild())
+                    .setProxyDataSourceBuilder(new ProxyDataSourceBuilder()
+                            .logSlowQueryBySlf4j(10, TimeUnit.SECONDS, SLF4JLogLevel.WARN, "SlowQueryLog")
+                            .multiline()
+                    )
                     .build();
         } catch (final Exception e) {
             final String message = "Failed to set up database connection";

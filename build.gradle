@@ -40,6 +40,7 @@ dependencies {
     ext.sqlsauceVersion           = '0.0.14'
     ext.jaxbApiVersion            = '2.3.0'
     ext.caffeineVersion           = '2.6.2'
+    ext.dsProxyVersion            = '1.4.8'
 
     ext.sparkVersion              = '2.7.2'
     ext.sparkThymeVersion         = '2.7.1'
@@ -55,6 +56,7 @@ dependencies {
     compile group: 'space.npstr.SqlSauce', name: 'discord-entities',   version: ext.sqlsauceVersion        //moar db entities
     compile group: 'javax.xml.bind', name: 'jaxb-api',                 version: ext.jaxbApiVersion         //required by hibernate for java 9
     compile group: 'com.github.ben-manes.caffeine', name:'caffeine',   version: ext.caffeineVersion        // caches
+    compile group: 'net.ttddyy',     name: 'datasource-proxy',         version: ext.dsProxyVersion    // log proxy for db queries
 
 
 
