@@ -2,8 +2,8 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id 'com.gorylenko.gradle-git-properties' version '1.4.20' //provide meta info about the git repo
-    id 'com.github.johnrengelman.shadow' version '2.0.2'
+    id 'com.gorylenko.gradle-git-properties' version '1.4.21' //provide meta info about the git repo
+    id 'com.github.johnrengelman.shadow' version '2.0.3'
     id 'com.jfrog.bintray' version '1.8.0'
 }
 
@@ -33,15 +33,15 @@ dependencies {
     //@formatter:off
     ext.jdaVersion                = '3.5.0_334'
     ext.logbackVersion            = '1.2.3'
-    ext.sentryVersion             = '1.6.7'
+    ext.sentryVersion             = '1.7.3'
     ext.discordAppenderVersion    = '1.0.0'
-    ext.yamlVersion               = '1.19'
-    ext.okhttpVersion             = '3.9.1'
+    ext.yamlVersion               = '1.21'
+    ext.okhttpVersion             = '3.10.0'
     ext.sqlsauceVersion           = '0.0.8'
     ext.jaxbApiVersion            = '2.3.0'
-    ext.caffeineVersion            = '2.6.1'
+    ext.caffeineVersion           = '2.6.2'
 
-    ext.sparkVersion              = '2.7.1'
+    ext.sparkVersion              = '2.7.2'
     ext.sparkThymeVersion         = '2.7.1'
     ext.thymeleafVersion          = '3.0.9.RELEASE'
 
