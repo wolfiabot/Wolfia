@@ -92,7 +92,7 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
         //register it
         //setting the private guild number in this manual way is ugly, but Hibernate/JPA are being super retarded about autogenerating non-ids
         //since this command should only run occasionally, and never in some kind of race condition (fingers crossed), I will allow this
-        final DatabaseWrapper dbWrapper = Wolfia.getDbWrapper();
+        final DatabaseWrapper dbWrapper = Wolfia.getDatabase().getWrapper();
         try {
             final int number = Math.toIntExact(dbWrapper.selectJpqlQuery("SELECT COUNT (pg) FROM PrivateGuild pg", Long.class).get(0));
             PrivateGuild pg = new PrivateGuild(number, context.guild.getIdLong());

@@ -37,14 +37,12 @@ import okhttp3.Response;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.sqlsauce.DatabaseConnection;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
 import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
-import space.npstr.sqlsauce.ssh.SshTunnel;
 import space.npstr.wolfia.charts.Charts;
 import space.npstr.wolfia.commands.debug.SyncCommand;
+import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.db.entities.PrivateGuild;
@@ -94,7 +92,7 @@ public class Wolfia {
 
     private static boolean started = false;
     private static CommandListener commandListener;
-    private static DatabaseWrapper dbWrapper;
+    private static Database database;
 
     //set up things that are crucial
     //if something fails exit right away
@@ -128,33 +126,13 @@ public class Wolfia {
             log.info("Running PRODUCTION configuration");
 
         //set up relational database
-        try {
-            final DatabaseConnection databaseConnection = new DatabaseConnection.Builder("postgres", Config.C.jdbcUrl)
-                    .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")
-                    .addEntityPackage("space.npstr.wolfia.db.entities")
-                    .setAppName("Wolfia_" + (Config.C.isDebug ? "DEBUG" : "PROD") + "_" + App.VERSION)
-                    .setSshDetails((Config.C.sshHost == null || Config.C.sshHost.isEmpty()) ? null :
-                            new SshTunnel.SshDetails(Config.C.sshHost, Config.C.sshUser)
-                                    .setLocalPort(Config.C.sshTunnelLocalPort)
-                                    .setRemotePort(Config.C.sshTunnelRemotePort)
-                                    .setKeyFile(Config.C.sshKeyFile)
-                                    .setPassphrase(Config.C.sshKeyPassphrase)
-                    )
-//                    .addMigration(new m00001FixCharacterVaryingColumns())
-//                    .addMigration(new m00002CachedUserToDiscordUser())
-//                    .addMigration(new m00003EGuildToDiscordGuild())
-                    .build();
-            dbWrapper = new DatabaseWrapper(databaseConnection);
-        } catch (final Exception e) {
-            log.error("Failed to set up database connection, exiting", e);
-            System.exit(2);
-        }
+        database = new Database();
 
         //fire up spark async
         executor.submit(Charts::spark);
 
         try {
-            AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(dbWrapper.selectJpqlQuery("FROM PrivateGuild", null, PrivateGuild.class));
+            AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(getDatabase().getWrapper().selectJpqlQuery("FROM PrivateGuild", null, PrivateGuild.class));
             log.info("{} private guilds loaded", AVAILABLE_PRIVATE_GUILD_QUEUE.size());
         } catch (final DatabaseException e) {
             log.error("Failed to load private guilds, exiting", e);
@@ -222,8 +200,8 @@ public class Wolfia {
     private Wolfia() {
     }
 
-    public static DatabaseWrapper getDbWrapper() {
-        return dbWrapper;
+    public static Database getDatabase() {
+        return database;
     }
 
     public static CommandListener getCommandListener() {
@@ -238,7 +216,7 @@ public class Wolfia {
         log.info("Writing general bot stats to database");
 
         //noinspection ResultOfMethodCallIgnored
-        dbWrapper.persist(new GeneralBotStats(
+        database.getWrapper().persist(new GeneralBotStats(
                 getUsersAmount(),
                 getGuildsAmount(),
                 1,
@@ -432,7 +410,7 @@ public class Wolfia {
 
         //shutdown DB
         log.info("Shutting down database");
-        dbWrapper.unwrap().shutdown();
+        database.shutdown();
 
         //shutdown logback logger
         log.info("Shutting down logger :rip:");

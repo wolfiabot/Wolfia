@@ -38,11 +38,11 @@ public class MaintenanceCommand extends BaseCommand implements IOwnerRestricted 
     }
 
     public static boolean getMaintenanceFlag() throws DatabaseException {
-        return Boolean.valueOf(Hstore.loadAndGet(Wolfia.getDbWrapper(), MAINTENANCE_FLAG, Boolean.FALSE.toString()));
+        return Boolean.valueOf(Hstore.loadAndGet(Wolfia.getDatabase().getWrapper(), MAINTENANCE_FLAG, Boolean.FALSE.toString()));
     }
 
     public static void flipMaintenanceFlag() throws DatabaseException {
-        final Hstore hstore = Hstore.load(Wolfia.getDbWrapper());
+        final Hstore hstore = Hstore.load(Wolfia.getDatabase().getWrapper());
         final String maintenance = hstore.get(MAINTENANCE_FLAG, Boolean.FALSE.toString());
         hstore.set(MAINTENANCE_FLAG, Boolean.toString(!Boolean.valueOf(maintenance))).save();
     }

@@ -119,7 +119,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
 
     public static boolean isPrivateGuild(@Nonnull final Guild guild) throws DatabaseException {
         final EntityKey<Long, PrivateGuild> key = EntityKey.of(guild.getIdLong(), PrivateGuild.class);
-        return Wolfia.getDbWrapper().getEntity(key) != null;
+        return Wolfia.getDatabase().getWrapper().getEntity(key) != null;
     }
 
     @Override

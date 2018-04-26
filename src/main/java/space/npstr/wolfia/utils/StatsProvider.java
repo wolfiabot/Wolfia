@@ -118,7 +118,7 @@ public class StatsProvider {
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = Wolfia.getDbWrapper().unwrap().getEntityManager();
+        final EntityManager em = Wolfia.getDatabase().getConnection().getEntityManager();
         try {
             em.getTransaction().begin();
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Bot.AVERAGE_PLAYERS_SIZE).getSingleResult();
@@ -175,7 +175,7 @@ public class StatsProvider {
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = Wolfia.getDbWrapper().unwrap().getEntityManager();
+        final EntityManager em = Wolfia.getDatabase().getConnection().getEntityManager();
         try {
             em.getTransaction().begin();
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Guild.AVERAGE_PLAYERS_SIZE).setParameter("guildId", guildId).getSingleResult();
@@ -239,7 +239,7 @@ public class StatsProvider {
         //get data out of the database
         final List<Map<String, Object>> gamesByUser = new ArrayList<>();
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
-        final EntityManager em = Wolfia.getDbWrapper().unwrap().getEntityManager();
+        final EntityManager em = Wolfia.getDatabase().getConnection().getEntityManager();
         try {
             em.getTransaction().begin();
             List<Object[]> result = em.createNativeQuery(Queries.User.GENERAL).setParameter("userId", userId).getResultList();

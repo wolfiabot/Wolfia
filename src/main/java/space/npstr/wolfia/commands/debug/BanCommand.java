@@ -66,7 +66,7 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
         }
 
         if (option.equalsIgnoreCase("list")) {
-            final List<Banlist> bans = Wolfia.getDbWrapper().loadAll(Banlist.class);
+            final List<Banlist> bans = Wolfia.getDatabase().getWrapper().loadAll(Banlist.class);
             String out = bans.stream()
                     .filter(ban -> ban.getScope() == Scope.GLOBAL)
                     .map(ban -> {

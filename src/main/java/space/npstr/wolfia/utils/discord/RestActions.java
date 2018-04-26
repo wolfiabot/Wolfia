@@ -372,7 +372,7 @@ public class RestActions {
                                      @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
         final Consumer<Message> successWrapper = m -> {
 //            Metrics.successfulRestActions.labels("sendMessage").inc();
-            Wolfia.executor.submit(() -> Wolfia.getDbWrapper().persist(new MessageOutputStats(m)));
+            Wolfia.executor.submit(() -> Wolfia.getDatabase().getWrapper().persist(new MessageOutputStats(m)));
             if (onSuccess != null) {
                 onSuccess.accept(m);
             }

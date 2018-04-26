@@ -71,4 +71,9 @@ public class App {
     public static boolean isOwner(final Member member) {
         return isOwner(member.getUser());
     }
+
+    public static String getVersionBuild() {
+        return VERSION + "_" + BUILD_NUMBER;
+    }
+
 }

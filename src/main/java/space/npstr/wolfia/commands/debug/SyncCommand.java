@@ -64,7 +64,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
 
     public SyncCommand(@Nonnull final String name, @Nonnull final String... aliases) {
         super(name, aliases);
-        final int databasePoolSize = Wolfia.getDbWrapper().unwrap().getMaxPoolSize();
+        final int databasePoolSize = Wolfia.getDatabase().getConnection().getMaxPoolSize();
         final int workers = Math.max(1, databasePoolSize / 2);//dont hog the database
         this.syncService = Executors.newFixedThreadPool(workers,
                 runnable -> new Thread(runnable, "sync-command-worker"));

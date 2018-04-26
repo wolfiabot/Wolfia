@@ -326,7 +326,7 @@ public class Charts {
         }
 
         query = String.format(query, subquery);
-        return Wolfia.getDbWrapper().selectSqlQuery(query, parameters, GeneralBotStats.class);
+        return Wolfia.getDatabase().getWrapper().selectSqlQuery(query, parameters, GeneralBotStats.class);
     }
 
 
@@ -362,7 +362,7 @@ public class Charts {
         }
 
         query = String.format(query, subquery);
-        return Wolfia.getDbWrapper().selectSqlQuerySingleResult(query, parameters, BigDecimal.class).longValue();
+        return Wolfia.getDatabase().getWrapper().selectSqlQuerySingleResult(query, parameters, BigDecimal.class).longValue();
 
     }
 
@@ -393,7 +393,7 @@ public class Charts {
         }
 
         query = String.format(query, subquery);
-        return Wolfia.getDbWrapper().selectSqlQuery(query, parameters, CommandStats.class);
+        return Wolfia.getDatabase().getWrapper().selectSqlQuery(query, parameters, CommandStats.class);
     }
 
 

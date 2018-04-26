@@ -685,7 +685,7 @@ public abstract class Game {
                         .ifPresent(t -> t.setWinner(true));
             }
             try {
-                Wolfia.getDbWrapper().persist(this.gameStats);
+                Wolfia.getDatabase().getWrapper().persist(this.gameStats);
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
                         this.gameStats.getId(), Config.PREFIX + CommRegistry.COMM_TRIGGER_REPLAY, this.gameStats.getId());
             } catch (final DatabaseException e) {

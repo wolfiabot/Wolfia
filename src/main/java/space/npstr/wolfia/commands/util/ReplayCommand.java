@@ -83,7 +83,7 @@ public class ReplayCommand extends BaseCommand {
         final String sql = "SELECT g FROM GameStats g JOIN FETCH g.startingTeams t JOIN FETCH g.actions a JOIN FETCH t.players p WHERE g.gameId = :gameId";
         final Map<String, Object> params = new HashMap<>();
         params.put("gameId", gameId);
-        final List<GameStats> gameStatsList = Wolfia.getDbWrapper().selectJpqlQuery(sql, params, GameStats.class);
+        final List<GameStats> gameStatsList = Wolfia.getDatabase().getWrapper().selectJpqlQuery(sql, params, GameStats.class);
 
         if (gameStatsList.isEmpty()) {
             context.replyWithMention("there is no such game in the database.");

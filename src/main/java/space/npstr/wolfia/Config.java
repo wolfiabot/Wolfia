@@ -67,14 +67,6 @@ public class Config {
     public final String carbonitexKey;
     public final long logChannelId;
 
-
-    public final String sshHost;
-    public final String sshUser;
-    public final String sshKeyFile;
-    public final String sshKeyPassphrase;
-    public final int sshTunnelLocalPort;
-    public final int sshTunnelRemotePort;
-
     public final String sentryDsn;
 
 
@@ -104,15 +96,6 @@ public class Config {
             this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
             this.carbonitexKey = values.getOrDefault("carbonitexKey", "");
             this.logChannelId = Long.parseLong(values.getOrDefault("logChannelId", "0"));
-
-
-            //convention: if the host is empty, do not create a tunnel
-            this.sshHost = values.getOrDefault("sshHost", "");
-            this.sshUser = values.getOrDefault("sshUser", "");
-            this.sshKeyFile = values.getOrDefault("sshKeyFile", "");
-            this.sshKeyPassphrase = values.getOrDefault("sshKeyPassphrase", "");
-            this.sshTunnelLocalPort = Integer.parseInt(values.getOrDefault("sshTunnelLocalPort", "0"));
-            this.sshTunnelRemotePort = Integer.parseInt(values.getOrDefault("sshTunnelRemotePort", "0"));
 
             this.sentryDsn = values.getOrDefault("sentryDsn", "");
             if (this.sentryDsn != null && !this.sentryDsn.isEmpty()) {
