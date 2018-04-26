@@ -4,20 +4,19 @@ plugins {
     id 'idea'
     id 'com.gorylenko.gradle-git-properties' version '1.4.20' //provide meta info about the git repo
     id 'com.github.johnrengelman.shadow' version '2.0.2'
-//    id 'com.sedmelluq.jdaction' version '1.0.2' //check for unused RestActions incompatible with java9
-    id "com.jfrog.bintray" version "1.8.0"
+    id 'com.jfrog.bintray' version '1.8.0'
 }
 
 ext {
     moduleName = 'wolfia'
     buildNumber = (System.getenv('CI') ? System.getenv('BUILD_NUMBER') : 'DEV')
 }
-group = 'space.npstr.Wolfia'
+group = 'space.npstr.wolfia'
 //noinspection GroovyAssignabilityCheck
 version = '0.13.3-' + project.ext.buildNumber
 
 
-mainClassName = "space.npstr.wolfia.Wolfia"
+mainClassName = 'space.npstr.wolfia.Wolfia'
 
 sourceCompatibility = 9
 targetCompatibility = 9
@@ -77,7 +76,7 @@ task wrapper(type: Wrapper) {
 
 processResources {
     //inject values into app.properties
-    filesMatching("**/app.properties") {
+    filesMatching('**/app.properties') {
         filter ReplaceTokens, tokens: [
                 "project.version"   : project.version,
                 "project.groupId"   : project.group,
@@ -90,10 +89,10 @@ processResources {
 
 compileJava.dependsOn 'clean'
 compileJava.options.encoding = 'UTF-8'
-compileJava.options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+compileJava.options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
 
 shadowJar {
-    archiveName = "wolfia.jar"
+    archiveName = 'wolfia.jar'
 }
 
 bintray {
