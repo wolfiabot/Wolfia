@@ -68,11 +68,11 @@ dependencies {
 
 
 import org.apache.tools.ant.filters.ReplaceTokens
-import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.4.1'
-    distributionType = DistributionType.ALL
+    gradleVersion = '4.7'
+    //noinspection UnnecessaryQualifiedReference
+    distributionType = Wrapper.DistributionType.ALL
 }
 
 processResources {
