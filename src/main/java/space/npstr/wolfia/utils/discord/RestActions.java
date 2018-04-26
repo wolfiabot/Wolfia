@@ -15,7 +15,6 @@ import net.dv8tion.jda.core.requests.ErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.db.entities.stats.MessageOutputStats;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import javax.annotation.Nonnull;
@@ -372,7 +371,6 @@ public class RestActions {
                                      @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
         final Consumer<Message> successWrapper = m -> {
 //            Metrics.successfulRestActions.labels("sendMessage").inc();
-            Wolfia.executor.submit(() -> Wolfia.getDatabase().getWrapper().persist(new MessageOutputStats(m)));
             if (onSuccess != null) {
                 onSuccess.accept(m);
             }

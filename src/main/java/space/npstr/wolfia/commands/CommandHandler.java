@@ -25,8 +25,6 @@ import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.db.entities.stats.CommandStats;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
@@ -36,7 +34,6 @@ import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -115,11 +112,7 @@ public class CommandHandler {
                     context.invoker, context.channel, context.msg.getContentRaw());
             final boolean success = context.invoke();
             final long executed = System.currentTimeMillis();
-            try {
-                Wolfia.executor.submit(() -> Wolfia.getDatabase().getWrapper().persist(new CommandStats(context, executed, success)));
-            } catch (final RejectedExecutionException ignored) {
-                //may happen on shutdown
-            }
+            //todo instrument success and execution time
         } catch (final UserFriendlyException e) {
             context.reply("There was a problem executing your command:\n" + e.getMessage());
         } catch (final IllegalGameStateException e) {

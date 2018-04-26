@@ -45,7 +45,6 @@ import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.db.entities.PrivateGuild;
-import space.npstr.wolfia.db.entities.stats.GeneralBotStats;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.events.WolfiaGuildListener;
@@ -61,7 +60,6 @@ import space.npstr.wolfia.utils.log.LogTheStackException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -182,11 +180,6 @@ public class Wolfia {
                 App::setAppInfo,
                 t -> log.error("Could not load application info", t));
 
-        //post stats every 10 minutes
-        executor.scheduleAtFixedRate(ExceptionLoggingExecutor.wrapExceptionSafe(Wolfia::generalBotStatsToDB),
-                0, 10, TimeUnit.MINUTES);
-
-
         //sync guild cache
         // this takes a few seconds to do, so do it as the last thing of the main method, or put it into it's own thread
         SyncCommand.syncGuilds(executor, shardManager.getGuildCache().stream(), null);
@@ -202,29 +195,6 @@ public class Wolfia {
 
     public static CommandListener getCommandListener() {
         return commandListener;
-    }
-
-    private static void generalBotStatsToDB() throws DatabaseException {
-        if (!started) {
-            log.error("Skipping posting of bot stats due to not being ready yet");
-            return;
-        }
-        log.info("Writing general bot stats to database");
-
-        //noinspection ResultOfMethodCallIgnored
-        database.getWrapper().persist(new GeneralBotStats(
-                getUsersAmount(),
-                getGuildsAmount(),
-                1,
-                Games.getRunningGamesCount(),
-                AVAILABLE_PRIVATE_GUILD_QUEUE.size(),
-                Runtime.getRuntime().freeMemory(),
-                Runtime.getRuntime().maxMemory(),
-                Runtime.getRuntime().totalMemory(),
-                Runtime.getRuntime().availableProcessors(),
-                ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage(),
-                System.currentTimeMillis() - START_TIME
-        ));
     }
 
     /**
