@@ -42,11 +42,8 @@ import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -55,7 +52,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -76,15 +72,11 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     @Column(name = "channel_id")
     private long channelId;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "inned_users")
-    private final Set<Long> innedUsers = ConcurrentHashMap.newKeySet();
-
     @Type(type = "hash-set-basic")
     @BasicType(Long.class)
     @Column(name = "inned_users", nullable = false, columnDefinition = "bigint[]")
     @ColumnDefault("array[]::bigint[]")
-    private HashSet<Long> nInnedUsers = new HashSet<>();
+    private HashSet<Long> innedUsers = new HashSet<>();
 
     //one of the values of the Games.GAMES enum
     @Column(name = "game", columnDefinition = "text")
@@ -97,20 +89,6 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     //day length in milliseconds
     @Column(name = "day_length")
     private long dayLengthMillis = TimeUnit.MINUTES.toMillis(10);
-
-    @Column(name = "inned_users_migrated", nullable = false)
-    @ColumnDefault("false")
-    private boolean innedUsersMigrated = false;
-
-    public SetupEntity migrateInnedUsers() {
-        this.nInnedUsers = new HashSet<>(this.innedUsers);
-        this.innedUsersMigrated = true;
-        return this;
-    }
-
-    public boolean areInnedUsersMigrated() {
-        return this.innedUsersMigrated;
-    }
 
     //some basic getters/setters
     @Nonnull
@@ -173,25 +151,25 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     }
 
     public boolean isInned(final long userId) {
-        return this.nInnedUsers.contains(userId);
+        return this.innedUsers.contains(userId);
     }
 
     public SetupEntity inUser(final long userId) throws DatabaseException {
         //cache any inning users
         CachedUser.cache(Wolfia.getDatabase().getWrapper(), getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
-        this.nInnedUsers.add(userId);
+        this.innedUsers.add(userId);
         return this;
     }
 
     public boolean outUser(final long userId) throws DatabaseException {
-        return this.nInnedUsers.remove(userId);
+        return this.innedUsers.remove(userId);
     }
 
     private void cleanUpInnedPlayers() throws DatabaseException {
         //did they leave the guild?
         final Set<Long> toBeOuted = new HashSet<>();
         final Guild g = getThisChannel().getGuild();
-        this.nInnedUsers.forEach(userId -> {
+        this.innedUsers.forEach(userId -> {
             if (g.getMemberById(userId) == null) {
                 toBeOuted.add(userId);
             }
@@ -235,8 +213,8 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
                 true);
 
         //inned players
-        final NiceEmbedBuilder.ChunkingField inned = new NiceEmbedBuilder.ChunkingField("Inned players (" + this.nInnedUsers.size() + ")", true);
-        final List<String> formatted = this.nInnedUsers.stream().map(userId -> TextchatUtils.userAsMention(userId) + ", ").collect(Collectors.toList());
+        final NiceEmbedBuilder.ChunkingField inned = new NiceEmbedBuilder.ChunkingField("Inned players (" + this.innedUsers.size() + ")", true);
+        final List<String> formatted = this.innedUsers.stream().map(userId -> TextchatUtils.userAsMention(userId) + ", ").collect(Collectors.toList());
         if (!formatted.isEmpty()) {
             String lastOne = formatted.remove(formatted.size() - 1);
             lastOne = lastOne.substring(0, lastOne.length() - 2); //remove the last ", "
@@ -259,7 +237,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
                 return false;
             }
 
-            if (!this.nInnedUsers.contains(commandCallerId)) {
+            if (!this.innedUsers.contains(commandCallerId)) {
                 RestActions.sendMessage(channel, String.format("%s, only players that inned can start the game! Say `%s` to join!",
                         TextchatUtils.userAsMention(commandCallerId), Config.PREFIX + CommRegistry.COMM_TRIGGER_IN));
                 return false;
@@ -280,7 +258,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
             }
 
             cleanUpInnedPlayers();
-            final Set<Long> inned = new HashSet<>(this.nInnedUsers);
+            final Set<Long> inned = new HashSet<>(this.innedUsers);
             if (!game.isAcceptablePlayerCount(inned.size(), getMode())) {
                 RestActions.sendMessage(channel, String.format(
                         "There aren't enough (or too many) players signed up! Please use `%s` for more information",
@@ -304,7 +282,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
                 throw new RuntimeException(String.format("%s, game start aborted due to:%n%s",
                         TextchatUtils.userAsMention(commandCallerId), e.getMessage()), e);
             }
-            this.nInnedUsers.clear();
+            this.innedUsers.clear();
             return true;
         }
     }

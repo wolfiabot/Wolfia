@@ -30,11 +30,8 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.Context;
 
 import javax.annotation.Nonnull;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.util.Collection;
@@ -60,16 +57,11 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     private long accessRoleId = -1;
 
     //taglist for this channel, consists of userIds and possibly roleIds
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tags")
-    private final Set<Long> tags = new HashSet<>();
-
-
     @Type(type = "hash-set-basic")
     @BasicType(Long.class)
     @Column(name = "tags", nullable = false, columnDefinition = "bigint[]")
     @ColumnDefault("array[]::bigint[]")
-    private HashSet<Long> nTags = new HashSet<>();
+    private HashSet<Long> tags = new HashSet<>();
 
     //last time the taglist was posted
     @Column(name = "tag_list_last_used")
@@ -78,20 +70,6 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     //minimum minutes between tags
     @Column(name = "tag_cooldown")
     private long tagCooldown = 5;
-
-    @Column(name = "tags_migrated", nullable = false)
-    @ColumnDefault("false")
-    private boolean tagsMigrated = false;
-
-    public ChannelSettings migrateTags() {
-        this.nTags = new HashSet<>(this.tags);
-        this.tagsMigrated = true;
-        return this;
-    }
-
-    public boolean areTagsMigrated() {
-        return this.tagsMigrated;
-    }
 
     // for jpa / wrapper
     public ChannelSettings() {
@@ -126,27 +104,27 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     }
 
     public Set<Long> getTags() {
-        return this.nTags;
+        return this.tags;
     }
 
     @Nonnull
     public ChannelSettings addTag(final long id) {
-        this.nTags.add(id);
+        this.tags.add(id);
         return this;
     }
 
     public void addTags(final Collection<Long> ids) {
-        this.nTags.addAll(ids);
+        this.tags.addAll(ids);
     }
 
     @Nonnull
     public ChannelSettings removeTag(final long id) {
-        this.nTags.remove(id);
+        this.tags.remove(id);
         return this;
     }
 
     public void removeTags(final Collection<Long> ids) {
-        this.nTags.removeAll(ids);
+        this.tags.removeAll(ids);
     }
 
     public long getTagListLastUsed() {
