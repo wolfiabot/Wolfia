@@ -43,8 +43,10 @@ import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.db.entities.PrivateGuild;
+import space.npstr.wolfia.db.entities.SetupEntity;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.events.WolfiaGuildListener;
@@ -124,6 +126,22 @@ public class Wolfia {
 
         //set up relational database
         database = new Database();
+
+
+        //todo delete temporary migration code
+        database.getWrapper().applyAndMergeAll(SetupEntity.class, setup -> {
+            if (!setup.areInnedUsersMigrated()) {
+                setup.migrateInnedUsers();
+            }
+            return setup;
+        });
+        database.getWrapper().applyAndMergeAll(ChannelSettings.class, channelSettings -> {
+            if (!channelSettings.areTagsMigrated()) {
+                channelSettings.migrateTags();
+            }
+            return channelSettings;
+        });
+
 
         try {
             AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(getDatabase().getWrapper().selectJpqlQuery("FROM PrivateGuild", null, PrivateGuild.class));

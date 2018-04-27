@@ -21,8 +21,11 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Type;
 import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
+import space.npstr.sqlsauce.hibernate.types.BasicType;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.Context;
 
@@ -61,6 +64,13 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     @CollectionTable(name = "tags")
     private final Set<Long> tags = new HashSet<>();
 
+
+    @Type(type = "hash-set-basic")
+    @BasicType(Long.class)
+    @Column(name = "tags", nullable = false, columnDefinition = "bigint[]")
+    @ColumnDefault("array[]::bigint[]")
+    private HashSet<Long> nTags = new HashSet<>();
+
     //last time the taglist was posted
     @Column(name = "tag_list_last_used")
     private long tagListLastUsed = -1;
@@ -69,6 +79,19 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     @Column(name = "tag_cooldown")
     private long tagCooldown = 5;
 
+    @Column(name = "tags_migrated", nullable = false)
+    @ColumnDefault("false")
+    private boolean tagsMigrated = false;
+
+    public ChannelSettings migrateTags() {
+        this.nTags = new HashSet<>(this.tags);
+        this.tagsMigrated = true;
+        return this;
+    }
+
+    public boolean areTagsMigrated() {
+        return this.tagsMigrated;
+    }
 
     // for jpa / wrapper
     public ChannelSettings() {
@@ -103,27 +126,27 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     }
 
     public Set<Long> getTags() {
-        return this.tags;
+        return this.nTags;
     }
 
     @Nonnull
     public ChannelSettings addTag(final long id) {
-        this.tags.add(id);
+        this.nTags.add(id);
         return this;
     }
 
     public void addTags(final Collection<Long> ids) {
-        this.tags.addAll(ids);
+        this.nTags.addAll(ids);
     }
 
     @Nonnull
     public ChannelSettings removeTag(final long id) {
-        this.tags.remove(id);
+        this.nTags.remove(id);
         return this;
     }
 
     public void removeTags(final Collection<Long> ids) {
-        this.tags.removeAll(ids);
+        this.nTags.removeAll(ids);
     }
 
     public long getTagListLastUsed() {
