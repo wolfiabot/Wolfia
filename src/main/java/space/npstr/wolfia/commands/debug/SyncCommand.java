@@ -116,6 +116,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
         final AtomicInteger count = new AtomicInteger(0);
         executor.execute(() -> {
             final Collection<DatabaseException> guildSyncDbExceptions = DiscordGuild.sync(
+                    Wolfia.getDatabase().getWrapper(),
                     guilds.peek(__ -> count.incrementAndGet()),
                     (guildId) -> Wolfia.getGuildById(guildId) != null,
                     EGuild.class
@@ -144,6 +145,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
                 log.info("Caching users for shard {} started", jda.getShardInfo().getShardId());
                 //sync user cache
                 final Collection<DatabaseException> userCacheDbExceptions = DiscordUser.cacheAll(
+                        Wolfia.getDatabase().getWrapper(),
                         jda.getGuildCache().stream()
                                 .flatMap(guild -> guild.getMemberCache().stream())
                                 .peek(__ -> count.incrementAndGet()),

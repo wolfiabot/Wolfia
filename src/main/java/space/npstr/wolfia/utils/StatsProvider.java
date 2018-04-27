@@ -22,9 +22,9 @@ import net.dv8tion.jda.core.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.sqlsauce.DbUtils;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.Context;
+import space.npstr.wolfia.db.ColumnMapper;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.game.definitions.Alignments;
@@ -127,7 +127,7 @@ public class StatsProvider {
             //get winning teams by player sizes
             List<Object[]> result = em.createNativeQuery(Queries.Bot.WINNING_TEAMS).getResultList();
             //add total stats with size -1; there better not by any -1 sized entries in the database
-            gamesxWinningTeamByPlayerSize.put(-1, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Bot.WINNING_TEAMS, em)));
+            gamesxWinningTeamByPlayerSize.put(-1, ColumnMapper.asListOfMaps(result, ColumnMapper.getColumnNameToIndexMap(Queries.Bot.WINNING_TEAMS, em)));
             final List<Integer> existingPlayerSizes = em.createNativeQuery(Queries.Bot.DISTINCT_PLAYER_SIZES).getResultList();
             Collections.sort(existingPlayerSizes);
             for (final int playerSize : existingPlayerSizes) {
@@ -137,7 +137,7 @@ public class StatsProvider {
                     continue;
                 }
                 result = em.createNativeQuery(Queries.Bot.WINNING_TEAMS_FOR_PLAYER_SIZE).setParameter("playerSize", playerSize).getResultList();
-                gamesxWinningTeamByPlayerSize.put(playerSize, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Bot.WINNING_TEAMS_FOR_PLAYER_SIZE, em)));
+                gamesxWinningTeamByPlayerSize.put(playerSize, ColumnMapper.asListOfMaps(result, ColumnMapper.getColumnNameToIndexMap(Queries.Bot.WINNING_TEAMS_FOR_PLAYER_SIZE, em)));
             }
             em.getTransaction().commit();
         } catch (final SQLException e) {
@@ -184,7 +184,7 @@ public class StatsProvider {
             //get winning teams by player sizes
             List<Object[]> result = em.createNativeQuery(Queries.Guild.WINNING_TEAMS).setParameter("guildId", guildId).getResultList();
             //add total stats with size -1; there better not by any -1 sized entries in the database
-            gamesxWinningTeamInGuildByPlayerSize.put(-1, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Guild.WINNING_TEAMS, em)));
+            gamesxWinningTeamInGuildByPlayerSize.put(-1, ColumnMapper.asListOfMaps(result, ColumnMapper.getColumnNameToIndexMap(Queries.Guild.WINNING_TEAMS, em)));
             final List<Integer> existingPlayerSizes = em.createNativeQuery(Queries.Guild.DISTINCT_PLAYER_SIZES).setParameter("guildId", guildId).getResultList();
             Collections.sort(existingPlayerSizes);
             for (final int playerSize : existingPlayerSizes) {
@@ -194,7 +194,7 @@ public class StatsProvider {
                     continue;
                 }
                 result = em.createNativeQuery(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE).setParameter("guildId", guildId).setParameter("playerSize", playerSize).getResultList();
-                gamesxWinningTeamInGuildByPlayerSize.put(playerSize, DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE, em)));
+                gamesxWinningTeamInGuildByPlayerSize.put(playerSize, ColumnMapper.asListOfMaps(result, ColumnMapper.getColumnNameToIndexMap(Queries.Guild.WINNING_TEAMS_FOR_PLAYER_SIZE, em)));
             }
             em.getTransaction().commit();
         } catch (final SQLException e) {
@@ -210,7 +210,7 @@ public class StatsProvider {
         //add them to the embed
         EmbedBuilder eb = Context.getDefaultEmbedBuilder();
         final Guild guild = Wolfia.getGuildById(guildId);
-        final EGuild cachedGuild = EGuild.load(guildId).set(guild).save();
+        final EGuild cachedGuild = Wolfia.getDatabase().getWrapper().findApplyAndMerge(EGuild.key(guildId), eg -> eg.set(guild));
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
         eb.setThumbnail(cachedGuild.getAvatarUrl());
 
@@ -243,9 +243,9 @@ public class StatsProvider {
         try {
             em.getTransaction().begin();
             List<Object[]> result = em.createNativeQuery(Queries.User.GENERAL).setParameter("userId", userId).getResultList();
-            gamesByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.GENERAL, em)));
+            gamesByUser.addAll(ColumnMapper.asListOfMaps(result, ColumnMapper.getColumnNameToIndexMap(Queries.User.GENERAL, em)));
             result = em.createNativeQuery(Queries.User.SHATS).setParameter("userId", userId).getResultList();
-            shatsByUser.addAll(DbUtils.asListOfMaps(result, DbUtils.getColumnNameToIndexMap(Queries.User.SHATS, em)));
+            shatsByUser.addAll(ColumnMapper.asListOfMaps(result, ColumnMapper.getColumnNameToIndexMap(Queries.User.SHATS, em)));
             em.getTransaction().commit();
         } catch (final SQLException e) {
             log.error("SQL exception when querying stats for user {}", userId, e);

@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.db.entities;
 
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.game.definitions.Scope;
@@ -45,6 +44,11 @@ public class Banlist extends SaucedEntity<Long, Banlist> {
 
     //for JPA and IEntity
     public Banlist() {
+    }
+
+    @Nonnull
+    public static EntityKey<Long, Banlist> key(final long userId) {
+        return EntityKey.of(userId, Banlist.class);
     }
 
     public Banlist(final long id, final Scope scope) {
@@ -76,8 +80,4 @@ public class Banlist extends SaucedEntity<Long, Banlist> {
         return this;
     }
 
-    @Nonnull
-    public static Banlist load(final long userId) throws DatabaseException {
-        return SaucedEntity.load(EntityKey.of(userId, Banlist.class));
-    }
 }

@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands.game;
 
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -67,7 +68,10 @@ public class StartCommand extends BaseCommand {
             return false;
         }
 
-        final SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
-        return setup.startGame(context.invoker.getIdLong());
+        SetupEntity setup = Wolfia.getDatabase().getWrapper().getOrCreate(SetupEntity.key(context.textChannel.getIdLong()));
+        final boolean started = setup.startGame(context.invoker.getIdLong());
+        setup = Wolfia.getDatabase().getWrapper().merge(setup);
+
+        return started;
     }
 }

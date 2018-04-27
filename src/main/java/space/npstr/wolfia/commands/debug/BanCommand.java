@@ -121,18 +121,12 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
         }
 
         if (action == BanAction.ADD) {
-            //noinspection ResultOfMethodCallIgnored
-            Banlist.load(userId)
-                    .setScope(Scope.GLOBAL)
-                    .save();
+            Wolfia.getDatabase().getWrapper().findApplyAndMerge(Banlist.key(userId), ban -> ban.setScope(Scope.GLOBAL));
             context.replyWithMention(String.format("added **%s** (%s) to the global ban list.",
                     CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
             return true;
         } else { //removing
-            //noinspection ResultOfMethodCallIgnored
-            Banlist.load(userId)
-                    .setScope(Scope.NONE)
-                    .save();
+            Wolfia.getDatabase().getWrapper().findApplyAndMerge(Banlist.key(userId), ban -> ban.setScope(Scope.NONE));
             context.replyWithMention(String.format("removed **%s** (%s) from the global ban list.",
                     CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
             return true;

@@ -42,8 +42,9 @@ public class MaintenanceCommand extends BaseCommand implements IOwnerRestricted 
     }
 
     public static void flipMaintenanceFlag() throws DatabaseException {
-        final Hstore hstore = Hstore.load(Wolfia.getDatabase().getWrapper());
-        final String maintenance = hstore.get(MAINTENANCE_FLAG, Boolean.FALSE.toString());
-        hstore.set(MAINTENANCE_FLAG, Boolean.toString(!Boolean.valueOf(maintenance))).save();
+        Hstore.loadApplyAndSave(Wolfia.getDatabase().getWrapper(), hstore -> {
+            final String maintenance = hstore.get(MAINTENANCE_FLAG, Boolean.FALSE.toString());
+            return hstore.set(MAINTENANCE_FLAG, Boolean.toString(!Boolean.valueOf(maintenance)));
+        });
     }
 }

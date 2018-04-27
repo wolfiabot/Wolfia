@@ -137,7 +137,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
         this.engine.put("message", context.msg);
         this.engine.put("guild", context.getGuild());
         this.engine.put("game", Games.get(context.channel.getIdLong()));
-        this.engine.put("setup", SetupEntity.load(context.channel.getIdLong()));
+        this.engine.put("setup", Wolfia.getDatabase().getWrapper().getOrCreate(SetupEntity.key(context.channel.getIdLong())));
         this.engine.put("games", Games.class);//access the static methods like this from eval: games.static.myStaticMethod()
         this.engine.put("db", Wolfia.getDatabase());
 

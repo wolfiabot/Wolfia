@@ -19,6 +19,8 @@ package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.fp.types.EntityKey;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -70,27 +72,31 @@ public class InCommand extends BaseCommand {
             return false;
         }
 
-        final SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
-
+        final EntityKey<Long, SetupEntity> setupKey = SetupEntity.key(context.textChannel.getIdLong());
         //force in by bot owner ( ͡° ͜ʖ ͡°)
         if (!context.msg.getMentionedUsers().isEmpty() && context.isOwner()) {
-            for (final User u : context.msg.getMentionedUsers()) {
-                setup.inUser(u.getIdLong(), context);
-            }
-            context.reply(setup.getStatus());
+            final SetupEntity s = Wolfia.getDatabase().getWrapper().findApplyAndMerge(setupKey,
+                    setup -> {
+                        for (final User u : context.msg.getMentionedUsers()) {
+                            setup.inUser(u.getIdLong());
+                        }
+                        return setup;
+                    });
+            context.reply(s.getStatus());
             return true;
         }
 
-        if (Banlist.load(context.invoker.getIdLong()).getScope() == Scope.GLOBAL) {
+        if (Wolfia.getDatabase().getWrapper().getOrCreate(Banlist.key(context.invoker.getIdLong())).getScope() == Scope.GLOBAL) {
             context.replyWithMention("lol ur banned.");
             return false;
         }
 
-        if (setup.inUser(context.invoker.getIdLong(), context)) {
-            context.reply(setup.getStatus());
-            return true;
-        } else {
+        if (Wolfia.getDatabase().getWrapper().getOrCreate(setupKey).isInned(context.invoker.getIdLong())) {
+            context.replyWithMention("you have inned already.");
             return false;
         }
+        final SetupEntity s = Wolfia.getDatabase().getWrapper().findApplyAndMerge(setupKey, setup -> setup.inUser(context.invoker.getIdLong()));
+        context.reply(s.getStatus());
+        return true;
     }
 }

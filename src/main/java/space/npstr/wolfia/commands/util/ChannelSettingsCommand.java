@@ -20,6 +20,8 @@ package space.npstr.wolfia.commands.util;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.fp.types.EntityKey;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -57,8 +59,9 @@ public class ChannelSettingsCommand extends BaseCommand {
             return false;
         }
 
+        final EntityKey<Long, ChannelSettings> key = ChannelSettings.key(context.textChannel.getIdLong());
         //will not be null because it will be initialized with default values if there is none
-        final ChannelSettings channelSettings = ChannelSettings.load(context.textChannel.getIdLong());
+        ChannelSettings channelSettings = Wolfia.getDatabase().getWrapper().getOrCreate(key);
 
 
         if (!context.hasArguments()) {
@@ -101,17 +104,12 @@ public class ChannelSettingsCommand extends BaseCommand {
                         accessRole = rolesByName.get(0);
                     }
                 }
-                channelSettings.setAccessRoleId(accessRole.getIdLong())
-                        .save();
+                channelSettings = Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.setAccessRoleId(accessRole.getIdLong()));
                 break;
             case "tagcooldown":
                 try {
-                    Long tagCooldown = Long.valueOf(context.args[1]);
-                    if (tagCooldown < 0) {
-                        tagCooldown = 0L;
-                    }
-                    channelSettings.setTagCooldown(tagCooldown)
-                            .save();
+                    final Long tagCooldown = Math.max(0L, Long.valueOf(context.args[1]));
+                    channelSettings = Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.setTagCooldown(tagCooldown));
                 } catch (final NumberFormatException e) {
                     context.replyWithMention("please use a number of minutes to set the tags cooldown.");
                     return false;

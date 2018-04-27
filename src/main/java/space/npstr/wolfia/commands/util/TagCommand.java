@@ -17,13 +17,17 @@
 
 package space.npstr.wolfia.commands.util;
 
+import com.google.common.collect.Streams;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.IMentionable;
 import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
@@ -72,7 +76,8 @@ public class TagCommand extends BaseCommand {
             return false;
         }
 
-        final ChannelSettings settings = ChannelSettings.load(context.textChannel.getIdLong());
+        final EntityKey<Long, ChannelSettings> key = ChannelSettings.key(context.textChannel.getIdLong());
+        final ChannelSettings settings = Wolfia.getDatabase().getWrapper().getOrCreate(key);
         final Set<Long> tags = settings.getTags();
 
         String option = "";
@@ -139,12 +144,14 @@ public class TagCommand extends BaseCommand {
                     cleanUp.add(id);
                 }
             }
-            settings.removeTags(cleanUp);
-            for (final StringBuilder sb : outs) {
-                context.reply(sb.toString());
-            }
-            settings.usedTagList()
-                    .save();
+            Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
+                settings.removeTags(cleanUp);
+                for (final StringBuilder sb : outs) {
+                    context.reply(sb.toString());
+                }
+                return settings.usedTagList();
+            });
+
             return true;
         }
 
@@ -159,8 +166,7 @@ public class TagCommand extends BaseCommand {
                     context.replyWithMention("you are already on the tag list of this channel.");
                     return false;
                 } else {
-                    settings.addTag(context.invoker.getIdLong())
-                            .save();
+                    Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.addTag(context.invoker.getIdLong()));
                     context.replyWithMention("you have been added to the tag list of this channel.");
                     return true;
                 }
@@ -169,8 +175,7 @@ public class TagCommand extends BaseCommand {
                     context.replyWithMention("you are already removed from the tag list of this channel.");
                     return false;
                 } else {
-                    settings.removeTag(context.invoker.getIdLong())
-                            .save();
+                    Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.removeTag(context.invoker.getIdLong()));
                     context.replyWithMention("you have been removed from the tag list of this channel");
                     return true;
                 }
@@ -184,20 +189,30 @@ public class TagCommand extends BaseCommand {
                         + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
                 return false;
             }
-            final List<String> mentions = new ArrayList<>();
-            mentions.addAll(mentionedUsers.stream().map(User::getAsMention).collect(Collectors.toList()));
-            mentions.addAll(mentionedRoles.stream().map(Role::getAsMention).collect(Collectors.toList()));
+
+            final List<String> mentions = Streams.concat(
+                    mentionedUsers.stream().map(IMentionable::getAsMention),
+                    mentionedRoles.stream().map(IMentionable::getAsMention)
+            ).collect(Collectors.toList());
             final String joined = String.join("**, **", mentions);
+
+            final List<Long> ids = Streams.concat(
+                    mentionedUsers.stream().map(ISnowflake::getIdLong),
+                    mentionedRoles.stream().map(ISnowflake::getIdLong)
+            ).collect(Collectors.toList());
+
             if (action == TagAction.ADD) {
-                mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::addTag);
-                mentionedRoles.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::addTag);
-                settings.save();
+                Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
+                    ids.forEach(cs::addTag);
+                    return cs;
+                });
                 context.replyWithMention(String.format("added **%s** to the tag list.", joined));
                 return true;
             } else { //removing
-                mentionedUsers.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::removeTag);
-                mentionedRoles.stream().mapToLong(ISnowflake::getIdLong).forEach(settings::removeTag);
-                settings.save();
+                Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
+                    ids.forEach(cs::removeTag);
+                    return cs;
+                });
                 context.replyWithMention(String.format("removed **%s** from the tag list.", joined));
                 return true;
             }

@@ -19,6 +19,9 @@ package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.sqlsauce.DatabaseWrapper;
+import space.npstr.sqlsauce.fp.types.EntityKey;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -29,6 +32,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by napster on 12.05.17.
@@ -59,7 +63,10 @@ public class SetupCommand extends BaseCommand {
             return false;
         }
 
-        SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
+        final DatabaseWrapper wrapper = Wolfia.getDatabase().getWrapper();
+        final EntityKey<Long, SetupEntity> setupKey = SetupEntity.key(context.textChannel.getIdLong());
+        SetupEntity setup = wrapper.getOrCreate(setupKey);
+        final AtomicBoolean blewUp = new AtomicBoolean(false);
 
         if (context.args.length == 1) {
             //unsupported input
@@ -85,23 +92,27 @@ public class SetupCommand extends BaseCommand {
             final String option = context.args[0];
             switch (option.toLowerCase()) {
                 case "game":
-                    try {
-                        setup = setup.setGame(Games.valueOf(context.args[1].toUpperCase()))
-                                .setMode(Games.getInfo(setup.getGame()).getDefaultMode())
-                                .save();
-                    } catch (final IllegalArgumentException ex) {
-                        context.replyWithMention("no such game is supported by this bot: " + TextchatUtils.defuseMentions(context.args[1]));
-                        return false;
-                    }
+                    setup = wrapper.findApplyAndMerge(setupKey, s -> {
+                        try {
+                            s.setGame(Games.valueOf(context.args[1].toUpperCase()))
+                                    .setMode(Games.getInfo(s.getGame()).getDefaultMode());
+                        } catch (final IllegalArgumentException ex) {
+                            context.replyWithMention("no such game is supported by this bot: " + TextchatUtils.defuseMentions(context.args[1]));
+                            blewUp.set(true);
+                        }
+                        return s;
+                    });
                     break;
                 case "mode":
-                    try {
-                        setup = setup.setMode(GameInfo.GameMode.valueOf(context.args[1].toUpperCase()))
-                                .save();
-                    } catch (final IllegalArgumentException ex) {
-                        context.replyWithMention("no such mode is supported by this game: " + TextchatUtils.defuseMentions(context.args[1]));
-                        return false;
-                    }
+                    setup = wrapper.findApplyAndMerge(setupKey, s -> {
+                        try {
+                            s.setMode(GameInfo.GameMode.valueOf(context.args[1].toUpperCase()));
+                        } catch (final IllegalArgumentException ex) {
+                            context.replyWithMention("no such mode is supported by this game: " + TextchatUtils.defuseMentions(context.args[1]));
+                            blewUp.set(true);
+                        }
+                        return s;
+                    });
                     break;
                 case "daylength":
                     try {
@@ -113,8 +124,7 @@ public class SetupCommand extends BaseCommand {
                             context.replyWithMention("day length must be at least one minute.");
                             return false;
                         }
-                        setup = setup.setDayLength(minutes, TimeUnit.MINUTES)
-                                .save();
+                        setup = wrapper.findApplyAndMerge(setupKey, s -> s.setDayLength(minutes, TimeUnit.MINUTES));
                     } catch (final NumberFormatException ex) {
                         context.replyWithMention("use a number to set the day length!");
                         return false;
@@ -131,6 +141,9 @@ public class SetupCommand extends BaseCommand {
                     context.help();
                     return false;
             }
+        }
+        if (blewUp.get()) {
+            return false;//feedback has ben given
         }
         //show the status quo
         context.reply(setup.getStatus());

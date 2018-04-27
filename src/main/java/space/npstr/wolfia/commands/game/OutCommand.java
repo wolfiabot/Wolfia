@@ -20,6 +20,7 @@ package space.npstr.wolfia.commands.game;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -64,7 +65,6 @@ public class OutCommand extends BaseCommand {
             return false;
         }
 
-        final SetupEntity setup = SetupEntity.load(context.textChannel.getIdLong());
         //is this a forced out of a player by an moderator or the bot owner?
         if (!context.msg.getMentionedUsers().isEmpty()) {
             if (!context.member.hasPermission(context.textChannel, Permission.MESSAGE_MANAGE) && !context.isOwner()) {
@@ -72,16 +72,26 @@ public class OutCommand extends BaseCommand {
                         + "**" + Permission.MESSAGE_MANAGE.name() + "**");
                 return false;
             } else {
-                for (final User u : context.msg.getMentionedUsers()) {
-                    setup.outUser(u.getIdLong());
-                }
-                context.reply(setup.getStatus());
+                final SetupEntity s = Wolfia.getDatabase().getWrapper().findApplyAndMerge(SetupEntity.key(context.textChannel.getIdLong()),
+                        setup -> {
+                            for (final User u : context.msg.getMentionedUsers()) {
+                                setup.outUser(u.getIdLong());
+                            }
+                            return setup;
+                        });
+                context.reply(s.getStatus());
                 return true;
             }
         } else {
-            //handling a regular out
-            if (setup.outUser(context.invoker.getIdLong())) {
-                context.reply(setup.getStatus());
+            if (Wolfia.getDatabase().getWrapper().getOrCreate(SetupEntity.key(context.textChannel.getIdLong())).isInned(context.invoker.getIdLong())) {
+                //handling a regular out
+                Wolfia.getDatabase().getWrapper().findApplyAndMerge(SetupEntity.key(context.textChannel.getIdLong()),
+                        setup -> {
+                            if (setup.outUser(context.invoker.getIdLong())) {
+                                context.reply(setup.getStatus());
+                            }
+                            return setup;
+                        });
                 return true;
             }
         }

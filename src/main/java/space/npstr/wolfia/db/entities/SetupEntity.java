@@ -28,7 +28,6 @@ import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
-import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
@@ -145,23 +144,24 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
         this.setDayLength(5, TimeUnit.MINUTES);
     }
 
-    public boolean inUser(final long userId, @Nonnull final Context context) throws DatabaseException {
+    @Nonnull
+    public static EntityKey<Long, SetupEntity> key(final long channelId) {
+        return EntityKey.of(channelId, SetupEntity.class);
+    }
+
+    public boolean isInned(final long userId) {
+        return this.innedUsers.contains(userId);
+    }
+
+    public SetupEntity inUser(final long userId) throws DatabaseException {
         //cache any inning users
-        CachedUser.cache(getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
-        if (this.innedUsers.contains(userId)) {
-            context.replyWithMention("you have inned already.");
-            return false;
-        } else {
-            this.innedUsers.add(userId);
-            save();
-            return true;
-        }
+        CachedUser.cache(Wolfia.getDatabase().getWrapper(), getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
+        this.innedUsers.add(userId);
+        return this;
     }
 
     public boolean outUser(final long userId) throws DatabaseException {
-        final boolean outted = this.innedUsers.remove(userId);
-        save();
-        return outted;
+        return this.innedUsers.remove(userId);
     }
 
     private void cleanUpInnedPlayers() throws DatabaseException {
@@ -252,7 +252,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
             final Game game;
             try {
                 game = this.getGame().clazz.getConstructor().newInstance();
-            } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+            } catch (final IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
                 throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
             }
 
@@ -282,7 +282,6 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
                         TextchatUtils.userAsMention(commandCallerId), e.getMessage()), e);
             }
             this.innedUsers.clear();
-            save();
             return true;
         }
     }
@@ -293,10 +292,5 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
             throw new NullPointerException(String.format("Could not find channel %s of setup entity", this.channelId));
         }
         return tc;
-    }
-
-    @Nonnull
-    public static SetupEntity load(final long channelId) throws DatabaseException {
-        return SaucedEntity.load(EntityKey.of(channelId, SetupEntity.class));
     }
 }

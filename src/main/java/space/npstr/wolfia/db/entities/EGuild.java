@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.db.entities;
 
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.discord.DiscordGuild;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 
@@ -40,8 +39,8 @@ public class EGuild extends DiscordGuild<EGuild> {
     public EGuild() {
     }
 
-    public static EGuild load(final long guildId) throws DatabaseException {
-        return load(EntityKey.of(guildId, EGuild.class));
+    public static EntityKey<Long, EGuild> key(final long guildId) {
+        return EntityKey.of(guildId, EGuild.class);
     }
 
 }
