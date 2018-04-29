@@ -31,16 +31,16 @@ import javax.persistence.Table;
  * Just dump data in here
  */
 @Entity
-@Table(name = "guilds")
-public class EGuild extends DiscordGuild<EGuild> {
+@Table(name = "cached_guild")
+public class CachedGuild extends DiscordGuild<CachedGuild> {
 
 
     //for jpa / IEntity
-    public EGuild() {
+    public CachedGuild() {
     }
 
-    public static EntityKey<Long, EGuild> key(final long guildId) {
-        return EntityKey.of(guildId, EGuild.class);
+    public static EntityKey<Long, CachedGuild> key(final long guildId) {
+        return EntityKey.of(guildId, CachedGuild.class);
     }
 
 }

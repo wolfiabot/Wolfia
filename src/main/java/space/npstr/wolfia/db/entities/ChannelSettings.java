@@ -41,11 +41,11 @@ import java.util.Set;
 /**
  * Created by napster on 22.06.17.
  * <p>
- * Saves settings on a per level basis. The difference to SetupEntity is this entity containing for of the technical
- * Discord stuff, while SetupEntity should contain purely game related stuff.
+ * Saves settings on a per channel basis. The difference to {@link Setup} is that this entity contains technical
+ * Discord stuff, while {@link Setup} should contain purely game related stuff.
  */
 @Entity
-@Table(name = "settings_channel")
+@Table(name = "channel_settings")
 public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
 
     @Id
@@ -65,9 +65,9 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     private final HashSet<Long> tags = new HashSet<>();
 
     //last time the taglist was posted
-    @Column(name = "tag_list_last_used", nullable = false)
+    @Column(name = "tag_last_used", nullable = false)
     @ColumnDefault(value = "0")
-    private long tagListLastUsed = 0;
+    private long tagLastUsed = 0;
 
     //minimum minutes between tags
     @Column(name = "tag_cooldown", nullable = false)
@@ -130,13 +130,13 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
         this.tags.removeAll(ids);
     }
 
-    public long getTagListLastUsed() {
-        return this.tagListLastUsed;
+    public long getTagLastUsed() {
+        return this.tagLastUsed;
     }
 
     @Nonnull
-    public ChannelSettings usedTagList() {
-        this.tagListLastUsed = System.currentTimeMillis();
+    public ChannelSettings tagUsed() {
+        this.tagLastUsed = System.currentTimeMillis();
         return this;
     }
 

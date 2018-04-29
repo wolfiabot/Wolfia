@@ -25,7 +25,7 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
-import space.npstr.wolfia.db.entities.SetupEntity;
+import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -64,8 +64,8 @@ public class SetupCommand extends BaseCommand {
         }
 
         final DatabaseWrapper wrapper = Wolfia.getDatabase().getWrapper();
-        final EntityKey<Long, SetupEntity> setupKey = SetupEntity.key(context.textChannel.getIdLong());
-        SetupEntity setup = wrapper.getOrCreate(setupKey);
+        final EntityKey<Long, Setup> setupKey = Setup.key(context.textChannel.getIdLong());
+        Setup setup = wrapper.getOrCreate(setupKey);
         final AtomicBoolean blewUp = new AtomicBoolean(false);
 
         if (context.args.length == 1) {

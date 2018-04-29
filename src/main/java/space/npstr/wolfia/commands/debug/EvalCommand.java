@@ -24,7 +24,7 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
-import space.npstr.wolfia.db.entities.SetupEntity;
+import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -137,7 +137,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
         this.engine.put("message", context.msg);
         this.engine.put("guild", context.getGuild());
         this.engine.put("game", Games.get(context.channel.getIdLong()));
-        this.engine.put("setup", Wolfia.getDatabase().getWrapper().getOrCreate(SetupEntity.key(context.channel.getIdLong())));
+        this.engine.put("setup", Wolfia.getDatabase().getWrapper().getOrCreate(Setup.key(context.channel.getIdLong())));
         this.engine.put("games", Games.class);//access the static methods like this from eval: games.static.myStaticMethod()
         this.engine.put("db", Wolfia.getDatabase());
 

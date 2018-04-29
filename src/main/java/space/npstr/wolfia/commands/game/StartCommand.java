@@ -23,7 +23,7 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.db.entities.PrivateGuild;
-import space.npstr.wolfia.db.entities.SetupEntity;
+import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
@@ -68,7 +68,7 @@ public class StartCommand extends BaseCommand {
             return false;
         }
 
-        SetupEntity setup = Wolfia.getDatabase().getWrapper().getOrCreate(SetupEntity.key(context.textChannel.getIdLong()));
+        Setup setup = Wolfia.getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()));
         final boolean started = setup.startGame(context.invoker.getIdLong());
         setup = Wolfia.getDatabase().getWrapper().merge(setup);
 

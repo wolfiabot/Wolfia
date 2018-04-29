@@ -61,11 +61,11 @@ import java.util.stream.Collectors;
  * holds persistent setup information on a channel scope
  */
 @Entity
-@Table(name = "setups")
-public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
+@Table(name = "setup")
+public class Setup extends SaucedEntity<Long, Setup> {
 
     @Transient
-    private static final Logger log = LoggerFactory.getLogger(SetupEntity.class);
+    private static final Logger log = LoggerFactory.getLogger(Setup.class);
 
 
     @Id
@@ -93,7 +93,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     //some basic getters/setters
     @Nonnull
     @Override
-    public SetupEntity setId(final Long id) {
+    public Setup setId(final Long id) {
         this.channelId = id;
         return this;
     }
@@ -109,7 +109,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     }
 
     @Nonnull
-    public SetupEntity setGame(@Nonnull final Games game) {
+    public Setup setGame(@Nonnull final Games game) {
         this.game = game.name();
         return this;
     }
@@ -119,7 +119,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     }
 
     @Nonnull
-    public SetupEntity setMode(@Nonnull final GameInfo.GameMode mode) throws IllegalArgumentException {
+    public Setup setMode(@Nonnull final GameInfo.GameMode mode) throws IllegalArgumentException {
         if (!Games.getInfo(getGame()).getSupportedModes().contains(mode)) {
             final String message = String.format("Game %s does not support mode %s", getGame().name(), mode);
             throw new IllegalArgumentException(message);
@@ -133,28 +133,28 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     }
 
     @Nonnull
-    public SetupEntity setDayLength(final long dayLength, @Nonnull final TimeUnit timeUnit) {
+    public Setup setDayLength(final long dayLength, @Nonnull final TimeUnit timeUnit) {
         this.dayLengthMillis = timeUnit.toMillis(dayLength);
         return this;
     }
 
     //create a fresh setup; default game is Popcorn, default mode is Wild
-    public SetupEntity() {
+    public Setup() {
         this.setGame(Games.POPCORN);
         this.setMode(Games.getInfo(Games.POPCORN).getDefaultMode());
         this.setDayLength(5, TimeUnit.MINUTES);
     }
 
     @Nonnull
-    public static EntityKey<Long, SetupEntity> key(final long channelId) {
-        return EntityKey.of(channelId, SetupEntity.class);
+    public static EntityKey<Long, Setup> key(final long channelId) {
+        return EntityKey.of(channelId, Setup.class);
     }
 
     public boolean isInned(final long userId) {
         return this.innedUsers.contains(userId);
     }
 
-    public SetupEntity inUser(final long userId) throws DatabaseException {
+    public Setup inUser(final long userId) throws DatabaseException {
         //cache any inning users
         CachedUser.cache(Wolfia.getDatabase().getWrapper(), getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
         this.innedUsers.add(userId);
@@ -231,7 +231,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
             throws IllegalGameStateException, DatabaseException {
         final TextChannel channel = Wolfia.fetchTextChannel(this.channelId);
         //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
-        synchronized (SetupEntity.class) {
+        synchronized (Setup.class) {
             if (MaintenanceCommand.getMaintenanceFlag() || Wolfia.isShuttingDown()) {
                 RestActions.sendMessage(channel, "The bot is under maintenance. Please try starting a game later.");
                 return false;
@@ -290,7 +290,7 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
     private TextChannel getThisChannel() {
         final TextChannel tc = Wolfia.getTextChannelById(this.channelId);
         if (tc == null) {
-            throw new NullPointerException(String.format("Could not find channel %s of setup entity", this.channelId));
+            throw new NullPointerException(String.format("Could not find channel %s of setup", this.channelId));
         }
         return tc;
     }

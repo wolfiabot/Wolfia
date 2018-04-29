@@ -42,8 +42,8 @@ import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
 import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.db.Database;
+import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
-import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
@@ -158,7 +158,7 @@ public class Wolfia {
                     .addEventListeners(commandListener)
                     .addEventListeners(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
                     .addEventListeners(new UserMemberCachingListener<>(database.getWrapper(), CachedUser.class))
-                    .addEventListeners(new GuildCachingListener<>(database.getWrapper(), EGuild.class))
+                    .addEventListeners(new GuildCachingListener<>(database.getWrapper(), CachedGuild.class))
                     .addEventListeners(new InternalListener())
                     .addEventListeners(new Listings())
                     .addEventListeners(new WolfiaGuildListener())

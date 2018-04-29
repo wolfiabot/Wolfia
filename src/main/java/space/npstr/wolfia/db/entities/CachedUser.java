@@ -30,7 +30,7 @@ import javax.persistence.Table;
  * Caches some user values like their nicks
  */
 @Entity
-@Table(name = "cached_users")
+@Table(name = "cached_user")
 public class CachedUser extends DiscordUser<CachedUser> {
 
 

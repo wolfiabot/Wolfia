@@ -99,7 +99,7 @@ public class TagCommand extends BaseCommand {
                 return false;
             }
 
-            if (System.currentTimeMillis() - settings.getTagListLastUsed()
+            if (System.currentTimeMillis() - settings.getTagLastUsed()
                     < TimeUnit.MINUTES.toMillis(settings.getTagCooldown())) {
                 final String answer = String.format("you need to wait at least %s minutes between calling the tag list.",
                         settings.getTagCooldown());
@@ -149,7 +149,7 @@ public class TagCommand extends BaseCommand {
                 for (final StringBuilder sb : outs) {
                     context.reply(sb.toString());
                 }
-                return settings.usedTagList();
+                return settings.tagUsed();
             });
 
             return true;

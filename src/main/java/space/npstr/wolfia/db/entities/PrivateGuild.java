@@ -54,7 +54,7 @@ import java.util.function.Consumer;
  * A private guild
  */
 @Entity
-@Table(name = "private_guilds")
+@Table(name = "private_guild")
 public class PrivateGuild extends ListenerAdapter implements IEntity<Long, PrivateGuild> {
 
     private static final Logger log = LoggerFactory.getLogger(PrivateGuild.class);
@@ -63,8 +63,8 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     private static final Object usageLock = new Object();
 
     @NaturalId //unique constraint
-    @Column(name = "private_guild_number", nullable = false)
-    private int privateGuildNumber;
+    @Column(name = "nr", nullable = false) //number is kinda reserved so the column is called "nr" instead
+    private int number;
 
     @Id
     @Column(name = "guild_id", nullable = false)
@@ -83,14 +83,14 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     public PrivateGuild() {
     }
 
-    public PrivateGuild(final int privateGuildNumber, final long guildId) {
-        this.privateGuildNumber = privateGuildNumber;
+    public PrivateGuild(final int number, final long guildId) {
+        this.number = number;
         this.guildId = guildId;
         this.inUse = false;
     }
 
-    public int getPrivateGuildNumber() {
-        return this.privateGuildNumber;
+    public int getNumber() {
+        return this.number;
     }
 
     @Nonnull
@@ -126,7 +126,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + this.privateGuildNumber;
+        result = prime * result + this.number;
         result = prime * result + (int) (this.guildId ^ (this.guildId >>> 32));
         return result;
     }
@@ -137,7 +137,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
             return false;
         }
         final PrivateGuild pg = (PrivateGuild) obj;
-        return this.privateGuildNumber == pg.privateGuildNumber && this.guildId == pg.guildId;
+        return this.number == pg.number && this.guildId == pg.guildId;
     }
 
     @SuppressWarnings("unchecked")
@@ -151,7 +151,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         //kick the joined user if they aren't on the allowed list
         if (!this.allowedUsers.contains(joined.getUser().getIdLong())) {
             final Consumer whenDone = aVoid -> event.getGuild().getController().kick(joined).queue(null, RestActions.defaultOnFail());
-            final String message = String.format("You are not allowed to join private guild #%s currently.", this.privateGuildNumber);
+            final String message = String.format("You are not allowed to join private guild #%s currently.", this.number);
             RestActions.sendPrivateMessage(joined.getUser(), message, whenDone, whenDone);
             return;
         }
@@ -166,7 +166,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     public void beginUsage(final Collection<Long> wolfUserIds) {
         synchronized (usageLock) {
             if (this.inUse) {
-                throw new IllegalStateException("Can't begin the usage of a private guild #" + this.privateGuildNumber + " that is being used already");
+                throw new IllegalStateException("Can't begin the usage of a private guild #" + this.number + " that is being used already");
             }
             this.inUse = true;
         }
@@ -190,7 +190,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
                     Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue(null, RestActions.defaultOnFail());
         } catch (final Exception e) {
             endUsage();
-            throw new RuntimeException("Could not begin the usage of private guild #" + this.privateGuildNumber, e);
+            throw new RuntimeException("Could not begin the usage of private guild #" + this.number, e);
         }
     }
 
@@ -204,7 +204,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     public void endUsage() {
         synchronized (usageLock) {
             if (!this.inUse) {
-                throw new IllegalStateException("Can't end the usage of a private guild #" + this.privateGuildNumber + " that is not in use ");
+                throw new IllegalStateException("Can't end the usage of a private guild #" + this.number + " that is not in use ");
             }
             cleanUpMembers();
             try {//complete() in here to catch errors
@@ -218,11 +218,11 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
                     tc.delete().reason("Cleaning up private guild after game ended").complete();
                 } else {
                     log.error("Did not find channel {} in private guild #{} to delete it.",
-                            this.currentChannelId, this.privateGuildNumber);
+                            this.currentChannelId, this.number);
                 }
             } catch (final Exception e) {
                 log.error("Exception while deleting channel {} in private guild #{} {}", this.currentChannelId,
-                        this.privateGuildNumber, this.guildId, e);
+                        this.number, this.guildId, e);
                 return;//leave the private guild in a "broken state", this can be later fixed manually through eval
             }
             this.inUse = false;
@@ -234,7 +234,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         final Guild g = fetchThisGuild();
         final TextChannel channel = g.getTextChannelById(this.currentChannelId);
         return TextchatUtils.getOrCreateInviteLinkForGuild(g, channel,
-                () -> log.error("Could not create invite to private guild #{}, id {}", this.privateGuildNumber, this.guildId));
+                () -> log.error("Could not create invite to private guild #{}, id {}", this.number, this.guildId));
     }
 
     public long getChannelId() {
@@ -249,7 +249,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         Guild g = Wolfia.getGuildById(this.guildId);
         while (g == null) {
             log.error("Could not find private guild #{} with id {}, trying in a moment",
-                    this.privateGuildNumber, this.guildId, new LogTheStackException());
+                    this.number, this.guildId, new LogTheStackException());
             try {
                 Thread.sleep(5000);
             } catch (final InterruptedException e) {

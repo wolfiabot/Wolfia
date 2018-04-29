@@ -24,7 +24,7 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
-import space.npstr.wolfia.db.entities.SetupEntity;
+import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 
@@ -68,7 +68,7 @@ public class StatusCommand extends BaseCommand {
                 }
 
                 if (game == null) {
-                    context.reply(Wolfia.getDatabase().getWrapper().getOrCreate(SetupEntity.key(context.textChannel.getIdLong()))
+                    context.reply(Wolfia.getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()))
                             .getStatus());
                     return true;
                 }

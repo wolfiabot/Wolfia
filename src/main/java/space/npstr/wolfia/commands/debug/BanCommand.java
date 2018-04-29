@@ -25,7 +25,7 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
-import space.npstr.wolfia.db.entities.Banlist;
+import space.npstr.wolfia.db.entities.Ban;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -66,7 +66,7 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
         }
 
         if (option.equalsIgnoreCase("list")) {
-            final List<Banlist> bans = Wolfia.getDatabase().getWrapper().loadAll(Banlist.class);
+            final List<Ban> bans = Wolfia.getDatabase().getWrapper().loadAll(Ban.class);
             String out = bans.stream()
                     .filter(ban -> ban.getScope() == Scope.GLOBAL)
                     .map(ban -> {
@@ -121,12 +121,12 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
         }
 
         if (action == BanAction.ADD) {
-            Wolfia.getDatabase().getWrapper().findApplyAndMerge(Banlist.key(userId), ban -> ban.setScope(Scope.GLOBAL));
+            Wolfia.getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.GLOBAL));
             context.replyWithMention(String.format("added **%s** (%s) to the global ban list.",
                     CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
             return true;
         } else { //removing
-            Wolfia.getDatabase().getWrapper().findApplyAndMerge(Banlist.key(userId), ban -> ban.setScope(Scope.NONE));
+            Wolfia.getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.NONE));
             context.replyWithMention(String.format("removed **%s** (%s) from the global ban list.",
                     CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
             return true;

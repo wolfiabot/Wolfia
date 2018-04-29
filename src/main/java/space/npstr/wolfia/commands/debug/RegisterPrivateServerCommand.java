@@ -99,7 +99,7 @@ public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerR
             pg = dbWrapper.persist(pg);
             Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(pg);
             Wolfia.addEventListener(pg);
-            context.guild.getManager().setName("Wolfia Private Server #" + pg.getPrivateGuildNumber()).queue(null, RestActions.defaultOnFail());
+            context.guild.getManager().setName("Wolfia Private Server #" + pg.getNumber()).queue(null, RestActions.defaultOnFail());
         } catch (final DatabaseException e) {
             log.error("Db blew up saving private guild", e);
             return false;

@@ -28,8 +28,8 @@ import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
+import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
-import space.npstr.wolfia.db.entities.EGuild;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -119,7 +119,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
                     Wolfia.getDatabase().getWrapper(),
                     guilds.peek(__ -> count.incrementAndGet()),
                     (guildId) -> Wolfia.getGuildById(guildId) != null,
-                    EGuild.class
+                    CachedGuild.class
             );
             if (resultConsumer != null) {
                 resultConsumer.accept(System.currentTimeMillis() - started, count.get());

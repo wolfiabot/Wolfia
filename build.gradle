@@ -13,7 +13,7 @@ ext {
 }
 group = 'space.npstr.wolfia'
 //noinspection GroovyAssignabilityCheck
-version = '0.16.0-' + project.ext.buildNumber
+version = '0.17.0-' + project.ext.buildNumber
 
 
 mainClassName = 'space.npstr.wolfia.Wolfia'

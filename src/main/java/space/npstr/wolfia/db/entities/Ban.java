@@ -31,8 +31,8 @@ import javax.persistence.Table;
  * Created by napster on 07.07.17.
  */
 @Entity
-@Table(name = "banlist")
-public class Banlist extends SaucedEntity<Long, Banlist> {
+@Table(name = "ban")
+public class Ban extends SaucedEntity<Long, Ban> {
 
     //user ids banned from playing
     @Id
@@ -43,15 +43,15 @@ public class Banlist extends SaucedEntity<Long, Banlist> {
     private String scope = Scope.NONE.name();
 
     //for JPA and IEntity
-    public Banlist() {
+    public Ban() {
     }
 
     @Nonnull
-    public static EntityKey<Long, Banlist> key(final long userId) {
-        return EntityKey.of(userId, Banlist.class);
+    public static EntityKey<Long, Ban> key(final long userId) {
+        return EntityKey.of(userId, Ban.class);
     }
 
-    public Banlist(final long id, final Scope scope) {
+    public Ban(final long id, final Scope scope) {
         this.userId = id;
         this.scope = scope.name();
     }
@@ -59,7 +59,7 @@ public class Banlist extends SaucedEntity<Long, Banlist> {
 
     @Nonnull
     @Override
-    public Banlist setId(final Long id) {
+    public Ban setId(final Long id) {
         this.userId = id;
         return this;
     }
@@ -75,7 +75,7 @@ public class Banlist extends SaucedEntity<Long, Banlist> {
     }
 
     @Nonnull
-    public Banlist setScope(@Nonnull final Scope scope) {
+    public Ban setScope(@Nonnull final Scope scope) {
         this.scope = scope.name();
         return this;
     }

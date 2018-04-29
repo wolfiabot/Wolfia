@@ -507,7 +507,7 @@ public class Popcorn extends Game {
         //synchronized because it modifies the votes map
         private synchronized void voted(final long voter, final long candidate) {
             log.info("PrivateGuild #{}: user {} voted for user {}",
-                    Popcorn.this.wolfChat.getPrivateGuildNumber(), voter, candidate);
+                    Popcorn.this.wolfChat.getNumber(), voter, candidate);
             this.votes.remove(voter);//remove first so there is an order by earliest vote (reinserting would not put the new vote to the end)
             this.votes.put(voter, candidate);
             //has everyone voted?

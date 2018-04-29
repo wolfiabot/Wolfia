@@ -25,7 +25,7 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.db.entities.PrivateGuild;
-import space.npstr.wolfia.db.entities.SetupEntity;
+import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
@@ -72,7 +72,7 @@ public class OutCommand extends BaseCommand {
                         + "**" + Permission.MESSAGE_MANAGE.name() + "**");
                 return false;
             } else {
-                final SetupEntity s = Wolfia.getDatabase().getWrapper().findApplyAndMerge(SetupEntity.key(context.textChannel.getIdLong()),
+                final Setup s = Wolfia.getDatabase().getWrapper().findApplyAndMerge(Setup.key(context.textChannel.getIdLong()),
                         setup -> {
                             for (final User u : context.msg.getMentionedUsers()) {
                                 setup.outUser(u.getIdLong());
@@ -83,9 +83,9 @@ public class OutCommand extends BaseCommand {
                 return true;
             }
         } else {
-            if (Wolfia.getDatabase().getWrapper().getOrCreate(SetupEntity.key(context.textChannel.getIdLong())).isInned(context.invoker.getIdLong())) {
+            if (Wolfia.getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong())).isInned(context.invoker.getIdLong())) {
                 //handling a regular out
-                Wolfia.getDatabase().getWrapper().findApplyAndMerge(SetupEntity.key(context.textChannel.getIdLong()),
+                Wolfia.getDatabase().getWrapper().findApplyAndMerge(Setup.key(context.textChannel.getIdLong()),
                         setup -> {
                             if (setup.outUser(context.invoker.getIdLong())) {
                                 context.reply(setup.getStatus());

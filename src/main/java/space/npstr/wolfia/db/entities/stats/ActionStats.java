@@ -64,16 +64,16 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
 
     //chronological order of the actions
     //just a failsafe in case the List of actions in Game gets into an unsorted state
-    @Column(name = "ord3r", nullable = false)//cant user "order" as a column name
+    @Column(name = "sequence", nullable = false) //order is a reserved keyword in postgres, so we use sequence instead
     private int order;
 
     // the difference between these two timestamps is the following: an action may be submitted before it actually
     // happens (example: nk gets submitted during the night, but actually "happens" when the day starts and results are
     // announced). these two timestamps try to capture that data as accurately as possible
-    @Column(name = "time_stamp_submitted", nullable = false)
+    @Column(name = "submitted", nullable = false)
     private long timeStampSubmitted;
 
-    @Column(name = "time_stamp_happened", nullable = false)
+    @Column(name = "happened", nullable = false)
     private long timeStampHappened;
 
     //n0, d1 + n1, d2 + n2 etc

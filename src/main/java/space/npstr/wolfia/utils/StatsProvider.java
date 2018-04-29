@@ -25,8 +25,8 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.db.ColumnMapper;
+import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
-import space.npstr.wolfia.db.entities.EGuild;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.utils.discord.Emojis;
 
@@ -210,7 +210,7 @@ public class StatsProvider {
         //add them to the embed
         EmbedBuilder eb = Context.getDefaultEmbedBuilder();
         final Guild guild = Wolfia.getGuildById(guildId);
-        final EGuild cachedGuild = Wolfia.getDatabase().getWrapper().findApplyAndMerge(EGuild.key(guildId), eg -> eg.set(guild));
+        final CachedGuild cachedGuild = Wolfia.getDatabase().getWrapper().findApplyAndMerge(CachedGuild.key(guildId), eg -> eg.set(guild));
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
         eb.setThumbnail(cachedGuild.getAvatarUrl());
 
