@@ -35,6 +35,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -52,9 +53,8 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
     private static final Logger log = LoggerFactory.getLogger(ActionStats.class);
     private static final long serialVersionUID = -6803073458836067860L;
 
-    //dont really care about this one, its for the database
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "action_id")
     private long id;
 

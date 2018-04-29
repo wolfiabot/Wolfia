@@ -29,7 +29,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import java.util.Collection;
 import java.util.HashSet;
@@ -51,10 +50,8 @@ public class GameStats extends SaucedEntity<Long, GameStats> {
     //there are no hard guarantees that there wont be any gaps, or that they will be in any order in the table
     //that's good enough for our use case though (giving games an "easy" to remember number to request replays and stats
     //later, and passively showing off how many games the bot has done)
-    private static final String gameIdSeqName = "stats_game_game_id_seq";
     @Id
-    @SequenceGenerator(name = gameIdSeqName, sequenceName = gameIdSeqName, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = gameIdSeqName)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "game_id", updatable = false)
     private long gameId;
 

@@ -26,6 +26,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -42,10 +43,9 @@ public class PlayerStats extends SaucedEntity<Long, PlayerStats> {
 
     private static final long serialVersionUID = -4581124627322215168L;
 
-    //dont really care about this one, its for the database
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "player_id")
-    @GeneratedValue
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
