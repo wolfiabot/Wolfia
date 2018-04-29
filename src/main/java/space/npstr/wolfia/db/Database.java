@@ -91,7 +91,7 @@ public class Database {
 //                    .addMigration(new m00001FixCharacterVaryingColumns())
 //                    .addMigration(new m00002CachedUserToDiscordUser())
 //                    .addMigration(new m00003EGuildToDiscordGuild())
-                    .setHibernateProperty("hibernate.hbm2ddl.auto", "update") //todo remove once flyway is introduced
+                    .setHibernateProperty("hibernate.hbm2ddl.auto", "validate") //todo remove once flyway is introduced
                     .setProxyDataSourceBuilder(new ProxyDataSourceBuilder()
                             .logSlowQueryBySlf4j(10, TimeUnit.SECONDS, SLF4JLogLevel.WARN, "SlowQueryLog")
                             .multiline()
