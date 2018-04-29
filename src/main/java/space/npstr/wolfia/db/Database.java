@@ -19,6 +19,8 @@ package space.npstr.wolfia.db;
 
 import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseConnection;
@@ -84,6 +86,12 @@ public class Database {
 
     private static DatabaseConnection initConnection() {
         try {
+            final Flyway flyway = new Flyway();
+            flyway.setBaselineOnMigrate(true);
+            flyway.setBaselineVersion(MigrationVersion.fromVersion("0"));
+            flyway.setBaselineDescription("Base Migration");
+            flyway.setLocations("classpath:space/npstr/wolfia/db/migrations");
+
             return new DatabaseConnection.Builder("postgres", Config.C.jdbcUrl)
                     .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")
                     .addEntityPackage("space.npstr.wolfia.db.entities")
@@ -91,7 +99,11 @@ public class Database {
 //                    .addMigration(new m00001FixCharacterVaryingColumns())
 //                    .addMigration(new m00002CachedUserToDiscordUser())
 //                    .addMigration(new m00003EGuildToDiscordGuild())
-                    .setHibernateProperty("hibernate.hbm2ddl.auto", "validate") //todo remove once flyway is introduced
+                    .setHibernateProperty("hibernate.hbm2ddl.auto", "validate")
+                    //hide some exception spam on start, as postgres does not support CLOBs
+                    // https://stackoverflow.com/questions/43905119/postgres-error-method-org-postgresql-jdbc-pgconnection-createclob-is-not-imple
+                    .setHibernateProperty("hibernate.jdbc.lob.non_contextual_creation", "true")
+                    .setFlyway(flyway)
                     .setProxyDataSourceBuilder(new ProxyDataSourceBuilder()
                             .logSlowQueryBySlf4j(10, TimeUnit.SECONDS, SLF4JLogLevel.WARN, "SlowQueryLog")
                             .multiline()

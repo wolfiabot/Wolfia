@@ -13,7 +13,7 @@ ext {
 }
 group = 'space.npstr.wolfia'
 //noinspection GroovyAssignabilityCheck
-version = '0.17.0-' + project.ext.buildNumber
+version = '0.18.0-' + project.ext.buildNumber
 
 
 mainClassName = 'space.npstr.wolfia.Wolfia'
@@ -41,6 +41,7 @@ dependencies {
     ext.jaxbApiVersion            = '2.3.0'
     ext.caffeineVersion           = '2.6.2'
     ext.dsProxyVersion            = '1.4.8'
+    ext.flywayVersion             = '5.0.7'
 
     compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
     compile group: 'ch.qos.logback', name: 'logback-classic',          version: ext.logbackVersion         //logging framework
@@ -53,6 +54,7 @@ dependencies {
     compile group: 'javax.xml.bind', name: 'jaxb-api',                 version: ext.jaxbApiVersion         //required by hibernate for java 9
     compile group: 'com.github.ben-manes.caffeine', name:'caffeine',   version: ext.caffeineVersion        // caches
     compile group: 'net.ttddyy',     name: 'datasource-proxy',         version: ext.dsProxyVersion         // log proxy for db queries
+    compile group: 'org.flywaydb',   name: 'flyway-core',              version: ext.flywayVersion          //database schema migrations
 
     //@formatter:on
 }
