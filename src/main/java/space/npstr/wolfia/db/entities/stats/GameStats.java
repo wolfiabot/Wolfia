@@ -52,7 +52,7 @@ public class GameStats extends SaucedEntity<Long, GameStats> {
     //later, and passively showing off how many games the bot has done)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "game_id", updatable = false)
+    @Column(name = "game_id", nullable = false, updatable = false)
     private long gameId;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "game", orphanRemoval = true)
@@ -63,32 +63,32 @@ public class GameStats extends SaucedEntity<Long, GameStats> {
     @Column(name = "actions")
     private Set<ActionStats> actions = new HashSet<>();
 
-    @Column(name = "start_time")
+    @Column(name = "start_time", nullable = false)
     private long startTime;
 
-    @Column(name = "end_time")
+    @Column(name = "end_time", nullable = false)
     private long endTime;
 
-    @Column(name = "guild_id")
+    @Column(name = "guild_id", nullable = false)
     private long guildId;
 
     //name of the guild at the time of creation
-    @Column(name = "guild_name", columnDefinition = "text")
+    @Column(name = "guild_name", nullable = false, columnDefinition = "text")
     private String guildName;
 
-    @Column(name = "channel_id")
+    @Column(name = "channel_id", nullable = false)
     private long channelId;
 
-    @Column(name = "channel_name", columnDefinition = "text")
+    @Column(name = "channel_name", nullable = false, columnDefinition = "text")
     private String channelName;
 
-    @Column(name = "game_type", columnDefinition = "text")
+    @Column(name = "game_type", nullable = false, columnDefinition = "text")
     private String gameType;
 
-    @Column(name = "game_mode", columnDefinition = "text")
+    @Column(name = "game_mode", nullable = false, columnDefinition = "text")
     private String gameMode;
 
-    @Column(name = "player_size")
+    @Column(name = "player_size", nullable = false)
     private int playerSize;
 
 

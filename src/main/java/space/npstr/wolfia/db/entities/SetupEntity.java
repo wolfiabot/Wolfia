@@ -69,25 +69,25 @@ public class SetupEntity extends SaucedEntity<Long, SetupEntity> {
 
 
     @Id
-    @Column(name = "channel_id")
+    @Column(name = "channel_id", nullable = false)
     private long channelId;
 
     @Type(type = "hash-set-basic")
     @BasicType(Long.class)
     @Column(name = "inned_users", nullable = false, columnDefinition = "bigint[]")
     @ColumnDefault("array[]::bigint[]")
-    private HashSet<Long> innedUsers = new HashSet<>();
+    private final HashSet<Long> innedUsers = new HashSet<>();
 
     //one of the values of the Games.GAMES enum
-    @Column(name = "game", columnDefinition = "text")
+    @Column(name = "game", columnDefinition = "text", nullable = false)
     private String game = "";
 
     //optional mode, for example CLASSIC or WILD for Popcorn games
-    @Column(name = "mode", columnDefinition = "text")
+    @Column(name = "mode", columnDefinition = "text", nullable = false)
     private String mode = "";
 
     //day length in milliseconds
-    @Column(name = "day_length")
+    @Column(name = "day_length", nullable = false)
     private long dayLengthMillis = TimeUnit.MINUTES.toMillis(10);
 
     //some basic getters/setters

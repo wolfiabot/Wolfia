@@ -48,11 +48,11 @@ public class TeamStats extends SaucedEntity<Long, TeamStats> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "team_id")
+    @Column(name = "team_id", nullable = false)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
+    @JoinColumn(name = "game_id", nullable = false)
     private GameStats game;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "team", orphanRemoval = true)
@@ -60,18 +60,18 @@ public class TeamStats extends SaucedEntity<Long, TeamStats> {
     private Set<PlayerStats> players = new HashSet<>();
 
     //defined in the Alignments enum
-    @Column(name = "alignment", columnDefinition = "text")
+    @Column(name = "alignment", nullable = false, columnDefinition = "text")
     private String alignment;
 
     //watch out: teams of the same alignment (example: wolves) may not have the same name, or the equals function will
     //go haywire
-    @Column(name = "name", columnDefinition = "text")
+    @Column(name = "name", nullable = false, columnDefinition = "text")
     private String name;
 
-    @Column(name = "is_winner")
+    @Column(name = "is_winner", nullable = false)
     private boolean isWinner;
 
-    @Column(name = "team_size")
+    @Column(name = "team_size", nullable = false)
     private int teamSize;
 
 

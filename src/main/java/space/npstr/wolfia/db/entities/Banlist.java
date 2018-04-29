@@ -36,10 +36,10 @@ public class Banlist extends SaucedEntity<Long, Banlist> {
 
     //user ids banned from playing
     @Id
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private long userId;
 
-    @Column(name = "scope")
+    @Column(name = "scope", nullable = false)
     private String scope = Scope.NONE.name();
 
     //for JPA and IEntity

@@ -63,7 +63,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     private static final Object usageLock = new Object();
 
     @NaturalId //unique constraint
-    @Column(name = "private_guild_number")
+    @Column(name = "private_guild_number", nullable = false)
     private int privateGuildNumber;
 
     @Id

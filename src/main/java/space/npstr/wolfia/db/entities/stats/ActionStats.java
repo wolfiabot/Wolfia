@@ -55,45 +55,45 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "action_id")
+    @Column(name = "action_id", nullable = false)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id")
+    @JoinColumn(name = "game_id", nullable = false)
     private GameStats game;
 
     //chronological order of the actions
     //just a failsafe in case the List of actions in Game gets into an unsorted state
-    @Column(name = "ord3r")//cant user "order" as a column name
+    @Column(name = "ord3r", nullable = false)//cant user "order" as a column name
     private int order;
 
     // the difference between these two timestamps is the following: an action may be submitted before it actually
     // happens (example: nk gets submitted during the night, but actually "happens" when the day starts and results are
     // announced). these two timestamps try to capture that data as accurately as possible
-    @Column(name = "time_stamp_submitted")
+    @Column(name = "time_stamp_submitted", nullable = false)
     private long timeStampSubmitted;
 
-    @Column(name = "time_stamp_happened")
+    @Column(name = "time_stamp_happened", nullable = false)
     private long timeStampHappened;
 
     //n0, d1 + n1, d2 + n2 etc
-    @Column(name = "cycle")
+    @Column(name = "cycle", nullable = false)
     private int cycle;
 
     //day or night or whatever else, defined in the Phase enum
-    @Column(name = "phase", columnDefinition = "text")
+    @Column(name = "phase", nullable = false, columnDefinition = "text")
     private String phase;
 
     //userId of the discord user; there might be special negative values for factional actors/targets in the future
-    @Column(name = "actor")
+    @Column(name = "actor", nullable = false)
     private long actor;
 
     //defined in the Actions enum
-    @Column(name = "action_type", columnDefinition = "text")
+    @Column(name = "action_type", nullable = false, columnDefinition = "text")
     private String actionType;
 
     //userId of the discord user
-    @Column(name = "target")
+    @Column(name = "target", nullable = false)
     private long target;
 
     //save any additional info of an action in here

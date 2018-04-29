@@ -22,6 +22,7 @@ import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -45,34 +46,35 @@ public class PlayerStats extends SaucedEntity<Long, PlayerStats> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "player_id")
+    @Column(name = "player_id", nullable = false)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
+    @JoinColumn(name = "team_id", nullable = false)
     private TeamStats team;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private long userId;
 
     //nickname in the guild where the main channel of the game is
-    @Column(name = "nickname", columnDefinition = "text")
+    @Nullable
+    @Column(name = "nickname", nullable = true, columnDefinition = "text")
     private String nickname;
 
-    @Column(name = "alignment", columnDefinition = "text")
+    @Column(name = "alignment", nullable = false, columnDefinition = "text")
     private String alignment;
 
     //defined in the Roles enum
-    @Column(name = "role", columnDefinition = "text")
+    @Column(name = "role", nullable = false, columnDefinition = "text")
     private String role;
 
-    @Column(name = "total_posts")
+    @Column(name = "total_posts", nullable = false)
     private int totalPosts;
 
-    @Column(name = "total_postlength")
+    @Column(name = "total_postlength", nullable = false)
     private int totalPostLength;
 
-    public PlayerStats(final TeamStats team, final long userId, final String nick, final Alignments alignment,
+    public PlayerStats(final TeamStats team, final long userId, @Nullable final String nick, final Alignments alignment,
                        final Roles role) {
         this.team = team;
         this.userId = userId;
@@ -141,11 +143,12 @@ public class PlayerStats extends SaucedEntity<Long, PlayerStats> {
         this.userId = userId;
     }
 
+    @Nullable
     public String getNickname() {
         return this.nickname;
     }
 
-    public void setNickname(final String nickname) {
+    public void setNickname(@Nullable final String nickname) {
         this.nickname = nickname;
     }
 

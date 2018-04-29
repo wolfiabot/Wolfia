@@ -49,11 +49,12 @@ import java.util.Set;
 public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
 
     @Id
-    @Column(name = "channel_id")
+    @Column(name = "channel_id", nullable = false)
     private long channelId;
 
     //the role that provides access to the channel
-    @Column(name = "access_role_id")
+    @Column(name = "access_role_id", nullable = false)
+    @ColumnDefault(value = "-1")
     private long accessRoleId = -1;
 
     //taglist for this channel, consists of userIds and possibly roleIds
@@ -61,14 +62,16 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     @BasicType(Long.class)
     @Column(name = "tags", nullable = false, columnDefinition = "bigint[]")
     @ColumnDefault("array[]::bigint[]")
-    private HashSet<Long> tags = new HashSet<>();
+    private final HashSet<Long> tags = new HashSet<>();
 
     //last time the taglist was posted
-    @Column(name = "tag_list_last_used")
-    private long tagListLastUsed = -1;
+    @Column(name = "tag_list_last_used", nullable = false)
+    @ColumnDefault(value = "0")
+    private long tagListLastUsed = 0;
 
     //minimum minutes between tags
-    @Column(name = "tag_cooldown")
+    @Column(name = "tag_cooldown", nullable = false)
+    @ColumnDefault(value = "5")
     private long tagCooldown = 5;
 
     // for jpa / wrapper
