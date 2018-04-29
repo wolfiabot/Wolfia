@@ -96,9 +96,6 @@ public class Database {
                     .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")
                     .addEntityPackage("space.npstr.wolfia.db.entities")
                     .setAppName("Wolfia_" + (Config.C.isDebug ? "DEBUG" : "PROD") + "_" + App.getVersionBuild())
-//                    .addMigration(new m00001FixCharacterVaryingColumns())
-//                    .addMigration(new m00002CachedUserToDiscordUser())
-//                    .addMigration(new m00003EGuildToDiscordGuild())
                     .setHibernateProperty("hibernate.hbm2ddl.auto", "validate")
                     //hide some exception spam on start, as postgres does not support CLOBs
                     // https://stackoverflow.com/questions/43905119/postgres-error-method-org-postgresql-jdbc-pgconnection-createclob-is-not-imple
