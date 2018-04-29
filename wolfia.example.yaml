@@ -1,0 +1,18 @@
+---
+
+isDebug: true           # set this to false in production
+
+debug:
+  discordToken:     ""  # discord bot token
+  jdbcUrl:          ""  # postgres database
+  logChannelId:     ""  # a channel where to post general bot activity like games starting
+  errorLogWebHook:  ""  # webhook to a discord channel to post errors
+  sentryDsn:        ""  # error aggregation service
+
+# these values will be used in production
+prod:
+  discordToken:     ""  # discord bot token
+  jdbcUrl:          ""  # postgres database
+  logChannelId:     ""  # a channel where to post general bot activity like games starting
+  errorLogWebHook:  ""  # webhook to a discord channel to post errors
+  sentryDsn:        ""  # error aggregation service

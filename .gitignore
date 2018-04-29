@@ -115,6 +115,7 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 *sneaky.yaml
+*wolfia.yaml
 *javaloader.json
 
 gradle.properties

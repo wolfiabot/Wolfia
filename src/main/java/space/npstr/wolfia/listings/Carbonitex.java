@@ -57,4 +57,9 @@ public class Carbonitex extends Listing {
                 .url("https://www.carbonitex.net/discord/data/botdata.php")
                 .post(body);
     }
+
+    @Override
+    protected boolean isConfigured() {
+        return Config.C.carbonitexKey != null && !Config.C.carbonitexKey.isEmpty();
+    }
 }

@@ -58,45 +58,51 @@ public class Config {
     }
 
     public final boolean isDebug;
+
     public final String discordToken;
-    public final String errorLogWebHook;
     public final String jdbcUrl;
-    public final String imgurClientId;
+
+    //listing site tokens
     public final String botsDiscordPwToken;
     public final String discordbotsOrgToken;
     public final String carbonitexKey;
-    public final long logChannelId;
 
+    //logging and error handling
+    public final long logChannelId;
+    public final String errorLogWebHook;
     public final String sentryDsn;
 
 
     @SuppressWarnings(value = "unchecked")
     public Config() throws IOException {
 
-        final File sneakyFile = new File("sneaky.yaml");
+        final File configFile = new File("wolfia.yaml");
         final Yaml yaml = new Yaml();
-        try (Reader reader = new InputStreamReader(new FileInputStream(sneakyFile), "UTF-8")) {
-            final Map<String, Object> sneaky = yaml.load(reader);
+        try (final Reader reader = new InputStreamReader(new FileInputStream(configFile), "UTF-8")) {
+            final Map<String, Object> config = yaml.load(reader);
             //change nulls to empty strings
-            sneaky.keySet().forEach((String key) -> sneaky.putIfAbsent(key, ""));
+            config.keySet().forEach((String key) -> config.putIfAbsent(key, ""));
 
             //where are we running?
-            this.isDebug = (boolean) sneaky.getOrDefault("isDebug", false);
+            this.isDebug = (boolean) config.getOrDefault("isDebug", false);
 
             final Map<String, String> values;
-            if (this.isDebug) values = (Map) sneaky.get("debug");
-            else values = (Map) sneaky.get("prod");
+            if (this.isDebug) {
+                values = (Map) config.get("debug");
+            } else {
+                values = (Map) config.get("prod");
+            }
 
-            //sneaky stuff
             this.discordToken = values.getOrDefault("discordToken", "");
-            this.errorLogWebHook = values.getOrDefault("errorLogWebHook", "");
             this.jdbcUrl = values.getOrDefault("jdbcUrl", "");
-            this.imgurClientId = values.getOrDefault("imgurClientId", "");
+
+            //listing site tokens
             this.botsDiscordPwToken = values.getOrDefault("botsDiscordPwToken", "");
             this.discordbotsOrgToken = values.getOrDefault("discordbotsOrgToken", "");
             this.carbonitexKey = values.getOrDefault("carbonitexKey", "");
-            this.logChannelId = Long.parseLong(values.getOrDefault("logChannelId", "0"));
 
+            this.errorLogWebHook = values.getOrDefault("errorLogWebHook", "");
+            this.logChannelId = Long.parseLong(values.getOrDefault("logChannelId", "0"));
             this.sentryDsn = values.getOrDefault("sentryDsn", "");
             if (this.sentryDsn != null && !this.sentryDsn.isEmpty()) {
                 Sentry.init(this.sentryDsn).setRelease(GitRepoState.getGitRepositoryState().commitId);

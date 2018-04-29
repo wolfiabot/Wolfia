@@ -58,4 +58,9 @@ public class DiscordBotsOrg extends Listing {
                 .addHeader("Authorization", Config.C.discordbotsOrgToken)
                 .post(body);
     }
+
+    @Override
+    protected boolean isConfigured() {
+        return Config.C.discordbotsOrgToken != null && !Config.C.discordbotsOrgToken.isEmpty();
+    }
 }

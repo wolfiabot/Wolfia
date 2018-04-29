@@ -58,4 +58,9 @@ public class DiscordBotsPw extends Listing {
                 .addHeader("Authorization", Config.C.botsDiscordPwToken)
                 .post(body);
     }
+
+    @Override
+    protected boolean isConfigured() {
+        return Config.C.botsDiscordPwToken != null && !Config.C.botsDiscordPwToken.isEmpty();
+    }
 }

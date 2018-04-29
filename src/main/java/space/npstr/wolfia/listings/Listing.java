@@ -56,8 +56,16 @@ public abstract class Listing {
     @Nonnull
     protected abstract Request.Builder createRequest(long botId, @Nonnull String payload);
 
+    //return false if there is no token configured, or whatever is needed to post to the site
+    protected abstract boolean isConfigured();
+
     //retries with growing delay until it is successful
     public void postStats(@Nonnull final JDA jda) throws InterruptedException {
+        if (!isConfigured()) {
+            log.debug("Skipping posting stats to {} due to not being configured", this.name);
+            return;
+        }
+
         if (Config.C.isDebug) {
             log.info("Skipping posting stats to {} due to running in debug mode", this.name);
             return;

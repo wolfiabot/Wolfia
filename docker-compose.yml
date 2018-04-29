@@ -9,7 +9,7 @@ services:
     ports:
       - 4567:4567
     volumes:
-      - ./sneaky.yaml:/opt/wolfia/sneaky.yaml
+      - ./wolfia.yaml:/opt/wolfia/wolfia.yaml
       - ./logs:/opt/wolfia/logs
       - ./logs/gc:/opt/wolfia/logs/gc
     stop_grace_period: 7200s #should really be enough to finish all games
