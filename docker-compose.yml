@@ -19,7 +19,7 @@ services:
       - -Xmx2g
       - -XX:+HeapDumpOnOutOfMemoryError
       - -XX:HeapDumpPath=emergencydump.hprof
-      - -Xlog:gc*:logs/gc/gc-%t.log
+      - -Xlog:gc*:logs/gc/gc-%t.log::filesize=1g
       - -XX:+UseG1GC
       - -XX:+ParallelRefProcEnabled
       - -XX:+UseStringDeduplication
