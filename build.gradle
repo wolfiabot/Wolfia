@@ -1,16 +1,61 @@
-plugins {
-    id 'java'
-    id 'application'
-    id 'idea'
-    id 'com.gorylenko.gradle-git-properties' version '1.4.21' //provide meta info about the git repo
-    id 'com.github.johnrengelman.shadow' version '2.0.3'
-    id 'com.jfrog.bintray' version '1.8.0'
+import org.apache.tools.ant.filters.ReplaceTokens
+
+buildscript {
+    ext {
+        //@formatter:off
+
+        //plugin versions
+        gradleGitVersion        = '1.4.21'
+        shadowVersion           = '2.0.3'
+        bintrayVersion          = '1.8.0'
+
+        //@formatter:on
+    }
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${gradleGitVersion}"
+        classpath "com.github.jengelman.gradle.plugins:shadow:${shadowVersion}"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
+    }
 }
+
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'application'
+apply plugin: 'com.gorylenko.gradle-git-properties'
+apply plugin: 'com.github.johnrengelman.plugin-shadow'
+apply plugin: 'com.jfrog.bintray'
 
 ext {
     moduleName = 'wolfia'
     buildNumber = (System.getenv('CI') ? System.getenv('BUILD_NUMBER') : 'DEV')
+
+    //@formatter:off
+    javaVersion                 = '10'
+    gradleWrapperVersion        = '4.7'
+
+    jdaVersion                  = '3.6.0_362'
+
+    logbackVersion              = '1.2.3'
+    sentryVersion               = '1.7.4'
+    discordAppenderVersion      = '1.0.0'
+
+    yamlVersion                 = '1.21'
+    okhttpVersion               = '3.10.0'
+    caffeineVersion             = '2.6.2'
+
+    sqlsauceVersion             = '0.2.3'
+    jaxbApiVersion              = '2.3.0'
+    dsProxyVersion              = '1.4.9'
+    flywayVersion               = '5.0.7'
+
+    //@formater:on
+
 }
+
 group = 'space.npstr.wolfia'
 //noinspection GroovyAssignabilityCheck
 version = '0.19.0-' + project.ext.buildNumber
@@ -18,8 +63,8 @@ version = '0.19.0-' + project.ext.buildNumber
 
 mainClassName = 'space.npstr.wolfia.Wolfia'
 
-sourceCompatibility = 10
-targetCompatibility = 10
+sourceCompatibility = javaVersion
+targetCompatibility = javaVersion
 
 repositories {
     jcenter()                               // JDA, maybe others
@@ -31,41 +76,52 @@ repositories {
 
 dependencies {
     //@formatter:off
-    ext.jdaVersion                = '3.6.0_362'
-    ext.logbackVersion            = '1.2.3'
-    ext.sentryVersion             = '1.7.4'
-    ext.discordAppenderVersion    = '1.0.0'
-    ext.yamlVersion               = '1.21'
-    ext.okhttpVersion             = '3.10.0'
-    ext.sqlsauceVersion           = '0.2.3'
-    ext.jaxbApiVersion            = '2.3.0'
-    ext.caffeineVersion           = '2.6.2'
-    ext.dsProxyVersion            = '1.4.9'
-    ext.flywayVersion             = '5.0.7'
 
-    compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
-    compile group: 'ch.qos.logback', name: 'logback-classic',          version: ext.logbackVersion         //logging framework
-    compile group: 'space.npstr',    name: 'logback-discord-appender', version: ext.discordAppenderVersion //log to discord
-    compile group: 'io.sentry',      name: 'sentry-logback',           version: ext.sentryVersion          //error aggregation
-    compile group: 'org.yaml',       name: 'snakeyaml',                version: ext.yamlVersion            //parse yaml files
-    compile group: 'com.squareup.okhttp3', name: 'okhttp',             version: ext.okhttpVersion          //http client
-    compile group: 'space.npstr.SqlSauce', name: 'sqlsauce-core',      version: ext.sqlsauceVersion        //db stack
-    compile group: 'space.npstr.SqlSauce', name: 'discord-entities',   version: ext.sqlsauceVersion        //moar db entities
-    compile group: 'javax.xml.bind', name: 'jaxb-api',                 version: ext.jaxbApiVersion         //required by hibernate for java 9
-    compile group: 'com.github.ben-manes.caffeine', name:'caffeine',   version: ext.caffeineVersion        // caches
-    compile group: 'net.ttddyy',     name: 'datasource-proxy',         version: ext.dsProxyVersion         // log proxy for db queries
-    compile group: 'org.flywaydb',   name: 'flyway-core',              version: ext.flywayVersion          //database schema migrations
+    //discord api
+    compile group: 'net.dv8tion',           name: 'JDA',                        version: jdaVersion             //discord API
+
+    //logging
+    compile group: 'ch.qos.logback',        name: 'logback-classic',            version: logbackVersion         //logging framework
+    compile group: 'space.npstr',           name: 'logback-discord-appender',   version: discordAppenderVersion //log to discord
+    compile group: 'io.sentry',             name: 'sentry-logback',             version: sentryVersion          //error aggregation
+
+    //utility
+    compile group: 'org.yaml',              name: 'snakeyaml',                  version: yamlVersion            //parse yaml files
+    compile group: 'com.squareup.okhttp3',  name: 'okhttp',                     version: okhttpVersion          //http client
+    compile group: 'com.github.ben-manes.caffeine', name:'caffeine',            version: caffeineVersion        //caches
+
+    //database
+    compile group: 'space.npstr.SqlSauce',  name: 'sqlsauce-core',              version: sqlsauceVersion        //db stack
+    compile group: 'space.npstr.SqlSauce',  name: 'discord-entities',           version: sqlsauceVersion        //moar db entities
+    compile group: 'javax.xml.bind',        name: 'jaxb-api',                   version: jaxbApiVersion         //required by hibernate for java 9
+    compile group: 'net.ttddyy',            name: 'datasource-proxy',           version: dsProxyVersion         //log proxy for db queries
+    compile group: 'org.flywaydb',          name: 'flyway-core',                version: flywayVersion          //database schema migrations
 
     //@formatter:on
 }
 
 
-import org.apache.tools.ant.filters.ReplaceTokens
-
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
+    gradleVersion = gradleWrapperVersion
     //noinspection UnnecessaryQualifiedReference
     distributionType = Wrapper.DistributionType.ALL
+}
+
+compileJava.dependsOn 'clean'
+compileJava.options.encoding = 'UTF-8'
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+compileJava.options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
+
+shadowJar {
+    archiveName = 'wolfia.jar'
+    doLast {
+        copy {
+            from 'build/libs/wolfia.jar'
+            into '.'
+        }
+    }
 }
 
 processResources {
@@ -78,20 +134,6 @@ processResources {
                 "env.BUILD_NUMBER"  : project.ext.buildNumber,
                 "env.BUILD_TIME"    : System.currentTimeMillis() + ''
         ]
-    }
-}
-
-compileJava.dependsOn 'clean'
-compileJava.options.encoding = 'UTF-8'
-compileJava.options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
-
-shadowJar {
-    archiveName = 'wolfia.jar'
-    doLast {
-        copy {
-            from 'build/libs/wolfia.jar'
-            into '.'
-        }
     }
 }
 
