@@ -31,16 +31,16 @@ repositories {
 
 dependencies {
     //@formatter:off
-    ext.jdaVersion                = '3.6.0_359'
+    ext.jdaVersion                = '3.6.0_362'
     ext.logbackVersion            = '1.2.3'
-    ext.sentryVersion             = '1.7.3'
+    ext.sentryVersion             = '1.7.4'
     ext.discordAppenderVersion    = '1.0.0'
     ext.yamlVersion               = '1.21'
     ext.okhttpVersion             = '3.10.0'
-    ext.sqlsauceVersion           = '0.2.2'
+    ext.sqlsauceVersion           = '0.2.3'
     ext.jaxbApiVersion            = '2.3.0'
     ext.caffeineVersion           = '2.6.2'
-    ext.dsProxyVersion            = '1.4.8'
+    ext.dsProxyVersion            = '1.4.9'
     ext.flywayVersion             = '5.0.7'
 
     compile group: 'net.dv8tion',    name: 'JDA',                      version: ext.jdaVersion             //discord API
