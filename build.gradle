@@ -10,6 +10,7 @@ buildscript {
         aptVersion              = '0.15'
         springBootVersion       = '2.0.1.RELEASE'
         propDepsVersion         = '0.0.9.RELEASE'
+        sonarQubeVersion        = '2.6.2'
         bintrayVersion          = '1.8.0'
 
         //@formatter:on
@@ -26,6 +27,7 @@ buildscript {
         classpath "net.ltgt.gradle:gradle-apt-plugin:${aptVersion}"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "io.spring.gradle:propdeps-plugin:${propDepsVersion}"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:${sonarQubeVersion}"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
     }
 }
@@ -39,6 +41,8 @@ apply plugin: 'net.ltgt.apt-idea'
 apply plugin: 'propdeps'
 apply plugin: 'propdeps-idea'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'org.sonarqube'
+apply plugin: 'jacoco'
 apply plugin: 'com.jfrog.bintray'
 
 ext {

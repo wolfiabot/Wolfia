@@ -3,6 +3,10 @@ sudo: required
 services:
 - docker
 
+addons:
+  sonarcloud:
+    organization: "napstr-github"
+
 env:
   global:
     - BUILD_NUMBER: "$TRAVIS_BUILD_NUMBER"
@@ -19,6 +23,7 @@ cache:
     - "$HOME/.gradle"
     - ".gradle/wrapper"
     - ".gradle/caches"
+    - "$HOME/.sonar/cache"
 
 before_install:
   - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
@@ -31,6 +36,9 @@ matrix:
 jobs:
   include:
     - stage: build
+      before_script:
+        #for sonar cloud blame information
+        - git fetch --unshallow
       script:
         - java -Xmx32m -version
         - ./gradlew build --info
@@ -38,6 +46,7 @@ jobs:
         - echo $IMAGE_TAG
         - docker build --tag "napstr/wolfia:$IMAGE_TAG" .
       after_success:
+        - ./gradlew sonarqube
         - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
         - docker push napstr/wolfia:$IMAGE_TAG
         - docker logout
