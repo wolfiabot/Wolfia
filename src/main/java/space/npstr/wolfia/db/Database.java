@@ -17,12 +17,11 @@
 
 package space.npstr.wolfia.db;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseConnection;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.App;
@@ -37,10 +36,9 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * Serves lazily initialized database connection and wrapper singletons
  */
+@Slf4j
 @ThreadSafe
 public class Database {
-
-    private static final Logger log = LoggerFactory.getLogger(Database.class);
 
     @Nullable
     private volatile DatabaseConnection connection;

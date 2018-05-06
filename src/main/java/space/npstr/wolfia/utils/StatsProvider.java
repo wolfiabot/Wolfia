@@ -17,10 +17,9 @@
 
 package space.npstr.wolfia.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.Context;
@@ -48,9 +47,8 @@ import static space.npstr.wolfia.utils.discord.TextchatUtils.percentFormat;
  * <p>
  * This class takes data out of the database and formats it in a presentable way
  */
+@Slf4j
 public class StatsProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(StatsProvider.class);
 
     //SQL queries:
     private static class Queries {

@@ -17,14 +17,13 @@
 
 package space.npstr.wolfia.events;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
@@ -38,9 +37,8 @@ import space.npstr.wolfia.utils.log.DiscordLogger;
  * <p>
  * Events listened to in here are used for bot internal, non-game purposes
  */
+@Slf4j
 public class InternalListener extends ListenerAdapter {
-
-    private static final Logger log = LoggerFactory.getLogger(InternalListener.class);
 
     @Override
     public void onReady(final ReadyEvent event) {

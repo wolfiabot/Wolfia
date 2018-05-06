@@ -17,13 +17,12 @@
 
 package space.npstr.wolfia.listings;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.JDA;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 
@@ -35,9 +34,9 @@ import java.io.IOException;
  * <p>
  * Template for various bot listing sites
  */
+@Slf4j
 public abstract class Listing {
 
-    protected static Logger log = LoggerFactory.getLogger(Listing.class);
     protected static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     protected final String name;
@@ -89,7 +88,7 @@ public abstract class Listing {
         boolean success = false;
         while (!success) {
             attempt++;
-            try (Response response = this.httpClient.newCall(req).execute()) {
+            try (final Response response = this.httpClient.newCall(req).execute()) {
                 if (response.isSuccessful()) {
                     log.info("Successfully posted bot stats to {} on attempt {}, code {}", this.name, attempt, response.code());
                     this.lastPayload = payload;

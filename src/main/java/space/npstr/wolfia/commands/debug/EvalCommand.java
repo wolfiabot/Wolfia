@@ -17,8 +17,7 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -42,9 +41,8 @@ import java.util.concurrent.TimeoutException;
  * <p>
  * run js code in the bot
  */
+@Slf4j
 public class EvalCommand extends BaseCommand implements IOwnerRestricted {
-
-    private static final Logger log = LoggerFactory.getLogger(EvalCommand.class);
 
     private Future lastTask;
 

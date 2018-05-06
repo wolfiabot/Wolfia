@@ -1,5 +1,6 @@
 package space.npstr.wolfia.utils.discord;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -12,9 +13,6 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.core.requests.ErrorResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import javax.annotation.Nonnull;
@@ -31,9 +29,8 @@ import java.util.function.Consumer;
  * Everything related to sending RestActions
  * Copy pastad and adjusted from FredBoat where I wrote this for
  */
+@Slf4j
 public class RestActions {
-
-    private static final Logger log = LoggerFactory.getLogger(RestActions.class);
 
     //this is needed for when we absolutely don't care about a rest action failing (use this only after good consideration!)
     // because if we pass null for a failure handler to JDA it uses a default handler that results in a warning/error level log
@@ -85,10 +82,14 @@ public class RestActions {
     // ********************************************************************************
 
     /**
-     * @param channel   The channel that should be messaged
-     * @param message   Message to be sent
-     * @param onSuccess Optional success handler
-     * @param onFail    Optional exception handler
+     * @param channel
+     *         The channel that should be messaged
+     * @param message
+     *         Message to be sent
+     * @param onSuccess
+     *         Optional success handler
+     * @param onFail
+     *         Optional exception handler
      */
     public static void sendMessage(@Nonnull final MessageChannel channel, @Nonnull final Message message,
                                    @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
@@ -217,10 +218,14 @@ public class RestActions {
     // ********************************************************************************
 
     /**
-     * @param oldMessage The message to be edited
-     * @param newMessage The message to be set
-     * @param onSuccess  Optional success handler
-     * @param onFail     Optional exception handler
+     * @param oldMessage
+     *         The message to be edited
+     * @param newMessage
+     *         The message to be set
+     * @param onSuccess
+     *         Optional success handler
+     * @param onFail
+     *         Optional exception handler
      */
     public static void editMessage(@Nonnull final Message oldMessage, @Nonnull final Message newMessage,
                                    @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {

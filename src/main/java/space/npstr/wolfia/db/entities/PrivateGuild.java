@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.db.entities;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Invite;
@@ -26,8 +27,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.hibernate.annotations.NaturalId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.IEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
@@ -53,11 +52,11 @@ import java.util.function.Consumer;
  * <p>
  * A private guild
  */
+@Slf4j
 @Entity
 @Table(name = "private_guild")
 public class PrivateGuild extends ListenerAdapter implements IEntity<Long, PrivateGuild> {
 
-    private static final Logger log = LoggerFactory.getLogger(PrivateGuild.class);
     private static final String WOLF_ROLE_NAME = "Wolf";
     //using a static scope for the lock since entities, while representing the same data, may be distinct objects
     private static final Object usageLock = new Object();

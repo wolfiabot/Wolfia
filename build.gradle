@@ -6,6 +6,7 @@ buildscript {
 
         //plugin versions
         gradleGitVersion        = '1.4.21'
+        aptVersion              = '0.15'
         shadowVersion           = '2.0.3'
         bintrayVersion          = '1.8.0'
 
@@ -17,6 +18,7 @@ buildscript {
     }
     dependencies {
         classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${gradleGitVersion}"
+        classpath "net.ltgt.gradle:gradle-apt-plugin:${aptVersion}"
         classpath "com.github.jengelman.gradle.plugins:shadow:${shadowVersion}"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
     }
@@ -26,6 +28,7 @@ apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'com.gorylenko.gradle-git-properties'
+apply plugin: 'net.ltgt.apt-idea'
 apply plugin: 'com.github.johnrengelman.plugin-shadow'
 apply plugin: 'com.jfrog.bintray'
 
@@ -72,6 +75,15 @@ repositories {
     maven { url 'https://dl.bintray.com/napster/SqlSauce' }
     mavenLocal()                            // local maven repo, mostly for testing stuff
     maven { url 'https://jitpack.io' }      //for getting builds from github
+
+    //FIXME switch to regular, non-edge build as soon as 1.16.21 is released
+    //this is what we want to download: https://projectlombok.org/lombok-edge.jar
+    ivy {
+        url 'https://projectlombok.org/'
+        layout 'pattern', {
+            artifact '/[artifact].[ext]'
+        }
+    }
 }
 
 dependencies {
@@ -96,6 +108,10 @@ dependencies {
     compile group: 'javax.xml.bind',        name: 'jaxb-api',                   version: jaxbApiVersion         //required by hibernate for java 9
     compile group: 'net.ttddyy',            name: 'datasource-proxy',           version: dsProxyVersion         //log proxy for db queries
     compile group: 'org.flywaydb',          name: 'flyway-core',                version: flywayVersion          //database schema migrations
+
+    //lombok annotation processing
+    compileOnly         name: 'lombok-edge'
+    annotationProcessor name: 'lombok-edge'
 
     //@formatter:on
 }

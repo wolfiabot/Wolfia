@@ -17,12 +17,11 @@
 
 package space.npstr.wolfia.game.popcorn;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
@@ -72,9 +71,8 @@ import static space.npstr.wolfia.game.GameInfo.GameMode;
  * Here's a picture:
  * https://i.imgur.com/RFbDtbm.jpg
  */
+@Slf4j
 public class Popcorn extends Game {
-
-    private static final Logger log = LoggerFactory.getLogger(Popcorn.class);
 
     //internal variables of an ongoing game
     private final List<Thread> timers = new ArrayList<>(); //keeps track of timer threads

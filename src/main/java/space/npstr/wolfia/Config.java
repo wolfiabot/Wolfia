@@ -19,8 +19,7 @@ package space.npstr.wolfia;
 
 
 import io.sentry.Sentry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.yaml.snakeyaml.Yaml;
 import space.npstr.wolfia.utils.GitRepoState;
 
@@ -37,11 +36,10 @@ import java.util.Map;
  * <p>
  * Contains the config values loaded from disk
  */
+@Slf4j
 public class Config {
 
     public static final String PREFIX = "w.";
-
-    private static final Logger log = LoggerFactory.getLogger(Config.class);
 
     //avoid a (in this case unnecessary) gettocalypse by making all the values public final
     public static final Config C;

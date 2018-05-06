@@ -17,13 +17,12 @@
 
 package space.npstr.wolfia.game.mafia;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
@@ -84,9 +83,8 @@ import java.util.function.Consumer;
  * <p>
  * This is it, the actual werewolf/mafia game!
  */
+@Slf4j
 public class Mafia extends Game {
-
-    private static final Logger log = LoggerFactory.getLogger(Mafia.class);
 
     private long dayLengthMillis = TimeUnit.MINUTES.toMillis(10); //10 minutes default
     private final long nightLengthMillis = TimeUnit.MINUTES.toMillis(1); //1 minute default

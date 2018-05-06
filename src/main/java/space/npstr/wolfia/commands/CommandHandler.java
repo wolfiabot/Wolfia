@@ -17,11 +17,10 @@
 
 package space.npstr.wolfia.commands;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
@@ -43,9 +42,8 @@ import java.util.concurrent.TimeUnit;
  * Issued commands will always go through here. It is their own job to find out for which game they have been issued,
  * and make the appropriate calls or handle any user errors
  */
+@Slf4j
 public class CommandHandler {
-
-    private final static Logger log = LoggerFactory.getLogger(CommandHandler.class);
 
     public static void handleMessage(@Nonnull final MessageReceivedEvent event) {
         //ignore bot accounts generally
@@ -98,7 +96,8 @@ public class CommandHandler {
     }
 
     /**
-     * @param context the parsed input of a user
+     * @param context
+     *         the parsed input of a user
      */
     public static void handleCommand(@Nonnull final CommandContext context) {
         try {

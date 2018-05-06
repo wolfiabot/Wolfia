@@ -17,8 +17,7 @@
 
 package space.npstr.wolfia.game.tools;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.Callable;
@@ -33,10 +32,8 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * This executor logs exceptions of its tasks.
  */
+@Slf4j
 public class ExceptionLoggingExecutor extends ScheduledThreadPoolExecutor {
-
-    private static final Logger log = LoggerFactory.getLogger(ExceptionLoggingExecutor.class);
-
 
     public ExceptionLoggingExecutor(final int threads, final String threadName) {
         this(threads, r -> new Thread(r, threadName));

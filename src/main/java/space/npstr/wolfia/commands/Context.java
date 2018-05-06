@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands;
 
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
@@ -29,8 +30,6 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -46,10 +45,9 @@ import java.util.function.Consumer;
  * Provides a context to whats going on. Where is it happening, who caused it?
  * Also home to a bunch of convenience methods
  */
+@Slf4j
 @SuppressWarnings("unused")
 public abstract class Context {
-
-    private static final Logger log = LoggerFactory.getLogger(Context.class);
 
     @Nullable
     @CheckReturnValue

@@ -17,14 +17,13 @@
 
 package space.npstr.wolfia.commands;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -42,9 +41,8 @@ import java.util.regex.Pattern;
  * <p>
  * Don't save these anywhere as they hold references to JDA objects, just pass them down through (short-lived) command execution
  */
+@Slf4j
 public class CommandContext extends MessageContext {
-
-    private static final Logger log = LoggerFactory.getLogger(CommandContext.class);
 
 
     //@formatter:off
@@ -56,7 +54,9 @@ public class CommandContext extends MessageContext {
     //@formatter:on
 
     /**
-     * @param event the event to be parsed
+     * @param event
+     *         the event to be parsed
+     *
      * @return The full context for the triggered command, or null if it's not a command that we know.
      */
     public static CommandContext parse(final MessageReceivedEvent event)//, final Histogram.Timer received)
@@ -138,8 +138,10 @@ public class CommandContext extends MessageContext {
     /**
      * Transforms this context into a guild context, telling the invoker to run the command in a guild if requested
      *
-     * @param answerUser set to false to not tell the invoker about running the command in a guild
-     *                   <p>
+     * @param answerUser
+     *         set to false to not tell the invoker about running the command in a guild
+     *         <p>
+     *
      * @return a GuildCommandContext if this command was issued in a guild, null otherwise
      */
     @Nullable

@@ -17,8 +17,7 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.game.definitions.Actions;
@@ -46,11 +45,11 @@ import javax.persistence.Table;
  * <p>
  * Describe an action that happened during a game
  */
+@Slf4j
 @Entity
 @Table(name = "stats_action")
 public class ActionStats extends SaucedEntity<Long, ActionStats> {
 
-    private static final Logger log = LoggerFactory.getLogger(ActionStats.class);
     private static final long serialVersionUID = -6803073458836067860L;
 
     @Id

@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.game;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -26,8 +27,6 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
@@ -83,9 +82,8 @@ import java.util.stream.Collectors;
  * all this means a started game has to be treated carefully, both for data consistency and to keep salt levels due to
  * technical problems at bay
  */
+@Slf4j
 public abstract class Game {
-
-    private static final Logger log = LoggerFactory.getLogger(Game.class);
 
     //to be used to execute tasks for each game
     protected final ExceptionLoggingExecutor executor = new ExceptionLoggingExecutor(10,
@@ -160,7 +158,9 @@ public abstract class Game {
     }
 
     /**
-     * @param signedUpCount amount of players that have signed up
+     * @param signedUpCount
+     *         amount of players that have signed up
+     *
      * @return true if a game can be started with the provided amount of players
      */
     public boolean isAcceptablePlayerCount(final int signedUpCount, final GameInfo.GameMode mode) {
@@ -355,10 +355,15 @@ public abstract class Game {
      * <p>
      * Does general checks of the arguments provided to start()
      *
-     * @param channelId    main channel where the game shall run
-     * @param mode         the chosen game mode
-     * @param innedPlayers the players who signed up
-     * @throws IllegalArgumentException if any of the provided arguments fail the checks
+     * @param channelId
+     *         main channel where the game shall run
+     * @param mode
+     *         the chosen game mode
+     * @param innedPlayers
+     *         the players who signed up
+     *
+     * @throws IllegalArgumentException
+     *         if any of the provided arguments fail the checks
      */
     protected void doArgumentChecksAndSet(final long channelId, final GameInfo.GameMode mode, final Set<Long> innedPlayers)
             throws IllegalArgumentException {
@@ -393,8 +398,11 @@ public abstract class Game {
      * <p>
      * Prepares the channel for moderated games.
      *
-     * @param moderated moderated games require additional permissions
-     * @throws UserFriendlyException if the bot is missing permissions to run the game in the channel
+     * @param moderated
+     *         moderated games require additional permissions
+     *
+     * @throws UserFriendlyException
+     *         if the bot is missing permissions to run the game in the channel
      */
     protected void doPermissionCheckAndPrepareChannel(final boolean moderated)
             throws UserFriendlyException, DatabaseException {
@@ -470,7 +478,8 @@ public abstract class Game {
     /**
      * Obtains a character setup and rands the roles and alignments between the inned players
      *
-     * @param innedPlayers players that have inned
+     * @param innedPlayers
+     *         players that have inned
      */
     protected void randCharacters(final Set<Long> innedPlayers) {
         // - rand the characters
@@ -515,7 +524,8 @@ public abstract class Game {
     /**
      * Prepares the channel for a moderated game
      *
-     * @throws PermissionException if the bot is missing permissions to edit permission overrides for members and roles
+     * @throws PermissionException
+     *         if the bot is missing permissions to edit permission overrides for members and roles
      */
     protected void prepareChannel() throws PermissionException {
         final TextChannel gameChannel = fetchGameChannel();
@@ -536,7 +546,8 @@ public abstract class Game {
      * most likely this includes deleting all discord roles used in the game and resetting player's and the access
      * role's permission overrides for the game channel
      *
-     * @param complete optionally set to true to complete these operations before returning
+     * @param complete
+     *         optionally set to true to complete these operations before returning
      */
     @SuppressWarnings("unchecked")
     //revert whatever prepareChannel() did in reverse order
@@ -585,7 +596,7 @@ public abstract class Game {
             for (final Future f : toComplete) {
                 try {
                     f.get();
-                } catch (InterruptedException | ExecutionException ignored) {
+                } catch (final InterruptedException | ExecutionException ignored) {
                 }
             }
         }
@@ -737,8 +748,10 @@ public abstract class Game {
     /**
      * Sets the day length
      *
-     * @param dayLength desired length of the day
-     * @param timeUnit  time unit of the provided length
+     * @param dayLength
+     *         desired length of the day
+     * @param timeUnit
+     *         time unit of the provided length
      */
     public abstract void setDayLength(long dayLength, TimeUnit timeUnit);
 
@@ -756,18 +769,25 @@ public abstract class Game {
      * - setting the channelId, game mode and players
      * - creating, sending and saving the role pms
      *
-     * @param channelId    main channel where the game shall run
-     * @param mode         the chosen game mode
-     * @param innedPlayers the players who signed up
+     * @param channelId
+     *         main channel where the game shall run
+     * @param mode
+     *         the chosen game mode
+     * @param innedPlayers
+     *         the players who signed up
      */
     public abstract void start(long channelId, GameInfo.GameMode mode, Set<Long> innedPlayers) throws DatabaseException;
 
     /**
      * Let the game handle a command a user issued
      *
-     * @param context the context of the issued command
+     * @param context
+     *         the context of the issued command
+     *
      * @return true if the command was executed successful
-     * @throws IllegalGameStateException if the command entered led to an illegal game state
+     *
+     * @throws IllegalGameStateException
+     *         if the command entered led to an illegal game state
      */
     public abstract boolean issueCommand(@Nonnull CommandContext context)
             throws IllegalGameStateException;

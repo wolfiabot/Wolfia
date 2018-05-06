@@ -18,6 +18,7 @@
 package space.npstr.wolfia.utils.discord;
 
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
@@ -29,8 +30,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.requests.RestAction;
 import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
 import net.dv8tion.jda.core.utils.PermissionUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.game.definitions.Scope;
@@ -48,16 +47,18 @@ import java.util.Optional;
  * <p>
  * This class is there to easy handling roles, like their creation, assignment to players, and granting and denying rights
  */
+@Slf4j
 public class RoleAndPermissionUtils {
-
-    private static final Logger log = LoggerFactory.getLogger(RoleAndPermissionUtils.class);
 
     /**
      * Don't call this too close together for the same guild and the same role name as that will result in more than one
      * role created with the same name.
      *
-     * @param guild Guild aka Server where the bot operates and where from the role shall be retrieved/created
-     * @param name  Name of the role that shall be retrieved/created
+     * @param guild
+     *         Guild aka Server where the bot operates and where from the role shall be retrieved/created
+     * @param name
+     *         Name of the role that shall be retrieved/created
+     *
      * @return Returns a rest action that will create a role with the provided name in the guild if there isn't one yet
      */
     public static RestAction<Role> getOrCreateRole(final Guild guild, final String name) {
@@ -234,9 +235,12 @@ public class RoleAndPermissionUtils {
     }
 
     /**
-     * @param channel      Channel where this role and permission should take effect
-     * @param memberOrRole Member or Role that will be granted/denied the permission
-     * @param permissions  Permissions that shall be granted/denied to the member/role
+     * @param channel
+     *         Channel where this role and permission should take effect
+     * @param memberOrRole
+     *         Member or Role that will be granted/denied the permission
+     * @param permissions
+     *         Permissions that shall be granted/denied to the member/role
      */
     public static RestAction<?> grant(@Nonnull final Channel channel, @Nonnull final IPermissionHolder memberOrRole,
                                       @Nonnull final Permission... permissions) {
@@ -263,8 +267,10 @@ public class RoleAndPermissionUtils {
     }
 
     /**
-     * @param g    Guild where the Role shall be deleted
-     * @param name Name of the Role to be deleted. All roles with this name will be deleted
+     * @param g
+     *         Guild where the Role shall be deleted
+     * @param name
+     *         Name of the Role to be deleted. All roles with this name will be deleted
      */
     public static void deleteRole(@Nonnull final Guild g, final String name) {
         for (final Role r : g.getRolesByName(name, true)) {

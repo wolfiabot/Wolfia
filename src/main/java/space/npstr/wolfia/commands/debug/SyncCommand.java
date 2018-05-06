@@ -17,10 +17,9 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.discord.DiscordGuild;
 import space.npstr.sqlsauce.entities.discord.DiscordUser;
@@ -45,9 +44,8 @@ import java.util.stream.Stream;
 /**
  * Created by napster on 07.12.17.
  */
+@Slf4j
 public class SyncCommand extends BaseCommand implements IOwnerRestricted {
-
-    private static final Logger log = LoggerFactory.getLogger(SyncCommand.class);
 
     private static final String ACTION_GUILDS = "guilds";
     private static final String ACTION_USERS = "users";
@@ -107,9 +105,12 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
 
 
     /**
-     * @param executor       Executor to run this task on
-     * @param guilds         The Guilds to be synced
-     * @param resultConsumer Returns how long this took and how many guilds were processed
+     * @param executor
+     *         Executor to run this task on
+     * @param guilds
+     *         The Guilds to be synced
+     * @param resultConsumer
+     *         Returns how long this took and how many guilds were processed
      */
     public static void syncGuilds(@Nonnull final Executor executor, @Nonnull final Stream<Guild> guilds, @Nullable final BiConsumer<Long, Integer> resultConsumer) {
         final long started = System.currentTimeMillis();
@@ -134,8 +135,10 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
     }
 
     /**
-     * @param shards         the shards which users are to by cached
-     * @param resultConsumer Returns how long which shard took and how many users/members were processed
+     * @param shards
+     *         the shards which users are to by cached
+     * @param resultConsumer
+     *         Returns how long which shard took and how many users/members were processed
      */
     public void cacheUsers(@Nonnull final Collection<JDA> shards, @Nullable final Consumer<SyncResult> resultConsumer) {
         for (final JDA jda : shards) {

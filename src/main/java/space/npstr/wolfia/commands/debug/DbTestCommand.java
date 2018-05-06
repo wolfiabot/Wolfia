@@ -17,8 +17,7 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -33,13 +32,12 @@ import java.util.concurrent.ThreadLocalRandom;
  * Created by napster on 30.05.17.
  * Stress tests the database
  */
+@Slf4j
 public class DbTestCommand extends BaseCommand implements IOwnerRestricted {
 
     public DbTestCommand(final String trigger, final String... aliases) {
         super(trigger, aliases);
     }
-
-    private static final Logger log = LoggerFactory.getLogger(DbTestCommand.class);
 
     private enum Result {WORKING, SUCCESS, FAILED}
 

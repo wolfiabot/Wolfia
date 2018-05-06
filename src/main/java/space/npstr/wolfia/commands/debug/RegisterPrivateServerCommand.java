@@ -17,11 +17,10 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.entities.TextChannel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.Wolfia;
@@ -40,13 +39,12 @@ import java.io.IOException;
  * <p>
  * //this command will register a guild for use as a place to provide private communications, like wolfchat
  */
+@Slf4j
 public class RegisterPrivateServerCommand extends BaseCommand implements IOwnerRestricted {
 
     public RegisterPrivateServerCommand(final String trigger, final String... aliases) {
         super(trigger, aliases);
     }
-
-    private static final Logger log = LoggerFactory.getLogger(RegisterPrivateServerCommand.class);
 
     @Nonnull
     @Override

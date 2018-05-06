@@ -17,13 +17,12 @@
 
 package space.npstr.wolfia.db.entities;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
@@ -46,7 +45,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -60,13 +58,10 @@ import java.util.stream.Collectors;
  * <p>
  * holds persistent setup information on a channel scope
  */
+@Slf4j
 @Entity
 @Table(name = "setup")
 public class Setup extends SaucedEntity<Long, Setup> {
-
-    @Transient
-    private static final Logger log = LoggerFactory.getLogger(Setup.class);
-
 
     @Id
     @Column(name = "channel_id", nullable = false)

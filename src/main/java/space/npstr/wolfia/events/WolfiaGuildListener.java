@@ -17,12 +17,11 @@
 
 package space.npstr.wolfia.events;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.utils.discord.Emojis;
@@ -33,6 +32,7 @@ import space.npstr.wolfia.utils.discord.RestActions;
  * <p>
  * Handles special events for the official Wolfia guild
  */
+@Slf4j
 public class WolfiaGuildListener extends ListenerAdapter {
 
     public static final long SPAM_CHANNEL_ID = 388705267916734465L; //#spam-and-bot-commands
@@ -41,7 +41,6 @@ public class WolfiaGuildListener extends ListenerAdapter {
     public static final long GAME_CATEGORY_ID = 361189457266737152L; //game category parent channel id
     public static final long RULES_CHANNEL_ID = 326353722701774848L; //#rules
 
-    private static final Logger log = LoggerFactory.getLogger(WolfiaGuildListener.class);
     private static final String welcomePattern = "Welcome %s to the **Wolfia Lounge**! Please take a moment and read "
             + "<#326353722701774848> for information, rules, and how to play games. Don't forget to enjoy and have "
             + "fun! " + Emojis.WINK;

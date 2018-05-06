@@ -17,14 +17,13 @@
 
 package space.npstr.wolfia.listings;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.OkHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Wolfia;
 
 import javax.annotation.Nonnull;
@@ -40,9 +39,9 @@ import java.util.concurrent.Future;
  * <p>
  * Takes care of posting all our stats to various listing sites
  */
+@Slf4j
 public class Listings extends ListenerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(Listings.class);
     protected static OkHttpClient listingsHttpClient = Wolfia.getDefaultHttpClientBuilder()
             .build();
 

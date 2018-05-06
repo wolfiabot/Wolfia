@@ -17,13 +17,12 @@
 
 package space.npstr.wolfia.game;
 
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.Wolfia;
@@ -48,9 +47,8 @@ import java.util.function.Consumer;
  * <p>
  * Representing a player in a game
  */
+@Slf4j
 public class Player {
-
-    private static final Logger log = LoggerFactory.getLogger(Player.class);
 
     public final long userId;
     public final long channelId;
