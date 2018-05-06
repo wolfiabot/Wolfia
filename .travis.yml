@@ -28,15 +28,25 @@ matrix:
     - env: JDK='OpenJDK 10'
       install: . ./install-jdk.sh -F 10 -L GPL
 
-script:
-  - java -Xmx32m -version
-  - ./gradlew build --info
-  - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
-  - echo $IMAGE_TAG
-  - docker build --tag "napstr/wolfia:$IMAGE_TAG" .
+jobs:
+  include:
+    - stage: build
+      script:
+        - java -Xmx32m -version
+        - ./gradlew build --info
+        - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
+        - echo $IMAGE_TAG
+        - docker build --tag "napstr/wolfia:$IMAGE_TAG" .
+      after_success:
+        - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
+        - docker push napstr/wolfia:$IMAGE_TAG
+        - docker logout
 
-after_success:
-  - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
-  - docker push napstr/wolfia:$IMAGE_TAG
-  - docker logout
-  - ./gradlew bintrayUpload --info
+    - stage: publish
+      script:
+        - ./gradlew bintrayUpload --info
+
+stages:
+  - build
+  - name: publish
+    if: tag IS present
