@@ -13,9 +13,6 @@ env:
 
 language: java
 
-jdk:
-  - oraclejdk9
-
 cache:
   directories:
     - "$HOME/.m2"
@@ -23,8 +20,17 @@ cache:
     - ".gradle/wrapper"
     - ".gradle/caches"
 
+before_install:
+  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+
+matrix:
+  include:
+    - env: JDK='OpenJDK 10'
+      install: . ./install-jdk.sh -F 10 -L GPL
+
 script:
-  - "./gradlew shadowJar --info"
+  - java -Xmx32m -version
+  - ./gradlew build --info
   - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
   - echo $IMAGE_TAG
   - docker build --tag "napstr/wolfia:$IMAGE_TAG" .

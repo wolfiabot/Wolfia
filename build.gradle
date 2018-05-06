@@ -18,8 +18,8 @@ version = '0.19.0-' + project.ext.buildNumber
 
 mainClassName = 'space.npstr.wolfia.Wolfia'
 
-sourceCompatibility = 9
-targetCompatibility = 9
+sourceCompatibility = 10
+targetCompatibility = 10
 
 repositories {
     jcenter()                               // JDA, maybe others
@@ -87,6 +87,12 @@ compileJava.options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
 
 shadowJar {
     archiveName = 'wolfia.jar'
+    doLast {
+        copy {
+            from 'build/libs/wolfia.jar'
+            into '.'
+        }
+    }
 }
 
 bintray {
