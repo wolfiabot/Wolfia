@@ -28,14 +28,11 @@ cache:
 before_install:
   - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
 
-matrix:
-  include:
-    - env: JDK='OpenJDK 10'
-      install: . ./install-jdk.sh -F 10 -L GPL
-
 jobs:
   include:
     - stage: build
+      env: JDK='OpenJDK 10'
+      install: . ./install-jdk.sh -F 10 -L GPL
       before_script:
         #for sonar cloud blame information
         - git fetch --unshallow
@@ -52,6 +49,8 @@ jobs:
         - docker logout
 
     - stage: publish
+      env: JDK='OpenJDK 10'
+      install: . ./install-jdk.sh -F 10 -L GPL
       script:
         - ./gradlew bintrayUpload --info
 
