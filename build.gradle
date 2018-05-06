@@ -5,7 +5,8 @@ buildscript {
         //@formatter:off
 
         //plugin versions
-        gradleGitVersion        = '1.4.21'
+        gradleGitVersion        = 'c22b4de5b1fc210a21dd527a9d8808d7ba972b1e' //FIXME once 1.5.0 is officially released, switch to that
+        grGitVersion            = '2.2.0'
         aptVersion              = '0.15'
         springBootVersion       = '2.0.1.RELEASE'
         propDepsVersion         = '0.0.9.RELEASE'
@@ -17,9 +18,11 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
         maven { url 'http://repo.spring.io/plugins-release' }
         mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${gradleGitVersion}"
+        classpath "com.github.n0mer:gradle-git-properties:${gradleGitVersion}"
+        classpath "org.ajoberstar:grgit:${grGitVersion}"
         classpath "net.ltgt.gradle:gradle-apt-plugin:${aptVersion}"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "io.spring.gradle:propdeps-plugin:${propDepsVersion}"
@@ -31,6 +34,7 @@ apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'com.gorylenko.gradle-git-properties'
+apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'net.ltgt.apt-idea'
 apply plugin: 'propdeps'
 apply plugin: 'propdeps-idea'
@@ -67,8 +71,7 @@ ext {
 }
 
 group = 'space.npstr.wolfia'
-//noinspection GroovyAssignabilityCheck
-version = '0.20.0-' + project.ext.buildNumber
+version = "${versionTag()}".toString()
 
 
 mainClassName = 'space.npstr.wolfia.Wolfia'
@@ -199,4 +202,19 @@ bintray {
             name = project.version
         }
     }
+}
+
+//returns the last git tag (that needs to be in the form of MAJOR.MINOR.PATCH) and the build number
+//@SuppressWarnings("GrMethodMayBeStatic")
+String versionTag() {
+    def matcher = /^([0-9]+\.[0-9]+\.[0-9]+).*$/
+    def match = ("${grgit.describe()}" =~ matcher)[0]
+
+    //noinspection GroovyAssignabilityCheck
+    def result = match[1]
+    result += '-'
+    result += project.ext.buildNumber
+
+    println("Version: " + result)
+    return result
 }
