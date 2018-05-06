@@ -7,19 +7,22 @@ buildscript {
         //plugin versions
         gradleGitVersion        = '1.4.21'
         aptVersion              = '0.15'
-        shadowVersion           = '2.0.3'
+        springBootVersion       = '2.0.1.RELEASE'
+        propDepsVersion         = '0.0.9.RELEASE'
         bintrayVersion          = '1.8.0'
 
         //@formatter:on
     }
     repositories {
         maven { url "https://plugins.gradle.org/m2/" }
+        maven { url 'http://repo.spring.io/plugins-release' }
         mavenCentral()
     }
     dependencies {
         classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${gradleGitVersion}"
         classpath "net.ltgt.gradle:gradle-apt-plugin:${aptVersion}"
-        classpath "com.github.jengelman.gradle.plugins:shadow:${shadowVersion}"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "io.spring.gradle:propdeps-plugin:${propDepsVersion}"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
     }
 }
@@ -29,7 +32,9 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'net.ltgt.apt-idea'
-apply plugin: 'com.github.johnrengelman.plugin-shadow'
+apply plugin: 'propdeps'
+apply plugin: 'propdeps-idea'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'com.jfrog.bintray'
 
 ext {
@@ -39,6 +44,8 @@ ext {
     //@formatter:off
     javaVersion                 = '10'
     gradleWrapperVersion        = '4.7'
+
+    springBootVersion           = "${springBootVersion}"
 
     jdaVersion                  = '3.6.0_362'
 
@@ -109,6 +116,11 @@ dependencies {
     compile group: 'net.ttddyy',            name: 'datasource-proxy',           version: dsProxyVersion         //log proxy for db queries
     compile group: 'org.flywaydb',          name: 'flyway-core',                version: flywayVersion          //database schema migrations
 
+    //spring
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux',         version: springBootVersion
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa',        version: springBootVersion
+    optional group:'org.springframework.boot', name: 'spring-boot-configuration-processor', version: springBootVersion
+
     //lombok annotation processing
     compileOnly         name: 'lombok-edge'
     annotationProcessor name: 'lombok-edge'
@@ -130,8 +142,24 @@ tasks.withType(JavaCompile) {
 }
 compileJava.options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
 
-shadowJar {
-    archiveName = 'wolfia.jar'
+//required by spring boot configuration processor
+compileJava.dependsOn(processResources)
+
+bootRun {
+    //compiling tests during bootRun increases the likelyhood of catching broken tests locally instead of on the CI
+    dependsOn compileTestJava
+
+    //pass in custom jvm args
+    // source: https://stackoverflow.com/a/25079415
+    // example: ./gradlew bootRun -PjvmArgs="--illegal-access=debug -Dwhatever=value"
+    if (project.hasProperty('jvmArgs')) {
+        //noinspection GroovyAssignabilityCheck
+        jvmArgs project.jvmArgs.split('\\s+')
+    }
+}
+
+bootJar {
+    archiveName = "wolfia.jar"
     doLast {
         copy {
             from 'build/libs/wolfia.jar'

@@ -22,6 +22,9 @@ import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
+import org.springframework.orm.jpa.JpaVendorAdapter;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import space.npstr.sqlsauce.DatabaseConnection;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.App;
@@ -103,6 +106,18 @@ public class Database {
                             .logSlowQueryBySlf4j(10, TimeUnit.SECONDS, SLF4JLogLevel.WARN, "SlowQueryLog")
                             .multiline()
                     )
+                    .setEntityManagerFactoryBuilder((puName, dataSource, properties, entityPackages) -> {
+                        LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();
+                        emfb.setDataSource(dataSource);
+                        emfb.setPackagesToScan(entityPackages.toArray(new String[0]));
+
+                        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+                        emfb.setJpaVendorAdapter(vendorAdapter);
+                        emfb.setJpaProperties(properties);
+
+                        emfb.afterPropertiesSet(); //initiate creation of the native emf
+                        return emfb.getNativeEntityManagerFactory();
+                    })
                     .build();
         } catch (final Exception e) {
             final String message = "Failed to set up database connection";
