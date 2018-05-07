@@ -20,6 +20,8 @@ package space.npstr.wolfia.utils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
 /**
@@ -34,6 +36,9 @@ public class GitRepoState {
         return GitRepoStateHolder.INSTANCE;
     }
 
+    // https://github.com/n0mer/gradle-git-properties/issues/71
+    private static final DateTimeFormatter DTF = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+
     //holder pattern
     private static final class GitRepoStateHolder {
         private static final GitRepoState INSTANCE = new GitRepoState("git.properties");
@@ -46,7 +51,7 @@ public class GitRepoState {
     public final String commitUserEmail;
     public final String commitMessageFull;
     public final String commitMessageShort;
-    public final long commitTime;
+    public final long commitTime; //epoch seconds
 
     @SuppressWarnings("ConstantConditions")
     public GitRepoState(final String propsName) {
@@ -65,6 +70,11 @@ public class GitRepoState {
         this.commitUserEmail = String.valueOf(properties.getOrDefault("git.commit.user.email", ""));
         this.commitMessageFull = String.valueOf(properties.getOrDefault("git.commit.message.full", ""));
         this.commitMessageShort = String.valueOf(properties.getOrDefault("git.commit.message.short", ""));
-        this.commitTime = Long.parseLong(String.valueOf(properties.getOrDefault("git.commit.time", "0"))); //epoch seconds
+        final String time = String.valueOf(properties.get("git.commit.time"));
+        if (time == null) {
+            this.commitTime = 0;
+        } else {
+            this.commitTime = OffsetDateTime.from(DTF.parse(time)).toEpochSecond();
+        }
     }
 }
