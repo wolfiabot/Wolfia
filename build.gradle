@@ -78,7 +78,7 @@ group = 'space.npstr.wolfia'
 version = "${versionTag()}".toString()
 
 
-mainClassName = 'space.npstr.wolfia.Wolfia'
+mainClassName = 'space.npstr.wolfia.Launcher'
 
 sourceCompatibility = javaVersion
 targetCompatibility = javaVersion
