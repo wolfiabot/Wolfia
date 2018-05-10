@@ -126,6 +126,25 @@ public class Wolfia {
         //set up relational database
         database = new Database();
 
+        //try connecting in a reasonable timeframe
+        boolean dbConnected = false;
+        final long dbConnectStarted = System.currentTimeMillis();
+        do {
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                database.getWrapper().selectSqlQuery("SELECT 1;", null);
+                dbConnected = true;
+                log.info("Initial db connection succeeded");
+            } catch (final Exception e) {
+                log.info("Failed initial db connection, retrying in a moment", e);
+                Thread.sleep(1000);
+            }
+        } while (!dbConnected && System.currentTimeMillis() - dbConnectStarted < 1000 * 60 * 2); //2 minutes
+
+        if (!dbConnected) {
+            log.error("Failed to init db connection in a reasonable amount of time, exiting.");
+            System.exit(2);
+        }
 
         try {
             AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(getDatabase().getWrapper().selectJpqlQuery("FROM PrivateGuild", null, PrivateGuild.class));
