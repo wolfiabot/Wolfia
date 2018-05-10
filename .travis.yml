@@ -41,7 +41,7 @@ jobs:
         - ./gradlew build --info
         - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
         - echo $IMAGE_TAG
-        - docker build --tag "napstr/wolfia:$IMAGE_TAG" .
+        - docker build --tag "napstr/wolfia:$IMAGE_TAG" -f docker/Dockerfile .
       after_success:
         - ./gradlew sonarqube
         - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
