@@ -41,11 +41,14 @@ jobs:
         - ./gradlew build --info
         - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
         - echo $IMAGE_TAG
+        - docker run --rm --privileged multiarch/qemu-user-static:register
         - docker build --tag "napstr/wolfia:$IMAGE_TAG" -f docker/Dockerfile .
+        - docker build --tag "napstr/wolfia:$IMAGE_TAG-arm64v8" -f docker/Dockerfile.arm64v8 .
       after_success:
         - ./gradlew sonarqube
         - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
         - docker push napstr/wolfia:$IMAGE_TAG
+        - docker push napstr/wolfia:$IMAGE_TAG-arm64v8
         - docker logout
 
     - stage: publish
