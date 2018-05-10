@@ -18,9 +18,9 @@
 package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
@@ -138,7 +138,7 @@ public class GameUtils {
         final List<Player> found = findPlayer(players, context);
 
         final String explanation = String.format("Please use a mention or the player number which you can find with " +
-                "`%s` so that I can clearly know who you are targeting.", Config.PREFIX + CommRegistry.COMM_TRIGGER_STATUS);
+                "`%s` so that I can clearly know who you are targeting.", WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_STATUS);
         if (found.isEmpty()) {
             context.replyWithMention("could not identify a player in your command! " + explanation);
             return null;

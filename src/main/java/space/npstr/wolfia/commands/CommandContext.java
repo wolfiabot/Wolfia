@@ -24,7 +24,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.RestActions;
 
@@ -64,7 +64,7 @@ public class CommandContext extends MessageContext {
         final String raw = event.getMessage().getContentRaw();
         String input;
 
-        final String prefix = Config.PREFIX;
+        final String prefix = WolfiaConfig.DEFAULT_PREFIX;
         if (raw.toLowerCase().startsWith(prefix.toLowerCase())) {
             input = raw.substring(prefix.length());
         } else {

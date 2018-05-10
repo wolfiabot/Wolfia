@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -54,7 +54,7 @@ public abstract class GameCommand extends BaseCommand {
 
             if (game == null) {
                 context.replyWithMention(String.format("there is no game currently going on in here. Say `%s` to get started!",
-                        Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                        WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP));
                 return false;
             }
         }

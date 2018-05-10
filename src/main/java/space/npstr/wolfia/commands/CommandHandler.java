@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
@@ -53,7 +53,7 @@ public class CommandHandler {
 
         //ignore channels where we don't have sending permissions, with a special exception for the help command
         if (event.getTextChannel() != null && !event.getTextChannel().canTalk()
-                && !event.getMessage().getContentRaw().toLowerCase().startsWith((Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP).toLowerCase())) {
+                && !event.getMessage().getContentRaw().toLowerCase().startsWith((WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP).toLowerCase())) {
             return;
         }
 
@@ -146,7 +146,7 @@ public class CommandHandler {
                                         + "\nSorry about that. The issue has been logged and will hopefully be fixed soon."
                                         + "\nIf you want to help solve this as fast as possible, please join our support guild."
                                         + "\nSay `%s` to receive an invite.",
-                                ev.getAuthor().getAsMention(), context.msg.getContentRaw(), Config.PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
+                                ev.getAuthor().getAsMention(), context.msg.getContentRaw(), WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
             } catch (final Exception ex) {
                 log.error("Exception during exception handling of command", ex);
             }

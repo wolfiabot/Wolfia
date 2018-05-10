@@ -22,11 +22,12 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
@@ -52,7 +53,7 @@ public class HelpCommand extends BaseCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext context) {
-        if (Config.C.isDebug && !context.isOwner()) {
+        if (Launcher.getBotContext().getWolfiaConfig().isDebug() && !context.isOwner()) {
             return true;//dont answer the help command in debug mode unless it's the owner
         }
 
@@ -62,7 +63,7 @@ public class HelpCommand extends BaseCommand {
             final String answer;
             if (command == null || command instanceof IOwnerRestricted) {
                 answer = String.format("There is no command registered for `%s`. Use `%s` to see all available commands!",
-                        TextchatUtils.defuseMentions(context.args[0]), Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS);
+                        TextchatUtils.defuseMentions(context.args[0]), WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS);
             } else {
                 answer = TextchatUtils.asMarkdown(command.getHelp());
             }
@@ -86,9 +87,9 @@ public class HelpCommand extends BaseCommand {
                             + "\nUse `%s` and `%s` to start games."
                             + "\nSay `%s` to show all commands."
                             + "\nSay `%s [command]` to show help for a specific command.",
-                    Config.PREFIX + CommRegistry.COMM_TRIGGER_IN, Config.PREFIX + CommRegistry.COMM_TRIGGER_START,
-                    Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS,
-                    Config.PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS);
+                    WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_IN, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_START,
+                    WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS,
+                    WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_COMMANDS);
             context.replyWithMention(answer);
         };
         final Consumer<Throwable> onFail = t -> {

@@ -22,11 +22,12 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
 import space.npstr.wolfia.db.entities.stats.GameStats;
 import space.npstr.wolfia.db.entities.stats.PlayerStats;
@@ -187,7 +188,7 @@ public class Popcorn extends Game {
                     e -> RestActions.sendMessage(gameChannel, String.format(
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                     "and/or unblock me, then issue `%s` to receive your role PM.",
-                            player.asMention(), Config.PREFIX + CommRegistry.COMM_TRIGGER_ROLEPM))
+                            player.asMention(), WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_ROLEPM))
             );
         }
 
@@ -348,7 +349,7 @@ public class Popcorn extends Game {
     // can be called for debugging
     @SuppressWarnings("unused")
     public void evalShoot(final String shooterId, final String targetId) throws IllegalGameStateException {
-        if (!Config.C.isDebug) {
+        if (!Launcher.getBotContext().getWolfiaConfig().isDebug()) {
             log.error("Cant eval shoot outside of DEBUG mode");
             return;
         }

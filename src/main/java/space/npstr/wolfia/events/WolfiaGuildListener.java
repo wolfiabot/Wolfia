@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 
@@ -48,7 +48,7 @@ public class WolfiaGuildListener extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
         if (event.getGuild().getIdLong() != App.WOLFIA_LOUNGE_ID
-                || Config.C.isDebug) {
+                || Launcher.getBotContext().getWolfiaConfig().isDebug()) {
             return;
         }
 

@@ -19,11 +19,11 @@ package space.npstr.wolfia.commands.debug;
 
 import net.dv8tion.jda.core.JDA;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 import javax.annotation.Nonnull;
 
@@ -47,7 +47,7 @@ public class ReviveComm extends BaseCommand implements IOwnerRestricted {
     @Override
     public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
         if (!context.hasArguments()) {
-            context.reply("No shard id provided! Say `" + Config.PREFIX + "revive 0` for example.");
+            context.reply("No shard id provided! Say `" + WolfiaConfig.DEFAULT_PREFIX + "revive 0` for example.");
             return false;
         }
 

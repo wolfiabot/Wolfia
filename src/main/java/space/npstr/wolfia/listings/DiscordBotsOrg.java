@@ -23,7 +23,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Launcher;
 
 import javax.annotation.Nonnull;
 
@@ -55,12 +55,13 @@ public class DiscordBotsOrg extends Listing {
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
                 .url(String.format("https://discordbots.org/api/bots/%s/stats", botId))
-                .addHeader("Authorization", Config.C.discordbotsOrgToken)
+                .addHeader("Authorization", Launcher.getBotContext().getListingsConfig().getDblToken())
                 .post(body);
     }
 
     @Override
     protected boolean isConfigured() {
-        return Config.C.discordbotsOrgToken != null && !Config.C.discordbotsOrgToken.isEmpty();
+        final String dblToken = Launcher.getBotContext().getListingsConfig().getDblToken();
+        return dblToken != null && !dblToken.isEmpty();
     }
 }

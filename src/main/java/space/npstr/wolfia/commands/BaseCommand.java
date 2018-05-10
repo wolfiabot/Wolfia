@@ -20,7 +20,7 @@ package space.npstr.wolfia.commands;
 
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -54,7 +54,7 @@ public abstract class BaseCommand {
     public String getHelp() {
         if (!this.aliases.isEmpty()) {
             final List<String> prefixedAliases = this.aliases.stream()
-                    .map(alias -> Config.PREFIX + alias)
+                    .map(alias -> WolfiaConfig.DEFAULT_PREFIX + alias)
                     .collect(Collectors.toList());
             return help() + "\nAlias: " + String.join(", ", prefixedAliases);
         } else {
@@ -71,6 +71,6 @@ public abstract class BaseCommand {
     //how to invoke this command with its main trigger
     @Nonnull
     protected String invocation() {
-        return Config.PREFIX + this.name;
+        return WolfiaConfig.DEFAULT_PREFIX + this.name;
     }
 }

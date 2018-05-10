@@ -18,10 +18,10 @@
 package space.npstr.wolfia.commands.ingame;
 
 import net.dv8tion.jda.core.entities.ChannelType;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Games;
@@ -72,7 +72,7 @@ public class ItemsCommand extends GameCommand {
         }
         if (!issued) {
             context.replyWithMention(String.format("you aren't alive and in any ongoing game currently. Say `%s` to get started!",
-                    Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                    WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP));
             return false;
         }
         return true;

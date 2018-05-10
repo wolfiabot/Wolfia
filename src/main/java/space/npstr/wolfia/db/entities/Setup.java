@@ -27,11 +27,11 @@ import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.sqlsauce.hibernate.types.BasicType;
 import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
@@ -236,7 +236,7 @@ public class Setup extends SaucedEntity<Long, Setup> {
 
             if (!this.innedUsers.contains(commandCallerId)) {
                 RestActions.sendMessage(channel, String.format("%s, only players that inned can start the game! Say `%s` to join!",
-                        TextchatUtils.userAsMention(commandCallerId), Config.PREFIX + CommRegistry.COMM_TRIGGER_IN));
+                        TextchatUtils.userAsMention(commandCallerId), WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_IN));
                 return false;
             }
 
@@ -259,7 +259,7 @@ public class Setup extends SaucedEntity<Long, Setup> {
             if (!game.isAcceptablePlayerCount(inned.size(), getMode())) {
                 RestActions.sendMessage(channel, String.format(
                         "There aren't enough (or too many) players signed up! Please use `%s` for more information",
-                        Config.PREFIX + CommRegistry.COMM_TRIGGER_STATUS));
+                        WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_STATUS));
                 return false;
             }
 

@@ -18,12 +18,12 @@
 package space.npstr.wolfia.commands.game;
 
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
@@ -86,7 +86,7 @@ public class StatusCommand extends BaseCommand {
             }
             if (!issued) {
                 commandContext.replyWithMention(String.format("you aren't playing in any game currently. Say `%s` to get started!",
-                        Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                        WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP));
                 return false;
             }
             return true;

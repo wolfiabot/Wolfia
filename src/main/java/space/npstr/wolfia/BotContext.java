@@ -18,6 +18,8 @@
 package space.npstr.wolfia;
 
 import org.springframework.stereotype.Component;
+import space.npstr.wolfia.config.properties.ListingsConfig;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.Database;
 
 /**
@@ -32,12 +34,24 @@ import space.npstr.wolfia.db.Database;
 public class BotContext {
 
     private final Database database;
+    private final WolfiaConfig wolfiaConfig;
+    private final ListingsConfig listingsConfig;
 
-    public BotContext(final Database database) {
+    public BotContext(final Database database, final WolfiaConfig wolfiaConfig, final ListingsConfig listingsConfig) {
         this.database = database;
+        this.wolfiaConfig = wolfiaConfig;
+        this.listingsConfig = listingsConfig;
     }
 
     public Database getDatabase() {
         return this.database;
+    }
+
+    public WolfiaConfig getWolfiaConfig() {
+        return this.wolfiaConfig;
+    }
+
+    public ListingsConfig getListingsConfig() {
+        return this.listingsConfig;
     }
 }

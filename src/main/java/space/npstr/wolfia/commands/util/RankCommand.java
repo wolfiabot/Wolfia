@@ -20,11 +20,11 @@ package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.core.entities.Role;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -52,7 +52,7 @@ public class RankCommand extends BaseCommand {
 
         if (context.guild.getIdLong() != App.WOLFIA_LOUNGE_ID) {
             context.reply(String.format("This command is restricted to the official Wolfia Lounge. Say `%s` to get invited.",
-                    Config.PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
+                    WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
             return false;
         }
 

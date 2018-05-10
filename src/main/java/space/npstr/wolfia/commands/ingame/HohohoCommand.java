@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import space.npstr.wolfia.Config;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -58,7 +58,7 @@ public class HohohoCommand extends GameCommand {
         }
         if (!issued) {
             commandContext.replyWithMention(String.format("you aren't playing in any game currently. Say `%s` to get started!",
-                    Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                    WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP));
             return false;
         }
         return success;

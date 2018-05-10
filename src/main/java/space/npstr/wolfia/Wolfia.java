@@ -42,6 +42,7 @@ import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
 import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.commands.debug.SyncCommand;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.PrivateGuild;
@@ -96,15 +97,18 @@ public class Wolfia {
     public static void start() throws InterruptedException {
         Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
 
+        final WolfiaConfig wolfiaConfig = Launcher.getBotContext().getWolfiaConfig();
+
         //add webhookURI to Discord log appender
-        if (Config.C.errorLogWebHook != null && !"".equals(Config.C.errorLogWebHook)) {
+        final String errorLogWebHook = wolfiaConfig.getErrorLogWebHook();
+        if (errorLogWebHook != null && !"".equals(errorLogWebHook)) {
             final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
             final AsyncAppender discordAsync = (AsyncAppender) lc.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_DISCORD");
             final DiscordAppender disco = (DiscordAppender) discordAsync.getAppender("DISCORD");
-            disco.setWebhookUri(Config.C.errorLogWebHook);
+            disco.setWebhookUri(errorLogWebHook);
         }
 
-        if (Config.C.isDebug)
+        if (wolfiaConfig.isDebug())
             log.info("Running DEBUG configuration");
         else
             log.info("Running PRODUCTION configuration");
@@ -157,7 +161,7 @@ public class Wolfia {
         //create all necessary shards
         try {
             shardManager = new DefaultShardManagerBuilder()
-                    .setToken(Config.C.discordToken)
+                    .setToken(wolfiaConfig.getDiscordToken())
                     .setGame(Game.playing(App.GAME_STATUS))
                     .addEventListeners(commandListener)
                     .addEventListeners(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())

@@ -22,7 +22,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
 
 import javax.annotation.Nonnull;
@@ -65,7 +65,7 @@ public abstract class Listing {
             return;
         }
 
-        if (Config.C.isDebug) {
+        if (Launcher.getBotContext().getWolfiaConfig().isDebug()) {
             log.info("Skipping posting stats to {} due to running in debug mode", this.name);
             return;
         }

@@ -29,7 +29,8 @@ import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseConnection;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.config.properties.DatabaseConfig;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -46,12 +47,20 @@ public class Database {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Database.class);
 
+    private final DatabaseConfig databaseConfig;
+    private final WolfiaConfig wolfiaConfig;
+
     @Nullable
     private volatile DatabaseConnection connection;
     private final Object connectionInitLock = new Object();
     @Nullable
     private volatile DatabaseWrapper wrapper;
     private final Object wrapperInitLock = new Object();
+
+    public Database(final DatabaseConfig databaseConfig, final WolfiaConfig wolfiaConfig) {
+        this.databaseConfig = databaseConfig;
+        this.wolfiaConfig = wolfiaConfig;
+    }
 
     public DatabaseWrapper getWrapper() {
         DatabaseWrapper singleton = this.wrapper;
@@ -88,7 +97,7 @@ public class Database {
         }
     }
 
-    private static DatabaseConnection initConnection() {
+    private DatabaseConnection initConnection() {
         try {
             final Flyway flyway = new Flyway(new FluentConfiguration()
                     .baselineOnMigrate(true)
@@ -96,10 +105,10 @@ public class Database {
                     .baselineDescription("Base Migration")
                     .locations("classpath:space/npstr/wolfia/db/migrations"));
 
-            return new DatabaseConnection.Builder("postgres", Config.C.jdbcUrl)
+            return new DatabaseConnection.Builder("postgres", this.databaseConfig.getJdbcUrl())
                     .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")
                     .addEntityPackage("space.npstr.wolfia.db.entities")
-                    .setAppName("Wolfia_" + (Config.C.isDebug ? "DEBUG" : "PROD") + "_" + App.getVersionBuild())
+                    .setAppName("Wolfia_" + (this.wolfiaConfig.isDebug() ? "DEBUG" : "PROD") + "_" + App.getVersionBuild())
                     .setHibernateProperty("hibernate.hbm2ddl.auto", "validate")
                     //hide some exception spam on start, as postgres does not support CLOBs
                     // https://stackoverflow.com/questions/43905119/postgres-error-method-org-postgresql-jdbc-pgconnection-createclob-is-not-imple

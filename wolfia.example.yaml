@@ -1,18 +1,16 @@
 ---
 
-isDebug: true           # set this to false in production
+wolfia:
+  debug:            true   # Some things are different. Set to false to properly run the bot.
+  discordToken:     ""     # Discord bot token
+  errorLogWebHook:  ""     # Webhook to a discord channel to post errors to.
+  logChannelId:     0      # Id of a channel where to post general bot activity like games starting and ending.
 
-debug:
-  discordToken:     ""  # discord bot token
-  jdbcUrl:          ""  # postgres database
-  logChannelId:     ""  # a channel where to post general bot activity like games starting
-  errorLogWebHook:  ""  # webhook to a discord channel to post errors
-  sentryDsn:        ""  # error aggregation service
+database:
+  jdbcUrl:          ""     # Postgres database. When running with the bundled docker-compose file, set to jdbc:postgresql://db:5432/wolfia?user=wolfia
 
-# these values will be used in production
-prod:
-  discordToken:     ""  # discord bot token
-  jdbcUrl:          ""  # postgres database
-  logChannelId:     ""  # a channel where to post general bot activity like games starting
-  errorLogWebHook:  ""  # webhook to a discord channel to post errors
-  sentryDsn:        ""  # error aggregation service
+server:
+  port:             4567   # Port of Wolfia's API.
+
+sentry:
+  dsn:              ""     # Error aggregation service. See https://sentry.io

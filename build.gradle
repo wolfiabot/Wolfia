@@ -60,7 +60,7 @@ ext {
     sentryVersion               = '1.7.5'
     discordAppenderVersion      = '1.0.0'
 
-    yamlVersion                 = '1.21'
+    yamlVersion                 = '1.19'    //1.20+ does not work with spring's configuration parsing
     okhttpVersion               = '3.10.0'
     caffeineVersion             = '2.6.2'
     jsonOrgVersion              = '20180813'

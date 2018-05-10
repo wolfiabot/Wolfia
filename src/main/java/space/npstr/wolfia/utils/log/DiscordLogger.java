@@ -19,7 +19,7 @@ package space.npstr.wolfia.utils.log;
 
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
-import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.utils.discord.RestActions;
 
@@ -71,10 +71,10 @@ public class DiscordLogger {
                 Thread.sleep(1000);
             }
 
-            TextChannel channel = Wolfia.getTextChannelById(Config.C.logChannelId);
+            TextChannel channel = Wolfia.getTextChannelById(Launcher.getBotContext().getWolfiaConfig().getLogChannelId());
             while (channel == null) {
                 Thread.sleep(1000);
-                channel = Wolfia.getTextChannelById(Config.C.logChannelId);
+                channel = Wolfia.getTextChannelById(Launcher.getBotContext().getWolfiaConfig().getLogChannelId());
             }
 
             final Consumer<Message> onSuccess = ignored -> log.info(message);//log into file
