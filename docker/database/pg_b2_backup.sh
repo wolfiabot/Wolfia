@@ -30,7 +30,7 @@ echo "Backing up db ${DB} of app ${APP} to bucket ${BUCKET}."
 DUMPDIR="/tmp"
 
 #will look like: app_db_2017-12-31.dump
-FILENAME=${APP}_${DB}_$(date +%Y-%m-%d).dump
+FILENAME=${APP}_${DB}_$(date +%Y-%m-%d).dump.gz
 INFO="--info app=${APP} --info db=${DB}"
 
 mkdir -p ${DUMPDIR}
@@ -41,7 +41,7 @@ if [ -f "${DUMPDIR}/${FILENAME}" ]; then
 fi
 
 # dump it
-su - postgres -c "pg_dump ${DB} > ${DUMPDIR}/${FILENAME}"
+su - postgres -c "pg_dump ${DB} | gzip > ${DUMPDIR}/${FILENAME}"
 
 # calculate sha1 sum
 SHA1=$(sha1sum ${DUMPDIR}/${FILENAME} | sed -En "s/^([0-9a-f]{40}).*/\1/p")
