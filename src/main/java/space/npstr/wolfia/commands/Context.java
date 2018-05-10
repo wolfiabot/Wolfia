@@ -177,7 +177,7 @@ public abstract class Context {
         return tc.getGuild().getSelfMember().hasPermission(tc, permissions);
     }
 
-    public static Color BLACKIA = new Color(0, 24, 48); //blueish black that reminds of a clear nights sky
+    public static final Color BLACKIA = new Color(0, 24, 48); //blueish black that reminds of a clear nights sky
 
     /**
      * @return a general purpose preformatted builder for embeds

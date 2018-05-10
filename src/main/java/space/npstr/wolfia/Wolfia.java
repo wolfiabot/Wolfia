@@ -81,7 +81,7 @@ public class Wolfia {
 
     public static final long START_TIME = System.currentTimeMillis();
     public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
-    public static final OkHttpClient defaultHttpClient = getDefaultHttpClientBuilder().build();
+    private static final OkHttpClient defaultHttpClient = getDefaultHttpClientBuilder().build();
     //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
     public static final ExceptionLoggingExecutor executor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
 
