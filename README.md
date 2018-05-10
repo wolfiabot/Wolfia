@@ -39,6 +39,12 @@ There are also [docker images available](https://hub.docker.com/r/napstr/wolfia/
 
 To successfully run Wolfia, make sure to fill out the `wolfia.example.yaml` file and rename it to `wolfia.yaml`.
 
+Using docker has the following advantages and benefits:
+- No building, no installing (besides docker and docker-compose) necessary
+- Automatic updates via the watchtower container
+- Fully set up and managed PostgreSQL database, including regular backups to Backblaze Cloud Storage (b2)
+- Images with ARM support for both the Wolfia bot and the PostgreSQL database are available (if you need docker-compose on arm64v8, check out this: https://hub.docker.com/r/napstr/compose/)
+- It is the current way that the public version of Wolfia is hosted and has therefore the highest chances of being supported in the future
 
 **Please note: No selfhosting support will be provided.** If you are not familiar with the technologies mentioned above,
 or are unable to teach them to yourself from the links provided as well as using your preferred web search engine to answer
