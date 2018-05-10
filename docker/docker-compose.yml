@@ -20,7 +20,7 @@ services:
 
   bot:
     image: napstr/wolfia:master
-    restart: on-failure:3
+    restart: always
     depends_on:
       - db
     ports:
@@ -32,7 +32,6 @@ services:
     stop_grace_period: 7200s #should really be enough to finish all games
     entrypoint:
       - java
-      - -jar
       - -Xmx2g
       - -XX:+HeapDumpOnOutOfMemoryError
       - -XX:HeapDumpPath=emergencydump.hprof
@@ -40,4 +39,5 @@ services:
       - -XX:+UseG1GC
       - -XX:+ParallelRefProcEnabled
       - -XX:+UseStringDeduplication
+      - -jar
       - wolfia.jar
