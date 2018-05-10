@@ -56,6 +56,8 @@ jobs:
       install: . ./install-jdk.sh -F 10 -L GPL
       script:
         - ./gradlew bintrayUpload --info
+        - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
+        - echo $IMAGE_TAG
         - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
         - docker push napstr/wolfia:$IMAGE_TAG
         - docker push napstr/wolfia:$IMAGE_TAG-arm64v8
