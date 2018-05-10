@@ -21,6 +21,17 @@ extension that way.
 - daily, weekly, and monthly backups to Backblaze B2 Cloud Storage via cronjobs
 
 
+### Building the images:
+Mostly a reminder to myself
+```
+# Regular one:
+docker build --rm -t napstr/wolfia-postgres:master .
+docker push napstr/wolfia-postgres:master
+
+# arm64v8 one, run on one of those machines:
+docker build --rm -t napstr/wolfia-postgres:arm64v8 -f Dockerfile.arm64v8 .
+docker push napstr/wolfia-postgres:arm64v8
+```
 
 ### Parameters :
 ```
