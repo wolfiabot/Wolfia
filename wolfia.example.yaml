@@ -13,3 +13,17 @@ server:
 
 sentry:
   dsn:              ""     # Error aggregation service. See https://sentry.io
+
+spring:
+  output:
+    ansi:
+      enabled: always
+
+logging:
+  file: './logs/wolfia.log'
+  file.max-history: 30
+  file.max-size: 1GB
+
+  level:
+    root: INFO
+    space.npstr: DEBUG
