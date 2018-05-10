@@ -1,14 +1,15 @@
 FROM arm64v8/postgres:10
 MAINTAINER napster@npstr.space
 
+RUN apt-get update && apt-get install -y python-pip
+RUN pip install b2
+
 ENV POSTGRES_USER wolfia
 
 COPY initdb.sh /usr/local/bin/
 COPY run.sh /usr/local/bin/
 COPY pg_b2_backup.sh /usr/local/bin/
 
-RUN apt-get update && apt-get install -y python-pip
-RUN pip install b2
 RUN touch /var/log/pg_backup.log
 
 ADD crontab /etc/cron.d/pg_backup
