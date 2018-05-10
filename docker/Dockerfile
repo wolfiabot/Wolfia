@@ -1,4 +1,5 @@
 FROM openjdk:10-jdk-slim
+MAINTAINER napster@npstr.space
 
 ENV ENV docker
 

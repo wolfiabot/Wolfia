@@ -1,11 +1,28 @@
 version: '3'
 services:
 
+  db:
+    image: napstr/wolfia-postgres:master
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    environment:
+      #See the README of the database docker image
+      - ROLE=wolfia
+      - DB=wolfia
+      - BACKUP_DB=wolfia
+      - BACKUP_APPNAME=wolfia
+      - BACKUP_BUCKET_DAILY=fill_this_out
+      - BACKUP_BUCKET_WEEKLY=fill_this_out
+      - BACKUP_BUCKET_MONTHLY=fill_this_out
+      - BACKUP_ACCOUNT_ID=fill_this_out
+      - BACKUP_APP_KEY=fill_this_out
+
   bot:
-    #build: .
     image: napstr/wolfia:master
     restart: on-failure:3
-    network_mode: "host" #to reach the local database
+    depends_on:
+      - db
     ports:
       - 4567:4567
     volumes:
