@@ -20,6 +20,7 @@ package space.npstr.wolfia.utils;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.db.ColumnMapper;
@@ -116,7 +117,7 @@ public class StatsProvider {
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = Wolfia.getDatabase().getConnection().getEntityManager();
+        final EntityManager em = Launcher.getBotContext().getDatabase().getConnection().getEntityManager();
         try {
             em.getTransaction().begin();
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Bot.AVERAGE_PLAYERS_SIZE).getSingleResult();
@@ -173,7 +174,7 @@ public class StatsProvider {
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
 
-        final EntityManager em = Wolfia.getDatabase().getConnection().getEntityManager();
+        final EntityManager em = Launcher.getBotContext().getDatabase().getConnection().getEntityManager();
         try {
             em.getTransaction().begin();
             averagePlayerSize = (BigDecimal) em.createNativeQuery(Queries.Guild.AVERAGE_PLAYERS_SIZE).setParameter("guildId", guildId).getSingleResult();
@@ -208,7 +209,7 @@ public class StatsProvider {
         //add them to the embed
         EmbedBuilder eb = Context.getDefaultEmbedBuilder();
         final Guild guild = Wolfia.getGuildById(guildId);
-        final CachedGuild cachedGuild = Wolfia.getDatabase().getWrapper().findApplyAndMerge(CachedGuild.key(guildId), eg -> eg.set(guild));
+        final CachedGuild cachedGuild = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(CachedGuild.key(guildId), eg -> eg.set(guild));
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
         eb.setThumbnail(cachedGuild.getAvatarUrl());
 
@@ -237,7 +238,7 @@ public class StatsProvider {
         //get data out of the database
         final List<Map<String, Object>> gamesByUser = new ArrayList<>();
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
-        final EntityManager em = Wolfia.getDatabase().getConnection().getEntityManager();
+        final EntityManager em = Launcher.getBotContext().getDatabase().getConnection().getEntityManager();
         try {
             em.getTransaction().begin();
             List<Object[]> result = em.createNativeQuery(Queries.User.GENERAL).setParameter("userId", userId).getResultList();

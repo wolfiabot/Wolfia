@@ -29,6 +29,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Config;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
@@ -430,7 +431,7 @@ public abstract class Game {
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
-                this.accessRoleId = Wolfia.getDatabase().getWrapper().getOrCreate(ChannelSettings.key(this.channelId)).getAccessRoleId();
+                this.accessRoleId = Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(ChannelSettings.key(this.channelId)).getAccessRoleId();
                 final Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
                     throw new UserFriendlyException(String.format(
@@ -696,7 +697,7 @@ public abstract class Game {
                         .ifPresent(t -> t.setWinner(true));
             }
             try {
-                this.gameStats = Wolfia.getDatabase().getWrapper().persist(this.gameStats);
+                this.gameStats = Launcher.getBotContext().getDatabase().getWrapper().persist(this.gameStats);
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
                         this.gameStats.getId(), Config.PREFIX + CommRegistry.COMM_TRIGGER_REPLAY, this.gameStats.getId());
             } catch (final DatabaseException e) {

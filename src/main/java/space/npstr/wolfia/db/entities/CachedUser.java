@@ -19,7 +19,7 @@ package space.npstr.wolfia.db.entities;
 
 import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.sqlsauce.fp.types.EntityKey;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -39,6 +39,6 @@ public class CachedUser extends DiscordUser<CachedUser> {
     }
 
     public static CachedUser load(final long userId) {
-        return Wolfia.getDatabase().getWrapper().getOrCreate(EntityKey.of(userId, CachedUser.class));
+        return Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(EntityKey.of(userId, CachedUser.class));
     }
 }

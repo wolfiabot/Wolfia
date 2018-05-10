@@ -21,7 +21,7 @@ import net.dv8tion.jda.core.Permission;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.sqlsauce.fp.types.EntityKey;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -63,7 +63,7 @@ public class SetupCommand extends BaseCommand {
             return false;
         }
 
-        final DatabaseWrapper wrapper = Wolfia.getDatabase().getWrapper();
+        final DatabaseWrapper wrapper = Launcher.getBotContext().getDatabase().getWrapper();
         final EntityKey<Long, Setup> setupKey = Setup.key(context.textChannel.getIdLong());
         Setup setup = wrapper.getOrCreate(setupKey);
         final AtomicBoolean blewUp = new AtomicBoolean(false);

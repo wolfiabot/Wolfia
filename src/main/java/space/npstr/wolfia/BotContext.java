@@ -18,6 +18,7 @@
 package space.npstr.wolfia;
 
 import org.springframework.stereotype.Component;
+import space.npstr.wolfia.db.Database;
 
 /**
  * Created by napster on 10.05.18.
@@ -29,4 +30,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class BotContext {
+
+    private final Database database;
+
+    public BotContext(final Database database) {
+        this.database = database;
+    }
+
+    public Database getDatabase() {
+        return this.database;
+    }
 }

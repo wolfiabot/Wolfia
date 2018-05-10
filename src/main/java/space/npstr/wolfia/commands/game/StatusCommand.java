@@ -19,7 +19,7 @@ package space.npstr.wolfia.commands.game;
 
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
@@ -68,7 +68,7 @@ public class StatusCommand extends BaseCommand {
                 }
 
                 if (game == null) {
-                    context.reply(Wolfia.getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()))
+                    context.reply(Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()))
                             .getStatus());
                     return true;
                 }

@@ -20,7 +20,7 @@ package space.npstr.wolfia.commands.game;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.fp.types.EntityKey;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -75,7 +75,7 @@ public class InCommand extends BaseCommand {
         final EntityKey<Long, Setup> setupKey = Setup.key(context.textChannel.getIdLong());
         //force in by bot owner ( ͡° ͜ʖ ͡°)
         if (!context.msg.getMentionedUsers().isEmpty() && context.isOwner()) {
-            final Setup s = Wolfia.getDatabase().getWrapper().findApplyAndMerge(setupKey,
+            final Setup s = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(setupKey,
                     setup -> {
                         for (final User u : context.msg.getMentionedUsers()) {
                             setup.inUser(u.getIdLong());
@@ -86,16 +86,16 @@ public class InCommand extends BaseCommand {
             return true;
         }
 
-        if (Wolfia.getDatabase().getWrapper().getOrCreate(Ban.key(context.invoker.getIdLong())).getScope() == Scope.GLOBAL) {
+        if (Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Ban.key(context.invoker.getIdLong())).getScope() == Scope.GLOBAL) {
             context.replyWithMention("lol ur banned.");
             return false;
         }
 
-        if (Wolfia.getDatabase().getWrapper().getOrCreate(setupKey).isInned(context.invoker.getIdLong())) {
+        if (Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(setupKey).isInned(context.invoker.getIdLong())) {
             context.replyWithMention("you have inned already.");
             return false;
         }
-        final Setup s = Wolfia.getDatabase().getWrapper().findApplyAndMerge(setupKey, setup -> setup.inUser(context.invoker.getIdLong()));
+        final Setup s = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(setupKey, setup -> setup.inUser(context.invoker.getIdLong()));
         context.reply(s.getStatus());
         return true;
     }

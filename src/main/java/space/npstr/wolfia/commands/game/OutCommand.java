@@ -20,7 +20,7 @@ package space.npstr.wolfia.commands.game;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -72,7 +72,7 @@ public class OutCommand extends BaseCommand {
                         + "**" + Permission.MESSAGE_MANAGE.name() + "**");
                 return false;
             } else {
-                final Setup s = Wolfia.getDatabase().getWrapper().findApplyAndMerge(Setup.key(context.textChannel.getIdLong()),
+                final Setup s = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Setup.key(context.textChannel.getIdLong()),
                         setup -> {
                             for (final User u : context.msg.getMentionedUsers()) {
                                 setup.outUser(u.getIdLong());
@@ -83,9 +83,9 @@ public class OutCommand extends BaseCommand {
                 return true;
             }
         } else {
-            if (Wolfia.getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong())).isInned(context.invoker.getIdLong())) {
+            if (Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong())).isInned(context.invoker.getIdLong())) {
                 //handling a regular out
-                Wolfia.getDatabase().getWrapper().findApplyAndMerge(Setup.key(context.textChannel.getIdLong()),
+                Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Setup.key(context.textChannel.getIdLong()),
                         setup -> {
                             if (setup.outUser(context.invoker.getIdLong())) {
                                 context.reply(setup.getStatus());

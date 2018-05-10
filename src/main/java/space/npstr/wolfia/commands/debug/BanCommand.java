@@ -19,6 +19,7 @@ package space.npstr.wolfia.commands.debug;
 
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -65,7 +66,7 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
         }
 
         if (option.equalsIgnoreCase("list")) {
-            final List<Ban> bans = Wolfia.getDatabase().getWrapper().loadAll(Ban.class);
+            final List<Ban> bans = Launcher.getBotContext().getDatabase().getWrapper().loadAll(Ban.class);
             String out = bans.stream()
                     .filter(ban -> ban.getScope() == Scope.GLOBAL)
                     .map(ban -> {
@@ -120,12 +121,12 @@ public class BanCommand extends BaseCommand implements IOwnerRestricted {
         }
 
         if (action == BanAction.ADD) {
-            Wolfia.getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.GLOBAL));
+            Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.GLOBAL));
             context.replyWithMention(String.format("added **%s** (%s) to the global ban list.",
                     CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
             return true;
         } else { //removing
-            Wolfia.getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.NONE));
+            Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.NONE));
             context.replyWithMention(String.format("removed **%s** (%s) from the global ban list.",
                     CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
             return true;

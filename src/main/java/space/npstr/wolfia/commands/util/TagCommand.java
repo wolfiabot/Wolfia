@@ -27,7 +27,7 @@ import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Config;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
@@ -77,7 +77,7 @@ public class TagCommand extends BaseCommand {
         }
 
         final EntityKey<Long, ChannelSettings> key = ChannelSettings.key(context.textChannel.getIdLong());
-        final ChannelSettings settings = Wolfia.getDatabase().getWrapper().getOrCreate(key);
+        final ChannelSettings settings = Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(key);
         final Set<Long> tags = settings.getTags();
 
         String option = "";
@@ -144,7 +144,7 @@ public class TagCommand extends BaseCommand {
                     cleanUp.add(id);
                 }
             }
-            Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
+            Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
                 settings.removeTags(cleanUp);
                 for (final StringBuilder sb : outs) {
                     context.reply(sb.toString());
@@ -166,7 +166,7 @@ public class TagCommand extends BaseCommand {
                     context.replyWithMention("you are already on the tag list of this channel.");
                     return false;
                 } else {
-                    Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.addTag(context.invoker.getIdLong()));
+                    Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.addTag(context.invoker.getIdLong()));
                     context.replyWithMention("you have been added to the tag list of this channel.");
                     return true;
                 }
@@ -175,7 +175,7 @@ public class TagCommand extends BaseCommand {
                     context.replyWithMention("you are already removed from the tag list of this channel.");
                     return false;
                 } else {
-                    Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.removeTag(context.invoker.getIdLong()));
+                    Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.removeTag(context.invoker.getIdLong()));
                     context.replyWithMention("you have been removed from the tag list of this channel");
                     return true;
                 }
@@ -202,14 +202,14 @@ public class TagCommand extends BaseCommand {
             ).collect(Collectors.toList());
 
             if (action == TagAction.ADD) {
-                Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
+                Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
                     ids.forEach(cs::addTag);
                     return cs;
                 });
                 context.replyWithMention(String.format("added **%s** to the tag list.", joined));
                 return true;
             } else { //removing
-                Wolfia.getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
+                Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
                     ids.forEach(cs::removeTag);
                     return cs;
                 });

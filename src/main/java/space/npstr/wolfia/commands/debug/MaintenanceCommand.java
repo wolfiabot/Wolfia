@@ -2,7 +2,7 @@ package space.npstr.wolfia.commands.debug;
 
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.Hstore;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
@@ -38,11 +38,11 @@ public class MaintenanceCommand extends BaseCommand implements IOwnerRestricted 
     }
 
     public static boolean getMaintenanceFlag() throws DatabaseException {
-        return Boolean.valueOf(Hstore.loadAndGet(Wolfia.getDatabase().getWrapper(), MAINTENANCE_FLAG, Boolean.FALSE.toString()));
+        return Boolean.valueOf(Hstore.loadAndGet(Launcher.getBotContext().getDatabase().getWrapper(), MAINTENANCE_FLAG, Boolean.FALSE.toString()));
     }
 
     public static void flipMaintenanceFlag() throws DatabaseException {
-        Hstore.loadApplyAndSave(Wolfia.getDatabase().getWrapper(), hstore -> {
+        Hstore.loadApplyAndSave(Launcher.getBotContext().getDatabase().getWrapper(), hstore -> {
             final String maintenance = hstore.get(MAINTENANCE_FLAG, Boolean.FALSE.toString());
             return hstore.set(MAINTENANCE_FLAG, Boolean.toString(!Boolean.valueOf(maintenance)));
         });
