@@ -22,15 +22,17 @@ extension that way.
 
 
 ### Building the images:
-Mostly a reminder to myself
+Mostly a reminder to myself.
 ```
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
 # Regular one:
-docker build --rm -t napstr/wolfia-postgres:master .
-docker push napstr/wolfia-postgres:master
+docker build --rm -t napstr/wolfia-postgres:$BRANCH .
+docker push napstr/wolfia-postgres:$BRANCH
 
 # arm64v8 one, run on one of those machines:
-docker build --rm -t napstr/wolfia-postgres:arm64v8 -f Dockerfile.arm64v8 .
-docker push napstr/wolfia-postgres:arm64v8
+docker build --rm -t napstr/wolfia-postgres:$BRANCH-arm64v8 -f Dockerfile.arm64v8 .
+docker push napstr/wolfia-postgres:$BRANCH-arm64v8
 ```
 
 ### Parameters :
