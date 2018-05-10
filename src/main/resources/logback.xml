@@ -72,25 +72,6 @@
         </encoder>
     </appender>
 
-    <appender name="DISCORD" class="com.github.napstr.logback.DiscordAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>%d{HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n```%ex{full}%n```</pattern>
-        </layout>
-        <username>Discurd</username>
-        <avatarUrl>
-            http://i.imgur.com/UoiA3OQ.png <!--http://i2.ytimg.com/vi/Yvd0iS5jd50/hqdefault.jpg-->
-        </avatarUrl>
-        <tts>false</tts>
-
-    </appender>
-
-    <appender name="ASYNC_DISCORD" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="DISCORD"/>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>ERROR</level>
-        </filter>
-    </appender>
-
     <!-- Send logs with the provided level or higher to sentry -->
     <appender name="SENTRY" class="io.sentry.logback.SentryAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -119,7 +100,6 @@
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="INFOFILE"/>
         <appender-ref ref="ERRORFILE"/>
-        <appender-ref ref="ASYNC_DISCORD"/>
         <appender-ref ref="SENTRY"/>
     </logger>
 
@@ -143,7 +123,6 @@
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="INFOFILE"/>
         <appender-ref ref="ERRORFILE"/>
-        <appender-ref ref="ASYNC_DISCORD"/>
         <appender-ref ref="SENTRY"/>
     </logger>
 
@@ -152,7 +131,6 @@
         <appender-ref ref="INFOFILE"/>
         <appender-ref ref="ERRORFILE"/>
         <appender-ref ref="DEBUGFILE"/>
-        <appender-ref ref="ASYNC_DISCORD"/>
         <appender-ref ref="SENTRY"/>
     </root>
 </configuration>

@@ -32,7 +32,6 @@ public class WolfiaConfig {
     private boolean debug = true;
     private String discordToken = "";
     private long logChannelId = 0;
-    private String errorLogWebHook = "";
 
     public boolean isDebug() {
         return debug;
@@ -56,14 +55,6 @@ public class WolfiaConfig {
 
     public void setLogChannelId(long logChannelId) {
         this.logChannelId = logChannelId;
-    }
-
-    public String getErrorLogWebHook() {
-        return errorLogWebHook;
-    }
-
-    public void setErrorLogWebHook(String errorLogWebHook) {
-        this.errorLogWebHook = errorLogWebHook;
     }
 
     public String getDefaultPrefix() {

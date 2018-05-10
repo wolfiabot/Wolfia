@@ -3,7 +3,6 @@
 wolfia:
   debug:            true   # Some things are different. Set to false to properly run the bot.
   discordToken:     ""     # Discord bot token
-  errorLogWebHook:  ""     # Webhook to a discord channel to post errors to.
   logChannelId:     0      # Id of a channel where to post general bot activity like games starting and ending.
 
 database:

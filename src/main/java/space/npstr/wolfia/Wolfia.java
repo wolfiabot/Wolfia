@@ -17,9 +17,7 @@
 
 package space.npstr.wolfia;
 
-import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
-import com.github.napstr.logback.DiscordAppender;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
@@ -35,7 +33,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.json.JSONObject;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
@@ -98,15 +95,6 @@ public class Wolfia {
         Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
 
         final WolfiaConfig wolfiaConfig = Launcher.getBotContext().getWolfiaConfig();
-
-        //add webhookURI to Discord log appender
-        final String errorLogWebHook = wolfiaConfig.getErrorLogWebHook();
-        if (errorLogWebHook != null && !"".equals(errorLogWebHook)) {
-            final LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-            final AsyncAppender discordAsync = (AsyncAppender) lc.getLogger(Logger.ROOT_LOGGER_NAME).getAppender("ASYNC_DISCORD");
-            final DiscordAppender disco = (DiscordAppender) discordAsync.getAppender("DISCORD");
-            disco.setWebhookUri(errorLogWebHook);
-        }
 
         if (wolfiaConfig.isDebug())
             log.info("Running DEBUG configuration");
