@@ -30,12 +30,12 @@ import javax.annotation.Nonnull;
 /**
  * Created by napster on 19.11.17.
  */
-public class ReviveComm extends BaseCommand implements IOwnerRestricted {
+public class ReviveCommand extends BaseCommand implements IOwnerRestricted {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReviveComm.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReviveCommand.class);
 
-    public ReviveComm(@Nonnull final String name, @Nonnull final String... aliases) {
-        super(name, aliases);
+    public ReviveCommand(@Nonnull final String trigger, @Nonnull final String... aliases) {
+        super(trigger, aliases);
     }
 
     @Nonnull

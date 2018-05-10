@@ -60,8 +60,8 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
     }
 
 
-    public SyncCommand(@Nonnull final String name, @Nonnull final String... aliases) {
-        super(name, aliases);
+    public SyncCommand(@Nonnull final String trigger, @Nonnull final String... aliases) {
+        super(trigger, aliases);
         final int databasePoolSize = Launcher.getBotContext().getDatabase().getConnection().getMaxPoolSize();
         final int workers = Math.max(1, databasePoolSize / 2);//dont hog the database
         this.syncService = Executors.newFixedThreadPool(workers,
