@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands;
 
 import lombok.extern.slf4j.Slf4j;
 import space.npstr.wolfia.commands.debug.BanCommand;
-import space.npstr.wolfia.commands.debug.DbTestCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.KillGameCommand;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
@@ -161,7 +160,6 @@ public class CommRegistry {
 
         //bot owner/debug commands
         registerCommand(new BanCommand                       ("ban"));
-        registerCommand(new DbTestCommand                    ("dbtest"));
         registerCommand(new EvalCommand                      ("eval"));
         registerCommand(new KillGameCommand                  ("killgame"));
         registerCommand(new MaintenanceCommand               ("maint"));
