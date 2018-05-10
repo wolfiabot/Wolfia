@@ -2,7 +2,11 @@ version: '3'
 services:
 
   db:
+    # Choose one:
+    #   Regular machine:
     image: napstr/wolfia-postgres:master
+    #   Arm based:
+    #image: napstr/wolfia-postgres:master-arm64v8
     restart: always
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
@@ -19,7 +23,11 @@ services:
       - BACKUP_APP_KEY=fill_this_out
 
   bot:
+    # Choose one:
+    #   Regular machine:
     image: napstr/wolfia:master
+    #   Arm based:
+    #image: napstr/wolfia:master-arm64v8
     restart: always
     depends_on:
       - db
