@@ -40,19 +40,30 @@ public class Launcher implements ApplicationRunner {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Launcher.class);
 
+    @SuppressWarnings("NullableProblems")
+    private static BotContext botContext;
+
+    public static BotContext getBotContext() {
+        return botContext;
+    }
+
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(Launcher.class);
         app.addListeners(event -> {
             if (event instanceof ApplicationFailedEvent) {
-                ApplicationFailedEvent failed = (ApplicationFailedEvent) event;
+                final ApplicationFailedEvent failed = (ApplicationFailedEvent) event;
                 log.error("Application failed", failed.getException());
             }
         });
         app.run(args);
     }
 
+    public Launcher(final BotContext botContext) {
+        Launcher.botContext = botContext;
+    }
+
     @Override
-    public void run(ApplicationArguments args) throws Exception {
+    public void run(final ApplicationArguments args) throws Exception {
         Wolfia.main(args.getSourceArgs());
     }
 }
