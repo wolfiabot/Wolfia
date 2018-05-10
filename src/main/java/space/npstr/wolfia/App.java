@@ -44,7 +44,7 @@ public class App {
     public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";//https://url.npstr.space/wolfia/guild but this doesnt show the embed
     public static final long WOLFIA_LOUNGE_ID = 315944983754571796L;
     public static final String SITE_LINK = "https://wolfia.party";
-    public static final String DOCS_LINK = "https://docs.wolfia.party";
+    public static final String DOCS_LINK = "https://wolfia.party";
     public static final String GITHUB_LINK = "https://github.com/napstr/wolfia";
     public static final String GAME_STATUS = Config.PREFIX + CommRegistry.COMM_TRIGGER_HELP + " | " + SITE_LINK + " | Public β";
 
