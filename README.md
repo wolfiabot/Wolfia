@@ -19,7 +19,7 @@
 
 ## Commands and supported modes
 
-Wolfia is considered to be alpha status. New games, modes and features are coming out regularly.
+Wolfia is considered to be beta status. New games, modes and features are coming out regularly.
 
 Please check out https://docs.wolfia.party for a full list of commands and games!
 
