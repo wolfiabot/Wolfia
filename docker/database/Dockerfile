@@ -17,4 +17,6 @@ RUN chmod 0644 /etc/cron.d/pg_backup
 RUN touch /var/log/cron.log
 RUN /usr/bin/crontab /etc/cron.d/pg_backup
 
+HEALTHCHECK CMD pg_isready -U $POSTGRES_USER
+
 ENTRYPOINT ["/bin/bash", "run.sh"]
