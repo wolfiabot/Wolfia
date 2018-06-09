@@ -5,10 +5,10 @@ buildscript {
         //@formatter:off
 
         //plugin versions
-        gradleGitVersion        = 'c22b4de5b1fc210a21dd527a9d8808d7ba972b1e' //FIXME once 1.5.0 is officially released, switch to that
-        grGitVersion            = '2.2.0'
+        gradleGitVersion        = '1.5.1'
+        grGitVersion            = '2.2.1'
         aptVersion              = '0.15'
-        springBootVersion       = '2.0.1.RELEASE'
+        springBootVersion       = '2.0.2.RELEASE'
         propDepsVersion         = '0.0.9.RELEASE'
         sonarQubeVersion        = '2.6.2'
         bintrayVersion          = '1.8.0'
@@ -22,7 +22,7 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath "com.github.n0mer:gradle-git-properties:${gradleGitVersion}"
+        classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${gradleGitVersion}"
         classpath "org.ajoberstar:grgit:${grGitVersion}"
         classpath "net.ltgt.gradle:gradle-apt-plugin:${aptVersion}"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
@@ -55,10 +55,10 @@ ext {
 
     springBootVersion           = "${springBootVersion}"
 
-    jdaVersion                  = '3.6.0_362'
+    jdaVersion                  = '3.6.0_375'
 
     logbackVersion              = '1.2.3'
-    sentryVersion               = '1.7.4'
+    sentryVersion               = '1.7.5'
     discordAppenderVersion      = '1.0.0'
 
     yamlVersion                 = '1.21'
