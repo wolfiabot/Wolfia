@@ -70,6 +70,8 @@ ext {
     dsProxyVersion              = '1.4.9'
     flywayVersion               = '5.0.7'
 
+    lombokVersion               = '1.18.0'
+
     //@formater:on
 
 }
@@ -89,15 +91,6 @@ repositories {
     maven { url 'https://dl.bintray.com/napster/SqlSauce' }
     mavenLocal()                            // local maven repo, mostly for testing stuff
     maven { url 'https://jitpack.io' }      //for getting builds from github
-
-    //FIXME switch to regular, non-edge build as soon as 1.16.21 is released
-    //this is what we want to download: https://projectlombok.org/lombok-edge.jar
-    ivy {
-        url 'https://projectlombok.org/'
-        layout 'pattern', {
-            artifact '/[artifact].[ext]'
-        }
-    }
 }
 
 dependencies {
@@ -128,9 +121,9 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa',        version: springBootVersion
     optional group:'org.springframework.boot', name: 'spring-boot-configuration-processor', version: springBootVersion
 
-    //lombok annotation processing
-    compileOnly         name: 'lombok-edge'
-    annotationProcessor name: 'lombok-edge'
+    //annotation processing
+    compileOnly         group: 'org.projectlombok', name:'lombok', version: lombokVersion
+    annotationProcessor group: 'org.projectlombok', name:'lombok', version: lombokVersion
 
     //@formatter:on
 }
