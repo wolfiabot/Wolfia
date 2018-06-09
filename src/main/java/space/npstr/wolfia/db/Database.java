@@ -22,6 +22,7 @@ import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -87,11 +88,11 @@ public class Database {
 
     private static DatabaseConnection initConnection() {
         try {
-            final Flyway flyway = new Flyway();
-            flyway.setBaselineOnMigrate(true);
-            flyway.setBaselineVersion(MigrationVersion.fromVersion("0"));
-            flyway.setBaselineDescription("Base Migration");
-            flyway.setLocations("classpath:space/npstr/wolfia/db/migrations");
+            final Flyway flyway = new Flyway(new FluentConfiguration()
+                    .baselineOnMigrate(true)
+                    .baselineVersion(MigrationVersion.fromVersion("0"))
+                    .baselineDescription("Base Migration")
+                    .locations("classpath:space/npstr/wolfia/db/migrations"));
 
             return new DatabaseConnection.Builder("postgres", Config.C.jdbcUrl)
                     .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")

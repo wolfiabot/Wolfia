@@ -68,7 +68,7 @@ ext {
     sqlsauceVersion             = '0.2.3'
     jaxbApiVersion              = '2.3.0'
     dsProxyVersion              = '1.4.9'
-    flywayVersion               = '5.0.7'
+    flywayVersion               = '5.1.1'
 
     lombokVersion               = '1.18.0'
 
