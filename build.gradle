@@ -51,7 +51,7 @@ ext {
 
     //@formatter:off
     javaVersion                 = '10'
-    gradleWrapperVersion        = '4.7'
+    gradleWrapperVersion        = '4.8'
 
     springBootVersion           = "${springBootVersion}"
 
@@ -129,7 +129,7 @@ dependencies {
 }
 
 
-task wrapper(type: Wrapper) {
+wrapper() {
     gradleVersion = gradleWrapperVersion
     //noinspection UnnecessaryQualifiedReference
     distributionType = Wrapper.DistributionType.ALL
