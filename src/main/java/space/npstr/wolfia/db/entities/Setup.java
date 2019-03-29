@@ -26,6 +26,7 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.sqlsauce.hibernate.types.BasicType;
+import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
 import space.npstr.wolfia.Config;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommRegistry;
@@ -151,7 +152,7 @@ public class Setup extends SaucedEntity<Long, Setup> {
 
     public Setup inUser(final long userId) throws DatabaseException {
         //cache any inning users
-        CachedUser.cache(Wolfia.getDatabase().getWrapper(), getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
+        DiscordEntityCacheUtil.cacheMember(Wolfia.getDatabase().getWrapper(), getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
         this.innedUsers.add(userId);
         return this;
     }

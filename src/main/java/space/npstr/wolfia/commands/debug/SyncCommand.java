@@ -20,8 +20,7 @@ package space.npstr.wolfia.commands.debug;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.sqlsauce.entities.discord.DiscordGuild;
-import space.npstr.sqlsauce.entities.discord.DiscordUser;
+import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -116,7 +115,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
         final long started = System.currentTimeMillis();
         final AtomicInteger count = new AtomicInteger(0);
         executor.execute(() -> {
-            final Collection<DatabaseException> guildSyncDbExceptions = DiscordGuild.sync(
+            final Collection<DatabaseException> guildSyncDbExceptions = DiscordEntityCacheUtil.syncGuilds(
                     Wolfia.getDatabase().getWrapper(),
                     guilds.peek(__ -> count.incrementAndGet()),
                     (guildId) -> Wolfia.getGuildById(guildId) != null,
@@ -147,7 +146,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
                 final AtomicInteger count = new AtomicInteger(0);
                 log.info("Caching users for shard {} started", jda.getShardInfo().getShardId());
                 //sync user cache
-                final Collection<DatabaseException> userCacheDbExceptions = DiscordUser.cacheAll(
+                final Collection<DatabaseException> userCacheDbExceptions = DiscordEntityCacheUtil.cacheAllMembers(
                         Wolfia.getDatabase().getWrapper(),
                         jda.getGuildCache().stream()
                                 .flatMap(guild -> guild.getMemberCache().stream())

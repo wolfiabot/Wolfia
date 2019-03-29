@@ -65,7 +65,7 @@ ext {
     caffeineVersion             = '2.6.2'
     jsonOrgVersion              = '20180813'
 
-    sqlsauceVersion             = '0.2.3'
+    sqlsauceVersion             = '0.4.2'
     jaxbApiVersion              = '2.3.0'
     dsProxyVersion              = '1.4.9'
     flywayVersion               = '5.1.1'
