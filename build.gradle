@@ -64,6 +64,7 @@ ext {
     yamlVersion                 = '1.21'
     okhttpVersion               = '3.10.0'
     caffeineVersion             = '2.6.2'
+    jsonOrgVersion              = '20180813'
 
     sqlsauceVersion             = '0.2.3'
     jaxbApiVersion              = '2.3.0'
@@ -114,6 +115,7 @@ dependencies {
     compile group: 'org.yaml',              name: 'snakeyaml',                  version: yamlVersion            //parse yaml files
     compile group: 'com.squareup.okhttp3',  name: 'okhttp',                     version: okhttpVersion          //http client
     compile group: 'com.github.ben-manes.caffeine', name:'caffeine',            version: caffeineVersion        //caches
+    compile group: 'org.json',              name: 'json',                       version: jsonOrgVersion
 
     //database
     compile group: 'space.npstr.SqlSauce',  name: 'sqlsauce-core',              version: sqlsauceVersion        //db stack
