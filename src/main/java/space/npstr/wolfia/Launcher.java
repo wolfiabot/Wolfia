@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia;
 
+import net.dv8tion.jda.core.JDAInfo;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -25,7 +26,12 @@ import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
+import space.npstr.wolfia.utils.GitRepoState;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
+
+import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 10.05.18.
@@ -48,8 +54,24 @@ public class Launcher implements ApplicationRunner {
     }
 
     public static void main(String[] args) {
+        //just post the info to the console
+        if (args.length > 0 &&
+                (args[0].equalsIgnoreCase("-v")
+                        || args[0].equalsIgnoreCase("--version")
+                        || args[0].equalsIgnoreCase("-version"))) {
+            System.out.println("Version flag detected. Printing version info, then exiting.");
+            System.out.println(getVersionInfo());
+            System.out.println("Version info printed, exiting.");
+            return;
+        }
+
+        log.info(getVersionInfo());
+
         SpringApplication app = new SpringApplication(Launcher.class);
         app.addListeners(event -> {
+            if (event instanceof ApplicationEnvironmentPreparedEvent) {
+                log.info(getVersionInfo());
+            }
             if (event instanceof ApplicationFailedEvent) {
                 final ApplicationFailedEvent failed = (ApplicationFailedEvent) event;
                 log.error("Application failed", failed.getException());
@@ -64,6 +86,49 @@ public class Launcher implements ApplicationRunner {
 
     @Override
     public void run(final ApplicationArguments args) throws Exception {
-        Wolfia.main(args.getSourceArgs());
+        Wolfia.start();
     }
+
+    @Nonnull
+    private static String getVersionInfo() {
+        return art
+                + "\n"
+                + "\n\tVersion:       " + App.VERSION
+                + "\n\tBuild:         " + App.BUILD_NUMBER
+                + "\n\tBuild time:    " + TextchatUtils.toBerlinTime(App.BUILD_TIME)
+                + "\n\tCommit:        " + GitRepoState.getGitRepositoryState().commitIdAbbrev + " (" + GitRepoState.getGitRepositoryState().branch + ")"
+                + "\n\tCommit time:   " + TextchatUtils.toBerlinTime(GitRepoState.getGitRepositoryState().commitTime * 1000)
+                + "\n\tJVM:           " + System.getProperty("java.version")
+                + "\n\tJDA:           " + JDAInfo.VERSION
+                + "\n";
+    }
+
+    //########## vanity
+    private static final String art = "\n"
+            + "\n                              __"
+            + "\n                            .d$$b"
+            + "\n                           .' TO$;\\"
+            + "\n        Wolfia            /  : TP._;"
+            + "\n    Werewolf & Mafia     / _.;  :Tb|"
+            + "\n      Discord bot       /   /   ;j$j"
+            + "\n                    _.-\"       d$$$$"
+            + "\n                  .' ..       d$$$$;"
+            + "\n                 /  /P'      d$$$$P. |\\"
+            + "\n                /   \"      .d$$$P' |\\^\"l"
+            + "\n              .'           `T$P^\"\"\"\"\"  :"
+            + "\n          ._.'      _.'                ;"
+            + "\n       `-.-\".-'-' ._.       _.-\"    .-\""
+            + "\n     `.-\" _____  ._              .-\""
+            + "\n    -(.g$$$$$$$b.              .'"
+            + "\n      \"\"^^T$$$P^)            .(:"
+            + "\n        _/  -\"  /.'         /:/;"
+            + "\n     ._.'-'`-'  \")/         /;/;"
+            + "\n  `-.-\"..--\"\"   \" /         /  ;"
+            + "\n .-\" ..--\"\"        -'          :"
+            + "\n ..--\"\"--.-\"         (\\      .-(\\"
+            + "\n   ..--\"\"              `-\\(\\/;`"
+            + "\n     _.                      :"
+            + "\n                             ;`-"
+            + "\n                            :\\"
+            + "\n                            ;";
 }

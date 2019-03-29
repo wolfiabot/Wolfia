@@ -23,7 +23,6 @@ import com.github.napstr.logback.DiscordAppender;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.SelfUser;
@@ -52,7 +51,6 @@ import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.listings.Listings;
-import space.npstr.wolfia.utils.GitRepoState;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.DiscordLogger;
@@ -96,21 +94,8 @@ public class Wolfia {
 
     //set up things that are crucial
     //if something fails exit right away
-    public static void main(final String[] args) throws InterruptedException {
-        //just post the info to the console
-        if (args.length > 0 &&
-                (args[0].equalsIgnoreCase("-v")
-                        || args[0].equalsIgnoreCase("--version")
-                        || args[0].equalsIgnoreCase("-version"))) {
-            System.out.println("Version flag detected. Printing version info, then exiting.");
-            System.out.println(getVersionInfo());
-            System.out.println("Version info printed, exiting.");
-            return;
-        }
-
+    public static void start() throws InterruptedException {
         Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
-
-        log.info(getVersionInfo());
 
         //add webhookURI to Discord log appender
         if (Config.C.errorLogWebHook != null && !"".equals(Config.C.errorLogWebHook)) {
@@ -407,47 +392,4 @@ public class Wolfia {
         final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
         loggerContext.stop();
     }, "shutdown-hook");
-
-    @Nonnull
-    private static String getVersionInfo() {
-        return art
-                + "\n"
-                + "\n\tVersion:       " + App.VERSION
-                + "\n\tBuild:         " + App.BUILD_NUMBER
-                + "\n\tBuild time:    " + TextchatUtils.toBerlinTime(App.BUILD_TIME)
-                + "\n\tCommit:        " + GitRepoState.getGitRepositoryState().commitIdAbbrev + " (" + GitRepoState.getGitRepositoryState().branch + ")"
-                + "\n\tCommit time:   " + TextchatUtils.toBerlinTime(GitRepoState.getGitRepositoryState().commitTime * 1000)
-                + "\n\tJVM:           " + System.getProperty("java.version")
-                + "\n\tJDA:           " + JDAInfo.VERSION
-                + "\n";
-    }
-
-    //########## vanity
-    private static final String art = "\n"
-            + "\n                              __"
-            + "\n                            .d$$b"
-            + "\n                           .' TO$;\\"
-            + "\n        Wolfia            /  : TP._;"
-            + "\n    Werewolf & Mafia     / _.;  :Tb|"
-            + "\n      Discord bot       /   /   ;j$j"
-            + "\n                    _.-\"       d$$$$"
-            + "\n                  .' ..       d$$$$;"
-            + "\n                 /  /P'      d$$$$P. |\\"
-            + "\n                /   \"      .d$$$P' |\\^\"l"
-            + "\n              .'           `T$P^\"\"\"\"\"  :"
-            + "\n          ._.'      _.'                ;"
-            + "\n       `-.-\".-'-' ._.       _.-\"    .-\""
-            + "\n     `.-\" _____  ._              .-\""
-            + "\n    -(.g$$$$$$$b.              .'"
-            + "\n      \"\"^^T$$$P^)            .(:"
-            + "\n        _/  -\"  /.'         /:/;"
-            + "\n     ._.'-'`-'  \")/         /;/;"
-            + "\n  `-.-\"..--\"\"   \" /         /  ;"
-            + "\n .-\" ..--\"\"        -'          :"
-            + "\n ..--\"\"--.-\"         (\\      .-(\\"
-            + "\n   ..--\"\"              `-\\(\\/;`"
-            + "\n     _.                      :"
-            + "\n                             ;`-"
-            + "\n                            :\\"
-            + "\n                            ;";
 }
