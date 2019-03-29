@@ -2,7 +2,6 @@
 
 [![Build Status](https://img.shields.io/travis/napstr/wolfia/master.svg?style=flat-square)](https://travis-ci.org/napstr/wolfia)
 [![Download](https://api.bintray.com/packages/napster/wolfia/beta/images/download.svg) ](https://bintray.com/napster/wolfia/beta/_latestVersion)
-[![Dependency Status](https://img.shields.io/versioneye/d/ruby/rails.svg?style=flat-square)](https://www.versioneye.com/user/projects/592b1be8c0295d002dd17a34)
 [![GitHub tag](https://img.shields.io/github/tag/napstr/wolfia.svg?style=flat-square)]()
 [![License](https://img.shields.io/github/license/napstr/wolfia.svg?style=flat-square)]()
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b6bd0bab45034ee9b154d9fa02a0ca68?style=flat-square)](https://www.codacy.com/app/napstr/wolfia?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=napstr/wolfia&amp;utm_campaign=Badge_Grade)
