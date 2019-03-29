@@ -1,4 +1,4 @@
-FROM arm64v8/openjdk:10-jdk-slim
+FROM arm64v8/openjdk:11-jdk-slim
 MAINTAINER napster@npstr.space
 
 ENV ENV docker

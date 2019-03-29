@@ -50,7 +50,7 @@ ext {
     buildNumber = (System.getenv('CI') ? System.getenv('BUILD_NUMBER') : 'DEV')
 
     //@formatter:off
-    javaVersion                 = '10'
+    javaVersion                 = JavaVersion.VERSION_11
 
     springBootVersion           = "${springBootVersion}"
 

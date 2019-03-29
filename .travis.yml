@@ -25,14 +25,10 @@ cache:
     - ".gradle/caches"
     - "$HOME/.sonar/cache"
 
-before_install:
-  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
-
 jobs:
   include:
     - stage: build
-      env: JDK='OpenJDK 10'
-      install: . ./install-jdk.sh -F 10 -L GPL
+      jdk: openjdk11
       before_script:
         #for sonar cloud blame information
         - git fetch --unshallow
@@ -53,8 +49,7 @@ jobs:
         - docker logout
 
     - stage: publish
-      env: JDK='OpenJDK 10'
-      install: . ./install-jdk.sh -F 10 -L GPL
+      jdk: openjdk11
       script:
         - ./gradlew bintrayUpload --info
         - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
