@@ -1,6 +1,5 @@
 package space.npstr.wolfia.utils.discord;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -29,8 +28,9 @@ import java.util.function.Consumer;
  * Everything related to sending RestActions
  * Copy pastad and adjusted from FredBoat where I wrote this for
  */
-@Slf4j
 public class RestActions {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RestActions.class);
 
     //this is needed for when we absolutely don't care about a rest action failing (use this only after good consideration!)
     // because if we pass null for a failure handler to JDA it uses a default handler that results in a warning/error level log

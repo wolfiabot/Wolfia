@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.game;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
@@ -47,8 +46,9 @@ import java.util.function.Consumer;
  * <p>
  * Representing a player in a game
  */
-@Slf4j
 public class Player {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Player.class);
 
     public final long userId;
     public final long channelId;

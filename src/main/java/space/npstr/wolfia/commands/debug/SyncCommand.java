@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.sqlsauce.DatabaseException;
@@ -44,8 +43,9 @@ import java.util.stream.Stream;
 /**
  * Created by napster on 07.12.17.
  */
-@Slf4j
 public class SyncCommand extends BaseCommand implements IOwnerRestricted {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SyncCommand.class);
 
     private static final String ACTION_GUILDS = "guilds";
     private static final String ACTION_USERS = "users";

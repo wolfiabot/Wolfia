@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.listings;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.JDA;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -34,8 +33,9 @@ import java.io.IOException;
  * <p>
  * Template for various bot listing sites
  */
-@Slf4j
 public abstract class Listing {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Listing.class);
 
     protected static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 

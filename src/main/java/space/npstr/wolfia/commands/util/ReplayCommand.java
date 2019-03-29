@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.util;
 
-import lombok.extern.slf4j.Slf4j;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -45,8 +44,9 @@ import java.util.stream.Collectors;
  * <p>
  * Shows replays of games that are over
  */
-@Slf4j
 public class ReplayCommand extends BaseCommand {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReplayCommand.class);
 
     public ReplayCommand(final String trigger, final String... aliases) {
         super(trigger, aliases);

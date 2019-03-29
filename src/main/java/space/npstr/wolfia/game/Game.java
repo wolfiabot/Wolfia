@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.game;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -82,8 +81,9 @@ import java.util.stream.Collectors;
  * all this means a started game has to be treated carefully, both for data consistency and to keep salt levels due to
  * technical problems at bay
  */
-@Slf4j
 public abstract class Game {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Game.class);
 
     //to be used to execute tasks for each game
     protected final ExceptionLoggingExecutor executor = new ExceptionLoggingExecutor(10,

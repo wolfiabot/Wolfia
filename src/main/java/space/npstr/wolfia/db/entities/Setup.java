@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.db.entities;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -58,10 +57,11 @@ import java.util.stream.Collectors;
  * <p>
  * holds persistent setup information on a channel scope
  */
-@Slf4j
 @Entity
 @Table(name = "setup")
 public class Setup extends SaucedEntity<Long, Setup> {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Setup.class);
 
     @Id
     @Column(name = "channel_id", nullable = false)

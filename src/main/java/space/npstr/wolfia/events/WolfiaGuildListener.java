@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.events;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
@@ -32,8 +31,9 @@ import space.npstr.wolfia.utils.discord.RestActions;
  * <p>
  * Handles special events for the official Wolfia guild
  */
-@Slf4j
 public class WolfiaGuildListener extends ListenerAdapter {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WolfiaGuildListener.class);
 
     public static final long SPAM_CHANNEL_ID = 388705267916734465L; //#spam-and-bot-commands
     public static final long ANNOUNCEMENTS_ROLE_ID = 331505585344479232L; //@Announcements

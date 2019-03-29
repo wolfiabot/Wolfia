@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.utils.log;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.Config;
@@ -37,8 +36,9 @@ import java.util.function.Consumer;
  * Avoid spamming the events as this gets ratelimited easily (5/5s)
  * Singleton pattern cause I only need one of them, there is not technical reason for it though.
  */
-@Slf4j
 public class DiscordLogger {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(DiscordLogger.class);
 
     private static final ScheduledExecutorService x = Executors.newSingleThreadScheduledExecutor(r -> new Thread(r, "discord-logger-executor"));
     private static DiscordLogger discordLogger;

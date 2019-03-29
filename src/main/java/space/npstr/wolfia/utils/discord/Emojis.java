@@ -17,8 +17,6 @@
 
 package space.npstr.wolfia.utils.discord;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +26,9 @@ import java.util.List;
  * <p>
  * contains various emojis used in the bot
  */
-@Slf4j
 public class Emojis {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Emojis.class);
 
     //standard unicode based ones
     public static final String GUN = "🔫";

@@ -18,7 +18,6 @@
 package space.npstr.wolfia.utils.discord;
 
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Channel;
 import net.dv8tion.jda.core.entities.Guild;
@@ -47,8 +46,9 @@ import java.util.Optional;
  * <p>
  * This class is there to easy handling roles, like their creation, assignment to players, and granting and denying rights
  */
-@Slf4j
 public class RoleAndPermissionUtils {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RoleAndPermissionUtils.class);
 
     /**
      * Don't call this too close together for the same guild and the same role name as that will result in more than one

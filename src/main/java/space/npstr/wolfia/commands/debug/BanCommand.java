@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Wolfia;
@@ -37,8 +36,9 @@ import java.util.List;
  * <p>
  * Ban users from playing the game.
  */
-@Slf4j
 public class BanCommand extends BaseCommand implements IOwnerRestricted {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BanCommand.class);
 
     public BanCommand(final String trigger, final String... aliases) {
         super(trigger, aliases);

@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands;
 
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
@@ -41,9 +40,9 @@ import java.util.regex.Pattern;
  * <p>
  * Don't save these anywhere as they hold references to JDA objects, just pass them down through (short-lived) command execution
  */
-@Slf4j
 public class CommandContext extends MessageContext {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommandContext.class);
 
     //@formatter:off
     @Nonnull public final String trigger;                        // the command trigger, e.g. "play", or "p", or "pLaY", whatever the user typed

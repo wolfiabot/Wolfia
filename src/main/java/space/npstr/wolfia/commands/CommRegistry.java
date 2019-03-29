@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands;
 
-import lombok.extern.slf4j.Slf4j;
 import space.npstr.wolfia.commands.debug.BanCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.KillGameCommand;
@@ -62,8 +61,9 @@ import java.util.List;
 /**
  * Created by napster on 07.12.17.
  */
-@Slf4j
 public class CommRegistry {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommRegistry.class);
 
     //holder pattern
     private static class CommRegistryHolder {

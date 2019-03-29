@@ -20,7 +20,6 @@ package space.npstr.wolfia;
 import ch.qos.logback.classic.AsyncAppender;
 import ch.qos.logback.classic.LoggerContext;
 import com.github.napstr.logback.DiscordAppender;
-import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
@@ -78,8 +77,9 @@ import java.util.concurrent.TimeoutException;
  * //general list of todos etc
  * //todo rename role pm/dm -> rolecard
  */
-@Slf4j
 public class Wolfia {
+
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Wolfia.class);
 
     public static final long START_TIME = System.currentTimeMillis();
     public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
