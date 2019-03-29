@@ -5,7 +5,7 @@
 [![GitHub tag](https://img.shields.io/github/tag/napstr/wolfia.svg?style=flat-square)]()
 [![License](https://img.shields.io/github/license/napstr/wolfia.svg?style=flat-square)]()
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b6bd0bab45034ee9b154d9fa02a0ca68?style=flat-square)](https://www.codacy.com/app/napstr/wolfia?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=napstr/wolfia&amp;utm_campaign=Badge_Grade)
-[![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m778927695-04e353308ad0d207bd0489b8.svg?style=flat-square)]()
+[![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m779169786-261e58b3e3675e8e3e5fdac8.svg?style=flat-square)]()
 [![Discord](https://img.shields.io/discord/315944983754571796.svg?style=flat-square)](https://discord.gg/nvcfX3q)
 
 # Wolfia
