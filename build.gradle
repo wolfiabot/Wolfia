@@ -51,7 +51,6 @@ ext {
 
     //@formatter:off
     javaVersion                 = '10'
-    gradleWrapperVersion        = '4.8'
 
     springBootVersion           = "${springBootVersion}"
 
@@ -134,13 +133,6 @@ dependencies {
     annotationProcessor group: 'org.projectlombok', name:'lombok', version: lombokVersion
 
     //@formatter:on
-}
-
-
-wrapper() {
-    gradleVersion = gradleWrapperVersion
-    //noinspection UnnecessaryQualifiedReference
-    distributionType = Wrapper.DistributionType.ALL
 }
 
 compileJava.dependsOn 'clean'
