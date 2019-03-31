@@ -18,17 +18,14 @@
 package space.npstr.wolfia;
 
 import ch.qos.logback.classic.LoggerContext;
-import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.requests.Requester;
-import net.dv8tion.jda.core.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -36,19 +33,11 @@ import org.json.JSONObject;
 import org.slf4j.LoggerFactory;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
-import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
-import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.entities.CachedGuild;
-import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.PrivateGuild;
-import space.npstr.wolfia.events.CommandListener;
-import space.npstr.wolfia.events.InternalListener;
-import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
-import space.npstr.wolfia.listings.Listings;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.DiscordLogger;
@@ -58,7 +47,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -87,11 +75,11 @@ public class Wolfia {
     private static ShardManager shardManager;
 
     private static boolean started = false;
-    private static CommandListener commandListener;
 
     //set up things that are crucial
     //if something fails exit right away
-    public static void start() throws InterruptedException {
+    public static void start(ShardManager shardManager) throws InterruptedException {
+        Wolfia.shardManager = shardManager;
         Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
 
         final WolfiaConfig wolfiaConfig = Launcher.getBotContext().getWolfiaConfig();
@@ -131,42 +119,8 @@ public class Wolfia {
         }
 
         //set up JDA
-        log.info("Setting up JDA and main listener");
-        commandListener = new CommandListener();
+        shardManager.addEventListener(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray()); //TODO move to bean configuration
 
-//        int recommendedShardCount = 0;
-//        while (recommendedShardCount < 1) {
-//            try {
-//                recommendedShardCount = getRecommendedShardCount(Config.C.discordToken);
-//                log.info("Received recommended shard count: {}", recommendedShardCount);
-//            } catch (final IOException e) {
-//                log.error("Exception when getting recommended shard count, trying again in a bit", e);
-//                Thread.sleep(5000);
-//            }
-//        }
-
-
-        //create all necessary shards
-        try {
-            shardManager = new DefaultShardManagerBuilder()
-                    .setToken(wolfiaConfig.getDiscordToken())
-                    .setGame(Game.playing(App.GAME_STATUS))
-                    .addEventListeners(commandListener)
-                    .addEventListeners(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray())
-                    .addEventListeners(new UserMemberCachingListener<>(wrapper, CachedUser.class))
-                    .addEventListeners(new GuildCachingListener<>(wrapper, CachedGuild.class))
-                    .addEventListeners(new InternalListener())
-                    .addEventListeners(new Listings())
-                    .addEventListeners(new WolfiaGuildListener())
-                    .setHttpClientBuilder(getDefaultHttpClientBuilder())
-                    .setDisabledCacheFlags(EnumSet.of(CacheFlag.GAME, CacheFlag.VOICE_STATE))
-                    .setEnableShutdownHook(false)
-                    .setAudioEnabled(false)
-                    .build();
-        } catch (final Exception e) {
-            log.error("could not create JDA object, possibly invalid bot token, exiting", e);
-            return;
-        }
 
         //wait for all shards to be online, then start doing things that expect the full bot to be online
         while (!allShardsUp()) {
@@ -185,10 +139,6 @@ public class Wolfia {
     }
 
     private Wolfia() {
-    }
-
-    public static CommandListener getCommandListener() {
-        return commandListener;
     }
 
     /**

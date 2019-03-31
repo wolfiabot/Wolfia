@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia;
 
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDAInfo;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -48,6 +49,8 @@ public class Launcher implements ApplicationRunner {
 
     @SuppressWarnings("NullableProblems")
     private static BotContext botContext;
+
+    private final ShardManager shardManager;
 
     public static BotContext getBotContext() {
         return botContext;
@@ -81,13 +84,14 @@ public class Launcher implements ApplicationRunner {
         app.run(args);
     }
 
-    public Launcher(final BotContext botContext) {
+    public Launcher(final BotContext botContext, ShardManager shardManager) {
         Launcher.botContext = botContext;
+        this.shardManager = shardManager;
     }
 
     @Override
     public void run(final ApplicationArguments args) throws Exception {
-        Wolfia.start();
+        Wolfia.start(this.shardManager);
     }
 
     @Nonnull

@@ -4,8 +4,6 @@ import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
 import net.dv8tion.jda.core.requests.ErrorResponse;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.common.Exceptions;
 import space.npstr.wolfia.discordwrapper.entity.DiscordGuild;
 import space.npstr.wolfia.discordwrapper.entity.DiscordMember;
@@ -23,8 +21,6 @@ import java.util.stream.Stream;
 /**
  * Created by napster on 05.05.18.
  */
-@Profile("!test")
-@Component
 public class JdaDiscordEntityProvider implements DiscordEntityProvider {
 
     private final ShardManager shardManager;
