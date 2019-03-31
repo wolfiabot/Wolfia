@@ -22,7 +22,6 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
 
@@ -63,12 +62,14 @@ public class UserStatsCommand extends BaseCommand {
                 }
             }
 
-            context.reply(StatsProvider.getUserStats(userId).build());
+            context.reply("This command has been temporarily disabled. It may or may not come back in the future.");
+//            context.reply(StatsProvider.getUserStats(userId).build()); TODO enable again after StatsProvider has been rewritten
             return true;
         }
 
         for (final User u : context.msg.getMentionedUsers()) {
-            context.reply(StatsProvider.getUserStats(u.getIdLong()).build());
+            context.reply("This command has been temporarily disabled. It may or may not come back in the future.");
+//            context.reply(StatsProvider.getUserStats(u.getIdLong()).build());  TODO enable again after StatsProvider has been rewritten
         }
         return true;
     }

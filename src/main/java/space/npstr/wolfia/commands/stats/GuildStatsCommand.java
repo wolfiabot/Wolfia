@@ -22,7 +22,6 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
 
@@ -53,7 +52,8 @@ public class GuildStatsCommand extends BaseCommand {
         if (context.hasArguments()) {
             try {
                 final long guildId = Long.parseLong(context.args[0]);
-                context.reply(StatsProvider.getGuildStats(guildId).build());
+                context.reply("This command has been temporarily disabled. It may or may not come back in the future.");
+//                context.reply(StatsProvider.getGuildStats(guildId).build());  TODO enable again after StatsProvider has been rewritten
                 return true;
             } catch (final NumberFormatException e) {
                 context.help();
@@ -68,7 +68,8 @@ public class GuildStatsCommand extends BaseCommand {
         }
         
         final long guildId = context.getGuild().getIdLong();
-        context.reply(StatsProvider.getGuildStats(guildId).build());
+        context.reply("This command has been temporarily disabled. It may or may not come back in the future.");
+//        context.reply(StatsProvider.getGuildStats(guildId).build());  TODO enable again after StatsProvider has been rewritten
         return true;
     }
 }
