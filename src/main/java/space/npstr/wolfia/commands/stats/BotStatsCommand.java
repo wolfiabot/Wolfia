@@ -21,6 +21,7 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
+import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
 
@@ -45,8 +46,7 @@ public class BotStatsCommand extends BaseCommand {
     @Override
     public boolean execute(@Nonnull final CommandContext context)
             throws DatabaseException, IllegalGameStateException {
-        context.reply("This command has been temporarily disabled. It may or may not come back in the future.");
-//        context.reply(StatsProvider.getBotStats().build()); TODO enable again after StatsProvider has been rewritten
+        context.reply(StatsProvider.getBotStats().build());
         return true;
     }
 }
