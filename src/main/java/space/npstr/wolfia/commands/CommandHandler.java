@@ -45,7 +45,7 @@ public class CommandHandler {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommandHandler.class);
 
-    public static void handleMessage(@Nonnull final MessageReceivedEvent event) {
+    public static void handleMessage(final CommRegistry commRegistry, @Nonnull final MessageReceivedEvent event) {
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {
             return;
@@ -64,7 +64,7 @@ public class CommandHandler {
 
         final CommandContext context;
         try {
-            context = CommandContext.parse(event);
+            context = CommandContext.parse(commRegistry, event);
         } catch (final DatabaseException e) {
             log.error("Db blew up parsing a command", e);
             return;

@@ -36,6 +36,7 @@ import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.PrivateGuild;
+import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.discord.Emojis;
@@ -78,7 +79,7 @@ public class Wolfia {
 
     //set up things that are crucial
     //if something fails exit right away
-    public static void start(ShardManager shardManager) throws InterruptedException {
+    public static void start(ShardManager shardManager, DiscordEntityProvider discordEntityProvider) throws InterruptedException {
         Wolfia.shardManager = shardManager;
         Runtime.getRuntime().addShutdownHook(SHUTDOWN_HOOK);
 
@@ -134,7 +135,7 @@ public class Wolfia {
 
         //sync guild cache
         // this takes a few seconds to do, so do it as the last thing of the main method, or put it into it's own thread
-        SyncCommand.syncGuilds(executor, shardManager.getGuildCache().stream(), null);
+        SyncCommand.syncGuilds(discordEntityProvider, executor, shardManager.getGuildCache().stream(), null);
         //user cache is not synced on each start as it takes a lot of time and resources. see SyncComm for manual triggering
     }
 

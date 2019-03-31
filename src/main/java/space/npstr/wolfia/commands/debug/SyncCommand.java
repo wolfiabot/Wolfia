@@ -28,6 +28,7 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,6 +52,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
     private static final String ACTION_USERS = "users";
 
     private final ExecutorService syncService;
+    private final DiscordEntityProvider discordEntityProvider;
 
 
     @Nonnull
@@ -60,8 +62,9 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
     }
 
 
-    public SyncCommand(@Nonnull final String trigger, @Nonnull final String... aliases) {
+    public SyncCommand(DiscordEntityProvider discordEntityProvider, @Nonnull final String trigger, @Nonnull final String... aliases) {
         super(trigger, aliases);
+        this.discordEntityProvider = discordEntityProvider;
         final int databasePoolSize = Launcher.getBotContext().getDatabase().getConnection().getMaxPoolSize();
         final int workers = Math.max(1, databasePoolSize / 2);//dont hog the database
         this.syncService = Executors.newFixedThreadPool(workers,
@@ -76,6 +79,7 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
             actionFound = true;
             context.reply("Starting guilds sync.");
             syncGuilds(
+                    this.discordEntityProvider,
                     this.syncService,
                     Wolfia.getShards().stream().flatMap(jda -> jda.getGuildCache().stream()),
                     (duration, amount) -> context.reply(amount + " guilds synced in " + duration + "ms")
@@ -112,14 +116,16 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
      * @param resultConsumer
      *         Returns how long this took and how many guilds were processed
      */
-    public static void syncGuilds(@Nonnull final Executor executor, @Nonnull final Stream<Guild> guilds, @Nullable final BiConsumer<Long, Integer> resultConsumer) {
+    public static void syncGuilds(DiscordEntityProvider discordEntityProvider, @Nonnull final Executor executor,
+                                  @Nonnull final Stream<Guild> guilds, @Nullable final BiConsumer<Long, Integer> resultConsumer) {
+
         final long started = System.currentTimeMillis();
         final AtomicInteger count = new AtomicInteger(0);
         executor.execute(() -> {
             final Collection<DatabaseException> guildSyncDbExceptions = DiscordEntityCacheUtil.syncGuilds(
                     Launcher.getBotContext().getDatabase().getWrapper(),
                     guilds.peek(__ -> count.incrementAndGet()),
-                    (guildId) -> Wolfia.getGuildById(guildId) != null,
+                    guildId -> discordEntityProvider.getGuildById(guildId).isPresent(),
                     CachedGuild.class
             );
             if (resultConsumer != null) {

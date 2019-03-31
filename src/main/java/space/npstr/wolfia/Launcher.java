@@ -29,6 +29,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerA
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
+import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.utils.GitRepoState;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -51,6 +53,7 @@ public class Launcher implements ApplicationRunner {
     private static BotContext botContext;
 
     private final ShardManager shardManager;
+    private final DiscordEntityProvider discordEntityProvider;
 
     public static BotContext getBotContext() {
         return botContext;
@@ -84,14 +87,17 @@ public class Launcher implements ApplicationRunner {
         app.run(args);
     }
 
-    public Launcher(final BotContext botContext, ShardManager shardManager) {
+    public Launcher(final BotContext botContext, final ShardManager shardManager,
+                    final DiscordEntityProvider discordEntityProvider, final CommRegistry commRegistry) {
         Launcher.botContext = botContext;
         this.shardManager = shardManager;
+        this.discordEntityProvider = discordEntityProvider;
+        commRegistry.init(discordEntityProvider);
     }
 
     @Override
     public void run(final ApplicationArguments args) throws Exception {
-        Wolfia.start(this.shardManager);
+        Wolfia.start(this.shardManager, this.discordEntityProvider);
     }
 
     @Nonnull

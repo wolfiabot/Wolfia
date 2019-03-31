@@ -38,8 +38,11 @@ import java.util.function.Consumer;
  */
 public class HelpCommand extends BaseCommand {
 
-    public HelpCommand(final String trigger, final String... aliases) {
+    private final CommRegistry commRegistry;
+
+    public HelpCommand(final CommRegistry commRegistry, final String trigger, final String... aliases) {
         super(trigger, aliases);
+        this.commRegistry = commRegistry;
     }
 
     @Nonnull
@@ -59,7 +62,7 @@ public class HelpCommand extends BaseCommand {
 
         final MessageChannel channel = context.channel;
         if (context.hasArguments() && channel.getType() == ChannelType.TEXT && ((TextChannel) channel).canTalk()) {
-            final BaseCommand command = CommRegistry.getRegistry().getCommand(context.args[0]);
+            final BaseCommand command = this.commRegistry.getCommand(context.args[0]);
             final String answer;
             if (command == null || command instanceof IOwnerRestricted) {
                 answer = String.format("There is no command registered for `%s`. Use `%s` to see all available commands!",

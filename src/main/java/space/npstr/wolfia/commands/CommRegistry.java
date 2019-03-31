@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.debug.BanCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.KillGameCommand;
@@ -53,6 +54,7 @@ import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.commands.util.RankCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
+import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -62,19 +64,10 @@ import java.util.List;
 /**
  * Created by napster on 07.12.17.
  */
+@Component
 public class CommRegistry {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommRegistry.class);
-
-    //holder pattern
-    private static class CommRegistryHolder {
-        private final static CommRegistry INSTANCE = new CommRegistry();
-    }
-
-    public static CommRegistry getRegistry() {
-        return CommRegistryHolder.INSTANCE;
-    }
-
 
     private final List<BaseCommand> commands = new ArrayList<>();
 
@@ -121,8 +114,7 @@ public class CommRegistry {
     public static final String COMM_TRIGGER_REPLAY = "replay";
     public static final String COMM_TRIGGER_TAG = "tag";
 
-
-    private CommRegistry() {
+    public void init(final DiscordEntityProvider discordEntityProvider) {
         //@formatter:off
 
         //game related commands
@@ -152,7 +144,7 @@ public class CommRegistry {
         //util commands
         registerCommand(new ChannelSettingsCommand           (COMM_TRIGGER_CHANNELSETTINGS, "cs"));
         registerCommand(new CommandsCommand                  (COMM_TRIGGER_COMMANDS, "comms"));
-        registerCommand(new HelpCommand                      (COMM_TRIGGER_HELP));
+        registerCommand(new HelpCommand                      (this, COMM_TRIGGER_HELP));
         registerCommand(new InfoCommand                      (COMM_TRIGGER_INFO));
         registerCommand(new InviteCommand                    (COMM_TRIGGER_INVITE, "inv"));
         registerCommand(new RankCommand                      (COMM_TRIGGER_RANK));
@@ -169,7 +161,7 @@ public class CommRegistry {
         registerCommand(new ReviveCommand                    ("revive"));
         registerCommand(new RunningCommand                   ("running"));
         registerCommand(new ShutdownCommand                  ("shutdown"));
-        registerCommand(new SyncCommand                      ("sync"));
+        registerCommand(new SyncCommand                      (discordEntityProvider, "sync"));
 
         //@formatter:on
     }

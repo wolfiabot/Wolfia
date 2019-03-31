@@ -34,12 +34,15 @@ public class DiscordApiConfiguration {
     }
 
     @Bean
-    public ShardManager shardManager(WolfiaConfig wolfiaConfig, Database database) throws LoginException {
-        DatabaseWrapper wrapper = database.getWrapper();
+    public ShardManager shardManager(final WolfiaConfig wolfiaConfig, final Database database,
+                                     final CommandListener commandListener)
+            throws LoginException {
+
+        final DatabaseWrapper wrapper = database.getWrapper();
         return new DefaultShardManagerBuilder()
                 .setToken(wolfiaConfig.getDiscordToken())
                 .setGame(Game.playing(App.GAME_STATUS))
-                .addEventListeners(new CommandListener())
+                .addEventListeners(commandListener)
                 .addEventListeners(new UserMemberCachingListener<>(wrapper, CachedUser.class))
                 .addEventListeners(new GuildCachingListener<>(wrapper, CachedGuild.class))
                 .addEventListeners(new InternalListener())

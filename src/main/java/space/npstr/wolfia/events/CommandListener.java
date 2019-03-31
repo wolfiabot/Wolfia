@@ -19,18 +19,24 @@ package space.npstr.wolfia.events;
 
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.springframework.stereotype.Component;
+import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandHandler;
 
 /**
  * Created by npstr on 25.08.2016
  */
+@Component
 public class CommandListener extends ListenerAdapter {
 
-    public CommandListener() {
+    private final CommRegistry commRegistry;
+
+    public CommandListener(final CommRegistry commRegistry) {
+        this.commRegistry = commRegistry;
     }
 
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
-        CommandHandler.handleMessage(event);
+        CommandHandler.handleMessage(this.commRegistry, event);
     }
 }

@@ -58,7 +58,7 @@ public class CommandContext extends MessageContext {
      *
      * @return The full context for the triggered command, or null if it's not a command that we know.
      */
-    public static CommandContext parse(final MessageReceivedEvent event)//, final Histogram.Timer received)
+    public static CommandContext parse(final CommRegistry commRegistry, final MessageReceivedEvent event)//, final Histogram.Timer received)
             throws DatabaseException {
 
         final String raw = event.getMessage().getContentRaw();
@@ -84,7 +84,7 @@ public class CommandContext extends MessageContext {
         }
 
         final String commandTrigger = args[0];
-        final BaseCommand command = CommRegistry.getRegistry().getCommand(commandTrigger.toLowerCase());
+        final BaseCommand command = commRegistry.getCommand(commandTrigger.toLowerCase());
 
         if (command == null) {
             return null;
