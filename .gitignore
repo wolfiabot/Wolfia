@@ -54,7 +54,7 @@ fabric.properties
 
 *.iml
 # modules.xml
-# .idea/misc.xml 
+# .idea/misc.xml
 # *.ipr
 
 
@@ -101,6 +101,8 @@ hs_err_pid*
 ### Gradle ###
 .gradle
 /build/
+/common/build
+/discord-wrapper/build
 
 # Ignore Gradle GUI config
 gradle-app.setting

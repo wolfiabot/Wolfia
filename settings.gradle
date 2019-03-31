@@ -1,1 +1,4 @@
 rootProject.name = 'Wolfia'
+
+include 'common'
+include 'discord-wrapper'
