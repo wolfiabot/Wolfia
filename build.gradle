@@ -98,35 +98,26 @@ configurations {
 }
 
 dependencies {
-    //@formatter:off
+    implementation "net.dv8tion:JDA:$jdaVersion"
 
-    //discord api
-    compile group: 'net.dv8tion',           name: 'JDA',                        version: jdaVersion             //discord API
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+    implementation "io.sentry:sentry-logback:$sentryVersion"
 
-    //logging
-    compile group: 'ch.qos.logback',        name: 'logback-classic',            version: logbackVersion         //logging framework
-    compile group: 'io.sentry',             name: 'sentry-logback',             version: sentryVersion          //error aggregation
+    implementation "org.yaml:snakeyaml:$yamlVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation "com.github.ben-manes.caffeine:caffeine:$caffeineVersion"
+    implementation "org.json:json:$jsonOrgVersion"
+    implementation "space.npstr:annotations:$annotationsVersion"
 
-    //utility
-    compile group: 'org.yaml',              name: 'snakeyaml',                  version: yamlVersion            //parse yaml files
-    compile group: 'com.squareup.okhttp3',  name: 'okhttp',                     version: okhttpVersion          //http client
-    compile group: 'com.github.ben-manes.caffeine', name:'caffeine',            version: caffeineVersion        //caches
-    compile group: 'org.json',              name: 'json',                       version: jsonOrgVersion
-    compile group: 'space.npstr',           name: 'annotations',                version: annotationsVersion     // moar annotations
+    implementation "space.npstr.SqlSauce:sqlsauce-core:$sqlsauceVersion"
+    implementation "space.npstr.SqlSauce:discord-entities:$sqlsauceVersion"
+    implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
+    implementation "net.ttddyy:datasource-proxy:$dsProxyVersion"
+    implementation "org.flywaydb:flyway-core:$flywayVersion"
 
-    //database
-    compile group: 'space.npstr.SqlSauce',  name: 'sqlsauce-core',              version: sqlsauceVersion        //db stack
-    compile group: 'space.npstr.SqlSauce',  name: 'discord-entities',           version: sqlsauceVersion        //moar db entities
-    compile group: 'javax.xml.bind',        name: 'jaxb-api',                   version: jaxbApiVersion         //required by hibernate for java 9
-    compile group: 'net.ttddyy',            name: 'datasource-proxy',           version: dsProxyVersion         //log proxy for db queries
-    compile group: 'org.flywaydb',          name: 'flyway-core',                version: flywayVersion          //database schema migrations
-
-    //spring
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-webflux',         version: springBootVersion
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa',        version: springBootVersion
-    optional group:'org.springframework.boot', name: 'spring-boot-configuration-processor', version: springBootVersion
-
-    //@formatter:on
+    implementation "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
 }
 
 compileJava.dependsOn 'clean'
