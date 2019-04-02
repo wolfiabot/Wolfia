@@ -5,8 +5,8 @@ buildscript {
         //@formatter:off
 
         //plugin versions
-        gradleGitVersion        = '1.5.1'
-        grGitVersion            = '2.2.1'
+        gradleGitVersion        = '2.0.0'
+        grGitVersion            = '3.1.1'
         aptVersion              = '0.15'
         springBootVersion       = '2.0.2.RELEASE'
         propDepsVersion         = '0.0.9.RELEASE'
@@ -23,7 +23,7 @@ buildscript {
     }
     dependencies {
         classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${gradleGitVersion}"
-        classpath "org.ajoberstar:grgit:${grGitVersion}"
+        classpath "org.ajoberstar.grgit:grgit-gradle:${grGitVersion}"
         classpath "net.ltgt.gradle:gradle-apt-plugin:${aptVersion}"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "io.spring.gradle:propdeps-plugin:${propDepsVersion}"
