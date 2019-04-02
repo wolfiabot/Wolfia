@@ -146,11 +146,10 @@ dependencies {
 }
 
 compileJava.dependsOn 'clean'
-compileJava.options.encoding = 'UTF-8'
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation' << '-Xmaxerrs' << '10000' << '-Xdiags:verbose'
 }
-compileJava.options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation'
 
 //required by spring boot configuration processor
 compileJava.dependsOn(processResources)
