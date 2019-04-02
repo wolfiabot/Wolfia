@@ -123,7 +123,7 @@ configurations {
 }
 
 dependencies {
-    compile project(':discord-wrapper')
+    implementation project(':discord-wrapper')
 
     implementation "ch.qos.logback:logback-classic:$logbackVersion"
     implementation "io.sentry:sentry-logback:$sentryVersion"
@@ -169,7 +169,7 @@ bootRun {
 }
 
 bootJar {
-    archiveName = "wolfia.jar"
+    archiveFileName = "wolfia.jar"
     doLast {
         copy {
             from 'build/libs/wolfia.jar'
