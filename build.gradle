@@ -54,7 +54,7 @@ ext {
     immutablesVersion           = '2.7.5'
 
     sqlsauceVersion             = '0.4.2'
-    jaxbApiVersion              = '2.3.0'
+    jaxbApiVersion              = '2.3.1'
     dsProxyVersion              = '1.5.1'
     flywayVersion               = '5.1.1'
 
