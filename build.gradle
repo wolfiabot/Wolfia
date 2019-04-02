@@ -10,7 +10,7 @@ buildscript {
         aptVersion              = '0.21'
         springBootVersion       = '2.1.3.RELEASE'
         propDepsVersion         = '0.0.9.RELEASE'
-        sonarQubeVersion        = '2.6.2'
+        sonarQubeVersion        = '2.7'
         bintrayVersion          = '1.8.0'
 
         //@formatter:on
