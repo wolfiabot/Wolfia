@@ -41,7 +41,7 @@ ext {
 
     springBootVersion           = "${springBootVersion}"
 
-    jdaVersion                  = '3.7.1_421'
+    jdaVersion                  = '3.8.3_462'
 
     logbackVersion              = '1.2.3'
     sentryVersion               = '1.7.5'
