@@ -7,6 +7,6 @@ WORKDIR /opt/wolfia
 
 EXPOSE 4567
 
-ENTRYPOINT ["java", "-jar", "-Xmx512m", "wolfia.jar"]
+ENTRYPOINT ["java", "-Xmx512m", "-jar", "wolfia.jar"]
 
 COPY build/libs/wolfia.jar /opt/wolfia/wolfia.jar
