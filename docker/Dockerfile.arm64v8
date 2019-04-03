@@ -5,8 +5,8 @@ ENV ENV docker
 
 WORKDIR /opt/wolfia
 
-COPY build/libs/wolfia.jar /opt/wolfia/wolfia.jar
-
 EXPOSE 4567
 
 ENTRYPOINT ["java", "-jar", "-Xmx512m", "wolfia.jar"]
+
+COPY build/libs/wolfia.jar /opt/wolfia/wolfia.jar
