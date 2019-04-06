@@ -20,7 +20,6 @@ package space.npstr.wolfia.db;
 import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.MigrationVersion;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -100,15 +99,7 @@ public class Database {
     private DatabaseConnection initConnection() {
         try {
             final Flyway flyway = new Flyway(new FluentConfiguration()
-                    .baselineOnMigrate(true)
-                    .baselineVersion(MigrationVersion.fromVersion("0"))
-                    .baselineDescription("Base Migration")
                     .locations("db/migrations"));
-
-            //TODO remove after this has run once in prod, as well as the baseline thing above
-            flyway.setDataSource(this.databaseConfig.getJdbcUrl(), null, null);
-            flyway.repair();
-            flyway.setDataSource(null);
 
             return new DatabaseConnection.Builder("postgres", this.databaseConfig.getJdbcUrl())
                     .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")

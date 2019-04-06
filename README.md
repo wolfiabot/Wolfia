@@ -49,6 +49,15 @@ Using docker has the following advantages and benefits:
 or are unable to teach them to yourself from the links provided as well as using your preferred web search engine to answer
 the questions left, then please accept that selfhosting is not for you. [Instead, use the available free, public version of Wolfia.](https://wolfia.party/)
 
+### Updating
+Generally you can just update to the latest version. Sometimes that will require manual changes to the docker-compose 
+file which you should look out for by yourself.
+If there is something else to be aware of between versions, it will be mentioned here.
+
+#### Updating from below v0.22.0
+If you are updating from below v0.22.0, you should first update to v0.22.0, start the bot once and let database 
+migrations run, then continue updating. This is necessary to repair the migration information as the migration scripts have been 
+modified to be plain .sql files to that they can be run outside of the bot.
 
 ## Special mentions
 - Written in Java using the excellent [JDA (Java Discord API)](https://github.com/DV8FromTheWorld/JDA). They maintain a super helpful crowd in their Discord guild.
