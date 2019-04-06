@@ -103,7 +103,12 @@ public class Database {
                     .baselineOnMigrate(true)
                     .baselineVersion(MigrationVersion.fromVersion("0"))
                     .baselineDescription("Base Migration")
-                    .locations("classpath:space/npstr/wolfia/db/migrations"));
+                    .locations("db/migrations"));
+
+            //TODO remove after this has run once in prod, as well as the baseline thing above
+            flyway.setDataSource(this.databaseConfig.getJdbcUrl(), null, null);
+            flyway.repair();
+            flyway.setDataSource(null);
 
             return new DatabaseConnection.Builder("postgres", this.databaseConfig.getJdbcUrl())
                     .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")
