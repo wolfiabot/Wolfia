@@ -1,0 +1,13 @@
+# Required services to run Wolfia on a local machine
+
+version: '3.7'
+
+services:
+  dev-postgres:
+    image: napstr/wolfia-postgres:master
+    restart: always
+    ports:
+      - 127.0.0.1:5432:5432
+    environment:
+      - ROLE=wolfia
+      - DB=wolfia
