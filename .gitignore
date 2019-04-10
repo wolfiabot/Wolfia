@@ -103,6 +103,7 @@ hs_err_pid*
 /build/
 /common/build
 /discord-wrapper/build
+/database-codegen/build
 
 # Ignore Gradle GUI config
 gradle-app.setting

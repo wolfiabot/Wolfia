@@ -1,4 +1,5 @@
 rootProject.name = 'Wolfia'
 
 include 'common'
+include 'database-codegen'
 include 'discord-wrapper'
