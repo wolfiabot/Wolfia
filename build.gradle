@@ -18,6 +18,8 @@ buildscript {
         classpath "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:${flywayVersion}"
         classpath "nu.studer:gradle-jooq-plugin:${jooqPluginVersion}"
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
     }
 }
 
@@ -175,6 +177,7 @@ configurations {
 dependencies {
     implementation project(':database-codegen')
     implementation project(':discord-wrapper')
+    implementation project(':engine')
 
     implementation "ch.qos.logback:logback-classic:$logbackVersion"
     implementation "io.sentry:sentry-logback:$sentryVersion"

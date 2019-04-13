@@ -1,0 +1,29 @@
+apply plugin: "org.jetbrains.kotlin.jvm"
+apply plugin: "com.adarshr.test-logger"
+
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit5:$kotlinVersion"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+testlogger {
+    theme 'mocha'
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "$kotlinJvmTarget"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "$kotlinJvmTarget"
+    }
+}

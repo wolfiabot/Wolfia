@@ -9,6 +9,9 @@ ext {
     flywayVersion               = '5.2.4'
     jooqPluginVersion           = '3.0.3'
     versionsPluginVersion       = '0.21.0'
+    kotlinVersion               = '1.3.30'
+    kotlinJvmTarget             = '1.8'
+    testLoggerVersion           = '1.6.0'
 
     jdaVersion                  = '3.8.3_463'
 
@@ -30,6 +33,8 @@ ext {
     jooqVersion                 = '3.11.11'
     postgresqlVersion           = '42.2.5'
     javaxAnnotationsVersion     = '1.3.2'
+
+    junitVersion                = '5.4.1'
 
     //@formatter:on
 }
