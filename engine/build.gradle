@@ -1,5 +1,6 @@
 apply plugin: "org.jetbrains.kotlin.jvm"
 apply plugin: "com.adarshr.test-logger"
+apply plugin: "info.solidsoft.pitest"
 
 
 dependencies {
@@ -15,6 +16,13 @@ test {
 
 testlogger {
     theme 'mocha'
+}
+
+pitest {
+    pitestVersion = "$pitestVersion"
+    testPlugin = 'junit5'
+    timestampedReports = false
+    threads = 4
 }
 
 compileKotlin {

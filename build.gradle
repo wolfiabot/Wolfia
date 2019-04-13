@@ -8,6 +8,7 @@ buildscript {
         mavenCentral()
         maven { url 'https://jitpack.io' }
     }
+    configurations.maybeCreate('pitest')
     dependencies {
         classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${gradleGitVersion}"
         classpath "org.ajoberstar.grgit:grgit-gradle:${grGitVersion}"
@@ -20,6 +21,8 @@ buildscript {
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
+        classpath "info.solidsoft.gradle.pitest:gradle-pitest-plugin:$pitestPluginVersion"
+        pitest "org.pitest:pitest-junit5-plugin:$pitestJunit5Version"
     }
 }
 
