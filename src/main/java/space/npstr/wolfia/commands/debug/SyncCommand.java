@@ -19,6 +19,7 @@ package space.npstr.wolfia.commands.debug;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
+import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
 import space.npstr.wolfia.Launcher;
@@ -36,6 +37,7 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -62,13 +64,15 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
     }
 
 
-    public SyncCommand(DiscordEntityProvider discordEntityProvider, @Nonnull final String trigger, @Nonnull final String... aliases) {
+    public SyncCommand(DiscordEntityProvider discordEntityProvider, ThreadPoolCollector poolMetrics,
+                       @Nonnull final String trigger, @Nonnull final String... aliases) {
         super(trigger, aliases);
         this.discordEntityProvider = discordEntityProvider;
         final int databasePoolSize = Launcher.getBotContext().getDatabase().getConnection().getMaxPoolSize();
         final int workers = Math.max(1, databasePoolSize / 2);//dont hog the database
         this.syncService = Executors.newFixedThreadPool(workers,
                 runnable -> new Thread(runnable, "sync-command-worker"));
+        poolMetrics.addPool("sync", (ThreadPoolExecutor) this.syncService);
     }
 
     @Override

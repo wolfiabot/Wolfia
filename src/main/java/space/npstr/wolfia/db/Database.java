@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.db;
 
+import net.ttddyy.dsproxy.listener.QueryCountStrategy;
 import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.flywaydb.core.Flyway;
@@ -48,6 +49,7 @@ public class Database {
 
     private final DatabaseConfig databaseConfig;
     private final WolfiaConfig wolfiaConfig;
+    private final QueryCountStrategy queryCountStrategy;
 
     @Nullable
     private volatile DatabaseConnection connection;
@@ -56,9 +58,12 @@ public class Database {
     private volatile DatabaseWrapper wrapper;
     private final Object wrapperInitLock = new Object();
 
-    public Database(final DatabaseConfig databaseConfig, final WolfiaConfig wolfiaConfig) {
+    public Database(final DatabaseConfig databaseConfig, final WolfiaConfig wolfiaConfig,
+                    QueryCountStrategy queryCountStrategy) {
+
         this.databaseConfig = databaseConfig;
         this.wolfiaConfig = wolfiaConfig;
+        this.queryCountStrategy = queryCountStrategy;
     }
 
     public DatabaseWrapper getWrapper() {
@@ -113,6 +118,8 @@ public class Database {
                     .setProxyDataSourceBuilder(new ProxyDataSourceBuilder()
                             .logSlowQueryBySlf4j(10, TimeUnit.SECONDS, SLF4JLogLevel.WARN, "SlowQueryLog")
                             .multiline()
+                            .name("postgres")
+                            .countQuery(this.queryCountStrategy)
                     )
                     .setEntityManagerFactoryBuilder((puName, dataSource, properties, entityPackages) -> {
                         LocalContainerEntityManagerFactoryBean emfb = new LocalContainerEntityManagerFactoryBean();

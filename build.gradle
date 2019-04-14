@@ -45,6 +45,7 @@ ext {
 
     jdaVersion                  = '3.8.3_462'
 
+    slf4jVersion                = '1.7.26'
     logbackVersion              = '1.2.3'
     sentryVersion               = '1.7.5'
 
@@ -54,6 +55,8 @@ ext {
     jsonOrgVersion              = '20180813'
     annotationsVersion          = '0.0.1'
     immutablesVersion           = '2.7.5'
+    prometheusVersion           = '0.6.0'
+    promExtensionsVersion       = '1.0.1'
 
     sqlsauceVersion             = '0.4.2'
     jaxbApiVersion              = '2.3.1'
@@ -162,6 +165,12 @@ project('database-codegen') {
     }
 }
 
+project(':common') {
+    dependencies {
+        api "org.slf4j:slf4j-api:$slf4jVersion"
+    }
+}
+
 project('discord-wrapper') {
 
     dependencies {
@@ -207,13 +216,20 @@ dependencies {
     implementation "org.json:json:$jsonOrgVersion"
     implementation "space.npstr:annotations:$annotationsVersion"
 
+    implementation "io.prometheus:simpleclient:$prometheusVersion"
+    implementation "io.prometheus:simpleclient_hotspot:$prometheusVersion"
+    implementation "io.prometheus:simpleclient_logback:$prometheusVersion"
+    implementation "io.prometheus:simpleclient_common:$prometheusVersion"
+    implementation "io.prometheus:simpleclient_caffeine:$prometheusVersion"
+    implementation "space.npstr:prometheus_extensions:$promExtensionsVersion"
+
     implementation "space.npstr.SqlSauce:sqlsauce-core:$sqlsauceVersion"
     implementation "space.npstr.SqlSauce:discord-entities:$sqlsauceVersion"
     implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
     implementation "net.ttddyy:datasource-proxy:$dsProxyVersion"
     implementation "org.flywaydb:flyway-core:$flywayVersion"
 
-    implementation "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
 }

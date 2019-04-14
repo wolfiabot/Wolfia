@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands;
 
 import org.springframework.stereotype.Component;
+import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.commands.debug.BanCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.KillGameCommand;
@@ -114,7 +115,7 @@ public class CommRegistry {
     public static final String COMM_TRIGGER_REPLAY = "replay";
     public static final String COMM_TRIGGER_TAG = "tag";
 
-    public void init(final DiscordEntityProvider discordEntityProvider) {
+    public void init(final DiscordEntityProvider discordEntityProvider, ThreadPoolCollector poolMetrics) {
         //@formatter:off
 
         //game related commands
@@ -161,7 +162,7 @@ public class CommRegistry {
         registerCommand(new ReviveCommand                    ("revive"));
         registerCommand(new RunningCommand                   ("running"));
         registerCommand(new ShutdownCommand                  ("shutdown"));
-        registerCommand(new SyncCommand                      (discordEntityProvider, "sync"));
+        registerCommand(new SyncCommand                      (discordEntityProvider, poolMetrics, "sync"));
 
         //@formatter:on
     }

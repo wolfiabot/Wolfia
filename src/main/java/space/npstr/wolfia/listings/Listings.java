@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.OkHttpClient;
+import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.wolfia.Wolfia;
 
 import javax.annotation.Nonnull;
@@ -42,16 +43,16 @@ public class Listings extends ListenerAdapter {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Listings.class);
 
-    protected static OkHttpClient listingsHttpClient = Wolfia.getDefaultHttpClientBuilder()
-            .build();
-
     //serves as both a set of registered listings and keeping track of ongoing tasks of posting stats
     private final Map<Listing, Future> tasks = new HashMap<>();
 
-    public Listings() {
-        this.tasks.put(new DiscordBotsPw(listingsHttpClient), null);
-        this.tasks.put(new DiscordBotsOrg(listingsHttpClient), null);
-        this.tasks.put(new Carbonitex(listingsHttpClient), null);
+    public Listings(OkHttpClient.Builder httpClientBuilder) {
+        OkHttpClient httpClient = httpClientBuilder
+                .eventListener(new OkHttpEventCounter("listings"))
+                .build();
+        this.tasks.put(new DiscordBotsPw(httpClient), null);
+        this.tasks.put(new DiscordBotsOrg(httpClient), null);
+        this.tasks.put(new Carbonitex(httpClient), null);
     }
 
     private static boolean isTaskRunning(@Nullable final Future task) {

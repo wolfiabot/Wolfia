@@ -36,7 +36,7 @@ services:
     depends_on:
       - db
     ports:
-      - 4567:4567
+      - 127.0.0.1:4567:4567
     volumes:
       - ./wolfia.yaml:/opt/wolfia/wolfia.yaml
       - ./logs:/opt/wolfia/logs
