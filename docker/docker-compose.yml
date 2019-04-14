@@ -2,11 +2,7 @@ version: '3'
 services:
 
   db:
-    # Choose one:
-    #   Regular machine:
     image: napstr/wolfia-postgres:master
-    #   Arm based:
-    #image: napstr/wolfia-postgres:master-arm64v8
     restart: always
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
@@ -25,11 +21,7 @@ services:
       - BACKUP_APP_KEY=fill_this_out
 
   bot:
-    # Choose one:
-    #   Regular machine:
     image: napstr/wolfia:master
-    #   Arm based:
-    #image: napstr/wolfia:master-arm64v8
     restart: always
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
@@ -60,11 +52,6 @@ services:
 # The Jar
       - -jar
       - wolfia.jar
-
-  # If you want automatic updates, uncomment the lines below this paragraph
-  # Watchtower is not yet officially available for arm64v8.
-  # See https://github.com/v2tec/watchtower/pull/178 for progress on it.
-  # You can try using napstr/watchtower:arm64v8-latest meanwhile.
 
   #watchtower:
   #  image: v2tec/watchtower

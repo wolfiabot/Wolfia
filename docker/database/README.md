@@ -26,13 +26,8 @@ Mostly a reminder to myself.
 ```
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Regular one:
 docker build --rm -t napstr/wolfia-postgres:$BRANCH .
 docker push napstr/wolfia-postgres:$BRANCH
-
-# arm64v8 one, run on one of those machines:
-docker build --rm -t napstr/wolfia-postgres:$BRANCH-arm64v8 -f Dockerfile.arm64v8 .
-docker push napstr/wolfia-postgres:$BRANCH-arm64v8
 ```
 
 ### Parameters :

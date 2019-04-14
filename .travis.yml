@@ -48,12 +48,10 @@ jobs:
         - echo $CI_IMAGE_NAME
         - docker run --rm --privileged multiarch/qemu-user-static:register
         - docker build -t "$CI_IMAGE_NAME" -f docker/Dockerfile .
-        - docker build -t "$CI_IMAGE_NAME-arm64v8" -f docker/Dockerfile.arm64v8 .
       after_success:
         - ./gradlew sonarqube
         - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
         - docker push $CI_IMAGE_NAME
-        - docker push $CI_IMAGE_NAME-arm64v8
         - docker logout
 
     - stage: publish
@@ -69,9 +67,6 @@ jobs:
         - docker pull $CI_IMAGE_NAME
         - docker tag $CI_IMAGE_NAME $PUBLIC_IMAGE_NAME
         - docker push $PUBLIC_IMAGE_NAME
-        - docker pull $CI_IMAGE_NAME-arm64v8
-        - docker tag $CI_IMAGE_NAME-arm64v8 $PUBLIC_IMAGE_NAME-arm64v8
-        - docker push $PUBLIC_IMAGE_NAME-arm64v8
         - docker logout
 
 stages:
