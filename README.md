@@ -30,34 +30,7 @@ Please check out https://wolfia.party for a full list of commands and games!
 
 ## Selfhosting
 
-Wolfia requires a [PostgreSQL database](https://www.postgresql.org/) with the [hstore extension enabled](http://postgresguide.com/cool/hstore.html).
-
-[Download the current Wolfia jar from bintray](https://bintray.com/napster/wolfia/beta/_latestVersion), or build it yourself with `./gradlew build`.
-
-There are also [docker images available](https://hub.docker.com/r/napstr/wolfia/). See the `docker-compose.yaml` file for an example on running it.
-
-To successfully run Wolfia, make sure to fill out the `wolfia.example.yaml` file and rename it to `wolfia.yaml`.
-
-Using docker has the following advantages and benefits:
-- No building, no installing (besides docker and docker-compose) necessary
-- Automatic updates via the watchtower container
-- Fully set up and managed PostgreSQL database, including regular backups to Backblaze Cloud Storage (b2)
-- Images with ARM support for both the Wolfia bot and the PostgreSQL database are available (if you need docker-compose on arm64v8, check out this: https://hub.docker.com/r/napstr/compose/)
-- It is the current way that the public version of Wolfia is hosted and has therefore the highest chances of being supported in the future
-
-**Please note: No selfhosting support will be provided.** If you are not familiar with the technologies mentioned above,
-or are unable to teach them to yourself from the links provided as well as using your preferred web search engine to answer
-the questions left, then please accept that selfhosting is not for you. [Instead, use the available free, public version of Wolfia.](https://wolfia.party/)
-
-### Updating
-Generally you can just update to the latest version. Sometimes that will require manual changes to the docker-compose 
-file which you should look out for by yourself.
-If there is something else to be aware of between versions, it will be mentioned here.
-
-#### Updating from below v0.22.0
-If you are updating from below v0.22.0, you should first update to v0.22.0, start the bot once and let database 
-migrations run, then continue updating. This is necessary to repair the migration information as the migration scripts have been 
-modified to be plain .sql files to that they can be run outside of the bot.
+**No selfhosting support will be provided.**
 
 ## Special mentions
 - Written in Java using the excellent [JDA (Java Discord API)](https://github.com/DV8FromTheWorld/JDA). They maintain a super helpful crowd in their Discord guild.
