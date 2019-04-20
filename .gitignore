@@ -128,3 +128,4 @@ gradle.properties
 
 *version.properties
 wolfia_rsa*
+.env

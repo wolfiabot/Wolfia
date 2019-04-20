@@ -1,43 +1,115 @@
-version: '3'
+version: '3.6'
+
+networks:
+  traefik:
+  dockersock4traefik:
+
 services:
+
+  dockerproxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: dockerproxy
+    restart: always
+    environment:
+      CONTAINERS: 1
+    ports:
+      - 2375
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:z"
+    networks:
+      - dockersock4traefik
+
+  traefik:
+    image: traefik:v1.7-alpine
+    container_name: traefik
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    expose:
+      - 8080
+    networks:
+      - traefik
+      - dockersock4traefik
+    volumes:
+      - ./acme.json:/acme.json:rw
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=traefik-dash"
+      - "traefik.port=8080"
+      - "traefik.frontend.rule=Host:${DOMAIN};PathPrefixStrip:/traefik"
+    command:
+      - --debug=false
+      - --logLevel=INFO
+      - --sendAnonymousUsage=true
+      - --defaultEntryPoints=https
+      - "--entryPoints=Name:https Address::443 TLS WhiteList.SourceRange:${CF_WHITELIST},${UPTIMEROBOT_WHITELIST} WhiteList.UseXForwardedFor:true"
+      - "--entryPoints=Name:traefik Address::8080 Auth.Basic.Users:${TRAEFIK_DASH_LOGIN} WhiteList.SourceRange:${CF_WHITELIST},${UPTIMEROBOT_WHITELIST} WhiteList.UseXForwardedFor:true"
+      - --api.dashboard=true
+      - --api.entryPoint=traefik
+      - --api.statistics=true
+      - --retry
+      - --docker.domain=${DOMAIN}
+      - "--docker.endpoint=tcp://dockerproxy:2375"
+      - --docker.watch=true
+      - --docker.exposedByDefault=false
+      - --acme.dnsChallenge.provider=cloudflare
+      - "--acme.domains=*.${DOMAIN},${DOMAIN}"
+      - --acme.email=${ACME_EMAIL}
+      - --acme.entryPoint=https
+      - --acme.onHostRule=false
+      - --acme.storage=acme.json
+    environment:
+      - CF_API_EMAIL=${CF_MAIL}
+      - CF_API_KEY=${CF_KEY}
 
   db:
     image: napstr/wolfia-postgres:master
     restart: always
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+    ports:
+      - 127.0.0.1:5432:5432
     volumes:
       - ./postgres-data:/var/lib/postgresql/data
     environment:
-      #See the README of the database docker image
       - ROLE=wolfia
       - DB=wolfia
       - BACKUP_DB=wolfia
       - BACKUP_APPNAME=wolfia
-      - BACKUP_BUCKET_DAILY=fill_this_out
-      - BACKUP_BUCKET_WEEKLY=fill_this_out
-      - BACKUP_BUCKET_MONTHLY=fill_this_out
-      - BACKUP_ACCOUNT_ID=fill_this_out
-      - BACKUP_APP_KEY=fill_this_out
+      - BACKUP_BUCKET_DAILY=wolfia-backups-daily
+      - BACKUP_BUCKET_WEEKLY=wolfia-backups-weekly
+      - BACKUP_BUCKET_MONTHLY=wolfia-backups-monthly
+      - BACKUP_ACCOUNT_ID=${B2_ACCOUNT_ID}
+      - BACKUP_APP_KEY=${B2_APP_KEY}
 
   bot:
     image: napstr/wolfia:master
     restart: always
+    networks:
+      - traefik
+      - default
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
-    depends_on:
-      - db
+      - "traefik.docker.network=traefik"
+      - "traefik.enable=true"
+      - "traefik.port=4567"
+      - "traefik.metrics.backend=wolfia-metrics"
+      - "traefik.metrics.frontend.rule=Host:${DOMAIN};PathPrefix:/metrics"
+      - "traefik.metrics.frontend.auth.basic.users=${METRICS_LOGIN}"
+      - "traefik.metrics.frontend.auth.basic.removeHeader=true"
+    #      - "traefik.bot.backend=wolfia-bot"
+    #      - "traefik.bot.frontend.rule=Host:${DOMAIN};PathPrefix:/{path:(togglz|login|webhook)}"
     ports:
-      - 127.0.0.1:4567:4567
+      - 127.0.0.1:4567:4567   # Wolfia web server
+      - 127.0.0.1:8849:8849   # JProfiler
     volumes:
-      - ./wolfia.yaml:/opt/wolfia/wolfia.yaml
+      - ./wolfia.yaml:/opt/wolfia/wolfia.yaml:ro
       - ./logs:/opt/wolfia/logs
       - ./logs/gc:/opt/wolfia/logs/gc
     stop_grace_period: 7200s #should really be enough to finish all games
     entrypoint:
       - java
 # Common JVM Options:
-      - -Xmx2g
+      - -Xms6g
+      - -Xmx6g
       - -XX:HeapDumpPath=emergencydump.hprof
 # Hotspot Options:
 #      - -XX:+HeapDumpOnOutOfMemoryError
@@ -53,12 +125,43 @@ services:
       - -jar
       - wolfia.jar
 
-  #watchtower:
-  #  image: v2tec/watchtower
-  #  restart: always
-  #  labels:
-  #    - "com.centurylinklabs.watchtower.enable=true"
-  #  volumes:
-  #    - /var/run/docker.sock:/var/run/docker.sock
-  #  command: --cleanup --label-enable --interval 300 #seconds
+  # bunch of redirects cause traefik cant do them lol
+  redirect-join:
+    image: napstr/docker-nginx-redirect
+    restart: always
+    networks:
+      - traefik
+    expose:
+      - 80
+    labels:
+      - "traefik.docker.network=traefik"
+      - "traefik.enable=true"
+      - "traefik.backend=wolfia-redirect-join"
+      - "traefik.port=80"
+      - "traefik.frontend.rule=Host:${DOMAIN};PathPrefix:/join"
+    environment:
+      - SERVER_REDIRECT=discord.gg
+      - SERVER_REDIRECT_PATH=/nvcfX3q
+      - SERVER_REDIRECT_SCHEME=https
+      - SERVER_REDIRECT_CODE=307
 
+  redirect-invite:
+    image: napstr/docker-nginx-redirect
+    restart: always
+    networks:
+      - traefik
+    expose:
+      - 80
+    labels:
+      - "traefik.docker.network=traefik"
+      - "traefik.enable=true"
+      - "traefik.backend=wolfia-redirect-invite"
+      - "traefik.port=80"
+      #      - "traefik.frontend.rule=Host:${DOMAIN};Path:/invite"
+      - "traefik.frontend.rule=Host:${DOMAIN}" #todo catch-all until we have a proper website
+      - "traefik.frontend.priority=1" # lowest
+    environment:
+      - SERVER_REDIRECT=discordapp.com
+      - SERVER_REDIRECT_PATH=/oauth2/authorize?client_id=306583221565521921\&response_type=code\&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q\&permissions=268787777\&scope=bot
+      - SERVER_REDIRECT_SCHEME=https
+      - SERVER_REDIRECT_CODE=307
