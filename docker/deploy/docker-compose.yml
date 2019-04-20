@@ -82,13 +82,13 @@ services:
       - BACKUP_APP_KEY=${B2_APP_KEY}
 
   bot:
-    image: napstr/wolfia:master
+    image: napstr/wolfia:ci-master
     restart: always
     networks:
       - traefik
       - default
     labels:
-      - "traefik.docker.network=traefik"
+      - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.port=4567"
       - "traefik.metrics.backend=wolfia-metrics"
@@ -134,7 +134,7 @@ services:
     expose:
       - 80
     labels:
-      - "traefik.docker.network=traefik"
+      - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.backend=wolfia-redirect-join"
       - "traefik.port=80"
@@ -153,7 +153,7 @@ services:
     expose:
       - 80
     labels:
-      - "traefik.docker.network=traefik"
+      - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.backend=wolfia-redirect-invite"
       - "traefik.port=80"
