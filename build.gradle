@@ -13,6 +13,7 @@ buildscript {
         bintrayVersion          = '1.8.4'
         flywayVersion           = '5.2.4'
         jooqPluginVersion       = '3.0.3'
+        versionsPluginVersion   = '0.21.0'
 
         //@formatter:on
     }
@@ -31,6 +32,7 @@ buildscript {
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:${bintrayVersion}"
         classpath "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:${flywayVersion}"
         classpath "nu.studer:gradle-jooq-plugin:${jooqPluginVersion}"
+        classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
     }
 }
 
@@ -73,6 +75,7 @@ ext {
 allprojects {
     apply plugin: 'java-library'
     apply plugin: 'idea'
+    apply plugin: 'com.github.ben-manes.versions'
 
     group = 'space.npstr.wolfia'
 
@@ -96,6 +99,19 @@ allprojects {
             generatedSourceDirs += sourceSets.main.output.generatedSourcesDirs
             testSourceDirs += sourceSets.test.output.generatedSourcesDirs
             generatedSourceDirs += sourceSets.test.output.generatedSourcesDirs
+        }
+    }
+
+    dependencyUpdates.resolutionStrategy {
+        componentSelection { rules ->
+            rules.all { ComponentSelection selection ->
+                boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3'].any {
+                    q -> selection.candidate.version.toLowerCase().contains(q)
+                }
+                if (rejected) {
+                    selection.reject('Alpha or beta version')
+                }
+            }
         }
     }
 }
