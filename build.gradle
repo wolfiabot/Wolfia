@@ -194,7 +194,6 @@ dependencies {
 
     implementation "space.npstr.SqlSauce:sqlsauce-core:$sqlsauceVersion"
     implementation "space.npstr.SqlSauce:discord-entities:$sqlsauceVersion"
-    implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
     implementation "net.ttddyy:datasource-proxy:$dsProxyVersion"
     implementation "org.flywaydb:flyway-core:$flywayVersion"
 

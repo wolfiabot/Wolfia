@@ -3,21 +3,21 @@ ext {
     gradleGitVersion            = '2.0.0'
     grGitVersion                = '3.1.1'
     aptVersion                  = '0.21'
-    springBootVersion           = '2.1.3.RELEASE'
+    springBootVersion           = '2.1.4.RELEASE'
     sonarQubeVersion            = '2.7'
     bintrayVersion              = '1.8.4'
     flywayVersion               = '5.2.4'
     jooqPluginVersion           = '3.0.3'
     versionsPluginVersion       = '0.21.0'
 
-    jdaVersion                  = '3.8.3_462'
+    jdaVersion                  = '3.8.3_463'
 
     slf4jVersion                = '1.7.26'
     logbackVersion              = '1.2.3'
-    sentryVersion               = '1.7.5'
+    sentryVersion               = '1.7.22'
 
-    yamlVersion                 = '1.19'    //1.20+ does not work with spring's configuration parsing
-    okhttpVersion               = '3.14.0'
+    yamlVersion                 = '1.24'
+    okhttpVersion               = '3.14.1'
     caffeineVersion             = '2.7.0'
     jsonOrgVersion              = '20180813'
     annotationsVersion          = '0.0.1'
@@ -26,7 +26,6 @@ ext {
     promExtensionsVersion       = '1.0.1'
 
     sqlsauceVersion             = '0.4.2'
-    jaxbApiVersion              = '2.3.1'
     dsProxyVersion              = '1.5.1'
     jooqVersion                 = '3.11.11'
     postgresqlVersion           = '42.2.5'
