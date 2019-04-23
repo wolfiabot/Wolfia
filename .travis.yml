@@ -25,9 +25,8 @@ language: java
 cache:
   directories:
     - "$HOME/.m2"
-    - "$HOME/.gradle"
-    - ".gradle/wrapper"
-    - ".gradle/caches"
+    - "$HOME/.gradle/wrapper"
+    - "$HOME/.gradle/caches"
     - "$HOME/.sonar/cache"
 
 jobs:
