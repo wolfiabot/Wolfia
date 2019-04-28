@@ -23,7 +23,7 @@ ext {
     annotationsVersion          = '0.0.1'
     immutablesVersion           = '2.7.5'
     prometheusVersion           = '0.6.0'
-    promExtensionsVersion       = '1.0.1'
+    promExtensionsVersion       = '1.1.0'
 
     sqlsauceVersion             = '0.4.2'
     dsProxyVersion              = '1.5.1'
