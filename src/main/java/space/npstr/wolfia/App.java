@@ -41,8 +41,8 @@ public class App {
 
     public static final long OWNER_ID = 166604053629894657L;//Napster
     //https://discordapp.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot
-    public static final String INVITE_LINK = "https://url.npstr.space/wolfia/bot";
-    public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";//https://url.npstr.space/wolfia/guild but this doesnt show the embed
+    public static final String INVITE_LINK = "https://bot.wolfia.party/invite";
+    public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";//https://bot.wolfia.party/join but this doesnt show the embed
     public static final long WOLFIA_LOUNGE_ID = 315944983754571796L;
     public static final String SITE_LINK = "https://wolfia.party";
     public static final String DOCS_LINK = "https://wolfia.party";
