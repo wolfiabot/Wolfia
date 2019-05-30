@@ -4,7 +4,7 @@ ext {
     grGitVersion                = '3.1.1'
     aptVersion                  = '0.21'
     springBootVersion           = '2.1.5.RELEASE'
-    sonarQubeVersion            = '2.7'
+    sonarQubeVersion            = '2.7.1'
     bintrayVersion              = '1.8.4'
     flywayVersion               = '5.2.4'
     jooqPluginVersion           = '3.0.3'
