@@ -1,0 +1,11 @@
+plugins {
+    id 'scala'
+}
+
+dependencies {
+    implementation "org.scala-lang:scala-library:$scalaVersion"
+    implementation "com.typesafe.akka:akka-actor_$scalaMinorVersion:$akkaVersion"
+
+//    testImplementation 'org.scalatest:scalatest_2.12:3.0.7'
+//    testImplementation 'junit:junit:4.12'
+}
