@@ -10,7 +10,7 @@ ext {
     jooqPluginVersion           = '3.0.3'
     versionsPluginVersion       = '0.21.0'
 
-    jdaVersion                  = '3.8.3_463'
+    jdaVersion                  = '3.8.3_464'
 
     slf4jVersion                = '1.7.26'
     logbackVersion              = '1.2.3'
