@@ -14,7 +14,7 @@ ext {
 
     slf4jVersion                = '1.7.26'
     logbackVersion              = '1.2.3'
-    sentryVersion               = '1.7.22'
+    sentryVersion               = '1.7.24'
 
     yamlVersion                 = '1.24'
     okhttpVersion               = '3.14.2'
