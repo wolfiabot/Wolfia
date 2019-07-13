@@ -3,7 +3,7 @@ ext {
     gradleGitVersion            = '2.0.0'
     grGitVersion                = '3.1.1'
     aptVersion                  = '0.21'
-    springBootVersion           = '2.1.5.RELEASE'
+    springBootVersion           = '2.1.6.RELEASE'
     sonarQubeVersion            = '2.7.1'
     bintrayVersion              = '1.8.4'
     flywayVersion               = '5.2.4'
