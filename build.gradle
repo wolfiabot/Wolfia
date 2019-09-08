@@ -58,7 +58,9 @@ allprojects {
     dependencyUpdates.resolutionStrategy {
         componentSelection { rules ->
             rules.all { ComponentSelection selection ->
-                boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3'].any {
+                boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'preview',
+                                    'b180830.0438', 'b180830.0359', 'b180725.0644', 'b180725.0427' // jaxb bullshit
+                ].any {
                     q -> selection.candidate.version.toLowerCase().contains(q)
                 }
                 if (rejected) {
@@ -199,6 +201,8 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
 }
 
