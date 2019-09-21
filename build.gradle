@@ -3,10 +3,8 @@ import org.apache.tools.ant.filters.ReplaceTokens
 buildscript {
     apply from: 'gradle/versions.gradle'
     repositories {
-        maven { url "https://plugins.gradle.org/m2/" }
-        maven { url 'http://repo.spring.io/plugins-release' }
+        gradlePluginPortal()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:${gradleGitVersion}"
@@ -38,7 +36,6 @@ allprojects {
         jcenter()                               // JDA, maybe others
         mavenCentral()                          // everything else
         maven { url 'https://dl.bintray.com/napster/SqlSauce' }
-        mavenLocal()                            // local maven repo, mostly for testing stuff
         maven { url 'https://jitpack.io' }      //for getting builds from github
     }
 
