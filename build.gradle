@@ -55,7 +55,7 @@ allprojects {
     dependencyUpdates.resolutionStrategy {
         componentSelection { rules ->
             rules.all { ComponentSelection selection ->
-                boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'preview',
+                boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'preview', 'pr1', 'pr2', 'pr3',
                                     'b180830.0438', 'b180830.0359', 'b180725.0644', 'b180725.0427' // jaxb bullshit
                 ].any {
                     q -> selection.candidate.version.toLowerCase().contains(q)
