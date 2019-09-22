@@ -17,6 +17,6 @@ RUN chmod 0644 /etc/cron.d/pg_backup
 RUN touch /var/log/cron.log
 RUN /usr/bin/crontab /etc/cron.d/pg_backup
 
-HEALTHCHECK CMD pg_isready -U $POSTGRES_USER
+HEALTHCHECK --interval=1s --retries=1 CMD /usr/bin/psql -U $POSTGRES_USER -tAc "SELECT 1 FROM pg_database WHERE datname='$DB';" | grep -q 1 || exit 1
 
 ENTRYPOINT ["/bin/bash", "run.sh"]
