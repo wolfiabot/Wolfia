@@ -84,9 +84,7 @@ project('database-codegen') {
 
     ext {
         codegenDbContainerName = 'wolfia-codegen-postgres'
-        codegenJdbcUrl = System.getenv('WOLFIA_CODEGEN_JDBC') == null
-                ? "jdbc:postgresql://127.0.0.1:5434/codegen?user=codegen"
-                : System.getenv('WOLFIA_CODEGEN_JDBC')
+        codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5434/codegen?user=codegen"
     }
 
     dependencies {

@@ -18,7 +18,6 @@ env:
     - secure: "TibOvGlMn0dBK97rMpvHtk17iEQszuZJkL6rqc8FoKOmMb36CFdHK7lGUCGHEoYwCl2Cs4OSICWyLhmYwfP623vYLrXfd5fdBbHWaSO1RtQkGK9+roomb80tkYleKBUArWrteYk+uevWA7HxWoQXmoVKD/DvppF6tZsJq2sv8BFQZSE2XDtiQ5QvotD0j4ypSwatZFT73AAGJlxbT3fBrx5gNw6bLJd8ZEdjRTEL+bHPAh+iqURVg3181RcEJQA3N+uAn2dkdByn4TENBLvsr4HuQmkeG0W7yTWIhZZS+t2sbp4i2PrGmEVaGeqc4DqqVSAR522NLOzwfpxXJcRr9xmfQXnt2qPyfK7cZQET/QuRvUIBw1IQo42Bae2Kk0Xhvm45FSOmgYY1YyFNFhdaK/pCbHd5jmp6djTeajeiEaH7Th6LBcDfTrNK8dmL2THvSxsodH2FRwlks+9t3KY7ZwwxXbpwbPb95qYpR8bDqlf9aIE5awNf6LXTi4l97mMNeLoN9e9yXtmDUdjPGkqZqi1nTdFfJH1Qx3RNwufFRVoIfJ7wNQG1W14hTaw6JGXCbEyJkQ5cHFzSW0T+7KH53IicnXbLDneenViDuw21vBwgT+53aHENhgwR5ZpdbhIyUVdGPvxF8udmp2NCmW3ePJrVKwWHKjj+F9I+5g4F49I="
     - DOCKER_USERNAME: napstr
     - secure: "RFvBcJzgPu2wvPuhxAgYNowqD4UsbgEzG06/DzWcDeRZEemnexCJr46ppL1Q7HDdYE4ftxh5H4g4O92SfNVdo0NZZGfm0E1/aHDurA40+OVML80akkwbxevU+FgXe8qofvhaF+byHgxj5m6VUAuANTV/oA3boyDbFazth8QA2+oOHLKmoTkJG0w/bBqad5q8U99rS+gwJE6tXce02X7Z4Bz7YNbl/luEJoWDVbbCv8jPoHB/RJ+OEQx3/WTKgiSjIpt70eYsjnzgW5ZJ0eWteWwwTACUX254tIUty81rkRvmPUtOEYDakVx4MeqPpsDtFmu/dffJ4ofQXkEX2cW36Y8VOPYP1dBO++iYaPZtInw2xIptIi9xCEJO1Wh1VmEK8Fb2xjFsaFzPTCVz+M0+MZxn7JuGcK1ZHN960zRkkVXP68b+YcGVUgVTJV7DyRQbhyrZY/bD/osJ695KeFx7b9SIus/FH0D2ONqp9Z5gvvA0u+Gt7ChMLY6TJTXVRThzpGOuU203cTZGysBHPfoFKMW4yR2bCFrSHG4ADw8eLFwFiYHwc0EERm8/8Cif3xvE2dTxNAONMbK0zXPGAy42D3dOt7eXT0EDQLQDQjkwGgnlv7lV8FhpEne78V8BdVr+UIUeK0IaNU0DDN/aLW52gLMlrBCYvAX7u4u7A937GYg="
-    - WOLFIA_CODEGEN_JDBC: "jdbc:postgresql://localhost:5432/codegen?user=postgres"
 
 language: java
 
@@ -36,9 +35,6 @@ jobs:
       before_script:
         #for sonar cloud blame information
         - git fetch --unshallow
-        #init codegen db
-        - "psql -c 'CREATE DATABASE codegen;' -U postgres"
-        - "psql -c 'CREATE EXTENSION IF NOT EXISTS hstore WITH SCHEMA pg_catalog;' -d codegen -U postgres"
       script:
         - java -Xmx32m -version
         - ./gradlew build --info
