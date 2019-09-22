@@ -1,3 +1,8 @@
+import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
+import com.bmuschko.gradle.docker.tasks.container.extras.DockerWaitHealthyContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 import org.apache.tools.ant.filters.ReplaceTokens
 
 buildscript {
@@ -16,6 +21,7 @@ buildscript {
         classpath "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:${flywayVersion}"
         classpath "nu.studer:gradle-jooq-plugin:${jooqPluginVersion}"
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
+        classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
     }
 }
 
@@ -71,15 +77,18 @@ allprojects {
 project('database-codegen') {
     apply plugin: 'org.flywaydb.flyway'
     apply plugin: 'nu.studer.jooq'
+    apply plugin: 'com.bmuschko.docker-remote-api'
 
     configurations {
         flywayMigration
     }
 
     ext {
-        codegenJdbcUrl = System.getenv('WOLFIA_CODEGEN_JDBC') == null
-                ? "jdbc:postgresql://localhost:5434/codegen?user=codegen"
-                : System.getenv('WOLFIA_CODEGEN_JDBC')
+        codegenDbImageRepo = 'napstr/wolfia-postgres'
+        codegenDbImageTag = 'master'
+        codegenDbImageName = codegenDbImageRepo + ':' + codegenDbImageTag
+        codegenDbContainerName = 'wolfia-codegen-postgres'
+        codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5434/codegen?user=codegen"
     }
 
     dependencies {
@@ -92,7 +101,44 @@ project('database-codegen') {
         jooqRuntime "org.postgresql:postgresql:$postgresqlVersion"                // access db during codegen
     }
 
+    task pullCodegenDbContainer(type: DockerPullImage) {
+        repository.set(codegenDbImageName)
+    }
+
+    task createCodegenDbContainer(type: DockerCreateContainer) {
+        dependsOn pullCodegenDbContainer
+        targetImageId(codegenDbImageName)
+        containerName.set(codegenDbContainerName)
+        autoRemove.set(true)
+        portBindings.set(['127.0.0.1:5434:5432'])
+        withEnvVar('ROLE', 'codegen')
+        withEnvVar('DB', 'codegen')
+    }
+
+    task stopCodegenDbContainerPre(type: StopCodegenDbContainer) {
+        targetContainerId codegenDbContainerName
+    }
+
+    task stopCodegenDbContainerPost(type: StopCodegenDbContainer) {
+        targetContainerId codegenDbContainerName
+    }
+
+
+    task startCodegenDbContainer(type: DockerStartContainer) {
+        createCodegenDbContainer.mustRunAfter stopCodegenDbContainerPre
+        dependsOn(stopCodegenDbContainerPre, createCodegenDbContainer)
+        targetContainerId codegenDbContainerName
+
+    }
+
+    task awaitCodegenDbContainer(type: DockerWaitHealthyContainer) {
+        dependsOn startCodegenDbContainer
+        targetContainerId codegenDbContainerName
+        awaitStatusTimeout.set(40)
+    }
+
     flyway {
+        flywayClean.dependsOn(awaitCodegenDbContainer)
         flywayMigrate.dependsOn(flywayClean)
         url = "$codegenJdbcUrl"
         locations = ['filesystem:database-codegen/src/main/resources/db/migrations']
@@ -126,10 +172,12 @@ project('database-codegen') {
 
     generateWolfiaJooqSchemaSource {
         dependsOn(flywayMigrate)
+        finalizedBy stopCodegenDbContainerPost
     }
 
     test {
         dependsOn(flywayMigrate)
+        finalizedBy stopCodegenDbContainerPost
     }
 }
 
@@ -264,6 +312,18 @@ bintray {
         userOrg = user
         version {
             name = project.version
+        }
+    }
+}
+
+//need two of these tasks, otherwise gradle complains about circular dependencies
+class StopCodegenDbContainer extends DockerStopContainer {
+    StopCodegenDbContainer() {
+        onError { exception ->
+            // Ignore exception if container does not exist otherwise throw it
+            if (exception != null && exception.message != null //memes
+                    && !exception.message.contains('No such container'))
+                throw exception
         }
     }
 }
