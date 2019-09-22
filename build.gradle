@@ -2,6 +2,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.container.extras.DockerWaitHealthyContainer
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 import org.apache.tools.ant.filters.ReplaceTokens
 
 buildscript {
@@ -83,6 +84,9 @@ project('database-codegen') {
     }
 
     ext {
+        codegenDbImageRepo = 'napstr/wolfia-postgres'
+        codegenDbImageTag = 'master'
+        codegenDbImageName = codegenDbImageRepo + ':' + codegenDbImageTag
         codegenDbContainerName = 'wolfia-codegen-postgres'
         codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5434/codegen?user=codegen"
     }
@@ -97,11 +101,16 @@ project('database-codegen') {
         jooqRuntime "org.postgresql:postgresql:$postgresqlVersion"                // access db during codegen
     }
 
+    task pullCodegenDbContainer(type: DockerPullImage) {
+        repository.set(codegenDbImageName)
+    }
+
     task createCodegenDbContainer(type: DockerCreateContainer) {
-        targetImageId 'napstr/wolfia-postgres:master'
-        containerName = codegenDbContainerName
-        autoRemove = true
-        portBindings = ['127.0.0.1:5434:5432']
+        dependsOn pullCodegenDbContainer
+        targetImageId(codegenDbImageName)
+        containerName.set(codegenDbContainerName)
+        autoRemove.set(true)
+        portBindings.set(['127.0.0.1:5434:5432'])
         withEnvVar('ROLE', 'codegen')
         withEnvVar('DB', 'codegen')
     }
