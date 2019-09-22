@@ -9,6 +9,7 @@ ext {
     flywayVersion               = '5.2.4'
     jooqPluginVersion           = '3.0.3'
     versionsPluginVersion       = '0.25.0'
+    dockerPluginVersion         = '5.1.0'
 
     jdaVersion                  = '3.8.3_464'
 
