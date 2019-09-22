@@ -22,6 +22,7 @@ buildscript {
         classpath "nu.studer:gradle-jooq-plugin:${jooqPluginVersion}"
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
         classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
+        classpath "com.adarshr:gradle-test-logger-plugin:${testLoggerVersion}"
     }
 }
 
@@ -33,6 +34,7 @@ allprojects {
     apply plugin: 'java-library'
     apply plugin: 'idea'
     apply plugin: 'com.github.ben-manes.versions'
+    apply plugin: 'com.adarshr.test-logger'
 
     group = 'space.npstr.wolfia'
 
@@ -71,6 +73,14 @@ allprojects {
                 }
             }
         }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+
+    testlogger {
+        theme 'mocha'
     }
 }
 
@@ -249,6 +259,11 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonKotlinVersion"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:$springBootVersion"
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$jUnitVersion"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:$jUnitVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+    testImplementation "org.testcontainers:testcontainers:$testcontainersVersion"
 }
 
 compileJava.dependsOn 'clean'

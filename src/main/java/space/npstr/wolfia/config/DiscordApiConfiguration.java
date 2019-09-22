@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.sqlsauce.DatabaseWrapper;
@@ -51,6 +52,7 @@ public class DiscordApiConfiguration {
         return jdaThreadPool;
     }
 
+    @Profile("!test")
     @Bean(destroyMethod = "") //we manage the lifecycle ourselves tyvm, see shutdown hook in the launcher
     public ShardManager shardManager(final WolfiaConfig wolfiaConfig, final Database database,
                                      final CommandListener commandListener, final OkHttpClient.Builder httpClientBuilder,
