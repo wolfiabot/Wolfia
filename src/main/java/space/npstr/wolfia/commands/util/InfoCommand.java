@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.util;
 
+import net.dv8tion.jda.bot.entities.ApplicationInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.User;
@@ -55,6 +56,13 @@ public class InfoCommand implements BaseCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext context) {
+        context.getEvent().getJDA().asBot().getShardManager().getApplicationInfo().submit()
+                .thenApply(ApplicationInfo::getDescription)
+                .thenAccept(description -> execute(context, description));
+        return true;
+    }
+
+    private void execute(@Nonnull final CommandContext context, String description) {
         final User owner = Wolfia.getUserById(App.OWNER_ID);
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
@@ -81,12 +89,11 @@ public class InfoCommand implements BaseCommand {
         eb.setThumbnail(self.getEffectiveAvatarUrl());
         eb.setAuthor(self.getName(), App.SITE_LINK, self.getEffectiveAvatarUrl());
         eb.setTitle(self.getName() + " General Stats", App.SITE_LINK);
-        eb.setDescription(App.getDescription());
+        eb.setDescription(description);
         eb.addField("Bot info", botInfo, false);
         eb.addField("Machine stats", maStats, false);
 
 
         context.reply(eb.build());
-        return true;
     }
 }

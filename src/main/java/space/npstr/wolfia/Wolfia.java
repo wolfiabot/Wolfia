@@ -130,9 +130,6 @@ public class Wolfia {
         }
         started = true;
 
-        shardManager.getApplicationInfo().queue(
-                App::setAppInfo,
-                t -> log.error("Could not load application info", t));
 
         //sync guild cache
         // this takes a few seconds to do, so do it as the last thing of the main method, or put it into it's own thread
