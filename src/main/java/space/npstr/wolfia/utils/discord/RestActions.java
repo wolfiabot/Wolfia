@@ -44,36 +44,15 @@ public class RestActions {
             runnable -> new Thread(runnable, "rest-actions-scheduler"));
 
 
-    // ********************************************************************************
-    //       Thread local handling and providing of Messages and Embeds builders
-    // ********************************************************************************
-
-    //instead of creating hundreds of MessageBuilder and EmbedBuilder objects we're going to reuse the existing ones, on
-    // a per-thread scope
-    // this makes sense since the vast majority of message processing in the main JDA threads
-
-    private static final ThreadLocal<MessageBuilder> threadLocalMessageBuilder = ThreadLocal.withInitial(MessageBuilder::new);
-    private static final ThreadLocal<EmbedBuilder> threadLocalEmbedBuilder = ThreadLocal.withInitial(EmbedBuilder::new);
-
-    @Nonnull
-    public static MessageBuilder getMessageBuilder() {
-        return threadLocalMessageBuilder.get().clear();
-    }
-
-    @Nonnull
-    public static EmbedBuilder getEmbedBuilder() {
-        return threadLocalEmbedBuilder.get().clear();
-    }
-
     //May not be an empty string, as MessageBuilder#build() will throw an exception
     @Nonnull
     public static Message from(final String string) {
-        return getMessageBuilder().append(string).build();
+        return new MessageBuilder().append(string).build();
     }
 
     @Nonnull
     public static Message from(final MessageEmbed embed) {
-        return getMessageBuilder().setEmbed(embed).build();
+        return new MessageBuilder().setEmbed(embed).build();
     }
 
 

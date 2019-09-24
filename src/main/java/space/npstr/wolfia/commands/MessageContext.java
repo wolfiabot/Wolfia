@@ -19,6 +19,7 @@ package space.npstr.wolfia.commands;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
@@ -187,7 +188,7 @@ public class MessageContext implements Context {
     }
 
     public void reply(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
-        reply(RestActions.getMessageBuilder().append(message).build(), onSuccess);
+        reply(new MessageBuilder().append(message).build(), onSuccess);
     }
 
     public void reply(@Nonnull final Message message) {
@@ -195,7 +196,7 @@ public class MessageContext implements Context {
     }
 
     public void reply(@Nonnull final String message) {
-        reply(RestActions.getMessageBuilder().append(message).build(), null);
+        reply(new MessageBuilder().append(message).build(), null);
     }
 
     public void replyWithName(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
@@ -229,7 +230,7 @@ public class MessageContext implements Context {
     }
 
     public void replyImage(@Nonnull final String url, @Nullable final String message) {
-        reply(RestActions.getMessageBuilder()
+        reply(new MessageBuilder()
                 .setEmbed(embedImage(url))
                 .append(message != null ? message : "")
                 .build()
@@ -252,7 +253,7 @@ public class MessageContext implements Context {
      */
     @Nonnull
     public static EmbedBuilder getDefaultEmbedBuilder() {
-        return RestActions.getEmbedBuilder()
+        return new EmbedBuilder()
                 .setColor(BLACKIA);
     }
 

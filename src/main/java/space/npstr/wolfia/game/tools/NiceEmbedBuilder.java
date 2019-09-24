@@ -33,26 +33,17 @@ import java.util.List;
  */
 public class NiceEmbedBuilder extends EmbedBuilder {
 
-    private static final ThreadLocal<NiceEmbedBuilder> threadLocalNiceEmbedBuilder = ThreadLocal.withInitial(NiceEmbedBuilder::new);
-
     /**
      * @return a general purpose preformatted nice builder for embeds
      */
     @Nonnull
     public static NiceEmbedBuilder defaultBuilder() {
-        final NiceEmbedBuilder neb = builder();
+        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
         neb.setColor(MessageContext.BLACKIA);
         return neb;
     }
 
-    @Nonnull
-    public static NiceEmbedBuilder builder() {
-        final NiceEmbedBuilder neb = threadLocalNiceEmbedBuilder.get();
-        neb.clear();
-        return neb;
-    }
-
-    private NiceEmbedBuilder() {
+    public NiceEmbedBuilder() {
     }
 
     //default trim is true

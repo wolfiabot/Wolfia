@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.utils.discord;
 
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Invite;
 import net.dv8tion.jda.core.entities.Member;
@@ -253,7 +254,7 @@ public class TextchatUtils {
     @Nonnull
     private static Message prefaceWithString(@Nonnull final String preface, @Nonnull final String msg) {
         final String message = ensureSpace(msg);
-        return RestActions.getMessageBuilder()
+        return new MessageBuilder()
                 .append(preface)
                 .append(",")
                 .append(message)
