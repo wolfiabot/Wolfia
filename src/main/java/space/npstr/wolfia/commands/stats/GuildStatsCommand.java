@@ -37,6 +37,12 @@ public class GuildStatsCommand implements BaseCommand {
 
     public static final String TRIGGER = "guildstats";
 
+    private final StatsProvider statsProvider;
+
+    public GuildStatsCommand(StatsProvider statsProvider) {
+        this.statsProvider = statsProvider;
+    }
+
     @Override
     public String getTrigger() {
         return TRIGGER;
@@ -58,7 +64,7 @@ public class GuildStatsCommand implements BaseCommand {
         if (context.hasArguments()) {
             try {
                 final long guildId = Long.parseLong(context.args[0]);
-                context.reply(StatsProvider.getGuildStats(guildId).build());
+                context.reply(this.statsProvider.getGuildStats(guildId).build());
                 return true;
             } catch (final NumberFormatException e) {
                 context.help();
@@ -73,7 +79,7 @@ public class GuildStatsCommand implements BaseCommand {
         }
 
         final long guildId = context.getGuild().getIdLong();
-        context.reply(StatsProvider.getGuildStats(guildId).build());
+        context.reply(this.statsProvider.getGuildStats(guildId).build());
         return true;
     }
 }

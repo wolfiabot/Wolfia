@@ -36,6 +36,12 @@ public class BotStatsCommand implements BaseCommand {
 
     public static final String TRIGGER = "botstats";
 
+    private final StatsProvider statsProvider;
+
+    public BotStatsCommand(StatsProvider statsProvider) {
+        this.statsProvider = statsProvider;
+    }
+
     @Override
     public String getTrigger() {
         return TRIGGER;
@@ -51,7 +57,7 @@ public class BotStatsCommand implements BaseCommand {
     @Override
     public boolean execute(@Nonnull final CommandContext context)
             throws DatabaseException, IllegalGameStateException {
-        context.reply(StatsProvider.getBotStats().build());
+        context.reply(this.statsProvider.getBotStats().build());
         return true;
     }
 }

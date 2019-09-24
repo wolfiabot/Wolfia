@@ -37,6 +37,12 @@ public class UserStatsCommand implements BaseCommand {
 
     public static final String TRIGGER = "userstats";
 
+    private final StatsProvider statsProvider;
+
+    public UserStatsCommand(StatsProvider statsProvider) {
+        this.statsProvider = statsProvider;
+    }
+
     @Override
     public String getTrigger() {
         return TRIGGER;
@@ -68,12 +74,12 @@ public class UserStatsCommand implements BaseCommand {
                 }
             }
 
-            context.reply(StatsProvider.getUserStats(userId).build());
+            context.reply(this.statsProvider.getUserStats(userId).build());
             return true;
         }
 
         for (final User u : context.msg.getMentionedUsers()) {
-            context.reply(StatsProvider.getUserStats(u.getIdLong()).build());
+            context.reply(this.statsProvider.getUserStats(u.getIdLong()).build());
         }
         return true;
     }

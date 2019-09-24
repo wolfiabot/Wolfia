@@ -19,6 +19,7 @@ package space.npstr.wolfia.utils;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
@@ -47,6 +48,7 @@ import static space.npstr.wolfia.utils.discord.TextchatUtils.percentFormat;
  * <p>
  * This class takes data out of the database and formats it in a presentable way
  */
+@Component
 public class StatsProvider {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(StatsProvider.class);
@@ -112,7 +114,7 @@ public class StatsProvider {
 
     //this should be rather similar to getGuildStats
     @SuppressWarnings("unchecked")
-    public static EmbedBuilder getBotStats() throws DatabaseException {
+    public EmbedBuilder getBotStats() throws DatabaseException {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
@@ -169,7 +171,7 @@ public class StatsProvider {
 
 
     @SuppressWarnings("unchecked")
-    public static EmbedBuilder getGuildStats(final long guildId) throws DatabaseException {
+    public EmbedBuilder getGuildStats(final long guildId) throws DatabaseException {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
@@ -234,7 +236,7 @@ public class StatsProvider {
     }
 
     @SuppressWarnings("unchecked")
-    public static EmbedBuilder getUserStats(final long userId) throws DatabaseException {
+    public EmbedBuilder getUserStats(final long userId) throws DatabaseException {
         //get data out of the database
         final List<Map<String, Object>> gamesByUser = new ArrayList<>();
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
