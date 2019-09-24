@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.OkHttpClient;
+import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.wolfia.Wolfia;
 
@@ -39,6 +40,7 @@ import java.util.concurrent.Future;
  * <p>
  * Takes care of posting all our stats to various listing sites
  */
+@Component
 public class Listings extends ListenerAdapter {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Listings.class);

@@ -56,7 +56,7 @@ public class DiscordApiConfiguration {
     @Bean(destroyMethod = "") //we manage the lifecycle ourselves tyvm, see shutdown hook in the launcher
     public ShardManager shardManager(final WolfiaConfig wolfiaConfig, final Database database,
                                      final CommandListener commandListener, final OkHttpClient.Builder httpClientBuilder,
-                                     final ScheduledExecutorService jdaThreadPool)
+                                     final ScheduledExecutorService jdaThreadPool, Listings listings)
             throws LoginException {
 
         final DatabaseWrapper wrapper = database.getWrapper();
@@ -67,7 +67,7 @@ public class DiscordApiConfiguration {
                 .addEventListeners(new UserMemberCachingListener<>(wrapper, CachedUser.class))
                 .addEventListeners(new GuildCachingListener<>(wrapper, CachedGuild.class))
                 .addEventListeners(new InternalListener())
-                .addEventListeners(new Listings(httpClientBuilder))
+                .addEventListeners(listings)
                 .addEventListeners(new WolfiaGuildListener())
                 .setHttpClientBuilder(httpClientBuilder
                         .eventListener(new OkHttpEventCounter("jda")))
