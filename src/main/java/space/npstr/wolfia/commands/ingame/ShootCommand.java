@@ -17,26 +17,37 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import space.npstr.wolfia.commands.CommRegistry;
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by napster on 21.05.17.
  * <p>
  * A player shoots another player
  */
+@Component
 public class ShootCommand extends GameCommand {
 
-    public ShootCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "shoot";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("s", "blast");
     }
 
     @Nonnull
@@ -65,7 +76,7 @@ public class ShootCommand extends GameCommand {
 
                 if (game == null) {
                     context.replyWithMention(String.format("there is no game currently going on in here. Say `%s` to get started!",
-                            WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                            WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER));
                     return false;
                 }
             }
@@ -85,7 +96,7 @@ public class ShootCommand extends GameCommand {
             }
             if (!issued) {
                 commandContext.replyWithMention(String.format("you aren't playing in any game currently. Say `%s` to get started!",
-                        WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                        WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER));
                 return false;
             }
             return success;

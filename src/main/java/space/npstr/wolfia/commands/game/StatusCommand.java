@@ -17,18 +17,20 @@
 
 package space.npstr.wolfia.commands.game;
 
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by npstr on 24.08.2016
@@ -38,10 +40,19 @@ import javax.annotation.Nonnull;
  * is there a game running, whats it's state?
  * if not, is there a setup created for this channel, whats the status here, inned players etc?
  */
-public class StatusCommand extends BaseCommand {
+@Component
+public class StatusCommand implements BaseCommand {
 
-    public StatusCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "status";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("st");
     }
 
     @Nonnull
@@ -86,7 +97,7 @@ public class StatusCommand extends BaseCommand {
             }
             if (!issued) {
                 commandContext.replyWithMention(String.format("you aren't playing in any game currently. Say `%s` to get started!",
-                        WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                        WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER));
                 return false;
             }
             return true;

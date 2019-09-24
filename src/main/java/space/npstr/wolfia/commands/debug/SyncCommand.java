@@ -19,6 +19,7 @@ package space.npstr.wolfia.commands.debug;
 
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
+import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
@@ -46,7 +47,8 @@ import java.util.stream.Stream;
 /**
  * Created by napster on 07.12.17.
  */
-public class SyncCommand extends BaseCommand implements IOwnerRestricted {
+@Component
+public class SyncCommand implements BaseCommand, IOwnerRestricted {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SyncCommand.class);
 
@@ -56,23 +58,24 @@ public class SyncCommand extends BaseCommand implements IOwnerRestricted {
     private final ExecutorService syncService;
     private final DiscordEntityProvider discordEntityProvider;
 
-
-    @Nonnull
-    @Override
-    protected String help() {
-        return "Force a sync of the guilds and/or users present in the bot with the data saved in the database.";
-    }
-
-
-    public SyncCommand(DiscordEntityProvider discordEntityProvider, ThreadPoolCollector poolMetrics,
-                       @Nonnull final String trigger, @Nonnull final String... aliases) {
-        super(trigger, aliases);
+    public SyncCommand(DiscordEntityProvider discordEntityProvider, ThreadPoolCollector poolMetrics) {
         this.discordEntityProvider = discordEntityProvider;
         final int databasePoolSize = Launcher.getBotContext().getDatabase().getConnection().getMaxPoolSize();
         final int workers = Math.max(1, databasePoolSize / 2);//dont hog the database
         this.syncService = Executors.newFixedThreadPool(workers,
                 runnable -> new Thread(runnable, "sync-command-worker"));
         poolMetrics.addPool("sync", (ThreadPoolExecutor) this.syncService);
+    }
+
+    @Override
+    public String getTrigger() {
+        return "sync";
+    }
+
+    @Nonnull
+    @Override
+    public String help() {
+        return "Force a sync of the guilds and/or users present in the bot with the data saved in the database.";
     }
 
     @Override

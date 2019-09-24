@@ -17,19 +17,30 @@
 
 package space.npstr.wolfia.commands.ingame;
 
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.GameCommand;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by napster on 06.07.17.
  * <p>
  * Remove a vote
  */
+@Component
 public class UnvoteCommand extends GameCommand {
 
-    public UnvoteCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "unvote";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("u", "uv");
     }
 
     @Nonnull

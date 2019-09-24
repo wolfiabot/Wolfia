@@ -25,35 +25,44 @@ import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Created by npstr on 23.08.2016
  */
-public abstract class BaseCommand {
+public interface BaseCommand {
 
-    public final String name;
-    public final List<String> aliases;
+    /**
+     * @return the commands main trigger
+     */
+    String getTrigger();
 
-    public BaseCommand(@Nonnull final String name, @Nonnull final String... aliases) {
-        this.name = name;
-        this.aliases = Arrays.asList(aliases);
+    /**
+     * @return the commands aliases
+     */
+    default List<String> getAliases() {
+        return Collections.emptyList();
     }
 
-    //executes the command
-    protected abstract boolean execute(@Nonnull CommandContext context)
-            throws IllegalGameStateException, DatabaseException;
+    /**
+     * Execute the command
+     */
+    boolean execute(@Nonnull CommandContext context) throws IllegalGameStateException, DatabaseException;
 
-    //return a help string that should explain the usage of this command
+    /**
+     * @return a help string that should explain the usage of this command
+     */
     @Nonnull
-    protected abstract String help();
+    String help();
 
-    //returns a help string with aliases, if there are any
-    public String getHelp() {
-        if (!this.aliases.isEmpty()) {
-            final List<String> prefixedAliases = this.aliases.stream()
+    /**
+     * @return a help string with aliases, if there are any
+     */
+    default String getHelp() {
+        if (!getAliases().isEmpty()) {
+            final List<String> prefixedAliases = getAliases().stream()
                     .map(alias -> WolfiaConfig.DEFAULT_PREFIX + alias)
                     .collect(Collectors.toList());
             return help() + "\nAlias: " + String.join(", ", prefixedAliases);
@@ -62,15 +71,19 @@ public abstract class BaseCommand {
         }
     }
 
-    //will return a better formatted representation of a commands help
-    public String formatHelp(final User invoker) {
+    /**
+     * @return a better formatted representation of a commands help
+     */
+    default String formatHelp(final User invoker) {
         return String.format("%s, I did not understand that input. Here's some help:%n%s",
                 invoker.getAsMention(), TextchatUtils.asMarkdown(getHelp()));
     }
 
-    //how to invoke this command with its main trigger
+    /**
+     * @return how to invoke this command with its main trigger
+     */
     @Nonnull
-    protected String invocation() {
-        return WolfiaConfig.DEFAULT_PREFIX + this.name;
+    default String invocation() {
+        return WolfiaConfig.DEFAULT_PREFIX + getTrigger();
     }
 }

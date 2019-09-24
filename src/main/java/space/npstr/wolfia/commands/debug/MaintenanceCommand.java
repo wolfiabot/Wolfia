@@ -1,5 +1,6 @@
 package space.npstr.wolfia.commands.debug;
 
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.Hstore;
 import space.npstr.wolfia.Launcher;
@@ -15,10 +16,12 @@ import javax.annotation.Nonnull;
  * <p>
  * Sets the maintenance flag
  */
-public class MaintenanceCommand extends BaseCommand implements IOwnerRestricted {
+@Component
+public class MaintenanceCommand implements BaseCommand, IOwnerRestricted {
 
-    public MaintenanceCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    @Override
+    public String getTrigger() {
+        return "maint";
     }
 
     public static final String MAINTENANCE_FLAG = "maintenanceFlag";

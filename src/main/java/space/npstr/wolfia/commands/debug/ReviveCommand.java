@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands.debug;
 
 import net.dv8tion.jda.core.JDA;
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -30,17 +31,19 @@ import javax.annotation.Nonnull;
 /**
  * Created by napster on 19.11.17.
  */
-public class ReviveCommand extends BaseCommand implements IOwnerRestricted {
+@Component
+public class ReviveCommand implements BaseCommand, IOwnerRestricted {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReviveCommand.class);
 
-    public ReviveCommand(@Nonnull final String trigger, @Nonnull final String... aliases) {
-        super(trigger, aliases);
+    @Override
+    public String getTrigger() {
+        return "revive";
     }
 
     @Nonnull
     @Override
-    protected String help() {
+    public String help() {
         return "Revive a shard by id.";
     }
 

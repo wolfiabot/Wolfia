@@ -18,9 +18,10 @@
 package space.npstr.wolfia.commands.ingame;
 
 import net.dv8tion.jda.core.entities.ChannelType;
-import space.npstr.wolfia.commands.CommRegistry;
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
+import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Player;
@@ -34,10 +35,14 @@ import java.util.stream.Collectors;
 /**
  * Created by napster on 14.12.17.
  */
+@Component
 public class ItemsCommand extends GameCommand {
 
-    public ItemsCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "items";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
     }
 
     @Nonnull
@@ -72,7 +77,7 @@ public class ItemsCommand extends GameCommand {
         }
         if (!issued) {
             context.replyWithMention(String.format("you aren't alive and in any ongoing game currently. Say `%s` to get started!",
-                    WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                    WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER));
             return false;
         }
         return true;

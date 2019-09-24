@@ -19,9 +19,9 @@ package space.npstr.wolfia.commands.util;
 
 
 import net.dv8tion.jda.core.entities.Role;
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
@@ -35,16 +35,20 @@ import javax.annotation.Nonnull;
  * <p>
  * Allows users to add / remove special roles in the Wolfia Lounge
  */
-public class RankCommand extends BaseCommand {
+@Component
+public class RankCommand implements BaseCommand {
+
+    public static final String TRIGGER = "rank";
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RankCommand.class);
 
-    public RankCommand(@Nonnull final String name, @Nonnull final String... aliases) {
-        super(name, aliases);
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
     }
 
     @Override
-    protected boolean execute(@Nonnull final CommandContext commandContext) {
+    public boolean execute(@Nonnull final CommandContext commandContext) {
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
@@ -52,7 +56,7 @@ public class RankCommand extends BaseCommand {
 
         if (context.guild.getIdLong() != App.WOLFIA_LOUNGE_ID) {
             context.reply(String.format("This command is restricted to the official Wolfia Lounge. Say `%s` to get invited.",
-                    WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
+                    WolfiaConfig.DEFAULT_PREFIX + InviteCommand.TRIGGER));
             return false;
         }
 
@@ -91,7 +95,7 @@ public class RankCommand extends BaseCommand {
 
     @Nonnull
     @Override
-    protected String help() {
+    public String help() {
         return invocation() + " AlphaWolves OR Announcements"
                 + "\n#Add or remove special roles of the official Wolfia Lounge for you.";
     }

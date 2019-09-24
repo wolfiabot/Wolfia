@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.stats;
 
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -30,10 +31,14 @@ import javax.annotation.Nonnull;
  * <p>
  * Show stats of the whole bot
  */
-public class BotStatsCommand extends BaseCommand {
+@Component
+public class BotStatsCommand implements BaseCommand {
 
-    public BotStatsCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "botstats";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
     }
 
     @Nonnull

@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands.stats;
 
 import net.dv8tion.jda.core.entities.Guild;
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -31,10 +32,14 @@ import javax.annotation.Nonnull;
  * <p>
  * Display stats for a guild
  */
-public class GuildStatsCommand extends BaseCommand {
+@Component
+public class GuildStatsCommand implements BaseCommand {
 
-    public GuildStatsCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "guildstats";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
     }
 
     @Nonnull
@@ -66,7 +71,7 @@ public class GuildStatsCommand extends BaseCommand {
             context.help();
             return false;
         }
-        
+
         final long guildId = context.getGuild().getIdLong();
         context.reply(StatsProvider.getGuildStats(guildId).build());
         return true;

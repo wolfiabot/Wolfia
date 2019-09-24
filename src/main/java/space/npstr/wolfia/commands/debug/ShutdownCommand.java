@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -30,10 +31,13 @@ import javax.annotation.Nonnull;
  * <p>
  * Shut the bot down
  */
-public class ShutdownCommand extends BaseCommand implements IOwnerRestricted {
+@Component
+public class ShutdownCommand implements BaseCommand, IOwnerRestricted {
 
-    public ShutdownCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+
+    @Override
+    public String getTrigger() {
+        return "shutdown";
     }
 
     @Nonnull

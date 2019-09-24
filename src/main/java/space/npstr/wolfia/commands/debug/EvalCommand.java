@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
@@ -41,7 +42,8 @@ import java.util.concurrent.TimeoutException;
  * <p>
  * run js code in the bot
  */
-public class EvalCommand extends BaseCommand implements IOwnerRestricted {
+@Component
+public class EvalCommand implements BaseCommand, IOwnerRestricted {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(EvalCommand.class);
 
@@ -50,8 +52,7 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
     //Thanks Fred & Dinos!
     private final ScriptEngine engine;
 
-    public EvalCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public EvalCommand() {
         this.engine = new ScriptEngineManager().getEngineByName("nashorn");
         try {
             this.engine.eval("var imports = new JavaImporter("
@@ -86,6 +87,11 @@ public class EvalCommand extends BaseCommand implements IOwnerRestricted {
         } catch (final ScriptException ex) {
             log.error("Failed to init eval command", ex);
         }
+    }
+
+    @Override
+    public String getTrigger() {
+        return "eval";
     }
 
     @Nonnull

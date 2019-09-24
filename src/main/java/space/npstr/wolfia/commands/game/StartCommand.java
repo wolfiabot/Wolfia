@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.game;
 
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -34,10 +35,14 @@ import javax.annotation.Nonnull;
  * <p>
  * any signed up player can use this command to start a game
  */
-public class StartCommand extends BaseCommand {
+@Component
+public class StartCommand implements BaseCommand {
 
-    public StartCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "start";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
     }
 
     @Nonnull

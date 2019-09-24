@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
@@ -29,11 +30,7 @@ import javax.annotation.Nonnull;
  * <p>
  * Game commands are different from regular commands as they can be registered by games.
  */
-public abstract class GameCommand extends BaseCommand {
-
-    public GameCommand(final String trigger, final String... triggers) {
-        super(trigger, triggers);
-    }
+public abstract class GameCommand implements BaseCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
@@ -54,7 +51,7 @@ public abstract class GameCommand extends BaseCommand {
 
             if (game == null) {
                 context.replyWithMention(String.format("there is no game currently going on in here. Say `%s` to get started!",
-                        WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HELP));
+                        WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER));
                 return false;
             }
         }

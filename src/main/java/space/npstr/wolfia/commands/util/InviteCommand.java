@@ -18,25 +18,36 @@
 package space.npstr.wolfia.commands.util;
 
 
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by napster on 21.11.17.
  */
-public class InviteCommand extends BaseCommand {
+@Component
+public class InviteCommand implements BaseCommand {
 
-    public InviteCommand(@Nonnull final String name, @Nonnull final String... aliases) {
-        super(name, aliases);
+    public static final String TRIGGER = "invite";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("inv");
     }
 
     @Nonnull
     @Override
-    protected String help() {
+    public String help() {
         return invocation()
                 + "\n#Post invite links for Wolfia and the Wolfia Lounge.";
     }

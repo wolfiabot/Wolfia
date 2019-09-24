@@ -24,11 +24,11 @@ import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
-import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
@@ -50,10 +50,14 @@ import java.util.stream.Collectors;
  * <p>
  * Allows users to sign up for a tag list
  */
-public class TagCommand extends BaseCommand {
+@Component
+public class TagCommand implements BaseCommand {
 
-    public TagCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "tag";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
     }
 
     @Nonnull
@@ -111,7 +115,7 @@ public class TagCommand extends BaseCommand {
             if (!tags.contains(context.invoker.getIdLong())
                     && context.member.getRoles().stream().mapToLong(Role::getIdLong).noneMatch(tags::contains)) {
                 context.replyWithMention(String.format("you can't use the taglist when you aren't part of it yourself. "
-                        + "Say `%s` to add yourself to it.", WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_TAG + " +"));
+                        + "Say `%s` to add yourself to it.", WolfiaConfig.DEFAULT_PREFIX + TagCommand.TRIGGER + " +"));
                 return false;
             }
 

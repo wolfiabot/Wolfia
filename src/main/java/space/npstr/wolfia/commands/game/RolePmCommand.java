@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.game;
 
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -25,16 +26,26 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by napster on 27.05.17.
  * <p>
  * resend a role PM to a player
  */
-public class RolePmCommand extends BaseCommand {
+@Component
+public class RolePmCommand implements BaseCommand {
 
-    public RolePmCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "rolepm";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("rpm");
     }
 
     @Nonnull

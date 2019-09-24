@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.util;
 
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -44,12 +45,16 @@ import java.util.stream.Collectors;
  * <p>
  * Shows replays of games that are over
  */
-public class ReplayCommand extends BaseCommand {
+@Component
+public class ReplayCommand implements BaseCommand {
+
+    public static final String TRIGGER = "replay";
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReplayCommand.class);
 
-    public ReplayCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
     }
 
     @Nonnull

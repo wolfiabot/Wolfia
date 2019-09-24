@@ -24,11 +24,12 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.Context;
+import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.HohohoCommand;
+import space.npstr.wolfia.commands.ingame.ItemsCommand;
 import space.npstr.wolfia.commands.ingame.NightkillCommand;
 import space.npstr.wolfia.commands.ingame.OpenPresentCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
@@ -107,13 +108,13 @@ public class Mafia extends Game {
             .header("Day ends in **%timeleft** with a lynch.")
             .notes(String.format("**Use `%s` to cast a vote on a player.**"
                     + "%nOnly your last vote will be counted."
-                    + "%nMajority is enabled.", WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_VOTE));
+                    + "%nMajority is enabled.", WolfiaConfig.DEFAULT_PREFIX + VoteCommand.TRIGGER));
 
     private final VotingBuilder nightKillVotingBuilder = new VotingBuilder()
             .unvoteEmoji(Emojis.X)
             .header("Night ends in **%timeleft**.")
             .notes(String.format("**Use `%s` to cast a vote on a player.**"
-                    + "%nOnly your last vote will be counted.", WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_NIGHTKILL));
+                    + "%nOnly your last vote will be counted.", WolfiaConfig.DEFAULT_PREFIX + NightkillCommand.TRIGGER));
 
     @Override
     public void setDayLength(final long dayLength, final TimeUnit timeUnit) {
@@ -196,7 +197,7 @@ public class Mafia extends Game {
                     e -> RestActions.sendMessage(gameChannel,
                             String.format("%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                             "and/or unblock me, then issue `%s` to receive your role PM.",
-                                    player.asMention(), WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_ROLEPM))
+                                    player.asMention(), WolfiaConfig.DEFAULT_PREFIX + RolePmCommand.TRIGGER))
             );
         }
 
@@ -364,7 +365,7 @@ public class Mafia extends Game {
 
             return nkVote(invoker, candidate, context);
         } else {
-            context.replyWithMention("the '" + context.command.name + "' command is not part of this game.");
+            context.replyWithMention("the '" + context.command.getTrigger() + "' command is not part of this game.");
             return false;
         }
     }
@@ -475,7 +476,7 @@ public class Mafia extends Game {
         }
         if (hasPresent == null) {
             final String message = String.format("You don't have any presents to open. Say `%s` to see your items.",
-                    WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_ITEMS);
+                    WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER);
             context.reply(message);
             return false;
         } else {
@@ -495,7 +496,7 @@ public class Mafia extends Game {
             if (angel.isPresent()) {
                 invoker.items.remove(angel.get());
                 invoker.sendMessage(String.format("Your present contained a %s, but luckily one of your %ss saved you! Say `%s` to see what items you have left.",
-                        Item.Items.BOMB, Item.Items.ANGEL, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+                        Item.Items.BOMB, Item.Items.ANGEL, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
                 RestActions.sendMessage(fetchGameChannel(), "An explosion is heard, but nobody dies.");
                 return true;
             }
@@ -552,7 +553,7 @@ public class Mafia extends Game {
         if (gun.isPresent()) {
             invoker.items.remove(gun.get());
             invoker.sendMessage(String.format("You used up one of your %ss. Say `%s` to see what items you have left.",
-                    Item.Items.GUN, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+                    Item.Items.GUN, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
         }
 
         //use up an angel if the target has one
@@ -560,7 +561,7 @@ public class Mafia extends Game {
         if (angel.isPresent()) {
             target.items.remove(angel.get());
             target.sendMessage(String.format("One of your %ss saved you! Say `%s` to see what items you have left.",
-                    Item.Items.ANGEL, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+                    Item.Items.ANGEL, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
             RestActions.sendMessage(fetchGameChannel(), "A shot rings out, but nobody dies.");
             return true;
         }
@@ -652,8 +653,8 @@ public class Mafia extends Game {
         RestActions.sendMessage(gameChannel, String.format("Day %s started! You have %s minutes to discuss. You may vote a"
                         + " player for lynch with `%s`. You can see the current votecount with `%s`."
                         + "\nIf a player is voted by more than half the living players (majority), they will be lynched immediately!",
-                this.cycle, this.dayLengthMillis / 60000, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_VOTE,
-                WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_VOTECOUNT));
+                this.cycle, this.dayLengthMillis / 60000, WolfiaConfig.DEFAULT_PREFIX + VoteCommand.TRIGGER,
+                WolfiaConfig.DEFAULT_PREFIX + VoteCountCommand.TRIGGER));
         for (final Player player : living) {
             RoleAndPermissionUtils.grant(gameChannel, gameChannel.getGuild().getMemberById(player.userId),
                     Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
@@ -802,7 +803,7 @@ public class Mafia extends Game {
                 final String out = String.format("**You are a cop. Use `%s [name or number]` to check the alignment of a player.**%n" +
                                 "You will receive the result at the end of the night for the last submitted target. " +
                                 "If you do not submit a check, it will be randed.",
-                        WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_CHECK);
+                        WolfiaConfig.DEFAULT_PREFIX + CheckCommand.TRIGGER);
                 livingPlayersWithNumbers.addField("", out, false);
                 final Collection<Long> randCopTargets = getLivingPlayerIds();
                 randCopTargets.remove(p.userId);//dont randomly check themselves
@@ -817,7 +818,7 @@ public class Mafia extends Game {
                                 + "\n" + Item.Items.BOMB + " Kills the target player immediately."
                                 + "\n" + Item.Items.ANGEL + " Protects the target from death once, but not from the lynch."
                                 + "\n\nIf you don't submit an action, a random living player will receive the present.",
-                        WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_HOHOHO, Item.Items.PRESENT);
+                        WolfiaConfig.DEFAULT_PREFIX + HohohoCommand.TRIGGER, Item.Items.PRESENT);
                 livingPlayersWithNumbers.addField("", out, false);
                 final Collection<Long> randSantaTargets = getLivingPlayerIds();
                 randSantaTargets.remove(p.userId);//dont randomly gift themselves
@@ -903,7 +904,7 @@ public class Mafia extends Game {
                     if (mag.isPresent()) {
                         checker.items.remove(mag.get());
                         checker.sendMessage(String.format("You used up your %s. Say `%s` to see what items you have left.",
-                                Item.Items.MAGNIFIER, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+                                Item.Items.MAGNIFIER, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
                     }
                 } catch (final IllegalGameStateException e) {
                     log.error("Checked player {} not a player of the ongoing game in {}.", nightAction.getTarget(), this.channelId);
@@ -912,7 +913,7 @@ public class Mafia extends Game {
                 try {
                     final Player receiver = getPlayer(nightAction.getTarget());
                     final String message = String.format("Someone left a %s under your Xmas tree! Say `%s` to open it, if you dare.",
-                            Item.Items.PRESENT.emoji, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_OPENPRESENT);
+                            Item.Items.PRESENT.emoji, WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.TRIGGER);
                     receiver.sendMessage(message, RestActions.defaultOnFail());
                     receiver.items.add(new Item(nightAction.getActor(), Item.Items.PRESENT));
                     this.gameStats.addAction(nightAction);
@@ -930,7 +931,7 @@ public class Mafia extends Game {
         if (angel.isPresent()) {
             nightKillCandidate.items.remove(angel.get());
             nightKillCandidate.sendMessage(String.format("One of your %ss saved you! Say `%s` to see what items you have left.",
-                    Item.Items.ANGEL, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_ITEMS), RestActions.defaultOnFail());
+                    Item.Items.ANGEL, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
             RestActions.sendMessage(gameChannel, "Nobody died during the night.");
         } else {
             try {

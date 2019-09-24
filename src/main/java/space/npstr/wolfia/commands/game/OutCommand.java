@@ -19,6 +19,7 @@ package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.User;
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -29,14 +30,24 @@ import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by npstr on 23.08.2016
  */
-public class OutCommand extends BaseCommand {
+@Component
+public class OutCommand implements BaseCommand {
 
-    public OutCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "out";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("leave");
     }
 
     @Nonnull

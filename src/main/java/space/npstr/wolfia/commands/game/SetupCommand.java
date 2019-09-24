@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.sqlsauce.fp.types.EntityKey;
@@ -39,10 +40,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * Start setting up a game in a channel
  */
-public class SetupCommand extends BaseCommand {
+@Component
+public class SetupCommand implements BaseCommand {
 
-    public SetupCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "setup";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
     }
 
     @Nonnull

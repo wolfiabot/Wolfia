@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.entities.User;
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
@@ -31,16 +32,24 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by npstr on 23.08.2016
  */
-public class InCommand extends BaseCommand {
+@Component
+public class InCommand implements BaseCommand {
 
-//    private final int MAX_SIGNUP_TIME = 10 * 60; //10h
+    public static final String TRIGGER = "in";
 
-    public InCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("join");
     }
 
     @Nonnull
@@ -51,9 +60,6 @@ public class InCommand extends BaseCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
-
-//        long timeForSignup = Long.valueOf(args[0]);
-//        timeForSignup = timeForSignup < this.MAX_SIGNUP_TIME ? timeForSignup : this.MAX_SIGNUP_TIME;
 
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {

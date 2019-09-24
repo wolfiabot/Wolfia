@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.ingame;
 
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -25,14 +26,24 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Created by napster on 06.08.17.
  */
+@Component
 public class NightkillCommand extends GameCommand {
 
-    public NightkillCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "nightkill";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
+    }
+
+    @Override
+    public List<String> getAliases() {
+        return List.of("nk");
     }
 
     @Nonnull

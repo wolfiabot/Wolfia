@@ -20,6 +20,7 @@ package space.npstr.wolfia.commands.debug;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -37,10 +38,12 @@ import java.util.Map;
  * <p>
  * List running games
  */
-public class RunningCommand extends BaseCommand implements IOwnerRestricted {
+@Component
+public class RunningCommand implements BaseCommand, IOwnerRestricted {
 
-    public RunningCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    @Override
+    public String getTrigger() {
+        return "running";
     }
 
     @Nonnull

@@ -20,6 +20,7 @@ package space.npstr.wolfia.commands.util;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.User;
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -35,10 +36,14 @@ import javax.annotation.Nonnull;
  * <p>
  * Thanks Fred
  */
-public class InfoCommand extends BaseCommand {
+@Component
+public class InfoCommand implements BaseCommand {
 
-    public InfoCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    public static final String TRIGGER = "info";
+
+    @Override
+    public String getTrigger() {
+        return TRIGGER;
     }
 
     @Nonnull

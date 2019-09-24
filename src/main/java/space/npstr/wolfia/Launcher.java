@@ -30,7 +30,6 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
-import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.utils.GitRepoState;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -92,14 +91,14 @@ public class Launcher implements ApplicationRunner {
     }
 
     public Launcher(final BotContext botContext, final ShardManager shardManager,
-                    final DiscordEntityProvider discordEntityProvider, final CommRegistry commRegistry,
-                    final ThreadPoolCollector poolMetrics, final ScheduledExecutorService jdaThreadPool) {
+                    final DiscordEntityProvider discordEntityProvider, final ThreadPoolCollector poolMetrics,
+                    final ScheduledExecutorService jdaThreadPool) {
+
         Launcher.botContext = botContext;
         this.shardManager = shardManager;
         this.discordEntityProvider = discordEntityProvider;
         this.poolMetrics = poolMetrics;
         this.jdaThreadPool = jdaThreadPool;
-        commRegistry.init(discordEntityProvider, poolMetrics);
     }
 
     @Override

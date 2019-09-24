@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -28,10 +29,12 @@ import javax.annotation.Nonnull;
 /**
  * Created by napster on 28.05.17.
  */
-public class RestartCommand extends BaseCommand implements IOwnerRestricted {
+@Component
+public class RestartCommand implements BaseCommand, IOwnerRestricted {
 
-    public RestartCommand(final String trigger, final String... aliases) {
-        super(trigger, aliases);
+    @Override
+    public String getTrigger() {
+        return "restart";
     }
 
     private boolean reminded = false;

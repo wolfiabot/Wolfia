@@ -30,8 +30,11 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.game.StatusCommand;
+import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
+import space.npstr.wolfia.commands.util.InviteCommand;
+import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.db.entities.PrivateGuild;
@@ -388,7 +391,7 @@ public abstract class Game {
 
         if (!Games.getInfo(this).isAcceptablePlayerCount(innedPlayers.size(), mode)) {
             throw new IllegalArgumentException(String.format("There aren't enough (or too many) players signed up! " +
-                    "Please use `%s` for more information", WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_STATUS));
+                    "Please use `%s` for more information", WolfiaConfig.DEFAULT_PREFIX + StatusCommand.TRIGGER));
         }
     }
 
@@ -440,7 +443,7 @@ public abstract class Game {
                                     " Talk to an Admin/Moderator of your server to fix this or set the access role up with `%s`." +
                                     " Please refer to the documentation under %s",
                             Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(),
-                            WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_CHANNELSETTINGS, App.DOCS_LINK
+                            WolfiaConfig.DEFAULT_PREFIX + ChannelSettingsCommand.TRIGGER, App.DOCS_LINK
                     ));
                 }
                 if (!accessRole.hasPermission(gameChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
@@ -639,7 +642,7 @@ public abstract class Game {
                                     + "\nSorry about that. The issue has been logged and will hopefully be fixed soon."
                                     + "\nIf you want to help solve this as fast as possible, please join our support guild."
                                     + "\nSay `%s` to receive an invite.",
-                            reasonMessage, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_INVITE));
+                            reasonMessage, WolfiaConfig.DEFAULT_PREFIX + InviteCommand.TRIGGER));
         }
     }
 
@@ -699,7 +702,7 @@ public abstract class Game {
             try {
                 this.gameStats = Launcher.getBotContext().getDatabase().getWrapper().persist(this.gameStats);
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
-                        this.gameStats.getId(), WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_REPLAY, this.gameStats.getId());
+                        this.gameStats.getId(), WolfiaConfig.DEFAULT_PREFIX + ReplayCommand.TRIGGER, this.gameStats.getId());
             } catch (final DatabaseException e) {
                 log.error("Db blew up saving game stats", e);
                 out += "The database it not available currently, a replay of this game will not be available.";

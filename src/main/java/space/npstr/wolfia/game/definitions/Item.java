@@ -17,7 +17,10 @@
 
 package space.npstr.wolfia.game.definitions;
 
-import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.commands.game.StatusCommand;
+import space.npstr.wolfia.commands.ingame.CheckCommand;
+import space.npstr.wolfia.commands.ingame.OpenPresentCommand;
+import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.utils.discord.Emojis;
 
@@ -43,18 +46,18 @@ public class Item {
 
         //may contain other items
         PRESENT(Emojis.PRESENT, String.format("You may open the present in your DMs with `%s`, or shorter `%s`",
-                WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_OPENPRESENT, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_OPENPRESENT_ALIAS)),
+                WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.TRIGGER, WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.ALIAS)),
 
 
         //may shoot a player
         GUN(Emojis.GUN, String.format("You may shoot a player during the day in your DMs with `%s`"
                         + "\nSay `%s` to get a list of living players.",
-                WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_SHOOT, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_STATUS)),
+                WolfiaConfig.DEFAULT_PREFIX + ShootCommand.TRIGGER, WolfiaConfig.DEFAULT_PREFIX + StatusCommand.TRIGGER)),
 
         //may check a player
         MAGNIFIER(Emojis.MAGNIFIER, String.format("You may check a player's alignment during the night in your DMs with `%s`"
                         + "\nSay `%s` to get a list of living players.",
-                WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_CHECK, WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_STATUS)),
+                WolfiaConfig.DEFAULT_PREFIX + CheckCommand.TRIGGER, WolfiaConfig.DEFAULT_PREFIX + StatusCommand.TRIGGER)),
 
         // kills the player holding it
         BOMB(Emojis.BOMB, "Kills you immediately " + Emojis.BOOM),

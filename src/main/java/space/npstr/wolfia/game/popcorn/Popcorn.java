@@ -24,8 +24,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
@@ -188,7 +188,7 @@ public class Popcorn extends Game {
                     e -> RestActions.sendMessage(gameChannel, String.format(
                             "%s, **I cannot send you a private message**, please adjust your privacy settings " +
                                     "and/or unblock me, then issue `%s` to receive your role PM.",
-                            player.asMention(), WolfiaConfig.DEFAULT_PREFIX + CommRegistry.COMM_TRIGGER_ROLEPM))
+                            player.asMention(), WolfiaConfig.DEFAULT_PREFIX + RolePmCommand.TRIGGER))
             );
         }
 
@@ -235,7 +235,7 @@ public class Popcorn extends Game {
             if (target == null) return false;
             return shoot(shooter, target.userId);
         } else {
-            context.replyWithMention("the '" + context.command.name + "' command is not part of this game.");
+            context.replyWithMention("the '" + context.command.getTrigger() + "' command is not part of this game.");
             return false;
         }
     }
