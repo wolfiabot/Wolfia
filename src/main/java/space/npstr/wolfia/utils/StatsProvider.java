@@ -22,7 +22,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
-import space.npstr.wolfia.commands.Context;
+import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.db.ColumnMapper;
 import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
@@ -149,7 +149,7 @@ public class StatsProvider {
         final Map<Integer, List<Long>> collectedValues = collectValues(gamesxWinningTeamByPlayerSize);
 
         //add them to the embed
-        EmbedBuilder eb = Context.getDefaultEmbedBuilder();
+        EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         eb.setTitle("Wolfia stats:");
         eb.setThumbnail(Wolfia.getSelfUser().getAvatarUrl());
 
@@ -207,7 +207,7 @@ public class StatsProvider {
 
 
         //add them to the embed
-        EmbedBuilder eb = Context.getDefaultEmbedBuilder();
+        EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         final Guild guild = Wolfia.getGuildById(guildId);
         final CachedGuild cachedGuild = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(CachedGuild.key(guildId), eg -> eg.set(guild));
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
@@ -274,7 +274,7 @@ public class StatsProvider {
                 .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.WOLF).count();
 
         //add them to the embed
-        final EmbedBuilder eb = Context.getDefaultEmbedBuilder();
+        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         final CachedUser cu = CachedUser.load(userId);
         eb.setTitle(cu.getName() + "'s Wolfia stats");
         eb.setThumbnail(cu.getEffectiveAvatarUrl());

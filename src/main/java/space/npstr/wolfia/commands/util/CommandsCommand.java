@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.Context;
+import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.OutCommand;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -98,7 +98,7 @@ public class CommandsCommand implements BaseCommand {
 
 
         final String link = App.DOCS_LINK + "#commands";
-        final EmbedBuilder eb = Context.getDefaultEmbedBuilder()
+        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder()
                 .setTitle("Wolfia commands", link)
                 .addField("Starting a game", gameCommands, true)
                 .addField("Game actions", ingameCommands, true)

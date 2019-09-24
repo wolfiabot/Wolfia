@@ -17,28 +17,37 @@
 
 package space.npstr.wolfia.commands;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.utils.discord.RestActions;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.awt.*;
+import java.util.function.Consumer;
 
 /**
  * Created by napster on 16.11.17.
  * <p>
  * Contexts intended for fast usage, dont save these in any kind of variables
  */
-public class MessageContext extends Context {
+public class MessageContext implements Context {
+
+    public static final Color BLACKIA = new Color(0, 24, 48); //blueish black that reminds of a clear nights sky
 
     //@formatter:off
     @Nonnull public final MessageChannel channel;
@@ -156,5 +165,109 @@ public class MessageContext extends Context {
      */
     public boolean isOwner() {
         return App.isOwner(this.invoker);
+    }
+
+
+    // ********************************************************************************
+    //                         Convenience reply methods
+    // ********************************************************************************
+    // NOTE: they all try to end up in the reply0 method for consistent behaviour
+
+
+    public void reply(@Nonnull final MessageEmbed embed) {
+        reply0(RestActions.from(embed), null);
+    }
+
+    public void reply(@Nonnull final EmbedBuilder eb) {
+        reply(eb.build());
+    }
+
+    public void reply(@Nonnull final Message message, @Nullable final Consumer<Message> onSuccess) {
+        reply0(message, onSuccess);
+    }
+
+    public void reply(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
+        reply(RestActions.getMessageBuilder().append(message).build(), onSuccess);
+    }
+
+    public void reply(@Nonnull final Message message) {
+        reply(message, null);
+    }
+
+    public void reply(@Nonnull final String message) {
+        reply(RestActions.getMessageBuilder().append(message).build(), null);
+    }
+
+    public void replyWithName(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
+        final Member member = getMember();
+        if (member != null) {
+            reply(TextchatUtils.prefaceWithName(member, message, true), onSuccess);
+        } else {
+            reply(TextchatUtils.prefaceWithName(invoker, message, true), onSuccess);
+        }
+    }
+
+    public void replyWithName(@Nonnull final String message) {
+        replyWithName(message, null);
+    }
+
+    public void replyWithMention(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
+        reply(TextchatUtils.prefaceWithMention(invoker, message), onSuccess);
+    }
+
+    public void replyWithMention(@Nonnull final String message) {
+        replyWithMention(message, null);
+    }
+
+
+    public void replyPrivate(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess, @Nonnull final Consumer<Throwable> onFail) {
+        RestActions.sendPrivateMessage(invoker, message, onSuccess, onFail);
+    }
+
+    public void replyImage(@Nonnull final String url) {
+        replyImage(url, null);
+    }
+
+    public void replyImage(@Nonnull final String url, @Nullable final String message) {
+        reply(RestActions.getMessageBuilder()
+                .setEmbed(embedImage(url))
+                .append(message != null ? message : "")
+                .build()
+        );
+    }
+
+    public void sendTyping() {
+        RestActions.sendTyping(channel);
+    }
+
+
+    //checks whether we have the provided permissions for the provided channel
+    @CheckReturnValue
+    public static boolean hasPermissions(@Nonnull final TextChannel tc, final Permission... permissions) {
+        return tc.getGuild().getSelfMember().hasPermission(tc, permissions);
+    }
+
+    /**
+     * @return a general purpose preformatted builder for embeds
+     */
+    @Nonnull
+    public static EmbedBuilder getDefaultEmbedBuilder() {
+        return RestActions.getEmbedBuilder()
+                .setColor(BLACKIA);
+    }
+
+
+    // ********************************************************************************
+    //                         Internal context stuff
+    // ********************************************************************************
+
+    private static MessageEmbed embedImage(final String url) {
+        return getDefaultEmbedBuilder()
+                .setImage(url)
+                .build();
+    }
+
+    private void reply0(@Nonnull final Message message, @Nullable final Consumer<Message> onSuccess) {
+        RestActions.sendMessage(channel, message, onSuccess);
     }
 }

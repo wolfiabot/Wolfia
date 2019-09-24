@@ -18,25 +18,17 @@
 package space.npstr.wolfia.commands;
 
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import space.npstr.wolfia.utils.discord.RestActions;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.awt.*;
-import java.util.function.Consumer;
 
 /**
  * Created by napster on 10.09.17.
@@ -45,171 +37,37 @@ import java.util.function.Consumer;
  * Also home to a bunch of convenience methods
  */
 @SuppressWarnings("unused")
-public abstract class Context {
+public interface Context {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Context.class);
-
-    @Nullable
+    @Nonnull
     @CheckReturnValue
-    public abstract MessageChannel getChannel();
+    MessageChannel getChannel();
 
-    @Nullable
+    @Nonnull
     @CheckReturnValue
-    public abstract User getInvoker();
+    User getInvoker();
 
     //message that triggered this context
     @Nullable
     @CheckReturnValue
-    public abstract Message getMessage();
+    Message getMessage();
 
     @Nullable
     @CheckReturnValue
-    public abstract MessageReceivedEvent getEvent();
+    MessageReceivedEvent getEvent();
 
     @Nullable
     @CheckReturnValue
-    public abstract JDA getJda();
+    JDA getJda();
 
     @Nullable
     @CheckReturnValue
-    public abstract Guild getGuild();
+    Guild getGuild();
 
     /**
      * @return Member entity of the invoker
      */
     @Nullable
     @CheckReturnValue
-    public abstract Member getMember();
-
-
-    // ********************************************************************************
-    //                         Convenience reply methods
-    // ********************************************************************************
-    // NOTE: they all try to end up in the reply0 method for consistent behaviour
-
-
-    public void reply(@Nonnull final MessageEmbed embed) {
-        reply0(RestActions.from(embed), null);
-    }
-
-    public void reply(@Nonnull final EmbedBuilder eb) {
-        reply(eb.build());
-    }
-
-    public void reply(@Nonnull final Message message, @Nullable final Consumer<Message> onSuccess) {
-        reply0(message, onSuccess);
-    }
-
-    public void reply(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
-        reply(RestActions.getMessageBuilder().append(message).build(), onSuccess);
-    }
-
-    public void reply(@Nonnull final Message message) {
-        reply(message, null);
-    }
-
-    public void reply(@Nonnull final String message) {
-        reply(RestActions.getMessageBuilder().append(message).build(), null);
-    }
-
-    public void replyWithName(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
-        final Member member = getMember();
-        if (member != null) {
-            reply(TextchatUtils.prefaceWithName(member, message, true), onSuccess);
-        } else {
-            final User user = getInvoker();
-            if (user != null) {
-                reply(TextchatUtils.prefaceWithName(user, message, true), onSuccess);
-            }
-        }
-    }
-
-    public void replyWithName(@Nonnull final String message) {
-        replyWithName(message, null);
-    }
-
-    public void replyWithMention(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
-        final User user = getInvoker();
-        if (user != null) {
-            reply(TextchatUtils.prefaceWithMention(user, message), onSuccess);
-        }
-    }
-
-    public void replyWithMention(@Nonnull final String message) {
-        replyWithMention(message, null);
-    }
-
-
-    public void replyPrivate(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess, @Nonnull final Consumer<Throwable> onFail) {
-        final User user = getInvoker();
-        if (user != null) {
-            RestActions.sendPrivateMessage(user, message, onSuccess, onFail);
-        }
-    }
-
-//    public void replyFile(@Nonnull File file, @Nullable Message message) {
-//        return RestActions.sendFile(getTextChannel(), file, message);
-//    }
-
-    public void replyImage(@Nonnull final String url) {
-        replyImage(url, null);
-    }
-
-    public void replyImage(@Nonnull final String url, @Nullable final String message) {
-        reply(RestActions.getMessageBuilder()
-                .setEmbed(embedImage(url))
-                .append(message != null ? message : "")
-                .build()
-        );
-    }
-
-    public void sendTyping() {
-        final MessageChannel channel = getChannel();
-        if (channel != null) {
-            RestActions.sendTyping(channel);
-        }
-    }
-
-
-    //checks whether we have the provided permissions for the provided channel
-    @CheckReturnValue
-    public static boolean hasPermissions(@Nonnull final TextChannel tc, final Permission... permissions) {
-        return tc.getGuild().getSelfMember().hasPermission(tc, permissions);
-    }
-
-    public static final Color BLACKIA = new Color(0, 24, 48); //blueish black that reminds of a clear nights sky
-
-    /**
-     * @return a general purpose preformatted builder for embeds
-     */
-    @Nonnull
-    public static EmbedBuilder getDefaultEmbedBuilder() {
-//        User self = channel.getJDA().getSelfUser();
-        return RestActions.getEmbedBuilder()
-//                .setFooter(self.getName(), self.getEffectiveAvatarUrl())
-                .setColor(BLACKIA)
-//                .setThumbnail(self.getEffectiveAvatarUrl())
-//                .setTimestamp(context.event.getMessage().getCreationTime())
-//                .setAuthor(self.getName(), Main.AKI_BOT_INVITE, self.getEffectiveAvatarUrl())
-                ;
-    }
-
-
-    // ********************************************************************************
-    //                         Internal context stuff
-    // ********************************************************************************
-
-    private static MessageEmbed embedImage(final String url) {
-        return getDefaultEmbedBuilder()
-                .setImage(url)
-                .build();
-    }
-
-    private void reply0(@Nonnull final Message message, @Nullable final Consumer<Message> onSuccess) {
-        final MessageChannel channel = getChannel();
-        if (channel == null) {
-            return;//todo really?
-        }
-        RestActions.sendMessage(channel, message, onSuccess);
-    }
+    Member getMember();
 }

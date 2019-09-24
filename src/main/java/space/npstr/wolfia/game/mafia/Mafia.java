@@ -25,7 +25,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.Context;
+import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.HohohoCommand;
@@ -370,7 +370,7 @@ public class Mafia extends Game {
         }
     }
 
-    private boolean vote(@Nonnull final Player voter, @Nonnull final Player candidate, @Nonnull final Context context) {
+    private boolean vote(@Nonnull final Player voter, @Nonnull final Player candidate, @Nonnull final MessageContext context) {
 
         final TextChannel gameChannel = fetchGameChannel();
         if (this.phase != Phase.DAY) {
@@ -405,7 +405,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean unvote(@Nonnull final Player unvoter, @Nonnull final Context context, final boolean... silent) {
+    private boolean unvote(@Nonnull final Player unvoter, @Nonnull final MessageContext context, final boolean... silent) {
 
         final boolean shutUp = silent.length > 0 && silent[0];
         final TextChannel gameChannel = fetchGameChannel();
@@ -595,7 +595,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private void clearVotesForPlayer(@Nonnull final Player player, @Nonnull final Context context) {
+    private void clearVotesForPlayer(@Nonnull final Player player, @Nonnull final MessageContext context) {
         final Set<Player> toUnvote = new HashSet<>();
         for (final Map.Entry<Player, Player> vote : this.votes.entrySet()) {
             final Player voter = vote.getKey();
@@ -611,7 +611,7 @@ public class Mafia extends Game {
         }
     }
 
-    private void clearNkVotesForPlayer(@Nonnull final Player player, @Nonnull final Context context) {
+    private void clearNkVotesForPlayer(@Nonnull final Player player, @Nonnull final MessageContext context) {
         final Set<Player> toUnvoteNk = new HashSet<>();
         for (final Map.Entry<Player, Player> vote : this.nightkillVotes.entrySet()) {
             final Player voter = vote.getKey();
@@ -855,7 +855,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean nkUnvote(final Player unvoter, @Nonnull final Context context, final boolean... silent) {
+    private boolean nkUnvote(final Player unvoter, @Nonnull final MessageContext context, final boolean... silent) {
         final boolean shutUp = silent.length > 0 && silent[0];
 
         if (this.phase != Phase.NIGHT) {
