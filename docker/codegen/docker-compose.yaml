@@ -4,7 +4,7 @@ version: '3.7'
 
 services:
   codegen-postgres:
-    image: napstr/wolfia-postgres:master
+    image: napstr/wolfia-postgres:11
     restart: always
     ports:
       - 127.0.0.1:5434:5432

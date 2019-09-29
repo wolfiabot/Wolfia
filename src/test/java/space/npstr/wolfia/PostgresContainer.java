@@ -25,7 +25,7 @@ import org.testcontainers.containers.GenericContainer;
  */
 public abstract class PostgresContainer {
 
-    private static final GenericContainer<?> DB = new GenericContainer<>("napstr/wolfia-postgres:master")
+    private static final GenericContainer<?> DB = new GenericContainer<>("napstr/wolfia-postgres:11")
             .withEnv("ROLE", "wolfia_test")
             .withEnv("DB", "wolfia_test")
             .withExposedPorts(5432);

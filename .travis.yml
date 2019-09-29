@@ -7,7 +7,7 @@ services:
 - postgresql
 
 addons:
-  postgresql: "10"
+  postgresql: "11"
   sonarcloud:
     organization: "napstr-github"
 
