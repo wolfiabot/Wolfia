@@ -1,4 +1,4 @@
-FROM postgres:10
+FROM postgres:11
 MAINTAINER napster@npstr.space
 
 RUN apt-get update && apt-get install -y python-pip
