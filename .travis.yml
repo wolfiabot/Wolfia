@@ -41,7 +41,6 @@ jobs:
         - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
         - CI_IMAGE_NAME=$DOCKER_USERNAME/wolfia:ci-$IMAGE_TAG
         - echo $CI_IMAGE_NAME
-        - docker run --rm --privileged multiarch/qemu-user-static:register
         - docker build -t "$CI_IMAGE_NAME" -f docker/Dockerfile .
       after_success:
         - ./gradlew sonarqube
