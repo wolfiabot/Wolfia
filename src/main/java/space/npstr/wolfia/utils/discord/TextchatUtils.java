@@ -199,10 +199,6 @@ public class TextchatUtils {
         return dtf.format(Instant.ofEpochMilli(epochMillis));
     }
 
-    public static String berlinTime() {
-        return toBerlinTime(System.currentTimeMillis());
-    }
-
     public static String toBerlinTime(final long epochMillis) {
         return TIME_IN_BERLIN.format(Instant.ofEpochMilli(epochMillis));
     }

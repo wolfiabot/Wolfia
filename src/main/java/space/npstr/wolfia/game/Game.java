@@ -49,11 +49,9 @@ import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.UserFriendlyException;
-import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-import space.npstr.wolfia.utils.log.DiscordLogger;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -709,9 +707,8 @@ public abstract class Game {
             }
             cleanUp();
             final TextChannel gameChannel = fetchGameChannel();
-            DiscordLogger.getLogger().log("%s `%s` Game **#%s** ended in guild **%s** `%s`, channel **#%s** `%s`, **%s %s %s** players",
-                    Emojis.END, TextchatUtils.berlinTime(), this.gameStats.getId(),
-                    gameChannel.getGuild().getName(), gameChannel.getGuild().getIdLong(),
+            log.info("Game #{} ended in guild {} {}, channel #{} {}, {} {} {} players",
+                    this.gameStats.getId(), gameChannel.getGuild().getName(), gameChannel.getGuild().getIdLong(),
                     gameChannel.getName(), gameChannel.getIdLong(), Games.getInfo(this).textRep(), this.mode.textRep, this.players.size());
             // removing the game from the registry has to be the very last statement, since if a restart is queued, it
             // waits for an empty games registry

@@ -35,10 +35,7 @@ import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
-import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
-import space.npstr.wolfia.utils.log.DiscordLogger;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import javax.annotation.Nonnull;
@@ -247,8 +244,6 @@ public class Wolfia {
 
 
     public static void shutdown(final int code) {
-        DiscordLogger.getLogger().log("%s `%s` Shutting down with exit code %s",
-                Emojis.DOOR, TextchatUtils.berlinTime(), code);
         log.info("Exiting with code {}", code);
         System.exit(code);
     }
@@ -276,9 +271,6 @@ public class Wolfia {
             if (Games.getRunningGamesCount() > 0) {
                 log.error("Killing {} games while exiting", Games.getRunningGamesCount());
             }
-
-            log.info("Shutting down discord logger");
-            DiscordLogger.shutdown(10, TimeUnit.SECONDS);
 
             //shutdown JDA
             log.info("Shutting down shards");

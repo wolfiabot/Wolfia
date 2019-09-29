@@ -28,8 +28,6 @@ import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
-import space.npstr.wolfia.utils.log.DiscordLogger;
 
 /**
  * Created by napster on 23.07.17.
@@ -42,16 +40,13 @@ public class InternalListener extends ListenerAdapter {
 
     @Override
     public void onReady(final ReadyEvent event) {
-        log.info("Logged in as: " + event.getJDA().getSelfUser().getName());
-        DiscordLogger.getLogger().log("%s `%s` Ready! %s",
-                Emojis.ROCKET, TextchatUtils.berlinTime(), App.VERSION);
+        log.info("{} Ready! Version: {} Logged in as: {}", Emojis.ROCKET, App.VERSION, event.getJDA().getSelfUser().getName());
     }
 
     @Override
     public void onGuildJoin(final GuildJoinEvent event) {
         final Guild guild = event.getGuild();
-        DiscordLogger.getLogger().log("%s `%s` Joined guild %s with %s users.",
-                Emojis.CHECK, TextchatUtils.berlinTime(), guild.getName(), guild.getMembers().size());
+        log.info("Joined guild {} with {} users.", guild.getName(), guild.getMembers().size());
     }
 
     @Override
@@ -72,8 +67,8 @@ public class InternalListener extends ListenerAdapter {
             }
         }
 
-        DiscordLogger.getLogger().log("%s `%s` Left guild %s with %s users, destroyed **%s** games.",
-                Emojis.X, TextchatUtils.berlinTime(), guild.getName(), guild.getMembers().size(), gamesDestroyed);
+        log.info("Left guild {} with {} users, destroyed {} games.",
+                guild.getName(), guild.getMembers().size(), gamesDestroyed);
     }
 
     @Override
@@ -81,12 +76,13 @@ public class InternalListener extends ListenerAdapter {
         final long channelId = event.getChannel().getIdLong();
         final long guildId = event.getGuild().getIdLong();
 
-        if (Games.get(channelId) != null) {
-            DiscordLogger.getLogger().log("%s `%s` Destroying game due to deleted channel **#%s** `%s` in guild **%s** `%s`.",
-                    Emojis.BOOM, TextchatUtils.berlinTime(),
+        Game game = Games.get(channelId);
+        if (game != null) {
+            log.info("Destroying game due to deleted channel {} {} in guild {} {}.",
                     event.getChannel().getName(), channelId, event.getGuild().getName(), guildId);
 
-            Games.get(channelId).destroy(new UserFriendlyException("Main game channel `%s` in guild `%s` was deleted", channelId, guildId));
+            game.destroy(new UserFriendlyException("Main game channel `%s` in guild `%s` was deleted",
+                    channelId, guildId));
         }
     }
 }
