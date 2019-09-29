@@ -226,7 +226,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
                 return;//leave the private guild in a "broken state", this can be later fixed manually through eval
             }
             this.inUse = false;
-            Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.add(this);
+            Launcher.getBotContext().getPrivateGuildProvider().add(this);
         }
     }
 

@@ -27,11 +27,8 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.EventListener;
 import org.slf4j.LoggerFactory;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
-import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
@@ -44,7 +41,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -62,7 +58,6 @@ public class Wolfia {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Wolfia.class);
 
     public static final long START_TIME = System.currentTimeMillis();
-    public static final LinkedBlockingQueue<PrivateGuild> AVAILABLE_PRIVATE_GUILD_QUEUE = new LinkedBlockingQueue<>();
     //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
     public static final ExceptionLoggingExecutor executor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
 
@@ -107,19 +102,6 @@ public class Wolfia {
             log.error("Failed to init db connection in a reasonable amount of time, exiting.");
             System.exit(2);
         }
-
-        final DatabaseWrapper wrapper = Launcher.getBotContext().getDatabase().getWrapper();
-        try {
-            AVAILABLE_PRIVATE_GUILD_QUEUE.addAll(wrapper.selectJpqlQuery("FROM PrivateGuild", null, PrivateGuild.class));
-            log.info("{} private guilds loaded", AVAILABLE_PRIVATE_GUILD_QUEUE.size());
-        } catch (final DatabaseException e) {
-            log.error("Failed to load private guilds, exiting", e);
-            System.exit(2);
-        }
-
-        //set up JDA
-        shardManager.addEventListener(AVAILABLE_PRIVATE_GUILD_QUEUE.toArray()); //TODO move to bean configuration
-
 
         //wait for all shards to be online, then start doing things that expect the full bot to be online
         while (!allShardsUp()) {

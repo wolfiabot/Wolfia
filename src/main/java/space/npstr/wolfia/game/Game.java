@@ -507,20 +507,19 @@ public abstract class Game {
 
     //todo there seems to be an API for bots creating their own guilds? totally should use that instead
     protected PrivateGuild allocatePrivateGuild() throws UserFriendlyException {
-        PrivateGuild pg = Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.poll();
-        if (pg == null) {
-            RestActions.sendMessage(fetchGameChannel(),
-                    "Acquiring a private server for the wolves...this may take a while.");
-            log.error("Ran out of free private guilds. Please add moar.");
-            try { //oh yeah...we are waiting till infinity if necessary
-                pg = Wolfia.AVAILABLE_PRIVATE_GUILD_QUEUE.take();
-            } catch (final InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.error("Interrupted while waiting for a private server.");
-                throw new UserFriendlyException("Could not allocate a private server.");
-            }
-        }
-        return pg;
+        return Launcher.getBotContext().getPrivateGuildProvider().poll()
+                .orElseGet(() -> {
+                    RestActions.sendMessage(fetchGameChannel(),
+                            "Acquiring a private server for the wolves...this may take a while.");
+                    log.error("Ran out of free private guilds. Please add moar.");
+                    try { //oh yeah...we are waiting till infinity if necessary
+                        return Launcher.getBotContext().getPrivateGuildProvider().take();
+                    } catch (final InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        log.error("Interrupted while waiting for a private server.");
+                        throw new UserFriendlyException("Could not allocate a private server.");
+                    }
+                });
     }
 
     /**
