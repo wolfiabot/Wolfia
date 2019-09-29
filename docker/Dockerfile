@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11-openj9:slim
+FROM adoptopenjdk:11-openj9
 MAINTAINER napster@npstr.space
 
 ENV ENV docker
