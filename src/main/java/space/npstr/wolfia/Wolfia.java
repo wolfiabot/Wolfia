@@ -112,7 +112,7 @@ public class Wolfia {
 
         //sync guild cache
         // this takes a few seconds to do, so do it as the last thing of the main method, or put it into it's own thread
-        SyncCommand.syncGuilds(discordEntityProvider, executor, shardManager.getGuildCache().stream(), null);
+        SyncCommand.syncGuilds(shardManager, executor, shardManager.getGuildCache().stream(), null);
         //user cache is not synced on each start as it takes a lot of time and resources. see SyncComm for manual triggering
     }
 

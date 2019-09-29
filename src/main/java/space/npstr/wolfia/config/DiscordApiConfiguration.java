@@ -1,33 +1,17 @@
 package space.npstr.wolfia.config;
 
-import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.utils.cache.CacheFlag;
-import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
-import space.npstr.sqlsauce.DatabaseWrapper;
-import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
-import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
-import space.npstr.wolfia.App;
 import space.npstr.wolfia.common.Exceptions;
-import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.db.entities.CachedGuild;
-import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.discordwrapper.JdaDiscordEntityProvider;
-import space.npstr.wolfia.events.CommandListener;
-import space.npstr.wolfia.events.InternalListener;
-import space.npstr.wolfia.events.WolfiaGuildListener;
-import space.npstr.wolfia.listings.Listings;
+import space.npstr.wolfia.events.PrivateGuildProvider;
 
-import javax.security.auth.login.LoginException;
-import java.util.EnumSet;
+import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,31 +36,14 @@ public class DiscordApiConfiguration {
         return jdaThreadPool;
     }
 
+    @Bean
+    public List<PrivateGuild> privateGuildListeners(PrivateGuildProvider privateGuildProvider) {
+        return privateGuildProvider.getAllGuilds();
+    }
+
     @Profile("!test")
     @Bean(destroyMethod = "") //we manage the lifecycle ourselves tyvm, see shutdown hook in the launcher
-    public ShardManager shardManager(final WolfiaConfig wolfiaConfig, final Database database,
-                                     final CommandListener commandListener, final OkHttpClient.Builder httpClientBuilder,
-                                     final ScheduledExecutorService jdaThreadPool, Listings listings)
-            throws LoginException {
-
-        final DatabaseWrapper wrapper = database.getWrapper();
-        return new DefaultShardManagerBuilder()
-                .setToken(wolfiaConfig.getDiscordToken())
-                .setGame(Game.playing(App.GAME_STATUS))
-                .addEventListeners(commandListener)
-                .addEventListeners(new UserMemberCachingListener<>(wrapper, CachedUser.class))
-                .addEventListeners(new GuildCachingListener<>(wrapper, CachedGuild.class))
-                .addEventListeners(new InternalListener())
-                .addEventListeners(listings)
-                .addEventListeners(new WolfiaGuildListener())
-                .setHttpClientBuilder(httpClientBuilder
-                        .eventListener(new OkHttpEventCounter("jda")))
-                .setDisabledCacheFlags(EnumSet.of(CacheFlag.GAME, CacheFlag.VOICE_STATE))
-                .setEnableShutdownHook(false)
-                .setRateLimitPool(jdaThreadPool, false)
-                .setCallbackPool(jdaThreadPool, false)
-                .setGatewayPool(jdaThreadPool, false)
-                .setAudioEnabled(false)
-                .build();
+    public ShardManager shardManager(ShardManagerFactory shardManagerFactory) {
+        return shardManagerFactory.shardManager();
     }
 }

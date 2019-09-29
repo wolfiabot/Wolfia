@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.events;
 
-import net.dv8tion.jda.bot.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,6 +24,7 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -34,17 +34,19 @@ public class PrivateGuildProvider {
     private static final Logger log = LoggerFactory.getLogger(PrivateGuildProvider.class);
 
     private final LinkedBlockingQueue<PrivateGuild> availablePrivateGuildQueue = new LinkedBlockingQueue<>();
+    private final Database database;
 
-    public PrivateGuildProvider(ShardManager shardManager, Database database) {
+    public PrivateGuildProvider(Database database) {
+        this.database = database;
+
         try {
-            this.availablePrivateGuildQueue.addAll(database.getWrapper()
-                    .selectJpqlQuery("FROM PrivateGuild", null, PrivateGuild.class));
-            log.info("{} private guilds loaded", this.availablePrivateGuildQueue.size());
+            List<PrivateGuild> privateGuilds = loadAllPrivateGuilds();
+            log.info("{} private guilds loaded", privateGuilds.size());
+            this.availablePrivateGuildQueue.addAll(privateGuilds);
         } catch (final DatabaseException e) {
             log.error("Failed to load private guilds, exiting", e);
             System.exit(2);
         }
-        shardManager.addEventListener(this.availablePrivateGuildQueue.toArray());
     }
 
     public PrivateGuild take() throws InterruptedException {
@@ -57,5 +59,14 @@ public class PrivateGuildProvider {
 
     public void add(PrivateGuild privateGuild) {
         availablePrivateGuildQueue.add(privateGuild);
+    }
+
+    public List<PrivateGuild> getAllGuilds() {
+        return loadAllPrivateGuilds();
+    }
+
+    private List<PrivateGuild> loadAllPrivateGuilds() {
+        return this.database.getWrapper()
+                .selectJpqlQuery("FROM PrivateGuild", null, PrivateGuild.class);
     }
 }

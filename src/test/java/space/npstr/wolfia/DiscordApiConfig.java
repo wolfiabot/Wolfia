@@ -23,6 +23,7 @@ import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import space.npstr.wolfia.config.ShardManagerFactory;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -31,8 +32,15 @@ import static org.mockito.Mockito.mock;
 @Configuration
 public class DiscordApiConfig {
 
+    // the shardManagerFactory is required to ensure the same dependencies between beans exist
+    // in the test application context as in the real application context
+    @SuppressWarnings("unused")
     @Bean
-    public ShardManager shardManager() {
+    public ShardManager shardManager(ShardManagerFactory shardManagerFactory) {
+        return createMockShardManager();
+    }
+
+    private ShardManager createMockShardManager() {
         ShardManager shardManager = mock(ShardManager.class);
 
         RestAction restAction = mock(RestAction.class);
