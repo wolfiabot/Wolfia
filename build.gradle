@@ -147,6 +147,9 @@ project('database-codegen') {
         awaitStatusTimeout.set(40)
     }
 
+    def migrationsInput = fileTree('src/main/resources/db/migrations')
+    def migrationsOutput = fileTree('build/classes/generated/java/space/npstr/wolfia/db/gen')
+
     flyway {
         flywayMigrate {
             doFirst {
@@ -160,13 +163,12 @@ project('database-codegen') {
             }
 
             // combining input and output files ensures that this is task is run/cached correctly
-            def inOut = fileTree('src/main/resources/db/migrations') +
-                    fileTree('build/classes/generated/java/space/npstr/wolfia/db/gen')
+            def inOut = migrationsInput + migrationsOutput
             inputs.files(inOut)
-                    .withPropertyName('migrationsInput')
+                    .withPropertyName('flywayMigrationsInput')
                     .withPathSensitivity(PathSensitivity.RELATIVE)
             outputs.files(inOut)
-                    .withPropertyName('migrationsOutput')
+                    .withPropertyName('flywayMigrationsOutput')
         }
         url = "$codegenJdbcUrl"
         locations = ['filesystem:database-codegen/src/main/resources/db/migrations']
@@ -199,9 +201,11 @@ project('database-codegen') {
     }
 
     generateWolfiaJooqSchemaSource {
-        inputs.files(fileTree('src/main/resources/db/migrations'))
-                .withPropertyName('migrationsInput')
+        inputs.files(migrationsInput)
+                .withPropertyName('jooqMigrationsInput')
                 .withPathSensitivity(PathSensitivity.RELATIVE)
+        outputs.files(migrationsOutput)
+                .withPropertyName('jooqMigrationsOutput')
         dependsOn(flywayMigrate)
         doLast {
             stopCodegenDbContainerPost.start()
