@@ -18,12 +18,13 @@
 package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.bot.entities.ApplicationInfo;
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.User;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.MessageContext;
@@ -56,14 +57,15 @@ public class InfoCommand implements BaseCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext context) {
-        context.getEvent().getJDA().asBot().getShardManager().getApplicationInfo().submit()
+        context.getJda().asBot().getShardManager().getApplicationInfo().submit()
                 .thenApply(ApplicationInfo::getDescription)
                 .thenAccept(description -> execute(context, description));
         return true;
     }
 
     private void execute(@Nonnull final CommandContext context, String description) {
-        final User owner = Wolfia.getUserById(App.OWNER_ID);
+        ShardManager shardManager = context.getJda().asBot().getShardManager();
+        final User owner = shardManager.getUserById(App.OWNER_ID);
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
         maStats += "-> Of which is used:    " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000 + "MB\n";
@@ -74,10 +76,11 @@ public class InfoCommand implements BaseCommand {
 
         String botInfo = "```\n";
         botInfo += "Games being played:     " + Games.getRunningGamesCount() + "\n";
-        botInfo += "Known servers:          " + Wolfia.getGuildsAmount() + "\n";
-        botInfo += "Known users in servers: " + Wolfia.getUsersAmount() + "\n";
+        botInfo += "Known servers:          " + shardManager.getGuildCache().size() + "\n";
+        //UnifiedShardCacheViewImpl#stream calls distinct for us
+        botInfo += "Known users in servers: " + shardManager.getUserCache().stream().count() + "\n";
         botInfo += "Version:                " + App.VERSION + "\n";
-        botInfo += "JDA responses total:    " + Wolfia.getResponseTotal() + "\n";
+        botInfo += "JDA responses total:    " + shardManager.getShards().stream().mapToLong(JDA::getResponseTotal).sum() + "\n";
         botInfo += "JDA version:            " + JDAInfo.VERSION + "\n";
         if (owner != null) {
             botInfo += "Bot owner:              " + owner.getName() + "#" + owner.getDiscriminator() + "\n";
@@ -85,7 +88,7 @@ public class InfoCommand implements BaseCommand {
         botInfo += "```";
 
         final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        final User self = Wolfia.getSelfUser();
+        final User self = context.event.getJDA().getSelfUser();
         eb.setThumbnail(self.getEffectiveAvatarUrl());
         eb.setAuthor(self.getName(), App.SITE_LINK, self.getEffectiveAvatarUrl());
         eb.setTitle(self.getName() + " General Stats", App.SITE_LINK);

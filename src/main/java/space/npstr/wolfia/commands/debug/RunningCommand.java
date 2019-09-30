@@ -21,7 +21,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
@@ -60,7 +59,7 @@ public class RunningCommand implements BaseCommand, IOwnerRestricted {
             final EmbedBuilder eb = game.getStatus();
             eb.addBlankField(false);
 
-            final TextChannel channel = Wolfia.getTextChannelById(game.getChannelId());
+            final TextChannel channel = context.getJda().asBot().getShardManager().getTextChannelById(game.getChannelId());
             String guildName = "Guild not found";
             String channelName = "Channel not found";
             if (channel != null) {

@@ -21,7 +21,6 @@ import net.dv8tion.jda.core.entities.User;
 import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
@@ -76,7 +75,8 @@ public class BanCommand implements BaseCommand, IOwnerRestricted {
                         String result = ban.getId() + " " + TextchatUtils.userAsMention(ban.getId()) + " ";
                         try {
                             CachedUser user = CachedUser.load(ban.getId());
-                            result += user.getEffectiveName(context.getGuild(), Wolfia::getUserById);
+                            result += user.getEffectiveName(context.getGuild(),
+                                    context.getJda().asBot().getShardManager()::getUserById);
                         } catch (DatabaseException e) {
                             log.error("Db exploded looking up a use of id {}", ban.getId(), e);
                         }
@@ -126,12 +126,14 @@ public class BanCommand implements BaseCommand, IOwnerRestricted {
         if (action == BanAction.ADD) {
             Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.GLOBAL));
             context.replyWithMention(String.format("added **%s** (%s) to the global ban list.",
-                    CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
+                    CachedUser.load(userId).getEffectiveName(context.getGuild(),
+                            context.getJda().asBot().getShardManager()::getUserById), TextchatUtils.userAsMention(userId)));
             return true;
         } else { //removing
             Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.NONE));
             context.replyWithMention(String.format("removed **%s** (%s) from the global ban list.",
-                    CachedUser.load(userId).getEffectiveName(context.getGuild(), Wolfia::getUserById), TextchatUtils.userAsMention(userId)));
+                    CachedUser.load(userId).getEffectiveName(context.getGuild(),
+                            context.getJda().asBot().getShardManager()::getUserById), TextchatUtils.userAsMention(userId)));
             return true;
         }
     }

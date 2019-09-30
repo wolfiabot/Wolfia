@@ -23,7 +23,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
@@ -217,7 +216,7 @@ public class Popcorn extends Game {
                 g.getName(), g.getIdLong(), gameChannel.getName(), gameChannel.getIdLong(),
                 Games.getInfo(this).textRep(), mode.textRep, this.players.size());
         this.running = true;
-        this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.GAMESTART, -1));
+        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GAMESTART, -1));
         //mention the players in the thread
         RestActions.sendMessage(gameChannel, String.format("Game has started!\n%s\n**%s** wolves are alive!",
                 listLivingPlayers(), getLivingWolves().size()));
@@ -254,7 +253,7 @@ public class Popcorn extends Game {
 
     private void giveGun(final long userId) {
         this.gunBearer = userId;
-        this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.GIVEGUN, userId));
+        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GIVEGUN, userId));
         RestActions.sendMessage(fetchGameChannel(), String.format("%s has received the %s !",
                 TextchatUtils.userAsMention(userId), Emojis.GUN));
         startDay();
@@ -263,8 +262,8 @@ public class Popcorn extends Game {
     private void startDay() {
         this.day++;
         this.dayStarted = System.currentTimeMillis();
-        this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.DAYSTART, -1));
-        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
+        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.DAYSTART, -1));
+        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
         if (channel != null) { //todo handle properly
             RestActions.sendMessage(channel, getStatus().build());
             RestActions.sendMessage(channel, String.format("Day %s started! %s, you have %s minutes to shoot someone.",
@@ -309,7 +308,7 @@ public class Popcorn extends Game {
         final TextChannel gameChannel = fetchGameChannel();
         final Guild g = gameChannel.getGuild();
 
-        this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.DAYEND, -1));
+        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.DAYEND, -1));
         RestActions.sendMessage(gameChannel, String.format("Day %s has ended!", this.day));
 
         //an operation that shall be run if the game isn't over; doing this so we can ge the output from he below if construct sent
@@ -357,7 +356,7 @@ public class Popcorn extends Game {
     private boolean shoot(final long shooterId, final long targetId) throws IllegalGameStateException {
         final TextChannel gameChannel = fetchGameChannel();
         //check various conditions for the shot being legal
-        if (targetId == Wolfia.getSelfUser().getIdLong()) {
+        if (targetId == this.selfUserId) {
             RestActions.sendMessage(gameChannel, String.format("%s lol can't %s me.",
                     TextchatUtils.userAsMention(shooterId), Emojis.GUN));
             return false;
@@ -445,7 +444,7 @@ public class Popcorn extends Game {
                 Popcorn.this.executor.execute(() -> {
                             try {
                                 final Operation ifLegal = () -> Popcorn.this.gameStats.addAction(simpleAction(
-                                        Wolfia.getSelfUser().getIdLong(), Actions.MODKILL, this.game.gunBearer));
+                                        Popcorn.this.selfUserId, Actions.MODKILL, this.game.gunBearer));
                                 this.game.endDay(DayEndReason.TIMER, this.game.gunBearer, -1, ifLegal);
                             } catch (final DayEndedAlreadyException ignored) {
                             }
@@ -482,7 +481,7 @@ public class Popcorn extends Game {
                             prepareGunDistributionEmbed(options, new HashMap<>(this.votes)).build(),
                             m -> {
                                 options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, RestActions.defaultOnFail()));
-                                Wolfia.addEventListener(new ReactionListener(m,
+                                m.getJDA().asBot().getShardManager().addEventListener(new ReactionListener(m,
                                         //filter: only living wolves may vote
                                         Popcorn.this::isLivingWolf,
                                         //on reaction

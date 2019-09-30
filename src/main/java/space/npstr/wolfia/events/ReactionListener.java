@@ -22,7 +22,6 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -59,7 +58,7 @@ public class ReactionListener extends ListenerAdapter {
 
     protected void destruct() {
         //remove the listener
-        Wolfia.removeEventListener(this);
+        Launcher.getBotContext().getShardManager().removeEventListener(this);
         this.selfDestructCallback.accept(null);
     }
 

@@ -64,7 +64,7 @@ public class GuildStatsCommand implements BaseCommand {
         if (context.hasArguments()) {
             try {
                 final long guildId = Long.parseLong(context.args[0]);
-                context.reply(this.statsProvider.getGuildStats(guildId).build());
+                context.reply(this.statsProvider.getGuildStats(context, guildId).build());
                 return true;
             } catch (final NumberFormatException e) {
                 context.help();
@@ -79,7 +79,7 @@ public class GuildStatsCommand implements BaseCommand {
         }
 
         final long guildId = context.getGuild().getIdLong();
-        context.reply(this.statsProvider.getGuildStats(guildId).build());
+        context.reply(this.statsProvider.getGuildStats(context, guildId).build());
         return true;
     }
 }

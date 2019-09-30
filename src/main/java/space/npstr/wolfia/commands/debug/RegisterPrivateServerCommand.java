@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -100,7 +99,7 @@ public class RegisterPrivateServerCommand implements BaseCommand, IOwnerRestrict
             PrivateGuild pg = new PrivateGuild(number, context.guild.getIdLong());
             pg = dbWrapper.persist(pg);
             Launcher.getBotContext().getPrivateGuildProvider().add(pg);
-            Wolfia.addEventListener(pg);
+            context.getJda().asBot().getShardManager().addEventListener(pg);
             context.guild.getManager().setName("Wolfia Private Server #" + pg.getNumber()).queue(null, RestActions.defaultOnFail());
         } catch (final DatabaseException e) {
             log.error("Db blew up saving private guild", e);

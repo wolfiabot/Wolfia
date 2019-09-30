@@ -57,7 +57,7 @@ public class BotStatsCommand implements BaseCommand {
     @Override
     public boolean execute(@Nonnull final CommandContext context)
             throws DatabaseException, IllegalGameStateException {
-        context.reply(this.statsProvider.getBotStats().build());
+        context.reply(this.statsProvider.getBotStats(context).build());
         return true;
     }
 }

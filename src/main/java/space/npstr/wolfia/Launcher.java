@@ -18,6 +18,7 @@
 package space.npstr.wolfia;
 
 import net.dv8tion.jda.bot.sharding.ShardManager;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -30,14 +31,22 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
+import space.npstr.wolfia.commands.debug.SyncCommand;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.GitRepoState;
+import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Created by napster on 10.05.18.
+ *
+ *  //general list of todos etc
+ *  //todo rename role pm/dm -> rolecard
  */
 @SpringBootApplication(exclude = { //we handle these ourselves
         DataSourceAutoConfiguration.class,
@@ -55,6 +64,8 @@ public class Launcher implements ApplicationRunner {
     private final ShardManager shardManager;
     private final ThreadPoolCollector poolMetrics;
     private final ExceptionLoggingExecutor executor;
+    private final WolfiaConfig wolfiaConfig;
+    private final Database database;
 
     public static BotContext getBotContext() {
         return botContext;
@@ -90,17 +101,68 @@ public class Launcher implements ApplicationRunner {
     }
 
     public Launcher(final BotContext botContext, final ShardManager shardManager,
-                    final ThreadPoolCollector poolMetrics, final ExceptionLoggingExecutor executor) {
+                    final ThreadPoolCollector poolMetrics, final ExceptionLoggingExecutor executor,
+                    final WolfiaConfig wolfiaConfig, Database database) {
 
         Launcher.botContext = botContext;
         this.shardManager = shardManager;
         this.poolMetrics = poolMetrics;
         this.executor = executor;
+        this.wolfiaConfig = wolfiaConfig;
+        this.database = database;
     }
 
     @Override
     public void run(final ApplicationArguments args) throws Exception {
-        Wolfia.start(this.shardManager, this.poolMetrics, this.executor);
+
+        this.poolMetrics.addPool("restActions", (ScheduledThreadPoolExecutor) RestActions.restService);
+
+        if (this.wolfiaConfig.isDebug())
+            log.info("Running DEBUG configuration");
+        else
+            log.info("Running PRODUCTION configuration");
+
+        //try connecting in a reasonable timeframe
+        boolean dbConnected = false;
+        final long dbConnectStarted = System.currentTimeMillis();
+        do {
+            try {
+                //noinspection ResultOfMethodCallIgnored
+                this.database.getWrapper().selectSqlQuery("SELECT 1;", null);
+                dbConnected = true;
+                log.info("Initial db connection succeeded");
+            } catch (final Exception e) {
+                log.info("Failed initial db connection, retrying in a moment", e);
+                Thread.sleep(1000);
+            }
+        } while (!dbConnected && System.currentTimeMillis() - dbConnectStarted < 1000 * 60 * 2); //2 minutes
+
+        if (!dbConnected) {
+            log.error("Failed to init db connection in a reasonable amount of time, exiting.");
+            System.exit(2);
+        }
+
+        //wait for all shards to be online, then start doing things that expect the full bot to be online
+        while (!allShardsUp()) {
+            Thread.sleep(1000);
+        }
+
+        //sync guild cache
+        // this takes a few seconds to do, so do it as the last thing of the main method, or put it into it's own thread
+        SyncCommand.syncGuilds(this.shardManager, this.executor, this.shardManager.getGuildCache().stream(), null);
+        //user cache is not synced on each start as it takes a lot of time and resources. see SyncComm for manual triggering
+    }
+
+    private boolean allShardsUp() {
+        if (this.shardManager.getShards().size() < this.shardManager.getShardsTotal()) {
+            return false;
+        }
+        for (final JDA jda : this.shardManager.getShards()) {
+            if (jda.getStatus() != JDA.Status.CONNECTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Nonnull

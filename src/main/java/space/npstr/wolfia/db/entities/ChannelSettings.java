@@ -26,7 +26,7 @@ import org.hibernate.annotations.Type;
 import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.sqlsauce.hibernate.types.BasicType;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.MessageContext;
 
 import javax.annotation.Nonnull;
@@ -152,7 +152,7 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
 
     public MessageEmbed getStatus() {
         final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
+        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
         if (channel == null) {
             eb.addField("Could not find channel with id " + this.channelId, "", false);
             return eb.build();

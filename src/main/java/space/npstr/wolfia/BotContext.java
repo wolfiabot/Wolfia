@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia;
 
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.config.properties.ListingsConfig;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
@@ -40,14 +41,17 @@ public class BotContext {
     private final ListingsConfig listingsConfig;
     private final PrivateGuildProvider privateGuildProvider;
     private final ExceptionLoggingExecutor executor;
+    private final ShardManager shardManager;
 
     public BotContext(final Database database, final WolfiaConfig wolfiaConfig, final ListingsConfig listingsConfig,
-                      PrivateGuildProvider privateGuildProvider, ExceptionLoggingExecutor executor) {
+                      PrivateGuildProvider privateGuildProvider, ExceptionLoggingExecutor executor,
+                      ShardManager shardManager) {
         this.database = database;
         this.wolfiaConfig = wolfiaConfig;
         this.listingsConfig = listingsConfig;
         this.privateGuildProvider = privateGuildProvider;
         this.executor = executor;
+        this.shardManager = shardManager;
     }
 
     public Database getDatabase() {
@@ -68,5 +72,9 @@ public class BotContext {
 
     public ExceptionLoggingExecutor getExecutor() {
         return this.executor;
+    }
+
+    public ShardManager getShardManager() {
+        return this.shardManager;
     }
 }

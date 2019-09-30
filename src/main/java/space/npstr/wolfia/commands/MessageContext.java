@@ -29,9 +29,7 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -139,26 +137,6 @@ public class MessageContext implements Context {
             }
         }
         return this.invoker.getName();
-    }
-
-    @Nonnull
-    @CheckReturnValue
-    //nickname of the member entity of the provided user id in this guild or their user name or a default value
-    public String getEffectiveName(final long userId) {
-        final Guild g = getGuild();
-        if (g != null) {
-            final Member member = g.getMemberById(userId);
-            if (member != null) {
-                return member.getEffectiveName();
-            }
-        }
-        //fallback to global user lookup
-        final User u = Wolfia.getUserById(userId);
-        if (u != null) {
-            return u.getName();
-        } else {
-            return DiscordUser.UNKNOWN_NAME; //todo db lookup
-        }
     }
 
     /**

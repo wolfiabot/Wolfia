@@ -24,7 +24,7 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.discord.DiscordUser;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Item;
@@ -114,7 +114,7 @@ public class Player {
      */
     @Nonnull
     public String getName() {
-        final User user = Wolfia.getUserById(this.userId);
+        final User user = Launcher.getBotContext().getShardManager().getUserById(this.userId);
         if (user != null) {
             return user.getName();
         }
@@ -131,7 +131,7 @@ public class Player {
      */
     @Nonnull
     public String getNick() {
-        final Guild guild = Wolfia.getGuildById(this.guildId);
+        final Guild guild = Launcher.getBotContext().getShardManager().getGuildById(this.guildId);
         if (guild != null) {
             final Member member = guild.getMemberById(this.userId);
             if (member != null) {
@@ -158,7 +158,7 @@ public class Player {
      */
     @Nonnull
     public String bothNamesFormatted() {
-        final Guild guild = Wolfia.getGuildById(this.guildId);
+        final Guild guild = Launcher.getBotContext().getShardManager().getGuildById(this.guildId);
         if (guild != null) {
             final Member member = guild.getMemberById(this.userId);
             if (member != null) {
@@ -257,7 +257,7 @@ public class Player {
      * if the user is not present in the bot
      */
     public void sendMessage(@Nonnull final Message message, @Nonnull final Consumer<Throwable> onFail) {
-        final User user = Wolfia.getUserById(this.userId);
+        final User user = Launcher.getBotContext().getShardManager().getUserById(this.userId);
         if (user != null) {
             RestActions.sendPrivateMessage(user, message, null, onFail);
         } else {
