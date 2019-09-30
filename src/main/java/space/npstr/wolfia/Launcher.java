@@ -19,6 +19,7 @@ package space.npstr.wolfia;
 
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDAInfo;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -30,7 +31,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
-import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
+import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.GitRepoState;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -54,9 +55,9 @@ public class Launcher implements ApplicationRunner {
     private static BotContext botContext;
 
     private final ShardManager shardManager;
-    private final DiscordEntityProvider discordEntityProvider;
     private final ThreadPoolCollector poolMetrics;
     private final ScheduledExecutorService jdaThreadPool;
+    private final ExceptionLoggingExecutor executor;
 
     public static BotContext getBotContext() {
         return botContext;
@@ -92,19 +93,19 @@ public class Launcher implements ApplicationRunner {
     }
 
     public Launcher(final BotContext botContext, final ShardManager shardManager,
-                    final DiscordEntityProvider discordEntityProvider, final ThreadPoolCollector poolMetrics,
-                    final ScheduledExecutorService jdaThreadPool) {
+                    final ThreadPoolCollector poolMetrics, @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool,
+                    final ExceptionLoggingExecutor executor) {
 
         Launcher.botContext = botContext;
         this.shardManager = shardManager;
-        this.discordEntityProvider = discordEntityProvider;
         this.poolMetrics = poolMetrics;
         this.jdaThreadPool = jdaThreadPool;
+        this.executor = executor;
     }
 
     @Override
     public void run(final ApplicationArguments args) throws Exception {
-        Wolfia.start(this.shardManager, this.discordEntityProvider, this.poolMetrics, this.jdaThreadPool);
+        Wolfia.start(this.shardManager, this.poolMetrics, this.jdaThreadPool, this.executor);
     }
 
     @Nonnull

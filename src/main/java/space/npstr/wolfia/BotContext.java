@@ -22,6 +22,7 @@ import space.npstr.wolfia.config.properties.ListingsConfig;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.events.PrivateGuildProvider;
+import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 /**
  * Created by napster on 10.05.18.
@@ -38,13 +39,15 @@ public class BotContext {
     private final WolfiaConfig wolfiaConfig;
     private final ListingsConfig listingsConfig;
     private final PrivateGuildProvider privateGuildProvider;
+    private final ExceptionLoggingExecutor executor;
 
     public BotContext(final Database database, final WolfiaConfig wolfiaConfig, final ListingsConfig listingsConfig,
-                      PrivateGuildProvider privateGuildProvider) {
+                      PrivateGuildProvider privateGuildProvider, ExceptionLoggingExecutor executor) {
         this.database = database;
         this.wolfiaConfig = wolfiaConfig;
         this.listingsConfig = listingsConfig;
         this.privateGuildProvider = privateGuildProvider;
+        this.executor = executor;
     }
 
     public Database getDatabase() {
@@ -61,5 +64,9 @@ public class BotContext {
 
     public PrivateGuildProvider getPrivateGuildProvider() {
         return this.privateGuildProvider;
+    }
+
+    public ExceptionLoggingExecutor getExecutor() {
+        return this.executor;
     }
 }

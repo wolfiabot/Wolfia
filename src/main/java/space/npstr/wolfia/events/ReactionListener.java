@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.Wolfia;
 
 import java.util.concurrent.TimeUnit;
@@ -53,7 +54,7 @@ public class ReactionListener extends ListenerAdapter {
         this.callback = callback;
         this.selfDestructCallback = selfDestructCallback;
 
-        Wolfia.executor.schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
+        Launcher.getBotContext().getExecutor().schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
     }
 
     protected void destruct() {

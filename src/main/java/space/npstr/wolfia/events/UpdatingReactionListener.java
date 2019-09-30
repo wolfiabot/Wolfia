@@ -20,7 +20,7 @@ package space.npstr.wolfia.events;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.Launcher;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +52,7 @@ public class UpdatingReactionListener extends ReactionListener {
         super(message, filter, reactionCallback, selfDestructMillis, selfDestructCallback);
 
         this.updateCallback = updateCallback;
-        this.updates = Wolfia.executor.scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
+        this.updates = Launcher.getBotContext().getExecutor().scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
     }
 
     private void update() {

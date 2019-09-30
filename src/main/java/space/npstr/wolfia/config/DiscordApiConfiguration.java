@@ -24,7 +24,7 @@ public class DiscordApiConfiguration {
         return new JdaDiscordEntityProvider(shardManager);
     }
 
-    @Bean(destroyMethod = "")
+    @Bean(destroyMethod = "", name = "jdaThreadPool")
     public ScheduledExecutorService jdaThreadPool(final ThreadPoolCollector threadPoolCollector) {
         AtomicInteger threadNumber = new AtomicInteger(0);
         ScheduledThreadPoolExecutor jdaThreadPool = new ScheduledThreadPoolExecutor(50, r -> {

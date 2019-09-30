@@ -20,12 +20,12 @@ package space.npstr.wolfia.commands.debug;
 import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 
@@ -47,12 +47,15 @@ public class EvalCommand implements BaseCommand, IOwnerRestricted {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(EvalCommand.class);
 
+    private final ExceptionLoggingExecutor executor;
+
     private Future lastTask;
 
     //Thanks Fred & Dinos!
     private final ScriptEngine engine;
 
-    public EvalCommand() {
+    public EvalCommand(ExceptionLoggingExecutor executor) {
+        this.executor = executor;
         this.engine = new ScriptEngineManager().getEngineByName("nashorn");
         try {
             this.engine.eval("var imports = new JavaImporter("
@@ -146,7 +149,7 @@ public class EvalCommand implements BaseCommand, IOwnerRestricted {
         this.engine.put("games", Games.class);//access the static methods like this from eval: games.static.myStaticMethod()
         this.engine.put("db", Launcher.getBotContext().getDatabase());
 
-        final Future<?> future = Wolfia.executor.submit(() -> {
+        final Future<?> future = this.executor.submit(() -> {
 
             final Object out;
             try {

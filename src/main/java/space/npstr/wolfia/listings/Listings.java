@@ -25,7 +25,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import okhttp3.OkHttpClient;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,8 +47,10 @@ public class Listings extends ListenerAdapter {
 
     //serves as both a set of registered listings and keeping track of ongoing tasks of posting stats
     private final Map<Listing, Future> tasks = new HashMap<>();
+    private final ExceptionLoggingExecutor executor;
 
-    public Listings(OkHttpClient.Builder httpClientBuilder) {
+    public Listings(OkHttpClient.Builder httpClientBuilder, ExceptionLoggingExecutor executor) {
+        this.executor = executor;
         OkHttpClient httpClient = httpClientBuilder
                 .eventListener(new OkHttpEventCounter("listings"))
                 .build();
@@ -76,7 +78,7 @@ public class Listings extends ListenerAdapter {
             return;
         }
 
-        this.tasks.put(listing, Wolfia.executor.submit(() -> {
+        this.tasks.put(listing, this.executor.submit(() -> {
             try {
                 listing.postStats(jda);
             } catch (final InterruptedException e) {
