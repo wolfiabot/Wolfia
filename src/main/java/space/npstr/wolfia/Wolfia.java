@@ -57,14 +57,11 @@ public class Wolfia {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Wolfia.class);
 
-    public static final long START_TIME = System.currentTimeMillis();
     //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
     public static final ExceptionLoggingExecutor executor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
 
 
     private static ShardManager shardManager;
-
-    private static boolean started = false;
 
     //set up things that are crucial
     //if something fails exit right away
@@ -107,7 +104,6 @@ public class Wolfia {
         while (!allShardsUp()) {
             Thread.sleep(1000);
         }
-        started = true;
 
 
         //sync guild cache
@@ -117,13 +113,6 @@ public class Wolfia {
     }
 
     private Wolfia() {
-    }
-
-    /**
-     * @return true if wolfia has started and all systems are expected to be operational
-     */
-    public static boolean isStarted() {
-        return started;
     }
 
     // ########## JDA wrapper methods, they get 9000% more useful when sharding
