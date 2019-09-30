@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia;
 
-import ch.qos.logback.classic.LoggerContext;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
@@ -25,11 +24,9 @@ import net.dv8tion.jda.core.entities.SelfUser;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.hooks.EventListener;
-import org.slf4j.LoggerFactory;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.log.LogTheStackException;
@@ -37,13 +34,7 @@ import space.npstr.wolfia.utils.log.LogTheStackException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by npstr on 22.08.2016
@@ -61,9 +52,8 @@ public class Wolfia {
     //set up things that are crucial
     //if something fails exit right away
     public static void start(ShardManager shardManager, ThreadPoolCollector poolMetrics,
-                             ScheduledExecutorService jdaThreadPool, ExceptionLoggingExecutor executor) throws InterruptedException {
+                             ExceptionLoggingExecutor executor) throws InterruptedException {
         Wolfia.shardManager = shardManager;
-        Runtime.getRuntime().addShutdownHook(shutdownHook(jdaThreadPool, executor));
 
         poolMetrics.addPool("restActions", (ScheduledThreadPoolExecutor) RestActions.restService);
 
@@ -193,81 +183,5 @@ public class Wolfia {
             }
         }
         return true;
-    }
-
-
-    //################# shutdown handling
-
-    public static final int EXIT_CODE_SHUTDOWN = 0;
-    public static final int EXIT_CODE_RESTART = 2;
-
-    private static boolean shuttingDown = false;
-
-    public static boolean isShuttingDown() {
-        return shuttingDown;
-    }
-
-
-    public static void shutdown(final int code) {
-        log.info("Exiting with code {}", code);
-        System.exit(code);
-    }
-
-    private static Thread shutdownHook(ScheduledExecutorService jdaThreadPool, ExceptionLoggingExecutor executor) {
-        return new Thread(() -> {
-            log.info("Shutdown hook triggered! {} games still ongoing.", Games.getRunningGamesCount());
-            shuttingDown = true;
-            Future waitForGamesToEnd = executor.submit(() -> {
-                while (Games.getRunningGamesCount() > 0) {
-                    log.info("Waiting on {} games to finish.", Games.getRunningGamesCount());
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-            });
-            try {
-                //is this value is changed, make sure to adjust the one in docker-update.sh
-                waitForGamesToEnd.get(2, TimeUnit.HOURS); //should be enough until the forseeable future
-                //todo persist games (big changes)
-            } catch (ExecutionException | InterruptedException | TimeoutException ignored) {
-                log.error("dafuq", ignored);
-            }
-            if (Games.getRunningGamesCount() > 0) {
-                log.error("Killing {} games while exiting", Games.getRunningGamesCount());
-            }
-
-            //shutdown JDA
-            log.info("Shutting down shards");
-            shardManager.shutdown();
-
-            //shutdown executors
-            log.info("Shutting down executor");
-            final List<Runnable> runnables = executor.shutdownNow();
-            log.info("{} runnables canceled", runnables.size());
-
-            log.info("Shutting down jda thread pool");
-            final List<Runnable> jdaThreadPoolRunnables = jdaThreadPool.shutdownNow();
-            log.info("{} jda thread pool runnables canceled", jdaThreadPoolRunnables.size());
-
-            try {
-                executor.awaitTermination(30, TimeUnit.SECONDS);
-                log.info("Main executor terminated");
-                jdaThreadPool.awaitTermination(30, TimeUnit.SECONDS);
-                log.info("Jda thread pool terminated");
-            } catch (final InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.warn("Interrupted while awaiting executor termination");
-            }
-
-            //shutdown DB
-            log.info("Shutting down database");
-            Launcher.getBotContext().getDatabase().shutdown();
-
-            //shutdown logback logger
-            log.info("Shutting down logger :rip:");
-            final LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-            loggerContext.stop();
-        }, "shutdown-hook");
     }
 }

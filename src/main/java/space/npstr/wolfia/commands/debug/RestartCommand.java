@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.debug;
 
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
@@ -48,7 +48,7 @@ public class RestartCommand implements BaseCommand, IOwnerRestricted {
     @Override
     public boolean execute(@Nonnull final CommandContext context) {
 
-        if (Wolfia.isShuttingDown()) {
+        if (ShutdownHandler.isShuttingDown()) {
             context.replyWithName(String.format("restart has been queued already! **%s** games still running.",
                     Games.getRunningGamesCount()));
             return false;
@@ -67,7 +67,7 @@ public class RestartCommand implements BaseCommand, IOwnerRestricted {
 
         final String message = String.format("**%s** games are still running. Will restart as soon as they are over.",
                 Games.getRunningGamesCount());
-        context.replyWithMention(message, __ -> new Thread(() -> Wolfia.shutdown(Wolfia.EXIT_CODE_RESTART), "shutdown-thread").start());
+        context.replyWithMention(message, __ -> new Thread(() -> ShutdownHandler.shutdown(ShutdownHandler.EXIT_CODE_RESTART), "shutdown-thread").start());
         return true;
     }
 }
