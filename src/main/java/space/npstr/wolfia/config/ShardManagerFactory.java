@@ -23,6 +23,7 @@ import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.sqlsauce.DatabaseWrapper;
@@ -65,7 +66,7 @@ public class ShardManagerFactory {
 
     public ShardManagerFactory(final WolfiaConfig wolfiaConfig, final Database database,
                                final CommandListener commandListener, final OkHttpClient.Builder httpClientBuilder,
-                               final ScheduledExecutorService jdaThreadPool, Listings listings,
+                               @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool, Listings listings,
                                List<PrivateGuild> privateGuildListeners) {
 
         this.wolfiaConfig = wolfiaConfig;

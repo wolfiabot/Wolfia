@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -57,20 +56,15 @@ public class Wolfia {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Wolfia.class);
 
-    //todo find a better way to execute tasks; java's built in ScheduledExecutorService is rather crappy for many reasons; until then a big-sized pool size will suffice to make sure tasks get executed when they are due
-    public static final ExceptionLoggingExecutor executor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
-
-
     private static ShardManager shardManager;
 
     //set up things that are crucial
     //if something fails exit right away
-    public static void start(ShardManager shardManager, DiscordEntityProvider discordEntityProvider,
-                             ThreadPoolCollector poolMetrics, ScheduledExecutorService jdaThreadPool) throws InterruptedException {
+    public static void start(ShardManager shardManager, ThreadPoolCollector poolMetrics,
+                             ScheduledExecutorService jdaThreadPool, ExceptionLoggingExecutor executor) throws InterruptedException {
         Wolfia.shardManager = shardManager;
-        Runtime.getRuntime().addShutdownHook(shutdownHook(jdaThreadPool));
+        Runtime.getRuntime().addShutdownHook(shutdownHook(jdaThreadPool, executor));
 
-        poolMetrics.addPool("main", executor);
         poolMetrics.addPool("restActions", (ScheduledThreadPoolExecutor) RestActions.restService);
 
         final WolfiaConfig wolfiaConfig = Launcher.getBotContext().getWolfiaConfig();
@@ -219,7 +213,7 @@ public class Wolfia {
         System.exit(code);
     }
 
-    private static Thread shutdownHook(ScheduledExecutorService jdaThreadPool) {
+    private static Thread shutdownHook(ScheduledExecutorService jdaThreadPool, ExceptionLoggingExecutor executor) {
         return new Thread(() -> {
             log.info("Shutdown hook triggered! {} games still ongoing.", Games.getRunningGamesCount());
             shuttingDown = true;
