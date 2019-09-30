@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.game;
 
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -29,7 +30,6 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
@@ -52,6 +52,7 @@ import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
+import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -94,6 +95,7 @@ public abstract class Game {
     //commonly used fields
     protected long channelId = -1;
     protected long guildId = -1;
+    protected final long selfUserId;
     protected GameInfo.GameMode mode;
     protected final List<Player> players = new ArrayList<>();
     protected volatile boolean running = false;
@@ -105,6 +107,12 @@ public abstract class Game {
     protected GameStats gameStats = null;
     protected final Map<Long, PlayerStats> playersStats = new HashMap<>();
     protected final AtomicInteger actionOrder = new AtomicInteger();
+
+    protected Game() {
+        this.selfUserId = Launcher.getBotContext().getShardManager().getShards().stream().findAny()
+                .map(shard -> shard.getSelfUser().getIdLong())
+                .orElseThrow();
+    }
 
 
     /**
@@ -195,7 +203,7 @@ public abstract class Game {
      */
     @Nonnull
     protected TextChannel fetchGameChannel() {
-        return Wolfia.fetchTextChannel(this.channelId);
+        return fetchTextChannel(this.channelId);
     }
 
     /**
@@ -204,7 +212,7 @@ public abstract class Game {
      */
     @Nonnull
     protected TextChannel fetchBaddieChannel() {
-        return Wolfia.fetchTextChannel(this.wolfChat.getChannelId());
+        return fetchTextChannel(this.wolfChat.getChannelId());
     }
 
 
@@ -372,7 +380,7 @@ public abstract class Game {
         if (this.running) {
             throw new IllegalStateException("Cannot start a game that is running already");
         }
-        final TextChannel channel = Wolfia.getTextChannelById(channelId);
+        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
         if (channelId <= 0 || channel == null) {
             throw new IllegalArgumentException(String.format(
                     "Cannot start a game with invalid/no channel (channelId: %s) set.", channelId)
@@ -554,7 +562,7 @@ public abstract class Game {
     //revert whatever prepareChannel() did in reverse order
     public void resetRolesAndPermissions(final boolean... complete) {
 
-        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
+        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
         if (channel == null) {
             //we probably left the guild
             log.warn("Could not find channel {} to reset roles and permissions in there", this.channelId);
@@ -631,7 +639,7 @@ public abstract class Game {
         }
         cleanUp();
         Games.remove(this);
-        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
+        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
         if (channel != null) {
             RestActions.sendMessage(channel,
                     String.format("Game has been stopped due to:"
@@ -681,7 +689,7 @@ public abstract class Game {
         }
 
         if (gameEnding) {
-            this.gameStats.addAction(simpleAction(Wolfia.getSelfUser().getIdLong(), Actions.GAMEEND, -1));
+            this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GAMEEND, -1));
             this.gameStats.setEndTime(System.currentTimeMillis());
 
             if (villageWins) {
@@ -791,4 +799,29 @@ public abstract class Game {
      */
     public abstract boolean issueCommand(@Nonnull CommandContext context)
             throws IllegalGameStateException;
+
+
+    //this method assumes that the id itself is legit and not a mistake
+    // it is an attempt to improve the occasional inconsistency of discord which makes looking up entities a gamble
+    // the main feature being the @Nonnull return contract, over the @Nullable contract of looking the entity up in JDA
+    @Nonnull
+    private static TextChannel fetchTextChannel(final long channelId) {
+        ShardManager shardManager = Launcher.getBotContext().getShardManager();
+        TextChannel tc = shardManager.getTextChannelById(channelId);
+        int attempts = 0;
+        while (tc == null) {
+            attempts++;
+            if (attempts > 100) {
+                throw new RuntimeException("Failed to fetch channel #" + channelId);
+            }
+            log.error("Could not find channel {}, retrying in a moment", channelId, new LogTheStackException());
+            try {
+                Thread.sleep(5000);
+            } catch (final InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            tc = shardManager.getTextChannelById(channelId);
+        }
+        return tc;
+    }
 }

@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.db.entities;
 
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Invite;
@@ -30,7 +31,6 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.IEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -158,8 +158,12 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
 
         final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME).complete();
         event.getGuild().getController().addRolesToMember(event.getMember(), wolf).queue(
-                aVoid -> RestActions.sendMessage(Wolfia.fetchTextChannel(this.currentChannelId),
-                        event.getMember().getAsMention() + ", welcome to wolf chat!")
+                aVoid -> {
+                    TextChannel textChannel = event.getJDA().asBot().getShardManager().getTextChannelById(this.currentChannelId);
+                    if (textChannel != null) {
+                        RestActions.sendMessage(textChannel, event.getMember().getAsMention() + ", welcome to wolf chat!");
+                    }
+                }
         );
     }
 
@@ -213,7 +217,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
                     final List<Invite> invites = channel.getInvites().complete();
                     invites.forEach(i -> i.delete().complete());
                 }
-                final TextChannel tc = Wolfia.getTextChannelById(this.currentChannelId);
+                final TextChannel tc = Launcher.getBotContext().getShardManager().getTextChannelById(this.currentChannelId);
                 if (tc != null) {
                     tc.delete().reason("Cleaning up private guild after game ended").complete();
                 } else {
@@ -246,8 +250,14 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     // the main feature being the @Nonnull return contract, over the @Nullable contract of looking the entity up in JDA
     @Nonnull
     private Guild fetchThisGuild() {
-        Guild g = Wolfia.getGuildById(this.guildId);
-        while (g == null) {
+        ShardManager shardManager = Launcher.getBotContext().getShardManager();
+        Guild guild = shardManager.getGuildById(this.guildId);
+        int attempts = 0;
+        while (guild == null) {
+            attempts++;
+            if (attempts > 100) {
+                throw new RuntimeException("Failed to fetch private guild #" + this.number);
+            }
             log.error("Could not find private guild #{} with id {}, trying in a moment",
                     this.number, this.guildId, new LogTheStackException());
             try {
@@ -255,8 +265,8 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            g = Wolfia.getGuildById(this.guildId);
+            guild = shardManager.getGuildById(this.guildId);
         }
-        return g;
+        return guild;
     }
 }

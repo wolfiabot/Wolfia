@@ -25,7 +25,6 @@ import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
@@ -81,13 +80,14 @@ public class SyncCommand implements BaseCommand, IOwnerRestricted {
     public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
 
         boolean actionFound = false;
+        ShardManager shardManager = context.getJda().asBot().getShardManager();
         if (context.msg.getContentRaw().toLowerCase().contains(ACTION_GUILDS)) {
             actionFound = true;
             context.reply("Starting guilds sync.");
             syncGuilds(
                     context.getJda().asBot().getShardManager(),
                     this.syncService,
-                    Wolfia.getShards().stream().flatMap(jda -> jda.getGuildCache().stream()),
+                    shardManager.getShardCache().stream().flatMap(jda -> jda.getGuildCache().stream()),
                     (duration, amount) -> context.reply(amount + " guilds synced in " + duration + "ms")
             );
         }
@@ -96,7 +96,7 @@ public class SyncCommand implements BaseCommand, IOwnerRestricted {
             actionFound = true;
             context.reply("Starting users caching.");
             cacheUsers(
-                    Wolfia.getShards(),
+                    shardManager.getShards(),
                     result -> context.reply("Shard " + result.shardId + ": "
                             + result.amount + " users cached in "
                             + result.duration + "ms")

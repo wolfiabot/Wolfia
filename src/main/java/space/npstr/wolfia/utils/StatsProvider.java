@@ -21,7 +21,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.db.ColumnMapper;
 import space.npstr.wolfia.db.Database;
@@ -120,7 +120,7 @@ public class StatsProvider {
 
     //this should be rather similar to getGuildStats
     @SuppressWarnings("unchecked")
-    public EmbedBuilder getBotStats() throws DatabaseException {
+    public EmbedBuilder getBotStats(Context context) throws DatabaseException {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
@@ -157,9 +157,11 @@ public class StatsProvider {
         final Map<Integer, List<Long>> collectedValues = collectValues(gamesxWinningTeamByPlayerSize);
 
         //add them to the embed
-        EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
+        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         eb.setTitle("Wolfia stats:");
-        eb.setThumbnail(Wolfia.getSelfUser().getAvatarUrl());
+        context.getJda().asBot().getShardManager().getShardCache().stream().findAny()
+                .map(shard -> shard.getSelfUser().getAvatarUrl())
+                .ifPresent(eb::setThumbnail);
 
         //stats for all games:
         eb.addBlankField(false);
@@ -171,13 +173,12 @@ public class StatsProvider {
         //stats by playersize:
         eb.addBlankField(false);
         eb.addField("Stats by player size:", "", false);
-        eb = addStatsPerPlayerSize(eb, collectedValues);
-        return eb;
+        return addStatsPerPlayerSize(eb, collectedValues);
     }
 
 
     @SuppressWarnings("unchecked")
-    public EmbedBuilder getGuildStats(final long guildId) throws DatabaseException {
+    public EmbedBuilder getGuildStats(Context context, final long guildId) throws DatabaseException {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
@@ -216,7 +217,7 @@ public class StatsProvider {
 
         //add them to the embed
         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        final Guild guild = Wolfia.getGuildById(guildId);
+        final Guild guild = context.getJda().asBot().getShardManager().getGuildById(guildId);
         final CachedGuild cachedGuild = this.database.getWrapper().findApplyAndMerge(CachedGuild.key(guildId), eg -> eg.set(guild));
         eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
         eb.setThumbnail(cachedGuild.getAvatarUrl());

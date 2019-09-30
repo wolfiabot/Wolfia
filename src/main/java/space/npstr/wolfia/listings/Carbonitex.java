@@ -24,7 +24,6 @@ import okhttp3.RequestBody;
 import org.json.JSONObject;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 
 import javax.annotation.Nonnull;
 
@@ -44,7 +43,7 @@ public class Carbonitex extends Listing {
     protected String createPayload(@Nonnull final JDA jda) {
         return new JSONObject()
                 .put("key", Launcher.getBotContext().getListingsConfig().getCarbonitexKey())
-                .put("servercount", Wolfia.getGuildsAmount())
+                .put("servercount", Launcher.getBotContext().getShardManager().getGuildCache().size())
                 .toString();
     }
 

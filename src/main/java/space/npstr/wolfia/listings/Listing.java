@@ -17,13 +17,13 @@
 
 package space.npstr.wolfia.listings;
 
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.Wolfia;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -70,7 +70,7 @@ public abstract class Listing {
             return;
         }
 
-        if (this instanceof Carbonitex && !Wolfia.allShardsUp()) {
+        if (this instanceof Carbonitex && !allShardsUp(jda.asBot().getShardManager())) {
             log.info("Skipping posting stats to Carbonitex since not all shards are up");
             return;
         }
@@ -116,5 +116,17 @@ public abstract class Listing {
     @Override
     public boolean equals(final Object obj) {
         return obj instanceof Listing && this.name.equals(((Listing) obj).name);
+    }
+
+    private boolean allShardsUp(ShardManager shardManager) {
+        if (shardManager.getShards().size() < shardManager.getShardsTotal()) {
+            return false;
+        }
+        for (final JDA jda : shardManager.getShards()) {
+            if (jda.getStatus() != JDA.Status.CONNECTED) {
+                return false;
+            }
+        }
+        return true;
     }
 }

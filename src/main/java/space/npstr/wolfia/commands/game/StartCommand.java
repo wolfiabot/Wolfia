@@ -74,7 +74,7 @@ public class StartCommand implements BaseCommand {
         }
 
         Setup setup = Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()));
-        final boolean started = setup.startGame(context.invoker.getIdLong());
+        final boolean started = setup.startGame(context);
         setup = Launcher.getBotContext().getDatabase().getWrapper().merge(setup);
 
         return started;

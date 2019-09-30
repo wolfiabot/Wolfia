@@ -18,6 +18,7 @@
 package space.npstr.wolfia.db.entities;
 
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.hibernate.annotations.ColumnDefault;
@@ -29,7 +30,7 @@ import space.npstr.sqlsauce.hibernate.types.BasicType;
 import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.ShutdownHandler;
-import space.npstr.wolfia.Wolfia;
+import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
 import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.StatusCommand;
@@ -185,7 +186,7 @@ public class Setup extends SaucedEntity<Long, Setup> {
         cleanUpInnedPlayers();
 
         final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
-        final TextChannel channel = Wolfia.getTextChannelById(this.channelId);
+        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
         if (channel == null) {
             neb.addField("Could not find channel with id " + this.channelId, "", false);
             return neb.build();
@@ -226,9 +227,11 @@ public class Setup extends SaucedEntity<Long, Setup> {
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
-    public synchronized boolean startGame(final long commandCallerId)
+    public synchronized boolean startGame(Context context)
             throws IllegalGameStateException, DatabaseException {
-        final TextChannel channel = Wolfia.fetchTextChannel(this.channelId);
+
+        long commandCallerId = context.getInvoker().getIdLong();
+        final MessageChannel channel = context.getChannel();
         //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
         synchronized (Setup.class) {
             if (MaintenanceCommand.getMaintenanceFlag() || ShutdownHandler.isShuttingDown()) {
@@ -287,7 +290,7 @@ public class Setup extends SaucedEntity<Long, Setup> {
     }
 
     private TextChannel getThisChannel() {
-        final TextChannel tc = Wolfia.getTextChannelById(this.channelId);
+        final TextChannel tc = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
         if (tc == null) {
             throw new NullPointerException(String.format("Could not find channel %s of setup", this.channelId));
         }
