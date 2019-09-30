@@ -19,7 +19,6 @@ package space.npstr.wolfia;
 
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDAInfo;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -36,7 +35,6 @@ import space.npstr.wolfia.utils.GitRepoState;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Created by napster on 10.05.18.
@@ -56,7 +54,6 @@ public class Launcher implements ApplicationRunner {
 
     private final ShardManager shardManager;
     private final ThreadPoolCollector poolMetrics;
-    private final ScheduledExecutorService jdaThreadPool;
     private final ExceptionLoggingExecutor executor;
 
     public static BotContext getBotContext() {
@@ -93,19 +90,17 @@ public class Launcher implements ApplicationRunner {
     }
 
     public Launcher(final BotContext botContext, final ShardManager shardManager,
-                    final ThreadPoolCollector poolMetrics, @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool,
-                    final ExceptionLoggingExecutor executor) {
+                    final ThreadPoolCollector poolMetrics, final ExceptionLoggingExecutor executor) {
 
         Launcher.botContext = botContext;
         this.shardManager = shardManager;
         this.poolMetrics = poolMetrics;
-        this.jdaThreadPool = jdaThreadPool;
         this.executor = executor;
     }
 
     @Override
     public void run(final ApplicationArguments args) throws Exception {
-        Wolfia.start(this.shardManager, this.poolMetrics, this.jdaThreadPool, this.executor);
+        Wolfia.start(this.shardManager, this.poolMetrics, this.executor);
     }
 
     @Nonnull

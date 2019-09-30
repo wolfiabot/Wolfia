@@ -28,7 +28,6 @@ import space.npstr.wolfia.commands.debug.RegisterPrivateServerCommand;
 import space.npstr.wolfia.commands.debug.RestartCommand;
 import space.npstr.wolfia.commands.debug.ReviveCommand;
 import space.npstr.wolfia.commands.debug.RunningCommand;
-import space.npstr.wolfia.commands.debug.ShutdownCommand;
 import space.npstr.wolfia.commands.debug.SyncCommand;
 import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.OutCommand;
@@ -276,11 +275,6 @@ class CommRegistryTest extends ApplicationTest {
     @Test
     void hasRunningCommand() {
         assertHasCommand("running", RunningCommand.class);
-    }
-
-    @Test
-    void hasShutdownCommand() {
-        assertHasCommand("shutdown", ShutdownCommand.class);
     }
 
     @Test

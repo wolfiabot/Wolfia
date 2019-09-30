@@ -28,6 +28,7 @@ import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.sqlsauce.hibernate.types.BasicType;
 import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
 import space.npstr.wolfia.Launcher;
+import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.Wolfia;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
 import space.npstr.wolfia.commands.game.InCommand;
@@ -230,7 +231,7 @@ public class Setup extends SaucedEntity<Long, Setup> {
         final TextChannel channel = Wolfia.fetchTextChannel(this.channelId);
         //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
         synchronized (Setup.class) {
-            if (MaintenanceCommand.getMaintenanceFlag() || Wolfia.isShuttingDown()) {
+            if (MaintenanceCommand.getMaintenanceFlag() || ShutdownHandler.isShuttingDown()) {
                 RestActions.sendMessage(channel, "The bot is under maintenance. Please try starting a game later.");
                 return false;
             }

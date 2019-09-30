@@ -26,14 +26,10 @@ import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
-import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
 import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.db.entities.CachedGuild;
-import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
@@ -55,27 +51,30 @@ import java.util.function.Supplier;
 public class ShardManagerFactory {
 
     private final WolfiaConfig wolfiaConfig;
-    private final Database database;
     private final CommandListener commandListener;
     private final OkHttpClient.Builder httpClientBuilder;
     private final ScheduledExecutorService jdaThreadPool;
     private final Listings listings;
     private final List<PrivateGuild> privateGuildListeners;
+    private final GuildCachingListener guildCacheListener;
+    private final UserMemberCachingListener userCacheListener;
     private final Supplier<ShardManager> singleton;
 
 
-    public ShardManagerFactory(final WolfiaConfig wolfiaConfig, final Database database,
-                               final CommandListener commandListener, final OkHttpClient.Builder httpClientBuilder,
+    public ShardManagerFactory(final WolfiaConfig wolfiaConfig, final CommandListener commandListener,
+                               final OkHttpClient.Builder httpClientBuilder,
                                @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool, Listings listings,
-                               List<PrivateGuild> privateGuildListeners) {
+                               List<PrivateGuild> privateGuildListeners, GuildCachingListener guildCacheListener,
+                               UserMemberCachingListener userCacheListener) {
 
         this.wolfiaConfig = wolfiaConfig;
-        this.database = database;
         this.commandListener = commandListener;
         this.httpClientBuilder = httpClientBuilder;
         this.jdaThreadPool = jdaThreadPool;
         this.listings = listings;
         this.privateGuildListeners = privateGuildListeners;
+        this.guildCacheListener = guildCacheListener;
+        this.userCacheListener = userCacheListener;
         this.singleton = Suppliers.memoize(this::createShardManager);
     }
 
@@ -84,13 +83,12 @@ public class ShardManagerFactory {
     }
 
     private ShardManager createShardManager() {
-        final DatabaseWrapper wrapper = this.database.getWrapper();
         DefaultShardManagerBuilder builder = new DefaultShardManagerBuilder()
                 .setToken(this.wolfiaConfig.getDiscordToken())
                 .setGame(Game.playing(App.GAME_STATUS))
                 .addEventListeners(this.commandListener)
-                .addEventListeners(new UserMemberCachingListener<>(wrapper, CachedUser.class))
-                .addEventListeners(new GuildCachingListener<>(wrapper, CachedGuild.class))
+                .addEventListeners(userCacheListener)
+                .addEventListeners(guildCacheListener)
                 .addEventListeners(new InternalListener())
                 .addEventListeners(this.listings)
                 .addEventListeners(new WolfiaGuildListener())
