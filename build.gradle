@@ -148,8 +148,26 @@ project('database-codegen') {
     }
 
     flyway {
-        flywayClean.dependsOn(awaitCodegenDbContainer)
-        flywayMigrate.dependsOn(flywayClean)
+        flywayMigrate {
+            doFirst {
+                // running these manually in a doFirst closure ensures that they are not executed all the time
+                // currently there is no better way of running tasks optionally that another task depends on
+                pullCodegenDbContainer.start()
+                stopCodegenDbContainerPre.start()
+                createCodegenDbContainer.start()
+                startCodegenDbContainer.start()
+                awaitCodegenDbContainer.start()
+            }
+
+            // combining input and output files ensures that this is task is run/cached correctly
+            def inOut = fileTree('src/main/resources/db/migrations') +
+                    fileTree('build/classes/generated/java/space/npstr/wolfia/db/gen')
+            inputs.files(inOut)
+                    .withPropertyName('migrationsInput')
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+            outputs.files(inOut)
+                    .withPropertyName('migrationsOutput')
+        }
         url = "$codegenJdbcUrl"
         locations = ['filesystem:database-codegen/src/main/resources/db/migrations']
         configurations = ['flywayMigration']
@@ -181,13 +199,20 @@ project('database-codegen') {
     }
 
     generateWolfiaJooqSchemaSource {
+        inputs.files(fileTree('src/main/resources/db/migrations'))
+                .withPropertyName('migrationsInput')
+                .withPathSensitivity(PathSensitivity.RELATIVE)
         dependsOn(flywayMigrate)
-        finalizedBy stopCodegenDbContainerPost
+        doLast {
+            stopCodegenDbContainerPost.start()
+        }
     }
 
     test {
         dependsOn(flywayMigrate)
-        finalizedBy stopCodegenDbContainerPost
+        doLast {
+            stopCodegenDbContainerPost.start()
+        }
     }
 }
 
@@ -266,7 +291,6 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers:$testcontainersVersion"
 }
 
-compileJava.dependsOn 'clean'
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
     options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation' << '-Xmaxerrs' << '10000' << '-Xdiags:verbose'
