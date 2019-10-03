@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Created by napster on 17.06.17.
@@ -152,6 +153,8 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         if (!this.allowedUsers.contains(joined.getUser().getIdLong())) {
             final Consumer whenDone = aVoid -> event.getGuild().getController().kick(joined).queue(null, RestActions.defaultOnFail());
             final String message = String.format("You are not allowed to join private guild #%s currently.", this.number);
+            String users = this.allowedUsers.stream().map(Number::toString).collect(Collectors.joining(", "));
+            log.debug("Denied user {}, allowed users are {}", joined.getUser().getId(), users);
             RestActions.sendPrivateMessage(joined.getUser(), message, whenDone, whenDone);
             return;
         }
