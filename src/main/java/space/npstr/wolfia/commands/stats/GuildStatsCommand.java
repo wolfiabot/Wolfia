@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands.stats;
 
 import net.dv8tion.jda.core.entities.Guild;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -59,7 +58,7 @@ public class GuildStatsCommand implements BaseCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext context)
-            throws IllegalGameStateException, DatabaseException {
+            throws IllegalGameStateException {
 
         if (context.hasArguments()) {
             try {

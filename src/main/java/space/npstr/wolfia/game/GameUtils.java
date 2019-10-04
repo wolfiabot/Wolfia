@@ -176,6 +176,7 @@ public class GameUtils {
                 return Collections.singletonList(maybe.get());
             }
         } catch (final NumberFormatException ignored) {
+            // ignored
         }
 
         //by userid
@@ -186,6 +187,7 @@ public class GameUtils {
                 return Collections.singletonList(maybe.get());
             }
         } catch (final NumberFormatException ignored) {
+            // ignored
         }
 
 
@@ -216,4 +218,6 @@ public class GameUtils {
             return result;
         }
     }
+
+    private GameUtils() {}
 }

@@ -32,9 +32,9 @@ import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.DatabaseConfig;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by napster on 26.04.18.
@@ -51,11 +51,9 @@ public class Database {
     private final WolfiaConfig wolfiaConfig;
     private final QueryCountStrategy queryCountStrategy;
 
-    @Nullable
-    private volatile DatabaseConnection connection;
+    private final AtomicReference<DatabaseConnection> connection = new AtomicReference<>();
     private final Object connectionInitLock = new Object();
-    @Nullable
-    private volatile DatabaseWrapper wrapper;
+    private final AtomicReference<DatabaseWrapper> wrapper = new AtomicReference<>();
     private final Object wrapperInitLock = new Object();
 
     public Database(final DatabaseConfig databaseConfig, final WolfiaConfig wolfiaConfig,
@@ -67,12 +65,13 @@ public class Database {
     }
 
     public DatabaseWrapper getWrapper() {
-        DatabaseWrapper singleton = this.wrapper;
+        DatabaseWrapper singleton = this.wrapper.get();
         if (singleton == null) {
             synchronized (this.wrapperInitLock) {
-                singleton = this.wrapper;
+                singleton = this.wrapper.get();
                 if (singleton == null) {
-                    this.wrapper = singleton = new DatabaseWrapper(getConnection());
+                    singleton = new DatabaseWrapper(getConnection());
+                    this.wrapper.set(singleton);
                 }
             }
         }
@@ -80,12 +79,13 @@ public class Database {
     }
 
     public DatabaseConnection getConnection() {
-        DatabaseConnection singleton = this.connection;
+        DatabaseConnection singleton = this.connection.get();
         if (singleton == null) {
             synchronized (this.connectionInitLock) {
-                singleton = this.connection;
+                singleton = this.connection.get();
                 if (singleton == null) {
-                    this.connection = singleton = initConnection();
+                    singleton = initConnection();
+                    this.connection.set(singleton);
                 }
             }
         }
@@ -94,7 +94,7 @@ public class Database {
 
     public void shutdown() {
         synchronized (this.connectionInitLock) {
-            final DatabaseConnection conn = this.connection;
+            final DatabaseConnection conn = this.connection.get();
             if (conn != null) {
                 conn.shutdown();
             }

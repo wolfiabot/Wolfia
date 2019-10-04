@@ -375,8 +375,7 @@ public abstract class Game {
      * @throws IllegalArgumentException
      *         if any of the provided arguments fail the checks
      */
-    protected void doArgumentChecksAndSet(final long channelId, final GameInfo.GameMode mode, final Set<Long> innedPlayers)
-            throws IllegalArgumentException {
+    protected void doArgumentChecksAndSet(final long channelId, final GameInfo.GameMode mode, final Set<Long> innedPlayers) {
         if (this.running) {
             throw new IllegalStateException("Cannot start a game that is running already");
         }
@@ -414,8 +413,7 @@ public abstract class Game {
      * @throws UserFriendlyException
      *         if the bot is missing permissions to run the game in the channel
      */
-    protected void doPermissionCheckAndPrepareChannel(final boolean moderated)
-            throws UserFriendlyException, DatabaseException {
+    protected void doPermissionCheckAndPrepareChannel(final boolean moderated) {
         final TextChannel gameChannel = fetchGameChannel();
         final Guild g = gameChannel.getGuild();
 
@@ -514,7 +512,7 @@ public abstract class Game {
     }
 
     //todo there seems to be an API for bots creating their own guilds? totally should use that instead
-    protected PrivateGuild allocatePrivateGuild() throws UserFriendlyException {
+    protected PrivateGuild allocatePrivateGuild() {
         return Launcher.getBotContext().getPrivateGuildProvider().poll()
                 .orElseGet(() -> {
                     RestActions.sendMessage(fetchGameChannel(),
@@ -536,7 +534,7 @@ public abstract class Game {
      * @throws PermissionException
      *         if the bot is missing permissions to edit permission overrides for members and roles
      */
-    protected void prepareChannel() throws PermissionException {
+    protected void prepareChannel() {
         final TextChannel gameChannel = fetchGameChannel();
         final Guild g = gameChannel.getGuild();
 
@@ -593,7 +591,7 @@ public abstract class Game {
             missingPermissions.add(e.getPermission());
         }
 
-        if (missingPermissions.size() > 0) {
+        if (!missingPermissions.isEmpty()) {
             RestActions.sendMessage(channel,
                     String.format("Tried to clean up channel, but was missing the following permissions: `%s`",
                             String.join("`, `",
@@ -605,7 +603,10 @@ public abstract class Game {
             for (final Future f : toComplete) {
                 try {
                     f.get();
-                } catch (final InterruptedException | ExecutionException ignored) {
+                } catch (final InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                } catch (final ExecutionException ignored) {
+                    // ignored
                 }
             }
         }
@@ -714,9 +715,10 @@ public abstract class Game {
             }
             cleanUp();
             final TextChannel gameChannel = fetchGameChannel();
+            String info = Games.getInfo(this).textRep();
             log.info("Game #{} ended in guild {} {}, channel #{} {}, {} {} {} players",
                     this.gameStats.getId(), gameChannel.getGuild().getName(), gameChannel.getGuild().getIdLong(),
-                    gameChannel.getName(), gameChannel.getIdLong(), Games.getInfo(this).textRep(), this.mode.textRep, this.players.size());
+                    gameChannel.getName(), gameChannel.getIdLong(), info, this.mode.textRep, this.players.size());
             // removing the game from the registry has to be the very last statement, since if a restart is queued, it
             // waits for an empty games registry
             RestActions.sendMessage(fetchGameChannel(), out,
@@ -784,7 +786,7 @@ public abstract class Game {
      * @param innedPlayers
      *         the players who signed up
      */
-    public abstract void start(long channelId, GameInfo.GameMode mode, Set<Long> innedPlayers) throws DatabaseException;
+    public abstract void start(long channelId, GameInfo.GameMode mode, Set<Long> innedPlayers);
 
     /**
      * Let the game handle a command a user issued

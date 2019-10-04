@@ -19,10 +19,8 @@ package space.npstr.wolfia.commands.stats;
 
 import net.dv8tion.jda.core.entities.User;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
@@ -59,9 +57,7 @@ public class UserStatsCommand implements BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context)
-            throws IllegalGameStateException, DatabaseException {
-
+    public boolean execute(@Nonnull final CommandContext context) {
         long userId = context.invoker.getIdLong();
         if (context.msg.getMentionedUsers().isEmpty()) {
             //noinspection Duplicates

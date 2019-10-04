@@ -1,7 +1,6 @@
 package space.npstr.wolfia.commands.debug;
 
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.Hstore;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -34,17 +33,17 @@ public class MaintenanceCommand implements BaseCommand, IOwnerRestricted {
 
     @Override
     public boolean execute(@Nonnull final CommandContext context)
-            throws IllegalGameStateException, DatabaseException {
+            throws IllegalGameStateException {
         flipMaintenanceFlag();
         context.replyWithMention("set the maintenance flag to **" + getMaintenanceFlag() + "**");
         return true;
     }
 
-    public static boolean getMaintenanceFlag() throws DatabaseException {
+    public static boolean getMaintenanceFlag() {
         return Boolean.valueOf(Hstore.loadAndGet(Launcher.getBotContext().getDatabase().getWrapper(), MAINTENANCE_FLAG, Boolean.FALSE.toString()));
     }
 
-    public static void flipMaintenanceFlag() throws DatabaseException {
+    public static void flipMaintenanceFlag() {
         Hstore.loadApplyAndSave(Launcher.getBotContext().getDatabase().getWrapper(), hstore -> {
             final String maintenance = hstore.get(MAINTENANCE_FLAG, Boolean.FALSE.toString());
             return hstore.set(MAINTENANCE_FLAG, Boolean.toString(!Boolean.valueOf(maintenance)));

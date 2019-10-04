@@ -35,8 +35,8 @@ import javax.persistence.Table;
 public class CachedGuild extends DiscordGuild<CachedGuild> {
 
 
-    //for jpa / IEntity
     public CachedGuild() {
+        //for jpa / IEntity
     }
 
     public static EntityKey<Long, CachedGuild> key(final long guildId) {

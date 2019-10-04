@@ -43,9 +43,6 @@ public class NiceEmbedBuilder extends EmbedBuilder {
         return neb;
     }
 
-    public NiceEmbedBuilder() {
-    }
-
     //default trim is true
     public NiceEmbedBuilder addField(final ChunkingField field, final boolean... trim) {
 

@@ -95,8 +95,9 @@ public abstract class Listing {
                     success = true;
                 } else {
                     //noinspection ConstantConditions
+                    String body = response.body().string();
                     log.info("Failed to post stats to {} on attempt {}: code {}, body:\n{}",
-                            this.name, attempt, response.code(), response.body().string());
+                            this.name, attempt, response.code(), body);
                 }
             } catch (final IOException e) {
                 log.info("Failed to post stats to {} on attempt {}", this.name, attempt, e);
@@ -116,6 +117,11 @@ public abstract class Listing {
     @Override
     public boolean equals(final Object obj) {
         return obj instanceof Listing && this.name.equals(((Listing) obj).name);
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode();
     }
 
     private boolean allShardsUp(ShardManager shardManager) {

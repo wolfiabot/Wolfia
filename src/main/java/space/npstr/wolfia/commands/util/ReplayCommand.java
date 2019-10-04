@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.util;
 
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -68,7 +67,7 @@ public class ReplayCommand implements BaseCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext context)
-            throws IllegalGameStateException, DatabaseException {
+            throws IllegalGameStateException {
 
         if (!context.hasArguments()) {
             context.help();
@@ -77,7 +76,7 @@ public class ReplayCommand implements BaseCommand {
 
         final long gameId;
         try {
-            gameId = Long.parseLong(context.args[0].replaceAll("#", ""));
+            gameId = Long.parseLong(context.args[0].replace("#", ""));
         } catch (final NumberFormatException ex) {
             context.help();
             return false;

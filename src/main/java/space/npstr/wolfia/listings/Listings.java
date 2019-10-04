@@ -83,6 +83,7 @@ public class Listings extends ListenerAdapter {
                 listing.postStats(jda);
             } catch (final InterruptedException e) {
                 log.error("Task to send stats to {} interrupted", listing.name, e);
+                Thread.currentThread().interrupt();
             }
         }));
     }

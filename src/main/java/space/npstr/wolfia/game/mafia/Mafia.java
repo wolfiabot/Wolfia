@@ -23,7 +23,6 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -66,6 +65,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -148,8 +148,7 @@ public class Mafia extends Game {
 
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized void start(final long channelId, final GameInfo.GameMode mode, final Set<Long> innedPlayers)
-            throws UserFriendlyException, DatabaseException {
+    public synchronized void start(final long channelId, final GameInfo.GameMode mode, final Set<Long> innedPlayers) {
         try {//wrap into our own exceptions
             doArgumentChecksAndSet(channelId, mode, innedPlayers);
         } catch (final IllegalArgumentException e) {
@@ -205,7 +204,7 @@ public class Mafia extends Game {
         //set up stats objects
         this.gameStats = new GameStats(g.getIdLong(), g.getName(), this.channelId, gameChannel.getName(),
                 Games.MAFIA, this.mode.name(), this.players.size());
-        final Map<Alignments, TeamStats> teams = new HashMap<>();
+        final Map<Alignments, TeamStats> teams = new EnumMap<>(Alignments.class);
         for (final Player player : this.players) {
             final Alignments alignment = player.alignment;
             final TeamStats team = teams.getOrDefault(alignment,
@@ -223,9 +222,10 @@ public class Mafia extends Game {
 
         // - start the game
         Games.set(this);
+        String info = Games.getInfo(this).textRep();
         log.info("Game started in guild {} {}, channel #{} {}, {} {} {} players",
                 g.getName(), g.getIdLong(), gameChannel.getName(), gameChannel.getIdLong(),
-                Games.getInfo(this).textRep(), mode.textRep, this.players.size());
+                info, mode.textRep, this.players.size());
         this.running = true;
         this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GAMESTART, -1));
         //mention the players in the thread
@@ -237,8 +237,7 @@ public class Mafia extends Game {
     }
 
     @Override
-    public boolean issueCommand(@Nonnull final CommandContext context)
-            throws IllegalGameStateException {
+    public boolean issueCommand(@Nonnull final CommandContext context) {
         final Player invoker;
         try {
             invoker = getPlayer(context.invoker.getIdLong());
@@ -397,6 +396,7 @@ public class Mafia extends Game {
                 try {
                     endDay();
                 } catch (final DayEndedAlreadyException ignored) {
+                    // ignored
                 }
             }
         }
@@ -520,7 +520,7 @@ public class Mafia extends Game {
                     Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
 
             //send info
-            final String message = String.format("%s %s opened a %s and found a lit %s inside, killing them immediately.\n%s",
+            final String message = String.format("%s %s opened a %s and found a lit %s inside, killing them immediately.%n%s",
                     Emojis.BOOM, dying.asMention(), Item.Items.PRESENT, Item.Items.BOMB, getReveal(dying));
             RestActions.sendMessage(gameChannel, message);
             if (this.phase == Phase.NIGHT) {
@@ -583,7 +583,7 @@ public class Mafia extends Game {
                 Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
 
         //send info
-        final String message = String.format("%s has been shot! They die immediately.\n%s",
+        final String message = String.format("%s has been shot! They die immediately.%n%s",
                 dying.asMention(), getReveal(dying));
         RestActions.sendMessage(gameChannel, message);
         if (this.phase == Phase.NIGHT) {
@@ -663,6 +663,7 @@ public class Mafia extends Game {
             try {
                 this.endDay();
             } catch (final DayEndedAlreadyException ignored) {
+                // ignored
             }
         }, this.dayLengthMillis, TimeUnit.MILLISECONDS);
         this.phaseEndReminder = this.executor.schedule(() -> RestActions.sendMessage(gameChannel, "One minute left until day end!"),
@@ -712,7 +713,7 @@ public class Mafia extends Game {
             }
 
             final long votesAmount = this.votes.values().stream().filter(p -> p.userId == lynchCandidate.userId).count();
-            RestActions.sendMessage(gameChannel, String.format("%s has been lynched%s with %s votes on them!\nThey were **%s %s** %s",
+            RestActions.sendMessage(gameChannel, String.format("%s has been lynched%s with %s votes on them!%nThey were **%s %s** %s",
                     lynchCandidate.asMention(), randedLynch ? " at random due to a tie" : "", votesAmount,
                     lynchCandidate.alignment.textRepMaf, lynchCandidate.role.textRep, lynchCandidate.getCharakterEmoji()));
             this.gameStats.addActions(this.voteActions.values());
@@ -777,7 +778,7 @@ public class Mafia extends Game {
                                     final Player nightKillCandidate = GameUtils.rand(GameUtils.mostVoted(this.nightkillVotes, getLivingVillage()));
 
                                     RestActions.sendMessage(wolfchatChannel, String.format(
-                                            "\n@here, %s will be killed! Game about to start/continue, get back to the main chat.\n%s",
+                                            "%n@here, %s will be killed! Game about to start/continue, get back to the main chat.%n%s",
                                             nightKillCandidate.bothNamesFormatted(),
                                             TextchatUtils.getOrCreateInviteLinkForChannel(shardManager.getTextChannelById(this.channelId))));
                                     this.gameStats.addActions(this.nightKillVoteActions.values());
@@ -920,7 +921,7 @@ public class Mafia extends Game {
                     log.error("Player {} getting a present not a player of the ongoing game in {}.", nightAction.getTarget(), this.channelId);
                 }
             } else {
-                log.error("Unsupported night action encountered: " + nightAction.getActionType());
+                log.error("Unsupported night action encountered: {}", nightAction.getActionType());
             }
         }
 
@@ -941,14 +942,14 @@ public class Mafia extends Game {
                 this.destroy(e);
                 return;
             }
-            RestActions.sendMessage(gameChannel, String.format("%s has died during the night!\n%s",
+            RestActions.sendMessage(gameChannel, String.format("%s has died during the night!%n%s",
                     nightKillCandidate.asMention(), getReveal(nightKillCandidate)));
         }
 
         if (!isGameOver()) {
             //start the timer only after the message has actually been sent
             final Consumer c = aVoid -> this.executor.schedule(this::startDay, 10, TimeUnit.SECONDS);
-            RestActions.sendMessage(gameChannel, String.format("Day starts in 10 seconds.\n%s",
+            RestActions.sendMessage(gameChannel, String.format("Day starts in 10 seconds.%n%s",
                     String.join(", ", getLivingPlayerMentions())),
                     c, c);
         }

@@ -20,7 +20,6 @@ package space.npstr.wolfia.utils;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.db.ColumnMapper;
@@ -120,7 +119,7 @@ public class StatsProvider {
 
     //this should be rather similar to getGuildStats
     @SuppressWarnings("unchecked")
-    public EmbedBuilder getBotStats(Context context) throws DatabaseException {
+    public EmbedBuilder getBotStats(Context context) {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
@@ -178,7 +177,7 @@ public class StatsProvider {
 
 
     @SuppressWarnings("unchecked")
-    public EmbedBuilder getGuildStats(Context context, final long guildId) throws DatabaseException {
+    public EmbedBuilder getGuildStats(Context context, final long guildId) {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
@@ -238,12 +237,11 @@ public class StatsProvider {
         //stats by playersize in this guild:
         eb.addBlankField(false);
         eb.addField("Stats by player size:", "", false);
-        eb = addStatsPerPlayerSize(eb, collectedValues);
-        return eb;
+        return addStatsPerPlayerSize(eb, collectedValues);
     }
 
     @SuppressWarnings("unchecked")
-    public EmbedBuilder getUserStats(final long userId) throws DatabaseException {
+    public EmbedBuilder getUserStats(final long userId) {
         //get data out of the database
         final List<Map<String, Object>> gamesByUser = new ArrayList<>();
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
@@ -335,83 +333,4 @@ public class StatsProvider {
         }
         return eb;
     }
-
-
-    //######### below stuff is keept around as inspiration for the future
-//    private class BotStats {
-//        int totalGamesPlayed;
-//        double totalWinPercentageVillage;
-//        double totalWinPercentageWolves;
-//        double averagePlayersPerGame;
-//
-//        int popcornGamesPlayed;
-//        double popcornWinPercentageVillage;
-//        double popcornWinPercentageWolves;
-//        double popcornAveragePlayersPerGame;
-//    }
-//
-//    private class GuildStats {
-//
-//        private final long guildId;
-//
-//        public GuildStats(final long guildId) {
-//            this.guildId = guildId;
-//        }
-//
-//        @Override
-//        public int hashCode() {
-//            return Long.hashCode(this.guildId);
-//        }
-//
-//        int totalGamesPlayed = 0; //all games ever played in this guild
-//        int totalWinsVillage = 0; //village winsover all games
-//        int totalWinsWolves = 0;  //wolve wins over all games
-//        int totalPlayersPlayed; //average player size per game
-//        Map<Integer, Integer> totalGamesWithPlayersize; //how many games were played with each player size
-//        long totalGameLength; //average game lenth
-//        long shortedGamePlayed; //the shortest game ever played on this server
-//        long longestGamePlayed; //the longest game ever played on this server
-//        double averagePostsPerGame; //average posts per game
-//        double averagePostLengthsPerGame; //average post length per game
-//
-//        int popcornGamesPlayed; //all popcorn games ever played in this guild
-//        double popcornWinPercentageVillage;//village win percentage for all popcorn games
-//        double popcornWinPercentageWolves;//wolves win percentage over all games
-//        double popcornAveragePlayersPerGame;//average popcorn game player size
-//        Map<Integer, Integer> popcornGamesWithPlayersize; //how many popcorn games were played with each player size
-//        double averageShootingAccuracy; //accuracy of wolves getting shot in this guild
-//
-//
-//        double getVillageWinPercentage() {
-//            return 100.0 * this.totalWinsVillage / this.totalGamesPlayed;
-//        }
-//
-//        double getWolvesWinPercentage() {
-//            return 100.0 * this.totalWinsWolves / this.totalGamesPlayed;
-//        }
-//
-//        double getAveragePlayersPerGame() {
-//            return 1.0 * this.totalPlayersPlayed / this.totalGamesPlayed;
-//        }
-//
-//        long getAverageGameLength() {
-//            return this.totalGameLength / this.totalGamesPlayed;
-//        }
-//    }
-//
-//    private class UserStats {
-//        int totalGamesPlayed;
-//        int totalGamesAsVillage;
-//        int totalGamesAsWolf;
-//        double totalWinPercentageAsVillage;
-//        double totalWinPercentageAsWolf;
-//        double averagePostsPerGame;
-//        double averagePostLengthsPerGame;
-//
-//        int popcornGamesPlayed;
-//        double popcornWinPercentageVillage;
-//        double popcornWinPercentageWolves;
-//        double shootingAccuracy;
-//
-//    }
 }

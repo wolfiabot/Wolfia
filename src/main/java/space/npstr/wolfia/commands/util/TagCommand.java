@@ -25,7 +25,6 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -34,7 +33,6 @@ import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
@@ -71,8 +69,7 @@ public class TagCommand implements BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext)
-            throws IllegalGameStateException, DatabaseException {
+    public boolean execute(@Nonnull final CommandContext commandContext) {
 
         final GuildCommandContext context = commandContext.requireGuild(false);
         if (context == null) {

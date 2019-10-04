@@ -40,8 +40,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.ObjIntConsumer;
 import java.util.stream.Stream;
 
 /**
@@ -77,7 +77,7 @@ public class SyncCommand implements BaseCommand, IOwnerRestricted {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext context) {
 
         boolean actionFound = false;
         ShardManager shardManager = context.getJda().asBot().getShardManager();
@@ -123,7 +123,7 @@ public class SyncCommand implements BaseCommand, IOwnerRestricted {
      *         Returns how long this took and how many guilds were processed
      */
     public static void syncGuilds(ShardManager shardManager, @Nonnull final Executor executor,
-                                  @Nonnull final Stream<Guild> guilds, @Nullable final BiConsumer<Long, Integer> resultConsumer) {
+                                  @Nonnull final Stream<Guild> guilds, @Nullable final ObjIntConsumer<Long> resultConsumer) {
 
         final long started = System.currentTimeMillis();
         final AtomicInteger count = new AtomicInteger(0);

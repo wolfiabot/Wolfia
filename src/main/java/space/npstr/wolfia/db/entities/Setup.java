@@ -23,7 +23,6 @@ import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Type;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.sqlsauce.hibernate.types.BasicType;
@@ -119,7 +118,7 @@ public class Setup extends SaucedEntity<Long, Setup> {
     }
 
     @Nonnull
-    public Setup setMode(@Nonnull final GameInfo.GameMode mode) throws IllegalArgumentException {
+    public Setup setMode(@Nonnull final GameInfo.GameMode mode) {
         if (!Games.getInfo(getGame()).getSupportedModes().contains(mode)) {
             final String message = String.format("Game %s does not support mode %s", getGame().name(), mode);
             throw new IllegalArgumentException(message);
@@ -154,18 +153,18 @@ public class Setup extends SaucedEntity<Long, Setup> {
         return this.innedUsers.contains(userId);
     }
 
-    public Setup inUser(final long userId) throws DatabaseException {
+    public Setup inUser(final long userId) {
         //cache any inning users
         DiscordEntityCacheUtil.cacheMember(Launcher.getBotContext().getDatabase().getWrapper(), getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
         this.innedUsers.add(userId);
         return this;
     }
 
-    public boolean outUser(final long userId) throws DatabaseException {
+    public boolean outUser(final long userId) {
         return this.innedUsers.remove(userId);
     }
 
-    private void cleanUpInnedPlayers() throws DatabaseException {
+    private void cleanUpInnedPlayers() {
         //did they leave the guild?
         final Set<Long> toBeOuted = new HashSet<>();
         final Guild g = getThisChannel().getGuild();
@@ -181,7 +180,7 @@ public class Setup extends SaucedEntity<Long, Setup> {
         //todo whenever time based ins are a thing, this is probably the place to check them
     }
 
-    public MessageEmbed getStatus() throws DatabaseException {
+    public MessageEmbed getStatus() {
         //clean up first
         cleanUpInnedPlayers();
 
@@ -227,8 +226,7 @@ public class Setup extends SaucedEntity<Long, Setup> {
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
-    public synchronized boolean startGame(Context context)
-            throws IllegalGameStateException, DatabaseException {
+    public synchronized boolean startGame(Context context) throws IllegalGameStateException {
 
         long commandCallerId = context.getInvoker().getIdLong();
         final MessageChannel channel = context.getChannel();

@@ -41,7 +41,7 @@ public class WolfiaGuildListener extends ListenerAdapter {
     public static final long GAME_CATEGORY_ID = 361189457266737152L; //game category parent channel id
     public static final long RULES_CHANNEL_ID = 326353722701774848L; //#rules
 
-    private static final String welcomePattern = "Welcome %s to the **Wolfia Lounge**! Please take a moment and read "
+    private static final String WELCOME_PATTERN = "Welcome %s to the **Wolfia Lounge**! Please take a moment and read "
             + "<#326353722701774848> for information, rules, and how to play games. Don't forget to enjoy and have "
             + "fun! " + Emojis.WINK;
 
@@ -55,7 +55,7 @@ public class WolfiaGuildListener extends ListenerAdapter {
         //send greetings to spam channel
         final TextChannel spam = event.getGuild().getTextChannelById(SPAM_CHANNEL_ID);
         if (spam != null) {
-            RestActions.sendMessage(spam, String.format(welcomePattern, event.getMember().getAsMention()));
+            RestActions.sendMessage(spam, String.format(WELCOME_PATTERN, event.getMember().getAsMention()));
         } else {
             log.warn("Did the spam channel disappear in the Wolfia Lounge?");
         }

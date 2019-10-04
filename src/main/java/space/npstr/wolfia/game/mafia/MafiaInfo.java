@@ -65,6 +65,7 @@ public class MafiaInfo implements GameInfo {
             case PURE:
                 requiredPermissions.put(Permission.MESSAGE_MANAGE, Scope.CHANNEL); //to delete reactions
                 requiredPermissions.put(Permission.MANAGE_PERMISSIONS, Scope.CHANNEL);
+                break;
             default:
                 break;
         }
@@ -81,8 +82,6 @@ public class MafiaInfo implements GameInfo {
 
     @Override
     public boolean isAcceptablePlayerCount(final int playerCount, final GameMode mode) {
-        //noinspection SimplifiableIfStatement
-//        if (Config.C.isDebug && 3 <= playerCount) return true;
         return ((mode == GameMode.LITE && 9 <= playerCount) || (mode == GameMode.XMAS && 7 <= playerCount));
     }
 
@@ -92,16 +91,6 @@ public class MafiaInfo implements GameInfo {
     @Nonnull
     @Override
     public CharakterSetup getCharacterSetup(@Nonnull final GameMode mode, final int playerCount) {
-
-        //for debugging only, mostly contains a vast amount of new roles
-//        if (Config.C.isDebug && 3 <= playerCount) {
-//            return new CharakterSetup()
-//                    .addRoleAndAlignment(Alignments.WOLF, Roles.VANILLA)
-//                    .addRoleAndAlignment(Alignments.VILLAGE, Roles.COP)
-//                    .addRoleAndAlignment(Alignments.VILLAGE, Roles.SANTA, playerCount - 2)
-//                    ;
-//        }
-
         if (!isAcceptablePlayerCount(playerCount, mode)) {
             throw new IllegalArgumentException(String.format(
                     "There is no possible character setup for the provided player count %s in this game %s mode %s",

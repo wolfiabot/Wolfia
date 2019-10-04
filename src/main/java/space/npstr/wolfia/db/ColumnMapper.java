@@ -54,7 +54,7 @@ public class ColumnMapper {
 
         final Session session = em.unwrap(Session.class); // ATTENTION! This is Hibernate-specific!
         final AtomicReference<ResultSetMetaData> msRef = new AtomicReference<>();
-        session.doWork((c) -> {
+        session.doWork(c -> {
             try (final PreparedStatement statement = create(c, queryString)) {
                 // I'm not setting parameters here, because I just want to find out about the return values' column names
                 msRef.set(statement.getMetaData());

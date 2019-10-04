@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.debug;
 
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -106,7 +105,7 @@ public class EvalCommand implements BaseCommand, IOwnerRestricted {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext context) {
         final long started = System.currentTimeMillis();
 
         String source = context.rawArgs;
@@ -160,7 +159,7 @@ public class EvalCommand implements BaseCommand, IOwnerRestricted {
 
             } catch (final Exception ex) {
                 context.msg.addReaction(Emojis.X).queue(null, RestActions.defaultOnFail());
-                context.reply(String.format("`%s`\n\n`%sms`",
+                context.reply(String.format("`%s`%n%n`%sms`",
                         ex.getMessage(), System.currentTimeMillis() - started));
                 log.info("Error occurred in eval", ex);
                 return;
@@ -175,7 +174,7 @@ public class EvalCommand implements BaseCommand, IOwnerRestricted {
                 output = "EvalCommand: `" + out.toString() + "`";
             }
             context.msg.addReaction(Emojis.OK_HAND).queue(null, RestActions.defaultOnFail());
-            context.reply(String.format("```java\n%s```\n%s\n`%sms`",
+            context.reply(String.format("```java%n%s```%n%s%n`%sms`",
                     finalSource, output, System.currentTimeMillis() - started));
 
         });
@@ -192,7 +191,7 @@ public class EvalCommand implements BaseCommand, IOwnerRestricted {
                     future.cancel(true);
                     context.reply("Task exceeded time limit of " + timeOut + " seconds.");
                 } catch (final Exception ex) {
-                    context.reply(String.format("`%s`\n\n`%sms`",
+                    context.reply(String.format("`%s`%n%n`%sms`",
                             ex.getMessage(), System.currentTimeMillis() - started));
                 }
             }

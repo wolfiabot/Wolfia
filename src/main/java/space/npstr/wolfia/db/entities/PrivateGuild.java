@@ -27,7 +27,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.hibernate.annotations.NaturalId;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.IEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
@@ -118,7 +117,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     }
 
 
-    public static boolean isPrivateGuild(@Nonnull final Guild guild) throws DatabaseException {
+    public static boolean isPrivateGuild(@Nonnull final Guild guild) {
         final EntityKey<Long, PrivateGuild> key = EntityKey.of(guild.getIdLong(), PrivateGuild.class);
         return Launcher.getBotContext().getDatabase().getWrapper().getEntity(key) != null;
     }

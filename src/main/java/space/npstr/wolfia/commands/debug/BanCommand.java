@@ -54,7 +54,7 @@ public class BanCommand implements BaseCommand, IOwnerRestricted {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext context) {
 
         //is the user allowed to do that?
         if (!context.isOwner()) {
