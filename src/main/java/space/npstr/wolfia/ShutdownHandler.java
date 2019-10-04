@@ -151,7 +151,7 @@ public class ShutdownHandler {
 
         //shutdown DB connection
         log.info("Shutting down database connection");
-        database.getConnection().shutdown();
+        database.shutdown();
     }
 
     @PreDestroy

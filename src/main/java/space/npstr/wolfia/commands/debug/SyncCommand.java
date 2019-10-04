@@ -58,7 +58,7 @@ public class SyncCommand implements BaseCommand, IOwnerRestricted {
     private final ExecutorService syncService;
 
     public SyncCommand(Database database, ThreadPoolCollector poolMetrics) {
-        final int databasePoolSize = database.getConnection().getMaxPoolSize();
+        final int databasePoolSize = database.getMaxPoolSize();
         final int workers = Math.max(1, databasePoolSize / 2);//dont hog the database
         this.syncService = Executors.newFixedThreadPool(workers,
                 runnable -> new Thread(runnable, "sync-command-worker"));

@@ -26,13 +26,13 @@ import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseConnection;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.DatabaseConfig;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.persistence.EntityManager;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -51,7 +51,7 @@ public class Database {
     private final WolfiaConfig wolfiaConfig;
     private final QueryCountStrategy queryCountStrategy;
 
-    private final AtomicReference<DatabaseConnection> connection = new AtomicReference<>();
+    private final AtomicReference<space.npstr.sqlsauce.DatabaseConnection> connection = new AtomicReference<>();
     private final Object connectionInitLock = new Object();
     private final AtomicReference<DatabaseWrapper> wrapper = new AtomicReference<>();
     private final Object wrapperInitLock = new Object();
@@ -64,13 +64,21 @@ public class Database {
         this.queryCountStrategy = queryCountStrategy;
     }
 
+    public EntityManager getEntityManager() {
+        return getSqlSauceConnection().getEntityManager();
+    }
+
+    public int getMaxPoolSize() {
+        return getSqlSauceConnection().getMaxPoolSize();
+    }
+
     public DatabaseWrapper getWrapper() {
         DatabaseWrapper singleton = this.wrapper.get();
         if (singleton == null) {
             synchronized (this.wrapperInitLock) {
                 singleton = this.wrapper.get();
                 if (singleton == null) {
-                    singleton = new DatabaseWrapper(getConnection());
+                    singleton = new DatabaseWrapper(getSqlSauceConnection());
                     this.wrapper.set(singleton);
                 }
             }
@@ -78,13 +86,13 @@ public class Database {
         return singleton;
     }
 
-    public DatabaseConnection getConnection() {
-        DatabaseConnection singleton = this.connection.get();
+    private space.npstr.sqlsauce.DatabaseConnection getSqlSauceConnection() {
+        space.npstr.sqlsauce.DatabaseConnection singleton = this.connection.get();
         if (singleton == null) {
             synchronized (this.connectionInitLock) {
                 singleton = this.connection.get();
                 if (singleton == null) {
-                    singleton = initConnection();
+                    singleton = initSqlSauceConnection();
                     this.connection.set(singleton);
                 }
             }
@@ -94,19 +102,19 @@ public class Database {
 
     public void shutdown() {
         synchronized (this.connectionInitLock) {
-            final DatabaseConnection conn = this.connection.get();
+            final space.npstr.sqlsauce.DatabaseConnection conn = this.connection.get();
             if (conn != null) {
                 conn.shutdown();
             }
         }
     }
 
-    private DatabaseConnection initConnection() {
+    private space.npstr.sqlsauce.DatabaseConnection initSqlSauceConnection() {
         try {
             final Flyway flyway = new Flyway(new FluentConfiguration()
                     .locations("db/migrations"));
 
-            return new DatabaseConnection.Builder("postgres", this.databaseConfig.getJdbcUrl())
+            return new space.npstr.sqlsauce.DatabaseConnection.Builder("postgres", this.databaseConfig.getJdbcUrl())
                     .setDialect("org.hibernate.dialect.PostgreSQL95Dialect")
                     .addEntityPackage("space.npstr.wolfia.db.entities")
                     .setAppName("Wolfia_" + (this.wolfiaConfig.isDebug() ? "DEBUG" : "PROD") + "_" + App.getVersionBuild())
