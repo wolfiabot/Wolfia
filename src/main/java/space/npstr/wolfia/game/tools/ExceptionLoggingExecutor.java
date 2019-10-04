@@ -100,8 +100,8 @@ public class ExceptionLoggingExecutor extends ScheduledThreadPoolExecutor {
         return () -> {
             try {
                 runnable.run();
-            } catch (final Throwable t) {
-                log.error("Runnable encountered an exception: {}", t.getMessage(), t);
+            } catch (final Exception e) {
+                log.error("Runnable encountered an exception: {}", e.getMessage(), e);
             }
         };
     }
@@ -111,8 +111,8 @@ public class ExceptionLoggingExecutor extends ScheduledThreadPoolExecutor {
         return () -> {
             try {
                 return callable.call();
-            } catch (final Throwable t) {
-                log.error("Callable encountered an exception: {}", t.getMessage(), t);
+            } catch (final Exception e) {
+                log.error("Callable encountered an exception: {}", e.getMessage(), e);
                 return null;
             }
         };

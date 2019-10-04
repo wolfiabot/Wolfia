@@ -20,7 +20,6 @@ package space.npstr.wolfia.commands.util;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -63,7 +62,7 @@ public class ChannelSettingsCommand implements BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext commandContext) {
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;

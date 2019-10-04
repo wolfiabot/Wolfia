@@ -71,8 +71,7 @@ public class VotingBuilder {
         final List<VoteEntry> processedVotes = processVotes(votes);
         neb.addField(renderVotes("", processedVotes, true, true));
 
-        neb = addNotes(neb);
-        return neb;
+        return addNotes(neb);
     }
 
     public NiceEmbedBuilder getFinalEmbed(final Map<Player, Player> votes, final Phase phase, final int cycle) {
@@ -143,7 +142,7 @@ public class VotingBuilder {
     }
 
     private NiceEmbedBuilder addHeader(final NiceEmbedBuilder neb, final long timeLeft) {
-        final String headerStr = this.header.replaceAll("%timeleft", TextchatUtils.formatMillis(timeLeft));
+        final String headerStr = this.header.replace("%timeleft", TextchatUtils.formatMillis(timeLeft));
         neb.addField("", headerStr, false);
         return neb;
     }

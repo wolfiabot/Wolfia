@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
@@ -62,7 +61,7 @@ public class SetupCommand implements BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext commandContext) {
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;

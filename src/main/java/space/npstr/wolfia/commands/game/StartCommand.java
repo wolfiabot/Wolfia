@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.game;
 
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -53,9 +52,7 @@ public class StartCommand implements BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext)
-            throws IllegalGameStateException, DatabaseException {
-
+    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
 
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
@@ -75,6 +72,7 @@ public class StartCommand implements BaseCommand {
 
         Setup setup = Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()));
         final boolean started = setup.startGame(context);
+        //noinspection UnusedAssignment
         setup = Launcher.getBotContext().getDatabase().getWrapper().merge(setup);
 
         return started;

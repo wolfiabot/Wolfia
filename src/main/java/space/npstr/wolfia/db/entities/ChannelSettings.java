@@ -74,8 +74,8 @@ public class ChannelSettings extends SaucedEntity<Long, ChannelSettings> {
     @ColumnDefault(value = "5")
     private long tagCooldown = 5;
 
-    // for jpa / wrapper
     public ChannelSettings() {
+        // for jpa / wrapper
     }
 
     @Nonnull

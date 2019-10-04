@@ -64,4 +64,5 @@ public class App {
         return VERSION + "_" + BUILD_NUMBER;
     }
 
+    private App() {}
 }

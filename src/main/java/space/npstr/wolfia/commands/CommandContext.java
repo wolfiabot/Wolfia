@@ -23,7 +23,6 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -58,8 +57,7 @@ public class CommandContext extends MessageContext {
      *
      * @return The full context for the triggered command, or null if it's not a command that we know.
      */
-    public static CommandContext parse(final CommRegistry commRegistry, final MessageReceivedEvent event)//, final Histogram.Timer received)
-            throws DatabaseException {
+    public static CommandContext parse(final CommRegistry commRegistry, final MessageReceivedEvent event) {
 
         final String raw = event.getMessage().getContentRaw();
         String input;
@@ -99,13 +97,12 @@ public class CommandContext extends MessageContext {
 
     protected CommandContext(@Nonnull final MessageReceivedEvent event, @Nonnull final String trigger,
                              @Nonnull final String[] args, @Nonnull final String rawArgs, @Nonnull final BaseCommand command) {
-//                           @Nonnull final Histogram.Timer received) {
+
         super(event);
         this.trigger = trigger;
         this.args = args;
         this.rawArgs = rawArgs;
         this.command = command;
-//        this.received = received;
     }
 
 
@@ -128,10 +125,8 @@ public class CommandContext extends MessageContext {
         reply(this.command.formatHelp(this.invoker));
     }
 
-    public boolean invoke() throws IllegalGameStateException, DatabaseException {
-        final boolean success = this.command.execute(this);
-//        this.received.observeDuration();
-        return success;
+    public boolean invoke() throws IllegalGameStateException {
+        return this.command.execute(this);
     }
 
     /**

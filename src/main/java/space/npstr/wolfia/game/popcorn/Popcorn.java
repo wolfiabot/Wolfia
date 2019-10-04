@@ -21,7 +21,6 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -51,13 +50,14 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.function.LongConsumer;
 
 import static space.npstr.wolfia.game.GameInfo.GameMode;
 
@@ -113,6 +113,7 @@ public class Popcorn extends Game {
         try {
             gunHolder = getPlayer(this.gunBearer).bothNamesFormatted();
         } catch (final IllegalGameStateException ignored) {
+            // ignored
         }
         neb.addField(Emojis.GUN + " holder", gunHolder, true);
 
@@ -133,8 +134,7 @@ public class Popcorn extends Game {
     }
 
     @Override
-    public synchronized void start(final long channelId, final GameMode mode, final Set<Long> innedPlayers)
-            throws UserFriendlyException, DatabaseException {
+    public synchronized void start(final long channelId, final GameMode mode, final Set<Long> innedPlayers) {
         try {//wrap into our own exceptions
             doArgumentChecksAndSet(channelId, mode, innedPlayers);
         } catch (final IllegalArgumentException e) {
@@ -194,7 +194,7 @@ public class Popcorn extends Game {
         //set up stats objects
         this.gameStats = new GameStats(g.getIdLong(), g.getName(), this.channelId, gameChannel.getName(),
                 Games.POPCORN, this.mode.name(), this.players.size());
-        final Map<Alignments, TeamStats> teams = new HashMap<>();
+        final Map<Alignments, TeamStats> teams = new EnumMap<>(Alignments.class);
         for (final Player player : this.players) {
             final Alignments alignment = player.alignment;
             final TeamStats team = teams.getOrDefault(alignment,
@@ -212,13 +212,14 @@ public class Popcorn extends Game {
 
         // - start the game
         Games.set(this);
+        String info = Games.getInfo(this).textRep();
         log.info("Game started in guild {} {}, channel #{} {}, {} {} {} players",
                 g.getName(), g.getIdLong(), gameChannel.getName(), gameChannel.getIdLong(),
-                Games.getInfo(this).textRep(), mode.textRep, this.players.size());
+                info, mode.textRep, this.players.size());
         this.running = true;
         this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GAMESTART, -1));
         //mention the players in the thread
-        RestActions.sendMessage(gameChannel, String.format("Game has started!\n%s\n**%s** wolves are alive!",
+        RestActions.sendMessage(gameChannel, String.format("Game has started!%n%s%n**%s** wolves are alive!",
                 listLivingPlayers(), getLivingWolves().size()));
         distributeGun();
     }
@@ -312,7 +313,7 @@ public class Popcorn extends Game {
         RestActions.sendMessage(gameChannel, String.format("Day %s has ended!", this.day));
 
         //an operation that shall be run if the game isn't over; doing this so we can ge the output from he below if construct sent
-        final Consumer<Long> doIfGameIsntOver;
+        final LongConsumer doIfGameIsntOver;
         if (reason == DayEndReason.TIMER) {
             RestActions.sendMessage(gameChannel, String.format(
                     "%s took too long to decide who to shoot! They died and the %s will be redistributed.",
@@ -447,12 +448,12 @@ public class Popcorn extends Game {
                                         Popcorn.this.selfUserId, Actions.MODKILL, this.game.gunBearer));
                                 this.game.endDay(DayEndReason.TIMER, this.game.gunBearer, -1, ifLegal);
                             } catch (final DayEndedAlreadyException ignored) {
+                                // ignored
                             }
                         }
                 );
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
-                return;
             }
         }
     }
@@ -463,7 +464,7 @@ public class Popcorn extends Game {
     }
 
     class GunDistribution {
-        private static final long TIME_TO_DISTRIBUTE_GUN_MILLIS = 1000 * 60; //1 minute
+        private static final long TIME_TO_DISTRIBUTE_GUN_MILLIS = 1000L * 60; //1 minute
         private boolean done = false;
         private final Map<Long, Long> votes = new LinkedHashMap<>();//using linked to keep first votes at the top
         private final long startedMillis = System.currentTimeMillis();
@@ -536,11 +537,12 @@ public class Popcorn extends Game {
             try {
                 playerName = getPlayer(getsGun).bothNamesFormatted();
             } catch (final IllegalGameStateException ignored) {
+                // ignored
             }
             final TextChannel baddieChannel = Popcorn.this.fetchBaddieChannel();
             RestActions.sendMessage(baddieChannel, //provided invite link may be empty
-                    String.format(out + "\n@here, %s gets the %s! Game about to start/continue, get back to the main chat.\n%s",
-                            playerName, Emojis.GUN,
+                    String.format("%s%n@here, %s gets the %s! Game about to start/continue, get back to the main chat.%n%s",
+                            out, playerName, Emojis.GUN,
                             TextchatUtils.getOrCreateInviteLinkForChannel(baddieChannel)));
             //give wolves 10 seconds to get back into the chat
             Popcorn.this.executor.schedule(() -> giveGun(getsGun), 10, TimeUnit.SECONDS);

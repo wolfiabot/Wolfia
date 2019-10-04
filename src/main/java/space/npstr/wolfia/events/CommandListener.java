@@ -29,14 +29,16 @@ import space.npstr.wolfia.commands.CommandHandler;
 @Component
 public class CommandListener extends ListenerAdapter {
 
+    private final CommandHandler commandHandler;
     private final CommRegistry commRegistry;
 
-    public CommandListener(final CommRegistry commRegistry) {
+    public CommandListener(CommandHandler commandHandler, final CommRegistry commRegistry) {
+        this.commandHandler = commandHandler;
         this.commRegistry = commRegistry;
     }
 
     @Override
     public void onMessageReceived(final MessageReceivedEvent event) {
-        CommandHandler.handleMessage(this.commRegistry, event);
+        this.commandHandler.handleMessage(this.commRegistry, event);
     }
 }

@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.game;
 
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -63,7 +62,7 @@ public class StatusCommand implements BaseCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext commandContext) {
         //this command may be called from any channel. if its a private channel, look for ongoing games of the invoker
 
         final GuildCommandContext context = commandContext.requireGuild(false);

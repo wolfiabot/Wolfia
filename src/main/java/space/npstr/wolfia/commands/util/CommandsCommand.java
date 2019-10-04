@@ -34,6 +34,8 @@ public class CommandsCommand implements BaseCommand {
 
     public static final String TRIGGER = "commands";
 
+    private static final String XMAS_MODE_ONLY = " _(xmas mode only)_";
+
     @Override
     public String getTrigger() {
         return TRIGGER;
@@ -70,9 +72,9 @@ public class CommandsCommand implements BaseCommand {
                 + WolfiaConfig.DEFAULT_PREFIX + VoteCountCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + NightkillCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + CheckCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + HohohoCommand.TRIGGER + " _(xmas mode only)_\n"
-                + WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER + " _(xmas mode only)_\n"
-                + WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.TRIGGER + " _(xmas mode only)_\n"
+                + WolfiaConfig.DEFAULT_PREFIX + HohohoCommand.TRIGGER + XMAS_MODE_ONLY + "\n"
+                + WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER + XMAS_MODE_ONLY + "\n"
+                + WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.TRIGGER + XMAS_MODE_ONLY + "\n"
                 ;
 
         final String settingsCommands =

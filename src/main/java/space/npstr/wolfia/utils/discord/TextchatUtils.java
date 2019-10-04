@@ -83,11 +83,13 @@ public class TextchatUtils {
         try {
             return channel.createInvite().complete().getURL();
         } catch (final PermissionException ignored) {
+            // ignored
         }
         try {
             final List<Invite> invites = channel.getInvites().complete();
             if (!invites.isEmpty()) return invites.get(0).getURL();
         } catch (final PermissionException ignored) {
+            // ignored
         }
 
         // if we reached this point, we failed at creating an invite for this channel
@@ -204,7 +206,7 @@ public class TextchatUtils {
     }
 
     public static String defuseMentions(final String input) {
-        return input.replaceAll("@", "@" + ZERO_WIDTH_SPACE);
+        return input.replace("@", "@" + ZERO_WIDTH_SPACE);
     }
 
 
@@ -262,4 +264,6 @@ public class TextchatUtils {
     private static String ensureSpace(@Nonnull final String msg) {
         return msg.charAt(0) == ' ' ? msg : " " + msg;
     }
+
+    private TextchatUtils() {}
 }

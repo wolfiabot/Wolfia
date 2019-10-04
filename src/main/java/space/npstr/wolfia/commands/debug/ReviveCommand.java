@@ -20,7 +20,6 @@ package space.npstr.wolfia.commands.debug;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.IOwnerRestricted;
@@ -48,7 +47,7 @@ public class ReviveCommand implements BaseCommand, IOwnerRestricted {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws DatabaseException {
+    public boolean execute(@Nonnull final CommandContext context) {
         if (!context.hasArguments()) {
             context.reply("No shard id provided! Say `" + WolfiaConfig.DEFAULT_PREFIX + "revive 0` for example.");
             return false;

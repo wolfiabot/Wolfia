@@ -138,4 +138,6 @@ public class Emojis {
         });
         return result.toString();
     }
+
+    private Emojis() {}
 }

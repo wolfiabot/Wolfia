@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.stats;
 
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -55,8 +54,7 @@ public class BotStatsCommand implements BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context)
-            throws DatabaseException, IllegalGameStateException {
+    public boolean execute(@Nonnull final CommandContext context) throws IllegalGameStateException {
         context.reply(this.statsProvider.getBotStats(context).build());
         return true;
     }

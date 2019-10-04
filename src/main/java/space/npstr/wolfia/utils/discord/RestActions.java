@@ -183,11 +183,7 @@ public class RestActions {
     public static void sendPrivateMessage(@Nonnull final User user, @Nonnull final Message message,
                                           @Nullable final Consumer<Message> onSuccess, @Nonnull final Consumer<Throwable> onFail) {
         user.openPrivateChannel().queue(
-                privateChannel -> {
-//                    Metrics.successfulRestActions.labels("openPrivateChannel").inc();
-                    sendMessage(privateChannel, message, onSuccess, onFail);
-
-                },
+                privateChannel -> sendMessage(privateChannel, message, onSuccess, onFail),
                 onFail
         );
     }
@@ -286,7 +282,6 @@ public class RestActions {
     public static void sendTyping(@Nonnull final MessageChannel channel) {
         try {
             channel.sendTyping().queue(
-//                    __ -> Metrics.successfulRestActions.labels("sendTyping").inc(),
                     null,
                     getJdaRestActionFailureHandler("Could not send typing event in channel " + channel.getId())
             );
@@ -300,7 +295,6 @@ public class RestActions {
         if (!messages.isEmpty()) {
             try {
                 channel.deleteMessages(messages).queue(
-//                        __ -> Metrics.successfulRestActions.labels("bulkDeleteMessages").inc(),
                         null,
                         getJdaRestActionFailureHandler(String.format("Could not bulk delete %s messages in channel %s",
                                 messages.size(), channel.getId()))
@@ -314,10 +308,7 @@ public class RestActions {
     public static void deleteMessageById(@Nonnull final MessageChannel channel, final long messageId) {
         try {
             channel.getMessageById(messageId).queue(
-                    message -> {
-//                        Metrics.successfulRestActions.labels("getMessageById").inc();
-                        deleteMessage(message);
-                    },
+                    RestActions::deleteMessage,
                     NOOP_THROWABLE_HANDLER //prevent logging an error if that message could not be found in the first place
             );
         } catch (final InsufficientPermissionException e) {
@@ -330,9 +321,8 @@ public class RestActions {
     public static void deleteMessage(@Nonnull final Message message) {
         try {
             message.delete().queue(
-//                    __ -> Metrics.successfulRestActions.labels("deleteMessage").inc(),
                     null,
-                    getJdaRestActionFailureHandler(String.format("Could not delete message %s in channel %s with content\n%s",
+                    getJdaRestActionFailureHandler(String.format("Could not delete message %s in channel %s with content%n%s",
                             message.getId(), message.getChannel().getId(), message.getContentRaw()),
                             ErrorResponse.UNKNOWN_MESSAGE) //user deleted their message, dun care
             );
@@ -354,7 +344,6 @@ public class RestActions {
     private static void sendMessage0(@Nonnull final MessageChannel channel, @Nonnull final Message message,
                                      @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
         final Consumer<Message> successWrapper = m -> {
-//            Metrics.successfulRestActions.labels("sendMessage").inc();
             if (onSuccess != null) {
                 onSuccess.accept(m);
             }
@@ -363,7 +352,7 @@ public class RestActions {
             if (onFail != null) {
                 onFail.accept(t);
             } else {
-                final String info = String.format("Could not sent message\n%s\nwith %s embeds to channel %s in guild %s",
+                final String info = String.format("Could not sent message%n%s%nwith %s embeds to channel %s in guild %s",
                         message.getContentRaw(), message.getEmbeds().size(), channel.getId(),
                         (channel instanceof TextChannel) ? ((TextChannel) channel).getGuild().getIdLong() : "private");
                 getJdaRestActionFailureHandler(info).accept(t);
@@ -390,7 +379,6 @@ public class RestActions {
     private static void editMessage0(@Nonnull final MessageChannel channel, final long oldMessageId, @Nonnull final Message newMessage,
                                      @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
         final Consumer<Message> successWrapper = m -> {
-//            Metrics.successfulRestActions.labels("editMessage").inc();
             if (onSuccess != null) {
                 onSuccess.accept(m);
             }
@@ -438,7 +426,6 @@ public class RestActions {
             ex.initCause(t);
             if (t instanceof ErrorResponseException) {
                 final ErrorResponseException e = (ErrorResponseException) t;
-//                Metrics.failedRestActions.labels(Integer.toString(e.getErrorCode())).inc();
                 if (Arrays.asList(ignored).contains(e.getErrorResponse())
                         || e.getErrorCode() == -1 //socket timeout, fuck those
                         ) {
@@ -448,4 +435,6 @@ public class RestActions {
             log.error("{}\n{}", info, t.getMessage(), ex);
         };
     }
+
+    private RestActions() {}
 }

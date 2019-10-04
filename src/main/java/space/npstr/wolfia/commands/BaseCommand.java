@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands;
 
 
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -49,7 +48,7 @@ public interface BaseCommand {
     /**
      * Execute the command
      */
-    boolean execute(@Nonnull CommandContext context) throws IllegalGameStateException, DatabaseException;
+    boolean execute(@Nonnull CommandContext context) throws IllegalGameStateException;
 
     /**
      * @return a help string that should explain the usage of this command

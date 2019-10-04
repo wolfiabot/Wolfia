@@ -71,6 +71,7 @@ public class Launcher implements ApplicationRunner {
         return botContext;
     }
 
+    @SuppressWarnings("squid:S106") // printing to sout is fine here
     public static void main(String[] args) {
         //just post the info to the console
         if (args.length > 0 &&
@@ -167,7 +168,7 @@ public class Launcher implements ApplicationRunner {
 
     @Nonnull
     private static String getVersionInfo() {
-        return art
+        return ART
                 + "\n"
                 + "\n\tVersion:       " + App.VERSION
                 + "\n\tBuild:         " + App.BUILD_NUMBER
@@ -180,7 +181,7 @@ public class Launcher implements ApplicationRunner {
     }
 
     //########## vanity
-    private static final String art = "\n"
+    private static final String ART = "\n"
             + "\n                              __"
             + "\n                            .d$$b"
             + "\n                           .' TO$;\\"

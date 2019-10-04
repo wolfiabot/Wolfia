@@ -20,6 +20,7 @@ package space.npstr.wolfia.commands;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.util.HelpCommand;
@@ -43,11 +44,12 @@ import java.util.concurrent.TimeUnit;
  * Issued commands will always go through here. It is their own job to find out for which game they have been issued,
  * and make the appropriate calls or handle any user errors
  */
+@Component
 public class CommandHandler {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommandHandler.class);
 
-    public static void handleMessage(final CommRegistry commRegistry, @Nonnull final MessageReceivedEvent event) {
+    public void handleMessage(final CommRegistry commRegistry, @Nonnull final MessageReceivedEvent event) {
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {
             return;
@@ -101,7 +103,7 @@ public class CommandHandler {
      * @param context
      *         the parsed input of a user
      */
-    public static void handleCommand(@Nonnull final CommandContext context) {
+    public void handleCommand(@Nonnull final CommandContext context) {
         try {
             if (context.command instanceof IOwnerRestricted && !context.isOwner()) {
                 //not the bot owner
@@ -111,9 +113,7 @@ public class CommandHandler {
             }
             log.info("user {}, channel {}, command {} about to be executed",
                     context.invoker, context.channel, context.msg.getContentRaw());
-            final boolean success = context.invoke();
-            final long executed = System.currentTimeMillis();
-            //todo instrument success and execution time
+            context.invoke();
         } catch (final UserFriendlyException e) {
             context.reply("There was a problem executing your command:\n" + e.getMessage());
         } catch (final IllegalGameStateException e) {

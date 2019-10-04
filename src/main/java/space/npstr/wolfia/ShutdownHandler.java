@@ -93,7 +93,9 @@ public class ShutdownHandler {
         } catch (InterruptedException e) {
             log.warn("Interrupted while awaiting games to be finished", e);
             Thread.currentThread().interrupt();
-        } catch (ExecutionException | TimeoutException ignored) {}
+        } catch (ExecutionException | TimeoutException ignored) {
+            // ignored
+        }
 
         if (Games.getRunningGamesCount() > 0) {
             log.error("Killing {} games while exiting", Games.getRunningGamesCount());

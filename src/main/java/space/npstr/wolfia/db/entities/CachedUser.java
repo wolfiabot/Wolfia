@@ -34,8 +34,8 @@ import javax.persistence.Table;
 public class CachedUser extends DiscordUser<CachedUser> {
 
 
-    //for JPA and IEntity
     public CachedUser() {
+        //for JPA and IEntity
     }
 
     public static CachedUser load(final long userId) {
