@@ -105,10 +105,9 @@ project('database-codegen') {
         implementation "org.jooq:jooq:$jooqVersion"                               // object oriented sql queries
         implementation "org.jooq:jooq-meta:$jooqVersion"                          // object oriented sql queries
         implementation "org.jooq:jooq-codegen:$jooqVersion"                       // object oriented sql queries
-        // java cruft, can be removed with jooq 3.12+
-        implementation "javax.annotation:javax.annotation-api:$javaxAnnotationsVersion"
         flywayMigration "org.postgresql:postgresql:$postgresqlVersion"            // access db during codegen
         jooqRuntime "org.postgresql:postgresql:$postgresqlVersion"                // access db during codegen
+        jooqRuntime "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
     }
 
     task pullCodegenDbContainer(type: DockerPullImage) {
