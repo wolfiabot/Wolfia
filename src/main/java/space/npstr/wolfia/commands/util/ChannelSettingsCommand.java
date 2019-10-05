@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
-import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -27,6 +26,7 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.ChannelSettings;
+import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -37,7 +37,7 @@ import java.util.List;
  * <p>
  * sets up the bot (= discord related options, not game related ones), targets owner/admins of a guild
  */
-@Component
+@Command
 public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "channelsettings";

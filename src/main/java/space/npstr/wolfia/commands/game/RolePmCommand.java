@@ -17,11 +17,11 @@
 
 package space.npstr.wolfia.commands.game;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -34,7 +34,7 @@ import java.util.List;
  * <p>
  * resend a role PM to a player
  */
-@Component
+@Command
 public class RolePmCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "rolepm";

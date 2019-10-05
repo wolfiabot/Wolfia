@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.util;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -43,11 +42,12 @@ import space.npstr.wolfia.commands.stats.BotStatsCommand;
 import space.npstr.wolfia.commands.stats.GuildStatsCommand;
 import space.npstr.wolfia.commands.stats.UserStatsCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 
-@Component
+@Command
 public class CommandsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "commands";

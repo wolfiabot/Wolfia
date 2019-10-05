@@ -18,13 +18,13 @@
 package space.npstr.wolfia.commands.debug;
 
 import net.dv8tion.jda.core.entities.User;
-import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.Ban;
 import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -36,7 +36,7 @@ import java.util.List;
  * <p>
  * Ban users from playing the game.
  */
-@Component
+@Command
 public class BanCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BanCommand.class);

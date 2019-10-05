@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 /**
  * Created by napster on 28.05.17.
  */
-@Component
+@Command
 public class RestartCommand implements BaseCommand {
 
     @Override

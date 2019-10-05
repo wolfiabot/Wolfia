@@ -18,11 +18,11 @@
 package space.npstr.wolfia.commands.ingame;
 
 import net.dv8tion.jda.core.entities.ChannelType;
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Games;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * Created by napster on 14.12.17.
  */
-@Component
+@Command
 public class ItemsCommand extends GameCommand {
 
     public static final String TRIGGER = "items";

@@ -20,7 +20,6 @@ package space.npstr.wolfia.commands.debug;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.entities.TextChannel;
-import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.wolfia.Launcher;
@@ -28,6 +27,7 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.db.entities.PrivateGuild;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 import javax.annotation.Nonnull;
@@ -38,7 +38,7 @@ import java.io.IOException;
  * <p>
  * //this command will register a guild for use as a place to provide private communications, like wolfchat
  */
-@Component
+@Command
 public class RegisterPrivateServerCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RegisterPrivateServerCommand.class);

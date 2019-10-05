@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.util;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -25,6 +24,7 @@ import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
 import space.npstr.wolfia.db.entities.stats.GameStats;
 import space.npstr.wolfia.db.entities.stats.TeamStats;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * <p>
  * Shows replays of games that are over
  */
-@Component
+@Command
 public class ReplayCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "replay";

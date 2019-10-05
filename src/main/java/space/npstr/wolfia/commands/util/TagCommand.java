@@ -24,7 +24,6 @@ import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
-import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -33,6 +32,7 @@ import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.ChannelSettings;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
  * <p>
  * Allows users to sign up for a tag list
  */
-@Component
+@Command
 public class TagCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "tag";

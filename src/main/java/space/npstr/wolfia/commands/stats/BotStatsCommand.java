@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.commands.stats;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
 
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  * <p>
  * Show stats of the whole bot
  */
-@Component
+@Command
 public class BotStatsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "botstats";

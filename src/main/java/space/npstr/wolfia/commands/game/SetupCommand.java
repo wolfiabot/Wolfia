@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
-import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.DatabaseWrapper;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
@@ -27,6 +26,7 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.Setup;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * Start setting up a game in a channel
  */
-@Component
+@Command
 public class SetupCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "setup";

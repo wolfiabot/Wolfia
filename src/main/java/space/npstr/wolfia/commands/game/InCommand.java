@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.entities.User;
-import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -28,6 +27,7 @@ import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.Ban;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.Setup;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
 
@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Created by npstr on 23.08.2016
  */
-@Component
+@Command
 public class InCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "in";

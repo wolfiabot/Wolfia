@@ -20,9 +20,9 @@ package space.npstr.wolfia.commands.debug;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -36,7 +36,7 @@ import java.util.Map;
  * <p>
  * List running games
  */
-@Component
+@Command
 public class RunningCommand implements BaseCommand {
 
     @Override

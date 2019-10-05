@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Created by napster on 06.08.17.
  */
-@Component
+@Command
 public class NightkillCommand extends GameCommand {
 
     public static final String TRIGGER = "nightkill";

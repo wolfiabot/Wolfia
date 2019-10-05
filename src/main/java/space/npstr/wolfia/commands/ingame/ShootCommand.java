@@ -17,12 +17,12 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -35,7 +35,7 @@ import java.util.List;
  * <p>
  * A player shoots another player
  */
-@Component
+@Command
 public class ShootCommand extends GameCommand {
 
     public static final String TRIGGER = "shoot";

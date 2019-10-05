@@ -20,7 +20,6 @@ package space.npstr.wolfia.commands.debug;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
-import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
@@ -30,6 +29,7 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -46,7 +46,7 @@ import java.util.stream.Stream;
 /**
  * Created by napster on 07.12.17.
  */
-@Component
+@Command
 public class SyncCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SyncCommand.class);

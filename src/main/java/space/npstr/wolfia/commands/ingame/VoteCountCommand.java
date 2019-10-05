@@ -17,8 +17,8 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.GameCommand;
+import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Created by napster on 06.08.17.
  */
-@Component
+@Command
 public class VoteCountCommand extends GameCommand {
 
     public static final String TRIGGER = "votecount";

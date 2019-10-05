@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.game;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -25,6 +24,7 @@ import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.Setup;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
  * <p>
  * any signed up player can use this command to start a game
  */
-@Component
+@Command
 public class StartCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "start";

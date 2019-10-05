@@ -18,10 +18,10 @@
 package space.npstr.wolfia.commands.stats;
 
 import net.dv8tion.jda.core.entities.Guild;
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
 
@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
  * <p>
  * Display stats for a guild
  */
-@Component
+@Command
 public class GuildStatsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "guildstats";

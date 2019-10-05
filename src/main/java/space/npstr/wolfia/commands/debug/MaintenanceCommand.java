@@ -17,11 +17,11 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.entities.Hstore;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
@@ -31,7 +31,7 @@ import javax.annotation.Nonnull;
  * <p>
  * Sets the maintenance flag
  */
-@Component
+@Command
 public class MaintenanceCommand implements BaseCommand {
 
     @Override

@@ -23,12 +23,12 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.entities.User;
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.PublicCommand;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
@@ -39,7 +39,7 @@ import javax.annotation.Nonnull;
  * <p>
  * Thanks Fred
  */
-@Component
+@Command
 public class InfoCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "info";

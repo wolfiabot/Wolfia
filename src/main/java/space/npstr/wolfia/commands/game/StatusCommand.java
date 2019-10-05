@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.game;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -26,6 +25,7 @@ import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.Setup;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 
@@ -40,7 +40,7 @@ import java.util.List;
  * is there a game running, whats it's state?
  * if not, is there a setup created for this channel, whats the status here, inned players etc?
  */
-@Component
+@Command
 public class StatusCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "status";

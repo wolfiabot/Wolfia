@@ -17,11 +17,11 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.entities.Setup;
+import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.discord.Emojis;
@@ -40,7 +40,7 @@ import java.util.concurrent.TimeoutException;
  * <p>
  * run js code in the bot
  */
-@Component
+@Command
 public class EvalCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(EvalCommand.class);

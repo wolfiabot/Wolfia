@@ -17,8 +17,8 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.GameCommand;
+import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
  * <p>
  * Remove a vote
  */
-@Component
+@Command
 public class UnvoteCommand extends GameCommand {
 
     public static final String TRIGGER = "unvote";
