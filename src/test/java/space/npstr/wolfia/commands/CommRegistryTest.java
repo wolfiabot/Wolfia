@@ -20,7 +20,6 @@ package space.npstr.wolfia.commands;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.commands.debug.BanCommand;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.KillGameCommand;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
@@ -55,6 +54,7 @@ import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.commands.util.RankCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
+import space.npstr.wolfia.domain.ban.BanCommand;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;

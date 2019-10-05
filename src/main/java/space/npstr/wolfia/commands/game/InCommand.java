@@ -24,12 +24,11 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
-import space.npstr.wolfia.db.entities.Ban;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.ban.BanService;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.game.definitions.Scope;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -41,6 +40,12 @@ import java.util.List;
 public class InCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "in";
+
+    private final BanService banService;
+
+    public InCommand(BanService banService) {
+        this.banService = banService;
+    }
 
     @Override
     public String getTrigger() {
@@ -92,7 +97,7 @@ public class InCommand implements BaseCommand, PublicCommand {
             return true;
         }
 
-        if (Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Ban.key(context.invoker.getIdLong())).getScope() == Scope.GLOBAL) {
+        if (this.banService.isBanned(context.invoker.getIdLong())) {
             context.replyWithMention("lol ur banned.");
             return false;
         }

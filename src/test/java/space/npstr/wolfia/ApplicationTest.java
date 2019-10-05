@@ -20,6 +20,9 @@ package space.npstr.wolfia;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * Extend this class from tests that require a Spring Application Context
  */
@@ -27,5 +30,23 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 public abstract class ApplicationTest extends PostgresContainer {
 
+    private static final AtomicLong LONGS = new AtomicLong(
+            ThreadLocalRandom.current().nextLong(Long.MAX_VALUE / 2, Long.MAX_VALUE)
+    );
+
+    /**
+     * This is useful for example to ensure eventual parallel tests don't overwrite database entries with the same ids.
+     * <p>
+     * This will return at least half of the amount of values in the range between 0 and {@link Long#MAX_VALUE}
+     *
+     * @return A long value that is unique in the scope of the whole test run.
+     */
+    protected static long uniqueLong() {
+        long value = LONGS.decrementAndGet();
+        if (value < 0) {
+            throw new RuntimeException("Exhausted unique long values during tests");
+        }
+        return value;
+    }
 
 }

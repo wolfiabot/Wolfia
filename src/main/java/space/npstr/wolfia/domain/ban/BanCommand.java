@@ -15,17 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.debug;
+package space.npstr.wolfia.domain.ban;
 
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.db.entities.Ban;
 import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.db.gen.tables.records.BanRecord;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
@@ -40,6 +38,12 @@ import java.util.List;
 public class BanCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BanCommand.class);
+
+    private final BanService banService;
+
+    public BanCommand(BanService banService) {
+        this.banService = banService;
+    }
 
     @Override
     public String getTrigger() {
@@ -67,17 +71,16 @@ public class BanCommand implements BaseCommand {
         }
 
         if (option.equalsIgnoreCase("list")) {
-            final List<Ban> bans = Launcher.getBotContext().getDatabase().getWrapper().loadAll(Ban.class);
+            final List<BanRecord> bans = this.banService.getActiveBans();
             String out = bans.stream()
-                    .filter(ban -> ban.getScope() == Scope.GLOBAL)
                     .map(ban -> {
-                        String result = ban.getId() + " " + TextchatUtils.userAsMention(ban.getId()) + " ";
+                        String result = ban.getUserId() + " " + TextchatUtils.userAsMention(ban.getUserId()) + " ";
                         try {
-                            CachedUser user = CachedUser.load(ban.getId());
+                            CachedUser user = CachedUser.load(ban.getUserId());
                             result += user.getEffectiveName(context.getGuild(),
                                     context.getJda().asBot().getShardManager()::getUserById);
                         } catch (DatabaseException e) {
-                            log.error("Db exploded looking up a use of id {}", ban.getId(), e);
+                            log.error("Db exploded looking up a use of id {}", ban.getUserId(), e);
                         }
                         return result;
                     }).reduce("", (a, b) -> a + "\n" + b);
@@ -123,13 +126,13 @@ public class BanCommand implements BaseCommand {
         }
 
         if (action == BanAction.ADD) {
-            Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.GLOBAL));
+            this.banService.ban(userId);
             context.replyWithMention(String.format("added **%s** (%s) to the global ban list.",
                     CachedUser.load(userId).getEffectiveName(context.getGuild(),
                             context.getJda().asBot().getShardManager()::getUserById), TextchatUtils.userAsMention(userId)));
             return true;
         } else { //removing
-            Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Ban.key(userId), ban -> ban.setScope(Scope.NONE));
+            this.banService.unban(userId);
             context.replyWithMention(String.format("removed **%s** (%s) from the global ban list.",
                     CachedUser.load(userId).getEffectiveName(context.getGuild(),
                             context.getJda().asBot().getShardManager()::getUserById), TextchatUtils.userAsMention(userId)));
