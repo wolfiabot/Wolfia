@@ -28,6 +28,7 @@ import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.MessageContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
@@ -39,7 +40,7 @@ import javax.annotation.Nonnull;
  * Thanks Fred
  */
 @Component
-public class InfoCommand implements BaseCommand {
+public class InfoCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "info";
 

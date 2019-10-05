@@ -25,6 +25,7 @@ import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 
 import javax.annotation.Nonnull;
@@ -37,7 +38,7 @@ import java.util.List;
  * sets up the bot (= discord related options, not game related ones), targets owner/admins of a guild
  */
 @Component
-public class ChannelSettingsCommand implements BaseCommand {
+public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "channelsettings";
 

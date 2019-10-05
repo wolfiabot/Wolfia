@@ -23,6 +23,7 @@ import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.MessageContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.OutCommand;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -47,7 +48,7 @@ import javax.annotation.Nonnull;
 import java.util.List;
 
 @Component
-public class CommandsCommand implements BaseCommand {
+public class CommandsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "commands";
 

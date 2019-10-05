@@ -22,6 +22,7 @@ import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.Setup;
@@ -40,7 +41,7 @@ import java.util.List;
  * if not, is there a setup created for this channel, whats the status here, inned players etc?
  */
 @Component
-public class StatusCommand implements BaseCommand {
+public class StatusCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "status";
 

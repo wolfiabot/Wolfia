@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
@@ -30,7 +29,7 @@ import javax.annotation.Nonnull;
  * Created by napster on 28.05.17.
  */
 @Component
-public class RestartCommand implements BaseCommand, IOwnerRestricted {
+public class RestartCommand implements BaseCommand {
 
     @Override
     public String getTrigger() {

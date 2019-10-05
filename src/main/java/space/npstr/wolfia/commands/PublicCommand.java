@@ -20,7 +20,7 @@ package space.npstr.wolfia.commands;
 /**
  * Created by napster on 27.05.17.
  * <p>
- * only the bot owner should be able to issue these commands
+ * Marker interface for public commands. Commands that any user should be able to run need to implement this
  */
-public interface IOwnerRestricted {
+public interface PublicCommand {
 }

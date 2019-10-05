@@ -20,7 +20,6 @@ package space.npstr.wolfia.commands.debug;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -33,7 +32,7 @@ import java.util.Arrays;
  * Created by napster on 24.07.17.
  */
 @Component
-public class KillGameCommand implements BaseCommand, IOwnerRestricted {
+public class KillGameCommand implements BaseCommand {
 
     @Override
     public String getTrigger() {

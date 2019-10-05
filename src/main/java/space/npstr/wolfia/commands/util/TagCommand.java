@@ -30,6 +30,7 @@ import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.game.definitions.Games;
@@ -49,7 +50,7 @@ import java.util.stream.Collectors;
  * Allows users to sign up for a tag list
  */
 @Component
-public class TagCommand implements BaseCommand {
+public class TagCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "tag";
 

@@ -27,7 +27,6 @@ import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
@@ -48,7 +47,7 @@ import java.util.stream.Stream;
  * Created by napster on 07.12.17.
  */
 @Component
-public class SyncCommand implements BaseCommand, IOwnerRestricted {
+public class SyncCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SyncCommand.class);
 

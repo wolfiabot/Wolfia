@@ -24,6 +24,7 @@ import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.definitions.Games;
@@ -35,7 +36,7 @@ import java.util.List;
  * Created by npstr on 23.08.2016
  */
 @Component
-public class OutCommand implements BaseCommand {
+public class OutCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "out";
 

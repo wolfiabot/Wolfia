@@ -105,7 +105,8 @@ public class CommandHandler {
      */
     public void handleCommand(@Nonnull final CommandContext context) {
         try {
-            if (context.command instanceof IOwnerRestricted && !context.isOwner()) {
+            boolean canCallCommand = context.command instanceof PublicCommand || context.isOwner();
+            if (!canCallCommand) {
                 //not the bot owner
                 log.info("user {}, channel {}, attempted issuing owner restricted command: {}",
                         context.invoker, context.channel, context.msg.getContentRaw());

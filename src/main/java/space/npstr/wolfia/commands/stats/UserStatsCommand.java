@@ -21,6 +21,7 @@ import net.dv8tion.jda.core.entities.User;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
@@ -31,7 +32,7 @@ import javax.annotation.Nonnull;
  * Display stats for a user
  */
 @Component
-public class UserStatsCommand implements BaseCommand {
+public class UserStatsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "userstats";
 

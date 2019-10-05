@@ -23,7 +23,6 @@ import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.Ban;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.game.definitions.Scope;
@@ -38,7 +37,7 @@ import java.util.List;
  * Ban users from playing the game.
  */
 @Component
-public class BanCommand implements BaseCommand, IOwnerRestricted {
+public class BanCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BanCommand.class);
 

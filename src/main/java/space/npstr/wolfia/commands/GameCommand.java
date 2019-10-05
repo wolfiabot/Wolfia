@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
  * <p>
  * Game commands are different from regular commands as they can be registered by games.
  */
-public abstract class GameCommand implements BaseCommand {
+public abstract class GameCommand implements BaseCommand, PublicCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {

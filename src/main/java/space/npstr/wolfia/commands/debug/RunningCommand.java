@@ -23,7 +23,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -38,7 +37,7 @@ import java.util.Map;
  * List running games
  */
 @Component
-public class RunningCommand implements BaseCommand, IOwnerRestricted {
+public class RunningCommand implements BaseCommand {
 
     @Override
     public String getTrigger() {

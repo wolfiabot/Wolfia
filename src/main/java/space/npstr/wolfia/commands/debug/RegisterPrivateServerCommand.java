@@ -27,7 +27,6 @@ import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.utils.discord.RestActions;
 
@@ -40,7 +39,7 @@ import java.io.IOException;
  * //this command will register a guild for use as a place to provide private communications, like wolfchat
  */
 @Component
-public class RegisterPrivateServerCommand implements BaseCommand, IOwnerRestricted {
+public class RegisterPrivateServerCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RegisterPrivateServerCommand.class);
 

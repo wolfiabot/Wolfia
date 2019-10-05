@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
@@ -42,7 +41,7 @@ import java.util.concurrent.TimeoutException;
  * run js code in the bot
  */
 @Component
-public class EvalCommand implements BaseCommand, IOwnerRestricted {
+public class EvalCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(EvalCommand.class);
 

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
 import space.npstr.wolfia.db.entities.stats.GameStats;
 import space.npstr.wolfia.db.entities.stats.TeamStats;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
  * Shows replays of games that are over
  */
 @Component
-public class ReplayCommand implements BaseCommand {
+public class ReplayCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "replay";
 

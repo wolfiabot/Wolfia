@@ -26,7 +26,7 @@ import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.commands.game.InCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
@@ -38,7 +38,7 @@ import java.util.function.Consumer;
 /**
  * Created by npstr on 09.09.2016
  */
-public class HelpCommand implements BaseCommand {
+public class HelpCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "help";
 
@@ -72,7 +72,7 @@ public class HelpCommand implements BaseCommand {
         if (context.hasArguments() && channel.getType() == ChannelType.TEXT && ((TextChannel) channel).canTalk()) {
             final BaseCommand command = this.commRegistry.getCommand(context.args[0]);
             final String answer;
-            if (command == null || command instanceof IOwnerRestricted) {
+            if (!(command instanceof PublicCommand)) {
                 answer = String.format("There is no command registered for `%s`. Use `%s` to see all available commands!",
                         TextchatUtils.defuseMentions(context.args[0]), WolfiaConfig.DEFAULT_PREFIX + CommandsCommand.TRIGGER);
             } else {

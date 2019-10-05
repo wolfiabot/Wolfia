@@ -24,6 +24,7 @@ import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -36,7 +37,7 @@ import javax.annotation.Nonnull;
  * Allows users to add / remove special roles in the Wolfia Lounge
  */
 @Component
-public class RankCommand implements BaseCommand {
+public class RankCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "rank";
 

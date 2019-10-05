@@ -22,7 +22,6 @@ import space.npstr.sqlsauce.entities.Hstore;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
@@ -33,7 +32,7 @@ import javax.annotation.Nonnull;
  * Sets the maintenance flag
  */
 @Component
-public class MaintenanceCommand implements BaseCommand, IOwnerRestricted {
+public class MaintenanceCommand implements BaseCommand {
 
     @Override
     public String getTrigger() {

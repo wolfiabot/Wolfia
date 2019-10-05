@@ -22,7 +22,6 @@ import net.dv8tion.jda.core.JDA;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.IOwnerRestricted;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 import javax.annotation.Nonnull;
@@ -31,7 +30,7 @@ import javax.annotation.Nonnull;
  * Created by napster on 19.11.17.
  */
 @Component
-public class ReviveCommand implements BaseCommand, IOwnerRestricted {
+public class ReviveCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReviveCommand.class);
 
