@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
 import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
+import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.game.definitions.Games;
@@ -50,14 +51,15 @@ public class ShutdownHandler {
     private volatile boolean shutdownHookAdded;
     private volatile boolean shutdownHookExecuted = false;
 
-    public ShutdownHandler(ExceptionLoggingExecutor executor, Database database,
+    public ShutdownHandler(ExceptionLoggingExecutor executor, Database database, AsyncDbWrapper dbWrapper,
                            DiscordEntityProvider discordEntityProvider, GuildCachingListener guildCacheListener,
                            UserMemberCachingListener userCacheListener, ScheduledExecutorService jdaThreadPool) {
 
         this.shutdownHookAdded = false;
         Thread shutdownHook = new Thread(() -> {
             try {
-                shutdown(executor, guildCacheListener, userCacheListener, jdaThreadPool, discordEntityProvider, database);
+                shutdown(executor, guildCacheListener, userCacheListener, jdaThreadPool, discordEntityProvider,
+                        database, dbWrapper);
             } catch (Exception e) {
                 log.error("Uncaught exception in shutdown hook", e);
             } finally {
@@ -72,7 +74,7 @@ public class ShutdownHandler {
     private void shutdown(ExceptionLoggingExecutor executor, GuildCachingListener guildCacheListener,
                           UserMemberCachingListener userCacheListener,
                           @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool,
-                          DiscordEntityProvider discordEntityProvider, Database database) {
+                          DiscordEntityProvider discordEntityProvider, Database database, AsyncDbWrapper dbWrapper) {
 
         log.info("Shutdown hook triggered! {} games still ongoing.", Games.getRunningGamesCount());
         Future waitForGamesToEnd = executor.submit(() -> {
@@ -132,6 +134,10 @@ public class ShutdownHandler {
         log.info("Shutting down jda thread pool");
         final List<Runnable> jdaThreadPoolRunnables = jdaThreadPool.shutdownNow();
         log.info("{} jda thread pool runnables cancelled", jdaThreadPoolRunnables.size());
+
+        log.info("Shutting down async database executor");
+        final List<Runnable> dbWrapperRunnables = dbWrapper.shutdownNow();
+        log.info("{} async database executor runnable cancelled", dbWrapperRunnables.size());
 
         try {
             guildCachePump.awaitTermination(30, TimeUnit.SECONDS);

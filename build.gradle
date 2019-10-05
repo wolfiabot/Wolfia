@@ -102,7 +102,7 @@ project('database-codegen') {
     }
 
     dependencies {
-        implementation "org.jooq:jooq:$jooqVersion"                               // object oriented sql queries
+        api "org.jooq:jooq:$jooqVersion"                                          // object oriented sql queries
         implementation "org.jooq:jooq-meta:$jooqVersion"                          // object oriented sql queries
         implementation "org.jooq:jooq-codegen:$jooqVersion"                       // object oriented sql queries
         flywayMigration "org.postgresql:postgresql:$postgresqlVersion"            // access db during codegen
