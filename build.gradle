@@ -334,7 +334,9 @@ dependencies {
 
     testRuntime "org.junit.jupiter:junit-jupiter-engine"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude module: 'android-json' // json.org clone
+    }
     testImplementation "org.testcontainers:testcontainers"
     testImplementation "org.assertj:assertj-core"
     testImplementation "org.mockito:mockito-inline" // to mock final classes
