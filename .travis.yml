@@ -47,11 +47,12 @@ jobs:
         - git fetch --unshallow
       script:
         - ./gradlew sonarqube
+      after_success:
+        - ./gradlew bootJar
         - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
         - CI_IMAGE_NAME=$DOCKER_USERNAME/wolfia:ci-$IMAGE_TAG
         - echo $CI_IMAGE_NAME
         - docker build -t "$CI_IMAGE_NAME" -f docker/Dockerfile .
-      after_success:
         - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
         - docker push $CI_IMAGE_NAME
         - docker logout
