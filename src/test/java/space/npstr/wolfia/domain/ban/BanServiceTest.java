@@ -84,7 +84,7 @@ class BanServiceTest extends ApplicationTest {
         List<BanRecord> bans = this.banService.getActiveBans();
 
         assertEquals(1, bans.size());
-        assertEquals(userId, bans.get(0).getUserId());
+        assertEquals(userId, (long) bans.get(0).getUserId());
     }
 
     @Test
