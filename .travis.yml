@@ -33,20 +33,26 @@ jobs:
     - stage: build
       jdk: openjdk11
       before_script:
-        #for sonar cloud blame information
-        - git fetch --unshallow
-      script:
         - java -Xmx32m -version
-        - ./gradlew build --info
+      script:
+        - ./gradlew assemble --info
         - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
         - CI_IMAGE_NAME=$DOCKER_USERNAME/wolfia:ci-$IMAGE_TAG
         - echo $CI_IMAGE_NAME
         - docker build -t "$CI_IMAGE_NAME" -f docker/Dockerfile .
       after_success:
-        - ./gradlew sonarqube
         - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
         - docker push $CI_IMAGE_NAME
         - docker logout
+
+    - stage: sonar
+      jdk: openjdk11
+      before_script:
+        - java -Xmx32m -version
+        # for full sonar cloud blame information
+        - git fetch --unshallow
+      script:
+        - ./gradlew sonarqube
 
     - stage: publish
       jdk: openjdk11
@@ -65,5 +71,6 @@ jobs:
 
 stages:
   - build
+  - sonar
   - name: publish
     if: tag IS present
