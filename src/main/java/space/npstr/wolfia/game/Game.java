@@ -36,7 +36,6 @@ import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
 import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.entities.ChannelSettings;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
 import space.npstr.wolfia.db.entities.stats.GameStats;
@@ -438,7 +437,8 @@ public abstract class Game {
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
-                this.accessRoleId = Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(ChannelSettings.key(this.channelId)).getAccessRoleId();
+                this.accessRoleId = Launcher.getBotContext().getChannelSettingsService()
+                        .channel(this.channelId).getOrDefault().getAccessRoleId();
                 final Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
                     throw new UserFriendlyException(String.format(

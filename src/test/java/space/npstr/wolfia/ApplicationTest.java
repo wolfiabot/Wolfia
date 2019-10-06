@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia;
 
+import io.prometheus.client.CollectorRegistry;
+import org.junit.jupiter.api.AfterAll;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -33,6 +35,14 @@ public abstract class ApplicationTest extends PostgresContainer {
     private static final AtomicLong LONGS = new AtomicLong(
             ThreadLocalRandom.current().nextLong(Long.MAX_VALUE / 2, Long.MAX_VALUE)
     );
+
+    /**
+     * Some static metrics are giving trouble when the application context is restarted between tests.
+     */
+    @AfterAll
+    static void clearCollectorRegistry() {
+        CollectorRegistry.defaultRegistry.clear();
+    }
 
     /**
      * This is useful for example to ensure eventual parallel tests don't overwrite database entries with the same ids.

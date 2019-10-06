@@ -17,16 +17,20 @@
 
 package space.npstr.wolfia.commands.util;
 
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
-import space.npstr.sqlsauce.fp.types.EntityKey;
+import net.dv8tion.jda.core.entities.TextChannel;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
+import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.PublicCommand;
-import space.npstr.wolfia.db.entities.ChannelSettings;
+import space.npstr.wolfia.db.gen.tables.records.ChannelSettingsRecord;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -41,6 +45,12 @@ import java.util.List;
 public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "channelsettings";
+
+    private final ChannelSettingsService channelSettingsService;
+
+    public ChannelSettingsCommand(ChannelSettingsService channelSettingsService) {
+        this.channelSettingsService = channelSettingsService;
+    }
 
     @Override
     public String getTrigger() {
@@ -69,13 +79,12 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        final EntityKey<Long, ChannelSettings> key = ChannelSettings.key(context.textChannel.getIdLong());
-        //will not be null because it will be initialized with default values if there is none
-        ChannelSettings channelSettings = Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(key);
-
+        long channelId = context.textChannel.getIdLong();
+        ChannelSettingsService.Action channelAction = this.channelSettingsService.channel(channelId);
+        ChannelSettingsRecord channelSettings = channelAction.getOrDefault();
 
         if (!context.hasArguments()) {
-            context.reply(channelSettings.getStatus());
+            context.reply(getStatus(channelSettings));
             return true;
         }
 
@@ -114,12 +123,12 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
                         accessRole = rolesByName.get(0);
                     }
                 }
-                channelSettings = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.setAccessRoleId(accessRole.getIdLong()));
+                channelSettings = channelAction.setAccessRoleId(accessRole.getIdLong());
                 break;
             case "tagcooldown":
                 try {
-                    final Long tagCooldown = Math.max(0L, Long.valueOf(context.args[1]));
-                    channelSettings = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.setTagCooldown(tagCooldown));
+                    final long tagCooldown = Math.max(0L, Long.parseLong(context.args[1]));
+                    channelSettings = channelAction.setTagCooldown(tagCooldown);
                 } catch (final NumberFormatException e) {
                     context.replyWithMention("please use a number of minutes to set the tags cooldown.");
                     return false;
@@ -130,7 +139,34 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
                 return false;
         }
 
-        context.reply(channelSettings.getStatus());
+        context.reply(getStatus(channelSettings));
         return true;
+    }
+
+    private MessageEmbed getStatus(ChannelSettingsRecord channelSettings) {
+        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
+        long channelId = channelSettings.getChannelId();
+        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
+        if (channel == null) {
+            eb.addField("Could not find channel with id " + channelId, "", false);
+            return eb.build();
+        }
+        eb.setTitle("Settings for channel #" + channel.getName());
+        eb.setDescription("Changes to the settings are reserved for channel moderators.");
+        String roleName = "[Not set up]";
+        long accessRoleId = channelSettings.getAccessRoleId();
+        if (accessRoleId > 0) {
+            final Role accessRole = channel.getGuild().getRoleById(accessRoleId);
+            if (accessRole == null) {
+                roleName = "[Deleted]";
+            } else {
+                roleName = accessRole.getName();
+            }
+        }
+        eb.addField("Access Role", roleName, true);
+
+        eb.addField("Tag list cooldown", channelSettings.getTagCooldown() + " minutes", true);
+
+        return eb.build();
     }
 }

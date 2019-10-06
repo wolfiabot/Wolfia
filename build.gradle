@@ -336,6 +336,8 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.testcontainers:testcontainers"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "org.mockito:mockito-inline" // to mock final classes
 }
 
 tasks.withType(JavaCompile) {

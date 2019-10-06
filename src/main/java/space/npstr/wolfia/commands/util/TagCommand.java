@@ -24,15 +24,14 @@ import net.dv8tion.jda.core.entities.ISnowflake;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.sqlsauce.fp.types.EntityKey;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.entities.ChannelSettings;
+import space.npstr.wolfia.db.gen.tables.records.ChannelSettingsRecord;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -53,6 +52,12 @@ import java.util.stream.Collectors;
 public class TagCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "tag";
+
+    private final ChannelSettingsService channelSettingsService;
+
+    public TagCommand(ChannelSettingsService channelSettingsService) {
+        this.channelSettingsService = channelSettingsService;
+    }
 
     @Override
     public String getTrigger() {
@@ -78,9 +83,10 @@ public class TagCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        final EntityKey<Long, ChannelSettings> key = ChannelSettings.key(context.textChannel.getIdLong());
-        final ChannelSettings settings = Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(key);
-        final Set<Long> tags = settings.getTags();
+        long channelId = context.textChannel.getIdLong();
+        ChannelSettingsService.Action channelAction = this.channelSettingsService.channel(channelId);
+        ChannelSettingsRecord channelSettings = channelAction.getOrDefault();
+        final Set<Long> tags = Set.of(channelSettings.getTags());
 
         String option = "";
         if (context.hasArguments()) {
@@ -101,10 +107,10 @@ public class TagCommand implements BaseCommand, PublicCommand {
                 return false;
             }
 
-            if (System.currentTimeMillis() - settings.getTagLastUsed()
-                    < TimeUnit.MINUTES.toMillis(settings.getTagCooldown())) {
+            if (System.currentTimeMillis() - channelSettings.getTagLastUsed()
+                    < TimeUnit.MINUTES.toMillis(channelSettings.getTagCooldown())) {
                 final String answer = String.format("you need to wait at least %s minutes between calling the tag list.",
-                        settings.getTagCooldown());
+                        channelSettings.getTagCooldown());
                 context.replyWithMention(answer);
                 return false;
             }
@@ -146,13 +152,12 @@ public class TagCommand implements BaseCommand, PublicCommand {
                     cleanUp.add(id);
                 }
             }
-            Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
-                settings.removeTags(cleanUp);
-                for (final StringBuilder sb : outs) {
-                    context.reply(sb.toString());
-                }
-                return settings.tagUsed();
-            });
+
+            channelAction.removeTags(cleanUp);
+            for (final StringBuilder sb : outs) {
+                context.reply(sb.toString());
+            }
+            channelAction.tagUsed();
 
             return true;
         }
@@ -168,7 +173,7 @@ public class TagCommand implements BaseCommand, PublicCommand {
                     context.replyWithMention("you are already on the tag list of this channel.");
                     return false;
                 } else {
-                    Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.addTag(context.invoker.getIdLong()));
+                    channelAction.addTag(context.getInvoker().getIdLong());
                     context.replyWithMention("you have been added to the tag list of this channel.");
                     return true;
                 }
@@ -177,7 +182,7 @@ public class TagCommand implements BaseCommand, PublicCommand {
                     context.replyWithMention("you are already removed from the tag list of this channel.");
                     return false;
                 } else {
-                    Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> cs.removeTag(context.invoker.getIdLong()));
+                    channelAction.removeTag(context.getInvoker().getIdLong());
                     context.replyWithMention("you have been removed from the tag list of this channel");
                     return true;
                 }
@@ -204,17 +209,11 @@ public class TagCommand implements BaseCommand, PublicCommand {
             ).collect(Collectors.toList());
 
             if (action == TagAction.ADD) {
-                Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
-                    ids.forEach(cs::addTag);
-                    return cs;
-                });
+                channelAction.addTags(ids);
                 context.replyWithMention(String.format("added **%s** to the tag list.", joined));
                 return true;
             } else { //removing
-                Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(key, cs -> {
-                    ids.forEach(cs::removeTag);
-                    return cs;
-                });
+                channelAction.removeTags(ids);
                 context.replyWithMention(String.format("removed **%s** from the tag list.", joined));
                 return true;
             }
