@@ -81,7 +81,7 @@ class BanServiceTest extends ApplicationTest {
         long userId = uniqueLong();
         this.banService.ban(userId);
 
-        List<BanRecord> bans = this.banService.getActiveBans();
+        var bans = this.banService.getActiveBans();
 
         assertEquals(1, bans.size());
         assertEquals(userId, (long) bans.get(0).getUserId());
@@ -95,7 +95,7 @@ class BanServiceTest extends ApplicationTest {
         this.banService.ban(userIdA);
         this.banService.ban(userIdB);
 
-        List<BanRecord> bans = this.banService.getActiveBans();
+        var bans = this.banService.getActiveBans();
 
         assertEquals(2, bans.size());
         assertTrue(bans.stream().anyMatch(ban -> ban.getUserId() == userIdA));
@@ -114,7 +114,7 @@ class BanServiceTest extends ApplicationTest {
         this.banService.unban(userIdC);
 
 
-        List<BanRecord> bans = this.banService.getActiveBans();
+        var bans = this.banService.getActiveBans();
 
         assertEquals(2, bans.size());
         assertTrue(bans.stream().anyMatch(ban -> ban.getUserId() == userIdA));

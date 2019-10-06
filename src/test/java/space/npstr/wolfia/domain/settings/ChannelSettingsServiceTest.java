@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.gen.tables.records.ChannelSettingsRecord;
 
 import java.time.Clock;
 import java.util.Set;
@@ -43,10 +42,10 @@ class ChannelSettingsServiceTest extends ApplicationTest {
     private Clock clock;
 
     @Test
-    void whenGettingSetting_correctSettingsIsReturned() {
+    void whenGetting_correctSettingsIsReturned() {
         long channelId = uniqueLong();
 
-        ChannelSettingsRecord settings = this.service.channel(channelId).getOrDefault();
+        var settings = this.service.channel(channelId).getOrDefault();
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
     }
@@ -58,7 +57,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).setAccessRoleId(accessRoleId);
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getAccessRoleId()).isEqualTo(accessRoleId);
     }
 
@@ -69,12 +68,12 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).setTagCooldown(tagCooldown);
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTagCooldown()).isEqualTo(tagCooldown);
     }
 
     @Test
-    void whenCallingTagUsed_tagUsedShouldBeSet() {
+    void whenTagUsed_tagUsedShouldBeSet() {
         long time = 1000;
         doReturn(time).when(this.clock).millis();
 
@@ -82,7 +81,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).tagUsed();
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTagLastUsed()).isEqualTo(time);
 
         verify(clock).millis();
@@ -95,7 +94,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).addTag(tag);
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).contains(tag);
     }
 
@@ -107,7 +106,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).addTag(tag);
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).containsOnlyOnce(tag);
     }
 
@@ -119,7 +118,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).addTags(Set.of(tagA, tagB));
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).contains(tagA, tagB);
     }
 
@@ -132,7 +131,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).addTags(Set.of(tagA, tagB));
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).containsOnlyOnce(tagA, tagB);
     }
 
@@ -143,7 +142,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).removeTag(tag);
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).doesNotContain(tag);
     }
 
@@ -155,7 +154,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).removeTag(tag);
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).doesNotContain(tag);
     }
 
@@ -167,7 +166,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).removeTags(Set.of(tagA, tagB));
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).doesNotContain(tagA, tagB);
     }
 
@@ -180,7 +179,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).removeTags(Set.of(tagA, tagB));
 
-        ChannelSettingsRecord settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).doesNotContain(tagA, tagB);
     }
 }

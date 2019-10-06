@@ -72,11 +72,11 @@ class GuildSettingsRepositoryTest extends ApplicationTest {
         this.repository.set(guildId, name, null)
                 .toCompletableFuture().join();
 
-        var guildSettings = this.repository.findOneOrDefault(guildId)
+        var settings = this.repository.findOneOrDefault(guildId)
                 .toCompletableFuture().join();
 
-        assertThat(guildSettings.getGuildId()).isEqualTo(guildId);
-        assertThat(guildSettings.getName()).isEqualTo(name);
-        assertThat(guildSettings.getIconId()).isNull();
+        assertThat(settings.getGuildId()).isEqualTo(guildId);
+        assertThat(settings.getName()).isEqualTo(name);
+        assertThat(settings.getIconId()).isNull();
     }
 }

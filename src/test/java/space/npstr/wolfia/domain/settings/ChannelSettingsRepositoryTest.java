@@ -41,24 +41,24 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
     void givenEntryDoesNotExist_whenFetchingDefault_expectDefaultValues() {
         long channelId = uniqueLong();
 
-        ChannelSettingsRecord channelSettings = this.repository.findOneOrDefault(channelId)
+        var settings = this.repository.findOneOrDefault(channelId)
                 .toCompletableFuture().join();
 
-        assertThat(channelSettings.getChannelId()).isEqualTo(channelId);
-        assertThat(channelSettings.getAccessRoleId()).isEqualTo(DEFAULT_ACCESS_ROLE_ID);
-        assertThat(channelSettings.getTagCooldown()).isEqualTo(DEFAULT_TAG_COOLDOWN);
-        assertThat(channelSettings.getTagLastUsed()).isEqualTo(DEFAULT_TAG_LAST_USED);
-        assertThat(channelSettings.getTags()).isEmpty();
+        assertThat(settings.getChannelId()).isEqualTo(channelId);
+        assertThat(settings.getAccessRoleId()).isEqualTo(DEFAULT_ACCESS_ROLE_ID);
+        assertThat(settings.getTagCooldown()).isEqualTo(DEFAULT_TAG_COOLDOWN);
+        assertThat(settings.getTagLastUsed()).isEqualTo(DEFAULT_TAG_LAST_USED);
+        assertThat(settings.getTags()).isEmpty();
     }
 
     @Test
     void givenEntryDoesNotExist_whenFetchingDefault_doNotCreateEntry() {
         long channelId = uniqueLong();
 
-        ChannelSettingsRecord channelSettings = this.repository.findOneOrDefault(channelId)
+        var settings = this.repository.findOneOrDefault(channelId)
                 .toCompletableFuture().join();
 
-        assertThat(channelSettings.getChannelId()).isEqualTo(channelId);
+        assertThat(settings.getChannelId()).isEqualTo(channelId);
         Optional<ChannelSettingsRecord> created = this.repository.findOne(channelId)
                 .toCompletableFuture().join();
         assertThat(created.isPresent()).isFalse();
@@ -72,11 +72,11 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
         this.repository.setTagCooldown(channelId, tagCooldown)
                 .toCompletableFuture().join();
 
-        ChannelSettingsRecord channelSettings = this.repository.findOneOrDefault(channelId)
+        var settings = this.repository.findOneOrDefault(channelId)
                 .toCompletableFuture().join();
 
-        assertThat(channelSettings.getChannelId()).isEqualTo(channelId);
-        assertThat(channelSettings.getTagCooldown()).isEqualTo(tagCooldown);
+        assertThat(settings.getChannelId()).isEqualTo(channelId);
+        assertThat(settings.getTagCooldown()).isEqualTo(tagCooldown);
     }
 
 }
