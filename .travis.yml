@@ -39,7 +39,7 @@ jobs:
       script:
         - ./gradlew assemble --info
 
-    - stage: sonar
+    - stage: test
       jdk: openjdk11
       before_script:
         - java -Xmx32m -version
@@ -73,6 +73,6 @@ jobs:
 
 stages:
   - build
-  - sonar
+  - test
   - name: publish
     if: tag IS present
