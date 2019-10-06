@@ -51,7 +51,7 @@ public abstract class ApplicationTest extends PostgresContainer {
      *
      * @return A long value that is unique in the scope of the whole test run.
      */
-    protected static long uniqueLong() {
+    public static long uniqueLong() {
         long value = LONGS.decrementAndGet();
         if (value < 0) {
             throw new RuntimeException("Exhausted unique long values during tests");

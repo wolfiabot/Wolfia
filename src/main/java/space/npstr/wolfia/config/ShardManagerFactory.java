@@ -26,11 +26,11 @@ import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
-import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
 import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.PrivateGuild;
+import space.npstr.wolfia.domain.settings.GuildCacheListener;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.events.WolfiaGuildListener;
@@ -56,7 +56,7 @@ public class ShardManagerFactory {
     private final ScheduledExecutorService jdaThreadPool;
     private final Listings listings;
     private final List<PrivateGuild> privateGuildListeners;
-    private final GuildCachingListener guildCacheListener;
+    private final GuildCacheListener guildCacheListener;
     private final UserMemberCachingListener userCacheListener;
     private final Supplier<ShardManager> singleton;
 
@@ -64,7 +64,7 @@ public class ShardManagerFactory {
     public ShardManagerFactory(final WolfiaConfig wolfiaConfig, final CommandListener commandListener,
                                final OkHttpClient.Builder httpClientBuilder,
                                @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool, Listings listings,
-                               List<PrivateGuild> privateGuildListeners, GuildCachingListener guildCacheListener,
+                               List<PrivateGuild> privateGuildListeners, GuildCacheListener guildCacheListener,
                                UserMemberCachingListener userCacheListener) {
 
         this.wolfiaConfig = wolfiaConfig;

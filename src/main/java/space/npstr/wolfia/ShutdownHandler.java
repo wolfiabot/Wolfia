@@ -19,7 +19,6 @@ package space.npstr.wolfia;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.jda.listeners.GuildCachingListener;
 import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.Database;
@@ -52,13 +51,13 @@ public class ShutdownHandler {
     private volatile boolean shutdownHookExecuted = false;
 
     public ShutdownHandler(ExceptionLoggingExecutor executor, Database database, AsyncDbWrapper dbWrapper,
-                           DiscordEntityProvider discordEntityProvider, GuildCachingListener guildCacheListener,
+                           DiscordEntityProvider discordEntityProvider,
                            UserMemberCachingListener userCacheListener, ScheduledExecutorService jdaThreadPool) {
 
         this.shutdownHookAdded = false;
         Thread shutdownHook = new Thread(() -> {
             try {
-                shutdown(executor, guildCacheListener, userCacheListener, jdaThreadPool, discordEntityProvider,
+                shutdown(executor, userCacheListener, jdaThreadPool, discordEntityProvider,
                         database, dbWrapper);
             } catch (Exception e) {
                 log.error("Uncaught exception in shutdown hook", e);
@@ -71,8 +70,7 @@ public class ShutdownHandler {
         this.shutdownHookAdded = true;
     }
 
-    private void shutdown(ExceptionLoggingExecutor executor, GuildCachingListener guildCacheListener,
-                          UserMemberCachingListener userCacheListener,
+    private void shutdown(ExceptionLoggingExecutor executor, UserMemberCachingListener userCacheListener,
                           @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool,
                           DiscordEntityProvider discordEntityProvider, Database database, AsyncDbWrapper dbWrapper) {
 
@@ -112,11 +110,6 @@ public class ShutdownHandler {
         discordEntityProvider.shutdown();
 
         //shutdown executors
-        log.info("Shutting down guild cache listener");
-        ThreadPoolExecutor guildCachePump = guildCacheListener.getCachePump();
-        final List<Runnable> guildCacheRunnables = guildCachePump.shutdownNow();
-        log.info("{} guild cache runnables cancelled", guildCacheRunnables.size());
-
         log.info("Shutting down user cache listener");
         ThreadPoolExecutor userCachePump = userCacheListener.getCachePump();
         final List<Runnable> userCacheRunnables = userCachePump.shutdownNow();
@@ -140,8 +133,6 @@ public class ShutdownHandler {
         log.info("{} async database executor runnable cancelled", dbWrapperRunnables.size());
 
         try {
-            guildCachePump.awaitTermination(30, TimeUnit.SECONDS);
-            log.info("Guild cache terminated");
             userCachePump.awaitTermination(30, TimeUnit.SECONDS);
             log.info("User cache terminated");
             executor.awaitTermination(30, TimeUnit.SECONDS);

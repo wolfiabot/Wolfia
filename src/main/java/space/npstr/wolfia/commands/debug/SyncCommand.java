@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands.debug;
 
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
@@ -27,21 +26,17 @@ import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.ObjIntConsumer;
-import java.util.stream.Stream;
 
 /**
  * Created by napster on 07.12.17.
@@ -51,7 +46,6 @@ public class SyncCommand implements BaseCommand {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(SyncCommand.class);
 
-    private static final String ACTION_GUILDS = "guilds";
     private static final String ACTION_USERS = "users";
 
     private final ExecutorService syncService;
@@ -72,7 +66,7 @@ public class SyncCommand implements BaseCommand {
     @Nonnull
     @Override
     public String help() {
-        return "Force a sync of the guilds and/or users present in the bot with the data saved in the database.";
+        return "Force a sync of the users present in the bot with the data saved in the database.";
     }
 
     @Override
@@ -80,16 +74,6 @@ public class SyncCommand implements BaseCommand {
 
         boolean actionFound = false;
         ShardManager shardManager = context.getJda().asBot().getShardManager();
-        if (context.msg.getContentRaw().toLowerCase().contains(ACTION_GUILDS)) {
-            actionFound = true;
-            context.reply("Starting guilds sync.");
-            syncGuilds(
-                    context.getJda().asBot().getShardManager(),
-                    this.syncService,
-                    shardManager.getShardCache().stream().flatMap(jda -> jda.getGuildCache().stream()),
-                    (duration, amount) -> context.reply(amount + " guilds synced in " + duration + "ms")
-            );
-        }
 
         if (context.msg.getContentRaw().toLowerCase().contains(ACTION_USERS)) {
             actionFound = true;
@@ -104,45 +88,11 @@ public class SyncCommand implements BaseCommand {
 
         if (!actionFound) {
             context.reply("Did not find any action in your input, use one of these in your message:"
-                    + "\n" + ACTION_GUILDS
                     + "\n" + ACTION_USERS
             );
             return false;
         }
         return true;
-    }
-
-
-    /**
-     * @param executor
-     *         Executor to run this task on
-     * @param guilds
-     *         The Guilds to be synced
-     * @param resultConsumer
-     *         Returns how long this took and how many guilds were processed
-     */
-    public static void syncGuilds(ShardManager shardManager, @Nonnull final Executor executor,
-                                  @Nonnull final Stream<Guild> guilds, @Nullable final ObjIntConsumer<Long> resultConsumer) {
-
-        final long started = System.currentTimeMillis();
-        final AtomicInteger count = new AtomicInteger(0);
-        executor.execute(() -> {
-            final Collection<DatabaseException> guildSyncDbExceptions = DiscordEntityCacheUtil.syncGuilds(
-                    Launcher.getBotContext().getDatabase().getWrapper(),
-                    guilds.peek(__ -> count.incrementAndGet()),
-                    guildId -> shardManager.getGuildById(guildId) != null,
-                    CachedGuild.class
-            );
-            if (resultConsumer != null) {
-                resultConsumer.accept(System.currentTimeMillis() - started, count.get());
-            }
-            if (!guildSyncDbExceptions.isEmpty()) {
-                log.error("{} db exceptions thrown when syncing guild after start", guildSyncDbExceptions.size());
-                for (final DatabaseException e : guildSyncDbExceptions) {
-                    log.error("Db blew up when syncing guild", e);
-                }
-            }
-        });
     }
 
     /**

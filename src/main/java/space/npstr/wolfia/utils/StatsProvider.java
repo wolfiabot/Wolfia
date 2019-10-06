@@ -24,8 +24,9 @@ import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.db.ColumnMapper;
 import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.db.entities.CachedGuild;
 import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.domain.settings.GuildSettings;
+import space.npstr.wolfia.domain.settings.GuildSettingsService;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.utils.discord.Emojis;
 
@@ -112,9 +113,11 @@ public class StatsProvider {
     }
 
     private final Database database;
+    private final GuildSettingsService guildSettingsService;
 
-    public StatsProvider(Database database) {
+    public StatsProvider(Database database, GuildSettingsService guildSettingsService) {
         this.database = database;
+        this.guildSettingsService = guildSettingsService;
     }
 
     //this should be rather similar to getGuildStats
@@ -217,9 +220,11 @@ public class StatsProvider {
         //add them to the embed
         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         final Guild guild = context.getJda().asBot().getShardManager().getGuildById(guildId);
-        final CachedGuild cachedGuild = this.database.getWrapper().findApplyAndMerge(CachedGuild.key(guildId), eg -> eg.set(guild));
-        eb.setTitle(cachedGuild.getName() + "'s Wolfia stats");
-        eb.setThumbnail(cachedGuild.getAvatarUrl());
+        GuildSettings guildSettings = guild != null
+                ? this.guildSettingsService.set(guild)
+                : this.guildSettingsService.guild(guildId).getOrDefault();
+        eb.setTitle(guildSettings.getName() + "'s Wolfia stats");
+        eb.setThumbnail(guildSettings.getAvatarUrl());
 
         final long totalGames = collectedValues.get(-1).get(0);
         if (totalGames <= 0) {
