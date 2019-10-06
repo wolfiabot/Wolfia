@@ -56,8 +56,7 @@ import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
 import space.npstr.wolfia.domain.ban.BanCommand;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CommRegistryTest extends ApplicationTest {
 
@@ -285,12 +284,14 @@ class CommRegistryTest extends ApplicationTest {
     private void assertHasCommand(String trigger, Class<? extends BaseCommand> clazz) {
         BaseCommand command = commRegistry.getCommand(trigger);
 
-        assertNotNull(command,
-                "Command " + clazz.getSimpleName() + " not found for trigger " + trigger);
+        assertThat(command)
+                .as("Command %s not found for trigger %s", clazz.getSimpleName(), trigger)
+                .isNotNull();
 
-        assertTrue(clazz.isInstance(command),
-                "Command " + command.getClass().getSimpleName() + " found for trigger "
-                        + trigger + ", but was expecting " + clazz.getSimpleName());
+        assertThat(command)
+                .as("Command %s found for trigger %s, but was expecting %s",
+                        command.getClass().getSimpleName(), trigger, clazz.getSimpleName())
+                .isInstanceOf(clazz);
     }
 
 }

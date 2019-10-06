@@ -27,10 +27,9 @@ import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.gen.tables.records.BanRecord;
 
 import java.util.List;
+import java.util.function.Consumer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.db.gen.Tables.BAN;
 
 class BanServiceTest extends ApplicationTest {
@@ -57,7 +56,7 @@ class BanServiceTest extends ApplicationTest {
 
         this.banService.ban(userId);
 
-        assertTrue(this.banService.isBanned(userId));
+        assertThat(this.banService.isBanned(userId)).isTrue();
     }
 
     @Test
@@ -66,14 +65,14 @@ class BanServiceTest extends ApplicationTest {
 
         this.banService.unban(userId);
 
-        assertFalse(this.banService.isBanned(userId));
+        assertThat(this.banService.isBanned(userId)).isFalse();
     }
 
     @Test
     void givenNoBans_whenGetAllBansCalled_returnNoBans() {
         List<BanRecord> bans = this.banService.getActiveBans();
 
-        assertEquals(0, bans.size());
+        assertThat(bans).isEmpty();
     }
 
     @Test
@@ -83,8 +82,8 @@ class BanServiceTest extends ApplicationTest {
 
         var bans = this.banService.getActiveBans();
 
-        assertEquals(1, bans.size());
-        assertEquals(userId, (long) bans.get(0).getUserId());
+        assertThat(bans).size().isEqualTo(1);
+        assertThat(bans).hasOnlyOneElementSatisfying(isUser(userId));
     }
 
     @Test
@@ -97,9 +96,9 @@ class BanServiceTest extends ApplicationTest {
 
         var bans = this.banService.getActiveBans();
 
-        assertEquals(2, bans.size());
-        assertTrue(bans.stream().anyMatch(ban -> ban.getUserId() == userIdA));
-        assertTrue(bans.stream().anyMatch(ban -> ban.getUserId() == userIdB));
+        assertThat(bans).size().isEqualTo(2);
+        assertThat(bans).filteredOnAssertions(isUser(userIdA)).size().isEqualTo(1);
+        assertThat(bans).filteredOnAssertions(isUser(userIdB)).size().isEqualTo(1);
     }
 
     @Test
@@ -116,8 +115,12 @@ class BanServiceTest extends ApplicationTest {
 
         var bans = this.banService.getActiveBans();
 
-        assertEquals(2, bans.size());
-        assertTrue(bans.stream().anyMatch(ban -> ban.getUserId() == userIdA));
-        assertTrue(bans.stream().anyMatch(ban -> ban.getUserId() == userIdB));
+        assertThat(bans).size().isEqualTo(2);
+        assertThat(bans).filteredOnAssertions(isUser(userIdA)).size().isEqualTo(1);
+        assertThat(bans).filteredOnAssertions(isUser(userIdB)).size().isEqualTo(1);
+    }
+
+    private Consumer<BanRecord> isUser(long userId) {
+        return ban -> assertThat(ban.getUserId()).isEqualTo(userId);
     }
 }

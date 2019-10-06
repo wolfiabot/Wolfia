@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class LauncherTest extends ApplicationTest {
 
@@ -31,11 +31,11 @@ class LauncherTest extends ApplicationTest {
     @Test
     void applicationContextLoads() {
         // smoke test for some usual & important beans
-        assertTrue(this.applicationContext.containsBean("commandListener"));
-        assertTrue(this.applicationContext.containsBean("commRegistry"));
-        assertTrue(this.applicationContext.containsBean("shardManager"));
-        assertTrue(this.applicationContext.containsBean("botContext"));
-        assertTrue(this.applicationContext.containsBean("database"));
+        assertThat(this.applicationContext.containsBean("commandListener")).isTrue();
+        assertThat(this.applicationContext.containsBean("commRegistry")).isTrue();
+        assertThat(this.applicationContext.containsBean("shardManager")).isTrue();
+        assertThat(this.applicationContext.containsBean("botContext")).isTrue();
+        assertThat(this.applicationContext.containsBean("database")).isTrue();
     }
 
 }
