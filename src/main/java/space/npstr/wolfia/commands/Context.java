@@ -48,15 +48,15 @@ public interface Context {
     User getInvoker();
 
     //message that triggered this context
-    @Nullable
+    @Nonnull
     @CheckReturnValue
     Message getMessage();
 
-    @Nullable
+    @Nonnull
     @CheckReturnValue
     MessageReceivedEvent getEvent();
 
-    @Nullable
+    @Nonnull
     @CheckReturnValue
     JDA getJda();
 
