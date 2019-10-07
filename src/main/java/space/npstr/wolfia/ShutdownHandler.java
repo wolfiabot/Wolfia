@@ -19,7 +19,6 @@ package space.npstr.wolfia;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
@@ -33,7 +32,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -51,13 +49,12 @@ public class ShutdownHandler {
     private volatile boolean shutdownHookExecuted = false;
 
     public ShutdownHandler(ExceptionLoggingExecutor executor, Database database, AsyncDbWrapper dbWrapper,
-                           DiscordEntityProvider discordEntityProvider,
-                           UserMemberCachingListener userCacheListener, ScheduledExecutorService jdaThreadPool) {
+                           DiscordEntityProvider discordEntityProvider, ScheduledExecutorService jdaThreadPool) {
 
         this.shutdownHookAdded = false;
         Thread shutdownHook = new Thread(() -> {
             try {
-                shutdown(executor, userCacheListener, jdaThreadPool, discordEntityProvider,
+                shutdown(executor, jdaThreadPool, discordEntityProvider,
                         database, dbWrapper);
             } catch (Exception e) {
                 log.error("Uncaught exception in shutdown hook", e);
@@ -70,7 +67,7 @@ public class ShutdownHandler {
         this.shutdownHookAdded = true;
     }
 
-    private void shutdown(ExceptionLoggingExecutor executor, UserMemberCachingListener userCacheListener,
+    private void shutdown(ExceptionLoggingExecutor executor,
                           @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool,
                           DiscordEntityProvider discordEntityProvider, Database database, AsyncDbWrapper dbWrapper) {
 
@@ -110,11 +107,6 @@ public class ShutdownHandler {
         discordEntityProvider.shutdown();
 
         //shutdown executors
-        log.info("Shutting down user cache listener");
-        ThreadPoolExecutor userCachePump = userCacheListener.getCachePump();
-        final List<Runnable> userCacheRunnables = userCachePump.shutdownNow();
-        log.info("{} user cache runnables cancelled", userCacheRunnables.size());
-
         log.info("Shutting down main executor");
         final List<Runnable> executorRunnables = executor.shutdownNow();
         log.info("{} main executor runnables cancelled", executorRunnables.size());
@@ -133,8 +125,6 @@ public class ShutdownHandler {
         log.info("{} async database executor runnable cancelled", dbWrapperRunnables.size());
 
         try {
-            userCachePump.awaitTermination(30, TimeUnit.SECONDS);
-            log.info("User cache terminated");
             executor.awaitTermination(30, TimeUnit.SECONDS);
             log.info("Main executor terminated");
             restService.awaitTermination(30, TimeUnit.SECONDS);

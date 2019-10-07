@@ -19,12 +19,13 @@ package space.npstr.wolfia.utils;
 
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.db.ColumnMapper;
 import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.settings.GuildSettings;
 import space.npstr.wolfia.domain.settings.GuildSettingsService;
 import space.npstr.wolfia.game.definitions.Alignments;
@@ -114,10 +115,12 @@ public class StatsProvider {
 
     private final Database database;
     private final GuildSettingsService guildSettingsService;
+    private final UserCache userCache;
 
-    public StatsProvider(Database database, GuildSettingsService guildSettingsService) {
+    public StatsProvider(Database database, GuildSettingsService guildSettingsService, UserCache userCache) {
         this.database = database;
         this.guildSettingsService = guildSettingsService;
+        this.userCache = userCache;
     }
 
     //this should be rather similar to getGuildStats
@@ -287,9 +290,11 @@ public class StatsProvider {
 
         //add them to the embed
         final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        final CachedUser cu = CachedUser.load(userId);
-        eb.setTitle(cu.getName() + "'s Wolfia stats");
-        eb.setThumbnail(cu.getEffectiveAvatarUrl());
+        UserCache.Action userAction = this.userCache.user(userId);
+        eb.setTitle(userAction.getName() + "'s Wolfia stats");
+        userAction.get()
+                .map(User::getAvatarUrl)
+                .ifPresent(eb::setThumbnail);
 
         if (totalGamesByUser <= 0) {
             eb.setTitle(String.format("User (id `%s`) hasn't played any games.", userId));

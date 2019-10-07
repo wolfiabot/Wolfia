@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.config.properties.ListingsConfig;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.Database;
+import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.events.PrivateGuildProvider;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
@@ -44,10 +45,11 @@ public class BotContext {
     private final ExceptionLoggingExecutor executor;
     private final ShardManager shardManager;
     private final ChannelSettingsService channelSettingsService;
+    private final UserCache userCache;
 
     public BotContext(final Database database, final WolfiaConfig wolfiaConfig, final ListingsConfig listingsConfig,
                       PrivateGuildProvider privateGuildProvider, ExceptionLoggingExecutor executor,
-                      ShardManager shardManager, ChannelSettingsService channelSettingsService) {
+                      ShardManager shardManager, ChannelSettingsService channelSettingsService, UserCache userCache) {
         this.database = database;
         this.wolfiaConfig = wolfiaConfig;
         this.listingsConfig = listingsConfig;
@@ -55,6 +57,7 @@ public class BotContext {
         this.executor = executor;
         this.shardManager = shardManager;
         this.channelSettingsService = channelSettingsService;
+        this.userCache = userCache;
     }
 
     public Database getDatabase() {
@@ -83,5 +86,9 @@ public class BotContext {
 
     public ChannelSettingsService getChannelSettingsService() {
         return this.channelSettingsService;
+    }
+
+    public UserCache getUserCache() {
+        return this.userCache;
     }
 }
