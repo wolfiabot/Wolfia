@@ -22,10 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
-import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.common.Exceptions;
-import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.db.entities.CachedUser;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.discordwrapper.JdaDiscordEntityProvider;
@@ -59,11 +56,6 @@ public class DiscordApiConfiguration {
     @Bean
     public List<PrivateGuild> privateGuildListeners(PrivateGuildProvider privateGuildProvider) {
         return privateGuildProvider.getAllGuilds();
-    }
-
-    @Bean
-    public UserMemberCachingListener<CachedUser> userMemberCachingListener(Database database) {
-        return new UserMemberCachingListener<>(database.getWrapper(), CachedUser.class);
     }
 
     @Profile("!test")

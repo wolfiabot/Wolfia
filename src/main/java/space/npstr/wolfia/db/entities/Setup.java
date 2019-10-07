@@ -26,7 +26,6 @@ import org.hibernate.annotations.Type;
 import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.sqlsauce.hibernate.types.BasicType;
-import space.npstr.sqlsauce.jda.listeners.DiscordEntityCacheUtil;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.Context;
@@ -154,8 +153,6 @@ public class Setup extends SaucedEntity<Long, Setup> {
     }
 
     public Setup inUser(final long userId) {
-        //cache any inning users
-        DiscordEntityCacheUtil.cacheMember(Launcher.getBotContext().getDatabase().getWrapper(), getThisChannel().getGuild().getMemberById(userId), CachedUser.class);
         this.innedUsers.add(userId);
         return this;
     }

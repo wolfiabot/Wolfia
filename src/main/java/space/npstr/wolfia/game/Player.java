@@ -17,15 +17,12 @@
 
 package space.npstr.wolfia.game;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.db.entities.CachedUser;
+import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Item;
 import space.npstr.wolfia.game.definitions.Roles;
@@ -114,13 +111,10 @@ public class Player {
      */
     @Nonnull
     public String getName() {
-        final User user = Launcher.getBotContext().getShardManager().getUserById(this.userId);
-        if (user != null) {
-            return user.getName();
-        }
         try {
-            return CachedUser.load(this.userId).getName();
-        } catch (final DatabaseException e) {
+            return Launcher.getBotContext().getUserCache().user(this.userId).getName();
+        } catch (final Exception e) {
+            log.warn("Failed to fetch user {} name", this.userId, e);
             return DiscordUser.UNKNOWN_NAME;
         }
     }
@@ -131,22 +125,10 @@ public class Player {
      */
     @Nonnull
     public String getNick() {
-        final Guild guild = Launcher.getBotContext().getShardManager().getGuildById(this.guildId);
-        if (guild != null) {
-            final Member member = guild.getMemberById(this.userId);
-            if (member != null) {
-                return member.getEffectiveName();
-            }
-        }
         try {
-            final CachedUser cu = CachedUser.load(this.userId);
-            final String nick = cu.getNick(this.guildId);
-            if (nick != null) {
-                return nick;
-            } else {
-                return cu.getName();
-            }
-        } catch (final DatabaseException e) {
+            return Launcher.getBotContext().getUserCache().user(this.userId).getEffectiveName(this.guildId);
+        } catch (final Exception e) {
+            log.warn("Failed to fetch user {} nick", this.userId, e);
             return DiscordUser.UNKNOWN_NAME;
         }
     }
@@ -158,22 +140,14 @@ public class Player {
      */
     @Nonnull
     public String bothNamesFormatted() {
-        final Guild guild = Launcher.getBotContext().getShardManager().getGuildById(this.guildId);
-        if (guild != null) {
-            final Member member = guild.getMemberById(this.userId);
-            if (member != null) {
-                return formatNameAndNick(member.getUser().getName(), member.getNickname());
-            }
-        }
-
         String name = DiscordUser.UNKNOWN_NAME;
         String nick = DiscordUser.UNKNOWN_NAME;
         try {
-            final CachedUser cu = CachedUser.load(this.userId);
-            name = cu.getName();
-            nick = cu.getNick(this.guildId);
-        } catch (final DatabaseException e) {
-            log.error("Db blew up why looking up cache user {}", this.userId, e);
+            UserCache userCache = Launcher.getBotContext().getUserCache();
+            name = userCache.user(this.userId).getName();
+            nick = userCache.user(this.userId).getNick(this.guildId).orElse(null);
+        } catch (final Exception e) {
+            log.warn("Failed to fetch user {} name and nick", this.userId, e);
         }
         return formatNameAndNick(name, nick);
     }

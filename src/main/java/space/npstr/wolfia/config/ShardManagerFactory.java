@@ -26,7 +26,6 @@ import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
-import space.npstr.sqlsauce.jda.listeners.UserMemberCachingListener;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.entities.PrivateGuild;
@@ -57,15 +56,13 @@ public class ShardManagerFactory {
     private final Listings listings;
     private final List<PrivateGuild> privateGuildListeners;
     private final GuildCacheListener guildCacheListener;
-    private final UserMemberCachingListener userCacheListener;
     private final Supplier<ShardManager> singleton;
 
 
     public ShardManagerFactory(final WolfiaConfig wolfiaConfig, final CommandListener commandListener,
                                final OkHttpClient.Builder httpClientBuilder,
                                @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool, Listings listings,
-                               List<PrivateGuild> privateGuildListeners, GuildCacheListener guildCacheListener,
-                               UserMemberCachingListener userCacheListener) {
+                               List<PrivateGuild> privateGuildListeners, GuildCacheListener guildCacheListener) {
 
         this.wolfiaConfig = wolfiaConfig;
         this.commandListener = commandListener;
@@ -74,7 +71,6 @@ public class ShardManagerFactory {
         this.listings = listings;
         this.privateGuildListeners = privateGuildListeners;
         this.guildCacheListener = guildCacheListener;
-        this.userCacheListener = userCacheListener;
         this.singleton = Suppliers.memoize(this::createShardManager);
     }
 
@@ -87,8 +83,7 @@ public class ShardManagerFactory {
                 .setToken(this.wolfiaConfig.getDiscordToken())
                 .setGame(Game.playing(App.GAME_STATUS))
                 .addEventListeners(this.commandListener)
-                .addEventListeners(userCacheListener)
-                .addEventListeners(guildCacheListener)
+                .addEventListeners(this.guildCacheListener)
                 .addEventListeners(new InternalListener())
                 .addEventListeners(this.listings)
                 .addEventListeners(new WolfiaGuildListener())
