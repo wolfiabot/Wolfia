@@ -17,8 +17,8 @@
 
 package space.npstr.wolfia.db.entities;
 
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.hibernate.annotations.ColumnDefault;
@@ -27,19 +27,10 @@ import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.sqlsauce.fp.types.EntityKey;
 import space.npstr.sqlsauce.hibernate.types.BasicType;
 import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.Context;
-import space.npstr.wolfia.commands.debug.MaintenanceCommand;
-import space.npstr.wolfia.commands.game.InCommand;
-import space.npstr.wolfia.commands.game.StatusCommand;
-import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
-import space.npstr.wolfia.utils.UserFriendlyException;
-import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
@@ -47,8 +38,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,8 +54,6 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "setup")
 public class Setup extends SaucedEntity<Long, Setup> {
-
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Setup.class);
 
     @Id
     @Column(name = "channel_id", nullable = false)
@@ -100,6 +89,15 @@ public class Setup extends SaucedEntity<Long, Setup> {
     @Override
     public Long getId() {
         return this.channelId;
+    }
+
+    public long getChannelId() {
+        return channelId;
+    }
+
+    @Nonnull
+    public Set<Long> getInnedUsers() {
+        return Collections.unmodifiableSet(this.innedUsers);
     }
 
     public Games getGame() {
@@ -161,12 +159,16 @@ public class Setup extends SaucedEntity<Long, Setup> {
         return this.innedUsers.remove(userId);
     }
 
-    private void cleanUpInnedPlayers() {
+    public void clearInnedUsers() {
+        this.innedUsers.clear();
+    }
+
+    public void cleanUpInnedPlayers(ShardManager shardManager) {
         //did they leave the guild?
         final Set<Long> toBeOuted = new HashSet<>();
-        final Guild g = getThisChannel().getGuild();
+        final Guild guild = getChannel(shardManager).getGuild();
         this.innedUsers.forEach(userId -> {
-            if (g.getMemberById(userId) == null) {
+            if (guild.getMemberById(userId) == null) {
                 toBeOuted.add(userId);
             }
         });
@@ -177,9 +179,17 @@ public class Setup extends SaucedEntity<Long, Setup> {
         //todo whenever time based ins are a thing, this is probably the place to check them
     }
 
-    public MessageEmbed getStatus() {
+    private TextChannel getChannel(ShardManager shardManager) {
+        final TextChannel tc = shardManager.getTextChannelById(this.channelId);
+        if (tc == null) {
+            throw new NullPointerException(String.format("Could not find channel %s of setup", this.channelId));
+        }
+        return tc;
+    }
+
+    public MessageEmbed getStatus(Context context) {
         //clean up first
-        cleanUpInnedPlayers();
+        cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
 
         final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
         final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
@@ -220,75 +230,5 @@ public class Setup extends SaucedEntity<Long, Setup> {
         neb.addField(inned);
 
         return neb.build();
-    }
-
-    //needs to be synchronized so only one incoming command at a time can be in here
-    public synchronized boolean startGame(Context context) throws IllegalGameStateException {
-
-        long commandCallerId = context.getInvoker().getIdLong();
-        final MessageChannel channel = context.getChannel();
-        //need to synchronize on a class level due to this being an entity object that may be loaded twice from the database
-        synchronized (Setup.class) {
-            if (MaintenanceCommand.getMaintenanceFlag() || ShutdownHandler.isShuttingDown()) {
-                RestActions.sendMessage(channel, "The bot is under maintenance. Please try starting a game later.");
-                return false;
-            }
-
-            if (!this.innedUsers.contains(commandCallerId)) {
-                RestActions.sendMessage(channel, String.format("%s, only players that inned can start the game! Say `%s` to join!",
-                        TextchatUtils.userAsMention(commandCallerId), WolfiaConfig.DEFAULT_PREFIX + InCommand.TRIGGER));
-                return false;
-            }
-
-            //is there a game running already in this channel?
-            if (Games.get(this.channelId) != null) {
-                RestActions.sendMessage(channel, TextchatUtils.userAsMention(commandCallerId)
-                        + ", there is already a game going on in this channel!");
-                return false;
-            }
-
-            final Game game;
-            try {
-                game = this.getGame().clazz.getConstructor().newInstance();
-            } catch (final IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
-                throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
-            }
-
-            cleanUpInnedPlayers();
-            final Set<Long> inned = new HashSet<>(this.innedUsers);
-            if (!game.isAcceptablePlayerCount(inned.size(), getMode())) {
-                RestActions.sendMessage(channel, String.format(
-                        "There aren't enough (or too many) players signed up! Please use `%s` for more information",
-                        WolfiaConfig.DEFAULT_PREFIX + StatusCommand.TRIGGER));
-                return false;
-            }
-
-            game.setDayLength(this.dayLengthMillis, TimeUnit.MILLISECONDS);
-
-            try {
-                game.start(this.channelId, getMode(), inned);
-            } catch (final UserFriendlyException e) {
-                log.info("Game start aborted due to user friendly exception", e);
-                Games.remove(game);
-                game.cleanUp();
-                throw new UserFriendlyException(e.getMessage(), e);
-            } catch (final Exception e) {
-                //start failed with a fucked up exception
-                Games.remove(game);
-                game.cleanUp();
-                throw new RuntimeException(String.format("%s, game start aborted due to:%n%s",
-                        TextchatUtils.userAsMention(commandCallerId), e.getMessage()), e);
-            }
-            this.innedUsers.clear();
-            return true;
-        }
-    }
-
-    private TextChannel getThisChannel() {
-        final TextChannel tc = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
-        if (tc == null) {
-            throw new NullPointerException(String.format("Could not find channel %s of setup", this.channelId));
-        }
-        return tc;
     }
 }

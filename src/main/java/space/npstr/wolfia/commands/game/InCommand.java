@@ -93,7 +93,7 @@ public class InCommand implements BaseCommand, PublicCommand {
                         }
                         return setup;
                     });
-            context.reply(s.getStatus());
+            context.reply(s.getStatus(context));
             return true;
         }
 
@@ -107,7 +107,7 @@ public class InCommand implements BaseCommand, PublicCommand {
             return false;
         }
         final Setup s = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(setupKey, setup -> setup.inUser(context.invoker.getIdLong()));
-        context.reply(s.getStatus());
+        context.reply(s.getStatus(context));
         return true;
     }
 }

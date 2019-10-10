@@ -151,7 +151,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             return false;//feedback has ben given
         }
         //show the status quo
-        context.reply(setup.getStatus());
+        context.reply(setup.getStatus(context));
         return true;
     }
 }

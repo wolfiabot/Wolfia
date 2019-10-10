@@ -90,7 +90,7 @@ public class OutCommand implements BaseCommand, PublicCommand {
                             }
                             return setup;
                         });
-                context.reply(s.getStatus());
+                context.reply(s.getStatus(context));
                 return true;
             }
         } else {
@@ -99,7 +99,7 @@ public class OutCommand implements BaseCommand, PublicCommand {
                 Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Setup.key(context.textChannel.getIdLong()),
                         setup -> {
                             if (setup.outUser(context.invoker.getIdLong())) {
-                                context.reply(setup.getStatus());
+                                context.reply(setup.getStatus(context));
                             }
                             return setup;
                         });

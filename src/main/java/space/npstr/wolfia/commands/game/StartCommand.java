@@ -17,14 +17,15 @@
 
 package space.npstr.wolfia.commands.game;
 
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
+import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.GameStarter;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
@@ -39,6 +40,14 @@ import javax.annotation.Nonnull;
 public class StartCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "start";
+
+    private final GameStarter gameStarter;
+    private final Database database;
+
+    public StartCommand(GameStarter gameStarter, Database database) {
+        this.gameStarter = gameStarter;
+        this.database = database;
+    }
 
     @Override
     public String getTrigger() {
@@ -71,10 +80,10 @@ public class StartCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        Setup setup = Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()));
-        final boolean started = setup.startGame(context);
+        Setup setup = this.database.getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()));
+        final boolean started = this.gameStarter.startGame(context, setup);
         //noinspection UnusedAssignment
-        setup = Launcher.getBotContext().getDatabase().getWrapper().merge(setup);
+        setup = this.database.getWrapper().merge(setup);
 
         return started;
     }

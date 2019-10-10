@@ -80,7 +80,7 @@ public class StatusCommand implements BaseCommand, PublicCommand {
 
                 if (game == null) {
                     context.reply(Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()))
-                            .getStatus());
+                            .getStatus(context));
                     return true;
                 }
             }
