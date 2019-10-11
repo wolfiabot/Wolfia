@@ -182,4 +182,19 @@ class ChannelSettingsServiceTest extends ApplicationTest {
         var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).doesNotContain(tagA, tagB);
     }
+
+
+    @Test
+    void whenDelete_thenDeleteFromDb() {
+        long channelId = uniqueLong();
+
+        this.repository.setAccessRoleId(channelId, uniqueLong()).toCompletableFuture().join();
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join();
+        assertThat(settings).isPresent();
+
+        this.service.channel(channelId).reset();
+
+        settings = this.repository.findOne(channelId).toCompletableFuture().join();
+        assertThat(settings).isEmpty();
+    }
 }

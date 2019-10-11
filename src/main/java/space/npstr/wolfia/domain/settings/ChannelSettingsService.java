@@ -89,6 +89,11 @@ public class ChannelSettingsService {
             return repository.removeTags(this.channelId, tags)
                     .toCompletableFuture().join();
         }
+
+        public void reset() {
+            repository.delete(this.channelId)
+                    .toCompletableFuture().join();
+        }
     }
 
 }

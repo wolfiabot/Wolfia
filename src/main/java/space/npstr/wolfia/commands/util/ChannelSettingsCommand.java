@@ -96,6 +96,12 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
+        if (context.args.length == 1 && "reset".equalsIgnoreCase(context.args[0])) {
+            channelAction.reset();
+            context.replyWithMention("channel settings have been reset.");
+            return true;
+        }
+
         //at least 2 arguments?
         if (context.args.length < 2) {
             context.help();

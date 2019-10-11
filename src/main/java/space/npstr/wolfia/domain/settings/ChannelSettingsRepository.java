@@ -140,4 +140,13 @@ public class ChannelSettingsRepository {
         ));
     }
 
+    @CheckReturnValue
+    public CompletionStage<Integer> delete(long channelId) {
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+                .deleteFrom(CHANNEL_SETTINGS)
+                .where(CHANNEL_SETTINGS.CHANNEL_ID.eq(channelId))
+                .execute()
+        ));
+    }
+
 }
