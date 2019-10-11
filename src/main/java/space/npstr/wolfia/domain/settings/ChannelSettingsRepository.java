@@ -20,7 +20,6 @@ package space.npstr.wolfia.domain.settings;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import space.npstr.wolfia.db.AsyncDbWrapper;
-import space.npstr.wolfia.db.gen.tables.records.ChannelSettingsRecord;
 
 import javax.annotation.CheckReturnValue;
 import java.util.Collection;
@@ -46,17 +45,17 @@ public class ChannelSettingsRepository {
     }
 
     @CheckReturnValue
-    public CompletionStage<Optional<ChannelSettingsRecord>> findOne(long channelId) {
+    public CompletionStage<Optional<ChannelSettings>> findOne(long channelId) {
         return this.wrapper.jooq(dsl -> dsl
                 .selectFrom(CHANNEL_SETTINGS)
                 .where(CHANNEL_SETTINGS.CHANNEL_ID.eq(channelId))
-                .fetchOptional()
+                .fetchOptionalInto(ChannelSettings.class)
         );
     }
 
     @CheckReturnValue
     //this works since we dont commit the transaction
-    public CompletionStage<ChannelSettingsRecord> findOneOrDefault(long channelId) {
+    public CompletionStage<ChannelSettings> findOneOrDefault(long channelId) {
         return this.wrapper.jooq(dsl -> dsl
                 .insertInto(CHANNEL_SETTINGS)
                 .columns(CHANNEL_SETTINGS.CHANNEL_ID)
@@ -65,11 +64,12 @@ public class ChannelSettingsRepository {
                 .set(CHANNEL_SETTINGS.CHANNEL_ID, channelId)
                 .returning()
                 .fetchOne()
+                .into(ChannelSettings.class)
         );
     }
 
     @CheckReturnValue
-    public CompletionStage<ChannelSettingsRecord> setAccessRoleId(long channelId, long accessRoleId) {
+    public CompletionStage<ChannelSettings> setAccessRoleId(long channelId, long accessRoleId) {
         return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
                 .insertInto(CHANNEL_SETTINGS)
                 .columns(CHANNEL_SETTINGS.CHANNEL_ID, CHANNEL_SETTINGS.ACCESS_ROLE_ID)
@@ -78,11 +78,12 @@ public class ChannelSettingsRepository {
                 .set(CHANNEL_SETTINGS.ACCESS_ROLE_ID, accessRoleId)
                 .returning()
                 .fetchOne()
+                .into(ChannelSettings.class)
         ));
     }
 
     @CheckReturnValue
-    public CompletionStage<ChannelSettingsRecord> setTagCooldown(long channelId, long tagCooldown) {
+    public CompletionStage<ChannelSettings> setTagCooldown(long channelId, long tagCooldown) {
         return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
                 .insertInto(CHANNEL_SETTINGS)
                 .columns(CHANNEL_SETTINGS.CHANNEL_ID, CHANNEL_SETTINGS.TAG_COOLDOWN)
@@ -91,11 +92,12 @@ public class ChannelSettingsRepository {
                 .set(CHANNEL_SETTINGS.ACCESS_ROLE_ID, tagCooldown)
                 .returning()
                 .fetchOne()
+                .into(ChannelSettings.class)
         ));
     }
 
     @CheckReturnValue
-    public CompletionStage<ChannelSettingsRecord> setTagLastUsed(long channelId, long lastUsed) {
+    public CompletionStage<ChannelSettings> setTagLastUsed(long channelId, long lastUsed) {
         return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
                 .insertInto(CHANNEL_SETTINGS)
                 .columns(CHANNEL_SETTINGS.CHANNEL_ID, CHANNEL_SETTINGS.TAG_LAST_USED)
@@ -104,11 +106,12 @@ public class ChannelSettingsRepository {
                 .set(CHANNEL_SETTINGS.ACCESS_ROLE_ID, lastUsed)
                 .returning()
                 .fetchOne()
+                .into(ChannelSettings.class)
         ));
     }
 
     @CheckReturnValue
-    public CompletionStage<ChannelSettingsRecord> addTags(long channelId, Collection<Long> tags) {
+    public CompletionStage<ChannelSettings> addTags(long channelId, Collection<Long> tags) {
         Long[] tagArray = tags.toArray(new Long[0]);
         return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
                 .insertInto(CHANNEL_SETTINGS)
@@ -118,11 +121,12 @@ public class ChannelSettingsRepository {
                 .set(CHANNEL_SETTINGS.TAGS, arrayAppendDistinct(CHANNEL_SETTINGS.TAGS, tagArray))
                 .returning()
                 .fetchOne()
+                .into(ChannelSettings.class)
         ));
     }
 
     @CheckReturnValue
-    public CompletionStage<ChannelSettingsRecord> removeTags(long channelId, Collection<Long> tags) {
+    public CompletionStage<ChannelSettings> removeTags(long channelId, Collection<Long> tags) {
         Long[] tagArray = tags.toArray(new Long[0]);
         return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
                 .insertInto(CHANNEL_SETTINGS)
@@ -132,6 +136,7 @@ public class ChannelSettingsRepository {
                 .set(CHANNEL_SETTINGS.TAGS, arrayDiff(CHANNEL_SETTINGS.TAGS, tagArray))
                 .returning()
                 .fetchOne()
+                .into(ChannelSettings.class)
         ));
     }
 

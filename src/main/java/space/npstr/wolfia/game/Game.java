@@ -438,7 +438,7 @@ public abstract class Game {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
                 this.accessRoleId = Launcher.getBotContext().getChannelSettingsService()
-                        .channel(this.channelId).getOrDefault().getAccessRoleId();
+                        .channel(this.channelId).getOrDefault().getAccessRoleId().orElse(0L);
                 final Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
                     throw new UserFriendlyException(String.format(

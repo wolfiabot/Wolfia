@@ -18,7 +18,6 @@
 package space.npstr.wolfia.domain.settings;
 
 import org.springframework.stereotype.Service;
-import space.npstr.wolfia.db.gen.tables.records.ChannelSettingsRecord;
 
 import java.time.Clock;
 import java.util.Collection;
@@ -53,40 +52,40 @@ public class ChannelSettingsService {
             this.channelId = channelId;
         }
 
-        public ChannelSettingsRecord getOrDefault() {
+        public ChannelSettings getOrDefault() {
             return repository.findOneOrDefault(this.channelId)
                     .toCompletableFuture().join();
         }
 
-        public ChannelSettingsRecord setAccessRoleId(long accessRoleId) {
+        public ChannelSettings setAccessRoleId(long accessRoleId) {
             return repository.setAccessRoleId(this.channelId, accessRoleId)
                     .toCompletableFuture().join();
         }
 
-        public ChannelSettingsRecord setTagCooldown(long tagCooldown) {
+        public ChannelSettings setTagCooldown(long tagCooldown) {
             return repository.setTagCooldown(this.channelId, tagCooldown)
                     .toCompletableFuture().join();
         }
 
-        public ChannelSettingsRecord tagUsed() {
+        public ChannelSettings tagUsed() {
             return repository.setTagLastUsed(this.channelId, clock.millis())
                     .toCompletableFuture().join();
         }
 
-        public ChannelSettingsRecord addTag(long tag) {
+        public ChannelSettings addTag(long tag) {
             return addTags(Set.of(tag));
         }
 
-        public ChannelSettingsRecord addTags(Collection<Long> tags) {
+        public ChannelSettings addTags(Collection<Long> tags) {
             return repository.addTags(this.channelId, tags)
                     .toCompletableFuture().join();
         }
 
-        public ChannelSettingsRecord removeTag(long tag) {
+        public ChannelSettings removeTag(long tag) {
             return removeTags(Set.of(tag));
         }
 
-        public ChannelSettingsRecord removeTags(Collection<Long> tags) {
+        public ChannelSettings removeTags(Collection<Long> tags) {
             return repository.removeTags(this.channelId, tags)
                     .toCompletableFuture().join();
         }

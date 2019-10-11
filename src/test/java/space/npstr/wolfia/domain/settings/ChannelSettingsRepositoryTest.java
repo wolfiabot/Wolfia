@@ -20,17 +20,12 @@ package space.npstr.wolfia.domain.settings;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.gen.tables.records.ChannelSettingsRecord;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 class ChannelSettingsRepositoryTest extends ApplicationTest {
 
-    // tied to default values of the db
-    private static final int DEFAULT_ACCESS_ROLE_ID = -1;
     private static final int DEFAULT_TAG_COOLDOWN = 5;
     private static final int DEFAULT_TAG_LAST_USED = 0;
 
@@ -45,8 +40,8 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
                 .toCompletableFuture().join();
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
-        assertThat(settings.getAccessRoleId()).isEqualTo(DEFAULT_ACCESS_ROLE_ID);
-        assertThat(settings.getTagCooldown()).isEqualTo(DEFAULT_TAG_COOLDOWN);
+        assertThat(settings.getAccessRoleId()).isEmpty();
+        assertThat(settings.getTagCooldownMinutes()).isEqualTo(DEFAULT_TAG_COOLDOWN);
         assertThat(settings.getTagLastUsed()).isEqualTo(DEFAULT_TAG_LAST_USED);
         assertThat(settings.getTags()).isEmpty();
     }
@@ -59,7 +54,7 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
                 .toCompletableFuture().join();
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
-        Optional<ChannelSettingsRecord> created = this.repository.findOne(channelId)
+        var created = this.repository.findOne(channelId)
                 .toCompletableFuture().join();
         assertThat(created.isPresent()).isFalse();
     }
@@ -76,7 +71,7 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
                 .toCompletableFuture().join();
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
-        assertThat(settings.getTagCooldown()).isEqualTo(tagCooldown);
+        assertThat(settings.getTagCooldownMinutes()).isEqualTo(tagCooldown);
     }
 
 }

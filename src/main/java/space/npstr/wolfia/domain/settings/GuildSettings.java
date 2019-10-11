@@ -19,36 +19,38 @@ package space.npstr.wolfia.domain.settings;
 
 import javax.annotation.Nullable;
 import java.beans.ConstructorProperties;
+import java.util.Optional;
 
 public class GuildSettings {
 
+    private static final String DEFAULT_NAME = "Unknown Guild";
+
     private final long guildId;
-    private final String name;
-    @Nullable
-    private final String iconId;
+    private final Optional<String> name;
+    private final Optional<String> iconId;
 
     @ConstructorProperties({"guildId", "name", "iconId"})
-    public GuildSettings(long guildId, String name, @Nullable String iconId) {
+    public GuildSettings(long guildId, @Nullable String name, @Nullable String iconId) {
         this.guildId = guildId;
-        this.name = name;
-        this.iconId = iconId;
+        this.name = Optional.ofNullable(name);
+        this.iconId = Optional.ofNullable(iconId);
     }
 
     public long getGuildId() {
-        return guildId;
+        return this.guildId;
     }
 
     public String getName() {
-        return name;
+        return this.name.orElse(DEFAULT_NAME);
     }
 
-    @Nullable
-    public String getIconId() {
-        return iconId;
+    public Optional<String> getIconId() {
+        return this.iconId;
     }
 
-    public String getAvatarUrl() {
-        return this.iconId == null ? null : "https://cdn.discordapp.com/icons/" + this.guildId + "/" + this.iconId + ".jpg";
+    public Optional<String> getAvatarUrl() {
+        return this.iconId
+                .map(id -> "https://cdn.discordapp.com/icons/" + this.guildId + "/" + id + ".jpg");
     }
 
 }

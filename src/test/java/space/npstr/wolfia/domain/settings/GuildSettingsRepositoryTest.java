@@ -28,9 +28,7 @@ import static org.mockito.Mockito.mock;
 
 class GuildSettingsRepositoryTest extends ApplicationTest {
 
-    // tied to default values of the db
     private static final String DEFAULT_NAME = "Unknown Guild";
-    private static final String DEFAULT_ICON_ID = null;
 
     @Autowired
     private GuildSettingsRepository repository;
@@ -44,7 +42,7 @@ class GuildSettingsRepositoryTest extends ApplicationTest {
 
         assertThat(settings.getGuildId()).isEqualTo(guildId);
         assertThat(settings.getName()).isEqualTo(DEFAULT_NAME);
-        assertThat(settings.getIconId()).isEqualTo(DEFAULT_ICON_ID);
+        assertThat(settings.getIconId()).isEmpty();
     }
 
     @Test
@@ -77,6 +75,6 @@ class GuildSettingsRepositoryTest extends ApplicationTest {
 
         assertThat(settings.getGuildId()).isEqualTo(guildId);
         assertThat(settings.getName()).isEqualTo(name);
-        assertThat(settings.getIconId()).isNull();
+        assertThat(settings.getIconId()).isEmpty();
     }
 }

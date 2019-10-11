@@ -72,7 +72,7 @@ class GuildSettingsServiceTest extends ApplicationTest {
         this.service.set(guild);
 
         var settings = this.repository.findOne(guildId).toCompletableFuture().join().orElseThrow();
-        assertThat(settings.getIconId()).isEqualTo(iconId);
+        assertThat(settings.getIconId()).hasValue(iconId);
     }
 
 }

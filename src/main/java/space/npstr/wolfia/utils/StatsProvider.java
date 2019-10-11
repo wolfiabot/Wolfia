@@ -227,7 +227,7 @@ public class StatsProvider {
                 ? this.guildSettingsService.set(guild)
                 : this.guildSettingsService.guild(guildId).getOrDefault();
         eb.setTitle(guildSettings.getName() + "'s Wolfia stats");
-        eb.setThumbnail(guildSettings.getAvatarUrl());
+        eb.setThumbnail(guildSettings.getAvatarUrl().orElse(null));
 
         final long totalGames = collectedValues.get(-1).get(0);
         if (totalGames <= 0) {

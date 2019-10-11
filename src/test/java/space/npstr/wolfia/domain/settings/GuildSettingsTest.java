@@ -31,14 +31,15 @@ class GuildSettingsTest {
     void whenIconIdIsNull_avatarUrlShouldBeNull() {
         var settings = new GuildSettings(ApplicationTest.uniqueLong(), "Wolfia Lounge", null);
 
-        assertThat(settings.getAvatarUrl()).isNull();
+        assertThat(settings.getAvatarUrl()).isEmpty();
     }
 
     @Test
     void whenIconIdIsNotNull_avatarUrlShouldNotBeNull() {
         var settings = new GuildSettings(ApplicationTest.uniqueLong(), "Wolfia Lounge", "424242");
 
-        assertThat(settings.getAvatarUrl()).isNotNull().isNotBlank();
+        assertThat(settings.getAvatarUrl()).isPresent()
+                .hasValueSatisfying(avatarUrl -> assertThat(avatarUrl).isNotBlank());
     }
 
     @Test
@@ -47,7 +48,7 @@ class GuildSettingsTest {
 
         var settings = new GuildSettings(guilId, "Wolfia Lounge", "424242");
 
-        String avatarUrl = settings.getAvatarUrl();
+        String avatarUrl = settings.getAvatarUrl().orElseThrow();
         assertThatCode(() -> new URL(avatarUrl).toURI()).doesNotThrowAnyException();
     }
 

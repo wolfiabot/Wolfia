@@ -58,7 +58,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
         this.service.channel(channelId).setAccessRoleId(accessRoleId);
 
         var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
-        assertThat(settings.getAccessRoleId()).isEqualTo(accessRoleId);
+        assertThat(settings.getAccessRoleId()).hasValue(accessRoleId);
     }
 
     @Test
@@ -69,7 +69,7 @@ class ChannelSettingsServiceTest extends ApplicationTest {
         this.service.channel(channelId).setTagCooldown(tagCooldown);
 
         var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
-        assertThat(settings.getTagCooldown()).isEqualTo(tagCooldown);
+        assertThat(settings.getTagCooldownMinutes()).isEqualTo(tagCooldown);
     }
 
     @Test

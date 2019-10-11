@@ -28,13 +28,14 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.PublicCommand;
-import space.npstr.wolfia.db.gen.tables.records.ChannelSettingsRecord;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.settings.ChannelSettings;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by napster on 22.06.17.
@@ -81,7 +82,7 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
 
         long channelId = context.textChannel.getIdLong();
         ChannelSettingsService.Action channelAction = this.channelSettingsService.channel(channelId);
-        ChannelSettingsRecord channelSettings = channelAction.getOrDefault();
+        ChannelSettings channelSettings = channelAction.getOrDefault();
 
         if (!context.hasArguments()) {
             context.reply(getStatus(channelSettings));
@@ -143,7 +144,7 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
         return true;
     }
 
-    private MessageEmbed getStatus(ChannelSettingsRecord channelSettings) {
+    private MessageEmbed getStatus(ChannelSettings channelSettings) {
         final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         long channelId = channelSettings.getChannelId();
         final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
@@ -154,9 +155,9 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
         eb.setTitle("Settings for channel #" + channel.getName());
         eb.setDescription("Changes to the settings are reserved for channel moderators.");
         String roleName = "[Not set up]";
-        long accessRoleId = channelSettings.getAccessRoleId();
-        if (accessRoleId > 0) {
-            final Role accessRole = channel.getGuild().getRoleById(accessRoleId);
+        Optional<Long> accessRoleId = channelSettings.getAccessRoleId();
+        if (accessRoleId.isPresent()) {
+            final Role accessRole = channel.getGuild().getRoleById(accessRoleId.get());
             if (accessRole == null) {
                 roleName = "[Deleted]";
             } else {
@@ -165,7 +166,7 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
         }
         eb.addField("Access Role", roleName, true);
 
-        eb.addField("Tag list cooldown", channelSettings.getTagCooldown() + " minutes", true);
+        eb.addField("Tag list cooldown", channelSettings.getTagCooldownMinutes() + " minutes", true);
 
         return eb.build();
     }

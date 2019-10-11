@@ -29,8 +29,8 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.gen.tables.records.ChannelSettingsRecord;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.settings.ChannelSettings;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -85,8 +85,8 @@ public class TagCommand implements BaseCommand, PublicCommand {
 
         long channelId = context.textChannel.getIdLong();
         ChannelSettingsService.Action channelAction = this.channelSettingsService.channel(channelId);
-        ChannelSettingsRecord channelSettings = channelAction.getOrDefault();
-        final Set<Long> tags = Set.of(channelSettings.getTags());
+        ChannelSettings channelSettings = channelAction.getOrDefault();
+        final Set<Long> tags = channelSettings.getTags();
 
         String option = "";
         if (context.hasArguments()) {
@@ -107,10 +107,11 @@ public class TagCommand implements BaseCommand, PublicCommand {
                 return false;
             }
 
+            long tagCooldownMinutes = channelSettings.getTagCooldownMinutes();
             if (System.currentTimeMillis() - channelSettings.getTagLastUsed()
-                    < TimeUnit.MINUTES.toMillis(channelSettings.getTagCooldown())) {
+                    < TimeUnit.MINUTES.toMillis(tagCooldownMinutes)) {
                 final String answer = String.format("you need to wait at least %s minutes between calling the tag list.",
-                        channelSettings.getTagCooldown());
+                        tagCooldownMinutes);
                 context.replyWithMention(answer);
                 return false;
             }
