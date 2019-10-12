@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.domain.settings;
 
+import org.jooq.Field;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import space.npstr.wolfia.db.AsyncDbWrapper;
@@ -70,44 +71,17 @@ public class ChannelSettingsRepository {
 
     @CheckReturnValue
     public CompletionStage<ChannelSettings> setAccessRoleId(long channelId, long accessRoleId) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
-                .insertInto(CHANNEL_SETTINGS)
-                .columns(CHANNEL_SETTINGS.CHANNEL_ID, CHANNEL_SETTINGS.ACCESS_ROLE_ID)
-                .values(channelId, accessRoleId)
-                .onDuplicateKeyUpdate()
-                .set(CHANNEL_SETTINGS.ACCESS_ROLE_ID, accessRoleId)
-                .returning()
-                .fetchOne()
-                .into(ChannelSettings.class)
-        ));
+        return set(channelId, CHANNEL_SETTINGS.ACCESS_ROLE_ID, accessRoleId);
     }
 
     @CheckReturnValue
     public CompletionStage<ChannelSettings> setTagCooldown(long channelId, long tagCooldown) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
-                .insertInto(CHANNEL_SETTINGS)
-                .columns(CHANNEL_SETTINGS.CHANNEL_ID, CHANNEL_SETTINGS.TAG_COOLDOWN)
-                .values(channelId, tagCooldown)
-                .onDuplicateKeyUpdate()
-                .set(CHANNEL_SETTINGS.TAG_COOLDOWN, tagCooldown)
-                .returning()
-                .fetchOne()
-                .into(ChannelSettings.class)
-        ));
+        return set(channelId, CHANNEL_SETTINGS.TAG_COOLDOWN, tagCooldown);
     }
 
     @CheckReturnValue
     public CompletionStage<ChannelSettings> setTagLastUsed(long channelId, long lastUsed) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
-                .insertInto(CHANNEL_SETTINGS)
-                .columns(CHANNEL_SETTINGS.CHANNEL_ID, CHANNEL_SETTINGS.TAG_LAST_USED)
-                .values(channelId, lastUsed)
-                .onDuplicateKeyUpdate()
-                .set(CHANNEL_SETTINGS.TAG_LAST_USED, lastUsed)
-                .returning()
-                .fetchOne()
-                .into(ChannelSettings.class)
-        ));
+        return set(channelId, CHANNEL_SETTINGS.TAG_LAST_USED, lastUsed);
     }
 
     @CheckReturnValue
@@ -146,6 +120,20 @@ public class ChannelSettingsRepository {
                 .deleteFrom(CHANNEL_SETTINGS)
                 .where(CHANNEL_SETTINGS.CHANNEL_ID.eq(channelId))
                 .execute()
+        ));
+    }
+
+    @CheckReturnValue
+    private <F> CompletionStage<ChannelSettings> set(long channelId, Field<F> field, F value) {
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+                .insertInto(CHANNEL_SETTINGS)
+                .columns(CHANNEL_SETTINGS.CHANNEL_ID, field)
+                .values(channelId, value)
+                .onDuplicateKeyUpdate()
+                .set(field, value)
+                .returning()
+                .fetchOne()
+                .into(ChannelSettings.class)
         ));
     }
 

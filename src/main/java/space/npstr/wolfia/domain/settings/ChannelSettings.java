@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.domain.settings;
 
+import javax.annotation.Nullable;
 import java.beans.ConstructorProperties;
 import java.util.Optional;
 import java.util.Set;
@@ -32,7 +33,7 @@ public class ChannelSettings {
     private final Set<Long> tags;
 
     @ConstructorProperties({"channelId", "accessRoleId", "tagCooldown", "tagLastUsed", "tags"})
-    public ChannelSettings(long channelId, Long accessRoleId, Long tagCooldownMinutes, long tagLastUsed, Long[] tags) {
+    public ChannelSettings(long channelId, @Nullable Long accessRoleId, @Nullable Long tagCooldownMinutes, long tagLastUsed, Long[] tags) {
         this.channelId = channelId;
         this.accessRoleId = Optional.ofNullable(accessRoleId);
         this.tagCooldownMinutes = Optional.ofNullable(tagCooldownMinutes);
