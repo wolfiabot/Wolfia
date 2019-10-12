@@ -18,21 +18,18 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
-import space.npstr.sqlsauce.DatabaseWrapper;
-import space.npstr.sqlsauce.fp.types.EntityKey;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
-import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -44,6 +41,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SetupCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "setup";
+
+    private final GameSetupService gameSetupService;
+
+    public SetupCommand(GameSetupService gameSetupService) {
+        this.gameSetupService = gameSetupService;
+    }
 
     @Override
     public String getTrigger() {
@@ -68,9 +71,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        final DatabaseWrapper wrapper = Launcher.getBotContext().getDatabase().getWrapper();
-        final EntityKey<Long, Setup> setupKey = Setup.key(context.textChannel.getIdLong());
-        Setup setup = wrapper.getOrCreate(setupKey);
+        GameSetupService.Action setupAction = this.gameSetupService.channel(context.textChannel.getIdLong());
         final AtomicBoolean blewUp = new AtomicBoolean(false);
 
         if (context.args.length == 1) {
@@ -97,27 +98,27 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             final String option = context.args[0];
             switch (option.toLowerCase()) {
                 case "game":
-                    setup = wrapper.findApplyAndMerge(setupKey, s -> {
-                        try {
-                            s.setGame(Games.valueOf(context.args[1].toUpperCase()))
-                                    .setMode(Games.getInfo(s.getGame()).getDefaultMode());
-                        } catch (final IllegalArgumentException ex) {
-                            context.replyWithMention("no such game is supported by this bot: " + TextchatUtils.defuseMentions(context.args[1]));
-                            blewUp.set(true);
-                        }
-                        return s;
-                    });
+                    try {
+                        Games game = Games.valueOf(context.args[1].toUpperCase());
+                        setupAction.setGame(game);
+                    } catch (final IllegalArgumentException ex) {
+                        context.replyWithMention("no such game is supported by this bot: " + TextchatUtils.defuseMentions(context.args[1]));
+                        blewUp.set(true);
+                    }
                     break;
                 case "mode":
-                    setup = wrapper.findApplyAndMerge(setupKey, s -> {
-                        try {
-                            s.setMode(GameInfo.GameMode.valueOf(context.args[1].toUpperCase()));
-                        } catch (final IllegalArgumentException ex) {
+                    try {
+                        GameInfo.GameMode mode = GameInfo.GameMode.valueOf(context.args[1].toUpperCase());
+                        GameInfo gameInfo = Games.getInfo(setupAction.getOrDefault().getGame());
+                        if (gameInfo.getSupportedModes().contains(mode)) {
+                            setupAction.setMode(mode);
+                        } else {
                             context.replyWithMention("no such mode is supported by this game: " + TextchatUtils.defuseMentions(context.args[1]));
-                            blewUp.set(true);
                         }
-                        return s;
-                    });
+                    } catch (final IllegalArgumentException ex) {
+                        context.replyWithMention("no such mode is supported by this game: " + TextchatUtils.defuseMentions(context.args[1]));
+                        blewUp.set(true);
+                    }
                     break;
                 case "daylength":
                     try {
@@ -129,7 +130,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
                             context.replyWithMention("day length must be at least one minute.");
                             return false;
                         }
-                        setup = wrapper.findApplyAndMerge(setupKey, s -> s.setDayLength(minutes, TimeUnit.MINUTES));
+                        setupAction.setDayLength(Duration.ofMinutes(minutes));
                     } catch (final NumberFormatException ex) {
                         context.replyWithMention("use a number to set the day length!");
                         return false;
@@ -148,10 +149,10 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             }
         }
         if (blewUp.get()) {
-            return false;//feedback has ben given
+            return false;//feedback has been given
         }
         //show the status quo
-        context.reply(setup.getStatus(context));
+        context.reply(setupAction.getStatus(context));
         return true;
     }
 }

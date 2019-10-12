@@ -63,6 +63,7 @@ import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumMap;
@@ -116,11 +117,11 @@ public class Mafia extends Game {
                     + "%nOnly your last vote will be counted.", WolfiaConfig.DEFAULT_PREFIX + NightkillCommand.TRIGGER));
 
     @Override
-    public void setDayLength(final long dayLength, final TimeUnit timeUnit) {
+    public void setDayLength(final Duration dayLength) {
         if (this.running) {
             throw new IllegalStateException("Cannot change day length externally while the game is running");
         }
-        this.dayLengthMillis = timeUnit.toMillis(dayLength);
+        this.dayLengthMillis = dayLength.toMillis();
     }
 
     @Override

@@ -17,15 +17,15 @@
 
 package space.npstr.wolfia.commands.game;
 
-import space.npstr.wolfia.Launcher;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 
@@ -44,6 +44,12 @@ import java.util.List;
 public class StatusCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "status";
+
+    private final GameSetupService gameSetupService;
+
+    public StatusCommand(GameSetupService gameSetupService) {
+        this.gameSetupService = gameSetupService;
+    }
 
     @Override
     public String getTrigger() {
@@ -79,8 +85,9 @@ public class StatusCommand implements BaseCommand, PublicCommand {
                 }
 
                 if (game == null) {
-                    context.reply(Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong()))
-                            .getStatus(context));
+                    MessageEmbed status = this.gameSetupService.channel(context.textChannel.getIdLong())
+                            .getStatus(context);
+                    context.reply(status);
                     return true;
                 }
             }

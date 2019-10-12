@@ -77,6 +77,9 @@ public class ChannelSettingsService {
         }
 
         public ChannelSettings addTags(Collection<Long> tags) {
+            if (tags.isEmpty()) {
+                return getOrDefault();
+            }
             return repository.addTags(this.channelId, tags)
                     .toCompletableFuture().join();
         }
@@ -86,6 +89,9 @@ public class ChannelSettingsService {
         }
 
         public ChannelSettings removeTags(Collection<Long> tags) {
+            if (tags.isEmpty()) {
+                return getOrDefault();
+            }
             return repository.removeTags(this.channelId, tags)
                     .toCompletableFuture().join();
         }

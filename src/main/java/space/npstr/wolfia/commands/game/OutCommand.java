@@ -19,18 +19,19 @@ package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.PrivateGuild;
-import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by npstr on 23.08.2016
@@ -39,6 +40,12 @@ import java.util.List;
 public class OutCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "out";
+
+    private final GameSetupService gameSetupService;
+
+    public OutCommand(GameSetupService gameSetupService) {
+        this.gameSetupService = gameSetupService;
+    }
 
     @Override
     public String getTrigger() {
@@ -76,33 +83,29 @@ public class OutCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
+        long channelId = context.textChannel.getIdLong();
+        GameSetupService.Action setupAction = this.gameSetupService.channel(channelId);
         //is this a forced out of a player by an moderator or the bot owner?
-        if (!context.msg.getMentionedUsers().isEmpty()) {
+        List<User> mentionedUsers = context.getMessage().getMentionedUsers();
+        if (!mentionedUsers.isEmpty()) {
             if (!context.member.hasPermission(context.textChannel, Permission.MESSAGE_MANAGE) && !context.isOwner()) {
                 context.replyWithMention("you need to have the following permission in this channel to be able to out players: "
                         + "**" + Permission.MESSAGE_MANAGE.name() + "**");
                 return false;
             } else {
-                final Setup s = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Setup.key(context.textChannel.getIdLong()),
-                        setup -> {
-                            for (final User u : context.msg.getMentionedUsers()) {
-                                setup.outUser(u.getIdLong());
-                            }
-                            return setup;
-                        });
-                context.reply(s.getStatus(context));
+                Set<Long> userIds = mentionedUsers.stream()
+                        .map(User::getIdLong)
+                        .collect(Collectors.toSet());
+                setupAction.outUsers(userIds);
+
+                context.reply(setupAction.getStatus(context));
                 return true;
             }
         } else {
-            if (Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(Setup.key(context.textChannel.getIdLong())).isInned(context.invoker.getIdLong())) {
+            if (setupAction.getOrDefault().isIn(context.invoker.getIdLong())) {
                 //handling a regular out
-                Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(Setup.key(context.textChannel.getIdLong()),
-                        setup -> {
-                            if (setup.outUser(context.invoker.getIdLong())) {
-                                context.reply(setup.getStatus(context));
-                            }
-                            return setup;
-                        });
+                setupAction.outUser(context.invoker.getIdLong());
+                context.reply(setupAction.getStatus(context));
                 return true;
             }
         }

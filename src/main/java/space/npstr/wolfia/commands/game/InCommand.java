@@ -18,20 +18,20 @@
 package space.npstr.wolfia.commands.game;
 
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.sqlsauce.fp.types.EntityKey;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.db.entities.PrivateGuild;
-import space.npstr.wolfia.db.entities.Setup;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.ban.BanService;
+import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by npstr on 23.08.2016
@@ -42,9 +42,11 @@ public class InCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "in";
 
     private final BanService banService;
+    private final GameSetupService gameSetupService;
 
-    public InCommand(BanService banService) {
+    public InCommand(BanService banService, GameSetupService gameSetupService) {
         this.banService = banService;
+        this.gameSetupService = gameSetupService;
     }
 
     @Override
@@ -83,17 +85,16 @@ public class InCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        final EntityKey<Long, Setup> setupKey = Setup.key(context.textChannel.getIdLong());
+        GameSetupService.Action setupAction = this.gameSetupService.channel(context.textChannel.getIdLong());
         //force in by bot owner ( ͡° ͜ʖ ͡°)
-        if (!context.msg.getMentionedUsers().isEmpty() && context.isOwner()) {
-            final Setup s = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(setupKey,
-                    setup -> {
-                        for (final User u : context.msg.getMentionedUsers()) {
-                            setup.inUser(u.getIdLong());
-                        }
-                        return setup;
-                    });
-            context.reply(s.getStatus(context));
+        List<User> mentionedUsers = context.getMessage().getMentionedUsers();
+        if (!mentionedUsers.isEmpty() && context.isOwner()) {
+            Set<Long> userIds = mentionedUsers.stream()
+                    .map(User::getIdLong)
+                    .collect(Collectors.toSet());
+            setupAction.inUsers(userIds);
+
+            context.reply(setupAction.getStatus(context));
             return true;
         }
 
@@ -102,12 +103,12 @@ public class InCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        if (Launcher.getBotContext().getDatabase().getWrapper().getOrCreate(setupKey).isInned(context.invoker.getIdLong())) {
+        if (setupAction.getOrDefault().isIn(context.invoker.getIdLong())) {
             context.replyWithMention("you have inned already.");
             return false;
         }
-        final Setup s = Launcher.getBotContext().getDatabase().getWrapper().findApplyAndMerge(setupKey, setup -> setup.inUser(context.invoker.getIdLong()));
-        context.reply(s.getStatus(context));
+        setupAction.inUser(context.invoker.getIdLong());
+        context.reply(setupAction.getStatus(context));
         return true;
     }
 }

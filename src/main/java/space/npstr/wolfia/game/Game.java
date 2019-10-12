@@ -54,6 +54,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import javax.annotation.Nonnull;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,7 +65,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -760,10 +760,8 @@ public abstract class Game {
      *
      * @param dayLength
      *         desired length of the day
-     * @param timeUnit
-     *         time unit of the provided length
      */
-    public abstract void setDayLength(long dayLength, TimeUnit timeUnit);
+    public abstract void setDayLength(Duration dayLength);
 
     /**
      * @return a status of the game
