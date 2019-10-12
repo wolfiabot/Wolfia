@@ -74,6 +74,19 @@ public class SetupCommand implements BaseCommand, PublicCommand {
         GameSetupService.Action setupAction = this.gameSetupService.channel(context.textChannel.getIdLong());
         final AtomicBoolean blewUp = new AtomicBoolean(false);
 
+        if (context.args.length >= 1 && "reset".equalsIgnoreCase(context.args[0])) {
+            if (allowedToEditSetup(context)) {
+                setupAction.reset();
+                context.replyWithMention("game setup of this channel has been reset.");
+                context.reply(setupAction.getStatus(context));
+                return true;
+            } else {
+                context.replyWithMention("you need the following permission to reset the setup of this channel: "
+                        + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
+                return false;
+            }
+        }
+
         if (context.args.length == 1) {
             //unsupported input
             context.help();
@@ -89,7 +102,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             }
 
             //is the user allowed to do that?
-            if (!context.member.hasPermission(context.textChannel, Permission.MESSAGE_MANAGE) && !context.isOwner()) {
+            if (!allowedToEditSetup(context)) {
                 context.replyWithMention("you need the following permission to edit the setup of this channel: "
                         + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
                 return false;
@@ -154,5 +167,10 @@ public class SetupCommand implements BaseCommand, PublicCommand {
         //show the status quo
         context.reply(setupAction.getStatus(context));
         return true;
+    }
+
+    private boolean allowedToEditSetup(GuildCommandContext context) {
+        return context.getMember().hasPermission(context.getTextChannel(), Permission.MESSAGE_MANAGE)
+                || context.isOwner();
     }
 }
