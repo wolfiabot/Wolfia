@@ -4,6 +4,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.container.extras.DockerWaitHealthyContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.sonarqube.gradle.SonarQubeTask
 
 buildscript {
     apply from: 'gradle/versions.gradle'
@@ -57,6 +58,7 @@ configure(allprojects.findAll { it.name != 'platform' }) {
 allprojects {
     apply plugin: 'com.github.ben-manes.versions'
     apply plugin: 'com.adarshr.test-logger'
+    apply plugin: 'jacoco'
 
     group = 'space.npstr.wolfia'
 
@@ -90,6 +92,12 @@ allprojects {
 
     testlogger {
         theme 'mocha'
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+        }
     }
 }
 
@@ -294,7 +302,6 @@ apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'org.sonarqube'
-apply plugin: 'jacoco'
 apply plugin: 'com.jfrog.bintray'
 
 version = "${versionTag()}".toString()
@@ -357,6 +364,10 @@ tasks.withType(JavaCompile) {
 
 //required by spring boot configuration processor
 compileJava.dependsOn(processResources)
+
+tasks.withType(SonarQubeTask) {
+    dependsOn jacocoTestReport
+}
 
 bootRun {
     //compiling tests during bootRun increases the likelyhood of catching broken tests locally instead of on the CI
