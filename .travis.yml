@@ -9,7 +9,9 @@ services:
 addons:
   postgresql: "11"
   sonarcloud:
-    organization: "napstr-github"
+    organization: "wolfiabot"
+    token:
+      secure: "qSMbFlI4AHiHsce4AwvMox7ADANggADV0WUEgupwq35qUetG1BIb6zA0GcL9rdv6paTRevks1K69fSC1hum8xsgOUBLlaiG1FIScskIxq7tXgZ2qk5C3BXMihoTxx9ledjn5cdsudqG+VvCXMzomlnPElmBTGTomqzuWOvGYjRfx9OCVdscEqaulDHI7s4fRkT4up+Pl6GEZpYtt898HelraLErvUwLESCH2SIi+VnPNjHhTTIxrW9pVojScONWPRNwQLZJvPQbNQZVMBoWff8Ru5f70G6xcf9xsNzOow7Yc431wxCuUBX30092Hqd9YX7E2wWETnpZpJoRru1WMDrFtzb4kBCxiMc0WR5atZHZ3s1jM5nzBx0VClmF4YO4W191X0zRzSNPVqsXlO6n0tlYVJYE8WQsWQZSvIewq2aGLhMEgMdMpcmO3UOVUeOJKKeajUNjppq3QGC9KmHrrDBdpZcuR2w+dOX9J3ssfDwTt+4LWjk+UjDyUGpvYwTfdoFUG/Z2Xn9Gk6rcRPCi5C9olvUGIQZSZMrVlbKbxi03LEEdya6oJ44hyYe6Usd9+4NZqy//7I9P5f4xIOR8mcxZruMIaWJK/611fqmXu7bN71b7LLDkAi5C3xnDBoLS1sINtkxQBRR74PwrlMjPZysyrMut1EaqRry8lab/aGi0="
 
 env:
   global:
