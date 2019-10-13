@@ -20,18 +20,17 @@ package space.npstr.wolfia.commands.debug;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.entities.TextChannel;
-import space.npstr.sqlsauce.DatabaseException;
-import space.npstr.sqlsauce.DatabaseWrapper;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
-import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.room.PrivateRoom;
+import space.npstr.wolfia.domain.room.PrivateRoomService;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * Created by napster on 11.06.17.
@@ -39,9 +38,15 @@ import java.io.IOException;
  * //this command will register a guild for use as a place to provide private communications, like wolfchat
  */
 @Command
-public class RegisterPrivateServerCommand implements BaseCommand {
+public class RegisterPrivateRoomCommand implements BaseCommand {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RegisterPrivateServerCommand.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RegisterPrivateRoomCommand.class);
+
+    private final PrivateRoomService privateRoomService;
+
+    public RegisterPrivateRoomCommand(PrivateRoomService privateRoomService) {
+        this.privateRoomService = privateRoomService;
+    }
 
     @Override
     public String getTrigger() {
@@ -51,7 +56,7 @@ public class RegisterPrivateServerCommand implements BaseCommand {
     @Nonnull
     @Override
     public String help() {
-        return "Register a private guild.";
+        return "Register a guild as a private room.";
     }
 
     @Override
@@ -90,20 +95,17 @@ public class RegisterPrivateServerCommand implements BaseCommand {
 
 
         //register it
-        //setting the private guild number in this manual way is ugly, but Hibernate/JPA are being super retarded about autogenerating non-ids
-        //since this command should only run occasionally, and never in some kind of race condition (fingers crossed), I will allow this
-        final DatabaseWrapper dbWrapper = Launcher.getBotContext().getDatabase().getWrapper();
-        try {
-            final int number = Math.toIntExact(dbWrapper.selectJpqlQuery("SELECT COUNT (pg) FROM PrivateGuild pg", Long.class).get(0));
-            PrivateGuild pg = new PrivateGuild(number, context.guild.getIdLong());
-            pg = dbWrapper.persist(pg);
-            Launcher.getBotContext().getPrivateGuildProvider().add(pg);
-            context.getJda().asBot().getShardManager().addEventListener(pg);
-            context.guild.getManager().setName("Wolfia Private Server #" + pg.getNumber()).queue(null, RestActions.defaultOnFail());
-        } catch (final DatabaseException e) {
-            log.error("Db blew up saving private guild", e);
+        Optional<PrivateRoom> registered = this.privateRoomService.guild(context.guild.getIdLong()).register();
+        if (registered.isEmpty()) {
+            context.replyWithMention("Looks like this guild is already registered as a private room.");
             return false;
         }
+
+        PrivateRoom privateRoom = registered.get();
+        context.getJda().asBot().getShardManager().addEventListener(privateRoom);
+        String name = "Wolfia Private Server #" + privateRoom.getNumber();
+        context.guild.getManager().setName(name)
+                .queue(null, RestActions.defaultOnFail());
         return true;
     }
 }

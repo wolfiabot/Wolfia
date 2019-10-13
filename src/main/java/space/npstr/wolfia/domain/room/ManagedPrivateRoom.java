@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db.entities;
+package space.npstr.wolfia.domain.room;
 
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.Permission;
@@ -26,9 +26,8 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
-import org.hibernate.annotations.NaturalId;
-import space.npstr.sqlsauce.entities.IEntity;
-import space.npstr.sqlsauce.fp.types.EntityKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
@@ -36,122 +35,59 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
 import javax.annotation.Nonnull;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
- * Created by napster on 17.06.17.
+ * Adds behaviour and mutable data to a {@link PrivateRoom}
  * <p>
- * A private guild
+ * Even though this is a new class it contains mostly behaviour from the legacy 'PrivateGuild' class and
+ * needs to be cleaned up as well as made more robust.
  */
-@Entity
-@Table(name = "private_guild")
-public class PrivateGuild extends ListenerAdapter implements IEntity<Long, PrivateGuild> {
+public class ManagedPrivateRoom extends ListenerAdapter {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PrivateGuild.class);
+    private static final Logger log = LoggerFactory.getLogger(ManagedPrivateRoom.class);
 
     private static final String WOLF_ROLE_NAME = "Wolf";
     //using a static scope for the lock since entities, while representing the same data, may be distinct objects
     private static final Object usageLock = new Object();
 
-    @NaturalId //unique constraint
-    @Column(name = "nr", nullable = false) //number is kinda reserved so the column is called "nr" instead
-    private int number;
+    private final PrivateRoom privateRoom;
+    private final PrivateRoomQueue privateRoomQueue;
 
-    @Id
-    @Column(name = "guild_id", nullable = false)
-    private long guildId;
-
-    @Transient
     private boolean inUse = false;
-
-    @Transient
-    private final List<Long> allowedUsers = new ArrayList<>();
-
-    @Transient
+    private final Set<Long> allowedUsers = new HashSet<>();
     private long currentChannelId = -1;
 
-    //for Hibernate/JPA and creating entities
-    public PrivateGuild() {
+    public ManagedPrivateRoom(PrivateRoom privateRoom, PrivateRoomQueue privateRoomQueue) {
+        this.privateRoom = privateRoom;
+        this.privateRoomQueue = privateRoomQueue;
     }
 
-    public PrivateGuild(final int number, final long guildId) {
-        this.number = number;
-        this.guildId = guildId;
-        this.inUse = false;
+    public long getGuildId() {
+        return this.privateRoom.getGuildId();
     }
 
     public int getNumber() {
-        return this.number;
-    }
-
-    @Nonnull
-    @Override
-    public PrivateGuild setId(final Long id) {
-        this.guildId = id;
-        return this;
-    }
-
-    @Nonnull
-    @Override
-    public Long getId() {
-        return this.guildId;
-    }
-
-    @Nonnull
-    @Override
-    public Class<PrivateGuild> getClazz() {
-        return PrivateGuild.class;
-    }
-
-    public boolean inUse() {
-        return this.inUse;
-    }
-
-
-    public static boolean isPrivateGuild(@Nonnull final Guild guild) {
-        final EntityKey<Long, PrivateGuild> key = EntityKey.of(guild.getIdLong(), PrivateGuild.class);
-        return Launcher.getBotContext().getDatabase().getWrapper().getEntity(key) != null;
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + this.number;
-        result = prime * result + (int) (this.guildId ^ (this.guildId >>> 32));
-        return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (!(obj instanceof PrivateGuild)) {
-            return false;
-        }
-        final PrivateGuild pg = (PrivateGuild) obj;
-        return this.number == pg.number && this.guildId == pg.guildId;
+        return this.privateRoom.getNumber();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
-        if (event.getGuild().getIdLong() != this.guildId) {
+        if (event.getGuild().getIdLong() != this.privateRoom.getGuildId()) {
             return;
         }
 
         final Member joined = event.getMember();
         //kick the joined user if they aren't on the allowed list
         if (!this.allowedUsers.contains(joined.getUser().getIdLong())) {
-            final Consumer whenDone = aVoid -> event.getGuild().getController().kick(joined).queue(null, RestActions.defaultOnFail());
-            final String message = String.format("You are not allowed to join private guild #%s currently.", this.number);
+            final Consumer whenDone = __ -> event.getGuild().getController().kick(joined).queue(null, RestActions.defaultOnFail());
+            final String message = String.format("You are not allowed to join private guild #%s currently.", this.privateRoom.getNumber());
             String users = this.allowedUsers.stream().map(Number::toString).collect(Collectors.joining(", "));
             log.debug("Denied user {}, allowed users are {}", joined.getUser().getId(), users);
             RestActions.sendPrivateMessage(joined.getUser(), message, whenDone, whenDone);
@@ -172,16 +108,16 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     public void beginUsage(final Collection<Long> wolfUserIds) {
         synchronized (usageLock) {
             if (this.inUse) {
-                throw new IllegalStateException("Can't begin the usage of a private guild #" + this.number + " that is being used already");
+                throw new IllegalStateException("Can't begin the usage of a private guild #" + this.privateRoom.getNumber() + " that is being used already");
             }
             this.inUse = true;
         }
 
         try {
+            this.allowedUsers.addAll(wolfUserIds);
             final Guild g = fetchThisGuild();
 
             cleanUpMembers();
-            this.allowedUsers.addAll(wolfUserIds);
 
             //set up a fresh channel
             final TextChannel wolfChannel = (TextChannel) g.getController().createTextChannel("wolfchat")
@@ -196,21 +132,21 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
                     Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue(null, RestActions.defaultOnFail());
         } catch (final Exception e) {
             endUsage();
-            throw new RuntimeException("Could not begin the usage of private guild #" + this.number, e);
+            throw new RuntimeException("Could not begin the usage of private guild #" + this.privateRoom.getNumber(), e);
         }
     }
 
     //kick everyone, except guild owner and bots
     private void cleanUpMembers() {
-        final Guild g = fetchThisGuild();
         this.allowedUsers.clear();
+        final Guild g = fetchThisGuild();
         g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.getController().kick(m).queue(null, RestActions.defaultOnFail()));
     }
 
     public void endUsage() {
         synchronized (usageLock) {
             if (!this.inUse) {
-                throw new IllegalStateException("Can't end the usage of a private guild #" + this.number + " that is not in use ");
+                throw new IllegalStateException("Can't end the usage of a private guild #" + this.privateRoom.getNumber() + " that is not in use ");
             }
             cleanUpMembers();
             try {//complete() in here to catch errors
@@ -224,15 +160,15 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
                     tc.delete().reason("Cleaning up private guild after game ended").complete();
                 } else {
                     log.error("Did not find channel {} in private guild #{} to delete it.",
-                            this.currentChannelId, this.number);
+                            this.currentChannelId, this.privateRoom.getNumber());
                 }
             } catch (final Exception e) {
                 log.error("Exception while deleting channel {} in private guild #{} {}", this.currentChannelId,
-                        this.number, this.guildId, e);
+                        this.privateRoom.getNumber(), this.privateRoom.getGuildId(), e);
                 return;//leave the private guild in a "broken state", this can be later fixed manually through eval
             }
             this.inUse = false;
-            Launcher.getBotContext().getPrivateGuildProvider().add(this);
+            this.privateRoomQueue.putBack(this);
         }
     }
 
@@ -240,7 +176,7 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
         final Guild g = fetchThisGuild();
         final TextChannel channel = g.getTextChannelById(this.currentChannelId);
         return TextchatUtils.getOrCreateInviteLinkForGuild(g, channel,
-                () -> log.error("Could not create invite to private guild #{}, id {}", this.number, this.guildId));
+                () -> log.error("Could not create invite to private guild #{}, id {}", this.privateRoom.getNumber(), this.privateRoom.getGuildId()));
     }
 
     public long getChannelId() {
@@ -253,21 +189,21 @@ public class PrivateGuild extends ListenerAdapter implements IEntity<Long, Priva
     @Nonnull
     private Guild fetchThisGuild() {
         ShardManager shardManager = Launcher.getBotContext().getShardManager();
-        Guild guild = shardManager.getGuildById(this.guildId);
+        Guild guild = shardManager.getGuildById(this.privateRoom.getGuildId());
         int attempts = 0;
         while (guild == null) {
             attempts++;
             if (attempts > 100) {
-                throw new RuntimeException("Failed to fetch private guild #" + this.number);
+                throw new RuntimeException("Failed to fetch private guild #" + this.privateRoom.getNumber());
             }
             log.error("Could not find private guild #{} with id {}, trying in a moment",
-                    this.number, this.guildId, new LogTheStackException());
+                    this.privateRoom.getNumber(), this.privateRoom.getGuildId(), new LogTheStackException());
             try {
                 Thread.sleep(5000);
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-            guild = shardManager.getGuildById(this.guildId);
+            guild = shardManager.getGuildById(this.privateRoom.getGuildId());
         }
         return guild;
     }

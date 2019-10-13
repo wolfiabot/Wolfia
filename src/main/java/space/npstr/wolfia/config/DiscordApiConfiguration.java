@@ -23,12 +23,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.common.Exceptions;
-import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.discordwrapper.JdaDiscordEntityProvider;
-import space.npstr.wolfia.events.PrivateGuildProvider;
 
-import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,11 +48,6 @@ public class DiscordApiConfiguration {
         });
         threadPoolCollector.addPool("jda", jdaThreadPool);
         return jdaThreadPool;
-    }
-
-    @Bean
-    public List<PrivateGuild> privateGuildListeners(PrivateGuildProvider privateGuildProvider) {
-        return privateGuildProvider.getAllGuilds();
     }
 
     @Profile("!test")

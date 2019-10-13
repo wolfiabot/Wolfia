@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.entities.PrivateGuild;
+import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.settings.GuildCacheListener;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
@@ -37,7 +37,6 @@ import space.npstr.wolfia.listings.Listings;
 
 import javax.security.auth.login.LoginException;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
 
@@ -54,7 +53,7 @@ public class ShardManagerFactory {
     private final OkHttpClient.Builder httpClientBuilder;
     private final ScheduledExecutorService jdaThreadPool;
     private final Listings listings;
-    private final List<PrivateGuild> privateGuildListeners;
+    private final PrivateRoomQueue privateRoomQueue;
     private final GuildCacheListener guildCacheListener;
     private final Supplier<ShardManager> singleton;
 
@@ -62,14 +61,14 @@ public class ShardManagerFactory {
     public ShardManagerFactory(final WolfiaConfig wolfiaConfig, final CommandListener commandListener,
                                final OkHttpClient.Builder httpClientBuilder,
                                @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool, Listings listings,
-                               List<PrivateGuild> privateGuildListeners, GuildCacheListener guildCacheListener) {
+                               PrivateRoomQueue privateRoomQueue, GuildCacheListener guildCacheListener) {
 
         this.wolfiaConfig = wolfiaConfig;
         this.commandListener = commandListener;
         this.httpClientBuilder = httpClientBuilder;
         this.jdaThreadPool = jdaThreadPool;
         this.listings = listings;
-        this.privateGuildListeners = privateGuildListeners;
+        this.privateRoomQueue = privateRoomQueue;
         this.guildCacheListener = guildCacheListener;
         this.singleton = Suppliers.memoize(this::createShardManager);
     }
@@ -87,7 +86,7 @@ public class ShardManagerFactory {
                 .addEventListeners(new InternalListener())
                 .addEventListeners(this.listings)
                 .addEventListeners(new WolfiaGuildListener())
-                .addEventListeners(this.privateGuildListeners.toArray())
+                .addEventListeners(this.privateRoomQueue.getAllManagedRooms().toArray())
                 .setHttpClientBuilder(this.httpClientBuilder
                         .eventListener(new OkHttpEventCounter("jda")))
                 .setDisabledCacheFlags(EnumSet.of(CacheFlag.GAME, CacheFlag.VOICE_STATE))

@@ -23,7 +23,7 @@ import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.KillGameCommand;
 import space.npstr.wolfia.commands.debug.MaintenanceCommand;
-import space.npstr.wolfia.commands.debug.RegisterPrivateServerCommand;
+import space.npstr.wolfia.commands.debug.RegisterPrivateRoomCommand;
 import space.npstr.wolfia.commands.debug.RestartCommand;
 import space.npstr.wolfia.commands.debug.ReviveCommand;
 import space.npstr.wolfia.commands.debug.RunningCommand;
@@ -257,7 +257,7 @@ class CommRegistryTest extends ApplicationTest {
 
     @Test
     void hasRegisterPrivateServerCommand() {
-        assertHasCommand("register", RegisterPrivateServerCommand.class);
+        assertHasCommand("register", RegisterPrivateRoomCommand.class);
     }
 
     @Test
