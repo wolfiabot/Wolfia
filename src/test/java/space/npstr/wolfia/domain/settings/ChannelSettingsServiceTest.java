@@ -183,6 +183,26 @@ class ChannelSettingsServiceTest extends ApplicationTest {
         assertThat(settings.getTags()).doesNotContain(tagA, tagB);
     }
 
+    @Test
+    void whenNoTagsAdded_doNotInsertInDb() {
+        long channelId = uniqueLong();
+
+        this.service.channel(channelId).addTags(Set.of());
+
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join();
+        assertThat(settings).isEmpty();
+    }
+
+    @Test
+    void whenNoTagsRemoved_doNotInsertInDb() {
+        long channelId = uniqueLong();
+
+        this.service.channel(channelId).removeTags(Set.of());
+
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join();
+        assertThat(settings).isEmpty();
+    }
+
 
     @Test
     void whenDelete_thenDeleteFromDb() {
