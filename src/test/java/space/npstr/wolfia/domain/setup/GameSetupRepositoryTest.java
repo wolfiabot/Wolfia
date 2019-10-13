@@ -26,6 +26,7 @@ import space.npstr.wolfia.game.definitions.Games;
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class GameSetupRepositoryTest extends ApplicationTest {
 

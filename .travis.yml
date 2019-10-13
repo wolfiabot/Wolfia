@@ -4,10 +4,8 @@ install: true  # skips unnecessary "gradle assemble" install step
 
 services:
 - docker
-- postgresql
 
 addons:
-  postgresql: "11"
   sonarcloud:
     organization: "wolfiabot"
     token:

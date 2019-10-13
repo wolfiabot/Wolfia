@@ -18,13 +18,13 @@
 package space.npstr.wolfia.domain.setup;
 
 import org.junit.jupiter.api.Test;
-import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 
 import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class GameSetupTest {
 
@@ -34,7 +34,7 @@ class GameSetupTest {
 
     @Test
     void defaults() {
-        long channelId = ApplicationTest.uniqueLong();
+        long channelId = uniqueLong();
         GameSetup setup = new GameSetup(channelId, new Long[]{}, null, null, null);
 
         assertThat(setup.getChannelId()).isEqualTo(channelId);

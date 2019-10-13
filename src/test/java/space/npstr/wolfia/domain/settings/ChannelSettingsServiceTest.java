@@ -28,6 +28,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 
 class ChannelSettingsServiceTest extends ApplicationTest {
@@ -181,6 +182,26 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.getTags()).doesNotContain(tagA, tagB);
+    }
+
+    @Test
+    void whenNoTagsAdded_doNotInsertInDb() {
+        long channelId = uniqueLong();
+
+        this.service.channel(channelId).addTags(Set.of());
+
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join();
+        assertThat(settings).isEmpty();
+    }
+
+    @Test
+    void whenNoTagsRemoved_doNotInsertInDb() {
+        long channelId = uniqueLong();
+
+        this.service.channel(channelId).removeTags(Set.of());
+
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join();
+        assertThat(settings).isEmpty();
     }
 
 

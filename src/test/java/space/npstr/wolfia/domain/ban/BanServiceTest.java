@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 import static space.npstr.wolfia.db.gen.Tables.BAN;
 
 class BanServiceTest extends ApplicationTest {

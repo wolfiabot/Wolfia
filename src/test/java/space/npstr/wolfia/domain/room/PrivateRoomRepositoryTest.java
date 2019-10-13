@@ -28,6 +28,7 @@ import space.npstr.wolfia.db.Database;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 import static space.npstr.wolfia.db.gen.Tables.PRIVATE_ROOM;
 
 class PrivateRoomRepositoryTest extends ApplicationTest {

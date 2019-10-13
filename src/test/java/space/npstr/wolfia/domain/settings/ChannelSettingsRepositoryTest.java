@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 
 class ChannelSettingsRepositoryTest extends ApplicationTest {

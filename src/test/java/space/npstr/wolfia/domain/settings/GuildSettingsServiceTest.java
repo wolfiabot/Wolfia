@@ -25,6 +25,7 @@ import space.npstr.wolfia.ApplicationTest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class GuildSettingsServiceTest extends ApplicationTest {
 

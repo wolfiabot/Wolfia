@@ -18,25 +18,25 @@
 package space.npstr.wolfia.domain.settings;
 
 import org.junit.jupiter.api.Test;
-import space.npstr.wolfia.ApplicationTest;
 
 import java.net.URL;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class GuildSettingsTest {
 
     @Test
     void whenIconIdIsNull_avatarUrlShouldBeNull() {
-        var settings = new GuildSettings(ApplicationTest.uniqueLong(), "Wolfia Lounge", null);
+        var settings = new GuildSettings(uniqueLong(), "Wolfia Lounge", null);
 
         assertThat(settings.getAvatarUrl()).isEmpty();
     }
 
     @Test
     void whenIconIdIsNotNull_avatarUrlShouldNotBeNull() {
-        var settings = new GuildSettings(ApplicationTest.uniqueLong(), "Wolfia Lounge", "424242");
+        var settings = new GuildSettings(uniqueLong(), "Wolfia Lounge", "424242");
 
         assertThat(settings.getAvatarUrl()).isPresent()
                 .hasValueSatisfying(avatarUrl -> assertThat(avatarUrl).isNotBlank());
@@ -44,7 +44,7 @@ class GuildSettingsTest {
 
     @Test
     void avatarUrlIsSensibleUrl() {
-        long guilId = ApplicationTest.uniqueLong();
+        long guilId = uniqueLong();
 
         var settings = new GuildSettings(guilId, "Wolfia Lounge", "424242");
 
