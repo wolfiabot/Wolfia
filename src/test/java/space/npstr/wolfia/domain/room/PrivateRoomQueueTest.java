@@ -38,6 +38,7 @@ import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class PrivateRoomQueueTest extends ApplicationTest {
 

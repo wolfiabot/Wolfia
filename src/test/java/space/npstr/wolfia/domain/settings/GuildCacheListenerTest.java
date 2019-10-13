@@ -26,12 +26,12 @@ import net.dv8tion.jda.core.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.core.events.guild.update.GuildUpdateIconEvent;
 import net.dv8tion.jda.core.events.guild.update.GuildUpdateNameEvent;
 import org.junit.jupiter.api.Test;
-import space.npstr.wolfia.ApplicationTest;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class GuildCacheListenerTest {
 
@@ -60,7 +60,7 @@ class GuildCacheListenerTest {
     }
 
     private void onGuildEvent_set(GenericGuildEvent eventMock) {
-        long guildId = ApplicationTest.uniqueLong();
+        long guildId = uniqueLong();
         var guild = mock(Guild.class);
         when(guild.getIdLong()).thenReturn(guildId);
         when(eventMock.getGuild()).thenReturn(guild);

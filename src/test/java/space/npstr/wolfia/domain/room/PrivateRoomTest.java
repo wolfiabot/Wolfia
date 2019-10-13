@@ -18,15 +18,15 @@
 package space.npstr.wolfia.domain.room;
 
 import org.junit.jupiter.api.Test;
-import space.npstr.wolfia.ApplicationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class PrivateRoomTest {
 
     @Test
     void getters() {
-        long guildId = ApplicationTest.uniqueLong();
+        long guildId = uniqueLong();
         int number = 42;
         PrivateRoom privateRoom = new PrivateRoom(guildId, number);
 
