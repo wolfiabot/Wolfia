@@ -26,7 +26,6 @@ import space.npstr.wolfia.db.entities.stats.GameStats;
 import space.npstr.wolfia.db.entities.stats.TeamStats;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -67,8 +66,7 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context)
-            throws IllegalGameStateException {
+    public boolean execute(@Nonnull final CommandContext context) {
 
         if (!context.hasArguments()) {
             context.help();

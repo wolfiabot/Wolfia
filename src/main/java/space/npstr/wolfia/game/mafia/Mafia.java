@@ -165,7 +165,7 @@ public class Mafia extends Game {
         randCharacters(innedPlayers);
 
         //get a hold of a private server...
-        this.wolfChat = allocatePrivateGuild();
+        this.wolfChat = allocatePrivateRoom();
         this.wolfChat.beginUsage(getWolvesIds());
 
         final TextChannel gameChannel = fetchGameChannel();
@@ -267,7 +267,7 @@ public class Mafia extends Game {
                 return false; //ignore vote commands not in game chat
             }
 
-            if (context.getGuild() != null && context.getGuild().getIdLong() == this.wolfChat.getId()) {
+            if (context.getGuild() != null && context.getGuild().getIdLong() == this.wolfChat.getGuildId()) {
                 return nkUnvote(invoker, context);
             }
 
@@ -343,7 +343,7 @@ public class Mafia extends Game {
         } else if (context.command instanceof VoteCountCommand) {
 
             //wolves asked for one, give them a votecount of their nk votes
-            if (this.phase == Phase.NIGHT && context.getGuild() != null && context.getGuild().getIdLong() == this.wolfChat.getId()) {
+            if (this.phase == Phase.NIGHT && context.getGuild() != null && context.getGuild().getIdLong() == this.wolfChat.getGuildId()) {
                 context.reply(this.nightKillVotingBuilder.getEmbed(new HashMap<>(this.nightkillVotes)).build());
                 return true;
             }

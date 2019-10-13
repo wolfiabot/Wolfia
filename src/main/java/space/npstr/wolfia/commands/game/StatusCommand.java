@@ -78,7 +78,7 @@ public class StatusCommand implements BaseCommand, PublicCommand {
             if (game == null) {
                 //private guild?
                 for (final Game g : Games.getAll().values()) {
-                    if (context.guild.getIdLong() == g.getPrivateGuildId()) {
+                    if (context.guild.getIdLong() == g.getPrivateRoomGuildId()) {
                         game = g;
                         break;
                     }

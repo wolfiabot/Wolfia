@@ -152,7 +152,7 @@ public class Popcorn extends Game {
 
         //get a hold of a private server...
         if (this.mode != GameMode.WILD) {
-            this.wolfChat = allocatePrivateGuild();
+            this.wolfChat = allocatePrivateRoom();
             this.wolfChat.beginUsage(getWolvesIds());
         }
 

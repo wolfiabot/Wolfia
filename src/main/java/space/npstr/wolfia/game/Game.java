@@ -36,10 +36,11 @@ import space.npstr.wolfia.commands.util.ChannelSettingsCommand;
 import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.db.entities.stats.ActionStats;
 import space.npstr.wolfia.db.entities.stats.GameStats;
 import space.npstr.wolfia.db.entities.stats.PlayerStats;
+import space.npstr.wolfia.domain.room.ManagedPrivateRoom;
+import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
@@ -99,7 +100,7 @@ public abstract class Game {
     protected final List<Player> players = new ArrayList<>();
     protected volatile boolean running = false;
     protected long accessRoleId;
-    protected PrivateGuild wolfChat = null;
+    protected ManagedPrivateRoom wolfChat = null;
     protected final Set<Integer> hasDayEnded = new HashSet<>();
 
     //stats keeping fields
@@ -125,11 +126,11 @@ public abstract class Game {
         return this.guildId;
     }
 
-    public long getPrivateGuildId() {
+    public long getPrivateRoomGuildId() {
         if (this.wolfChat == null)
             return -1;
         else {
-            return this.wolfChat.getId();
+            return this.wolfChat.getGuildId();
         }
     }
 
@@ -511,15 +512,15 @@ public abstract class Game {
         }
     }
 
-    //todo there seems to be an API for bots creating their own guilds? totally should use that instead
-    protected PrivateGuild allocatePrivateGuild() {
-        return Launcher.getBotContext().getPrivateGuildProvider().poll()
+    protected ManagedPrivateRoom allocatePrivateRoom() {
+        PrivateRoomQueue privateRoomQueue = Launcher.getBotContext().getPrivateRoomQueue();
+        return privateRoomQueue.poll()
                 .orElseGet(() -> {
                     RestActions.sendMessage(fetchGameChannel(),
                             "Acquiring a private server for the wolves...this may take a while.");
                     log.error("Ran out of free private guilds. Please add moar.");
                     try { //oh yeah...we are waiting till infinity if necessary
-                        return Launcher.getBotContext().getPrivateGuildProvider().take();
+                        return privateRoomQueue.take();
                     } catch (final InterruptedException e) {
                         Thread.currentThread().interrupt();
                         log.error("Interrupted while waiting for a private server.");

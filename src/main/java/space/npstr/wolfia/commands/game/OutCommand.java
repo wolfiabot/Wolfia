@@ -23,8 +23,8 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
-import space.npstr.wolfia.db.entities.PrivateGuild;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.room.PrivateRoomService;
 import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.game.definitions.Games;
 
@@ -42,9 +42,11 @@ public class OutCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "out";
 
     private final GameSetupService gameSetupService;
+    private final PrivateRoomService privateRoomService;
 
-    public OutCommand(GameSetupService gameSetupService) {
+    public OutCommand(GameSetupService gameSetupService, PrivateRoomService privateRoomService) {
         this.gameSetupService = gameSetupService;
+        this.privateRoomService = privateRoomService;
     }
 
     @Override
@@ -78,7 +80,7 @@ public class OutCommand implements BaseCommand, PublicCommand {
         }
 
         //check for private guilds where we dont want games to be started
-        if (PrivateGuild.isPrivateGuild(context.guild)) {
+        if (this.privateRoomService.guild(context.guild.getIdLong()).isPrivateRoom()) {
             context.replyWithMention("you can't play games in a private guild.");
             return false;
         }
