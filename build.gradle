@@ -239,6 +239,7 @@ project(':database-codegen') {
         version = jooqVersion
         edition = 'OSS'
         wolfia(sourceSets.main) {
+            logging = 'WARN'
             jdbc {
                 driver = 'org.postgresql.Driver'
                 url = "$codegenJdbcUrl"
