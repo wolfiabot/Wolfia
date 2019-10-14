@@ -19,21 +19,14 @@ package space.npstr.wolfia.domain.setup;
 
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.springframework.stereotype.Service;
-import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class GameSetupService {
@@ -115,6 +108,9 @@ public class GameSetupService {
                     .toCompletableFuture().join();
         }
 
+        /**
+         * Like {@link Action#getOrDefault()}, but cleans up left/inactive players first.
+         */
         public GameSetup cleanUpInnedPlayers(ShardManager shardManager) {
             Set<Long> toBeOuted = new HashSet<>();
             Guild guild = getChannel(shardManager).getGuild();
@@ -128,64 +124,6 @@ public class GameSetupService {
             return outUsers(toBeOuted);
 
             //TODO whenever time based ins are a thing, this is probably the place to check them
-        }
-
-        public MessageEmbed getStatus(Context context) {
-            ShardManager shardManager = context.getJda().asBot().getShardManager();
-
-            // run a clean up first
-            GameSetup setup = cleanUpInnedPlayers(shardManager);
-
-            Games game = setup.getGame();
-            GameInfo.GameMode mode = setup.getMode();
-            GameInfo info = Games.getInfo(game);
-            Set<Long> innedUsers = setup.getInnedUsers();
-
-            var neb = NiceEmbedBuilder.defaultBuilder();
-            TextChannel channel = shardManager.getTextChannelById(this.channelId);
-            if (channel == null) {
-                neb.addField("Could not find channel with id " + this.channelId, "", false);
-                return neb.build();
-            }
-            neb.setTitle("Setup for channel #" + channel.getName());
-            neb.setDescription(Games.get(this.channelId) == null
-                    ? "Game has **NOT** started yet."
-                    : "Game has started.");
-
-            //games
-            var possibleGames = new StringBuilder();
-            Arrays.stream(Games.values()).forEach(g ->
-                    possibleGames.append(g == game ? "`[x]` " : "`[ ]` ").append(g.textRep).append("\n"));
-            neb.addField("Game", possibleGames.toString(), true);
-
-            //modes
-            var possibleModes = new StringBuilder();
-            info.getSupportedModes().forEach(m ->
-                    possibleModes.append(mode.equals(m) ? "`[x]` " : "`[ ]` ").append(m).append("\n"));
-            neb.addField("Mode", possibleModes.toString(), true);
-
-            //day length
-            neb.addField("Day length", TextchatUtils.formatMillis(setup.getDayLength().toMillis()), true);
-
-            //accepted player numbers
-            neb.addField("Accepted players",
-                    info.getAcceptablePlayerNumbers(mode),
-                    true);
-
-            //inned players
-            var inned = new NiceEmbedBuilder.ChunkingField("Inned players (" + innedUsers.size() + ")", true);
-            List<String> formatted = innedUsers.stream()
-                    .map(userId -> TextchatUtils.userAsMention(userId) + ", ")
-                    .collect(Collectors.toList());
-            if (!formatted.isEmpty()) {
-                String lastOne = formatted.remove(formatted.size() - 1);
-                lastOne = lastOne.substring(0, lastOne.length() - 2); //remove the last ", "
-                formatted.add(lastOne);
-            }
-            inned.addAll(formatted);
-            neb.addField(inned);
-
-            return neb.build();
         }
 
         private TextChannel getChannel(ShardManager shardManager) {

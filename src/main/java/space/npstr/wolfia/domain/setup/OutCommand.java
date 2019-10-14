@@ -15,17 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.game;
+package space.npstr.wolfia.domain.setup;
 
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.domain.ban.BanService;
 import space.npstr.wolfia.domain.room.PrivateRoomService;
-import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
@@ -37,18 +36,18 @@ import java.util.stream.Collectors;
  * Created by npstr on 23.08.2016
  */
 @Command
-public class InCommand implements BaseCommand, PublicCommand {
+public class OutCommand implements BaseCommand, PublicCommand {
 
-    public static final String TRIGGER = "in";
+    public static final String TRIGGER = "out";
 
-    private final BanService banService;
     private final GameSetupService gameSetupService;
     private final PrivateRoomService privateRoomService;
+    private final GameSetupRender render;
 
-    public InCommand(BanService banService, GameSetupService gameSetupService, PrivateRoomService privateRoomService) {
-        this.banService = banService;
+    public OutCommand(GameSetupService gameSetupService, PrivateRoomService privateRoomService, GameSetupRender render) {
         this.gameSetupService = gameSetupService;
         this.privateRoomService = privateRoomService;
+        this.render = render;
     }
 
     @Override
@@ -58,13 +57,14 @@ public class InCommand implements BaseCommand, PublicCommand {
 
     @Override
     public List<String> getAliases() {
-        return List.of("join");
+        return List.of("leave");
     }
 
     @Nonnull
     @Override
     public String help() {
-        return invocation() + "\n#Add you to the signup list for this channel. You will play in the next starting game.";
+        return invocation() + " [@user]"
+                + "\n#Remove you from the current signup list. Moderators can out other players by mentioning them.";
     }
 
     @Override
@@ -75,9 +75,8 @@ public class InCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        //is there a game going on?
         if (Games.get(context.textChannel) != null) {
-            context.replyWithMention("the game has already started! Please wait until it is over to join.");
+            context.replyWithMention("please sign up/sign out for the next game after the current one is over.");
             return false;
         }
 
@@ -87,30 +86,34 @@ public class InCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        GameSetupService.Action setupAction = this.gameSetupService.channel(context.textChannel.getIdLong());
-        //force in by bot owner ( ͡° ͜ʖ ͡°)
+        long channelId = context.textChannel.getIdLong();
+        GameSetupService.Action setupAction = this.gameSetupService.channel(channelId);
+        //is this a forced out of a player by an moderator or the bot owner?
         List<User> mentionedUsers = context.getMessage().getMentionedUsers();
-        if (!mentionedUsers.isEmpty() && context.isOwner()) {
-            Set<Long> userIds = mentionedUsers.stream()
-                    .map(User::getIdLong)
-                    .collect(Collectors.toSet());
-            setupAction.inUsers(userIds);
-
-            context.reply(setupAction.getStatus(context));
-            return true;
+        if (!mentionedUsers.isEmpty()) {
+            if (!context.member.hasPermission(context.textChannel, Permission.MESSAGE_MANAGE) && !context.isOwner()) {
+                context.replyWithMention("you need to have the following permission in this channel to be able to out players: "
+                        + "**" + Permission.MESSAGE_MANAGE.name() + "**");
+                return false;
+            } else {
+                Set<Long> userIds = mentionedUsers.stream()
+                        .map(User::getIdLong)
+                        .collect(Collectors.toSet());
+                setupAction.outUsers(userIds);
+                GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
+                context.reply(this.render.render(setup, context));
+                return true;
+            }
+        } else {
+            if (setupAction.getOrDefault().isIn(context.invoker.getIdLong())) {
+                //handling a regular out
+                setupAction.outUser(context.invoker.getIdLong());
+                GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
+                context.reply(this.render.render(setup, context));
+                return true;
+            }
         }
-
-        if (this.banService.isBanned(context.invoker.getIdLong())) {
-            context.replyWithMention("lol ur banned.");
-            return false;
-        }
-
-        if (setupAction.getOrDefault().isIn(context.invoker.getIdLong())) {
-            context.replyWithMention("you have inned already.");
-            return false;
-        }
-        setupAction.inUser(context.invoker.getIdLong());
-        context.reply(setupAction.getStatus(context));
-        return true;
+        return false;
     }
+
 }

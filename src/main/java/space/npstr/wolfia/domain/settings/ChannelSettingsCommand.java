@@ -15,27 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.util;
+package space.npstr.wolfia.domain.settings;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
-import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.domain.settings.ChannelSettings;
-import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by napster on 22.06.17.
@@ -47,10 +39,12 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "channelsettings";
 
-    private final ChannelSettingsService channelSettingsService;
+    private final ChannelSettingsService service;
+    private final ChannelSettingsRender render;
 
-    public ChannelSettingsCommand(ChannelSettingsService channelSettingsService) {
-        this.channelSettingsService = channelSettingsService;
+    public ChannelSettingsCommand(ChannelSettingsService service, ChannelSettingsRender render) {
+        this.service = service;
+        this.render = render;
     }
 
     @Override
@@ -81,11 +75,11 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
         }
 
         long channelId = context.textChannel.getIdLong();
-        ChannelSettingsService.Action channelAction = this.channelSettingsService.channel(channelId);
+        ChannelSettingsService.Action channelAction = this.service.channel(channelId);
         ChannelSettings channelSettings = channelAction.getOrDefault();
 
         if (!context.hasArguments()) {
-            context.reply(getStatus(channelSettings));
+            context.reply(this.render.render(channelSettings));
             return true;
         }
 
@@ -146,34 +140,7 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
                 return false;
         }
 
-        context.reply(getStatus(channelSettings));
+        context.reply(this.render.render(channelSettings));
         return true;
-    }
-
-    private MessageEmbed getStatus(ChannelSettings channelSettings) {
-        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        long channelId = channelSettings.getChannelId();
-        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
-        if (channel == null) {
-            eb.addField("Could not find channel with id " + channelId, "", false);
-            return eb.build();
-        }
-        eb.setTitle("Settings for channel #" + channel.getName());
-        eb.setDescription("Changes to the settings are reserved for channel moderators.");
-        String roleName = "[Not set up]";
-        Optional<Long> accessRoleId = channelSettings.getAccessRoleId();
-        if (accessRoleId.isPresent()) {
-            final Role accessRole = channel.getGuild().getRoleById(accessRoleId.get());
-            if (accessRole == null) {
-                roleName = "[Deleted]";
-            } else {
-                roleName = accessRole.getName();
-            }
-        }
-        eb.addField("Access Role", roleName, true);
-
-        eb.addField("Tag list cooldown", channelSettings.getTagCooldownMinutes() + " minutes", true);
-
-        return eb.build();
     }
 }

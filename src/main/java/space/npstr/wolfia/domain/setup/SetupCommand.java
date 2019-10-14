@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.game;
+package space.npstr.wolfia.domain.setup;
 
 import net.dv8tion.jda.core.Permission;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -23,7 +23,6 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -43,9 +42,11 @@ public class SetupCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "setup";
 
     private final GameSetupService gameSetupService;
+    private final GameSetupRender render;
 
-    public SetupCommand(GameSetupService gameSetupService) {
-        this.gameSetupService = gameSetupService;
+    public SetupCommand(GameSetupService service, GameSetupRender render) {
+        this.gameSetupService = service;
+        this.render = render;
     }
 
     @Override
@@ -71,14 +72,16 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        GameSetupService.Action setupAction = this.gameSetupService.channel(context.textChannel.getIdLong());
+        long channelId = context.textChannel.getIdLong();
+        GameSetupService.Action setupAction = this.gameSetupService.channel(channelId);
         final AtomicBoolean blewUp = new AtomicBoolean(false);
 
         if (context.args.length >= 1 && "reset".equalsIgnoreCase(context.args[0])) {
             if (allowedToEditSetup(context)) {
                 setupAction.reset();
                 context.replyWithMention("game setup of this channel has been reset.");
-                context.reply(setupAction.getStatus(context));
+                GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
+                context.reply(this.render.render(setup, context));
                 return true;
             } else {
                 context.replyWithMention("you need the following permission to reset the setup of this channel: "
@@ -165,7 +168,8 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             return false;//feedback has been given
         }
         //show the status quo
-        context.reply(setupAction.getStatus(context));
+        GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
+        context.reply(this.render.render(setup, context));
         return true;
     }
 

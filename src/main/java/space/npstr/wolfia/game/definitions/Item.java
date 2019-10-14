@@ -17,11 +17,11 @@
 
 package space.npstr.wolfia.game.definitions;
 
-import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.OpenPresentCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.setup.StatusCommand;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 import javax.annotation.Nonnull;
