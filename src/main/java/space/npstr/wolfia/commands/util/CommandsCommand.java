@@ -39,6 +39,7 @@ import space.npstr.wolfia.commands.stats.GuildStatsCommand;
 import space.npstr.wolfia.commands.stats.UserStatsCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.settings.ChannelSettingsCommand;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.OutCommand;
 import space.npstr.wolfia.domain.setup.SetupCommand;
