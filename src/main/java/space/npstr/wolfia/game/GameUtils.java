@@ -19,8 +19,8 @@ package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.core.entities.User;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.setup.StatusCommand;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;

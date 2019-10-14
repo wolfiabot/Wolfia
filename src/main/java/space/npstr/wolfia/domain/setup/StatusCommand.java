@@ -15,9 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.game;
+package space.npstr.wolfia.domain.setup;
 
-import net.dv8tion.jda.core.entities.MessageEmbed;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -25,7 +24,6 @@ import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.definitions.Games;
 
@@ -46,9 +44,11 @@ public class StatusCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "status";
 
     private final GameSetupService gameSetupService;
+    private final GameSetupRender render;
 
-    public StatusCommand(GameSetupService gameSetupService) {
+    public StatusCommand(GameSetupService gameSetupService, GameSetupRender render) {
         this.gameSetupService = gameSetupService;
+        this.render = render;
     }
 
     @Override
@@ -85,9 +85,10 @@ public class StatusCommand implements BaseCommand, PublicCommand {
                 }
 
                 if (game == null) {
-                    MessageEmbed status = this.gameSetupService.channel(context.textChannel.getIdLong())
-                            .getStatus(context);
-                    context.reply(status);
+                    context.getTextChannel().getIdLong();
+                    GameSetup setup = this.gameSetupService.channel(context.getTextChannel().getIdLong())
+                            .cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
+                    context.reply(this.render.render(setup, context));
                     return true;
                 }
             }

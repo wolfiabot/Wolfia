@@ -27,12 +27,8 @@ import space.npstr.wolfia.commands.debug.RegisterPrivateRoomCommand;
 import space.npstr.wolfia.commands.debug.RestartCommand;
 import space.npstr.wolfia.commands.debug.ReviveCommand;
 import space.npstr.wolfia.commands.debug.RunningCommand;
-import space.npstr.wolfia.commands.game.InCommand;
-import space.npstr.wolfia.commands.game.OutCommand;
 import space.npstr.wolfia.commands.game.RolePmCommand;
-import space.npstr.wolfia.commands.game.SetupCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
-import space.npstr.wolfia.commands.game.StatusCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.HohohoCommand;
 import space.npstr.wolfia.commands.ingame.ItemsCommand;
@@ -54,6 +50,10 @@ import space.npstr.wolfia.commands.util.RankCommand;
 import space.npstr.wolfia.commands.util.ReplayCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
 import space.npstr.wolfia.domain.ban.BanCommand;
+import space.npstr.wolfia.domain.setup.InCommand;
+import space.npstr.wolfia.domain.setup.OutCommand;
+import space.npstr.wolfia.domain.setup.SetupCommand;
+import space.npstr.wolfia.domain.setup.StatusCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
