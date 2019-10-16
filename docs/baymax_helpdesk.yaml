@@ -1,0 +1,156 @@
+---
+id: root
+title: "How may I help you?"
+branches:
+  - message: "I need help with the Wolfia Bot"
+    targetId: bot-root
+  - message: "I need help with the Wolfia Server"
+    targetId: server-root
+
+
+### Bot stuff
+
+---
+id: bot-root
+title: "You need help with Wolfia the bot. What's wrong?"
+branches:
+  - message: "Something is broken."
+    targetId: bot-broken
+  - message: "I want to change a setting."
+    targetId: bot-setting
+  - message: "I have a question about Wolfia."
+    targetId: bot-question
+  - message: "I have a suggestion."
+    targetId: suggestion
+  - message: "I have looked at **all** the options, and none of them helped me."
+    targetId: support-role
+
+---
+id: bot-broken
+title: "What about Wolfia is broken?"
+branches:
+  - message: "Wolfia is not online."
+    targetId: bot-broken-not-online
+  - message: "Wolfia isn't responding."
+    targetId: bot-broken-not-responding
+  - message: "Wolfia is sending blank messages."
+    targetId: bot-broken-blank-messages
+  - message: "Something else is broken"
+    targetId: support-role
+
+---
+id: bot-broken-not-online
+title: "Is Wolfia present in your server at all?"
+branches:
+  - message: "Wolfia is not present in my server."
+    targetId: bot-invite
+  - message: "Wolfia is in my server, but is shown as offline."
+    targetId: bot-broken-offline
+
+---
+id: bot-invite
+title: "To add Wolfia to your own server, click on this link: <https://bot.wolfia.party/invite>"
+
+---
+id: bot-broken-offline
+title: "Please read <#321116225008566273> and pay attention to any pinned, as well as recent messages." # #announcements
+branches:
+  - message: "I found an explanation for the downtime in <#321116225008566273>" # #announcements
+    targetId: root
+  - message: "There is no announced or scheduled downtime for Wolfia to be found in <#321116225008566273>" # #announcements
+    targetId: let-us-know
+
+---
+id: let-us-know
+title: "Please let us know about this in <#317622083402203138>." # #support
+roleId: 634144959305351198 # #needs-human-assistance
+
+---
+id: bot-broken-not-responding
+title: "If Wolfia is not responding, please make sure that Wolfia has permissions to read and write in the channel you want it to be able to respond."
+
+---
+id: bot-broken-blank-messages
+title: "If Wolfia is sending blank messages, then you do not have the `Link Preview` option enabled.\n
+In your Discord client, navigate to Settings > Text & Images and enable the option `Show website preview info from links pasted into chat`.\n
+https://imgur.com/a/5uoVsgl"
+
+---
+id: bot-setting
+title: "What setting of Wolfia do you want to change?"
+branches:
+  - message: "The language"
+    targetId: bot-setting-language
+  - message: "The prefix"
+    targetId: bot-setting-prefix
+  - message: "Restrict it to a single channel"
+    targetId: bot-setting-restrict
+
+---
+id: bot-setting-language
+title: "Currently, no other languages are supported. This is a planned feature though, so stay tuned!."
+
+---
+id: bot-setting-prefix
+title: "Wolfia does not support a different prefix. There are no plans to change this in the near future."
+
+---
+id: bot-setting-restrict
+title: "Use the Discord permissions to take away Wolfias write permissions for all the channels where it should not talk in."
+
+---
+id: bot-question
+title: "What question do you have about the Wolfia bot?"
+branches:
+  - message: "How do I add Wolfia to my server?"
+    targetId: bot-invite
+  - message: "What is ⲀWolfia?"
+    targetId: bot-question-alpha-wolfia
+
+---
+id: bot-question-alpha-wolfia
+title: "ⲀWolfia is the alpha version of Wolfia.\n
+It's a debug/test bot to test changes and new features before releasing them on the actual bot."
+
+---
+id: suggestion
+title: "Suggestions are currently not accepted. We have a huge backlog of ideas and technical debt that needs to be tackled first."
+
+
+### Server stuff
+
+---
+id: server-root
+title: "You need help with the Wolfia Server. What's wrong?"
+branches:
+  - message: "Someone from this server sent me ads or inappropriate messages in my private messages."
+    targetId: report-user
+  - message: "Someone is breaking the rules!"
+    targetId: report-user
+  - message: "I want to advertise my community"
+    targetId: sponsors
+  - message: "I want to join staff / become a moderator."
+    targetId: join-staff
+  - message: "I have a suggestion."
+    targetId: suggestion
+  - message: "I have looked at **all** the options, and none of them helped me."
+    targetId: support-role
+
+---
+id: report-user
+title: "Please report this in <#317622083402203138>. Include screenshots if possible." # #support
+roleId: 634144959305351198 # #needs-human-assistance
+
+---
+id: sponsors
+title: "Advertisements are not allowed in this place."
+
+---
+id: join-staff
+title: "To join our staff, show some activity and maturity in our chats. We value meaningful and positive contributions to our community,
+and will take notice of that and contact you."
+
+---
+id: support-role
+title: "Please explain your problem to one of our helpers in <#317622083402203138>." # #support
+roleId: 634144959305351198 # #needs-human-assistance
