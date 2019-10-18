@@ -15,9 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.stats;
+package space.npstr.wolfia.domain.stats;
 
-import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
@@ -30,16 +29,16 @@ import javax.annotation.Nonnull;
 /**
  * Created by napster on 10.06.17.
  * <p>
- * Display stats for a guild
+ * Show stats of the whole bot
  */
 @Command
-public class GuildStatsCommand implements BaseCommand, PublicCommand {
+public class BotStatsCommand implements BaseCommand, PublicCommand {
 
-    public static final String TRIGGER = "guildstats";
+    public static final String TRIGGER = "botstats";
 
     private final StatsProvider statsProvider;
 
-    public GuildStatsCommand(StatsProvider statsProvider) {
+    public BotStatsCommand(StatsProvider statsProvider) {
         this.statsProvider = statsProvider;
     }
 
@@ -51,35 +50,13 @@ public class GuildStatsCommand implements BaseCommand, PublicCommand {
     @Nonnull
     @Override
     public String help() {
-        return invocation() + " [guild ID]"
-                + "\n#Show game stats for this guild or another one. Examples:"
-                + "\n  " + invocation()
-                + "\n  " + invocation() + " 315944983754571796";
+        return invocation()
+                + "\n#Show game stats for all games ever played with Wolfia.";
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context)
-            throws IllegalGameStateException {
-
-        if (context.hasArguments()) {
-            try {
-                final long guildId = Long.parseLong(context.args[0]);
-                context.reply(this.statsProvider.getGuildStats(context, guildId).build());
-                return true;
-            } catch (final NumberFormatException e) {
-                context.help();
-                return false;
-            }
-        }
-
-        final Guild guild = context.getGuild();
-        if (guild == null) {
-            context.help();
-            return false;
-        }
-
-        final long guildId = context.getGuild().getIdLong();
-        context.reply(this.statsProvider.getGuildStats(context, guildId).build());
+    public boolean execute(@Nonnull final CommandContext context) throws IllegalGameStateException {
+        context.reply(this.statsProvider.getBotStats(context).build());
         return true;
     }
 }

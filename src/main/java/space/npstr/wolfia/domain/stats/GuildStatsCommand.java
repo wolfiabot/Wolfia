@@ -15,30 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.stats;
+package space.npstr.wolfia.domain.stats;
 
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.Guild;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
 
 /**
- * Created by napster on 08.06.17.
+ * Created by napster on 10.06.17.
  * <p>
- * Display stats for a user
+ * Display stats for a guild
  */
 @Command
-public class UserStatsCommand implements BaseCommand, PublicCommand {
+public class GuildStatsCommand implements BaseCommand, PublicCommand {
 
-    public static final String TRIGGER = "userstats";
+    public static final String TRIGGER = "guildstats";
 
     private final StatsProvider statsProvider;
 
-    public UserStatsCommand(StatsProvider statsProvider) {
+    public GuildStatsCommand(StatsProvider statsProvider) {
         this.statsProvider = statsProvider;
     }
 
@@ -50,36 +51,35 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
     @Nonnull
     @Override
     public String help() {
-        return invocation() + " [@user or user ID]"
-                + "\n#Show game stats for yourself or another a user. Examples:"
+        return invocation() + " [guild ID]"
+                + "\n#Show game stats for this guild or another one. Examples:"
                 + "\n  " + invocation()
-                + "\n  " + invocation() + " @Napster"
-                + "\n  " + invocation() + " 166604053629894657";
+                + "\n  " + invocation() + " 315944983754571796";
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
-        long userId = context.invoker.getIdLong();
-        if (context.msg.getMentionedUsers().isEmpty()) {
-            //noinspection Duplicates
-            if (context.hasArguments()) {
-                try {
-                    userId = Long.parseLong(context.args[0]);
-                } catch (final NumberFormatException e) {
-                    context.help();
-                    return false;
-                }
+    public boolean execute(@Nonnull final CommandContext context)
+            throws IllegalGameStateException {
+
+        if (context.hasArguments()) {
+            try {
+                final long guildId = Long.parseLong(context.args[0]);
+                context.reply(this.statsProvider.getGuildStats(context, guildId).build());
+                return true;
+            } catch (final NumberFormatException e) {
+                context.help();
+                return false;
             }
-
-            context.reply(this.statsProvider.getUserStats(userId).build());
-            return true;
         }
 
-        for (final User u : context.msg.getMentionedUsers()) {
-            context.reply(this.statsProvider.getUserStats(u.getIdLong()).build());
+        final Guild guild = context.getGuild();
+        if (guild == null) {
+            context.help();
+            return false;
         }
+
+        final long guildId = context.getGuild().getIdLong();
+        context.reply(this.statsProvider.getGuildStats(context, guildId).build());
         return true;
     }
-
-
 }

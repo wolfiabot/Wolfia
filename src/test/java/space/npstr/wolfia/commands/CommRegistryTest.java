@@ -38,9 +38,6 @@ import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCountCommand;
-import space.npstr.wolfia.commands.stats.BotStatsCommand;
-import space.npstr.wolfia.commands.stats.GuildStatsCommand;
-import space.npstr.wolfia.commands.stats.UserStatsCommand;
 import space.npstr.wolfia.commands.util.CommandsCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InfoCommand;
@@ -54,6 +51,9 @@ import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.OutCommand;
 import space.npstr.wolfia.domain.setup.SetupCommand;
 import space.npstr.wolfia.domain.setup.StatusCommand;
+import space.npstr.wolfia.domain.stats.BotStatsCommand;
+import space.npstr.wolfia.domain.stats.GuildStatsCommand;
+import space.npstr.wolfia.domain.stats.UserStatsCommand;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
