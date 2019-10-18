@@ -22,10 +22,10 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
+import java.util.Optional;
 
 /**
  * Created by napster on 10.06.17.
@@ -38,9 +38,11 @@ public class GuildStatsCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "guildstats";
 
     private final StatsProvider statsProvider;
+    private final StatsRender render;
 
-    public GuildStatsCommand(StatsProvider statsProvider) {
+    public GuildStatsCommand(StatsProvider statsProvider, StatsRender render) {
         this.statsProvider = statsProvider;
+        this.render = render;
     }
 
     @Override
@@ -58,28 +60,28 @@ public class GuildStatsCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context)
-            throws IllegalGameStateException {
-
+    public boolean execute(@Nonnull final CommandContext context) {
+        Optional<Long> guildId = Optional.empty();
         if (context.hasArguments()) {
             try {
-                final long guildId = Long.parseLong(context.args[0]);
-                context.reply(this.statsProvider.getGuildStats(context, guildId).build());
-                return true;
+                guildId = Optional.of(Long.parseLong(context.args[0]));
             } catch (final NumberFormatException e) {
                 context.help();
                 return false;
             }
         }
 
-        final Guild guild = context.getGuild();
-        if (guild == null) {
-            context.help();
-            return false;
+        if (guildId.isEmpty()) {
+            final Guild guild = context.getGuild();
+            if (guild == null) {
+                context.help();
+                return false;
+            }
+            guildId = Optional.of(guild.getIdLong());
         }
 
-        final long guildId = context.getGuild().getIdLong();
-        context.reply(this.statsProvider.getGuildStats(context, guildId).build());
+        GuildStats guildStats = this.statsProvider.getGuildStats(guildId.get());
+        context.reply(this.render.renderGuildStats(context, guildStats).build());
         return true;
     }
 }

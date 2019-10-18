@@ -37,9 +37,11 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "userstats";
 
     private final StatsProvider statsProvider;
+    private final StatsRender render;
 
-    public UserStatsCommand(StatsProvider statsProvider) {
+    public UserStatsCommand(StatsProvider statsProvider, StatsRender render) {
         this.statsProvider = statsProvider;
+        this.render = render;
     }
 
     @Override
@@ -59,8 +61,8 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext context) {
-        long userId = context.invoker.getIdLong();
         if (context.msg.getMentionedUsers().isEmpty()) {
+            long userId = context.invoker.getIdLong();
             //noinspection Duplicates
             if (context.hasArguments()) {
                 try {
@@ -71,12 +73,14 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
                 }
             }
 
-            context.reply(this.statsProvider.getUserStats(userId).build());
+            UserStats userStats = this.statsProvider.getUserStats(userId);
+            context.reply(this.render.renderUserStats(userStats).build());
             return true;
         }
 
-        for (final User u : context.msg.getMentionedUsers()) {
-            context.reply(this.statsProvider.getUserStats(u.getIdLong()).build());
+        for (final User user : context.msg.getMentionedUsers()) {
+            UserStats userStats = this.statsProvider.getUserStats(user.getIdLong());
+            context.reply(this.render.renderUserStats(userStats).build());
         }
         return true;
     }

@@ -45,7 +45,7 @@ public class StatsRender {
         this.userCache = userCache;
     }
 
-    public EmbedBuilder renderBotStats(Context context, Number averagePlayerSize, Map<Integer, List<Long>> collectedValues) {
+    public EmbedBuilder renderBotStats(Context context, BotStats botstats) {
         final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         eb.setTitle("Wolfia stats:");
         context.getJda().asBot().getShardManager().getShardCache().stream().findAny()
@@ -54,43 +54,44 @@ public class StatsRender {
 
         //stats for all games:
         eb.addBlankField(false);
-        final List<Long> values = collectedValues.remove(-1);
+        final List<Long> values = botstats.collectedValues().remove(-1);
         eb.addField("Total games played", values.get(0) + "", true);
-        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize.doubleValue()), true);
+        eb.addField("∅ player size", String.format("%.2f", botstats.averagePlayerSize().doubleValue()), true);
         eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(values.get(1), values.get(0))), true);
         eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(values.get(2), values.get(0))), true);
         //stats by playersize:
         eb.addBlankField(false);
         eb.addField("Stats by player size:", "", false);
-        return addStatsPerPlayerSize(eb, collectedValues);
+        return addStatsPerPlayerSize(eb, botstats.collectedValues()
+        );
     }
 
-    public EmbedBuilder renderGuildStats(Context context, long guildId, Number averagePlayerSize, final Map<Integer, List<Long>> collectedValues) {
+    public EmbedBuilder renderGuildStats(Context context, GuildStats stats) {
         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        final Guild guild = context.getJda().asBot().getShardManager().getGuildById(guildId);
+        final Guild guild = context.getJda().asBot().getShardManager().getGuildById(stats.guildId());
         GuildSettings guildSettings = guild != null
                 ? this.guildSettingsService.set(guild)
-                : this.guildSettingsService.guild(guildId).getOrDefault();
+                : this.guildSettingsService.guild(stats.guildId()).getOrDefault();
         eb.setTitle(guildSettings.getName() + "'s Wolfia stats");
         eb.setThumbnail(guildSettings.getAvatarUrl().orElse(null));
 
-        final long totalGames = collectedValues.get(-1).get(0);
+        final long totalGames = stats.collectedValues().get(-1).get(0);
         if (totalGames <= 0) {
-            eb.setTitle(String.format("There have no games been played in the guild (id `%s`).", guildId));
+            eb.setTitle(String.format("There have no games been played in the guild (id `%s`).", stats.guildId()));
             return eb;
         }
 
         //stats for all games in this guild:
         eb.addBlankField(false);
-        final List<Long> values = collectedValues.remove(-1);
+        final List<Long> values = stats.collectedValues().remove(-1);
         eb.addField("Total games played", values.get(0) + "", true);
-        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize.doubleValue()), true);
+        eb.addField("∅ player size", String.format("%.2f", stats.averagePlayerSize().doubleValue()), true);
         eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(values.get(1), values.get(0))), true);
         eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(values.get(2), values.get(0))), true);
         //stats by playersize in this guild:
         eb.addBlankField(false);
         eb.addField("Stats by player size:", "", false);
-        return addStatsPerPlayerSize(eb, collectedValues);
+        return addStatsPerPlayerSize(eb, stats.collectedValues());
     }
 
     public EmbedBuilder renderUserStats(UserStats stats) {

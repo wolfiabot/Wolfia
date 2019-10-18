@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.domain.stats;
 
-import org.immutables.value.Value;
+import static org.immutables.value.Value.Immutable;
 
-@Value.Immutable
-@Value.Style(strictBuilder = true, stagedBuilder = true)
+@Immutable
+@StatsStyle
 public interface UserStats {
 
     /**

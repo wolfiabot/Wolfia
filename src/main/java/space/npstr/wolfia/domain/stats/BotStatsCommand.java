@@ -21,7 +21,6 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
@@ -37,9 +36,11 @@ public class BotStatsCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "botstats";
 
     private final StatsProvider statsProvider;
+    private final StatsRender render;
 
-    public BotStatsCommand(StatsProvider statsProvider) {
+    public BotStatsCommand(StatsProvider statsProvider, StatsRender render) {
         this.statsProvider = statsProvider;
+        this.render = render;
     }
 
     @Override
@@ -55,8 +56,9 @@ public class BotStatsCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws IllegalGameStateException {
-        context.reply(this.statsProvider.getBotStats(context).build());
+    public boolean execute(@Nonnull final CommandContext context) {
+        BotStats botStats = this.statsProvider.getBotStats();
+        context.reply(this.render.renderBotStats(context, botStats).build());
         return true;
     }
 }

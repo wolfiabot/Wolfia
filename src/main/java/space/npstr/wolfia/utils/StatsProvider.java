@@ -17,13 +17,14 @@
 
 package space.npstr.wolfia.utils;
 
-import net.dv8tion.jda.core.EmbedBuilder;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.db.ColumnMapper;
 import space.npstr.wolfia.db.Database;
+import space.npstr.wolfia.domain.stats.BotStats;
+import space.npstr.wolfia.domain.stats.GuildStats;
+import space.npstr.wolfia.domain.stats.ImmutableBotStats;
+import space.npstr.wolfia.domain.stats.ImmutableGuildStats;
 import space.npstr.wolfia.domain.stats.ImmutableUserStats;
-import space.npstr.wolfia.domain.stats.StatsRender;
 import space.npstr.wolfia.domain.stats.UserStats;
 import space.npstr.wolfia.game.definitions.Alignments;
 
@@ -107,16 +108,14 @@ public class StatsProvider {
     }
 
     private final Database database;
-    private final StatsRender render;
 
-    public StatsProvider(Database database, StatsRender render) {
+    public StatsProvider(Database database) {
         this.database = database;
-        this.render = render;
     }
 
     //this should be rather similar to getGuildStats
     @SuppressWarnings("unchecked")
-    public EmbedBuilder getBotStats(Context context) {
+    public BotStats getBotStats() {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
@@ -152,12 +151,15 @@ public class StatsProvider {
         //collect a bunch of values
         final Map<Integer, List<Long>> collectedValues = collectValues(gamesxWinningTeamByPlayerSize);
 
-        return render.renderBotStats(context, averagePlayerSize, collectedValues);
+        return ImmutableBotStats.builder()
+                .averagePlayerSize(averagePlayerSize)
+                .putAllCollectedValues(collectedValues)
+                .build();
     }
 
 
     @SuppressWarnings("unchecked")
-    public EmbedBuilder getGuildStats(Context context, final long guildId) {
+    public GuildStats getGuildStats(final long guildId) {
         //get data out of the database
         BigDecimal averagePlayerSize = new BigDecimal(0);
         final Map<Integer, List<Map<String, Object>>> gamesxWinningTeamInGuildByPlayerSize = new LinkedHashMap<>();//linked to preserve sorting
@@ -193,11 +195,15 @@ public class StatsProvider {
         //collect a bunch of values
         final Map<Integer, List<Long>> collectedValues = collectValues(gamesxWinningTeamInGuildByPlayerSize);
 
-        return render.renderGuildStats(context, guildId, averagePlayerSize, collectedValues);
+        return ImmutableGuildStats.builder()
+                .guildId(guildId)
+                .averagePlayerSize(averagePlayerSize)
+                .putAllCollectedValues(collectedValues)
+                .build();
     }
 
     @SuppressWarnings("unchecked")
-    public EmbedBuilder getUserStats(final long userId) {
+    public UserStats getUserStats(final long userId) {
         //get data out of the database
         final List<Map<String, Object>> gamesByUser = new ArrayList<>();
         final List<Map<String, Object>> shatsByUser = new ArrayList<>();
@@ -236,7 +242,7 @@ public class StatsProvider {
         final long wolvesShatted = shatsByUser.stream()
                 .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.WOLF).count();
 
-        UserStats userStats = ImmutableUserStats.builder()
+        return ImmutableUserStats.builder()
                 .userId(userId)
                 .totalGames(totalGamesByUser)
                 .gamesWon(gamesWon)
@@ -249,8 +255,6 @@ public class StatsProvider {
                 .totalPosts(totalPostsWritten)
                 .totalPostLength(totalPostsLength)
                 .build();
-
-        return render.renderUserStats(userStats);
     }
 
     //todo introduce a proper data structure for this
