@@ -18,18 +18,14 @@
 package space.npstr.wolfia.utils;
 
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.Context;
-import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.db.ColumnMapper;
 import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.domain.UserCache;
-import space.npstr.wolfia.domain.settings.GuildSettings;
-import space.npstr.wolfia.domain.settings.GuildSettingsService;
+import space.npstr.wolfia.domain.stats.ImmutableUserStats;
+import space.npstr.wolfia.domain.stats.StatsRender;
+import space.npstr.wolfia.domain.stats.UserStats;
 import space.npstr.wolfia.game.definitions.Alignments;
-import space.npstr.wolfia.utils.discord.Emojis;
 
 import javax.persistence.EntityManager;
 import java.math.BigDecimal;
@@ -40,9 +36,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static space.npstr.wolfia.utils.discord.TextchatUtils.divide;
-import static space.npstr.wolfia.utils.discord.TextchatUtils.percentFormat;
 
 /**
  * Created by napster on 10.06.17.
@@ -114,13 +107,11 @@ public class StatsProvider {
     }
 
     private final Database database;
-    private final GuildSettingsService guildSettingsService;
-    private final UserCache userCache;
+    private final StatsRender render;
 
-    public StatsProvider(Database database, GuildSettingsService guildSettingsService, UserCache userCache) {
+    public StatsProvider(Database database, StatsRender render) {
         this.database = database;
-        this.guildSettingsService = guildSettingsService;
-        this.userCache = userCache;
+        this.render = render;
     }
 
     //this should be rather similar to getGuildStats
@@ -161,24 +152,7 @@ public class StatsProvider {
         //collect a bunch of values
         final Map<Integer, List<Long>> collectedValues = collectValues(gamesxWinningTeamByPlayerSize);
 
-        //add them to the embed
-        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        eb.setTitle("Wolfia stats:");
-        context.getJda().asBot().getShardManager().getShardCache().stream().findAny()
-                .map(shard -> shard.getSelfUser().getAvatarUrl())
-                .ifPresent(eb::setThumbnail);
-
-        //stats for all games:
-        eb.addBlankField(false);
-        final List<Long> values = collectedValues.remove(-1);
-        eb.addField("Total games played", values.get(0) + "", true);
-        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize.doubleValue()), true);
-        eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(values.get(1), values.get(0))), true);
-        eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(values.get(2), values.get(0))), true);
-        //stats by playersize:
-        eb.addBlankField(false);
-        eb.addField("Stats by player size:", "", false);
-        return addStatsPerPlayerSize(eb, collectedValues);
+        return render.renderBotStats(context, averagePlayerSize, collectedValues);
     }
 
 
@@ -219,33 +193,7 @@ public class StatsProvider {
         //collect a bunch of values
         final Map<Integer, List<Long>> collectedValues = collectValues(gamesxWinningTeamInGuildByPlayerSize);
 
-
-        //add them to the embed
-        EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        final Guild guild = context.getJda().asBot().getShardManager().getGuildById(guildId);
-        GuildSettings guildSettings = guild != null
-                ? this.guildSettingsService.set(guild)
-                : this.guildSettingsService.guild(guildId).getOrDefault();
-        eb.setTitle(guildSettings.getName() + "'s Wolfia stats");
-        eb.setThumbnail(guildSettings.getAvatarUrl().orElse(null));
-
-        final long totalGames = collectedValues.get(-1).get(0);
-        if (totalGames <= 0) {
-            eb.setTitle(String.format("There have no games been played in the guild (id `%s`).", guildId));
-            return eb;
-        }
-
-        //stats for all games in this guild:
-        eb.addBlankField(false);
-        final List<Long> values = collectedValues.remove(-1);
-        eb.addField("Total games played", values.get(0) + "", true);
-        eb.addField("∅ player size", String.format("%.2f", averagePlayerSize.doubleValue()), true);
-        eb.addField("Win % for " + Emojis.WOLF, percentFormat(divide(values.get(1), values.get(0))), true);
-        eb.addField("Win % for " + Emojis.COWBOY, percentFormat(divide(values.get(2), values.get(0))), true);
-        //stats by playersize in this guild:
-        eb.addBlankField(false);
-        eb.addField("Stats by player size:", "", false);
-        return addStatsPerPlayerSize(eb, collectedValues);
+        return render.renderGuildStats(context, guildId, averagePlayerSize, collectedValues);
     }
 
     @SuppressWarnings("unchecked")
@@ -288,32 +236,21 @@ public class StatsProvider {
         final long wolvesShatted = shatsByUser.stream()
                 .filter(map -> Alignments.valueOf((String) map.get("alignment")) == Alignments.WOLF).count();
 
-        //add them to the embed
-        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        UserCache.Action userAction = this.userCache.user(userId);
-        eb.setTitle(userAction.getName() + "'s Wolfia stats");
-        userAction.get()
-                .map(User::getAvatarUrl)
-                .ifPresent(eb::setThumbnail);
+        UserStats userStats = ImmutableUserStats.builder()
+                .userId(userId)
+                .totalGames(totalGamesByUser)
+                .gamesWon(gamesWon)
+                .gamesAsBaddie(gamesAsWolf)
+                .gamesWonAsBaddie(gamesWonAsWolf)
+                .gamesAsGoodie(gamesAsVillage)
+                .gamesWonAsGoodie(gamesWonAsVillage)
+                .totalShots(totalShatsByUser)
+                .wolvesShot(wolvesShatted)
+                .totalPosts(totalPostsWritten)
+                .totalPostLength(totalPostsLength)
+                .build();
 
-        if (totalGamesByUser <= 0) {
-            eb.setTitle(String.format("User (id `%s`) hasn't played any games.", userId));
-            return eb;
-        }
-
-        eb.addField("Total games played", totalGamesByUser + "", true);
-        eb.addField("Total win %", percentFormat(divide(gamesWon, totalGamesByUser)), true);
-        eb.addField("Games as " + Emojis.WOLF, gamesAsWolf + "", true);
-        eb.addField("Win % as " + Emojis.WOLF, percentFormat(divide(gamesWonAsWolf, gamesAsWolf)), true);
-        eb.addField("Games as " + Emojis.COWBOY, gamesAsVillage + "", true);
-        eb.addField("Win % as " + Emojis.COWBOY, percentFormat(divide(gamesWonAsVillage, gamesAsVillage)), true);
-        eb.addField(Emojis.GUN + " fired", totalShatsByUser + "", true);
-        eb.addField(Emojis.GUN + " accuracy", percentFormat(divide(wolvesShatted, totalShatsByUser)), true);
-        eb.addField("Total posts written", totalPostsWritten + "", true);
-        eb.addField("Total post length", totalPostsLength + "", true);
-        eb.addField("∅ posts per game", ((long) divide(totalPostsWritten, totalGamesByUser)) + "", true);
-        eb.addField("∅ post length", ((long) divide(totalPostsLength, totalPostsWritten)) + "", true);
-        return eb;
+        return render.renderUserStats(userStats);
     }
 
     //todo introduce a proper data structure for this
@@ -331,16 +268,5 @@ public class StatsProvider {
             result.put(playerSize, Arrays.asList(totalGames, gamesWonByWolves, gamesWonByVillage));
         }
         return result;
-    }
-
-    private static EmbedBuilder addStatsPerPlayerSize(final EmbedBuilder eb, final Map<Integer, List<Long>> collectedValues) {
-        for (final Map.Entry<Integer, List<Long>> entry : collectedValues.entrySet()) {
-            final int playerSize = entry.getKey();
-            final List<Long> values = entry.getValue();
-            String content = Emojis.WOLF + " win " + percentFormat(divide(values.get(1), values.get(0)));
-            content += "\n" + Emojis.COWBOY + " win " + percentFormat(divide(values.get(2), values.get(0)));
-            eb.addField(values.get(0) + " games with " + playerSize + " players", content, true);
-        }
-        return eb;
     }
 }
