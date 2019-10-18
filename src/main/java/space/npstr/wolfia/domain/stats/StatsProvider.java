@@ -15,17 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.utils;
+package space.npstr.wolfia.domain.stats;
 
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.db.ColumnMapper;
 import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.domain.stats.BotStats;
-import space.npstr.wolfia.domain.stats.GuildStats;
-import space.npstr.wolfia.domain.stats.ImmutableBotStats;
-import space.npstr.wolfia.domain.stats.ImmutableGuildStats;
-import space.npstr.wolfia.domain.stats.ImmutableUserStats;
-import space.npstr.wolfia.domain.stats.UserStats;
 import space.npstr.wolfia.game.definitions.Alignments;
 
 import javax.persistence.EntityManager;

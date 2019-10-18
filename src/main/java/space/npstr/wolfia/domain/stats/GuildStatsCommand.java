@@ -22,7 +22,6 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.utils.StatsProvider;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;
