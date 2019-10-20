@@ -18,7 +18,6 @@
 package space.npstr.wolfia.domain.stats;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.immutables.value.Value.Immutable;
 
@@ -37,7 +36,12 @@ public interface GuildStats {
     Number averagePlayerSize();
 
     /**
-     * @return TODO define a better data structure
+     * @return win stats for all games
      */
-    Map<Integer, List<Long>> collectedValues();
+    WinStats totalWinStats();
+
+    /**
+     * @return win stats for games by player size
+     */
+    List<WinStats> winStatsByPlayerSize();
 }

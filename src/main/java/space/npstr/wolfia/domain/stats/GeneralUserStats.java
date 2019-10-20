@@ -17,26 +17,20 @@
 
 package space.npstr.wolfia.domain.stats;
 
-import java.util.List;
+import org.immutables.value.Value;
 
 import static org.immutables.value.Value.Immutable;
 
 @Immutable
-@StatsStyle
-public interface BotStats {
+@Value.Style(create = "new")
+public interface GeneralUserStats {
 
-    /**
-     * @return average player size for all games
-     */
-    Number averagePlayerSize();
+    long postLength();
 
-    /**
-     * @return win stats for all games
-     */
-    WinStats totalWinStats();
+    long posts();
 
-    /**
-     * @return win stats for games by player size
-     */
-    List<WinStats> winStatsByPlayerSize();
+    String alignment();
+
+    boolean isWinner();
+
 }
