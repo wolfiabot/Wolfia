@@ -100,7 +100,7 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
 
         //1. post summary like game, mode, players, roles
         eb.setTitle("**Game #" + gameStats.getGameId().orElseThrow() + "**");
-        eb.setDescription(gameStats.getGameType().textRep + " " + gameStats.getGameMode());
+        eb.setDescription(gameStats.getGameType().textRep + " " + gameStats.getGameMode().textRep);
         eb.addField("Game started", TextchatUtils.toUtcTime(gameStats.getStartTime()), true);
 
         gameStats.getStartingTeams().forEach(team ->

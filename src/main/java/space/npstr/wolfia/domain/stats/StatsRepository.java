@@ -222,7 +222,7 @@ public class StatsRepository {
                     long gameId = context
                             .insertInto(STATS_GAME)
                             .values(defaultValue(STATS_GAME.GAME_ID), gameStats.getChannelId(),
-                                    gameStats.getChannelName(), gameStats.getEndTime(), gameStats.getGameMode(),
+                                    gameStats.getChannelName(), gameStats.getEndTime(), gameStats.getGameMode().name(),
                                     gameStats.getGameType().name(), gameStats.getGuildId(), gameStats.getGuildName(),
                                     gameStats.getStartTime(), gameStats.getPlayerSize())
                             .returningResult(STATS_GAME.GAME_ID)

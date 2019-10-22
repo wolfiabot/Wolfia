@@ -35,7 +35,6 @@ public class ActionStats {
     private final GameStats game;
 
     //chronological order of the actions
-    //just a failsafe in case the List of actions in Game gets into an unsorted state
     //order is a reserved keyword in postgres, so we use 'sequence' in the table instead
     private final int order;
 
@@ -43,19 +42,16 @@ public class ActionStats {
     // happens (example: nk gets submitted during the night, but actually "happens" when the day starts and results are
     // announced). these two timestamps try to capture that data as accurately as possible
     private final long timeStampSubmitted;
-
     private long timeStampHappened;
 
     //n0, d1 + n1, d2 + n2 etc
     private final int cycle;
 
-    //day or night or whatever else, defined in the Phase enum
     private final Phase phase;
 
     //userId of the discord user; there might be special negative values for factional actors/targets in the future
     private final long actor;
 
-    //defined in the Actions enum
     private final Actions actionType;
 
     //userId of the discord user

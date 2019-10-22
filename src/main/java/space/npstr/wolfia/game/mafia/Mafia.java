@@ -204,7 +204,7 @@ public class Mafia extends Game {
         final Guild g = gameChannel.getGuild();
         //set up stats objects
         this.gameStats = new GameStats(g.getIdLong(), g.getName(), this.channelId, gameChannel.getName(),
-                Games.MAFIA, this.mode.name(), this.players.size());
+                Games.MAFIA, this.mode, this.players.size());
         final Map<Alignments, TeamStats> teams = new EnumMap<>(Alignments.class);
         for (final Player player : this.players) {
             final Alignments alignment = player.alignment;

@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static space.npstr.wolfia.game.GameInfo.GameMode;
+
 /**
  * Created by napster on 30.05.17.
  * <p>
@@ -58,13 +60,13 @@ public class GameStats {
 
     private final Games gameType;
 
-    private final String gameMode;
+    private final GameMode gameMode;
 
     private final int playerSize;
 
 
     public GameStats(long guildId, String guildName, long channelId, String channelName, Games gameType,
-                     String gameMode, int playerSize) {
+                     GameMode gameMode, int playerSize) {
 
         this.guildId = guildId;
         this.guildName = guildName;
@@ -81,11 +83,12 @@ public class GameStats {
             "guildName", "startTime", "playerSize"})
     public GameStats(long gameId, long channelId, String channelName, long endTime, String gameMode, String gameType,
                      long guildId, String guildName, long startTime, int playerSize) {
+
         this.gameId = Optional.of(gameId);
         this.channelId = channelId;
         this.channelName = channelName;
         this.endTime = endTime;
-        this.gameMode = gameMode;
+        this.gameMode = GameMode.valueOf(gameMode);
         this.gameType = Games.valueOf(gameType);
         this.guildId = guildId;
         this.guildName = guildName;
@@ -184,7 +187,7 @@ public class GameStats {
         return this.gameType;
     }
 
-    public String getGameMode() {
+    public GameMode getGameMode() {
         return this.gameMode;
     }
 

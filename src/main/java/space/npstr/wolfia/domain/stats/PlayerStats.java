@@ -41,7 +41,6 @@ public class PlayerStats {
 
     private final Alignments alignment;
 
-    //defined in the Roles enum
     private final Roles role;
 
     private int totalPosts;

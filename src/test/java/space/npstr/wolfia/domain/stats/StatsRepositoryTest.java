@@ -51,7 +51,7 @@ class StatsRepositoryTest extends ApplicationTest {
         long endTime = System.currentTimeMillis();
 
         GameStats gameStats = new GameStats(guildId, guildName, channelId, channelName,
-                gameType, mode.name(), playerSize);
+                gameType, mode, playerSize);
         gameStats.setEndTime(endTime);
 
         TeamStats wolves = new TeamStats(gameStats, Alignments.WOLF, "Wolves", 1);
@@ -92,7 +92,7 @@ class StatsRepositoryTest extends ApplicationTest {
         assertThat(fetched.getChannelId()).isEqualTo(channelId);
         assertThat(fetched.getChannelName()).isEqualTo(channelName);
         assertThat(fetched.getGameType()).isEqualTo(gameType);
-        assertThat(fetched.getGameMode()).isEqualTo(mode.name());
+        assertThat(fetched.getGameMode()).isEqualTo(mode);
         assertThat(fetched.getPlayerSize()).isEqualTo(playerSize);
         assertThat(fetched.getEndTime()).isEqualTo(endTime);
         // TODO start time?
