@@ -17,25 +17,39 @@
 
 package space.npstr.wolfia;
 
+import net.dv8tion.jda.bot.sharding.ShardManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
+import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.db.Database;
+import space.npstr.wolfia.events.CommandListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LauncherTest extends ApplicationTest {
+abstract class LauncherTest extends ApplicationTest {
 
     @Autowired
-    private ApplicationContext applicationContext;
+    protected AbstractApplicationContext applicationContext;
+
+    @Autowired
+    private BeanCatcher beanCatcher;
 
     @Test
     void applicationContextLoads() {
         // smoke test for some usual & important beans
-        assertThat(this.applicationContext.containsBean("commandListener")).isTrue();
-        assertThat(this.applicationContext.containsBean("commRegistry")).isTrue();
-        assertThat(this.applicationContext.containsBean("shardManager")).isTrue();
-        assertThat(this.applicationContext.containsBean("botContext")).isTrue();
-        assertThat(this.applicationContext.containsBean("database")).isTrue();
+        assertThatContainsBean("commandListener", CommandListener.class);
+        assertThatContainsBean("commRegistry", CommRegistry.class);
+        assertThatContainsBean("shardManager", ShardManager.class);
+        assertThatContainsBean("botContext", BotContext.class);
+        assertThatContainsBean("database", Database.class);
+        assertThatContainsBean("shutdownHandler", ShutdownHandler.class);
+    }
+
+    private void assertThatContainsBean(String name, Class<?> clazz) {
+        var beans = this.beanCatcher.getBeans();
+        assertThat(beans).containsKey(name);
+        assertThat(beans.get(name)).isInstanceOf(clazz);
     }
 
 }

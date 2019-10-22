@@ -1,29 +1,29 @@
 //@formatter:off
 ext {
 
-	springBootVersion			= '2.1.9.RELEASE'
-	flywayVersion				= '5.2.4'
+	springBootVersion			= '2.2.0.RELEASE'
+	flywayVersion				= '6.0.6'
 
 	gradleGitVersion			= '2.2.0'
 	grGitVersion				= '3.1.1'
 	sonarVersion				= '2.8'
 	bintrayVersion				= '1.8.4'
 	jooqPluginVersion			= '3.0.3'
-	versionsPluginVersion		= '0.25.0'
+	versionsPluginVersion		= '0.27.0'
 	dockerPluginVersion			= '5.2.0'
-	testLoggerVersion			= '1.7.0'
+	testLoggerVersion			= '2.0.0'
 
 	jdaVersion					= '3.8.3_464'
-	sentryLogbackVersion		= '1.7.27'
+	sentryLogbackVersion		= '1.7.28'
 	orgJsonVersion				= '20190722'
 	annotationsVersion			= '0.0.2'
-	immutablesVersion			= '2.8.0'
+	immutablesVersion			= '2.8.1'
 
 	prometheusVersion			= '0.7.0'
 	promExtVersion				= '1.1.0'
 
 	dsProxyVersion				= '1.5.1'
-	jooqVersion					= '3.12.1'
+	jooqVersion					= '3.12.2'
 
 	testcontainersVersion		= '1.12.2'
 	junitVersion				= '5.5.2'

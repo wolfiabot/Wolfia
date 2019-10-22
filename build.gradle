@@ -21,6 +21,7 @@ buildscript {
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:$sonarVersion"
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
         classpath "nu.studer:gradle-jooq-plugin:$jooqPluginVersion"
+        classpath "org.jooq:jooq-codegen:$jooqVersion"
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
         classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
         classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
@@ -70,16 +71,19 @@ allprojects {
         maven { url 'https://jitpack.io' }      //for getting builds from github
     }
 
-    dependencyUpdates.resolutionStrategy {
-        componentSelection { rules ->
-            rules.all { ComponentSelection selection ->
-                boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'preview', 'pr1', 'pr2', 'pr3',
-                                    'b180830.0438', 'b180830.0359', 'b180725.0644', 'b180725.0427' // jaxb bullshit
-                ].any {
-                    q -> selection.candidate.version.toLowerCase().contains(q)
-                }
-                if (rejected) {
-                    selection.reject('Alpha or beta version')
+    dependencyUpdates {
+        checkConstraints = true
+        resolutionStrategy {
+            componentSelection { rules ->
+                rules.all { ComponentSelection selection ->
+                    boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'preview', 'pr1', 'pr2', 'pr3',
+                                        'b180830.0438', 'b180830.0359', 'b180725.0644', 'b180725.0427', '2.3.3-b01' // jaxb bullshit
+                    ].any {
+                        q -> selection.candidate.version.toLowerCase().contains(q)
+                    }
+                    if (rejected) {
+                        selection.reject('Alpha or beta version')
+                    }
                 }
             }
         }
