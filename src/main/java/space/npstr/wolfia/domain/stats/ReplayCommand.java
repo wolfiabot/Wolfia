@@ -35,8 +35,6 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "replay";
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReplayCommand.class);
-
     private final StatsRender render;
     private final StatsProvider statsProvider;
 
