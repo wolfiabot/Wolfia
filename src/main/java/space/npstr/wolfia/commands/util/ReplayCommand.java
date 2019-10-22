@@ -17,14 +17,15 @@
 
 package space.npstr.wolfia.commands.util;
 
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
-import space.npstr.wolfia.db.entities.stats.ActionStats;
-import space.npstr.wolfia.db.entities.stats.GameStats;
-import space.npstr.wolfia.db.entities.stats.TeamStats;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.stats.ActionStats;
+import space.npstr.wolfia.domain.stats.GameStats;
+import space.npstr.wolfia.domain.stats.StatsProvider;
+import space.npstr.wolfia.domain.stats.StatsRender;
+import space.npstr.wolfia.domain.stats.TeamStats;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.discord.Emojis;
@@ -33,9 +34,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -50,6 +49,14 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "replay";
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ReplayCommand.class);
+
+    private final StatsRender render;
+    private final StatsProvider statsProvider;
+
+    public ReplayCommand(StatsRender render, StatsProvider statsProvider) {
+        this.render = render;
+        this.statsProvider = statsProvider;
+    }
 
     @Override
     public String getTrigger() {
@@ -81,22 +88,19 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        final String sql = "SELECT g FROM GameStats g JOIN FETCH g.startingTeams t JOIN FETCH g.actions a JOIN FETCH t.players p WHERE g.gameId = :gameId";
-        final Map<String, Object> params = new HashMap<>();
-        params.put("gameId", gameId);
-        final List<GameStats> gameStatsList = Launcher.getBotContext().getDatabase().getWrapper().selectJpqlQuery(sql, params, GameStats.class);
+        Optional<GameStats> gameStatsOpt = this.statsProvider.getGameStats(gameId);
 
-        if (gameStatsList.isEmpty()) {
+        if (gameStatsOpt.isEmpty()) {
             context.replyWithMention("there is no such game in the database.");
             return false;
         }
-        final GameStats gameStats = gameStatsList.get(0);
+        final GameStats gameStats = gameStatsOpt.get();
 
         final NiceEmbedBuilder eb = NiceEmbedBuilder.defaultBuilder();
 
         //1. post summary like game, mode, players, roles
-        eb.setTitle("**Game #" + gameStats.getId() + "**");
-        eb.setDescription(gameStats.getGameType().textRep + " " + gameStats.getGameMode());
+        eb.setTitle("**Game #" + gameStats.getGameId().orElseThrow() + "**");
+        eb.setDescription(gameStats.getGameType().textRep + " " + gameStats.getGameMode().textRep);
         eb.addField("Game started", TextchatUtils.toUtcTime(gameStats.getStartTime()), true);
 
         gameStats.getStartingTeams().forEach(team ->
@@ -113,7 +117,7 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
         final String fieldTitle = "Actions";
         final NiceEmbedBuilder.ChunkingField actionsField = new NiceEmbedBuilder.ChunkingField(fieldTitle, false);
         for (final ActionStats action : sortedActions) {
-            final String actionStr = action.toString();
+            final String actionStr = this.render.renderActionStats(action);
             actionsField.add(actionStr, true);
         }
         eb.addField(actionsField);

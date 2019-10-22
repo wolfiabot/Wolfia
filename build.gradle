@@ -92,6 +92,7 @@ allprojects {
 
     testlogger {
         theme 'mocha'
+        showFullStackTraces true
     }
 
     jacocoTestReport {
@@ -335,6 +336,9 @@ dependencies {
     implementation "io.prometheus:simpleclient_common"
     implementation "io.prometheus:simpleclient_caffeine"
     implementation "space.npstr:prometheus_extensions"
+
+    annotationProcessor "org.immutables:value"
+    compileOnly(group: 'org.immutables', name: 'value', classifier: 'annotations')
 
     implementation "space.npstr.SqlSauce:sqlsauce-core"
     implementation "space.npstr.SqlSauce:discord-entities"

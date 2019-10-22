@@ -36,10 +36,10 @@ import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.entities.stats.ActionStats;
-import space.npstr.wolfia.db.entities.stats.GameStats;
-import space.npstr.wolfia.db.entities.stats.PlayerStats;
-import space.npstr.wolfia.db.entities.stats.TeamStats;
+import space.npstr.wolfia.domain.stats.ActionStats;
+import space.npstr.wolfia.domain.stats.GameStats;
+import space.npstr.wolfia.domain.stats.PlayerStats;
+import space.npstr.wolfia.domain.stats.TeamStats;
 import space.npstr.wolfia.events.UpdatingReactionListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
@@ -204,7 +204,7 @@ public class Mafia extends Game {
         final Guild g = gameChannel.getGuild();
         //set up stats objects
         this.gameStats = new GameStats(g.getIdLong(), g.getName(), this.channelId, gameChannel.getName(),
-                Games.MAFIA, this.mode.name(), this.players.size());
+                Games.MAFIA, this.mode, this.players.size());
         final Map<Alignments, TeamStats> teams = new EnumMap<>(Alignments.class);
         for (final Player player : this.players) {
             final Alignments alignment = player.alignment;
