@@ -99,7 +99,7 @@ public class StatsRepository {
     }
 
     @CheckReturnValue
-    CompletionStage<Integer> countAlignmentWins(Alignments alignment) {
+    public CompletionStage<Integer> countAlignmentWins(Alignments alignment) {
         return this.wrapper.jooq(dsl -> dsl
                 .select(count())
                 .from(STATS_GAME)
@@ -113,7 +113,7 @@ public class StatsRepository {
     }
 
     @CheckReturnValue
-    CompletionStage<Integer> countAlignmentWinsInGuild(Alignments alignment, long guildId) {
+    public CompletionStage<Integer> countAlignmentWinsInGuild(Alignments alignment, long guildId) {
         return this.wrapper.jooq(dsl -> dsl
                 .select(count())
                 .from(STATS_GAME)
@@ -128,7 +128,7 @@ public class StatsRepository {
     }
 
     @CheckReturnValue
-    CompletionStage<Integer> countAlignmentWinsForPlayerSize(Alignments alignment, int playerSize) {
+    public CompletionStage<Integer> countAlignmentWinsForPlayerSize(Alignments alignment, int playerSize) {
         return this.wrapper.jooq(dsl -> dsl
                 .select(count())
                 .from(STATS_GAME)
@@ -143,7 +143,7 @@ public class StatsRepository {
     }
 
     @CheckReturnValue
-    CompletionStage<Integer> countAlignmentWinsForPlayerSizeInGuild(Alignments alignment, int playerSize, long guildId) {
+    public CompletionStage<Integer> countAlignmentWinsForPlayerSizeInGuild(Alignments alignment, int playerSize, long guildId) {
         return this.wrapper.jooq(dsl -> dsl
                 .select(count())
                 .from(STATS_GAME)
@@ -159,7 +159,7 @@ public class StatsRepository {
     }
 
     @CheckReturnValue
-    CompletionStage<List<GeneralUserStats>> getGeneralUserStats(long userId) {
+    public CompletionStage<List<GeneralUserStats>> getGeneralUserStats(long userId) {
         return this.wrapper.jooq(dsl -> dsl
                 .select(STATS_PLAYER.TOTAL_POSTLENGTH, STATS_PLAYER.TOTAL_POSTS, STATS_PLAYER.ALIGNMENT, STATS_TEAM.IS_WINNER)
                 .from(STATS_PLAYER)
@@ -170,7 +170,7 @@ public class StatsRepository {
     }
 
     @CheckReturnValue
-    CompletionStage<List<String>> getUserShots(long userId) {
+    public CompletionStage<List<String>> getUserShots(long userId) {
         return this.wrapper.jooq(dsl -> Arrays.asList(dsl
                 .select(STATS_PLAYER.ALIGNMENT)
                 .from(STATS_ACTION)
