@@ -168,6 +168,7 @@ project(':database-codegen') {
         api "org.jooq:jooq"
         implementation "org.jooq:jooq-meta"
         implementation "org.jooq:jooq-codegen"
+        implementation "org.postgresql:postgresql"
         flywayMigration "org.postgresql:postgresql"
         jooqRuntime "org.postgresql:postgresql"
     }
@@ -253,6 +254,14 @@ project(':database-codegen') {
                 database {
                     name = 'org.jooq.meta.postgres.PostgresDatabase'
                     inputSchema = 'public'
+                    forcedTypes {
+                        forcedType {
+                            userType = 'java.util.HashMap<java.lang.String, java.lang.String>'
+                            binding = 'space.npstr.wolfia.db.PostgresHstoreBinding'
+                            expression = '.*'
+                            types = 'hstore'
+                        }
+                    }
                 }
                 target {
                     packageName = 'space.npstr.wolfia.db.gen'
