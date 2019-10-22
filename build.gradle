@@ -92,6 +92,7 @@ allprojects {
 
     testlogger {
         theme 'mocha'
+        showFullStackTraces true
     }
 
     jacocoTestReport {
