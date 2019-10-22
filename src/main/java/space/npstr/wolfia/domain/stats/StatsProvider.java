@@ -18,7 +18,6 @@
 package space.npstr.wolfia.domain.stats;
 
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.db.entities.stats.GameStats;
 import space.npstr.wolfia.game.definitions.Alignments;
 
 import java.math.BigDecimal;

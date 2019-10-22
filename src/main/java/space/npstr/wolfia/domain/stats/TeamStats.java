@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db.entities.stats;
+package space.npstr.wolfia.domain.stats;
 
 import space.npstr.wolfia.game.definitions.Alignments;
 
