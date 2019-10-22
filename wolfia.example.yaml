@@ -20,9 +20,10 @@ spring:
       enabled: always
 
 logging:
-  file: './logs/wolfia.log'
-  file.max-history: 30
-  file.max-size: 1GB
+  file:
+    name: './logs/wolfia.log'
+    max-history: 30
+    max-size: 1GB
 
   level:
     root: INFO
