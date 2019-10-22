@@ -21,22 +21,12 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.domain.stats.ActionStats;
 import space.npstr.wolfia.domain.stats.GameStats;
 import space.npstr.wolfia.domain.stats.StatsProvider;
 import space.npstr.wolfia.domain.stats.StatsRender;
-import space.npstr.wolfia.domain.stats.TeamStats;
-import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
-import space.npstr.wolfia.utils.discord.Emojis;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Created by napster on 03.06.17.
@@ -94,53 +84,8 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
             context.replyWithMention("there is no such game in the database.");
             return false;
         }
-        final GameStats gameStats = gameStatsOpt.get();
 
-        final NiceEmbedBuilder eb = NiceEmbedBuilder.defaultBuilder();
-
-        //1. post summary like game, mode, players, roles
-        eb.setTitle("**Game #" + gameStats.getGameId().orElseThrow() + "**");
-        eb.setDescription(gameStats.getGameType().textRep + " " + gameStats.getGameMode().textRep);
-        eb.addField("Game started", TextchatUtils.toUtcTime(gameStats.getStartTime()), true);
-
-        gameStats.getStartingTeams().forEach(team ->
-                eb.addField(gameStats.getGameType() == Games.POPCORN ? team.getAlignment().textRepWW : team.getAlignment().textRepMaf,
-                        String.join(", ",
-                                team.getPlayers().stream().map(player -> "`" + player.getNickname() + "`").collect(Collectors.toList())),
-                        true)
-        );
-
-
-        //2. post the actions
-        final List<ActionStats> sortedActions = new ArrayList<>(gameStats.getActions());
-        sortedActions.sort(Comparator.comparingLong(ActionStats::getTimeStampSubmitted));
-        final String fieldTitle = "Actions";
-        final NiceEmbedBuilder.ChunkingField actionsField = new NiceEmbedBuilder.ChunkingField(fieldTitle, false);
-        for (final ActionStats action : sortedActions) {
-            final String actionStr = this.render.renderActionStats(action);
-            actionsField.add(actionStr, true);
-        }
-        eb.addField(actionsField);
-
-        //3. post the winners
-        eb.addField("Game ended", TextchatUtils.toUtcTime(gameStats.getEndTime()), true);
-        eb.addField("Game length", TextchatUtils.formatMillis(gameStats.getEndTime() - gameStats.getStartTime()), true);
-
-        final String winText;
-        final Optional<TeamStats> winners = gameStats.getStartingTeams().stream().filter(TeamStats::isWinner).findFirst();
-        if (!winners.isPresent()) {
-            //shouldn't happen lol
-            log.error("Game #{} has no winning team in the data", gameId);
-            winText = "Game has no winning team " + Emojis.WOLFTHINK + "\nReplay must be borked. Error has been reported.";
-        } else {
-            final TeamStats winningTeam = winners.get();
-            String flavouredTeamName = winningTeam.getAlignment().textRepMaf;
-            if (gameStats.getGameType() == Games.POPCORN) flavouredTeamName = winningTeam.getAlignment().textRepWW;
-            winText = "**Team " + flavouredTeamName + " wins the game!**";
-        }
-        eb.addField("Winners", winText, true);
-
-        context.reply(eb.build());
+        context.reply(this.render.renderGameStats(gameStatsOpt.get()));
         return true;
     }
 }

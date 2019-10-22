@@ -32,11 +32,15 @@ import space.npstr.wolfia.domain.settings.GuildSettingsService;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Item;
+import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static space.npstr.wolfia.utils.discord.TextchatUtils.divide;
 import static space.npstr.wolfia.utils.discord.TextchatUtils.percentFormat;
@@ -135,6 +139,55 @@ public class StatsRender {
         eb.addField("Total post length", stats.totalPostLength() + "", true);
         eb.addField("∅ posts per game", ((long) divide(stats.totalPosts(), stats.totalGames())) + "", true);
         eb.addField("∅ post length", ((long) divide(stats.totalPostLength(), stats.totalPosts())) + "", true);
+        return eb;
+    }
+
+
+    public EmbedBuilder renderGameStats(GameStats stats) {
+        final NiceEmbedBuilder eb = NiceEmbedBuilder.defaultBuilder();
+
+        long gameId = stats.getGameId().orElseThrow();
+
+        //1. post summary like game, mode, players, roles
+        eb.setTitle("**Game #" + gameId + "**");
+        eb.setDescription(stats.getGameType().textRep + " " + stats.getGameMode().textRep);
+        eb.addField("Game started", TextchatUtils.toUtcTime(stats.getStartTime()), true);
+
+        stats.getStartingTeams().forEach(team ->
+                eb.addField(stats.getGameType() == Games.POPCORN ? team.getAlignment().textRepWW : team.getAlignment().textRepMaf,
+                        String.join(", ",
+                                team.getPlayers().stream().map(player -> "`" + player.getNickname() + "`").collect(Collectors.toList())),
+                        true)
+        );
+
+        //2. post the actions
+        final List<ActionStats> sortedActions = new ArrayList<>(stats.getActions());
+        sortedActions.sort(Comparator.comparingLong(ActionStats::getTimeStampSubmitted));
+        final String fieldTitle = "Actions";
+        final NiceEmbedBuilder.ChunkingField actionsField = new NiceEmbedBuilder.ChunkingField(fieldTitle, false);
+        for (final ActionStats action : sortedActions) {
+            final String actionStr = renderActionStats(action);
+            actionsField.add(actionStr, true);
+        }
+        eb.addField(actionsField);
+
+        //3. post the winners
+        eb.addField("Game ended", TextchatUtils.toUtcTime(stats.getEndTime()), true);
+        eb.addField("Game length", TextchatUtils.formatMillis(stats.getEndTime() - stats.getStartTime()), true);
+
+        final String winText;
+        final Optional<TeamStats> winners = stats.getStartingTeams().stream().filter(TeamStats::isWinner).findFirst();
+        if (!winners.isPresent()) {
+            //shouldn't happen lol
+            log.error("Game #{} has no winning team in the data", gameId);
+            winText = "Game has no winning team " + Emojis.WOLFTHINK + "\nReplay must be borked. Error has been reported.";
+        } else {
+            final TeamStats winningTeam = winners.get();
+            String flavouredTeamName = winningTeam.getAlignment().textRepMaf;
+            if (stats.getGameType() == Games.POPCORN) flavouredTeamName = winningTeam.getAlignment().textRepWW;
+            winText = "**Team " + flavouredTeamName + " wins the game!**";
+        }
+        eb.addField("Winners", winText, true);
         return eb;
     }
 
