@@ -67,7 +67,6 @@ allprojects {
     repositories {
         jcenter()                               // JDA, maybe others
         mavenCentral()                          // everything else
-        maven { url 'https://dl.bintray.com/napster/SqlSauce' }
         maven { url 'https://jitpack.io' }      //for getting builds from github
     }
 
@@ -123,11 +122,8 @@ project(':platform') {
             api "io.prometheus:simpleclient_caffeine:$prometheusVersion"
             api "space.npstr:prometheus_extensions:$promExtVersion"
 
-            api "space.npstr.SqlSauce:sqlsauce-core:$sqlsauceVersion"
-            api "space.npstr.SqlSauce:discord-entities:$sqlsauceVersion"
             api "net.ttddyy:datasource-proxy:$dsProxyVersion"
             api "org.flywaydb:flyway-core:$flywayVersion"
-
             api "org.jooq:jooq:$jooqVersion"
             api "org.jooq:jooq-meta:$jooqVersion"
             api "org.jooq:jooq-codegen:$jooqVersion"
@@ -349,8 +345,6 @@ dependencies {
     annotationProcessor "org.immutables:value"
     compileOnly(group: 'org.immutables', name: 'value', classifier: 'annotations')
 
-    implementation "space.npstr.SqlSauce:sqlsauce-core"
-    implementation "space.npstr.SqlSauce:discord-entities"
     implementation "net.ttddyy:datasource-proxy"
     implementation "org.flywaydb:flyway-core"
 

@@ -22,7 +22,6 @@ ext {
 	prometheusVersion			= '0.7.0'
 	promExtVersion				= '1.1.0'
 
-	sqlsauceVersion				= '0.4.2'
 	dsProxyVersion				= '1.5.1'
 	jooqVersion					= '3.12.1'
 

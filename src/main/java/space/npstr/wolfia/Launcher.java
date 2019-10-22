@@ -30,7 +30,6 @@ import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEven
 import org.springframework.boot.context.event.ApplicationFailedEvent;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.utils.GitRepoState;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -59,7 +58,6 @@ public class Launcher implements ApplicationRunner {
 
     private final ThreadPoolCollector poolMetrics;
     private final WolfiaConfig wolfiaConfig;
-    private final Database database;
 
     public static BotContext getBotContext() {
         return botContext;
@@ -95,44 +93,20 @@ public class Launcher implements ApplicationRunner {
         app.run(args);
     }
 
-    public Launcher(BotContext botContext, ThreadPoolCollector poolMetrics,
-                    WolfiaConfig wolfiaConfig, Database database) {
-
+    public Launcher(BotContext botContext, ThreadPoolCollector poolMetrics, WolfiaConfig wolfiaConfig) {
         Launcher.botContext = botContext;
         this.poolMetrics = poolMetrics;
         this.wolfiaConfig = wolfiaConfig;
-        this.database = database;
     }
 
     @Override
-    public void run(final ApplicationArguments args) throws Exception {
-
+    public void run(final ApplicationArguments args) {
         this.poolMetrics.addPool("restActions", (ScheduledThreadPoolExecutor) RestActions.restService);
 
         if (this.wolfiaConfig.isDebug())
             log.info("Running DEBUG configuration");
         else
             log.info("Running PRODUCTION configuration");
-
-        //try connecting in a reasonable timeframe
-        boolean dbConnected = false;
-        final long dbConnectStarted = System.currentTimeMillis();
-        do {
-            try {
-                //noinspection ResultOfMethodCallIgnored
-                this.database.getWrapper().selectSqlQuery("SELECT 1;", null);
-                dbConnected = true;
-                log.info("Initial db connection succeeded");
-            } catch (final Exception e) {
-                log.info("Failed initial db connection, retrying in a moment", e);
-                Thread.sleep(1000);
-            }
-        } while (!dbConnected && System.currentTimeMillis() - dbConnectStarted < 1000 * 60 * 2); //2 minutes
-
-        if (!dbConnected) {
-            log.error("Failed to init db connection in a reasonable amount of time, exiting.");
-            System.exit(2);
-        }
     }
 
     @Nonnull

@@ -27,7 +27,6 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.exceptions.PermissionException;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.CommandContext;
@@ -713,7 +712,7 @@ public abstract class Game {
                 long gameId = this.gameStats.getGameId().orElseThrow();
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
                         gameId, WolfiaConfig.DEFAULT_PREFIX + ReplayCommand.TRIGGER, gameId);
-            } catch (final DatabaseException e) {
+            } catch (final Exception e) {
                 log.error("Db blew up saving game stats", e);
                 out += "The database it not available currently, a replay of this game will not be available.";
             }

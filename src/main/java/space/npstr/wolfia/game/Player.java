@@ -20,7 +20,6 @@ package space.npstr.wolfia.game;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.User;
-import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.game.definitions.Alignments;
@@ -44,6 +43,8 @@ import java.util.function.Consumer;
  * Representing a player in a game
  */
 public class Player {
+
+    public static final String UNKNOWN_NAME = "Unknown User";
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Player.class);
 
@@ -115,7 +116,7 @@ public class Player {
             return Launcher.getBotContext().getUserCache().user(this.userId).getName();
         } catch (final Exception e) {
             log.warn("Failed to fetch user {} name", this.userId, e);
-            return DiscordUser.UNKNOWN_NAME;
+            return UNKNOWN_NAME;
         }
     }
 
@@ -129,7 +130,7 @@ public class Player {
             return Launcher.getBotContext().getUserCache().user(this.userId).getEffectiveName(this.guildId);
         } catch (final Exception e) {
             log.warn("Failed to fetch user {} nick", this.userId, e);
-            return DiscordUser.UNKNOWN_NAME;
+            return UNKNOWN_NAME;
         }
     }
 
@@ -140,8 +141,8 @@ public class Player {
      */
     @Nonnull
     public String bothNamesFormatted() {
-        String name = DiscordUser.UNKNOWN_NAME;
-        String nick = DiscordUser.UNKNOWN_NAME;
+        String name = UNKNOWN_NAME;
+        String nick = UNKNOWN_NAME;
         try {
             UserCache userCache = Launcher.getBotContext().getUserCache();
             name = userCache.user(this.userId).getName();
