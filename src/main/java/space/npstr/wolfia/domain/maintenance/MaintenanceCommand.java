@@ -15,12 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.debug;
+package space.npstr.wolfia.domain.maintenance;
 
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.domain.maintenance.MaintenanceService;
 
 import javax.annotation.Nonnull;
 
