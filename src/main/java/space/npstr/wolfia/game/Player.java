@@ -17,9 +17,9 @@
 
 package space.npstr.wolfia.game;
 
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.game.definitions.Alignments;

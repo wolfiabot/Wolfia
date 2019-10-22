@@ -17,9 +17,9 @@
 
 package space.npstr.wolfia.events;
 
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import space.npstr.wolfia.Launcher;
 
 import java.util.concurrent.ScheduledFuture;

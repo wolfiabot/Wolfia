@@ -87,7 +87,7 @@ public class StatusCommand implements BaseCommand, PublicCommand {
                 if (game == null) {
                     context.getTextChannel().getIdLong();
                     GameSetup setup = this.gameSetupService.channel(context.getTextChannel().getIdLong())
-                            .cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
+                            .cleanUpInnedPlayers(context.getJda().getShardManager());
                     context.reply(this.render.render(setup, context));
                     return true;
                 }

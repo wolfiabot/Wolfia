@@ -17,14 +17,16 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.Nonnull;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by napster on 19.11.17.
@@ -61,8 +63,8 @@ public class ReviveCommand implements BaseCommand {
             return false;
         }
 
-        ShardManager shardManager = context.getJda().asBot().getShardManager();
-        final JDA jda = shardManager.getShardById(shardId);
+        ShardManager shardManager = context.getJda().getShardManager();
+        final JDA jda = requireNonNull(shardManager).getShardById(shardId);
         if (jda == null) {
             context.reply("No shard with id " + shardId + " found.");
             return false;

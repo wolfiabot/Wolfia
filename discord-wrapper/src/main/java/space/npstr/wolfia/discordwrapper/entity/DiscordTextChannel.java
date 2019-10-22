@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.discordwrapper.entity;
 
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.immutables.value.Value;
 
 /**

@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia;
 
-import net.dv8tion.jda.core.JDAInfo;
+import net.dv8tion.jda.api.JDAInfo;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;

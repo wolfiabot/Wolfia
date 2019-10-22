@@ -18,17 +18,18 @@
 package space.npstr.wolfia.utils.discord;
 
 
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Channel;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.IPermissionHolder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.PermissionOverride;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.requests.restaction.PermissionOverrideAction;
-import net.dv8tion.jda.core.utils.PermissionUtil;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.IPermissionHolder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.PermissionOverride;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
+import net.dv8tion.jda.internal.requests.EmptyRestAction;
+import net.dv8tion.jda.internal.utils.PermissionUtil;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.UserFriendlyException;
@@ -63,8 +64,8 @@ public class RoleAndPermissionUtils {
     public static RestAction<Role> getOrCreateRole(final Guild guild, final String name) {
         final Optional<Role> r = guild.getRolesByName(name, true).stream()
                 .filter(role -> role.getName().equals(name)).findFirst();
-        return r.<RestAction<Role>>map(role -> new RestAction.EmptyRestAction<>(guild.getJDA(), role))
-                .orElseGet(() -> guild.getController().createRole().setName(name));
+        return r.<RestAction<Role>>map(role -> new EmptyRestAction<>(guild.getJDA(), role))
+                .orElseGet(() -> guild.createRole().setName(name));
     }
 
     public static boolean hasPermissions(final Member member, final TextChannel channel, final Map<Scope, Permission> permissions) {
@@ -159,7 +160,7 @@ public class RoleAndPermissionUtils {
 
     //i personally allow this thing to be ugly
     @Nonnull
-    private static RestAction<?> setPermissionsInChannelForRoleOrMember(@Nonnull final Channel channel,
+    private static RestAction<?> setPermissionsInChannelForRoleOrMember(@Nonnull final GuildChannel channel,
                                                                         @Nonnull final IPermissionHolder memberOrRole,
                                                                         @Nonnull final PermissionAction action,
                                                                         @Nonnull final Permission... permissions) {
@@ -170,7 +171,7 @@ public class RoleAndPermissionUtils {
             po = channel.getPermissionOverride((Member) memberOrRole);
         } else {
             log.warn("Unsupported class of IPermissionHolder detected: {}, returning an empty action", memberOrRole);
-            return new RestAction.EmptyRestAction<>(channel.getJDA(), null);
+            return new EmptyRestAction<>(channel.getJDA(), null);
         }
 
         final RestAction ra;
@@ -179,7 +180,7 @@ public class RoleAndPermissionUtils {
                 case GRANT:
                     //do nothing if the permission override already grants the permission
                     if (po.getAllowed().containsAll(Arrays.asList(permissions))) {
-                        ra = new RestAction.EmptyRestAction<>(channel.getJDA(), null);
+                        ra = new EmptyRestAction<>(channel.getJDA(), null);
                     } else {
                         ra = po.getManager().grant(permissions);
                     }
@@ -187,7 +188,7 @@ public class RoleAndPermissionUtils {
                 case DENY:
                     //do nothing if the permission override already denies the permission
                     if (po.getDenied().containsAll(Arrays.asList(permissions))) {
-                        ra = new RestAction.EmptyRestAction<>(channel.getJDA(), null);
+                        ra = new EmptyRestAction<>(channel.getJDA(), null);
                     } else {
                         ra = po.getManager().deny(permissions);
                     }
@@ -224,7 +225,7 @@ public class RoleAndPermissionUtils {
                     break;
                 case CLEAR:
                     //do nothing if we are trying to clear a nonexisting permission override
-                    ra = new RestAction.EmptyRestAction<>(channel.getJDA(), null);
+                    ra = new EmptyRestAction<>(channel.getJDA(), null);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown PermissionAction passed: " + action.name());
@@ -241,17 +242,17 @@ public class RoleAndPermissionUtils {
      * @param permissions
      *         Permissions that shall be granted/denied to the member/role
      */
-    public static RestAction<?> grant(@Nonnull final Channel channel, @Nonnull final IPermissionHolder memberOrRole,
+    public static RestAction<?> grant(@Nonnull final GuildChannel channel, @Nonnull final IPermissionHolder memberOrRole,
                                       @Nonnull final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.GRANT, permissions);
     }
 
-    public static RestAction<?> deny(@Nonnull final Channel channel, @Nonnull final IPermissionHolder memberOrRole,
+    public static RestAction<?> deny(@Nonnull final GuildChannel channel, @Nonnull final IPermissionHolder memberOrRole,
                                      @Nonnull final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.DENY, permissions);
     }
 
-    public static RestAction<?> clear(@Nonnull final Channel channel, @Nonnull final IPermissionHolder memberOrRole,
+    public static RestAction<?> clear(@Nonnull final GuildChannel channel, @Nonnull final IPermissionHolder memberOrRole,
                                       @Nonnull final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.CLEAR, permissions);
     }

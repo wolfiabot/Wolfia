@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.domain.settings;
 
-import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.api.entities.Guild;
 import org.springframework.stereotype.Service;
 
 @Service

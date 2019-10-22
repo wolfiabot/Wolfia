@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.game.popcorn;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -60,6 +60,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongConsumer;
 
+import static java.util.Objects.requireNonNull;
 import static space.npstr.wolfia.game.GameInfo.GameMode;
 
 /**
@@ -483,7 +484,7 @@ public class Popcorn extends Game {
                             prepareGunDistributionEmbed(options, new HashMap<>(this.votes)).build(),
                             m -> {
                                 options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, RestActions.defaultOnFail()));
-                                m.getJDA().asBot().getShardManager().addEventListener(new ReactionListener(m,
+                                requireNonNull(m.getJDA().getShardManager()).addEventListener(new ReactionListener(m,
                                         //filter: only living wolves may vote
                                         Popcorn.this::isLivingWolf,
                                         //on reaction

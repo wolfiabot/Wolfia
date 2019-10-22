@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.domain;
 
-import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -89,7 +89,7 @@ public class GameStarter {
             throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
         }
 
-        setup = setupAction.cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
+        setup = setupAction.cleanUpInnedPlayers(context.getJda().getShardManager());
         final Set<Long> inned = new HashSet<>(setup.getInnedUsers());
         if (!game.isAcceptablePlayerCount(inned.size(), setup.getMode())) {
             RestActions.sendMessage(channel, String.format(

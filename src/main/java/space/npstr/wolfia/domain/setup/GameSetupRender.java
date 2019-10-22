@@ -17,8 +17,9 @@
 
 package space.npstr.wolfia.domain.setup;
 
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.game.GameInfo;
@@ -30,6 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Renders are responsible for rendering complex information to be displayable in the Discord client.
@@ -48,7 +51,8 @@ public class GameSetupRender {
         Set<Long> innedUsers = setup.getInnedUsers();
 
         var neb = NiceEmbedBuilder.defaultBuilder();
-        TextChannel channel = context.getJda().asBot().getShardManager().getTextChannelById(channelId);
+        ShardManager shardManager = context.getJda().getShardManager();
+        TextChannel channel = requireNonNull(shardManager).getTextChannelById(channelId);
         if (channel == null) {
             neb.addField("Could not find channel with id " + channelId, "", false);
             return neb.build();

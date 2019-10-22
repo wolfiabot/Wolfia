@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.commands.ingame;
 
-import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.api.entities.ChannelType;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;

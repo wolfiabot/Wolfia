@@ -19,9 +19,9 @@ package space.npstr.wolfia;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import space.npstr.wolfia.config.ShardManagerFactory;
 import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.UserFriendlyException;
@@ -49,12 +49,12 @@ public class ShutdownHandler {
     private volatile boolean shutdownHookExecuted = false;
 
     public ShutdownHandler(ExceptionLoggingExecutor executor, Database database, AsyncDbWrapper dbWrapper,
-                           DiscordEntityProvider discordEntityProvider, ScheduledExecutorService jdaThreadPool) {
+                           ShardManagerFactory shardManagerFactory, ScheduledExecutorService jdaThreadPool) {
 
         this.shutdownHookAdded = false;
         Thread shutdownHook = new Thread(() -> {
             try {
-                shutdown(executor, jdaThreadPool, discordEntityProvider,
+                shutdown(executor, jdaThreadPool, shardManagerFactory,
                         database, dbWrapper);
             } catch (Exception e) {
                 log.error("Uncaught exception in shutdown hook", e);
@@ -69,7 +69,7 @@ public class ShutdownHandler {
 
     private void shutdown(ExceptionLoggingExecutor executor,
                           @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool,
-                          DiscordEntityProvider discordEntityProvider, Database database, AsyncDbWrapper dbWrapper) {
+                          ShardManagerFactory shardManagerFactory, Database database, AsyncDbWrapper dbWrapper) {
 
         log.info("Shutdown hook triggered! {} games still ongoing.", Games.getRunningGamesCount());
         Future waitForGamesToEnd = executor.submit(() -> {
@@ -104,7 +104,7 @@ public class ShutdownHandler {
 
         //shutdown JDA
         log.info("Shutting down shards");
-        discordEntityProvider.shutdown();
+        shardManagerFactory.shardManager().shutdown();
 
         //shutdown executors
         log.info("Shutting down main executor");

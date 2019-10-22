@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.domain.ban;
 
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.db.gen.tables.records.BanRecord;

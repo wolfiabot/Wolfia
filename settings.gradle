@@ -2,5 +2,4 @@ rootProject.name = 'wolfia'
 
 include 'common'
 include 'database-codegen'
-include 'discord-wrapper'
 include 'platform'

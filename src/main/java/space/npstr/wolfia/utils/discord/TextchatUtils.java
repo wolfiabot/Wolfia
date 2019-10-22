@@ -17,14 +17,14 @@
 
 package space.npstr.wolfia.utils.discord;
 
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Invite;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Invite;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 import space.npstr.wolfia.utils.Operation;
 
 import javax.annotation.Nonnull;
@@ -81,13 +81,13 @@ public class TextchatUtils {
     //so no worries about spammed invites in a channel
     public static String getOrCreateInviteLinkForChannel(final TextChannel channel, final Operation... onFail) {
         try {
-            return channel.createInvite().complete().getURL();
+            return channel.createInvite().complete().getUrl();
         } catch (final PermissionException ignored) {
             // ignored
         }
         try {
-            final List<Invite> invites = channel.getInvites().complete();
-            if (!invites.isEmpty()) return invites.get(0).getURL();
+            final List<Invite> invites = channel.retrieveInvites().complete();
+            if (!invites.isEmpty()) return invites.get(0).getUrl();
         } catch (final PermissionException ignored) {
             // ignored
         }

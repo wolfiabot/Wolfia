@@ -17,9 +17,9 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jooq.exception.DataAccessException;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
