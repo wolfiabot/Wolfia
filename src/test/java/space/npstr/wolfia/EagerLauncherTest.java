@@ -17,26 +17,24 @@
 
 package space.npstr.wolfia;
 
-import io.prometheus.client.CollectorRegistry;
-import org.junit.jupiter.api.AfterAll;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.LazyInitializationBeanFactoryPostProcessor;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Extend this class from tests that require a Spring Application Context
+ * Ensure that the context loads eagerly. At least one eager test should help identify problems in loading the context
+ * before they happen in prod.
  */
-@SpringBootTest
-@ActiveProfiles("test")
-@TestPropertySource(properties = "spring.config.name=wolfia")
-public abstract class ApplicationTest extends PostgresContainer {
+@ActiveProfiles("eager")
+class EagerLauncherTest extends LauncherTest {
 
-    /**
-     * Some static metrics are giving trouble when the application context is restarted between tests.
-     */
-    @AfterAll
-    static void clearCollectorRegistry() {
-        CollectorRegistry.defaultRegistry.clear();
+    @Test
+    void givenEager_lazyInitShouldBeFalse() {
+        assertThat(this.applicationContext.getBeanFactoryPostProcessors())
+                .filteredOnAssertions(b -> assertThat(b).isInstanceOf(LazyInitializationBeanFactoryPostProcessor.class))
+                .isEmpty();
     }
 
 }

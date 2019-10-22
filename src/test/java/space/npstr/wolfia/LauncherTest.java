@@ -20,13 +20,17 @@ package space.npstr.wolfia;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.AbstractApplicationContext;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.events.CommandListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LauncherTest extends ApplicationTest {
+abstract class LauncherTest extends ApplicationTest {
+
+    @Autowired
+    protected AbstractApplicationContext applicationContext;
 
     @Autowired
     private BeanCatcher beanCatcher;
@@ -39,6 +43,7 @@ class LauncherTest extends ApplicationTest {
         assertThatContainsBean("shardManager", ShardManager.class);
         assertThatContainsBean("botContext", BotContext.class);
         assertThatContainsBean("database", Database.class);
+        assertThatContainsBean("shutdownHandler", ShutdownHandler.class);
     }
 
     private void assertThatContainsBean(String name, Class<?> clazz) {

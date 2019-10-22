@@ -15,6 +15,8 @@ sentry:
   dsn:              ""     # Error aggregation service. See https://sentry.io
 
 spring:
+  main:
+    lazy-initialization: true
   output:
     ansi:
       enabled: always
