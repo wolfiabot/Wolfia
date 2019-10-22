@@ -15,15 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.commands.util;
+package space.npstr.wolfia.domain.stats;
 
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.domain.stats.GameStats;
-import space.npstr.wolfia.domain.stats.StatsProvider;
-import space.npstr.wolfia.domain.stats.StatsRender;
 
 import javax.annotation.Nonnull;
 import java.util.Optional;

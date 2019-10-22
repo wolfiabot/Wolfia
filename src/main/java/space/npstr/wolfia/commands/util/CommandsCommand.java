@@ -43,6 +43,7 @@ import space.npstr.wolfia.domain.setup.SetupCommand;
 import space.npstr.wolfia.domain.setup.StatusCommand;
 import space.npstr.wolfia.domain.stats.BotStatsCommand;
 import space.npstr.wolfia.domain.stats.GuildStatsCommand;
+import space.npstr.wolfia.domain.stats.ReplayCommand;
 import space.npstr.wolfia.domain.stats.UserStatsCommand;
 
 import javax.annotation.Nonnull;
