@@ -19,10 +19,8 @@ package space.npstr.wolfia.domain.settings;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import space.npstr.wolfia.ApplicationTest;
 
-import java.time.Clock;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,9 +36,6 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
     @Autowired
     private ChannelSettingsRepository repository;
-
-    @SpyBean
-    private Clock clock;
 
     @Test
     void whenGetting_correctSettingsIsReturned() {

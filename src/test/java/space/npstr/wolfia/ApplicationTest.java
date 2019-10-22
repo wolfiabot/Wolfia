@@ -20,8 +20,11 @@ package space.npstr.wolfia;
 import io.prometheus.client.CollectorRegistry;
 import org.junit.jupiter.api.AfterAll;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+
+import java.time.Clock;
 
 /**
  * Extend this class from tests that require a Spring Application Context
@@ -30,6 +33,9 @@ import org.springframework.test.context.TestPropertySource;
 @ActiveProfiles("test")
 @TestPropertySource(properties = "spring.config.name=wolfia")
 public abstract class ApplicationTest extends PostgresContainer {
+
+    @SpyBean
+    protected Clock clock;
 
     /**
      * Some static metrics are giving trouble when the application context is restarted between tests.
