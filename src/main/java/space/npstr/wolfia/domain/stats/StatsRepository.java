@@ -17,19 +17,31 @@
 
 package space.npstr.wolfia.domain.stats;
 
+import org.jooq.DSLContext;
+import org.jooq.RecordMapper;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import space.npstr.wolfia.db.AsyncDbWrapper;
+import space.npstr.wolfia.db.entities.stats.ActionStats;
+import space.npstr.wolfia.db.entities.stats.GameStats;
+import space.npstr.wolfia.db.entities.stats.PlayerStats;
+import space.npstr.wolfia.db.entities.stats.TeamStats;
+import space.npstr.wolfia.db.gen.tables.records.StatsActionRecord;
+import space.npstr.wolfia.db.gen.tables.records.StatsPlayerRecord;
+import space.npstr.wolfia.db.gen.tables.records.StatsTeamRecord;
 import space.npstr.wolfia.game.definitions.Alignments;
 
 import javax.annotation.CheckReturnValue;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.count;
+import static org.jooq.impl.DSL.defaultValue;
 import static space.npstr.wolfia.db.gen.Tables.STATS_ACTION;
 import static space.npstr.wolfia.db.gen.Tables.STATS_GAME;
 import static space.npstr.wolfia.db.gen.Tables.STATS_PLAYER;
@@ -169,5 +181,116 @@ public class StatsRepository {
                 .fetch()
                 .intoArray(STATS_PLAYER.ALIGNMENT)
         ));
+    }
+
+    @CheckReturnValue
+    public CompletionStage<Optional<GameStats>> findGameStats(long gameId) {
+        return this.wrapper.jooq(dsl -> {
+                    Optional<GameStats> gameOpt = dsl.selectFrom(STATS_GAME)
+                            .where(STATS_GAME.GAME_ID.eq(gameId))
+                            .fetchOptionalInto(GameStats.class);
+
+                    if (gameOpt.isEmpty()) {
+                        return gameOpt;
+                    }
+
+                    GameStats game = gameOpt.get();
+
+                    List<TeamStats> teams = dsl.selectFrom(STATS_TEAM)
+                            .where(STATS_TEAM.GAME_ID.eq(gameId))
+                            .fetch(teamMapper(game));
+                    game.setTeams(teams);
+
+                    for (TeamStats teamStats : teams) {
+                        List<PlayerStats> players = dsl.selectFrom(STATS_PLAYER)
+                                .where(STATS_PLAYER.TEAM_ID.eq(teamStats.getTeamId().orElseThrow()))
+                                .fetch(playerMapper(teamStats));
+                        teamStats.setPlayers(players);
+                    }
+
+                    List<ActionStats> actions = dsl.selectFrom(STATS_ACTION)
+                            .where(STATS_ACTION.GAME_ID.eq(gameId))
+                            .fetch(actionMapper(game));
+                    game.setActions(actions);
+
+                    return Optional.of(game);
+                }
+        );
+    }
+
+    @CheckReturnValue
+    public CompletionStage<GameStats> insertGameStats(GameStats gameStats) {
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> {
+                    DSLContext context = DSL.using(config);
+
+                    long gameId = context
+                            .insertInto(STATS_GAME)
+                            .values(defaultValue(STATS_GAME.GAME_ID), gameStats.getChannelId(),
+                                    gameStats.getChannelName(), gameStats.getEndTime(), gameStats.getGameMode(),
+                                    gameStats.getGameType().name(), gameStats.getGuildId(), gameStats.getGuildName(),
+                                    gameStats.getStartTime(), gameStats.getPlayerSize())
+                            .returningResult(STATS_GAME.GAME_ID)
+                            .fetchOne()
+                            .component1();
+                    gameStats.setGameId(gameId);
+
+                    for (TeamStats teamStats : gameStats.getStartingTeams()) {
+                        long teamId = context
+                                .insertInto(STATS_TEAM)
+                                .values(defaultValue(STATS_TEAM.TEAM_ID), teamStats.getAlignment(),
+                                        teamStats.isWinner(), teamStats.getName(), gameId, teamStats.getTeamSize())
+                                .returningResult(STATS_TEAM.TEAM_ID)
+                                .fetchOne()
+                                .component1();
+                        teamStats.setTeamId(teamId);
+
+
+                        for (PlayerStats playerStats : teamStats.getPlayers()) {
+                            long playerId = context
+                                    .insertInto(STATS_PLAYER)
+                                    .values(defaultValue(STATS_PLAYER.PLAYER_ID), playerStats.getNickname(),
+                                            playerStats.getRole().name(), playerStats.getTotalPostLength(),
+                                            playerStats.getTotalPosts(), playerStats.getUserId(), teamId,
+                                            playerStats.getAlignment().name())
+                                    .returningResult(STATS_PLAYER.PLAYER_ID)
+                                    .fetchOne()
+                                    .component1();
+                            playerStats.setPlayerId(playerId);
+                        }
+                    }
+
+                    for (ActionStats actionStats : gameStats.getActions()) {
+                        long actionId = context
+                                .insertInto(STATS_ACTION)
+                                .values(defaultValue(STATS_ACTION.ACTION_ID), actionStats.getActionType().name(),
+                                        actionStats.getActor(), actionStats.getCycle(), actionStats.getOrder(),
+                                        actionStats.getTarget(), actionStats.getTimeStampHappened(),
+                                        actionStats.getTimeStampSubmitted(), gameId, actionStats.getPhase().name(),
+                                        actionStats.getAdditionalInfo())
+                                .returningResult(STATS_ACTION.ACTION_ID)
+                                .fetchOne()
+                                .component1();
+                        actionStats.setActionId(actionId);
+                    }
+
+                    return gameStats;
+                }
+        ));
+    }
+
+    private RecordMapper<StatsTeamRecord, TeamStats> teamMapper(GameStats gameStats) {
+        return record -> new TeamStats(record.getTeamId(), record.getAlignment(), record.getIsWinner(),
+                record.getName(), gameStats, record.getTeamSize());
+    }
+
+    private RecordMapper<StatsPlayerRecord, PlayerStats> playerMapper(TeamStats teamStats) {
+        return record -> new PlayerStats(record.getPlayerId(), record.getNickname(), record.getRole(),
+                record.getTotalPostlength(), record.getTotalPosts(), record.getUserId(), teamStats, record.getAlignment());
+    }
+
+    private RecordMapper<StatsActionRecord, ActionStats> actionMapper(GameStats gameStats) {
+        return record -> new ActionStats(record.getActionId(), record.getActionType(), record.getActor(),
+                record.getCycle(), record.getSequence(), record.getTarget(), record.getHappened(),
+                record.getSubmitted(), gameStats, record.getPhase(), record.getAdditionalInfo());
     }
 }

@@ -707,9 +707,12 @@ public abstract class Game {
                         .ifPresent(t -> t.setWinner(true));
             }
             try {
-                this.gameStats = Launcher.getBotContext().getDatabase().getWrapper().persist(this.gameStats);
+                this.gameStats = Launcher.getBotContext().getStatsRepository().insertGameStats(this.gameStats)
+                        .toCompletableFuture().join();
+
+                long gameId = this.gameStats.getGameId().orElseThrow();
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
-                        this.gameStats.getId(), WolfiaConfig.DEFAULT_PREFIX + ReplayCommand.TRIGGER, this.gameStats.getId());
+                        gameId, WolfiaConfig.DEFAULT_PREFIX + ReplayCommand.TRIGGER, gameId);
             } catch (final DatabaseException e) {
                 log.error("Db blew up saving game stats", e);
                 out += "The database it not available currently, a replay of this game will not be available.";
@@ -717,15 +720,16 @@ public abstract class Game {
             cleanUp();
             final TextChannel gameChannel = fetchGameChannel();
             String info = Games.getInfo(this).textRep();
+            long gameId = this.gameStats.getGameId().orElseThrow();
             log.info("Game #{} ended in guild {} {}, channel #{} {}, {} {} {} players",
-                    this.gameStats.getId(), gameChannel.getGuild().getName(), gameChannel.getGuild().getIdLong(),
+                    gameId, gameChannel.getGuild().getName(), gameChannel.getGuild().getIdLong(),
                     gameChannel.getName(), gameChannel.getIdLong(), info, this.mode.textRep, this.players.size());
             // removing the game from the registry has to be the very last statement, since if a restart is queued, it
             // waits for an empty games registry
             RestActions.sendMessage(fetchGameChannel(), out,
                     ignoredMessage -> Games.remove(this),
                     throwable -> {
-                        log.error("Failed to send last message of game #{}", this.gameStats.getId(), throwable);
+                        log.error("Failed to send last message of game #{}", gameId, throwable);
                         Games.remove(this);
                     });
             return true;

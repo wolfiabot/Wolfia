@@ -18,11 +18,13 @@
 package space.npstr.wolfia.domain.stats;
 
 import org.springframework.stereotype.Component;
+import space.npstr.wolfia.db.entities.stats.GameStats;
 import space.npstr.wolfia.game.definitions.Alignments;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -177,5 +179,10 @@ public class StatsProvider {
                 .totalPosts(totalPostsWritten)
                 .totalPostLength(totalPostsLength)
                 .build();
+    }
+
+    public Optional<GameStats> getGameStats(long gameId) {
+        return this.repository.findGameStats(gameId)
+                .toCompletableFuture().join();
     }
 }

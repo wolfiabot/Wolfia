@@ -17,100 +17,83 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import space.npstr.sqlsauce.entities.SaucedEntity;
-import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.game.definitions.Actions;
-import space.npstr.wolfia.game.definitions.Alignments;
-import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.game.definitions.Item;
 import space.npstr.wolfia.game.definitions.Phase;
-import space.npstr.wolfia.utils.discord.Emojis;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import java.util.Optional;
 
 /**
  * Created by napster on 30.05.17.
  * <p>
  * Describe an action that happened during a game
  */
-@Entity
-@Table(name = "stats_action")
-public class ActionStats extends SaucedEntity<Long, ActionStats> {
+public class ActionStats {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ActionStats.class);
+    private Optional<Long> actionId = Optional.empty();
 
-    private static final long serialVersionUID = -6803073458836067860L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "action_id", nullable = false)
-    private long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id", nullable = false)
-    private GameStats game;
+    private final GameStats game;
 
     //chronological order of the actions
     //just a failsafe in case the List of actions in Game gets into an unsorted state
-    @Column(name = "sequence", nullable = false) //order is a reserved keyword in postgres, so we use sequence instead
-    private int order;
+    //order is a reserved keyword in postgres, so we use 'sequence' in the table instead
+    private final int order;
 
     // the difference between these two timestamps is the following: an action may be submitted before it actually
     // happens (example: nk gets submitted during the night, but actually "happens" when the day starts and results are
     // announced). these two timestamps try to capture that data as accurately as possible
-    @Column(name = "submitted", nullable = false)
-    private long timeStampSubmitted;
+    private final long timeStampSubmitted;
 
-    @Column(name = "happened", nullable = false)
     private long timeStampHappened;
 
     //n0, d1 + n1, d2 + n2 etc
-    @Column(name = "cycle", nullable = false)
-    private int cycle;
+    private final int cycle;
 
     //day or night or whatever else, defined in the Phase enum
-    @Column(name = "phase", nullable = false, columnDefinition = "text")
-    private String phase;
+    private final Phase phase;
 
     //userId of the discord user; there might be special negative values for factional actors/targets in the future
-    @Column(name = "actor", nullable = false)
-    private long actor;
+    private final long actor;
 
     //defined in the Actions enum
-    @Column(name = "action_type", nullable = false, columnDefinition = "text")
-    private String actionType;
+    private final Actions actionType;
 
     //userId of the discord user
-    @Column(name = "target", nullable = false)
-    private long target;
+    private final long target;
 
     //save any additional info of an action in here
-    @Column(name = "additional_info", columnDefinition = "text", nullable = true)
+    @Nullable
     private String additionalInfo;
 
-    public ActionStats(final GameStats game, final int order, final long timeStampSubmitted,
-                       final long timeStampHappened, final int cycle, final Phase phase, final long actor,
-                       final Actions action, final long target, @Nullable final String additionalInfo) {
-        this.game = game;
+    public ActionStats(GameStats gameStats, int order, long timeStampSubmitted, long timeStampHappened, int cycle,
+                       Phase phase, long actor, Actions action, long target, @Nullable String additionalInfo) {
+
+        this.game = gameStats;
         this.order = order;
         this.timeStampSubmitted = timeStampSubmitted;
         this.timeStampHappened = timeStampHappened;
         this.cycle = cycle;
-        this.phase = phase.name();
+        this.phase = phase;
         this.actor = actor;
-        this.actionType = action.name();
+        this.actionType = action;
         this.target = target;
+        this.additionalInfo = additionalInfo;
+    }
+
+    // for use in the stats repository
+    public ActionStats(long actionId, String actionType, long actor, int cycle, int order, long target, long happened,
+                       long submitted, GameStats gameStats, String phase, @Nullable String additionalInfo) {
+
+        this.actionId = Optional.of(actionId);
+        this.actionType = Actions.valueOf(actionType);
+        this.actor = actor;
+        this.cycle = cycle;
+        this.order = order;
+        this.target = target;
+        this.timeStampHappened = happened;
+        this.timeStampSubmitted = submitted;
+        this.game = gameStats;
+        this.phase = Phase.valueOf(phase);
         this.additionalInfo = additionalInfo;
     }
 
@@ -142,133 +125,24 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
                 && this.target == a.target;
     }
 
-    //how much time since game started
-    private String gameTime() {
-        return TextchatUtils.formatMillis(getTimeStampHappened() - this.game.getStartTime());
+    public Optional<Long> getActionId() {
+        return this.actionId;
     }
 
-    //giant ass method of displaying an action
-    @Override
-    public String toString() {
-
-        String result = "`" + gameTime() + "` ";
-        switch (Actions.valueOf(this.actionType)) {
-
-            case GAMESTART:
-                result += String.format("%s: Game **#%s** starts.", Emojis.VIDEO_GAME, getGame().getId());
-                break;
-            case GAMEEND:
-                result += String.format("%s: Game **#%s** ends.", Emojis.END, getGame().getId());
-                break;
-            case DAYSTART:
-                result += String.format("%s: Day **%s** starts.", Emojis.SUNNY, getCycle());
-                break;
-            case DAYEND:
-                result += String.format("%s: Day **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, getCycle());
-                break;
-            case NIGHTSTART:
-                result += String.format("%s: Night **%s** starts.", Emojis.FULL_MOON, getCycle());
-                break;
-            case NIGHTEND:
-                result += String.format("%s: Night **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, getCycle());
-                break;
-            case BOTKILL:
-                result += String.format("%s: %s botkilled.", Emojis.SKULL, getFormattedNickFromStats(this.target));
-                break;
-            case MODKILL:
-                result += String.format("%s: %s modkilled.", Emojis.COFFIN, getFormattedNickFromStats(this.target));
-                break;
-            case DEATH:
-                result += String.format("%s: %s dies.", Emojis.RIP, getFormattedNickFromStats(this.target));
-                break;
-            case VOTELYNCH:
-                result += String.format("%s: %s votes to lynch %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
-                break;
-            case LYNCH:
-                result += String.format("%s: %s is lynched", Emojis.FIRE, getFormattedNickFromStats(this.target));
-                break;
-            case VOTENIGHTKILL:
-                result += String.format("%s: %s votes to night kill %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
-                break;
-            case CHECK:
-                result += String.format("%s: %s checks alignment of %s.", Emojis.MAGNIFIER, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
-                break;
-            case SHOOT:
-                result += String.format("%s: %s shoots %s.", Emojis.GUN, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
-                break;
-            case VOTEGUN:
-                result += String.format("%s: %s votes to give %s the %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target), Emojis.GUN);
-                break;
-            case GIVEGUN:
-                result += String.format("%s: %s receives the gun", Emojis.GUN, getFormattedNickFromStats(this.target));
-                break;
-            case GIVE_PRESENT:
-                result += String.format("%s: %s gives %s a present", Item.Items.PRESENT, getFormattedNickFromStats(this.actor), getFormattedNickFromStats(this.target));
-                break;
-            case OPEN_PRESENT:
-                result += String.format("%s: %s opens a present and receives a %s", Item.Items.PRESENT, getFormattedNickFromStats(this.target), Item.Items.valueOf(this.additionalInfo));
-                break;
-            default:
-                throw new IllegalArgumentException("Encountered an action that is not defined/has no text representation: " + this.actionType);
-        }
-
-        return result;
-    }
-
-    private String getFormattedNickFromStats(final long userId) {
-        String baddieEmoji = Emojis.SPY;
-        if (this.game.getGameType() == Games.POPCORN) baddieEmoji = Emojis.WOLF;
-        for (final TeamStats team : this.game.getStartingTeams()) {
-            for (final PlayerStats player : team.getPlayers()) {
-                if (player.getUserId() == userId)
-                    return "`" + player.getNickname() + "` " + (player.getAlignment() == Alignments.VILLAGE ? Emojis.COWBOY : baddieEmoji);
-            }
-        }
-        final String message = String.format("No such player %s in this game %s", userId, this.game.getId());
-        log.error(message, new IllegalArgumentException(message));
-        return DiscordUser.UNKNOWN_NAME;
-    }
-
-    //########## boilerplate code below
-
-    protected ActionStats() {
-    }
-
-    @Override
-    @Nonnull
-    public Long getId() {
-        return this.id;
-    }
-
-    @Nonnull
-    @Override
-    public ActionStats setId(final Long id) {
-        this.id = id;
-        return this;
+    public void setActionId(long actionId) {
+        this.actionId = Optional.of(actionId);
     }
 
     public GameStats getGame() {
         return this.game;
     }
 
-    public void setGame(final GameStats game) {
-        this.game = game;
-    }
-
     public int getOrder() {
         return this.order;
     }
 
-    public void setOrder(final int order) {
-        this.order = order;
-    }
-
     public long getTimeStampSubmitted() {
         return this.timeStampSubmitted;
-    }
-
-    public void setTimeStampSubmitted(final long timeStampSubmitted) {
-        this.timeStampSubmitted = timeStampSubmitted;
     }
 
     public long getTimeStampHappened() {
@@ -283,40 +157,20 @@ public class ActionStats extends SaucedEntity<Long, ActionStats> {
         return this.cycle;
     }
 
-    public void setCycle(final int cycle) {
-        this.cycle = cycle;
-    }
-
     public Phase getPhase() {
-        return Phase.valueOf(this.phase);
-    }
-
-    public void setPhase(final Phase phase) {
-        this.phase = phase.name();
+        return this.phase;
     }
 
     public long getActor() {
         return this.actor;
     }
 
-    public void setActor(final long actor) {
-        this.actor = actor;
-    }
-
     public Actions getActionType() {
-        return Actions.valueOf(this.actionType);
-    }
-
-    public void setActionType(final Actions actionType) {
-        this.actionType = actionType.name();
+        return this.actionType;
     }
 
     public long getTarget() {
         return this.target;
-    }
-
-    public void setTarget(final long target) {
-        this.target = target;
     }
 
     @Nullable

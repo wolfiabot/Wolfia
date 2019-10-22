@@ -20,13 +20,24 @@ package space.npstr.wolfia.domain.stats;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.MessageContext;
+import space.npstr.wolfia.db.entities.stats.ActionStats;
+import space.npstr.wolfia.db.entities.stats.GameStats;
+import space.npstr.wolfia.db.entities.stats.PlayerStats;
+import space.npstr.wolfia.db.entities.stats.TeamStats;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.settings.GuildSettings;
 import space.npstr.wolfia.domain.settings.GuildSettingsService;
+import space.npstr.wolfia.game.definitions.Alignments;
+import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.game.definitions.Item;
 import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -36,6 +47,8 @@ import static space.npstr.wolfia.utils.discord.TextchatUtils.percentFormat;
 
 @Component
 public class StatsRender {
+
+    private static final Logger log = LoggerFactory.getLogger(StatsRender.class);
 
     private final GuildSettingsService guildSettingsService;
     private final UserCache userCache;
@@ -129,6 +142,75 @@ public class StatsRender {
         return eb;
     }
 
+    public String renderActionStats(ActionStats actionStats) {
+
+        GameStats game = actionStats.getGame();
+        long gameId = game.getGameId().orElseThrow();
+        //how much time since game started
+        String result = "`" + (TextchatUtils.formatMillis(actionStats.getTimeStampHappened() - game.getStartTime())) + "` ";
+        switch (actionStats.getActionType()) {
+
+            case GAMESTART:
+                result += String.format("%s: Game **#%s** starts.", Emojis.VIDEO_GAME, gameId);
+                break;
+            case GAMEEND:
+                result += String.format("%s: Game **#%s** ends.", Emojis.END, gameId);
+                break;
+            case DAYSTART:
+                result += String.format("%s: Day **%s** starts.", Emojis.SUNNY, actionStats.getCycle());
+                break;
+            case DAYEND:
+                result += String.format("%s: Day **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, actionStats.getCycle());
+                break;
+            case NIGHTSTART:
+                result += String.format("%s: Night **%s** starts.", Emojis.FULL_MOON, actionStats.getCycle());
+                break;
+            case NIGHTEND:
+                result += String.format("%s: Night **%s** ends.", Emojis.CITY_SUNSET_SUNRISE, actionStats.getCycle());
+                break;
+            case BOTKILL:
+                result += String.format("%s: %s botkilled.", Emojis.SKULL, getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case MODKILL:
+                result += String.format("%s: %s modkilled.", Emojis.COFFIN, getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case DEATH:
+                result += String.format("%s: %s dies.", Emojis.RIP, getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case VOTELYNCH:
+                result += String.format("%s: %s votes to lynch %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(game, actionStats.getActor()), getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case LYNCH:
+                result += String.format("%s: %s is lynched", Emojis.FIRE, getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case VOTENIGHTKILL:
+                result += String.format("%s: %s votes to night kill %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(game, actionStats.getActor()), getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case CHECK:
+                result += String.format("%s: %s checks alignment of %s.", Emojis.MAGNIFIER, getFormattedNickFromStats(game, actionStats.getActor()), getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case SHOOT:
+                result += String.format("%s: %s shoots %s.", Emojis.GUN, getFormattedNickFromStats(game, actionStats.getActor()), getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case VOTEGUN:
+                result += String.format("%s: %s votes to give %s the %s.", Emojis.BALLOT_BOX, getFormattedNickFromStats(game, actionStats.getActor()), getFormattedNickFromStats(game, actionStats.getTarget()), Emojis.GUN);
+                break;
+            case GIVEGUN:
+                result += String.format("%s: %s receives the gun", Emojis.GUN, getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case GIVE_PRESENT:
+                result += String.format("%s: %s gives %s a present", Item.Items.PRESENT, getFormattedNickFromStats(game, actionStats.getActor()), getFormattedNickFromStats(game, actionStats.getTarget()));
+                break;
+            case OPEN_PRESENT:
+                result += String.format("%s: %s opens a present and receives a %s", Item.Items.PRESENT, getFormattedNickFromStats(game, actionStats.getTarget()), Item.Items.valueOf(actionStats.getAdditionalInfo()));
+                break;
+            default:
+                throw new IllegalArgumentException("Encountered an action that is not defined/has no text representation: " + actionStats.getActionType());
+        }
+
+        return result;
+    }
+
     private static EmbedBuilder addStatsPerPlayerSize(final EmbedBuilder eb, List<WinStats> winStatsList) {
 
         winStatsList.sort(Comparator.comparingInt(WinStats::playerSize));
@@ -142,6 +224,21 @@ public class StatsRender {
                     content, true);
         }
         return eb;
+    }
+
+
+    private String getFormattedNickFromStats(GameStats gameStats, final long userId) {
+        String baddieEmoji = Emojis.SPY;
+        if (gameStats.getGameType() == Games.POPCORN) baddieEmoji = Emojis.WOLF;
+        for (final TeamStats team : gameStats.getStartingTeams()) {
+            for (final PlayerStats player : team.getPlayers()) {
+                if (player.getUserId() == userId)
+                    return "`" + player.getNickname() + "` " + (player.getAlignment() == Alignments.VILLAGE ? Emojis.COWBOY : baddieEmoji);
+            }
+        }
+        final String message = String.format("No such player %s in this game %s", userId, gameStats.getGameId().orElseThrow());
+        log.error(message, new IllegalArgumentException(message));
+        return DiscordUser.UNKNOWN_NAME;
     }
 
 }

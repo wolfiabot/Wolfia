@@ -17,22 +17,12 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Alignments;
 
-import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -40,51 +30,49 @@ import java.util.Set;
  * <p>
  * model of a team in a game
  */
-@Entity
-@Table(name = "stats_team")
-public class TeamStats extends SaucedEntity<Long, TeamStats> {
+public class TeamStats {
 
-    private static final long serialVersionUID = 7168610781984059851L;
+    private Optional<Long> teamId = Optional.empty();
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "team_id", nullable = false)
-    private long id;
+    private final GameStats game;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id", nullable = false)
-    private GameStats game;
+    private final Set<PlayerStats> players = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "team", orphanRemoval = true)
-    @Column(name = "players")
-    private Set<PlayerStats> players = new HashSet<>();
-
-    //defined in the Alignments enum
-    @Column(name = "alignment", nullable = false, columnDefinition = "text")
-    private String alignment;
+    private final Alignments alignment;
 
     //watch out: teams of the same alignment (example: wolves) may not have the same name, or the equals function will
     //go haywire
-    @Column(name = "name", nullable = false, columnDefinition = "text")
-    private String name;
+    private final String name;
 
-    @Column(name = "is_winner", nullable = false)
-    private boolean isWinner;
+    private boolean isWinner = false;
 
-    @Column(name = "team_size", nullable = false)
     private int teamSize;
 
 
-    public TeamStats(final GameStats game, final Alignments alignment, final String name, final int teamSize) {
+    public TeamStats(GameStats game, Alignments alignment, String name, int teamSize) {
         this.game = game;
-        this.alignment = alignment.name();
+        this.alignment = alignment;
         this.name = name;
-        this.isWinner = false;
+        this.teamSize = teamSize;
+    }
+
+    // for use by the stats repository
+    public TeamStats(long teamId, String alignment, boolean isWinner, String name, GameStats gameStats, int teamSize) {
+        this.teamId = Optional.of(teamId);
+        this.alignment = Alignments.valueOf(alignment);
+        this.isWinner = isWinner;
+        this.name = name;
+        this.game = gameStats;
         this.teamSize = teamSize;
     }
 
     public void addPlayer(final PlayerStats player) {
         this.players.add(player);
+    }
+
+    public void setPlayers(final Collection<PlayerStats> players) {
+        this.players.clear();
+        this.players.addAll(players);
     }
 
 
@@ -109,54 +97,28 @@ public class TeamStats extends SaucedEntity<Long, TeamStats> {
     }
 
 
-    //########## boilerplate code below
-
-
-    TeamStats() {
+    public Optional<Long> getTeamId() {
+        return this.teamId;
     }
 
-    @Override
-    public Long getId() {
-        return this.id;
-    }
-
-    @Override
-    @Nonnull
-    public TeamStats setId(final Long id) {
-        this.id = id;
-        return this;
+    public void setTeamId(long teamId) {
+        this.teamId = Optional.of(teamId);
     }
 
     public GameStats getGame() {
         return this.game;
     }
 
-    public void setGame(final GameStats game) {
-        this.game = game;
-    }
-
     public Set<PlayerStats> getPlayers() {
-        return this.players;
-    }
-
-    public void setPlayers(final Set<PlayerStats> players) {
-        this.players = players;
+        return Collections.unmodifiableSet(this.players);
     }
 
     public Alignments getAlignment() {
-        return Alignments.valueOf(this.alignment);
-    }
-
-    public void setAlignment(final Alignments alignment) {
-        this.alignment = alignment.name();
+        return this.alignment;
     }
 
     public String getName() {
         return this.name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
     }
 
     public boolean isWinner() {

@@ -17,21 +17,13 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Games;
 
-import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import java.beans.ConstructorProperties;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -40,67 +32,64 @@ import java.util.Set;
  * Describe a game that happened
  * <p>
  */
-@Entity
-@Table(name = "stats_game")
-public class GameStats extends SaucedEntity<Long, GameStats> {
-
-    private static final long serialVersionUID = -577030472501735570L;
+public class GameStats {
 
     //this is pretty much an auto incremented id generator starting by 1 and going 1 upwards
     //there are no hard guarantees that there wont be any gaps, or that they will be in any order in the table
     //that's good enough for our use case though (giving games an "easy" to remember number to request replays and stats
     //later, and passively showing off how many games the bot has done)
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "game_id", nullable = false, updatable = false)
-    private long gameId;
+    private Optional<Long> gameId = Optional.empty();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "game", orphanRemoval = true)
-    @Column(name = "starting_teams")
-    private Set<TeamStats> startingTeams = new HashSet<>();
+    private final Set<TeamStats> startingTeams = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "game", orphanRemoval = true)
-    @Column(name = "actions")
-    private Set<ActionStats> actions = new HashSet<>();
+    private final Set<ActionStats> actions = new HashSet<>();
 
-    @Column(name = "start_time", nullable = false)
-    private long startTime;
+    private final long startTime;
 
-    @Column(name = "end_time", nullable = false)
     private long endTime;
 
-    @Column(name = "guild_id", nullable = false)
-    private long guildId;
+    private final long guildId;
 
-    //name of the guild at the time of creation
-    @Column(name = "guild_name", nullable = false, columnDefinition = "text")
-    private String guildName;
+    private final String guildName;
 
-    @Column(name = "channel_id", nullable = false)
-    private long channelId;
+    private final long channelId;
 
-    @Column(name = "channel_name", nullable = false, columnDefinition = "text")
-    private String channelName;
+    private final String channelName;
 
-    @Column(name = "game_type", nullable = false, columnDefinition = "text")
-    private String gameType;
+    private final Games gameType;
 
-    @Column(name = "game_mode", nullable = false, columnDefinition = "text")
-    private String gameMode;
+    private final String gameMode;
 
-    @Column(name = "player_size", nullable = false)
-    private int playerSize;
+    private final int playerSize;
 
 
-    public GameStats(final long guildId, final String guildName, final long channelId, final String channelName,
-                     final Games gameType, final String gameMode, final int playerSize) {
+    public GameStats(long guildId, String guildName, long channelId, String channelName, Games gameType,
+                     String gameMode, int playerSize) {
+
         this.guildId = guildId;
         this.guildName = guildName;
         this.channelId = channelId;
         this.channelName = channelName;
         this.startTime = System.currentTimeMillis();
-        this.gameType = gameType.name();
+        this.gameType = gameType;
         this.gameMode = gameMode;
+        this.playerSize = playerSize;
+    }
+
+    // for jooq deserializing
+    @ConstructorProperties({"gameId", "channelId", "channelName", "endTime", "gameMode", "gameType", "guildId",
+            "guildName", "startTime", "playerSize"})
+    public GameStats(long gameId, long channelId, String channelName, long endTime, String gameMode, String gameType,
+                     long guildId, String guildName, long startTime, int playerSize) {
+        this.gameId = Optional.of(gameId);
+        this.channelId = channelId;
+        this.channelName = channelName;
+        this.endTime = endTime;
+        this.gameMode = gameMode;
+        this.gameType = Games.valueOf(gameType);
+        this.guildId = guildId;
+        this.guildName = guildName;
+        this.startTime = startTime;
         this.playerSize = playerSize;
     }
 
@@ -112,8 +101,18 @@ public class GameStats extends SaucedEntity<Long, GameStats> {
         this.actions.addAll(actions);
     }
 
+    public void setActions(final Collection<ActionStats> actions) {
+        this.actions.clear();
+        this.actions.addAll(actions);
+    }
+
     public void addTeam(final TeamStats team) {
         this.startingTeams.add(team);
+    }
+
+    public void setTeams(final Collection<TeamStats> teams) {
+        this.startingTeams.clear();
+        this.startingTeams.addAll(teams);
     }
 
     //do not use the autogenerated id, it will only be set after persisting
@@ -137,45 +136,24 @@ public class GameStats extends SaucedEntity<Long, GameStats> {
         return this.startTime == g.startTime && this.guildId == g.guildId && this.channelId == g.channelId;
     }
 
-    //########## boilerplate code below
-    GameStats() {
-    }
-
-    @Override
-    @Nonnull
-    public Long getId() {
+    public Optional<Long> getGameId() {
         return this.gameId;
     }
 
-    @Nonnull
-    @Override
-    public GameStats setId(final Long gameId) {
-        this.gameId = gameId;
-        return this;
+    public void setGameId(long gameId) {
+        this.gameId = Optional.of(gameId);
     }
 
     public Set<TeamStats> getStartingTeams() {
-        return this.startingTeams;
-    }
-
-    public void setStartingTeams(final Set<TeamStats> startingTeams) {
-        this.startingTeams = startingTeams;
+        return Collections.unmodifiableSet(this.startingTeams);
     }
 
     public Set<ActionStats> getActions() {
-        return this.actions;
-    }
-
-    public void setActions(final Set<ActionStats> actions) {
-        this.actions = actions;
+        return Collections.unmodifiableSet(this.actions);
     }
 
     public long getStartTime() {
         return this.startTime;
-    }
-
-    public void setStartTime(final long startTime) {
-        this.startTime = startTime;
     }
 
     public long getEndTime() {
@@ -190,55 +168,28 @@ public class GameStats extends SaucedEntity<Long, GameStats> {
         return this.guildId;
     }
 
-    public void setGuildId(final long guildId) {
-        this.guildId = guildId;
-    }
-
     public String getGuildName() {
         return this.guildName;
-    }
-
-    public void setGuildName(final String guildName) {
-        this.guildName = guildName;
     }
 
     public long getChannelId() {
         return this.channelId;
     }
 
-    public void setChannelId(final long channelId) {
-        this.channelId = channelId;
-    }
-
     public String getChannelName() {
         return this.channelName;
     }
 
-    public void setChannelName(final String channelName) {
-        this.channelName = channelName;
-    }
-
     public Games getGameType() {
-        return Games.valueOf(this.gameType);
-    }
-
-    public void setGameType(final Games game) {
-        this.gameType = game.name();
+        return this.gameType;
     }
 
     public String getGameMode() {
         return this.gameMode;
     }
 
-    public void setGameMode(final String gameMode) {
-        this.gameMode = gameMode;
-    }
-
     public int getPlayerSize() {
         return this.playerSize;
     }
 
-    public void setPlayerSize(final int playerSize) {
-        this.playerSize = playerSize;
-    }
 }

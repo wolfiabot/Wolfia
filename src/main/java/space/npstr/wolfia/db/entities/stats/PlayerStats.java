@@ -17,72 +17,59 @@
 
 package space.npstr.wolfia.db.entities.stats;
 
-import space.npstr.sqlsauce.entities.SaucedEntity;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import java.util.Optional;
 
 /**
  * Created by napster on 30.05.17.
  * <p>
  * Describe a participant of a game
  */
-@Entity
-@Table(name = "stats_player")
-public class PlayerStats extends SaucedEntity<Long, PlayerStats> {
+public class PlayerStats {
 
-    private static final long serialVersionUID = -4581124627322215168L;
+    private Optional<Long> playerId = Optional.empty();
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "player_id", nullable = false)
-    private long id;
+    private final TeamStats team;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
-    private TeamStats team;
+    private final long userId;
 
-    @Column(name = "user_id", nullable = false)
-    private long userId;
-
-    //nickname in the guild where the main channel of the game is
     @Nullable
-    @Column(name = "nickname", nullable = true, columnDefinition = "text")
-    private String nickname;
+    private final String nickname;
 
-    @Column(name = "alignment", nullable = false, columnDefinition = "text")
-    private String alignment;
+    private final Alignments alignment;
 
     //defined in the Roles enum
-    @Column(name = "role", nullable = false, columnDefinition = "text")
-    private String role;
+    private final Roles role;
 
-    @Column(name = "total_posts", nullable = false)
     private int totalPosts;
 
-    @Column(name = "total_postlength", nullable = false)
     private int totalPostLength;
 
-    public PlayerStats(final TeamStats team, final long userId, @Nullable final String nick, final Alignments alignment,
-                       final Roles role) {
+    public PlayerStats(TeamStats team, long userId, @Nullable String nick, Alignments alignment, Roles role) {
         this.team = team;
         this.userId = userId;
         this.nickname = nick;
-        this.alignment = alignment.name();
-        this.role = role.name();
+        this.alignment = alignment;
+        this.role = role;
         this.totalPosts = 0;
         this.totalPostLength = 0;
+    }
+
+    // for use in the stats repository
+    public PlayerStats(long playerId, String nickname, String role, int totalPostLength, int totalPosts, long userId,
+                       TeamStats teamStats, String alignment) {
+
+        this.playerId = Optional.of(playerId);
+        this.nickname = nickname;
+        this.role = Roles.valueOf(role);
+        this.totalPostLength = totalPostLength;
+        this.totalPosts = totalPosts;
+        this.userId = userId;
+        this.team = teamStats;
+        this.alignment = Alignments.valueOf(alignment);
     }
 
     public synchronized void bumpPosts(final int length) {
@@ -111,36 +98,20 @@ public class PlayerStats extends SaucedEntity<Long, PlayerStats> {
 
     //########## boilerplate code below
 
-    PlayerStats() {
+    public Optional<Long> getPlayerId() {
+        return this.playerId;
     }
 
-    @Override
-    @Nonnull
-    public Long getId() {
-        return this.id;
-    }
-
-    @Nonnull
-    @Override
-    public PlayerStats setId(final Long id) {
-        this.id = id;
-        return this;
+    public void setPlayerId(long playerId) {
+        this.playerId = Optional.of(playerId);
     }
 
     public TeamStats getTeam() {
-        return this.team;
-    }
-
-    public void setTeam(final TeamStats team) {
-        this.team = team;
+        return team;
     }
 
     public long getUserId() {
         return this.userId;
-    }
-
-    public void setUserId(final long userId) {
-        this.userId = userId;
     }
 
     @Nullable
@@ -148,39 +119,19 @@ public class PlayerStats extends SaucedEntity<Long, PlayerStats> {
         return this.nickname;
     }
 
-    public void setNickname(@Nullable final String nickname) {
-        this.nickname = nickname;
-    }
-
     public Alignments getAlignment() {
-        return Alignments.valueOf(this.alignment);
-    }
-
-    public void setAlignment(final Alignments alignment) {
-        this.alignment = alignment.name();
+        return this.alignment;
     }
 
     public Roles getRole() {
-        return Roles.valueOf(this.role);
-    }
-
-    public void setRole(final Roles role) {
-        this.role = role.name();
+        return this.role;
     }
 
     public synchronized int getTotalPosts() {
         return this.totalPosts;
     }
 
-    public synchronized void setTotalPosts(final int totalPosts) {
-        this.totalPosts = totalPosts;
-    }
-
     public synchronized int getTotalPostLength() {
         return this.totalPostLength;
-    }
-
-    public synchronized void setTotalPostLength(final int totalPostLength) {
-        this.totalPostLength = totalPostLength;
     }
 }

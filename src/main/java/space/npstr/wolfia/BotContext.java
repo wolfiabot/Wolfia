@@ -25,6 +25,7 @@ import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
+import space.npstr.wolfia.domain.stats.StatsRepository;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 /**
@@ -46,10 +47,13 @@ public class BotContext {
     private final ShardManager shardManager;
     private final ChannelSettingsService channelSettingsService;
     private final UserCache userCache;
+    private final StatsRepository statsRepository;
 
     public BotContext(final Database database, final WolfiaConfig wolfiaConfig, final ListingsConfig listingsConfig,
                       PrivateRoomQueue privateRoomQueue, ExceptionLoggingExecutor executor,
-                      ShardManager shardManager, ChannelSettingsService channelSettingsService, UserCache userCache) {
+                      ShardManager shardManager, ChannelSettingsService channelSettingsService, UserCache userCache,
+                      StatsRepository statsRepository) {
+
         this.database = database;
         this.wolfiaConfig = wolfiaConfig;
         this.listingsConfig = listingsConfig;
@@ -58,6 +62,7 @@ public class BotContext {
         this.shardManager = shardManager;
         this.channelSettingsService = channelSettingsService;
         this.userCache = userCache;
+        this.statsRepository = statsRepository;
     }
 
     public Database getDatabase() {
@@ -90,5 +95,9 @@ public class BotContext {
 
     public UserCache getUserCache() {
         return this.userCache;
+    }
+
+    public StatsRepository getStatsRepository() {
+        return this.statsRepository;
     }
 }
