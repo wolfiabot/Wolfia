@@ -4,7 +4,7 @@ version: '3.7'
 
 services:
   dev-postgres:
-    image: napstr/wolfia-postgres:11
+    image: napstr/wolfia-postgres:12
     restart: always
     ports:
       - 127.0.0.1:5432:5432

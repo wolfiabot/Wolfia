@@ -64,12 +64,12 @@ services:
       - CF_API_KEY=${CF_KEY}
 
   db:
-    image: napstr/wolfia-postgres:11
+    image: napstr/wolfia-postgres:12
     restart: always
     ports:
       - 127.0.0.1:5432:5432
     volumes:
-      - ./postgres-data/11/data:/var/lib/postgresql/data
+      - ./postgres-data/12/data:/var/lib/postgresql/data
     environment:
       - ROLE=wolfia
       - DB=wolfia
