@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.config;
 
-import com.google.common.base.Suppliers;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.entities.Game;
@@ -34,6 +33,7 @@ import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.listings.Listings;
+import space.npstr.wolfia.utils.Memoizer;
 
 import javax.security.auth.login.LoginException;
 import java.util.EnumSet;
@@ -70,7 +70,7 @@ public class ShardManagerFactory {
         this.listings = listings;
         this.privateRoomQueue = privateRoomQueue;
         this.guildCacheListener = guildCacheListener;
-        this.singleton = Suppliers.memoize(this::createShardManager);
+        this.singleton = Memoizer.memoize(this::createShardManager);
     }
 
     public ShardManager shardManager() {

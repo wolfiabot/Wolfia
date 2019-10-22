@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.Context;
-import space.npstr.wolfia.commands.debug.MaintenanceCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.maintenance.MaintenanceService;
 import space.npstr.wolfia.domain.setup.GameSetup;
 import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.domain.setup.InCommand;
@@ -49,9 +49,11 @@ public class GameStarter {
     private static final Logger log = LoggerFactory.getLogger(GameStarter.class);
 
     private final GameSetupService gameSetupService;
+    private final MaintenanceService maintenanceService;
 
-    public GameStarter(GameSetupService gameSetupService) {
+    public GameStarter(GameSetupService gameSetupService, MaintenanceService maintenanceService) {
         this.gameSetupService = gameSetupService;
+        this.maintenanceService = maintenanceService;
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
@@ -60,7 +62,7 @@ public class GameStarter {
         long commandCallerId = context.getInvoker().getIdLong();
         final MessageChannel channel = context.getChannel();
 
-        if (MaintenanceCommand.getMaintenanceFlag() || ShutdownHandler.isShuttingDown()) {
+        if (this.maintenanceService.getMaintenanceFlag() || ShutdownHandler.isShuttingDown()) {
             RestActions.sendMessage(channel, "The bot is under maintenance. Please try starting a game later.");
             return false;
         }

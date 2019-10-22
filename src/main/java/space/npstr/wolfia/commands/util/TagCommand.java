@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.util;
 
-import com.google.common.collect.Streams;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.IMentionable;
 import net.dv8tion.jda.core.entities.ISnowflake;
@@ -42,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by napster on 30.06.17.
@@ -197,14 +197,13 @@ public class TagCommand implements BaseCommand, PublicCommand {
                         + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
                 return false;
             }
-
-            final List<String> mentions = Streams.concat(
+            final List<String> mentions = Stream.concat(
                     mentionedUsers.stream().map(IMentionable::getAsMention),
                     mentionedRoles.stream().map(IMentionable::getAsMention)
             ).collect(Collectors.toList());
             final String joined = String.join("**, **", mentions);
 
-            final List<Long> ids = Streams.concat(
+            final List<Long> ids = Stream.concat(
                     mentionedUsers.stream().map(ISnowflake::getIdLong),
                     mentionedRoles.stream().map(ISnowflake::getIdLong)
             ).collect(Collectors.toList());

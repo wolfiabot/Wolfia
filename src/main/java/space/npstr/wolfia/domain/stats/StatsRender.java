@@ -23,7 +23,6 @@ import net.dv8tion.jda.core.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.entities.discord.DiscordUser;
 import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.domain.UserCache;
@@ -42,6 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static space.npstr.wolfia.game.Player.UNKNOWN_NAME;
 import static space.npstr.wolfia.utils.discord.TextchatUtils.divide;
 import static space.npstr.wolfia.utils.discord.TextchatUtils.percentFormat;
 
@@ -287,7 +287,7 @@ public class StatsRender {
         }
         final String message = String.format("No such player %s in this game %s", userId, gameStats.getGameId().orElseThrow());
         log.error(message, new IllegalArgumentException(message));
-        return DiscordUser.UNKNOWN_NAME;
+        return UNKNOWN_NAME;
     }
 
 }

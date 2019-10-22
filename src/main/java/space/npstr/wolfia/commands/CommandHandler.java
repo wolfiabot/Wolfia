@@ -20,8 +20,8 @@ package space.npstr.wolfia.commands;
 import net.dv8tion.jda.core.entities.Category;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.jooq.exception.DataAccessException;
 import org.springframework.stereotype.Component;
-import space.npstr.sqlsauce.DatabaseException;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InviteCommand;
@@ -66,13 +66,8 @@ public class CommandHandler {
         if (g != null) g.userPosted(event.getMessage());
 
 
-        final CommandContext context;
-        try {
-            context = CommandContext.parse(commRegistry, event);
-        } catch (final DatabaseException e) {
-            log.error("Db blew up parsing a command", e);
-            return;
-        }
+        final CommandContext context = CommandContext.parse(commRegistry, event);
+
         if (context == null) {
             return;
         }
@@ -119,7 +114,7 @@ public class CommandHandler {
             context.reply("There was a problem executing your command:\n" + e.getMessage());
         } catch (final IllegalGameStateException e) {
             context.reply(e.getMessage());
-        } catch (final DatabaseException e) {
+        } catch (final DataAccessException e) { //currently unreachable since db access is async, so a CompletionException would be thrown instead
             log.error("Db blew up while handling command", e);
             context.reply("The database is not available currently. Please try again later. Sorry for the inconvenience!");
         } catch (final Exception e) {

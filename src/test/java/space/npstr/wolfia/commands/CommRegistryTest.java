@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.KillGameCommand;
-import space.npstr.wolfia.commands.debug.MaintenanceCommand;
+import space.npstr.wolfia.domain.maintenance.MaintenanceCommand;
 import space.npstr.wolfia.commands.debug.RegisterPrivateRoomCommand;
 import space.npstr.wolfia.commands.debug.RestartCommand;
 import space.npstr.wolfia.commands.debug.ReviveCommand;
