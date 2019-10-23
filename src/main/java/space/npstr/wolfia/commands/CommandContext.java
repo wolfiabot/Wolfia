@@ -114,9 +114,11 @@ public class CommandContext extends MessageContext {
      * Deletes the users message that triggered this command, if we have the permissions to do so
      */
     public void deleteMessage() {
-        final TextChannel tc = this.msg.getTextChannel();
-        if (tc != null && tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_MANAGE)) {
-            RestActions.deleteMessage(this.msg);
+        if (this.msg.isFromType(ChannelType.TEXT)) {
+            final TextChannel tc = this.msg.getTextChannel();
+            if (tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_MANAGE)) {
+                RestActions.deleteMessage(this.msg);
+            }
         }
     }
 
