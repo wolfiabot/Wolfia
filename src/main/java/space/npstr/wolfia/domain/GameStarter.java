@@ -106,6 +106,7 @@ public class GameStarter {
 
         try {
             game.start(setup.getChannelId(), setup.getMode(), inned);
+            this.gameRegistry.set(game);
         } catch (final UserFriendlyException e) {
             log.info("Game start aborted due to user friendly exception", e);
             this.gameRegistry.remove(game);
