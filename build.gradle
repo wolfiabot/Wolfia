@@ -114,6 +114,7 @@ project(':platform') {
         api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
         constraints {
             api "net.dv8tion:JDA:$jdaVersion"
+            api "com.squareup.okhttp3:okhttp:$okHttpVersion"
             api "io.sentry:sentry-logback:$sentryLogbackVersion"
             api "org.json:json:$orgJsonVersion"
             api "space.npstr:annotations:$annotationsVersion"
@@ -320,6 +321,7 @@ dependencies {
     implementation project(':database-codegen')
 
     implementation "net.dv8tion:JDA"
+    implementation "com.squareup.okhttp3:okhttp"
 
     implementation "ch.qos.logback:logback-classic"
     implementation "io.sentry:sentry-logback"

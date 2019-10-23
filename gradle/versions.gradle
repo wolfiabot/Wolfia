@@ -14,6 +14,7 @@ ext {
 	testLoggerVersion			= '2.0.0'
 
 	jdaVersion					= '4.0.0_53'
+	okHttpVersion				= '4.2.2'
 	sentryLogbackVersion		= '1.7.28'
 	orgJsonVersion				= '20190722'
 	annotationsVersion			= '0.0.2'

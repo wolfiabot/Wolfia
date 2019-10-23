@@ -50,7 +50,7 @@ public class Carbonitex extends Listing {
     @Nonnull
     @Override
     protected Request.Builder createRequest(final long botId, @Nonnull final String payload) {
-        final RequestBody body = RequestBody.create(JSON, payload);
+        final RequestBody body = RequestBody.create(payload, JSON);
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
                 .url("https://www.carbonitex.net/discord/data/botdata.php")
