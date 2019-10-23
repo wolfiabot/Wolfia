@@ -17,14 +17,12 @@
 
 package space.npstr.wolfia.config;
 
-import net.dv8tion.jda.bot.sharding.ShardManager;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.common.Exceptions;
-import space.npstr.wolfia.discordwrapper.DiscordEntityProvider;
-import space.npstr.wolfia.discordwrapper.JdaDiscordEntityProvider;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -32,11 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Configuration
 public class DiscordApiConfiguration {
-
-    @Bean
-    public DiscordEntityProvider jdaDiscordEntityProvider(ShardManager shardManager) {
-        return new JdaDiscordEntityProvider(shardManager);
-    }
 
     @Bean(destroyMethod = "", name = "jdaThreadPool")
     public ScheduledExecutorService jdaThreadPool(final ThreadPoolCollector threadPoolCollector) {

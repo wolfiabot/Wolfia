@@ -17,9 +17,10 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.entities.Category;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jooq.exception.DataAccessException;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
@@ -56,7 +57,7 @@ public class CommandHandler {
         }
 
         //ignore channels where we don't have sending permissions, with a special exception for the help command
-        if (event.getTextChannel() != null && !event.getTextChannel().canTalk()
+        if (event.isFromType(ChannelType.TEXT) && !event.getTextChannel().canTalk()
                 && !event.getMessage().getContentRaw().toLowerCase().startsWith((WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER).toLowerCase())) {
             return;
         }

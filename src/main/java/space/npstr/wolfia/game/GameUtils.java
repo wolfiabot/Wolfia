@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.game;
 
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.setup.StatusCommand;

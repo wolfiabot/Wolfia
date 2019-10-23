@@ -19,7 +19,7 @@ package space.npstr.wolfia.config;
 
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector;
 import io.prometheus.client.logback.InstrumentedAppender;
-import net.dv8tion.jda.bot.sharding.ShardManager;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import net.ttddyy.dsproxy.listener.SingleQueryCountHolder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;

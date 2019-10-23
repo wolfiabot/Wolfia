@@ -17,12 +17,12 @@
 
 package space.npstr.wolfia.commands.util;
 
-import net.dv8tion.jda.bot.entities.ApplicationInfo;
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDAInfo;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDAInfo;
+import net.dv8tion.jda.api.entities.ApplicationInfo;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -32,6 +32,8 @@ import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
+
+import static java.util.Objects.requireNonNull;
 
 
 /**
@@ -58,14 +60,15 @@ public class InfoCommand implements BaseCommand, PublicCommand {
 
     @Override
     public boolean execute(@Nonnull final CommandContext context) {
-        context.getJda().asBot().getShardManager().getApplicationInfo().submit()
+        ShardManager shardManager = context.getJda().getShardManager();
+        requireNonNull(shardManager).retrieveApplicationInfo().submit()
                 .thenApply(ApplicationInfo::getDescription)
                 .thenAccept(description -> execute(context, description));
         return true;
     }
 
     private void execute(@Nonnull final CommandContext context, String description) {
-        ShardManager shardManager = context.getJda().asBot().getShardManager();
+        ShardManager shardManager = requireNonNull(context.getJda().getShardManager());
         final User owner = shardManager.getUserById(App.OWNER_ID);
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";

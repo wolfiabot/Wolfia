@@ -17,8 +17,8 @@
 
 package space.npstr.wolfia.listings;
 
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -27,6 +27,8 @@ import space.npstr.wolfia.Launcher;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by napster on 06.10.17.
@@ -70,7 +72,7 @@ public abstract class Listing {
             return;
         }
 
-        if (this instanceof Carbonitex && !allShardsUp(jda.asBot().getShardManager())) {
+        if (this instanceof Carbonitex && !allShardsUp(requireNonNull(jda.getShardManager()))) {
             log.info("Skipping posting stats to Carbonitex since not all shards are up");
             return;
         }

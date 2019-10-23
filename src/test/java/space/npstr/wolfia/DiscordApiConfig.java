@@ -17,9 +17,9 @@
 
 package space.npstr.wolfia;
 
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.utils.cache.SnowflakeCacheView;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.cache.SnowflakeCacheView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -44,7 +44,7 @@ public class DiscordApiConfig {
         ShardManager shardManager = mock(ShardManager.class);
 
         RestAction restAction = mock(RestAction.class);
-        doReturn(restAction).when(shardManager).getApplicationInfo();
+        doReturn(restAction).when(shardManager).retrieveApplicationInfo();
 
         SnowflakeCacheView guildCache = mock(SnowflakeCacheView.class);
         doReturn(guildCache).when(shardManager).getGuildCache();

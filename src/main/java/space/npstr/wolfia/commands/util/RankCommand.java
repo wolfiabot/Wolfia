@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.util;
 
 
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.api.entities.Role;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -85,10 +85,10 @@ public class RankCommand implements BaseCommand, PublicCommand {
         }
 
         if (context.member.getRoles().contains(role)) {
-            context.guild.getController().removeSingleRoleFromMember(context.member, role).queue();
+            context.guild.removeRoleFromMember(context.member, role).queue();
             context.replyWithName(String.format("removed role `%s` from you.", role.getName()));
         } else {
-            context.guild.getController().addSingleRoleToMember(context.member, role).queue();
+            context.guild.addRoleToMember(context.member, role).queue();
             context.replyWithName(String.format("added role `%s` to you.", role.getName()));
         }
         return true;

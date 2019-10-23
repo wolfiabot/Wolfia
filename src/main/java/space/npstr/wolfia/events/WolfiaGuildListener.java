@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.events;
 
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.utils.discord.Emojis;
@@ -63,7 +63,7 @@ public class WolfiaGuildListener extends ListenerAdapter {
         //add role announcements
         final Role announcements = event.getGuild().getRoleById(ANNOUNCEMENTS_ROLE_ID);
         if (announcements != null) {
-            event.getGuild().getController().addSingleRoleToMember(event.getMember(), announcements).queue();
+            event.getGuild().addRoleToMember(event.getMember(), announcements).queue();
         } else {
             log.warn("Did the Announcements role disappear in the Wolfia Lounge?");
         }

@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.listings;
 
-import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.api.JDA;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -50,7 +50,7 @@ public class Carbonitex extends Listing {
     @Nonnull
     @Override
     protected Request.Builder createRequest(final long botId, @Nonnull final String payload) {
-        final RequestBody body = RequestBody.create(JSON, payload);
+        final RequestBody body = RequestBody.create(payload, JSON);
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
                 .url("https://www.carbonitex.net/discord/data/botdata.php")

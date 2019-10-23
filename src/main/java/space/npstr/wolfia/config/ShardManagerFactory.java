@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.config;
 
-import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.utils.cache.CacheFlag;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -80,7 +80,7 @@ public class ShardManagerFactory {
     private ShardManager createShardManager() {
         DefaultShardManagerBuilder builder = new DefaultShardManagerBuilder()
                 .setToken(this.wolfiaConfig.getDiscordToken())
-                .setGame(Game.playing(App.GAME_STATUS))
+                .setActivity(Activity.playing(App.GAME_STATUS))
                 .addEventListeners(this.commandListener)
                 .addEventListeners(this.guildCacheListener)
                 .addEventListeners(new InternalListener())
@@ -89,12 +89,11 @@ public class ShardManagerFactory {
                 .addEventListeners(this.privateRoomQueue.getAllManagedRooms().toArray())
                 .setHttpClientBuilder(this.httpClientBuilder
                         .eventListener(new OkHttpEventCounter("jda")))
-                .setDisabledCacheFlags(EnumSet.of(CacheFlag.GAME, CacheFlag.VOICE_STATE))
+                .setEnabledCacheFlags(EnumSet.noneOf(CacheFlag.class))
                 .setEnableShutdownHook(false)
                 .setRateLimitPool(this.jdaThreadPool, false)
                 .setCallbackPool(this.jdaThreadPool, false)
-                .setGatewayPool(this.jdaThreadPool, false)
-                .setAudioEnabled(false);
+                .setGatewayPool(this.jdaThreadPool, false);
 
         try {
             return builder.build();

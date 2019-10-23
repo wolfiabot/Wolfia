@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.domain.setup;
 
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -80,7 +80,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             if (allowedToEditSetup(context)) {
                 setupAction.reset();
                 context.replyWithMention("game setup of this channel has been reset.");
-                GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
+                GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().getShardManager());
                 context.reply(this.render.render(setup, context));
                 return true;
             } else {
@@ -168,7 +168,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             return false;//feedback has been given
         }
         //show the status quo
-        GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().asBot().getShardManager());
+        GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().getShardManager());
         context.reply(this.render.render(setup, context));
         return true;
     }

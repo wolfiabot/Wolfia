@@ -17,12 +17,12 @@
 
 package space.npstr.wolfia.commands;
 
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -114,9 +114,11 @@ public class CommandContext extends MessageContext {
      * Deletes the users message that triggered this command, if we have the permissions to do so
      */
     public void deleteMessage() {
-        final TextChannel tc = this.msg.getTextChannel();
-        if (tc != null && tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_MANAGE)) {
-            RestActions.deleteMessage(this.msg);
+        if (this.msg.isFromType(ChannelType.TEXT)) {
+            final TextChannel tc = this.msg.getTextChannel();
+            if (tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_MANAGE)) {
+                RestActions.deleteMessage(this.msg);
+            }
         }
     }
 

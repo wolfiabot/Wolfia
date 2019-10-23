@@ -114,6 +114,7 @@ project(':platform') {
         api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
         constraints {
             api "net.dv8tion:JDA:$jdaVersion"
+            api "com.squareup.okhttp3:okhttp:$okHttpVersion"
             api "io.sentry:sentry-logback:$sentryLogbackVersion"
             api "org.json:json:$orgJsonVersion"
             api "space.npstr:annotations:$annotationsVersion"
@@ -297,17 +298,6 @@ project(':common') {
     }
 }
 
-project(':discord-wrapper') {
-    dependencies {
-        compile project(':common')
-
-        api "net.dv8tion:JDA"
-        implementation "org.springframework.boot:spring-boot-starter"
-        annotationProcessor "org.immutables:value"
-        compileOnly(group: 'org.immutables', name: 'value', classifier: 'annotations')
-    }
-}
-
 apply plugin: 'application'
 apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'org.ajoberstar.grgit'
@@ -327,8 +317,11 @@ configurations {
 }
 
 dependencies {
+    implementation project(':common')
     implementation project(':database-codegen')
-    implementation project(':discord-wrapper')
+
+    implementation "net.dv8tion:JDA"
+    implementation "com.squareup.okhttp3:okhttp"
 
     implementation "ch.qos.logback:logback-classic"
     implementation "io.sentry:sentry-logback"

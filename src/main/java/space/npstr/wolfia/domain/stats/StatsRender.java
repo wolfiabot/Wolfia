@@ -17,9 +17,10 @@
 
 package space.npstr.wolfia.domain.stats;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.Objects.requireNonNull;
 import static space.npstr.wolfia.game.Player.UNKNOWN_NAME;
 import static space.npstr.wolfia.utils.discord.TextchatUtils.divide;
 import static space.npstr.wolfia.utils.discord.TextchatUtils.percentFormat;
@@ -61,7 +63,8 @@ public class StatsRender {
     public EmbedBuilder renderBotStats(Context context, BotStats botstats) {
         final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         eb.setTitle("Wolfia stats:");
-        context.getJda().asBot().getShardManager().getShardCache().stream().findAny()
+        ShardManager shardManager = context.getJda().getShardManager();
+        requireNonNull(shardManager).getShardCache().stream().findAny()
                 .map(shard -> shard.getSelfUser().getAvatarUrl())
                 .ifPresent(eb::setThumbnail);
 
@@ -84,7 +87,8 @@ public class StatsRender {
 
     public EmbedBuilder renderGuildStats(Context context, GuildStats stats) {
         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        final Guild guild = context.getJda().asBot().getShardManager().getGuildById(stats.guildId());
+        ShardManager shardManager = context.getJda().getShardManager();
+        final Guild guild = requireNonNull(shardManager).getGuildById(stats.guildId());
         GuildSettings guildSettings = guild != null
                 ? this.guildSettingsService.set(guild)
                 : this.guildSettingsService.guild(stats.guildId()).getOrDefault();

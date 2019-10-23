@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.discordwrapper.entity;
 
-import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.api.entities.Guild;
 import org.immutables.value.Value;
 
 /**

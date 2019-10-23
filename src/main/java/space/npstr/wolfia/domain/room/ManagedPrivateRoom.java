@@ -17,15 +17,15 @@
 
 package space.npstr.wolfia.domain.room;
 
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Invite;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Invite;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.Launcher;
@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Adds behaviour and mutable data to a {@link PrivateRoom}
@@ -86,7 +88,7 @@ public class ManagedPrivateRoom extends ListenerAdapter {
         final Member joined = event.getMember();
         //kick the joined user if they aren't on the allowed list
         if (!this.allowedUsers.contains(joined.getUser().getIdLong())) {
-            final Consumer whenDone = __ -> event.getGuild().getController().kick(joined).queue(null, RestActions.defaultOnFail());
+            final Consumer whenDone = __ -> event.getGuild().kick(joined).queue(null, RestActions.defaultOnFail());
             final String message = String.format("You are not allowed to join private guild #%s currently.", this.privateRoom.getNumber());
             String users = this.allowedUsers.stream().map(Number::toString).collect(Collectors.joining(", "));
             log.debug("Denied user {}, allowed users are {}", joined.getUser().getId(), users);
@@ -95,9 +97,10 @@ public class ManagedPrivateRoom extends ListenerAdapter {
         }
 
         final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME).complete();
-        event.getGuild().getController().addRolesToMember(event.getMember(), wolf).queue(
+        event.getGuild().addRoleToMember(event.getMember(), wolf).queue(
                 aVoid -> {
-                    TextChannel textChannel = event.getJDA().asBot().getShardManager().getTextChannelById(this.currentChannelId);
+                    ShardManager shardManager = requireNonNull(event.getJDA().getShardManager());
+                    TextChannel textChannel = shardManager.getTextChannelById(this.currentChannelId);
                     if (textChannel != null) {
                         RestActions.sendMessage(textChannel, event.getMember().getAsMention() + ", welcome to wolf chat!");
                     }
@@ -120,7 +123,7 @@ public class ManagedPrivateRoom extends ListenerAdapter {
             cleanUpMembers();
 
             //set up a fresh channel
-            final TextChannel wolfChannel = (TextChannel) g.getController().createTextChannel("wolfchat")
+            final TextChannel wolfChannel = g.createTextChannel("wolfchat")
                     .reason("Preparing private guild for a game").complete();
             this.currentChannelId = wolfChannel.getIdLong();
 
@@ -140,7 +143,7 @@ public class ManagedPrivateRoom extends ListenerAdapter {
     private void cleanUpMembers() {
         this.allowedUsers.clear();
         final Guild g = fetchThisGuild();
-        g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.getController().kick(m).queue(null, RestActions.defaultOnFail()));
+        g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.kick(m).queue(null, RestActions.defaultOnFail()));
     }
 
     public void endUsage() {
@@ -152,7 +155,7 @@ public class ManagedPrivateRoom extends ListenerAdapter {
             try {//complete() in here to catch errors
                 //revoke all invites
                 for (final TextChannel channel : fetchThisGuild().getTextChannels()) {
-                    final List<Invite> invites = channel.getInvites().complete();
+                    final List<Invite> invites = channel.retrieveInvites().complete();
                     invites.forEach(i -> i.delete().complete());
                 }
                 final TextChannel tc = Launcher.getBotContext().getShardManager().getTextChannelById(this.currentChannelId);
