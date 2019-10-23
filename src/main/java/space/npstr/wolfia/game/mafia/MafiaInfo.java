@@ -131,9 +131,4 @@ public class MafiaInfo implements GameInfo {
     public String textRep() {
         return Games.MAFIA.textRep;
     }
-
-    @Override
-    public Games getGameType() {
-        return Games.MAFIA;
-    }
 }

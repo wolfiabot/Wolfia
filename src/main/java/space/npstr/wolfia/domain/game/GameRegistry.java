@@ -58,7 +58,7 @@ public class GameRegistry {
     }
 
     public void remove(final Game game) {
-        this.games.remove(game.getChannelId());
+        remove(game.getChannelId());
     }
 
     public void remove(final long channelId) {

@@ -123,9 +123,4 @@ public class PopcornInfo implements GameInfo {
     public String textRep() {
         return Games.POPCORN.textRep;
     }
-
-    @Override
-    public Games getGameType() {
-        return Games.POPCORN;
-    }
 }

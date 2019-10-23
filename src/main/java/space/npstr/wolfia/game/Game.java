@@ -214,11 +214,6 @@ public abstract class Game {
         return fetchTextChannel(this.wolfChat.getChannelId());
     }
 
-
-    public boolean isLiving(final Member member) {
-        return isLiving(member.getUser());
-    }
-
     public boolean isLiving(final User user) {
         return isLiving(user.getIdLong());
     }
@@ -245,20 +240,6 @@ public abstract class Game {
     @Nonnull
     public Player getPlayer(@Nonnull final User user) throws IllegalGameStateException {
         return getPlayer(user.getIdLong());
-    }
-
-    @Nonnull
-    public Player getPlayer(@Nonnull final Member member) throws IllegalGameStateException {
-        return getPlayer(member.getUser());
-    }
-
-    protected Player getPlayerByNumber(final int number) throws IllegalGameStateException {
-        for (final Player p : this.players) {
-            if (p.number == number) {
-                return p;
-            }
-        }
-        throw new IllegalGameStateException("Requested player number " + number + " is not in the player list");
     }
 
     protected Set<Player> getVillagers() {
@@ -422,13 +403,10 @@ public abstract class Game {
 
             if (scope == Scope.CHANNEL) {
                 toAcquireInChannelScope.add(permission);
-            } else if (scope == Scope.GUILD) {
-                //todo lets not worry about things we arent even using currently and possibly never will
-            } else {
-                //todo
             }
+            //lets not worry about things we arent even using currently and possibly never will
         });
-        RoleAndPermissionUtils.acquireChannelPermissions(gameChannel, toAcquireInChannelScope.toArray(new Permission[toAcquireInChannelScope.size()]));
+        RoleAndPermissionUtils.acquireChannelPermissions(gameChannel, toAcquireInChannelScope.toArray(new Permission[0]));
 
         if (moderated) {
             //is this a non-public channel, and if yes, has an existing access role been set?
@@ -556,7 +534,6 @@ public abstract class Game {
      * @param complete
      *         optionally set to true to complete these operations before returning
      */
-    @SuppressWarnings("unchecked")
     //revert whatever prepareChannel() did in reverse order
     public void resetRolesAndPermissions(final boolean... complete) {
 
@@ -594,9 +571,10 @@ public abstract class Game {
         if (!missingPermissions.isEmpty()) {
             RestActions.sendMessage(channel,
                     String.format("Tried to clean up channel, but was missing the following permissions: `%s`",
-                            String.join("`, `",
-                                    missingPermissions.stream().map(Permission::getName).distinct().collect(Collectors.toList())
-                            )));
+                            missingPermissions.stream()
+                                    .map(Permission::getName)
+                                    .distinct()
+                                    .collect(Collectors.joining("`, `"))));
         }
 
         if (complete.length > 0 && complete[0]) {

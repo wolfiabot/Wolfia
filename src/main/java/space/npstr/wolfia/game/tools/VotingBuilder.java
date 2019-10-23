@@ -83,7 +83,7 @@ public class VotingBuilder {
     public NiceEmbedBuilder getEmbed(final Map<Player, Player> votes) {
 
         NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
-        neb = addHeader(neb, this.endTime - System.currentTimeMillis());
+        addHeader(neb, this.endTime - System.currentTimeMillis());
 
         final List<VoteEntry> processedVotes = processVotes(votes);
         neb.addField(renderVotes("", processedVotes, true, true));
@@ -125,7 +125,9 @@ public class VotingBuilder {
             nv.append(this.unvoteEmoji).append(" ");
         }
         final Set<Player> nonVoters = getNonVoters(votes.stream().flatMap(ve -> ve.voters.stream()).collect(Collectors.toSet()));
-        nv.append("**Non-voters: **\n").append(String.join(", ", nonVoters.stream().map(Player::bothNamesFormatted).collect(Collectors.toList())));
+        nv.append("**Non-voters: **\n").append(nonVoters.stream()
+                .map(Player::bothNamesFormatted)
+                .collect(Collectors.joining(", ")));
 
         votesField.add(nv.toString());
         return votesField;

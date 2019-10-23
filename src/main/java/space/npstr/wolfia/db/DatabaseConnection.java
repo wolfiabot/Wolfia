@@ -53,10 +53,6 @@ public class DatabaseConnection {
         }
     }
 
-    public int getMaxPoolSize() {
-        return this.hikariDataSource.getMaximumPoolSize();
-    }
-
     public DataSource getDataSource() {
         return this.proxiedDataSource;
     }

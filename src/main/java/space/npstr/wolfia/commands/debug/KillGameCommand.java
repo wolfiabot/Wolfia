@@ -22,7 +22,6 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserFriendlyException;
 
 import javax.annotation.Nonnull;
@@ -52,7 +51,7 @@ public class KillGameCommand implements BaseCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws IllegalGameStateException {
+    public boolean execute(@Nonnull final CommandContext context) {
 
         if (!context.hasArguments()) {
             context.reply("Please provide the channelId of the game you want to kill.");

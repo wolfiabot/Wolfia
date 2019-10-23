@@ -34,13 +34,9 @@ public class CharakterSetup {
 
     private final List<Charakter> charakters = new ArrayList<>();
 
-    public Collection<Charakter> getCharakters() {
-        return this.charakters;
-    }
-
     public Collection<Charakter> getRandedCharakters() {
         Collections.shuffle(this.charakters);
-        return this.charakters;
+        return Collections.unmodifiableList(this.charakters);
     }
 
     public CharakterSetup addRoleAndAlignment(final Alignments alignment, final Roles role, final int... amount) {

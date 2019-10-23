@@ -159,8 +159,9 @@ public class StatsRender {
 
         stats.getStartingTeams().forEach(team ->
                 eb.addField(stats.getGameType() == Games.POPCORN ? team.getAlignment().textRepWW : team.getAlignment().textRepMaf,
-                        String.join(", ",
-                                team.getPlayers().stream().map(player -> "`" + player.getNickname() + "`").collect(Collectors.toList())),
+                        team.getPlayers().stream()
+                                .map(player -> "`" + player.getNickname() + "`")
+                                .collect(Collectors.joining(", ")),
                         true)
         );
 
@@ -181,7 +182,7 @@ public class StatsRender {
 
         final String winText;
         final Optional<TeamStats> winners = stats.getStartingTeams().stream().filter(TeamStats::isWinner).findFirst();
-        if (!winners.isPresent()) {
+        if (winners.isEmpty()) {
             //shouldn't happen lol
             log.error("Game #{} has no winning team in the data", gameId);
             winText = "Game has no winning team " + Emojis.WOLFTHINK + "\nReplay must be borked. Error has been reported.";

@@ -20,13 +20,11 @@ package space.npstr.wolfia.commands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.App;
@@ -115,30 +113,6 @@ public class MessageContext implements Context {
         return this.event.getMember();
     }
 
-    @Nonnull
-    @CheckReturnValue
-    public String getMyOwnNick() {
-        final Guild g = getGuild();
-        if (g != null) {
-            return g.getSelfMember().getEffectiveName();
-        } else {
-            return this.jda.getSelfUser().getName();
-        }
-    }
-
-    //name or nickname of the invoker issuing the command
-    @Nonnull
-    @CheckReturnValue
-    public String getEffectiveName() {
-        if (this.channel instanceof TextChannel) {
-            final Member member = ((TextChannel) this.channel).getGuild().getMember(this.invoker);
-            if (member != null) {
-                return member.getEffectiveName();
-            }
-        }
-        return this.invoker.getName();
-    }
-
     /**
      * @return true if the invoker is the bot owner, false otherwise
      */
@@ -163,14 +137,6 @@ public class MessageContext implements Context {
 
     public void reply(@Nonnull final Message message, @Nullable final Consumer<Message> onSuccess) {
         reply0(message, onSuccess);
-    }
-
-    public void reply(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
-        reply(new MessageBuilder().append(message).build(), onSuccess);
-    }
-
-    public void reply(@Nonnull final Message message) {
-        reply(message, null);
     }
 
     public void reply(@Nonnull final String message) {
@@ -203,27 +169,8 @@ public class MessageContext implements Context {
         RestActions.sendPrivateMessage(invoker, message, onSuccess, onFail);
     }
 
-    public void replyImage(@Nonnull final String url) {
-        replyImage(url, null);
-    }
-
-    public void replyImage(@Nonnull final String url, @Nullable final String message) {
-        reply(new MessageBuilder()
-                .setEmbed(embedImage(url))
-                .append(message != null ? message : "")
-                .build()
-        );
-    }
-
     public void sendTyping() {
         RestActions.sendTyping(channel);
-    }
-
-
-    //checks whether we have the provided permissions for the provided channel
-    @CheckReturnValue
-    public static boolean hasPermissions(@Nonnull final TextChannel tc, final Permission... permissions) {
-        return tc.getGuild().getSelfMember().hasPermission(tc, permissions);
     }
 
     /**
@@ -239,12 +186,6 @@ public class MessageContext implements Context {
     // ********************************************************************************
     //                         Internal context stuff
     // ********************************************************************************
-
-    private static MessageEmbed embedImage(final String url) {
-        return getDefaultEmbedBuilder()
-                .setImage(url)
-                .build();
-    }
 
     private void reply0(@Nonnull final Message message, @Nullable final Consumer<Message> onSuccess) {
         RestActions.sendMessage(channel, message, onSuccess);

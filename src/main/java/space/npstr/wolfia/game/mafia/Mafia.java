@@ -506,9 +506,9 @@ public class Mafia extends Game {
 
             try {
                 dying.kill();
-            } catch (final IllegalGameStateException ignore) {
+            } catch (final IllegalGameStateException e) {
                 //lets ignore this for now and just log it
-                log.error("Dead player got a bomb from present", ignore);
+                log.error("Dead player got a bomb from present", e);
             }
             this.gameStats.addAction(simpleAction(hasPresent.sourceId, Actions.DEATH, dying.userId));
 
@@ -518,7 +518,7 @@ public class Mafia extends Game {
 
             //remove writing permissions
             final TextChannel gameChannel = fetchGameChannel();
-            RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(dying.userId),//todo breaks nonnull contract
+            RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(dying.userId),
                     Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
 
             //send info
@@ -568,9 +568,9 @@ public class Mafia extends Game {
 
         try {
             dying.kill();
-        } catch (final IllegalGameStateException ignore) {
+        } catch (final IllegalGameStateException e) {
             //lets ignore this for now and just log it
-            log.error("Dead player got a bomb from present", ignore);
+            log.error("Dead player got a bomb from present", e);
         }
         this.gameStats.addAction(simpleAction(invoker.userId, Actions.DEATH, dying.userId));
 
@@ -581,7 +581,7 @@ public class Mafia extends Game {
 
         //remove writing permissions
         final TextChannel gameChannel = fetchGameChannel();
-        RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(dying.userId),//todo breaks nonnull contract
+        RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(dying.userId),
                 Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
 
         //send info
@@ -600,9 +600,7 @@ public class Mafia extends Game {
         for (final Map.Entry<Player, Player> vote : this.votes.entrySet()) {
             final Player voter = vote.getKey();
             final Player candidate = vote.getValue();
-            if (voter.equals(player)) {
-                toUnvote.add(voter);
-            } else if (candidate.equals(player)) {
+            if (voter.equals(player) || candidate.equals(player)) {
                 toUnvote.add(voter);
             }
         }
@@ -616,9 +614,7 @@ public class Mafia extends Game {
         for (final Map.Entry<Player, Player> vote : this.nightkillVotes.entrySet()) {
             final Player voter = vote.getKey();
             final Player candidate = vote.getValue();
-            if (voter.equals(player)) {
-                toUnvoteNk.add(voter);
-            } else if (candidate.equals(player)) {
+            if (voter.equals(player) || candidate.equals(player)) {
                 toUnvoteNk.add(voter);
             }
         }
@@ -779,10 +775,12 @@ public class Mafia extends Game {
                                     RestActions.editMessage(message, this.nightKillVotingBuilder.getFinalEmbed(this.nightkillVotes, this.phase, this.cycle).build());
                                     final Player nightKillCandidate = GameUtils.rand(GameUtils.mostVoted(this.nightkillVotes, getLivingVillage()));
 
+                                    TextChannel textChannel = shardManager.getTextChannelById(this.channelId);
+                                    String invite = textChannel == null ? ""
+                                            : TextchatUtils.getOrCreateInviteLinkForChannel(textChannel);
                                     RestActions.sendMessage(wolfchatChannel, String.format(
                                             "%n@here, %s will be killed! Game about to start/continue, get back to the main chat.%n%s",
-                                            nightKillCandidate.bothNamesFormatted(),
-                                            TextchatUtils.getOrCreateInviteLinkForChannel(shardManager.getTextChannelById(this.channelId))));
+                                            nightKillCandidate.bothNamesFormatted(), invite));
                                     this.gameStats.addActions(this.nightKillVoteActions.values());
 
                                     endNight(nightKillCandidate);

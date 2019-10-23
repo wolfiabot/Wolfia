@@ -67,6 +67,7 @@ public class MetricsEndpoint extends BaseEndpoint {
         });
     }
 
+    @SuppressWarnings("squid:S3752")
     @RequestMapping("**")
     public CompletionStage<ResponseEntity<String>> catchAll(HttpServletRequest request) {
         return super.logAndCatchAll(request);

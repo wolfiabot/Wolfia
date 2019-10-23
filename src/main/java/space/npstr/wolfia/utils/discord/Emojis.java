@@ -18,7 +18,6 @@
 package space.npstr.wolfia.utils.discord;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -33,11 +32,8 @@ public class Emojis {
     //standard unicode based ones
     public static final String GUN = "🔫";
     public static final String WOLF = "🐺";
-    public static final String POPCORN = "🍿";
     public static final String COFFIN = "⚰";
     public static final String SKULL = "💀";
-    public static final String HOG = "🐷";
-    public static final String POTATO = "🥔";
     public static final String VIDEO_GAME = "🎮";
     public static final String END = "🔚";
     public static final String COWBOY = "🤠";
@@ -50,12 +46,7 @@ public class Emojis {
     public static final String FULL_MOON = "🌕";
     public static final String CITY_SUNSET_SUNRISE = "🌇";
 
-    public static final String QUESTION = "❓";
     public static final String X = "❌";
-    public static final String ANGER = "💢";
-    public static final String CHECK = "✅";
-    public static final String LOADING = "🔄";
-    public static final String DOOR = "🚪";
 
     public static final String BALLOT_BOX = "🗳";
     public static final String FIRE = "🔥";
@@ -80,8 +71,8 @@ public class Emojis {
     public static final String NUMBER_9 = "9⃣";
     public static final String NUMBER_10 = "🔟";
 
-    public static final List<String> NUMBERS = Collections.unmodifiableList(Arrays.asList(NUMBER_0, NUMBER_1, NUMBER_2,
-            NUMBER_3, NUMBER_4, NUMBER_5, NUMBER_6, NUMBER_7, NUMBER_8, NUMBER_9, NUMBER_10));
+    public static final List<String> NUMBERS = List.of(NUMBER_0, NUMBER_1, NUMBER_2, NUMBER_3, NUMBER_4,
+            NUMBER_5, NUMBER_6, NUMBER_7, NUMBER_8, NUMBER_9, NUMBER_10);
 
     public static final String LETTER_A = "🇦";
     public static final String LETTER_B = "🇧";
@@ -110,10 +101,9 @@ public class Emojis {
     public static final String LETTER_Y = "🇾";
     public static final String LETTER_Z = "🇿";
 
-    public static final List<String> LETTERS = Collections.unmodifiableList(Arrays.asList(LETTER_A, LETTER_B, LETTER_C,
-            LETTER_D, LETTER_E, LETTER_F, LETTER_G, LETTER_H, LETTER_I, LETTER_J, LETTER_K, LETTER_L, LETTER_M,
-            LETTER_N, LETTER_O, LETTER_P, LETTER_Q, LETTER_R, LETTER_S, LETTER_T, LETTER_U, LETTER_V, LETTER_W,
-            LETTER_X, LETTER_Y, LETTER_Z));
+    public static final List<String> LETTERS = List.of(LETTER_A, LETTER_B, LETTER_C, LETTER_D, LETTER_E, LETTER_F,
+            LETTER_G, LETTER_H, LETTER_I, LETTER_J, LETTER_K, LETTER_L, LETTER_M, LETTER_N, LETTER_O, LETTER_P,
+            LETTER_Q, LETTER_R, LETTER_S, LETTER_T, LETTER_U, LETTER_V, LETTER_W, LETTER_X, LETTER_Y, LETTER_Z);
 
     //custom ones, currently hosted in the Wolfia Lounge
     public static final String EEK = "<:eek:318452576850804748>";

@@ -75,7 +75,7 @@ public class NiceEmbedBuilder extends EmbedBuilder {
         public ChunkingField(final String name, final boolean inline) {
             this.name = name;
             this.inline = inline;
-            this.current = new StringBuilder().append("");
+            this.current = new StringBuilder();
             this.content.add(this.current);
         }
 

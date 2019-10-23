@@ -18,7 +18,6 @@
 package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.api.Permission;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Scope;
 
 import javax.annotation.Nonnull;
@@ -75,6 +74,4 @@ public interface GameInfo {
     CharakterSetup getCharacterSetup(@Nonnull GameMode mode, int playerCount);
 
     String textRep();
-
-    Games getGameType();
 }
