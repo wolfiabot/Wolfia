@@ -23,8 +23,8 @@ import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.GameStarter;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.room.PrivateRoomService;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
@@ -41,10 +41,12 @@ public class StartCommand implements BaseCommand, PublicCommand {
 
     private final GameStarter gameStarter;
     private final PrivateRoomService privateRoomService;
+    private final GameRegistry gameRegistry;
 
-    public StartCommand(GameStarter gameStarter, PrivateRoomService privateRoomService) {
+    public StartCommand(GameStarter gameStarter, PrivateRoomService privateRoomService, GameRegistry gameRegistry) {
         this.gameStarter = gameStarter;
         this.privateRoomService = privateRoomService;
+        this.gameRegistry = gameRegistry;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class StartCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        if (Games.get(context.textChannel) != null) {
+        if (this.gameRegistry.get(context.textChannel) != null) {
             context.replyWithMention("please start the next game after the current one is over.");
             return false;
         }

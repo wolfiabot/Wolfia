@@ -213,7 +213,7 @@ public class Popcorn extends Game {
         }
 
         // - start the game
-        Games.set(this);
+        Launcher.getBotContext().getGameRegistry().set(this);
         String info = Games.getInfo(this).textRep();
         log.info("Game started in guild {} {}, channel #{} {}, {} {} {} players",
                 g.getName(), g.getIdLong(), gameChannel.getName(), gameChannel.getIdLong(),

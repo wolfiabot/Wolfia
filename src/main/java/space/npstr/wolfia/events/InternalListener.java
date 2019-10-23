@@ -23,9 +23,10 @@ import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 
@@ -34,9 +35,16 @@ import space.npstr.wolfia.utils.discord.Emojis;
  * <p>
  * Events listened to in here are used for bot internal, non-game purposes
  */
+@Component
 public class InternalListener extends ListenerAdapter {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InternalListener.class);
+
+    private final GameRegistry gameRegistry;
+
+    public InternalListener(GameRegistry gameRegistry) {
+        this.gameRegistry = gameRegistry;
+    }
 
     @Override
     public void onReady(final ReadyEvent event) {
@@ -55,7 +63,7 @@ public class InternalListener extends ListenerAdapter {
 
         int gamesDestroyed = 0;
         //destroy games running in the server that was left
-        for (final Game game : Games.getAll().values()) {
+        for (final Game game : this.gameRegistry.getAll().values()) {
             if (game.getGuildId() == guild.getIdLong()) {
                 try {
                     game.destroy(new UserFriendlyException("Bot was kicked from the server " + guild.getName() + " " + guild.getIdLong()));
@@ -76,7 +84,7 @@ public class InternalListener extends ListenerAdapter {
         final long channelId = event.getChannel().getIdLong();
         final long guildId = event.getGuild().getIdLong();
 
-        Game game = Games.get(channelId);
+        Game game = this.gameRegistry.get(channelId);
         if (game != null) {
             log.info("Destroying game due to deleted channel {} {} in guild {} {}.",
                     event.getChannel().getName(), channelId, event.getGuild().getName(), guildId);

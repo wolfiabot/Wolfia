@@ -27,9 +27,9 @@ import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -50,6 +50,12 @@ public class CommandHandler {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommandHandler.class);
 
+    private final GameRegistry gameRegistry;
+
+    public CommandHandler(GameRegistry gameRegistry) {
+        this.gameRegistry = gameRegistry;
+    }
+
     public void handleMessage(final CommRegistry commRegistry, @Nonnull final MessageReceivedEvent event) {
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {
@@ -63,7 +69,7 @@ public class CommandHandler {
         }
 
         //update user stats
-        final Game g = Games.get(event.getChannel().getIdLong());
+        final Game g = this.gameRegistry.get(event.getChannel().getIdLong());
         if (g != null) g.userPosted(event.getMessage());
 
 

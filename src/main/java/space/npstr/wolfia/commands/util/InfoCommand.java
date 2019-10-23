@@ -29,7 +29,7 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.domain.game.GameRegistry;
 
 import javax.annotation.Nonnull;
 
@@ -45,6 +45,12 @@ import static java.util.Objects.requireNonNull;
 public class InfoCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "info";
+
+    private final GameRegistry gameRegistry;
+
+    public InfoCommand(GameRegistry gameRegistry) {
+        this.gameRegistry = gameRegistry;
+    }
 
     @Override
     public String getTrigger() {
@@ -79,7 +85,7 @@ public class InfoCommand implements BaseCommand, PublicCommand {
 
 
         String botInfo = "```\n";
-        botInfo += "Games being played:     " + Games.getRunningGamesCount() + "\n";
+        botInfo += "Games being played:     " + this.gameRegistry.getRunningGamesCount() + "\n";
         botInfo += "Known servers:          " + shardManager.getGuildCache().size() + "\n";
         //UnifiedShardCacheViewImpl#stream calls distinct for us
         botInfo += "Known users in servers: " + shardManager.getUserCache().stream().count() + "\n";

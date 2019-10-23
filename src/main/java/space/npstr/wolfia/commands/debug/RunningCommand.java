@@ -24,8 +24,8 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
@@ -41,6 +41,12 @@ import static java.util.Objects.requireNonNull;
 @Command
 public class RunningCommand implements BaseCommand {
 
+    private final GameRegistry gameRegistry;
+
+    public RunningCommand(GameRegistry gameRegistry) {
+        this.gameRegistry = gameRegistry;
+    }
+
     @Override
     public String getTrigger() {
         return "running";
@@ -55,7 +61,7 @@ public class RunningCommand implements BaseCommand {
     @Override
     public boolean execute(@Nonnull final CommandContext context) {
 
-        final Map<Long, Game> games = Games.getAll();
+        final Map<Long, Game> games = this.gameRegistry.getAll();
         for (final Game game : games.values()) {
             final EmbedBuilder eb = game.getStatus();
             eb.addBlankField(false);

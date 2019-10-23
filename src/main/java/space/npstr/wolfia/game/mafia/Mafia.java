@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -224,7 +225,7 @@ public class Mafia extends Game {
         }
 
         // - start the game
-        Games.set(this);
+        Launcher.getBotContext().getGameRegistry().set(this);
         String info = Games.getInfo(this).textRep();
         log.info("Game started in guild {} {}, channel #{} {}, {} {} {} players",
                 g.getName(), g.getIdLong(), gameChannel.getName(), gameChannel.getIdLong(),

@@ -23,8 +23,8 @@ import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
@@ -39,6 +39,10 @@ import java.util.List;
 public class ShootCommand extends GameCommand {
 
     public static final String TRIGGER = "shoot";
+
+    public ShootCommand(GameRegistry gameRegistry) {
+        super(gameRegistry);
+    }
 
     @Override
     public String getTrigger() {
@@ -64,10 +68,10 @@ public class ShootCommand extends GameCommand {
 
         final GuildCommandContext context = commandContext.requireGuild(false);
         if (context != null) { // find game through guild / textchannel
-            Game game = Games.get(context.textChannel);
+            Game game = this.gameRegistry.get(context.textChannel);
             if (game == null) {
                 //private guild?
-                for (final Game g : Games.getAll().values()) {
+                for (final Game g : this.gameRegistry.getAll().values()) {
                     if (context.guild.getIdLong() == g.getPrivateRoomGuildId()) {
                         game = g;
                         break;
@@ -86,7 +90,7 @@ public class ShootCommand extends GameCommand {
             //todo handle a player being part of multiple games properly
             boolean issued = false;
             boolean success = false;
-            for (final Game g : Games.getAll().values()) {
+            for (final Game g : this.gameRegistry.getAll().values()) {
                 if (g.isUserPlaying(commandContext.invoker)) {
                     if (g.issueCommand(commandContext)) {
                         success = true;

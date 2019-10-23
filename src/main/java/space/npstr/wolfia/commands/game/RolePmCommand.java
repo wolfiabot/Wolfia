@@ -22,8 +22,8 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
@@ -38,6 +38,12 @@ import java.util.List;
 public class RolePmCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "rolepm";
+
+    private final GameRegistry gameRegistry;
+
+    public RolePmCommand(GameRegistry gameRegistry) {
+        this.gameRegistry = gameRegistry;
+    }
 
     @Override
     public String getTrigger() {
@@ -62,7 +68,7 @@ public class RolePmCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        final Game game = Games.get(context.textChannel);
+        final Game game = this.gameRegistry.get(context.textChannel);
         if (game == null) {
             context.replyWithMention("there is no game going on in here for which I could send you a role pm.");
             return false;
