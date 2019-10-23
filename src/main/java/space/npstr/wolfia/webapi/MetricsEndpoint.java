@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import space.npstr.wolfia.metrics.MetricsRegistry;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -49,8 +50,9 @@ public class MetricsEndpoint extends BaseEndpoint {
 
     private final CollectorRegistry registry;
 
-    public MetricsEndpoint() {
-        this.registry = CollectorRegistry.defaultRegistry;
+    //dependency on the registry is generally a good idea due to spring lazy loading
+    public MetricsEndpoint(MetricsRegistry metricsRegistry) {
+        this.registry = metricsRegistry.getRegistry();
     }
 
     @GetMapping(produces = TextFormat.CONTENT_TYPE_004)

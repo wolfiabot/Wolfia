@@ -18,6 +18,7 @@
 package space.npstr.wolfia.metrics;
 
 import ch.qos.logback.classic.LoggerContext;
+import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.client.logback.InstrumentedAppender;
 import org.slf4j.Logger;
@@ -46,6 +47,10 @@ public class MetricsRegistry {
 
         poolMetrics.register();
         queryMetrics.register();
+    }
+
+    public CollectorRegistry getRegistry() {
+        return CollectorRegistry.defaultRegistry;
     }
 
 }
