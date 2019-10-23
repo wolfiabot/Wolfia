@@ -24,8 +24,8 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.room.PrivateRoomService;
-import space.npstr.wolfia.game.definitions.Games;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -43,11 +43,15 @@ public class OutCommand implements BaseCommand, PublicCommand {
     private final GameSetupService gameSetupService;
     private final PrivateRoomService privateRoomService;
     private final GameSetupRender render;
+    private final GameRegistry gameRegistry;
 
-    public OutCommand(GameSetupService gameSetupService, PrivateRoomService privateRoomService, GameSetupRender render) {
+    public OutCommand(GameSetupService gameSetupService, PrivateRoomService privateRoomService, GameSetupRender render,
+                      GameRegistry gameRegistry) {
+
         this.gameSetupService = gameSetupService;
         this.privateRoomService = privateRoomService;
         this.render = render;
+        this.gameRegistry = gameRegistry;
     }
 
     @Override
@@ -75,7 +79,7 @@ public class OutCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        if (Games.get(context.textChannel) != null) {
+        if (this.gameRegistry.get(context.textChannel) != null) {
             context.replyWithMention("please sign up/sign out for the next game after the current one is over.");
             return false;
         }

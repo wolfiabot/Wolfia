@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.Context;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
@@ -42,6 +43,12 @@ import static java.util.Objects.requireNonNull;
 @Component
 public class GameSetupRender {
 
+    private final GameRegistry gameRegistry;
+
+    public GameSetupRender(GameRegistry gameRegistry) {
+        this.gameRegistry = gameRegistry;
+    }
+
     public MessageEmbed render(GameSetup setup, Context context) {
         long channelId = setup.getChannelId();
 
@@ -58,7 +65,7 @@ public class GameSetupRender {
             return neb.build();
         }
         neb.setTitle("Setup for channel #" + channel.getName());
-        neb.setDescription(Games.get(channelId) == null
+        neb.setDescription(this.gameRegistry.get(channelId) == null
                 ? "Game has **NOT** started yet."
                 : "Game has started.");
 

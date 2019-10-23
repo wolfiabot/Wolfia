@@ -24,13 +24,13 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.maintenance.MaintenanceService;
 import space.npstr.wolfia.domain.setup.GameSetup;
 import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.StatusCommand;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -50,10 +50,14 @@ public class GameStarter {
 
     private final GameSetupService gameSetupService;
     private final MaintenanceService maintenanceService;
+    private final GameRegistry gameRegistry;
 
-    public GameStarter(GameSetupService gameSetupService, MaintenanceService maintenanceService) {
+    public GameStarter(GameSetupService gameSetupService, MaintenanceService maintenanceService,
+                       GameRegistry gameRegistry) {
+
         this.gameSetupService = gameSetupService;
         this.maintenanceService = maintenanceService;
+        this.gameRegistry = gameRegistry;
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
@@ -76,7 +80,7 @@ public class GameStarter {
         }
 
         //is there a game running already in this channel?
-        if (Games.get(setup.getChannelId()) != null) {
+        if (this.gameRegistry.get(setup.getChannelId()) != null) {
             RestActions.sendMessage(channel, TextchatUtils.userAsMention(commandCallerId)
                     + ", there is already a game going on in this channel!");
             return false;
@@ -102,14 +106,15 @@ public class GameStarter {
 
         try {
             game.start(setup.getChannelId(), setup.getMode(), inned);
+            this.gameRegistry.set(game);
         } catch (final UserFriendlyException e) {
             log.info("Game start aborted due to user friendly exception", e);
-            Games.remove(game);
+            this.gameRegistry.remove(game);
             game.cleanUp();
             throw new UserFriendlyException(e.getMessage(), e);
         } catch (final Exception e) {
             //start failed with a fucked up exception
-            Games.remove(game);
+            this.gameRegistry.remove(game);
             game.cleanUp();
             throw new RuntimeException(String.format("%s, game start aborted due to:%n%s",
                     TextchatUtils.userAsMention(commandCallerId), e.getMessage()), e);

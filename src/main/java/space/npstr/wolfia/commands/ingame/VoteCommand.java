@@ -19,6 +19,7 @@ package space.npstr.wolfia.commands.ingame;
 
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.game.GameRegistry;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -32,6 +33,10 @@ import java.util.List;
 public class VoteCommand extends GameCommand {
 
     public static final String TRIGGER = "vote";
+
+    protected VoteCommand(GameRegistry gameRegistry) {
+        super(gameRegistry);
+    }
 
     @Override
     public String getTrigger() {

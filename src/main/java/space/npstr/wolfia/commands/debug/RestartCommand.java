@@ -21,7 +21,7 @@ import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.domain.game.GameRegistry;
 
 import javax.annotation.Nonnull;
 
@@ -31,12 +31,19 @@ import javax.annotation.Nonnull;
 @Command
 public class RestartCommand implements BaseCommand {
 
+
+    private final GameRegistry gameRegistry;
+
+    private boolean reminded = false;
+
+    public RestartCommand(GameRegistry gameRegistry) {
+        this.gameRegistry = gameRegistry;
+    }
+
     @Override
     public String getTrigger() {
         return "restart";
     }
-
-    private boolean reminded = false;
 
     @Nonnull
     @Override
@@ -49,7 +56,7 @@ public class RestartCommand implements BaseCommand {
 
         if (ShutdownHandler.isShuttingDown()) {
             context.replyWithName(String.format("restart has been queued already! **%s** games still running.",
-                    Games.getRunningGamesCount()));
+                    this.gameRegistry.getRunningGamesCount()));
             return false;
         }
 
@@ -65,7 +72,7 @@ public class RestartCommand implements BaseCommand {
         }
 
         final String message = String.format("**%s** games are still running. Will restart as soon as they are over.",
-                Games.getRunningGamesCount());
+                this.gameRegistry.getRunningGamesCount());
         context.replyWithMention(message, __ -> new Thread(() -> ShutdownHandler.shutdown(ShutdownHandler.EXIT_CODE_RESTART), "shutdown-thread").start());
         return true;
     }

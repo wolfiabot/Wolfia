@@ -23,7 +23,7 @@ import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -47,6 +47,7 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(EvalCommand.class);
 
     private final ExceptionLoggingExecutor executor;
+    private final GameRegistry gameRegistry;
     private ApplicationContext applicationContext;
 
     private Future lastTask;
@@ -54,8 +55,9 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
     //Thanks Fred & Dinos!
     private final ScriptEngine engine;
 
-    public EvalCommand(ExceptionLoggingExecutor executor) {
+    public EvalCommand(ExceptionLoggingExecutor executor, GameRegistry gameRegistry) {
         this.executor = executor;
+        this.gameRegistry = gameRegistry;
         this.engine = new ScriptEngineManager().getEngineByName("nashorn");
         try {
             this.engine.eval("var imports = new JavaImporter("
@@ -149,8 +151,8 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
         this.engine.put("member", context.getGuild() != null ? context.getGuild().getSelfMember() : null);
         this.engine.put("message", context.msg);
         this.engine.put("guild", context.getGuild());
-        this.engine.put("game", Games.get(context.channel.getIdLong()));
-        this.engine.put("games", Games.class);//access the static methods like this from eval: games.static.myStaticMethod()
+        this.engine.put("game", this.gameRegistry.get(context.channel.getIdLong()));
+        this.engine.put("games", this.gameRegistry);
         this.engine.put("db", Launcher.getBotContext().getDatabase());
         this.engine.put("app", this.applicationContext);
 

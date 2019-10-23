@@ -29,9 +29,9 @@ import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.settings.ChannelSettings;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
@@ -54,9 +54,11 @@ public class TagCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "tag";
 
     private final ChannelSettingsService channelSettingsService;
+    private final GameRegistry gameRegistry;
 
-    public TagCommand(ChannelSettingsService channelSettingsService) {
+    public TagCommand(ChannelSettingsService channelSettingsService, GameRegistry gameRegistry) {
         this.channelSettingsService = channelSettingsService;
+        this.gameRegistry = gameRegistry;
     }
 
     @Override
@@ -102,7 +104,7 @@ public class TagCommand implements BaseCommand, PublicCommand {
 
         if (action == TagAction.TAG) {
 
-            if (Games.get(context.textChannel) != null) {
+            if (this.gameRegistry.get(context.textChannel) != null) {
                 context.replyWithMention("I will not post the tag list during an ongoing game.");
                 return false;
             }

@@ -20,8 +20,8 @@ package space.npstr.wolfia.commands.debug;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserFriendlyException;
 
@@ -33,6 +33,12 @@ import java.util.Arrays;
  */
 @Command
 public class KillGameCommand implements BaseCommand {
+
+    private final GameRegistry gameRegistry;
+
+    public KillGameCommand(GameRegistry gameRegistry) {
+        this.gameRegistry = gameRegistry;
+    }
 
     @Override
     public String getTrigger() {
@@ -61,7 +67,7 @@ public class KillGameCommand implements BaseCommand {
             return false;
         }
 
-        final Game game = Games.get(channelId);
+        final Game game = this.gameRegistry.get(channelId);
         if (game == null) {
             context.reply("There is no game registered for channel " + channelId);
             return false;

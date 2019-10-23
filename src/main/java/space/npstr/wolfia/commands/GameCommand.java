@@ -19,8 +19,8 @@ package space.npstr.wolfia.commands;
 
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
@@ -32,6 +32,12 @@ import javax.annotation.Nonnull;
  */
 public abstract class GameCommand implements BaseCommand, PublicCommand {
 
+    protected final GameRegistry gameRegistry;
+
+    protected GameCommand(GameRegistry gameRegistry) {
+        this.gameRegistry = gameRegistry;
+    }
+
     @Override
     public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
         final GuildCommandContext context = commandContext.requireGuild();
@@ -39,10 +45,10 @@ public abstract class GameCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        Game game = Games.get(context.textChannel);
+        Game game = this.gameRegistry.get(context.textChannel);
         if (game == null) {
             //private guild?
-            for (final Game g : Games.getAll().values()) {
+            for (final Game g : this.gameRegistry.getAll().values()) {
                 if (context.guild.getIdLong() == g.getPrivateRoomGuildId()) {
                     game = g;
                     break;

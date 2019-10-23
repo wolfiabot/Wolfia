@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.config.ShardManagerFactory;
 import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.Database;
-import space.npstr.wolfia.game.definitions.Games;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -49,12 +49,13 @@ public class ShutdownHandler {
     private volatile boolean shutdownHookExecuted = false;
 
     public ShutdownHandler(ExceptionLoggingExecutor executor, Database database, AsyncDbWrapper dbWrapper,
-                           ShardManagerFactory shardManagerFactory, ScheduledExecutorService jdaThreadPool) {
+                           ShardManagerFactory shardManagerFactory, ScheduledExecutorService jdaThreadPool,
+                           GameRegistry gameRegistry) {
 
         this.shutdownHookAdded = false;
         Thread shutdownHook = new Thread(() -> {
             try {
-                shutdown(executor, jdaThreadPool, shardManagerFactory,
+                shutdown(executor, gameRegistry, jdaThreadPool, shardManagerFactory,
                         database, dbWrapper);
             } catch (Exception e) {
                 log.error("Uncaught exception in shutdown hook", e);
@@ -67,14 +68,14 @@ public class ShutdownHandler {
         this.shutdownHookAdded = true;
     }
 
-    private void shutdown(ExceptionLoggingExecutor executor,
+    private void shutdown(ExceptionLoggingExecutor executor, GameRegistry gameRegistry,
                           @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool,
                           ShardManagerFactory shardManagerFactory, Database database, AsyncDbWrapper dbWrapper) {
 
-        log.info("Shutdown hook triggered! {} games still ongoing.", Games.getRunningGamesCount());
+        log.info("Shutdown hook triggered! {} games still ongoing.", gameRegistry.getRunningGamesCount());
         Future waitForGamesToEnd = executor.submit(() -> {
-            while (Games.getRunningGamesCount() > 0) {
-                log.info("Waiting on {} games to finish.", Games.getRunningGamesCount());
+            while (gameRegistry.getRunningGamesCount() > 0) {
+                log.info("Waiting on {} games to finish.", gameRegistry.getRunningGamesCount());
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException ignored) {
@@ -94,10 +95,10 @@ public class ShutdownHandler {
             // ignored
         }
 
-        if (Games.getRunningGamesCount() > 0) {
-            log.error("Killing {} games while exiting", Games.getRunningGamesCount());
+        if (gameRegistry.getRunningGamesCount() > 0) {
+            log.error("Killing {} games while exiting", gameRegistry.getRunningGamesCount());
             String reason = "Wolfia is shutting down. I'll probably be right back!";
-            Games.getAll().values().forEach(game -> game.destroy(new UserFriendlyException(reason)));
+            gameRegistry.getAll().values().forEach(game -> game.destroy(new UserFriendlyException(reason)));
         }
 
         //okHttpClient claims that a shutdown isn't necessary

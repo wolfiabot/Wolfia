@@ -51,6 +51,7 @@ public class ShardManagerFactory {
     private final WolfiaConfig wolfiaConfig;
     private final CommandListener commandListener;
     private final OkHttpClient.Builder httpClientBuilder;
+    private final InternalListener internalListener;
     private final ScheduledExecutorService jdaThreadPool;
     private final Listings listings;
     private final PrivateRoomQueue privateRoomQueue;
@@ -59,13 +60,14 @@ public class ShardManagerFactory {
 
 
     public ShardManagerFactory(final WolfiaConfig wolfiaConfig, final CommandListener commandListener,
-                               final OkHttpClient.Builder httpClientBuilder,
+                               final OkHttpClient.Builder httpClientBuilder, InternalListener internalListener,
                                @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool, Listings listings,
                                PrivateRoomQueue privateRoomQueue, GuildCacheListener guildCacheListener) {
 
         this.wolfiaConfig = wolfiaConfig;
         this.commandListener = commandListener;
         this.httpClientBuilder = httpClientBuilder;
+        this.internalListener = internalListener;
         this.jdaThreadPool = jdaThreadPool;
         this.listings = listings;
         this.privateRoomQueue = privateRoomQueue;
@@ -83,7 +85,7 @@ public class ShardManagerFactory {
                 .setActivity(Activity.playing(App.GAME_STATUS))
                 .addEventListeners(this.commandListener)
                 .addEventListeners(this.guildCacheListener)
-                .addEventListeners(new InternalListener())
+                .addEventListeners(this.internalListener)
                 .addEventListeners(this.listings)
                 .addEventListeners(new WolfiaGuildListener())
                 .addEventListeners(this.privateRoomQueue.getAllManagedRooms().toArray())

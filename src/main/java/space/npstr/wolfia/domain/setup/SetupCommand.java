@@ -23,6 +23,7 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -43,10 +44,12 @@ public class SetupCommand implements BaseCommand, PublicCommand {
 
     private final GameSetupService gameSetupService;
     private final GameSetupRender render;
+    private final GameRegistry gameRegistry;
 
-    public SetupCommand(GameSetupService service, GameSetupRender render) {
+    public SetupCommand(GameSetupService service, GameSetupRender render, GameRegistry gameRegistry) {
         this.gameSetupService = service;
         this.render = render;
+        this.gameRegistry = gameRegistry;
     }
 
     @Override
@@ -99,7 +102,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
         //is this an attempt to edit the setup?
         if (context.args.length > 1) {
             //is there a game going on?
-            if (Games.get(context.textChannel) != null) {
+            if (this.gameRegistry.get(context.textChannel) != null) {
                 context.replyWithMention("there is a game going on in this channel, please wait until it is over to adjust the setup!");
                 return false;
             }

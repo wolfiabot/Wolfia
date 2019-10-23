@@ -21,8 +21,8 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
-import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 import javax.annotation.Nonnull;
@@ -35,6 +35,10 @@ import java.util.List;
 public class NightkillCommand extends GameCommand {
 
     public static final String TRIGGER = "nightkill";
+
+    public NightkillCommand(GameRegistry gameRegistry) {
+        super(gameRegistry);
+    }
 
     @Override
     public String getTrigger() {
@@ -63,7 +67,7 @@ public class NightkillCommand extends GameCommand {
         //the nightkill command is expected to be called from a private guild, and only one game is allowed to run in
         //a private guild at the time
         Game game = null;
-        for (final Game g : Games.getAll().values()) {
+        for (final Game g : this.gameRegistry.getAll().values()) {
             if (context.guild.getIdLong() == g.getPrivateRoomGuildId()) {
                 game = g;
                 break;
