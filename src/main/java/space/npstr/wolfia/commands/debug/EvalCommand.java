@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -40,11 +42,12 @@ import java.util.concurrent.TimeoutException;
  * run js code in the bot
  */
 @Command
-public class EvalCommand implements BaseCommand {
+public class EvalCommand implements BaseCommand, ApplicationContextAware {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(EvalCommand.class);
 
     private final ExceptionLoggingExecutor executor;
+    private ApplicationContext applicationContext;
 
     private Future lastTask;
 
@@ -87,6 +90,11 @@ public class EvalCommand implements BaseCommand {
         } catch (final ScriptException ex) {
             log.error("Failed to init eval command", ex);
         }
+    }
+
+    @Override
+    public void setApplicationContext(@Nonnull ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     @Override
@@ -144,6 +152,7 @@ public class EvalCommand implements BaseCommand {
         this.engine.put("game", Games.get(context.channel.getIdLong()));
         this.engine.put("games", Games.class);//access the static methods like this from eval: games.static.myStaticMethod()
         this.engine.put("db", Launcher.getBotContext().getDatabase());
+        this.engine.put("app", this.applicationContext);
 
         final Future<?> future = this.executor.submit(() -> {
 
