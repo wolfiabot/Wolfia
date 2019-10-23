@@ -23,6 +23,8 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandHandler;
 
+import javax.annotation.Nonnull;
+
 /**
  * Created by npstr on 25.08.2016
  */
@@ -38,7 +40,7 @@ public class CommandListener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReceived(final MessageReceivedEvent event) {
+    public void onMessageReceived(@Nonnull final MessageReceivedEvent event) {
         this.commandHandler.handleMessage(this.commRegistry, event);
     }
 }

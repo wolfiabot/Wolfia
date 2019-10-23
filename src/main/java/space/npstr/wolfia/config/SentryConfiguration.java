@@ -42,7 +42,6 @@ public class SentryConfiguration {
 
         String dsn = sentryConfig.getDsn();
 
-        //noinspection ConstantConditions
         if (dsn != null && !dsn.isEmpty()) {
             turnOn(dsn);
         } else {

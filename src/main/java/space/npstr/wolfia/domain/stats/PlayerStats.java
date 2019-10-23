@@ -58,7 +58,7 @@ public class PlayerStats {
     }
 
     // for use in the stats repository
-    public PlayerStats(long playerId, String nickname, String role, int totalPostLength, int totalPosts, long userId,
+    public PlayerStats(long playerId, @Nullable String nickname, String role, int totalPostLength, int totalPosts, long userId,
                        TeamStats teamStats, String alignment) {
 
         this.playerId = Optional.of(playerId);
