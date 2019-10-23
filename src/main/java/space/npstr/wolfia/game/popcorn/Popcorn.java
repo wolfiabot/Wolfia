@@ -466,7 +466,7 @@ public class Popcorn extends Game {
 
     class GunDistribution {
         private static final long TIME_TO_DISTRIBUTE_GUN_MILLIS = 1000L * 60; //1 minute
-        private boolean done = false;
+        private boolean done;
         private final Map<Long, Long> votes = new LinkedHashMap<>();//using linked to keep first votes at the top
         private final long startedMillis = System.currentTimeMillis();
 

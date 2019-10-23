@@ -62,10 +62,6 @@ public class Database {
         this.queryCountStrategy = queryCountStrategy;
     }
 
-    public int getMaxPoolSize() {
-        return getConnection().getMaxPoolSize();
-    }
-
     private DatabaseConnection getConnection() {
         DatabaseConnection singleton = this.dbConnection.get();
         if (singleton == null) {

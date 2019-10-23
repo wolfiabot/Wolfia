@@ -114,9 +114,7 @@ class PrivateRoomServiceTest extends ApplicationTest {
     }
 
     private Consumer<PrivateRoom> isGuild(long guildId) {
-        return actual -> {
-            assertThat(actual.getGuildId()).isEqualTo(guildId);
-        };
+        return actual -> assertThat(actual.getGuildId()).isEqualTo(guildId);
     }
 
 }

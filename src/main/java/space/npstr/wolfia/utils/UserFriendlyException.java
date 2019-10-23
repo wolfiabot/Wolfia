@@ -27,11 +27,6 @@ public class UserFriendlyException extends RuntimeException {
 
     private static final long serialVersionUID = 4569619083608513524L;
 
-    //force creation with a message
-    private UserFriendlyException() {
-
-    }
-
     public UserFriendlyException(final String message, final Object... args) {
         super(String.format(message, args));
     }

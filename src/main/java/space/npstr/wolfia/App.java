@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia;
 
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
@@ -33,8 +32,6 @@ public class App {
 
     private static final ResourceBundle props = ResourceBundle.getBundle("app");
     public static final String VERSION = props.getString("version");
-    public static final String GROUP_ID = props.getString("groupId");
-    public static final String ARTIFACT_ID = props.getString("artifactId");
     public static final String BUILD_NUMBER = props.getString("buildNumber");
     public static final long BUILD_TIME = Long.parseLong(props.getString("buildTime"));
 
@@ -54,14 +51,6 @@ public class App {
 
     public static boolean isOwner(final User user) {
         return isOwner(user.getIdLong());
-    }
-
-    public static boolean isOwner(final Member member) {
-        return isOwner(member.getUser());
-    }
-
-    public static String getVersionBuild() {
-        return VERSION + "_" + BUILD_NUMBER;
     }
 
     private App() {}

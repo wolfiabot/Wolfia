@@ -131,11 +131,11 @@ public class CommandHandler {
                 while (t != null) {
                     String inviteLink = "";
                     try {
-                        final TextChannel tc = ev.getTextChannel();
-                        if (tc == null) {
-                            inviteLink = "PRIVATE";
-                        } else {
+                        if (ev.isFromType(ChannelType.TEXT)) {
+                            TextChannel tc = ev.getTextChannel();
                             inviteLink = TextchatUtils.getOrCreateInviteLinkForGuild(tc.getGuild(), tc);
+                        } else {
+                            inviteLink = "PRIVATE";
                         }
                     } catch (final Exception ex) {
                         log.error("Exception during exception handling of command creating an invite", ex);
@@ -145,7 +145,7 @@ public class CommandHandler {
                             ev.getAuthor().getIdLong(), inviteLink, t);
                     t = t.getCause();
                 }
-                RestActions.sendMessage(ev.getTextChannel(),
+                RestActions.sendMessage(ev.getChannel(),
                         String.format("%s, an internal exception happened while executing your command:"
                                         + "\n`%s`"
                                         + "\nSorry about that. The issue has been logged and will hopefully be fixed soon."

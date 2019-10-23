@@ -34,7 +34,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -51,10 +50,10 @@ public class TextchatUtils {
             .withZone(ZoneId.of("Europe/Berlin"));
 
     public static final int MAX_MESSAGE_LENGTH = 2000;
-    public static final List<String> TRUE_TEXT = Collections.unmodifiableList(Arrays.asList("true", "yes", "enable",
-            "y", "on", "1", "positive", "+", "add", "start", "join", "ja"));
-    public static final List<String> FALSE_TEXT = Collections.unmodifiableList(Arrays.asList("false", "no", "disable",
-            "n", "off", "0", "negative", "-", "remove", "stop", "leave", "nein"));
+    public static final List<String> TRUE_TEXT = List.of("true", "yes", "enable", "y", "on", "1", "positive", "+",
+            "add", "start", "join", "ja");
+    public static final List<String> FALSE_TEXT = List.of("false", "no", "disable", "n", "off", "0", "negative", "-",
+            "remove", "stop", "leave", "nein");
 
     public static boolean isTrue(final String input) {
         return TRUE_TEXT.contains(input);

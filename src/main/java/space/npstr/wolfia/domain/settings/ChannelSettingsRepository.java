@@ -32,8 +32,8 @@ import static space.npstr.wolfia.db.ExtendedPostgresDSL.arrayDiff;
 import static space.npstr.wolfia.db.gen.Tables.CHANNEL_SETTINGS;
 
 /**
- * Saves settings on a per channel basis. The difference to {@link space.npstr.wolfia.db.gen.tables.records.SetupRecord}
- * is that this record contains technical Discord stuff, while {@link space.npstr.wolfia.db.gen.tables.records.SetupRecord}
+ * Saves settings on a per channel basis. The difference to {@link space.npstr.wolfia.db.gen.tables.records.GameSetupRecord}
+ * is that this record contains technical Discord stuff, while {@link space.npstr.wolfia.db.gen.tables.records.GameSetupRecord}
  * should contain purely game related stuff.
  */
 @Repository
