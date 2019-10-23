@@ -261,10 +261,10 @@ public class StatsRender {
     }
 
     private static EmbedBuilder addStatsPerPlayerSize(final EmbedBuilder eb, List<WinStats> winStatsList) {
+        List<WinStats> sortedWinStats = new ArrayList<>(winStatsList);
+        sortedWinStats.sort(Comparator.comparingInt(WinStats::playerSize));
 
-        winStatsList.sort(Comparator.comparingInt(WinStats::playerSize));
-
-        for (WinStats winStats : winStatsList) {
+        for (WinStats winStats : sortedWinStats) {
             double baddieWinPercentage = divide(winStats.baddieWins(), winStats.totalGames());
             double goodieWinPercentage = divide(winStats.goodieWins(), winStats.totalGames());
             String content = Emojis.WOLF + " win " + percentFormat(baddieWinPercentage);
