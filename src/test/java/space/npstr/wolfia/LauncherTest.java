@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
 import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.config.SentryConfiguration;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.events.CommandListener;
 
@@ -44,6 +45,7 @@ abstract class LauncherTest extends ApplicationTest {
         assertThatContainsBean("botContext", BotContext.class);
         assertThatContainsBean("database", Database.class);
         assertThatContainsBean("shutdownHandler", ShutdownHandler.class);
+        assertThatContainsBean("sentryConfiguration", SentryConfiguration.class);
     }
 
     private void assertThatContainsBean(String name, Class<?> clazz) {
