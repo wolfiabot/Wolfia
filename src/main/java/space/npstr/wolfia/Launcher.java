@@ -59,8 +59,8 @@ public class Launcher implements ApplicationRunner {
     private final ThreadPoolCollector poolMetrics;
     private final WolfiaConfig wolfiaConfig;
 
-    @SuppressWarnings({"FieldCanBeLocal", "unused"}) //force this bean to be loaded even with lazy init on
-    private final ShutdownHandler shutdownHandler;
+    @SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1068"}) //see EagerLoader
+    private final EagerLoader eagerLoader;
 
     public static BotContext getBotContext() {
         return botContext;
@@ -97,11 +97,11 @@ public class Launcher implements ApplicationRunner {
     }
 
     public Launcher(BotContext botContext, ThreadPoolCollector poolMetrics, WolfiaConfig wolfiaConfig,
-                    ShutdownHandler shutdownHandler) {
+                    EagerLoader eagerLoader) {
         Launcher.botContext = botContext;
         this.poolMetrics = poolMetrics;
         this.wolfiaConfig = wolfiaConfig;
-        this.shutdownHandler = shutdownHandler;
+        this.eagerLoader = eagerLoader;
     }
 
     @Override
