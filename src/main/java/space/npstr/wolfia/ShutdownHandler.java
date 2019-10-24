@@ -105,7 +105,7 @@ public class ShutdownHandler {
 
         //shutdown JDA
         log.info("Shutting down shards");
-        shardManagerFactory.shardManager().shutdown();
+        shardManagerFactory.shutdown();
 
         //shutdown executors
         log.info("Shutting down main executor");

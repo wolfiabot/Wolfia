@@ -58,6 +58,8 @@ public class ShardManagerFactory {
     private final GuildCacheListener guildCacheListener;
     private final Supplier<ShardManager> singleton;
 
+    private volatile boolean created = false;
+
 
     public ShardManagerFactory(final WolfiaConfig wolfiaConfig, final CommandListener commandListener,
                                final OkHttpClient.Builder httpClientBuilder, InternalListener internalListener,
@@ -79,7 +81,13 @@ public class ShardManagerFactory {
         return singleton.get();
     }
 
-    private ShardManager createShardManager() {
+    public synchronized void shutdown() {
+        if (this.created) {
+            this.singleton.get().shutdown();
+        }
+    }
+
+    private synchronized ShardManager createShardManager() {
         DefaultShardManagerBuilder builder = new DefaultShardManagerBuilder()
                 .setToken(this.wolfiaConfig.getDiscordToken())
                 .setActivity(Activity.playing(App.GAME_STATUS))
@@ -97,10 +105,14 @@ public class ShardManagerFactory {
                 .setCallbackPool(this.jdaThreadPool, false)
                 .setGatewayPool(this.jdaThreadPool, false);
 
+        ShardManager shardManager;
         try {
-            return builder.build();
+            shardManager = builder.build();
         } catch (LoginException e) {
             throw new RuntimeException(e);
         }
+
+        this.created = true;
+        return shardManager;
     }
 }
