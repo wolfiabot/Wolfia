@@ -18,6 +18,7 @@
 package space.npstr.wolfia.domain.stats;
 
 import org.jooq.DSLContext;
+import org.jooq.Record1;
 import org.jooq.RecordMapper;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
@@ -56,9 +57,10 @@ public class StatsRepository {
     public CompletionStage<BigDecimal> getAveragePlayerSize() {
         return this.wrapper.jooq(dsl -> dsl
                 .select(avg(STATS_GAME.PLAYER_SIZE))
-                .from(STATS_GAME)
-                .fetchOne()
-                .component1()
+                .from(STATS_GAME) // SQL AVG may return null for empty sets
+                .fetchOptional()
+                .map(Record1::component1)
+                .orElse(BigDecimal.ZERO)
         );
     }
 
@@ -68,8 +70,9 @@ public class StatsRepository {
                 .select(avg(STATS_GAME.PLAYER_SIZE))
                 .from(STATS_GAME)
                 .where(STATS_GAME.GUILD_ID.eq(guildId))
-                .fetchOne()
-                .component1()
+                .fetchOptional() // SQL AVG may return null for empty sets
+                .map(Record1::component1)
+                .orElse(BigDecimal.ZERO)
         );
     }
 
