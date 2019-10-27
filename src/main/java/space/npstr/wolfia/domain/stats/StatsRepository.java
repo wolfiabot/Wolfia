@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.domain.stats;
 
+import io.prometheus.client.Summary;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.RecordMapper;
@@ -27,6 +28,7 @@ import space.npstr.wolfia.db.gen.tables.records.StatsActionRecord;
 import space.npstr.wolfia.db.gen.tables.records.StatsPlayerRecord;
 import space.npstr.wolfia.db.gen.tables.records.StatsTeamRecord;
 import space.npstr.wolfia.game.definitions.Alignments;
+import space.npstr.wolfia.metrics.MetricsRegistry;
 
 import javax.annotation.CheckReturnValue;
 import java.math.BigDecimal;
@@ -55,51 +57,56 @@ public class StatsRepository {
 
     @CheckReturnValue
     public CompletionStage<BigDecimal> getAveragePlayerSize() {
-        return this.wrapper.jooq(dsl -> dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("getAveragePlayerSize");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
                 .select(avg(STATS_GAME.PLAYER_SIZE))
                 .from(STATS_GAME)
                 .fetchOptional() // SQL AVG may return null for empty sets
                 .map(Record1::component1)
                 .orElse(BigDecimal.ZERO)
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<BigDecimal> getAveragePlayerSizeInGuild(long guildId) {
-        return this.wrapper.jooq(dsl -> dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("getAveragePlayerSizeInGuild");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
                 .select(avg(STATS_GAME.PLAYER_SIZE))
                 .from(STATS_GAME)
                 .where(STATS_GAME.GUILD_ID.eq(guildId))
                 .fetchOptional() // SQL AVG may return null for empty sets
                 .map(Record1::component1)
                 .orElse(BigDecimal.ZERO)
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<Set<Integer>> getDistinctPlayerSizes() {
-        return this.wrapper.jooq(dsl -> dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("getDistinctPlayerSizes");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
                 .selectDistinct(STATS_GAME.PLAYER_SIZE)
                 .from(STATS_GAME)
                 .fetch()
                 .intoSet(STATS_GAME.PLAYER_SIZE)
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<Set<Integer>> getDistinctPlayerSizesInGuild(long guildId) {
-        return this.wrapper.jooq(dsl -> dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("getDistinctPlayerSizesInGuild");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
                 .selectDistinct(STATS_GAME.PLAYER_SIZE)
                 .from(STATS_GAME)
                 .where(STATS_GAME.GUILD_ID.eq(guildId))
                 .fetch()
                 .intoSet(STATS_GAME.PLAYER_SIZE)
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<Integer> countAlignmentWins(Alignments alignment) {
-        return this.wrapper.jooq(dsl -> dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("countAlignmentWins");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
                 .select(count())
                 .from(STATS_GAME)
                 .innerJoin(STATS_TEAM)
@@ -108,12 +115,13 @@ public class StatsRepository {
                 .and(STATS_TEAM.ALIGNMENT.eq(alignment.name()))
                 .fetchOne()
                 .component1()
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<Integer> countAlignmentWinsInGuild(Alignments alignment, long guildId) {
-        return this.wrapper.jooq(dsl -> dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("countAlignmentWinsInGuild");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
                 .select(count())
                 .from(STATS_GAME)
                 .innerJoin(STATS_TEAM)
@@ -123,12 +131,13 @@ public class StatsRepository {
                 .and(STATS_GAME.GUILD_ID.eq(guildId))
                 .fetchOne()
                 .component1()
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<Integer> countAlignmentWinsForPlayerSize(Alignments alignment, int playerSize) {
-        return this.wrapper.jooq(dsl -> dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("countAlignmentWinsForPlayerSize");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
                 .select(count())
                 .from(STATS_GAME)
                 .innerJoin(STATS_TEAM)
@@ -138,12 +147,13 @@ public class StatsRepository {
                 .and(STATS_TEAM.ALIGNMENT.eq(alignment.name()))
                 .fetchOne()
                 .component1()
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<Integer> countAlignmentWinsForPlayerSizeInGuild(Alignments alignment, int playerSize, long guildId) {
-        return this.wrapper.jooq(dsl -> dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("countAlignmentWinsForPlayerSizeInGuild");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
                 .select(count())
                 .from(STATS_GAME)
                 .innerJoin(STATS_TEAM)
@@ -154,23 +164,25 @@ public class StatsRepository {
                 .and(STATS_GAME.GUILD_ID.eq(guildId))
                 .fetchOne()
                 .component1()
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<List<GeneralUserStats>> getGeneralUserStats(long userId) {
-        return this.wrapper.jooq(dsl -> dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("getGeneralUserStats");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
                 .select(STATS_PLAYER.TOTAL_POSTLENGTH, STATS_PLAYER.TOTAL_POSTS, STATS_PLAYER.ALIGNMENT, STATS_TEAM.IS_WINNER)
                 .from(STATS_PLAYER)
                 .innerJoin(STATS_TEAM).on(STATS_PLAYER.TEAM_ID.eq(STATS_TEAM.TEAM_ID))
                 .where(STATS_PLAYER.USER_ID.eq(userId))
                 .fetchInto(ImmutableGeneralUserStats.class)
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<List<String>> getUserShots(long userId) {
-        return this.wrapper.jooq(dsl -> Arrays.asList(dsl
+        Summary.Child timer = MetricsRegistry.queryTime.labels("getUserShots");
+        return this.wrapper.jooq(dsl -> timer.time(() -> Arrays.asList(dsl
                 .select(STATS_PLAYER.ALIGNMENT)
                 .from(STATS_ACTION)
                 .innerJoin(STATS_PLAYER).on(STATS_PLAYER.USER_ID.eq(STATS_ACTION.TARGET))
@@ -179,12 +191,13 @@ public class StatsRepository {
                 .where(STATS_ACTION.ACTION_TYPE.eq("SHOOT").and(STATS_ACTION.ACTOR.eq(userId)))
                 .fetch()
                 .intoArray(STATS_PLAYER.ALIGNMENT)
-        ));
+        )));
     }
 
     @CheckReturnValue
     public CompletionStage<Optional<GameStats>> findGameStats(long gameId) {
-        return this.wrapper.jooq(dsl -> {
+        Summary.Child timer = MetricsRegistry.queryTime.labels("findGameStats");
+        return this.wrapper.jooq(dsl -> timer.time(() -> {
                     Optional<GameStats> gameOpt = dsl.selectFrom(STATS_GAME)
                             .where(STATS_GAME.GAME_ID.eq(gameId))
                             .fetchOptionalInto(GameStats.class);
@@ -214,12 +227,13 @@ public class StatsRepository {
 
                     return Optional.of(game);
                 }
-        );
+        ));
     }
 
     @CheckReturnValue
     public CompletionStage<GameStats> insertGameStats(GameStats gameStats) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> {
+        Summary.Child timer = MetricsRegistry.queryTime.labels("insertGameStats");
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> timer.time(() -> {
                     DSLContext context = DSL.using(config);
 
                     long gameId = context
@@ -274,7 +288,7 @@ public class StatsRepository {
 
                     return gameStats;
                 }
-        ));
+        )));
     }
 
     private RecordMapper<StatsTeamRecord, TeamStats> teamMapper(GameStats gameStats) {
