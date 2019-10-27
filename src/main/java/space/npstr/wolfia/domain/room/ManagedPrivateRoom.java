@@ -142,7 +142,10 @@ public class ManagedPrivateRoom extends ListenerAdapter {
     private void cleanUpMembers() {
         this.allowedUsers.clear();
         final Guild g = fetchThisGuild();
-        g.getMembers().stream().filter(m -> !m.isOwner() && !m.getUser().isBot()).forEach(m -> g.kick(m).queue(null, RestActions.defaultOnFail()));
+        g.getMembers().stream()
+                .filter(member -> !member.isOwner())
+                .filter(member -> !member.getUser().isBot())
+                .forEach(member -> g.kick(member).queue(null, RestActions.defaultOnFail()));
     }
 
     public void endUsage() {
