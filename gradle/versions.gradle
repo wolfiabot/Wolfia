@@ -2,7 +2,7 @@
 ext {
 
 	springBootVersion			= '2.2.0.RELEASE'
-	flywayVersion				= '6.0.6'
+	flywayVersion				= '6.0.7'
 
 	gradleGitVersion			= '2.2.0'
 	grGitVersion				= '3.1.1'
@@ -13,20 +13,20 @@ ext {
 	dockerPluginVersion			= '5.2.0'
 	testLoggerVersion			= '2.0.0'
 
-	jdaVersion					= '4.0.0_53'
+	jdaVersion					= '4.0.0_54'
 	okHttpVersion				= '4.2.2'
 	sentryLogbackVersion		= '1.7.28'
 	orgJsonVersion				= '20190722'
 	annotationsVersion			= '0.0.2'
 	immutablesVersion			= '2.8.1'
 
-	prometheusVersion			= '0.7.0'
+	prometheusVersion			= '0.8.0'
 	promExtVersion				= '1.2.2'
 
 	dsProxyVersion				= '1.5.1'
 	jooqVersion					= '3.12.2'
 
-	testcontainersVersion		= '1.12.2'
+	testcontainersVersion		= '1.12.3'
 	junitVersion				= '5.5.2'
 	mockitoVersion				= '3.1.0'
 	awaitilityVersion			= '4.0.1'

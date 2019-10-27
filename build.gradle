@@ -14,7 +14,7 @@ buildscript {
     }
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
-        classpath "gradle.plugin.com.boxfuse.client:gradle-plugin-publishing:$flywayVersion"
+        classpath "gradle.plugin.org.flywaydb:gradle-plugin-publishing:$flywayVersion"
 
         classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:$gradleGitVersion"
         classpath "org.ajoberstar.grgit:grgit-gradle:$grGitVersion"
