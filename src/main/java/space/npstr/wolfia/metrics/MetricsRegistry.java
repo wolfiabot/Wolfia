@@ -19,6 +19,7 @@ package space.npstr.wolfia.metrics;
 
 import ch.qos.logback.classic.LoggerContext;
 import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Summary;
 import io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.client.logback.InstrumentedAppender;
 import org.slf4j.Logger;
@@ -52,5 +53,11 @@ public class MetricsRegistry {
     public CollectorRegistry getRegistry() {
         return CollectorRegistry.defaultRegistry;
     }
+
+    public static final Summary queryTime = Summary.build()
+            .name("query_time_seconds")
+            .help("Time queries take")
+            .labelNames("name") //identifier of the query, for example "activeUsers"
+            .register();
 
 }
