@@ -117,10 +117,9 @@ public class ManagedPrivateRoom extends ListenerAdapter {
         }
 
         try {
+            cleanUpMembers();
             this.allowedUsers.addAll(wolfUserIds);
             final Guild g = fetchThisGuild();
-
-            cleanUpMembers();
 
             //set up a fresh channel
             final TextChannel wolfChannel = g.createTextChannel("wolfchat")
