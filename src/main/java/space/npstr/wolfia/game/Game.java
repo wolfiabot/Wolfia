@@ -602,8 +602,8 @@ public abstract class Game {
                 //dont really care about this one, its fine if usage has been stopped already
             }
         }
-        this.executor.shutdownNow();
         resetRolesAndPermissions(true);
+        this.executor.shutdown(); //dont use shutdownNow() as that might kill the thread executing this line of code
     }
 
     //public for eval usage
