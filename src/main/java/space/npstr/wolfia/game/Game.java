@@ -47,6 +47,7 @@ import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
+import space.npstr.wolfia.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
@@ -683,6 +684,9 @@ public abstract class Game {
                         .findFirst()
                         .ifPresent(t -> t.setWinner(true));
             }
+            MetricsRegistry.gamesPlayed
+                    .labels(this.gameStats.getGameType().name(), this.gameStats.getGameMode().name())
+                    .inc();
             try {
                 this.gameStats = Launcher.getBotContext().getStatsRepository().insertGameStats(this.gameStats)
                         .toCompletableFuture().join();
