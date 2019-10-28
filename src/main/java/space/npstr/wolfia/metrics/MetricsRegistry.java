@@ -19,6 +19,7 @@ package space.npstr.wolfia.metrics;
 
 import ch.qos.logback.classic.LoggerContext;
 import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.Counter;
 import io.prometheus.client.Summary;
 import io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.client.logback.InstrumentedAppender;
@@ -60,4 +61,9 @@ public class MetricsRegistry {
             .labelNames("name") //identifier of the query, for example "activeUsers"
             .register();
 
+    public static final Counter gamesPlayed = Counter.build()
+            .name("games_played")
+            .help("Games Played")
+            .labelNames("type", "mode")
+            .register();
 }
