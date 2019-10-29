@@ -18,6 +18,7 @@
 package space.npstr.wolfia;
 
 import org.springframework.stereotype.Component;
+import space.npstr.prometheus_extensions.jda.JdaMetrics;
 import space.npstr.wolfia.config.SentryConfiguration;
 
 /**
@@ -29,9 +30,11 @@ public class EagerLoader {
 
     private final ShutdownHandler shutdownHandler;
     private final SentryConfiguration sentryConfiguration;
+    private final JdaMetrics jdaMetrics;
 
-    public EagerLoader(ShutdownHandler shutdownHandler, SentryConfiguration sentryConfiguration) {
+    public EagerLoader(ShutdownHandler shutdownHandler, SentryConfiguration sentryConfiguration, JdaMetrics jdaMetrics) {
         this.shutdownHandler = shutdownHandler;
         this.sentryConfiguration = sentryConfiguration;
+        this.jdaMetrics = jdaMetrics;
     }
 }
