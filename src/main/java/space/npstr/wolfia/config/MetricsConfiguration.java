@@ -19,6 +19,7 @@ package space.npstr.wolfia.config;
 
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector;
 import io.prometheus.client.logback.InstrumentedAppender;
+import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.ttddyy.dsproxy.listener.SingleQueryCountHolder;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,8 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import space.npstr.prometheus_extensions.QueryCountCollector;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.prometheus_extensions.jda.JdaMetrics;
-
-import java.util.concurrent.ScheduledExecutorService;
+import space.npstr.wolfia.metrics.MetricsRegistry;
 
 @Configuration
 public class MetricsConfiguration {
@@ -60,7 +60,9 @@ public class MetricsConfiguration {
     }
 
     @Bean
-    public JdaMetrics jdaMetrics(ShardManager shardManager, @Qualifier("jdaThreadPool") ScheduledExecutorService scheduler) {
-        return new JdaMetrics(shardManager, scheduler);
+    public JdaMetrics jdaMetrics(ShardManager shardManager, @Qualifier("jdaThreadPool") ScheduledExecutorService scheduler,
+                                 MetricsRegistry metricsRegistry) {
+
+        return new JdaMetrics(shardManager, scheduler, metricsRegistry.getRegistry());
     }
 }

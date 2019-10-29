@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.AbstractApplicationContext;
+import space.npstr.prometheus_extensions.jda.JdaMetrics;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.config.SentryConfiguration;
 import space.npstr.wolfia.db.Database;
@@ -46,6 +47,7 @@ abstract class LauncherTest extends ApplicationTest {
         assertThatContainsBean("database", Database.class);
         assertThatContainsBean("shutdownHandler", ShutdownHandler.class);
         assertThatContainsBean("sentryConfiguration", SentryConfiguration.class);
+        assertThatContainsBean("jdaMetrics", JdaMetrics.class);
     }
 
     private void assertThatContainsBean(String name, Class<?> clazz) {
