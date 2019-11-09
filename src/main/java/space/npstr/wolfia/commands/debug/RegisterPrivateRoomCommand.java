@@ -25,7 +25,9 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.room.ManagedPrivateRoom;
 import space.npstr.wolfia.domain.room.PrivateRoom;
+import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.room.PrivateRoomService;
 import space.npstr.wolfia.utils.discord.RestActions;
 
@@ -46,9 +48,11 @@ public class RegisterPrivateRoomCommand implements BaseCommand {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RegisterPrivateRoomCommand.class);
 
     private final PrivateRoomService privateRoomService;
+    private final PrivateRoomQueue privateRoomQueue;
 
-    public RegisterPrivateRoomCommand(PrivateRoomService privateRoomService) {
+    public RegisterPrivateRoomCommand(PrivateRoomService privateRoomService, PrivateRoomQueue privateRoomQueue) {
         this.privateRoomService = privateRoomService;
+        this.privateRoomQueue = privateRoomQueue;
     }
 
     @Override
@@ -104,10 +108,10 @@ public class RegisterPrivateRoomCommand implements BaseCommand {
             return false;
         }
 
-        PrivateRoom privateRoom = registered.get();
+        ManagedPrivateRoom managedPrivateRoom = this.privateRoomQueue.add(registered.get());
         ShardManager shardManager = context.getJda().getShardManager();
-        requireNonNull(shardManager).addEventListener(privateRoom);
-        String name = "Wolfia Private Server #" + privateRoom.getNumber();
+        requireNonNull(shardManager).addEventListener(managedPrivateRoom);
+        String name = "Wolfia Private Server #" + managedPrivateRoom.getNumber();
         context.guild.getManager().setName(name)
                 .queue(null, RestActions.defaultOnFail());
         return true;

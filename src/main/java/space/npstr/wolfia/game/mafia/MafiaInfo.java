@@ -64,7 +64,6 @@ public class MafiaInfo implements GameInfo {
             case LITE:
             case PURE:
                 requiredPermissions.put(Permission.MESSAGE_MANAGE, Scope.CHANNEL); //to delete reactions
-                requiredPermissions.put(Permission.MANAGE_PERMISSIONS, Scope.CHANNEL);
                 break;
             default:
                 break;

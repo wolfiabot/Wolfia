@@ -61,9 +61,10 @@ public class PrivateRoomQueue {
         this.availablePrivateRoomQueue.add(privateRoom);
     }
 
-    public void add(PrivateRoom privateRoom) {
+    public ManagedPrivateRoom add(PrivateRoom privateRoom) {
         ManagedPrivateRoom managedPrivateRoom = new ManagedPrivateRoom(privateRoom, this);
         this.allManagedRooms.add(managedPrivateRoom);
         this.availablePrivateRoomQueue.add(managedPrivateRoom);
+        return managedPrivateRoom;
     }
 }

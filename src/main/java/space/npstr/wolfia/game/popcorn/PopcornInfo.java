@@ -59,7 +59,6 @@ public class PopcornInfo implements GameInfo {
         switch (mode) {
             case CLASSIC:
                 requiredPermissions.put(Permission.MESSAGE_MANAGE, Scope.CHANNEL); //prevent a bug where JDA will claim the bot has these permissions while it only has MANAGE_PERMISSIONS; request these first therefore and hope users give it both
-                requiredPermissions.put(Permission.MANAGE_PERMISSIONS, Scope.CHANNEL);
                 break;
             case WILD:
             default:
