@@ -26,6 +26,7 @@ before_cache:
   - rm -fr $HOME/.gradle/caches/build-cache-1/
   - rm -fr $HOME/.gradle/caches/journal-1/
   - rm -f  $HOME/.gradle/caches/modules-2/metadata-*/module-metadata.bin
+  - rm -f  $HOME/.gradle/caches/modules-2/metadata-*/resource-at-url.bin
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -f  $HOME/.gradle/caches/*/executionHistory/executionHistory.lock
   - rm -f  $HOME/.gradle/caches/*/fileContent/fileContent.lock
