@@ -107,26 +107,26 @@ public class RoleAndPermissionUtils {
         final Member self = channel.getGuild().getSelfMember();
 
         //are we prohibited from editing permissions in this channel?
-        if (!hasExplicitPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_PERMISSIONS)) {
+        if (!hasExplicitPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_ROLES)) {
 
             //are we prohibited from editing permissions in this guild?
-            if (!hasExplicitPermission(self, null, Scope.GUILD, Permission.MANAGE_PERMISSIONS)
+            if (!hasExplicitPermission(self, null, Scope.GUILD, Permission.MANAGE_ROLES)
                     //or do we have it on a guild scope, but it is denied for us in this channel?
-                    || !hasPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_PERMISSIONS)) {
-                throw new UserFriendlyException(String.format("Please allow me to `%s` in this channel so I " +
+                    || !hasPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_ROLES)) {
+                throw new UserFriendlyException(String.format("Please allow me to `%s` so I " +
                                 "can set myself up to play games and format my posts.%nWant to know what I need and why? Follow this link: %s",
-                        Permission.MANAGE_PERMISSIONS.getName(), App.DOCS_LINK + "#permissions"));
+                        Permission.MANAGE_ROLES.getName(), App.DOCS_LINK + "#permissions"));
 
             } else {
                 //allow ourselves to edit permissions in this channel
                 //it is ok to use complete and some waiting in here as this is expected to be run rarely (initial setups only)
-                grant(channel, self, Permission.MANAGE_PERMISSIONS).complete();
+                grant(channel, self, Permission.MANAGE_ROLES).complete();
 
                 //give it some time to propagate to discord and JDA since we are about to use these permissions
                 final long maxTimeToWait = 10000;
                 final long started = System.currentTimeMillis();
                 try {
-                    while (!hasExplicitPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_PERMISSIONS)) {
+                    while (!hasExplicitPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_ROLES)) {
                         if (System.currentTimeMillis() - started > maxTimeToWait) {
                             throw new UserFriendlyException("I failed to give myself the required permissions. Please read "
                                     + App.DOCS_LINK + "#permissions or reinvite me.");
