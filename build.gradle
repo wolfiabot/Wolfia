@@ -252,8 +252,8 @@ project(':database-codegen') {
                         forcedType {
                             userType = 'java.util.HashMap<java.lang.String, java.lang.String>'
                             binding = 'space.npstr.wolfia.db.PostgresHstoreBinding'
-                            expression = '.*'
-                            types = 'hstore'
+                            includeExpression = '.*'
+                            includeTypes = 'hstore'
                         }
                     }
                 }
