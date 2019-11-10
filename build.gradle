@@ -3,7 +3,6 @@ import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.container.extras.DockerWaitHealthyContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
-import org.apache.tools.ant.filters.ReplaceTokens
 import org.sonarqube.gradle.SonarQubeTask
 
 buildscript {
@@ -366,6 +365,10 @@ tasks.withType(SonarQubeTask) {
     dependsOn jacocoTestReport
 }
 
+springBoot {
+    buildInfo()
+}
+
 bootRun {
     //compiling tests during bootRun increases the likelyhood of catching broken tests locally instead of on the CI
     dependsOn compileTestJava
@@ -386,19 +389,6 @@ bootJar {
             from 'build/libs/wolfia.jar'
             into '.'
         }
-    }
-}
-
-processResources {
-    //inject values into app.properties
-    filesMatching('**/app.properties') {
-        filter ReplaceTokens, tokens: [
-                "project.version"   : project.version,
-                "project.groupId"   : project.group,
-                "project.artifactId": project.name,
-                "env.BUILD_NUMBER"  : project.ext.buildNumber,
-                "env.BUILD_TIME"    : System.currentTimeMillis() + ''
-        ]
     }
 }
 
