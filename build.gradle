@@ -91,6 +91,7 @@ allprojects {
 
     test {
         useJUnitPlatform()
+        jvmArgs '-XX:TieredStopAtLevel=1'
     }
 
     testlogger {
