@@ -172,7 +172,7 @@ public class Database {
         // source https://jdbc.postgresql.org/documentation/head/connect.html
         dataSourceProps.setProperty("stringtype", "unspecified");
 
-        String appName = "Wolfia_" + (this.wolfiaConfig.isDebug() ? "DEBUG" : "PROD") + "_" + App.BUILD_NUMBER;
+        String appName = "Wolfia_" + (this.wolfiaConfig.isDebug() ? "DEBUG" : "PROD") + "_" + App.VERSION;
         dataSourceProps.setProperty("ApplicationName", appName);
 
         return dataSourceProps;

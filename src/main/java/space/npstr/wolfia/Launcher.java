@@ -119,7 +119,6 @@ public class Launcher implements ApplicationRunner {
         return ART
                 + "\n"
                 + "\n\tVersion:       " + App.VERSION
-                + "\n\tBuild:         " + App.BUILD_NUMBER
                 + "\n\tBuild time:    " + TextchatUtils.toBerlinTime(App.BUILD_TIME)
                 + "\n\tCommit:        " + GitRepoState.getGitRepositoryState().commitIdAbbrev + " (" + GitRepoState.getGitRepositoryState().branch + ")"
                 + "\n\tCommit time:   " + TextchatUtils.toBerlinTime(GitRepoState.getGitRepositoryState().commitTime * 1000)

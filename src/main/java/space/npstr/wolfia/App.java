@@ -21,6 +21,8 @@ import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 /**
@@ -30,10 +32,10 @@ import java.util.ResourceBundle;
  */
 public class App {
 
-    private static final ResourceBundle props = ResourceBundle.getBundle("app");
-    public static final String VERSION = props.getString("version");
-    public static final String BUILD_NUMBER = props.getString("buildNumber");
-    public static final long BUILD_TIME = Long.parseLong(props.getString("buildTime"));
+    private static final ResourceBundle props = ResourceBundle.getBundle("META-INF/build-info");
+    public static final String VERSION = props.getString("build.version");
+    public static final long BUILD_TIME = OffsetDateTime.from(DateTimeFormatter.ISO_DATE_TIME
+            .parse(props.getString("build.time"))).toInstant().toEpochMilli();
 
     public static final long OWNER_ID = 166604053629894657L;//Napster
     //https://discordapp.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot
