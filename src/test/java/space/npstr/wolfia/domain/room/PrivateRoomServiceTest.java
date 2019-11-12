@@ -69,9 +69,9 @@ class PrivateRoomServiceTest extends ApplicationTest {
 
         List<PrivateRoom> rooms = this.service.getAll();
 
-        assertThat(rooms).size().isEqualTo(2);
-        assertThat(rooms).filteredOnAssertions(isGuild(guildIdA)).size().isEqualTo(1);
-        assertThat(rooms).filteredOnAssertions(isGuild(guildIdB)).size().isEqualTo(1);
+        assertThat(rooms).hasSize(2);
+        assertThat(rooms).filteredOnAssertions(isGuild(guildIdA)).hasSize(1);
+        assertThat(rooms).filteredOnAssertions(isGuild(guildIdB)).hasSize(1);
     }
 
     @Test

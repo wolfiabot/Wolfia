@@ -83,7 +83,7 @@ class BanServiceTest extends ApplicationTest {
 
         var bans = this.banService.getActiveBans();
 
-        assertThat(bans).size().isEqualTo(1);
+        assertThat(bans).hasSize(1);
         assertThat(bans).hasOnlyOneElementSatisfying(isUser(userId));
     }
 
@@ -97,9 +97,9 @@ class BanServiceTest extends ApplicationTest {
 
         var bans = this.banService.getActiveBans();
 
-        assertThat(bans).size().isEqualTo(2);
-        assertThat(bans).filteredOnAssertions(isUser(userIdA)).size().isEqualTo(1);
-        assertThat(bans).filteredOnAssertions(isUser(userIdB)).size().isEqualTo(1);
+        assertThat(bans).hasSize(2);
+        assertThat(bans).filteredOnAssertions(isUser(userIdA)).hasSize(1);
+        assertThat(bans).filteredOnAssertions(isUser(userIdB)).hasSize(1);
     }
 
     @Test
@@ -116,9 +116,9 @@ class BanServiceTest extends ApplicationTest {
 
         var bans = this.banService.getActiveBans();
 
-        assertThat(bans).size().isEqualTo(2);
-        assertThat(bans).filteredOnAssertions(isUser(userIdA)).size().isEqualTo(1);
-        assertThat(bans).filteredOnAssertions(isUser(userIdB)).size().isEqualTo(1);
+        assertThat(bans).hasSize(2);
+        assertThat(bans).filteredOnAssertions(isUser(userIdA)).hasSize(1);
+        assertThat(bans).filteredOnAssertions(isUser(userIdB)).hasSize(1);
     }
 
     private Consumer<BanRecord> isUser(long userId) {

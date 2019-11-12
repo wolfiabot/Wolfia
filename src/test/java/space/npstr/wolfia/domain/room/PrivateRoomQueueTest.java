@@ -60,8 +60,8 @@ class PrivateRoomQueueTest extends ApplicationTest {
         verify(service).getAll();
         List<ManagedPrivateRoom> rooms = queue.getAllManagedRooms();
         assertThat(rooms.size()).isEqualTo(2);
-        assertThat(rooms).filteredOnAssertions(isRoom(privateRoom1)).size().isEqualTo(1);
-        assertThat(rooms).filteredOnAssertions(isRoom(privateRoom2)).size().isEqualTo(1);
+        assertThat(rooms).filteredOnAssertions(isRoom(privateRoom1)).hasSize(1);
+        assertThat(rooms).filteredOnAssertions(isRoom(privateRoom2)).hasSize(1);
     }
 
     @Test

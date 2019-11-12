@@ -98,25 +98,25 @@ class StatsRepositoryTest extends ApplicationTest {
         // TODO start time?
 
         Set<TeamStats> teams = fetched.getStartingTeams();
-        assertThat(teams).size().isEqualTo(2);
-        assertThat(teams).filteredOnAssertions(isTeam(wolves, gameId)).size().isEqualTo(1);
-        assertThat(teams).filteredOnAssertions(isTeam(village, gameId)).size().isEqualTo(1);
+        assertThat(teams).hasSize(2);
+        assertThat(teams).filteredOnAssertions(isTeam(wolves, gameId)).hasSize(1);
+        assertThat(teams).filteredOnAssertions(isTeam(village, gameId)).hasSize(1);
 
         TeamStats wolfTeam = teams.stream().filter(t -> t.getAlignment() == Alignments.WOLF).findAny().orElseThrow();
-        assertThat(wolfTeam.getPlayers()).size().isEqualTo(1);
+        assertThat(wolfTeam.getPlayers()).hasSize(1);
         assertThat(wolfTeam.getPlayers()).filteredOnAssertions(isPlayer(wolf, wolfTeam.getTeamId().orElseThrow()))
-                .size().isEqualTo(1);
+                .hasSize(1);
 
         TeamStats villageTeam = teams.stream().filter(t -> t.getAlignment() == Alignments.VILLAGE).findAny().orElseThrow();
-        assertThat(villageTeam.getPlayers()).size().isEqualTo(2);
+        assertThat(villageTeam.getPlayers()).hasSize(2);
         assertThat(villageTeam.getPlayers()).filteredOnAssertions(isPlayer(villagerA, villageTeam.getTeamId().orElseThrow()))
-                .size().isEqualTo(1);
+                .hasSize(1);
         assertThat(villageTeam.getPlayers()).filteredOnAssertions(isPlayer(villagerB, villageTeam.getTeamId().orElseThrow()))
-                .size().isEqualTo(1);
+                .hasSize(1);
 
         Set<ActionStats> actions = fetched.getActions();
-        assertThat(actions).size().isEqualTo(1);
-        assertThat(actions).filteredOnAssertions(isAction(shot, gameId)).size().isEqualTo(1);
+        assertThat(actions).hasSize(1);
+        assertThat(actions).filteredOnAssertions(isAction(shot, gameId)).hasSize(1);
     }
 
     private Consumer<TeamStats> isTeam(TeamStats teamStats, long gameId) {
