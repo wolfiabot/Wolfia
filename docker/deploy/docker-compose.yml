@@ -95,8 +95,8 @@ services:
       - "traefik.metrics.frontend.rule=Host:${DOMAIN};PathPrefix:/metrics"
       - "traefik.metrics.frontend.auth.basic.users=${METRICS_LOGIN}"
       - "traefik.metrics.frontend.auth.basic.removeHeader=true"
-    #      - "traefik.bot.backend=wolfia-bot"
-    #      - "traefik.bot.frontend.rule=Host:${DOMAIN};PathPrefix:/{path:(togglz|login|webhook)}"
+      - "traefik.bot.backend=wolfia-bot"
+      - "traefik.bot.frontend.rule=Host:${DOMAIN};PathPrefix:/api"
     ports:
       - 127.0.0.1:4567:4567   # Wolfia web server
       - 127.0.0.1:8849:8849   # JProfiler

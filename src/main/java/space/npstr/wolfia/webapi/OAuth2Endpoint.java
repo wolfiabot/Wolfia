@@ -44,7 +44,7 @@ import static space.npstr.wolfia.common.Exceptions.logIfFailed;
 @RequestMapping("/" + OAuth2Endpoint.CODE_GRANT_PATH)
 public class OAuth2Endpoint extends BaseEndpoint {
 
-    public static final String CODE_GRANT_PATH = "oauth2/discord";
+    public static final String CODE_GRANT_PATH = "api/oauth2/discord";
 
     private static final Logger log = LoggerFactory.getLogger(OAuth2Endpoint.class);
     private static final String GENERIC_ERROR_RESPONSE = "Something was off with your request. Try authorizing again with "
