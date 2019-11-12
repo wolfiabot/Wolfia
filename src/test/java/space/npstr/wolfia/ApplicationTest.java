@@ -20,9 +20,11 @@ package space.npstr.wolfia;
 import io.prometheus.client.CollectorRegistry;
 import org.junit.jupiter.api.AfterAll;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import space.npstr.wolfia.domain.oauth2.OAuth2Requester;
 
 import java.time.Clock;
 
@@ -36,6 +38,9 @@ public abstract class ApplicationTest extends PostgresContainer {
 
     @SpyBean
     protected Clock clock;
+
+    @MockBean
+    protected OAuth2Requester oAuth2Requester;
 
     /**
      * Some static metrics are giving trouble when the application context is restarted between tests.

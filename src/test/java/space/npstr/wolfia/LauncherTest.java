@@ -25,6 +25,7 @@ import space.npstr.prometheus_extensions.jda.JdaMetrics;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.config.SentryConfiguration;
 import space.npstr.wolfia.db.Database;
+import space.npstr.wolfia.domain.oauth2.OAuth2Refresher;
 import space.npstr.wolfia.events.CommandListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +49,7 @@ abstract class LauncherTest extends ApplicationTest {
         assertThatContainsBean("shutdownHandler", ShutdownHandler.class);
         assertThatContainsBean("sentryConfiguration", SentryConfiguration.class);
         assertThatContainsBean("jdaMetrics", JdaMetrics.class);
+        assertThatContainsBean("OAuth2Refresher", OAuth2Refresher.class);
     }
 
     private void assertThatContainsBean(String name, Class<?> clazz) {

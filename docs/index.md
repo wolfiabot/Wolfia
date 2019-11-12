@@ -99,6 +99,7 @@ Command             | What it does                                        | Exam
 
 Command             | What it does                                        | Example usage / aliases
 ------------------- | --------------------------------------------------- | -------------
+`w.auth`            | authorize to be added to wolf chat automatically    | `w.auth`
 `w.commands`        | show a list of all available commands               | `w.comms`
 `w.help`            | send some help your way                             | `w.help`
 `w.info`            | show some general information about Wolfia          | `w.info`

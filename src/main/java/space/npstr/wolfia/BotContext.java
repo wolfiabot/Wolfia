@@ -24,6 +24,7 @@ import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.game.GameRegistry;
+import space.npstr.wolfia.domain.oauth2.OAuth2Service;
 import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.domain.stats.StatsRepository;
@@ -50,11 +51,12 @@ public class BotContext {
     private final UserCache userCache;
     private final StatsRepository statsRepository;
     private final GameRegistry gameRegistry;
+    private final OAuth2Service oAuth2Service;
 
     public BotContext(final Database database, final WolfiaConfig wolfiaConfig, final ListingsConfig listingsConfig,
                       PrivateRoomQueue privateRoomQueue, ExceptionLoggingExecutor executor,
                       ShardManager shardManager, ChannelSettingsService channelSettingsService, UserCache userCache,
-                      StatsRepository statsRepository, GameRegistry gameRegistry) {
+                      StatsRepository statsRepository, GameRegistry gameRegistry, OAuth2Service oAuth2Service) {
 
         this.database = database;
         this.wolfiaConfig = wolfiaConfig;
@@ -66,6 +68,7 @@ public class BotContext {
         this.userCache = userCache;
         this.statsRepository = statsRepository;
         this.gameRegistry = gameRegistry;
+        this.oAuth2Service = oAuth2Service;
     }
 
     public Database getDatabase() {
@@ -106,5 +109,9 @@ public class BotContext {
 
     public GameRegistry getGameRegistry() {
         return this.gameRegistry;
+    }
+
+    public OAuth2Service getoAuth2Service() {
+        return this.oAuth2Service;
     }
 }

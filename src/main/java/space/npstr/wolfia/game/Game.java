@@ -32,6 +32,8 @@ import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.db.type.OAuth2Scope;
+import space.npstr.wolfia.domain.oauth2.OAuth2Service;
 import space.npstr.wolfia.domain.room.ManagedPrivateRoom;
 import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.settings.ChannelSettingsCommand;
@@ -63,6 +65,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -736,6 +739,15 @@ public abstract class Game {
         }
         neb.addField(list);
         return neb;
+    }
+
+    protected void addToBaddieGuild(Player player) {
+        OAuth2Service oAuth2Service = Launcher.getBotContext().getoAuth2Service();
+
+        Optional<String> accessTokenOpt = oAuth2Service.getAccessTokenForScope(player.getUserId(), OAuth2Scope.GUILD_JOIN);
+        accessTokenOpt.ifPresent(accessToken ->
+                fetchBaddieChannel().getGuild().addMember(accessToken, player.getUserId()).queue());
+        // TODO tell player if they have no valid token
     }
 
     //an way to create ActionStats object with a bunch of default/automatically generated values, like time stamps

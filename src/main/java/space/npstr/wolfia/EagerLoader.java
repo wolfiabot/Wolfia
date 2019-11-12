@@ -20,6 +20,7 @@ package space.npstr.wolfia;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.jda.JdaMetrics;
 import space.npstr.wolfia.config.SentryConfiguration;
+import space.npstr.wolfia.domain.oauth2.OAuth2Refresher;
 
 /**
  * Stuff that is required in the context but gets missed by Spring'S lazy loading.
@@ -31,10 +32,14 @@ public class EagerLoader {
     private final ShutdownHandler shutdownHandler;
     private final SentryConfiguration sentryConfiguration;
     private final JdaMetrics jdaMetrics;
+    private final OAuth2Refresher oAuth2Refresher;
 
-    public EagerLoader(ShutdownHandler shutdownHandler, SentryConfiguration sentryConfiguration, JdaMetrics jdaMetrics) {
+    public EagerLoader(ShutdownHandler shutdownHandler, SentryConfiguration sentryConfiguration, JdaMetrics jdaMetrics,
+                       OAuth2Refresher oAuth2Refresher) {
+
         this.shutdownHandler = shutdownHandler;
         this.sentryConfiguration = sentryConfiguration;
         this.jdaMetrics = jdaMetrics;
+        this.oAuth2Refresher = oAuth2Refresher;
     }
 }

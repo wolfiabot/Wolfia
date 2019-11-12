@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.commands.debug.EvalCommand;
 import space.npstr.wolfia.commands.debug.KillGameCommand;
-import space.npstr.wolfia.domain.maintenance.MaintenanceCommand;
 import space.npstr.wolfia.commands.debug.RegisterPrivateRoomCommand;
 import space.npstr.wolfia.commands.debug.RestartCommand;
 import space.npstr.wolfia.commands.debug.ReviveCommand;
@@ -45,6 +44,8 @@ import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.commands.util.RankCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
 import space.npstr.wolfia.domain.ban.BanCommand;
+import space.npstr.wolfia.domain.maintenance.MaintenanceCommand;
+import space.npstr.wolfia.domain.oauth2.AuthCommand;
 import space.npstr.wolfia.domain.settings.ChannelSettingsCommand;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.OutCommand;
@@ -101,15 +102,6 @@ class CommRegistryTest extends ApplicationTest {
 
     // Ingame commands
 
-    //ShootCommand
-    //VoteCommand
-    //UnvoteCommand
-    //CheckCommand
-    //VoteCountCommand
-    //NightkillCommand
-    //HohohoCommand
-    //OpenPresentCommand
-    //ItemsCommand
     @Test
     void hasShootCommand() {
         assertHasCommand("shoot", ShootCommand.class);
@@ -188,6 +180,11 @@ class CommRegistryTest extends ApplicationTest {
 
 
     // Util commands
+
+    @Test
+    void hasAuthCommand() {
+        assertHasCommand("auth", AuthCommand.class);
+    }
 
     @Test
     void hasChannelSettingsCommand() {

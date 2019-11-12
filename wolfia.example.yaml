@@ -8,6 +8,11 @@ wolfia:
 database:
   jdbcUrl:          ""     # Postgres database. When running with the bundled docker-compose file, set to jdbc:postgresql://db:5432/wolfia?user=wolfia
 
+oauth2:
+  clientId:         ""
+  clientSecret:     ""
+  baseRedirectUrl:  ""
+
 server:
   port:             4567   # Port of Wolfia's API.
 
