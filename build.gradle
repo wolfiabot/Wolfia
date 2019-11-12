@@ -148,7 +148,7 @@ project(':database-codegen') {
 
     ext {
         codegenDbImageRepo = 'napstr/wolfia-postgres'
-        codegenDbImageTag = 'master'
+        codegenDbImageTag = '12'
         codegenDbImageName = codegenDbImageRepo + ':' + codegenDbImageTag
         codegenDbContainerName = 'wolfia-codegen-postgres'
         codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5434/codegen?user=codegen"
@@ -193,7 +193,6 @@ project(':database-codegen') {
         createCodegenDbContainer.mustRunAfter stopCodegenDbContainerPre
         dependsOn(stopCodegenDbContainerPre, createCodegenDbContainer)
         targetContainerId codegenDbContainerName
-
     }
 
     task awaitCodegenDbContainer(type: DockerWaitHealthyContainer) {
