@@ -190,6 +190,7 @@ public class Mafia extends Game {
             if (player.isBaddie()) {
                 rolePm.append(mafiaTeamNames);
                 rolePm.append("Wolfchat: ").append(wolfchatInvite).append("\n");
+                addToBaddieGuild(player);
             }
             rolePm.append(guildChannelAndInvite);
 

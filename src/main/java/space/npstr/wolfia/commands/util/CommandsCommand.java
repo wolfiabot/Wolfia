@@ -36,6 +36,7 @@ import space.npstr.wolfia.commands.ingame.VoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.oauth2.AuthCommand;
 import space.npstr.wolfia.domain.settings.ChannelSettingsCommand;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.OutCommand;
@@ -108,6 +109,7 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
                 ;
 
         final String otherCommands = ""
+                + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + CommandsCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + InfoCommand.TRIGGER + "\n"

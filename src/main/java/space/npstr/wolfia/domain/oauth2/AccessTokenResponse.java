@@ -15,23 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia;
+package space.npstr.wolfia.domain.oauth2;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.LazyInitializationBeanFactoryPostProcessor;
+import space.npstr.wolfia.db.type.OAuth2Scope;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.time.OffsetDateTime;
+import java.util.Set;
 
-/**
- * Ensure that the context loads lazily. This is the default mode in prod and for other tests.
- */
-class LazyLauncherTest extends LauncherTest {
+import static org.immutables.value.Value.Immutable;
+import static org.immutables.value.Value.Style;
 
-    @Test
-    void givenLazy_lazyInitShouldBeTrue() {
-        assertThat(this.applicationContext.getBeanFactoryPostProcessors())
-                .filteredOnAssertions(b -> assertThat(b).isInstanceOf(LazyInitializationBeanFactoryPostProcessor.class))
-                .hasSizeGreaterThan(0);
-    }
+@Immutable
+@Style(stagedBuilder = true)
+public interface AccessTokenResponse {
+
+    String accessToken();
+
+    OffsetDateTime expires();
+
+    String refreshToken();
+
+    Set<OAuth2Scope> scopes();
 
 }

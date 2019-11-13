@@ -18,6 +18,7 @@
 package space.npstr.wolfia.common;
 
 import java.util.concurrent.CompletionException;
+import java.util.function.BiConsumer;
 
 public class Exceptions {
 
@@ -25,6 +26,10 @@ public class Exceptions {
 
     public static final Thread.UncaughtExceptionHandler UNCAUGHT_EXCEPTION_HANDLER
             = (thread, throwable) -> log.error("Uncaught exception in thread {}", thread.getName(), throwable);
+
+    public static <T> BiConsumer<T, Throwable> logIfFailed() {
+        return (__, t) -> { if (t != null) log.error("Uncaught exception", t); };
+    }
 
     //unwrap completion exceptions
     public static Throwable unwrap(Throwable throwable) {

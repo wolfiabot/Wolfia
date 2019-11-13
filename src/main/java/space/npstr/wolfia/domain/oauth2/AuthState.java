@@ -15,23 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia;
+package space.npstr.wolfia.domain.oauth2;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.LazyInitializationBeanFactoryPostProcessor;
+import static org.immutables.value.Value.Immutable;
+import static org.immutables.value.Value.Style;
 
-import static org.assertj.core.api.Assertions.assertThat;
+@Immutable
+@Style(stagedBuilder = true)
+public interface AuthState {
 
-/**
- * Ensure that the context loads lazily. This is the default mode in prod and for other tests.
- */
-class LazyLauncherTest extends LauncherTest {
+    /**
+     * @return id of the user that we sent an authorization link to
+     */
+    long userId();
 
-    @Test
-    void givenLazy_lazyInitShouldBeTrue() {
-        assertThat(this.applicationContext.getBeanFactoryPostProcessors())
-                .filteredOnAssertions(b -> assertThat(b).isInstanceOf(LazyInitializationBeanFactoryPostProcessor.class))
-                .hasSizeGreaterThan(0);
-    }
+    /**
+     * @return url that can be used to redirect the user after a successful/failed flow, for example to get back
+     * to the channel/message that the flow was started from in discord
+     */
+    String redirectUrl();
 
 }
