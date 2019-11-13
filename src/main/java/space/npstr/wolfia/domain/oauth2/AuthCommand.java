@@ -19,12 +19,13 @@ package space.npstr.wolfia.domain.oauth2;
 
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.Nonnull;
 
 @Command
-public class AuthCommand implements BaseCommand {
+public class AuthCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "auth";
 
