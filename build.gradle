@@ -305,6 +305,10 @@ configurations {
     // fucks with spring boot jar, we dont need it anyways
     // be VERY careful and test the produced jar if ever reenabled
     compile.exclude module: 'opus-java'
+
+    // undertow master race
+    implementation.exclude module: 'spring-boot-starter-reactor-netty'
+    implementation.exclude module: 'spring-boot-starter-tomcat'
 }
 
 dependencies {
@@ -336,6 +340,7 @@ dependencies {
     implementation "org.flywaydb:flyway-core"
 
     implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-undertow"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
