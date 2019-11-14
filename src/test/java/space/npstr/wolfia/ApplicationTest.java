@@ -19,14 +19,22 @@ package space.npstr.wolfia;
 
 import io.prometheus.client.CollectorRegistry;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import space.npstr.wolfia.domain.oauth2.OAuth2Requester;
 
 import java.time.Clock;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
  * Extend this class from tests that require a Spring Application Context
@@ -34,6 +42,7 @@ import java.time.Clock;
 @SpringBootTest
 @ActiveProfiles("test")
 @TestPropertySource(properties = "spring.config.name=wolfia")
+@AutoConfigureMockMvc
 public abstract class ApplicationTest extends PostgresContainer {
 
     @SpyBean
@@ -41,6 +50,16 @@ public abstract class ApplicationTest extends PostgresContainer {
 
     @MockBean
     protected OAuth2Requester oAuth2Requester;
+
+    @Autowired
+    protected MockMvc mockMvc;
+
+    @BeforeEach
+    void setup(WebApplicationContext webApplicationContext) {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
+                .alwaysDo(print())
+                .build();
+    }
 
     /**
      * Some static metrics are giving trouble when the application context is restarted between tests.

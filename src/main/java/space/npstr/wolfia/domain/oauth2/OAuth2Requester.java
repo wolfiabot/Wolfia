@@ -215,7 +215,7 @@ public class OAuth2Requester {
         try {
             return Long.parseLong(id);
         } catch (NumberFormatException e) {
-            throw new RuntimeException("Discord returned a userId that is not a long, body: " + body, e);
+            throw new DiscordRequestFailedException("Discord returned a userId that is not a long, body: " + body, e);
         }
     }
 
@@ -241,7 +241,7 @@ public class OAuth2Requester {
     private String unwrapBody(Response response) {
         if (!response.isSuccessful() || response.body() == null) {
             response.close();
-            throw new RuntimeException("Failed to call ddoscord, status " + response.code());
+            throw new DiscordRequestFailedException("Failed to call ddoscord, status " + response.code());
         }
 
         String body;
@@ -249,7 +249,7 @@ public class OAuth2Requester {
             body = response.body().string();
         } catch (IOException e) {
             response.close();
-            throw new RuntimeException("Failed to get body from ddoscord response, status " + response.code(), e);
+            throw new DiscordRequestFailedException("Failed to get body from ddoscord response, status " + response.code(), e);
         }
 
         return body;

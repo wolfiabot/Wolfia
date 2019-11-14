@@ -26,10 +26,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import space.npstr.wolfia.common.Exceptions;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.oauth2.AuthCommand;
 import space.npstr.wolfia.domain.oauth2.AuthState;
 import space.npstr.wolfia.domain.oauth2.AuthStateCache;
+import space.npstr.wolfia.domain.oauth2.DiscordRequestFailedException;
 import space.npstr.wolfia.domain.oauth2.OAuth2Service;
 
 import javax.annotation.Nullable;
@@ -45,13 +47,15 @@ import static space.npstr.wolfia.common.Exceptions.logIfFailed;
 public class OAuth2Endpoint extends BaseEndpoint {
 
     public static final String CODE_GRANT_PATH = "api/oauth2/discord";
-
-    private static final Logger log = LoggerFactory.getLogger(OAuth2Endpoint.class);
-    private static final String GENERIC_ERROR_RESPONSE = "Something was off with your request. Try authorizing again with "
+    public static final String GENERIC_ERROR_RESPONSE = "Something was off with your request. Try authorizing again with "
             + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER;
-    private static final String WRONG_ACCOUNT_RESPONSE = "It looks like you are logged into a different account in your browser."
+    public static final String WRONG_ACCOUNT_RESPONSE = "It looks like you are logged into a different account in your browser."
             + " than in your app. Log out in your browser, say " + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER
             + " to start authication again, and then log in into the same account you are using to play Wolfia.";
+    public static final String DISCORD_ISSUES = "Something went :boom: when talking to Discord. Try authorizing again with "
+            + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER + " or try again later.";
+
+    private static final Logger log = LoggerFactory.getLogger(OAuth2Endpoint.class);
 
     private final OAuth2Service service;
     private final AuthStateCache stateCache;
@@ -88,7 +92,14 @@ public class OAuth2Endpoint extends BaseEndpoint {
                     headers.setLocation(URI.create(authState.redirectUrl()));
                     return new ResponseEntity<>("", headers, HttpStatus.TEMPORARY_REDIRECT);
                 })
-                .whenComplete(logIfFailed());
+                .whenComplete(logIfFailed())
+                .exceptionally(t -> {
+                    Throwable realCause = Exceptions.unwrap(t);
+                    if (realCause instanceof DiscordRequestFailedException) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(DISCORD_ISSUES);
+                    }
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GENERIC_ERROR_RESPONSE);
+                });
     }
 
 }

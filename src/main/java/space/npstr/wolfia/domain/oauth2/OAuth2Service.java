@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 import static java.time.OffsetDateTime.now;
-import static space.npstr.wolfia.common.Exceptions.logIfFailed;
 
 @Service
 public class OAuth2Service {
@@ -64,7 +63,6 @@ public class OAuth2Service {
                                 codeResponse.refreshToken(), codeResponse.scopes()
                         ))
                 )
-                .thenCompose(this.repository::save)
-                .whenComplete(logIfFailed());
+                .thenCompose(this.repository::save);
     }
 }
