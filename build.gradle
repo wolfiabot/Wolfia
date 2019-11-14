@@ -94,7 +94,7 @@ allprojects {
     }
 
     testlogger {
-        theme 'mocha'
+        theme 'mocha-parallel'
         showFullStackTraces true
     }
 
