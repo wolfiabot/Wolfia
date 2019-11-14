@@ -132,6 +132,12 @@ project(':platform') {
             api "org.jooq:jooq-meta:$jooqVersion"
             api "org.jooq:jooq-codegen:$jooqVersion"
 
+            api "org.togglz:togglz-core:$togglzVersion"
+            api "org.togglz:togglz-slf4j:$togglzVersion"
+            api "org.togglz:togglz-spring-boot-starter:$togglzVersion"
+            api "org.togglz:togglz-console:$togglzVersion"
+            api "org.togglz:togglz-spring-security:$togglzVersion"
+
             api "org.testcontainers:testcontainers:$testcontainersVersion"
         }
     }
@@ -161,7 +167,7 @@ project(':database-codegen') {
         api "org.jooq:jooq"
         implementation "org.jooq:jooq-meta"
         implementation "org.jooq:jooq-codegen"
-        implementation "org.postgresql:postgresql"
+        api "org.postgresql:postgresql"
         flywayMigration "org.postgresql:postgresql"
         jooqRuntime "org.postgresql:postgresql"
     }
@@ -339,8 +345,15 @@ dependencies {
     implementation "net.ttddyy:datasource-proxy"
     implementation "org.flywaydb:flyway-core"
 
+    implementation "org.togglz:togglz-core:${togglzVersion}"
+    implementation "org.togglz:togglz-slf4j:${togglzVersion}"
+    implementation "org.togglz:togglz-spring-boot-starter:${togglzVersion}"
+    implementation "org.togglz:togglz-console:${togglzVersion}"
+    implementation "org.togglz:togglz-spring-security:${togglzVersion}"
+
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
@@ -351,6 +364,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude module: 'android-json' // json.org clone
     }
+    testImplementation "org.springframework.security:spring-security-test"
     testImplementation "org.testcontainers:testcontainers"
     testImplementation "org.assertj:assertj-core"
     testImplementation "org.mockito:mockito-inline" // to mock final classes

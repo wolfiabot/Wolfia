@@ -25,6 +25,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,16 +35,20 @@ import space.npstr.wolfia.domain.oauth2.OAuth2Requester;
 
 import java.time.Clock;
 
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
  * Extend this class from tests that require a Spring Application Context
  */
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @TestPropertySource(properties = "spring.config.name=wolfia")
 @AutoConfigureMockMvc
 public abstract class ApplicationTest extends PostgresContainer {
+
+    @LocalServerPort
+    protected int port;
 
     @SpyBean
     protected Clock clock;
@@ -58,6 +63,7 @@ public abstract class ApplicationTest extends PostgresContainer {
     void setup(WebApplicationContext webApplicationContext) {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
                 .alwaysDo(print())
+                .apply(springSecurity())
                 .build();
     }
 

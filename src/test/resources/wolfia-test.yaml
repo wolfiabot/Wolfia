@@ -1,3 +1,17 @@
+wolfia:
+  webAdmin: "test"
+  webPass: "test"
+
 spring:
   main:
     lazy-initialization: true
+
+togglz:
+  enabled: true
+  feature-enums: space.npstr.wolfia.domain.FeatureFlag
+  feature-manager-name: default
+  console:
+    enabled: true
+    path: /api/togglz
+    secured: true
+    use-management-port: false

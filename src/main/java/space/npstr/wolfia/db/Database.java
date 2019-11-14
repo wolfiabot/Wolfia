@@ -62,7 +62,7 @@ public class Database {
         this.queryCountStrategy = queryCountStrategy;
     }
 
-    private DatabaseConnection getConnection() {
+    public DatabaseConnection getConnection() {
         DatabaseConnection singleton = this.dbConnection.get();
         if (singleton == null) {
             synchronized (this.dbConnection) {
