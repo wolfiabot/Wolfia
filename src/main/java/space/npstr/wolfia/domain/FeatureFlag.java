@@ -18,11 +18,9 @@
 package space.npstr.wolfia.domain;
 
 import org.togglz.core.Feature;
-import org.togglz.core.annotation.EnabledByDefault;
 
 public enum FeatureFlag implements Feature {
 
-    @EnabledByDefault
-    EXAMPLE_FLAG,
+    MAINTENANCE,
 
 }

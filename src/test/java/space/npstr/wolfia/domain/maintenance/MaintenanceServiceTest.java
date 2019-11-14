@@ -17,27 +17,30 @@
 
 package space.npstr.wolfia.domain.maintenance;
 
-import org.springframework.stereotype.Service;
-import org.togglz.core.manager.FeatureManager;
-import org.togglz.core.repository.FeatureState;
-import space.npstr.wolfia.domain.FeatureFlag;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import space.npstr.wolfia.ApplicationTest;
 
-@Service
-public class MaintenanceService {
+import static org.assertj.core.api.Assertions.assertThat;
 
-    private final FeatureManager featureManager;
+class MaintenanceServiceTest extends ApplicationTest {
 
-    public MaintenanceService(FeatureManager featureManager) {
-        this.featureManager = featureManager;
+    @Autowired
+    private MaintenanceService service;
+
+    @Test
+    void byDefaultFalse() {
+        boolean maintenance = this.service.getMaintenanceFlag();
+
+        assertThat(maintenance).isFalse();
     }
 
-    public boolean getMaintenanceFlag() {
-        return this.featureManager.isActive(FeatureFlag.MAINTENANCE);
-    }
+    @Test
+    void whenFlipFlag_flagShouldBeFlipped() {
+        boolean before = this.service.getMaintenanceFlag();
+        this.service.flipMaintenanceFlag();
+        boolean after = this.service.getMaintenanceFlag();
 
-    public void flipMaintenanceFlag() {
-        FeatureState featureState = this.featureManager.getFeatureState(FeatureFlag.MAINTENANCE);
-        featureState.setEnabled(!featureState.isEnabled());
-        this.featureManager.setFeatureState(featureState);
+        assertThat(before).isEqualTo(!after);
     }
 }

@@ -23,8 +23,6 @@ public class HstoreKey {
 
         public static final String NAME = "default"; //name of the default hstore itself
 
-        public static final String MAINTENANCE_FLAG = "maintenanceFlag";
-
         private DEFAULT() {}
     }
 
