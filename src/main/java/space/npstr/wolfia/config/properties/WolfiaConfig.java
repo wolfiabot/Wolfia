@@ -32,6 +32,8 @@ public class WolfiaConfig {
     private boolean debug = true;
     private String discordToken = "";
     private long logChannelId = 0;
+    private String webAdmin = "";
+    private String webPass = "";
 
     public boolean isDebug() {
         return debug;
@@ -59,5 +61,21 @@ public class WolfiaConfig {
 
     public String getDefaultPrefix() {
         return isDebug() ? "d." : DEFAULT_PREFIX;
+    }
+
+    public String getWebAdmin() {
+        return this.webAdmin;
+    }
+
+    public void setWebAdmin(String webAdmin) {
+        this.webAdmin = webAdmin;
+    }
+
+    public String getWebPass() {
+        return this.webPass;
+    }
+
+    public void setWebPass(String webPass) {
+        this.webPass = webPass;
     }
 }

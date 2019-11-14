@@ -25,6 +25,8 @@ ext {
 	dsProxyVersion				= '1.5.1'
 	jooqVersion					= '3.12.3'
 
+	togglzVersion				= '2.6.1.Final'
+
 	testcontainersVersion		= '1.12.3'
 
 }

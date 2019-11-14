@@ -4,6 +4,8 @@ wolfia:
   debug:            true   # Some things are different. Set to false to properly run the bot.
   discordToken:     ""     # Discord bot token
   logChannelId:     0      # Id of a channel where to post general bot activity like games starting and ending.
+  webAdmin:         ""     # User name to access any secured web endpoints, for example feature flag settings
+  webPass:          ""     # Password to access any secured web endpoints, for example feature flag settings
 
 database:
   jdbcUrl:          ""     # Postgres database. When running with the bundled docker-compose file, set to jdbc:postgresql://db:5432/wolfia?user=wolfia
@@ -15,6 +17,8 @@ oauth2:
 
 server:
   port:             4567   # Port of Wolfia's API.
+  servlet:
+    application-display-name: "Wolfia"
 
 sentry:
   dsn:              ""     # Error aggregation service. See https://sentry.io
@@ -25,6 +29,16 @@ spring:
   output:
     ansi:
       enabled: always
+
+togglz:
+  enabled: true
+  feature-enums: space.npstr.wolfia.domain.FeatureFlag
+  feature-manager-name: default
+  console:
+    enabled: true
+    path: /api/togglz
+    secured: true
+    use-management-port: false
 
 logging:
   file:

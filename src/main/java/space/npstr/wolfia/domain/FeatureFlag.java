@@ -15,16 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db;
+package space.npstr.wolfia.domain;
 
-public class HstoreKey {
+import org.togglz.core.Feature;
 
-    public static class DEFAULT {
+public enum FeatureFlag implements Feature {
 
-        public static final String NAME = "default"; //name of the default hstore itself
+    MAINTENANCE,
 
-        private DEFAULT() {}
-    }
-
-    private HstoreKey() {}
 }

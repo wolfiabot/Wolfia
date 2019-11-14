@@ -15,16 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.db;
+package space.npstr.wolfia.webapi;
 
-public class HstoreKey {
+import org.junit.jupiter.api.Test;
+import space.npstr.wolfia.ApplicationTest;
 
-    public static class DEFAULT {
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-        public static final String NAME = "default"; //name of the default hstore itself
 
-        private DEFAULT() {}
+class MetricsEndpointTest extends ApplicationTest {
+
+    //NOTE: we are handling auth of this endpoint in the reverse proxy
+    @Test
+    void whenGetMetrics_thenReturnMetrics() throws Exception {
+        mockMvc.perform(get("/metrics"))
+                .andExpect(status().is2xxSuccessful());
     }
 
-    private HstoreKey() {}
 }

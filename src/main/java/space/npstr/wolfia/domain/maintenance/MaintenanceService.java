@@ -18,35 +18,26 @@
 package space.npstr.wolfia.domain.maintenance;
 
 import org.springframework.stereotype.Service;
-import space.npstr.wolfia.db.HstoreKey;
-import space.npstr.wolfia.db.HstoreRepository;
+import org.togglz.core.manager.FeatureManager;
+import org.togglz.core.repository.FeatureState;
+import space.npstr.wolfia.domain.FeatureFlag;
 
 @Service
 public class MaintenanceService {
 
-    private final HstoreRepository repository;
+    private final FeatureManager featureManager;
 
-    public MaintenanceService(HstoreRepository repository) {
-        this.repository = repository;
+    public MaintenanceService(FeatureManager featureManager) {
+        this.featureManager = featureManager;
     }
 
     public boolean getMaintenanceFlag() {
-        String maintenanceFlag = this.repository.get(
-                HstoreKey.DEFAULT.NAME,
-                HstoreKey.DEFAULT.MAINTENANCE_FLAG,
-                Boolean.FALSE.toString()
-        ).toCompletableFuture().join();
-
-        return Boolean.parseBoolean(maintenanceFlag);
+        return this.featureManager.isActive(FeatureFlag.MAINTENANCE);
     }
 
     public void flipMaintenanceFlag() {
-        boolean maintenanceFlag = getMaintenanceFlag();
-
-        this.repository.set(
-                HstoreKey.DEFAULT.NAME,
-                HstoreKey.DEFAULT.MAINTENANCE_FLAG,
-                Boolean.toString(!maintenanceFlag)
-        ).toCompletableFuture().join();
+        FeatureState featureState = this.featureManager.getFeatureState(FeatureFlag.MAINTENANCE);
+        featureState.setEnabled(!featureState.isEnabled());
+        this.featureManager.setFeatureState(featureState);
     }
 }

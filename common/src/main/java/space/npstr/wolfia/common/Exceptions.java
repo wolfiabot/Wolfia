@@ -31,13 +31,23 @@ public class Exceptions {
         return (__, t) -> { if (t != null) log.error("Uncaught exception", t); };
     }
 
-    //unwrap completion exceptions
+    /**
+     * Unwrap completion exceptions and other useless stuff.
+     */
     public static Throwable unwrap(Throwable throwable) {
         Throwable realCause = throwable;
         while ((realCause instanceof CompletionException) && realCause.getCause() != null) {
             realCause = realCause.getCause();
         }
         return realCause;
+    }
+
+    /**
+     * Allows throwing checked exceptions as unchecked ones.
+     */
+    @SuppressWarnings("unchecked")
+    public static <E extends Throwable> void sneakyThrow(Throwable ex) throws E {
+        throw (E) ex;
     }
 
     private Exceptions() {
