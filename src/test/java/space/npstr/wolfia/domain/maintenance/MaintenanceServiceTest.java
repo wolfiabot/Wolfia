@@ -43,4 +43,14 @@ class MaintenanceServiceTest extends ApplicationTest {
 
         assertThat(before).isEqualTo(!after);
     }
+
+    @Test
+    void whenFlipFlagTwice_flagShouldBeFlippedBack() {
+        boolean before = this.service.getMaintenanceFlag();
+        this.service.flipMaintenanceFlag();
+        this.service.flipMaintenanceFlag();
+        boolean after = this.service.getMaintenanceFlag();
+
+        assertThat(before).isEqualTo(after);
+    }
 }
