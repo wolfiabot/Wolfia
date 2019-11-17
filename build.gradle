@@ -254,6 +254,12 @@ project(':database-codegen') {
                     inputSchema = 'public'
                     forcedTypes {
                         forcedType {
+                            userType = 'space.npstr.wolfia.db.type.OAuth2Scope[]'
+                            converter = 'space.npstr.wolfia.db.converter.OAuth2ScopeEnumArrayConverter'
+                            includeExpression = '.*'
+                            includeTypes = '_OAuth2Scope'
+                        }
+                        forcedType {
                             userType = 'java.util.HashMap<java.lang.String, java.lang.String>'
                             binding = 'space.npstr.wolfia.db.PostgresHstoreBinding'
                             includeExpression = '.*'

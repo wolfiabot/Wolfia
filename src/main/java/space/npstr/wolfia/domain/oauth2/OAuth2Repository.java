@@ -17,21 +17,16 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
-import org.jooq.Converter;
-import org.jooq.Field;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import space.npstr.wolfia.db.AsyncDbWrapper;
-import space.npstr.wolfia.db.gen.enums.Oauth2scope;
 import space.npstr.wolfia.db.type.OAuth2Scope;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 import static space.npstr.wolfia.db.gen.Tables.OAUTH2;
 
@@ -46,8 +41,7 @@ public class OAuth2Repository {
 
     public CompletionStage<Optional<OAuth2Data>> findOne(long userId) {
         return this.wrapper.jooq(dsl -> dsl
-                .select(OAUTH2.USER_ID, OAUTH2.ACCESS_TOKEN, OAUTH2.EXPIRES, OAUTH2.REFRESH_TOKEN, convertedScopesField())
-                .from(OAUTH2)
+                .selectFrom(OAUTH2)
                 .where(OAUTH2.USER_ID.eq(userId))
                 .fetchOptionalInto(OAuth2Data.class)
         );
@@ -56,8 +50,7 @@ public class OAuth2Repository {
     public CompletionStage<List<OAuth2Data>> findAllExpiringIn(Duration duration) {
         OffsetDateTime expiresOn = OffsetDateTime.now().plusSeconds(duration.toSeconds());
         return this.wrapper.jooq(dsl -> dsl
-                .select(OAUTH2.USER_ID, OAUTH2.ACCESS_TOKEN, OAUTH2.EXPIRES, OAUTH2.REFRESH_TOKEN, convertedScopesField())
-                .from(OAUTH2)
+                .selectFrom(OAUTH2)
                 .where(OAUTH2.EXPIRES.lessThan(expiresOn))
                 .fetchInto(OAuth2Data.class)
         );
@@ -72,13 +65,7 @@ public class OAuth2Repository {
     }
 
     public CompletionStage<OAuth2Data> save(OAuth2Data data) {
-        // Need a conversion until https://github.com/jOOQ/jOOQ/issues/9523 is fixed
-        Oauth2scope[] scopes = data.scopes().stream()
-                .map(OAuth2Scope::name)
-                .map(Oauth2scope::valueOf)
-                .collect(Collectors.toSet())
-                .toArray(new Oauth2scope[]{});
-
+        OAuth2Scope[] scopes = data.scopes().toArray(new OAuth2Scope[]{});
         return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
                 .insertInto(OAUTH2)
                 .columns(OAUTH2.USER_ID, OAUTH2.ACCESS_TOKEN, OAUTH2.EXPIRES, OAUTH2.REFRESH_TOKEN, OAUTH2.SCOPES)
@@ -88,31 +75,9 @@ public class OAuth2Repository {
                 .set(OAUTH2.EXPIRES, data.expires())
                 .set(OAUTH2.REFRESH_TOKEN, data.refreshToken())
                 .set(OAUTH2.SCOPES, scopes)
-                .returningResult(OAUTH2.USER_ID, OAUTH2.ACCESS_TOKEN, OAUTH2.EXPIRES, OAUTH2.REFRESH_TOKEN, convertedScopesField())
+                .returning()
                 .fetchOne()
                 .into(OAuth2Data.class)
         ));
-    }
-
-    // Need a conversion until https://github.com/jOOQ/jOOQ/issues/9523 is fixed
-    private Field<OAuth2Scope[]> convertedScopesField() {
-        return DSL.field(OAUTH2.SCOPES.getQualifiedName(), OAUTH2.SCOPES.getDataType().asConvertedDataType(scopesFieldConverter()));
-    }
-
-    private Converter<Oauth2scope[], OAuth2Scope[]> scopesFieldConverter() {
-        return Converter.ofNullable(
-                Oauth2scope[].class,
-                OAuth2Scope[].class,
-                dbScopes -> Arrays.stream(dbScopes)
-                        .map(Oauth2scope::name)
-                        .map(OAuth2Scope::valueOf)
-                        .collect(Collectors.toSet())
-                        .toArray(new OAuth2Scope[]{}),
-                wolfiaScopes -> Arrays.stream(wolfiaScopes)
-                        .map(OAuth2Scope::name)
-                        .map(Oauth2scope::valueOf)
-                        .collect(Collectors.toSet())
-                        .toArray(new Oauth2scope[]{})
-        );
     }
 }
