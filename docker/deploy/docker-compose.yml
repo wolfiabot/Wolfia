@@ -37,7 +37,7 @@ services:
       - "traefik.enable=true"
       - "traefik.backend=traefik-dash"
       - "traefik.port=8080"
-      - "traefik.frontend.rule=Host:${DOMAIN};PathPrefixStrip:/traefik"
+      - "traefik.frontend.rule=Host:bot.${DOMAIN};PathPrefixStrip:/traefik"
     command:
       - --debug=false
       - --logLevel=INFO
@@ -122,11 +122,11 @@ services:
       - "traefik.enable=true"
       - "traefik.port=4567"
       - "traefik.metrics.backend=wolfia-metrics"
-      - "traefik.metrics.frontend.rule=Host:${DOMAIN};PathPrefix:/metrics"
+      - "traefik.metrics.frontend.rule=Host:bot.${DOMAIN};PathPrefix:/metrics"
       - "traefik.metrics.frontend.auth.basic.users=${METRICS_LOGIN}"
       - "traefik.metrics.frontend.auth.basic.removeHeader=true"
       - "traefik.bot.backend=wolfia-bot"
-      - "traefik.bot.frontend.rule=Host:${DOMAIN};PathPrefix:/{path:(api|login)}"
+      - "traefik.bot.frontend.rule=Host:bot.${DOMAIN};PathPrefix:/{path:(api|login)}"
     ports:
       - 127.0.0.1:4567:4567   # Wolfia web server
       - 127.0.0.1:8849:8849   # JProfiler
@@ -168,7 +168,7 @@ services:
       - "traefik.enable=true"
       - "traefik.backend=wolfia-redirect-join"
       - "traefik.port=80"
-      - "traefik.frontend.rule=Host:${DOMAIN};PathPrefix:/join"
+      - "traefik.frontend.rule=Host:bot.${DOMAIN};PathPrefix:/join"
     environment:
       - SERVER_REDIRECT=discord.gg
       - SERVER_REDIRECT_PATH=/nvcfX3q
@@ -187,8 +187,8 @@ services:
       - "traefik.enable=true"
       - "traefik.backend=wolfia-redirect-invite"
       - "traefik.port=80"
-      #      - "traefik.frontend.rule=Host:${DOMAIN};Path:/invite"
-      - "traefik.frontend.rule=Host:${DOMAIN}" #todo catch-all until we have a proper website
+      #      - "traefik.frontend.rule=Host:bot.${DOMAIN};Path:/invite"
+      - "traefik.frontend.rule=Host:bot.${DOMAIN}" #todo catch-all until we have a proper website
       - "traefik.frontend.priority=1" # lowest
     environment:
       - SERVER_REDIRECT=discordapp.com
