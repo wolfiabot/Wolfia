@@ -52,6 +52,10 @@ jobs:
         - git fetch --unshallow
       script:
         - ./gradlew assemble --info
+      after_failure:
+        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
+        - chmod +x send.sh
+        - ./send.sh failure $WEBHOOK_URL
 
     - stage: test
       jdk: openjdk11
@@ -70,6 +74,14 @@ jobs:
         - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
         - docker push $CI_IMAGE_NAME
         - docker logout
+        # Discord Webhook
+        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
+        - chmod +x send.sh
+        - ./send.sh success $WEBHOOK_URL
+      after_failure:
+        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
+        - chmod +x send.sh
+        - ./send.sh failure $WEBHOOK_URL
 
     - stage: publish
       jdk: openjdk11
