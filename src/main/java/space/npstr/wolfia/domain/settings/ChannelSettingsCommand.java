@@ -77,6 +77,7 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
                 + "\n#Change or show settings for this channel. Examples:"
                 + "\n  " + invocation() + " accessrole @Mafiaplayer"
                 + "\n  " + invocation() + " tagcooldown 3"
+                + "\n  " + invocation() + " auto-out enable"
                 + "\n  " + invocation();
     }
 
