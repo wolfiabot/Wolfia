@@ -54,6 +54,8 @@ public class ChannelSettingsRender {
 
         eb.addField("Tag list cooldown", settings.getTagCooldownMinutes() + " minutes", true);
 
+        eb.addField("Auto-out", Boolean.toString(settings.isAutoOut()), true);
+
         return eb.build();
     }
 }

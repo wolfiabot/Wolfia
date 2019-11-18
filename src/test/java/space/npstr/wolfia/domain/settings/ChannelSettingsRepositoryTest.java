@@ -28,6 +28,7 @@ import static space.npstr.wolfia.TestUtil.uniqueLong;
 class ChannelSettingsRepositoryTest extends ApplicationTest {
 
     private static final int DEFAULT_TAG_COOLDOWN = 5;
+    private static final boolean DEFAULT_AUTO_OUT = false;
     private static final int DEFAULT_TAG_LAST_USED = 0;
 
     @Autowired
@@ -42,6 +43,7 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
         assertThat(settings.getAccessRoleId()).isEmpty();
+        assertThat(settings.isAutoOut()).isEqualTo(DEFAULT_AUTO_OUT);
         assertThat(settings.getTagCooldownMinutes()).isEqualTo(DEFAULT_TAG_COOLDOWN);
         assertThat(settings.getTagLastUsed()).isEqualTo(DEFAULT_TAG_LAST_USED);
         assertThat(settings.getTags()).isEmpty();

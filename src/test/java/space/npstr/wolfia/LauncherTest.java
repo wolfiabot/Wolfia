@@ -26,6 +26,7 @@ import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.config.SentryConfiguration;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.oauth2.OAuth2Refresher;
+import space.npstr.wolfia.domain.setup.lastactive.AutoOuter;
 import space.npstr.wolfia.events.CommandListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,6 +51,7 @@ abstract class LauncherTest extends ApplicationTest {
         assertThatContainsBean("sentryConfiguration", SentryConfiguration.class);
         assertThatContainsBean("jdaMetrics", JdaMetrics.class);
         assertThatContainsBean("OAuth2Refresher", OAuth2Refresher.class);
+        assertThatContainsBean("autoOuter", AutoOuter.class);
     }
 
     private void assertThatContainsBean(String name, Class<?> clazz) {

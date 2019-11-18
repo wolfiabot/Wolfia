@@ -75,6 +75,11 @@ public class ChannelSettingsRepository {
     }
 
     @CheckReturnValue
+    public CompletionStage<ChannelSettings> setAutoOut(long channelId, boolean autoOut) {
+        return set(channelId, CHANNEL_SETTINGS.AUTO_OUT, autoOut);
+    }
+
+    @CheckReturnValue
     public CompletionStage<ChannelSettings> setTagCooldown(long channelId, long tagCooldown) {
         return set(channelId, CHANNEL_SETTINGS.TAG_COOLDOWN, tagCooldown);
     }

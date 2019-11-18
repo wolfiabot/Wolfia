@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @ActiveProfiles("test")
 @TestPropertySource(properties = "spring.config.name=wolfia")
 @AutoConfigureMockMvc
-public abstract class ApplicationTest extends PostgresContainer {
+public abstract class ApplicationTest extends PostgresAndRedisContainers {
 
     @LocalServerPort
     protected int port;

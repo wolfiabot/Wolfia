@@ -58,6 +58,26 @@ class ChannelSettingsServiceTest extends ApplicationTest {
     }
 
     @Test
+    void whenEnablingAutoOut_autoOutShouldBeEnabled() {
+        long channelId = uniqueLong();
+
+        this.service.channel(channelId).enableAutoOut();
+
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        assertThat(settings.isAutoOut()).isTrue();
+    }
+
+    @Test
+    void whenDisablingAutoOut_autoOutShouldBeDisabled() {
+        long channelId = uniqueLong();
+
+        this.service.channel(channelId).disableAutoOut();
+
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        assertThat(settings.isAutoOut()).isFalse();
+    }
+
+    @Test
     void whenSettingTagCooldown_tagCooldownShouldBeSet() {
         long channelId = uniqueLong();
         long tagCooldown = uniqueLong();

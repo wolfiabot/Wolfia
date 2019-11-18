@@ -17,8 +17,11 @@
 
 package space.npstr.wolfia;
 
+import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.awaitility.Awaitility.await;
 
 public abstract class TestUtil {
 
@@ -39,5 +42,10 @@ public abstract class TestUtil {
             throw new RuntimeException("Exhausted unique long values during tests");
         }
         return value;
+    }
+
+    public static void sleep(Duration duration) {
+        long started = System.currentTimeMillis();
+        await().until(() -> System.currentTimeMillis() - started > duration.toMillis());
     }
 }

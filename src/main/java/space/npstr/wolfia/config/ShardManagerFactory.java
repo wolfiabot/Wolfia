@@ -29,6 +29,7 @@ import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.settings.GuildCacheListener;
+import space.npstr.wolfia.domain.setup.lastactive.DiscordActivityListener;
 import space.npstr.wolfia.events.CommandListener;
 import space.npstr.wolfia.events.InternalListener;
 import space.npstr.wolfia.events.WolfiaGuildListener;
@@ -56,6 +57,7 @@ public class ShardManagerFactory {
     private final Listings listings;
     private final PrivateRoomQueue privateRoomQueue;
     private final GuildCacheListener guildCacheListener;
+    private final DiscordActivityListener activityListener;
     private final Supplier<ShardManager> singleton;
 
     private volatile boolean created = false;
@@ -64,7 +66,8 @@ public class ShardManagerFactory {
     public ShardManagerFactory(final WolfiaConfig wolfiaConfig, final CommandListener commandListener,
                                final OkHttpClient.Builder httpClientBuilder, InternalListener internalListener,
                                @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool, Listings listings,
-                               PrivateRoomQueue privateRoomQueue, GuildCacheListener guildCacheListener) {
+                               PrivateRoomQueue privateRoomQueue, GuildCacheListener guildCacheListener,
+                               DiscordActivityListener activityListener) {
 
         this.wolfiaConfig = wolfiaConfig;
         this.commandListener = commandListener;
@@ -74,6 +77,7 @@ public class ShardManagerFactory {
         this.listings = listings;
         this.privateRoomQueue = privateRoomQueue;
         this.guildCacheListener = guildCacheListener;
+        this.activityListener = activityListener;
         this.singleton = Memoizer.memoize(this::createShardManager);
     }
 
@@ -91,6 +95,7 @@ public class ShardManagerFactory {
         DefaultShardManagerBuilder builder = new DefaultShardManagerBuilder()
                 .setToken(this.wolfiaConfig.getDiscordToken())
                 .setActivity(Activity.playing(App.GAME_STATUS))
+                .addEventListeners(this.activityListener)
                 .addEventListeners(this.commandListener)
                 .addEventListeners(this.guildCacheListener)
                 .addEventListeners(this.internalListener)
