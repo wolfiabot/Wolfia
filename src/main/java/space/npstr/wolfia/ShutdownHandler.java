@@ -24,6 +24,7 @@ import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
+import space.npstr.wolfia.system.redis.Redis;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 
@@ -50,13 +51,12 @@ public class ShutdownHandler {
 
     public ShutdownHandler(ExceptionLoggingExecutor executor, Database database, AsyncDbWrapper dbWrapper,
                            ShardManagerFactory shardManagerFactory, ScheduledExecutorService jdaThreadPool,
-                           GameRegistry gameRegistry) {
+                           GameRegistry gameRegistry, Redis redis) {
 
         this.shutdownHookAdded = false;
         Thread shutdownHook = new Thread(() -> {
             try {
-                shutdown(executor, gameRegistry, jdaThreadPool, shardManagerFactory,
-                        database, dbWrapper);
+                shutdown(executor, gameRegistry, redis, jdaThreadPool, shardManagerFactory, database, dbWrapper);
             } catch (Exception e) {
                 log.error("Uncaught exception in shutdown hook", e);
             } finally {
@@ -68,7 +68,7 @@ public class ShutdownHandler {
         this.shutdownHookAdded = true;
     }
 
-    private void shutdown(ExceptionLoggingExecutor executor, GameRegistry gameRegistry,
+    private void shutdown(ExceptionLoggingExecutor executor, GameRegistry gameRegistry, Redis redis,
                           @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool,
                           ShardManagerFactory shardManagerFactory, Database database, AsyncDbWrapper dbWrapper) {
 
@@ -140,6 +140,10 @@ public class ShutdownHandler {
         //shutdown DB connection
         log.info("Shutting down database connection");
         database.shutdown();
+
+        //shutdown Redis connection
+        log.info("Shutting down redis connection");
+        redis.shutdown();
     }
 
     @PreDestroy

@@ -20,10 +20,10 @@ package space.npstr.wolfia;
 import org.testcontainers.containers.GenericContainer;
 
 /**
- * Set up our database testcontainer & pass its jdbcurl into the application config.
- * Yes, this is the recommended way to go about setting up a container that is shared by all tests.
+ * Set up our testcontainers & pass their urls into the application config.
+ * Yes, this is the recommended way to go about setting up containers that are shared by all tests.
  */
-public abstract class PostgresContainer {
+public abstract class PostgresAndRedisContainers {
 
     private static final GenericContainer<?> DB = new GenericContainer<>("napstr/wolfia-postgres:12")
             .withEnv("ROLE", "wolfia_test")
@@ -36,5 +36,17 @@ public abstract class PostgresContainer {
         int port = DB.getMappedPort(5432);
         String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/wolfia_test?user=wolfia_test";
         System.setProperty("database.jdbcUrl", jdbcUrl);
+    }
+
+
+    private static final GenericContainer<?> REDIS = new GenericContainer<>("redis:5-alpine")
+            .withExposedPorts(6379);
+
+    static {
+        REDIS.start();
+        String host = REDIS.getContainerIpAddress();
+        int port = REDIS.getMappedPort(6379);
+        String redisUrl = "redis://" + host + ":" + port + "/1";
+        System.setProperty("database.redisUrl", redisUrl);
     }
 }

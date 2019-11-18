@@ -81,6 +81,36 @@ services:
       - BACKUP_ACCOUNT_ID=${B2_ACCOUNT_ID}
       - BACKUP_APP_KEY=${B2_APP_KEY}
 
+  redis:
+    image: redis:5-alpine
+    restart: always
+    entrypoint:
+      - redis-server
+      - --appendonly
+      - "yes"
+    ports:
+      - 127.0.0.1:6379:6379
+    volumes:
+      - ./redis-data:/data
+    sysctls:
+      - net.core.somaxconn=511   # container was spitting out a warning telling us to do this
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    restart: always
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    networks:
+      - traefik
+      - default
+    labels:
+      - "traefik.docker.network=traefik"
+      - "traefik.enable=true"
+      - "traefik.backend=redis-exporter-prom"
+      - "traefik.port=9121"
+      - "traefik.frontend.rule=Host:redis.${DOMAIN};PathPrefix:/metrics"
+      - "traefik.frontend.auth.basic.users=${METRICS_LOGIN}"
+
   bot:
     image: napstr/wolfia:ci-master
     restart: always

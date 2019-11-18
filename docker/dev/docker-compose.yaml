@@ -11,3 +11,15 @@ services:
     environment:
       - ROLE=wolfia
       - DB=wolfia
+
+  dev-redis:
+    image: redis:5-alpine
+    restart: always
+    entrypoint:
+      - redis-server
+      - --appendonly
+      - "yes"
+    ports:
+      - 127.0.0.1:6380:6379
+    sysctls:
+      - net.core.somaxconn=511   # container was spitting out a warning telling us to do this

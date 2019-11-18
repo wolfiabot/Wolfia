@@ -9,6 +9,7 @@ wolfia:
 
 database:
   jdbcUrl:          ""     # Postgres database. When running with the bundled docker-compose file, set to jdbc:postgresql://db:5432/wolfia?user=wolfia
+  redisUrl:         ""
 
 oauth2:
   clientId:         ""
