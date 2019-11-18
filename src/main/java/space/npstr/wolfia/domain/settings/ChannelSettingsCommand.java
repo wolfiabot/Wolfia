@@ -23,11 +23,13 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by napster on 22.06.17.
@@ -38,6 +40,17 @@ import java.util.List;
 public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "channelsettings";
+
+    private static final String AUTO_OUT = "auto-out";
+    private static final String ENABLE = "enable";
+    private static final Set<String> ENABLE_WORDS = Set.of(
+            ENABLE, "true", "on"
+    );
+    private static final String DISABLE = "disable";
+    private static final Set<String> DISABLE_WORDS = Set.of(
+            DISABLE, "false", "off"
+    );
+
 
     private final ChannelSettingsService service;
     private final ChannelSettingsRender render;
@@ -133,6 +146,27 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
                 } catch (final NumberFormatException e) {
                     context.replyWithMention("please use a number of minutes to set the tags cooldown.");
                     return false;
+                }
+                break;
+            case AUTO_OUT:
+                String input = context.args[1];
+                boolean enableAction;
+                if (ENABLE_WORDS.stream().anyMatch(s -> s.equalsIgnoreCase(input))) {
+                    enableAction = true;
+                } else if (DISABLE_WORDS.stream().anyMatch(s -> s.equalsIgnoreCase(input))) {
+                    enableAction = false;
+                } else {
+                    String common = "`" + WolfiaConfig.DEFAULT_PREFIX + TRIGGER + " " + AUTO_OUT + " ";
+                    String enable = common + ENABLE + "`";
+                    String disable = common + DISABLE + "`";
+                    context.replyWithMention("I didn't quite get your input. Try saying " + enable + " or " + disable);
+                    return false;
+                }
+
+                if (enableAction) {
+                    channelSettings = channelAction.enableAutoOut();
+                } else {
+                    channelSettings = channelAction.disableAutoOut();
                 }
                 break;
             default:

@@ -20,10 +20,14 @@ package space.npstr.wolfia.domain.setup;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
+import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -36,6 +40,9 @@ class GameSetupRepositoryTest extends ApplicationTest {
 
     @Autowired
     private GameSetupRepository repository;
+
+    @Autowired
+    private ChannelSettingsService channelSettingsService;
 
     @Test
     void givenEntryDoesNotExist_whenFetchingDefault_expectDefaultValues() {
@@ -80,6 +87,64 @@ class GameSetupRepositoryTest extends ApplicationTest {
         assertThat(settings.getInnedUsers()).isEmpty();
         assertThat(settings.getGame()).isEqualTo(game);
         assertThat(settings.getMode()).isEqualTo(Games.getInfo(game).getDefaultMode());
+    }
+
+    @Test
+    void givenUserInnedInOneAutoOutSetup_whenFindAutoOutSetupsWhereUserIsInned_returnOneAutoOutSetup() {
+        long channelId = uniqueLong();
+        long userId = uniqueLong();
+        this.channelSettingsService.channel(channelId).enableAutoOut();
+        this.repository.inUsers(channelId, Set.of(userId))
+                .toCompletableFuture().join();
+
+        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId)
+                .toCompletableFuture().join();
+
+        assertThat(setups).hasSize(1);
+        assertThat(setups).hasOnlyOneElementSatisfying(isSetupInChannel(channelId));
+    }
+
+    @Test
+    void givenUserInnedInMultipleAutoOutSetups_whenFindAutoOutSetupsWhereUserIsInned_returnAllAutoOutSetupWhereUserInned() {
+        long channelIdA = uniqueLong();
+        long channelIdB = uniqueLong();
+        long userId = uniqueLong();
+        this.channelSettingsService.channel(channelIdA).enableAutoOut();
+        this.channelSettingsService.channel(channelIdB).enableAutoOut();
+        this.repository.inUsers(channelIdA, Set.of(userId))
+                .toCompletableFuture().join();
+        this.repository.inUsers(channelIdB, Set.of(userId))
+                .toCompletableFuture().join();
+
+        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId)
+                .toCompletableFuture().join();
+
+        assertThat(setups).hasSize(2);
+        assertThat(setups).filteredOnAssertions(isSetupInChannel(channelIdA)).hasSize(1);
+        assertThat(setups).filteredOnAssertions(isSetupInChannel(channelIdB)).hasSize(1);
+    }
+
+    @Test
+    void givenUserInnedInMultipleSetups_whenFindAutoOutSetupsWhereUserIsInned_returnAllAutoOutSetupWhereUserInned() {
+        long channelIdAutoOut = uniqueLong();
+        long channelIdNoAutoOut = uniqueLong();
+        long userId = uniqueLong();
+        this.channelSettingsService.channel(channelIdAutoOut).enableAutoOut();
+        this.channelSettingsService.channel(channelIdNoAutoOut).disableAutoOut();
+        this.repository.inUsers(channelIdAutoOut, Set.of(userId))
+                .toCompletableFuture().join();
+        this.repository.inUsers(channelIdNoAutoOut, Set.of(userId))
+                .toCompletableFuture().join();
+
+        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId)
+                .toCompletableFuture().join();
+
+        assertThat(setups).hasSize(1);
+        assertThat(setups).filteredOnAssertions(isSetupInChannel(channelIdAutoOut)).hasSize(1);
+    }
+
+    private Consumer<GameSetup> isSetupInChannel(long channelId) {
+        return actual -> assertThat(actual.getChannelId()).isEqualTo(channelId);
     }
 
 }

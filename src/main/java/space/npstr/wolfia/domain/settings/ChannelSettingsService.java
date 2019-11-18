@@ -62,6 +62,16 @@ public class ChannelSettingsService {
                     .toCompletableFuture().join();
         }
 
+        public ChannelSettings enableAutoOut() {
+            return repository.setAutoOut(this.channelId, true)
+                    .toCompletableFuture().join();
+        }
+
+        public ChannelSettings disableAutoOut() {
+            return repository.setAutoOut(this.channelId, false)
+                    .toCompletableFuture().join();
+        }
+
         public ChannelSettings setTagCooldown(long tagCooldown) {
             return repository.setTagCooldown(this.channelId, tagCooldown)
                     .toCompletableFuture().join();

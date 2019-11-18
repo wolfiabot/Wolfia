@@ -26,7 +26,10 @@ import space.npstr.wolfia.game.definitions.Games;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static space.npstr.wolfia.utils.discord.TextchatUtils.userAsMention;
 
 @Service
 public class GameSetupService {
@@ -35,6 +38,16 @@ public class GameSetupService {
 
     public GameSetupService(GameSetupRepository repository) {
         this.repository = repository;
+    }
+
+    public void outUserDueToInactivity(long userId, ShardManager shardManager) {
+        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId)
+                .toCompletableFuture().join();
+
+        for (GameSetup setup : setups) {
+            channel(setup.getChannelId())
+                    .outUserDueToInactivity(userId, shardManager);
+        }
     }
 
     /**
@@ -91,6 +104,20 @@ public class GameSetupService {
             return outUsers(Set.of(userId));
         }
 
+        public GameSetup outUserDueToInactivity(long userId, ShardManager shardManager) {
+            GameSetup setup = getOrDefault();
+            if (!setup.getInnedUsers().contains(userId)) {
+                return setup;
+            }
+            TextChannel channel = shardManager.getTextChannelById(setup.getChannelId());
+            if (channel != null) {
+                channel.sendMessage(userAsMention(userId)
+                        + " became inactive and were outed from the game setup.").queue();
+            }
+
+            return outUser(userId);
+        }
+
         public GameSetup outUsers(Set<Long> userIds) {
             if (userIds.isEmpty()) {
                 return getOrDefault();
@@ -109,30 +136,26 @@ public class GameSetupService {
         }
 
         /**
-         * Like {@link Action#getOrDefault()}, but cleans up left/inactive players first.
+         * Like {@link Action#getOrDefault()}, but cleans up left/inactive players first if possible.
          */
         public GameSetup cleanUpInnedPlayers(ShardManager shardManager) {
-            Set<Long> toBeOuted = new HashSet<>();
-            Guild guild = getChannel(shardManager).getGuild();
             GameSetup setup = getOrDefault();
+
+            TextChannel channel = shardManager.getTextChannelById(this.channelId);
+            if (channel == null) {
+                return setup;
+            }
+
+            Set<Long> toBeOuted = new HashSet<>();
+            Guild guild = channel.getGuild();
             setup.getInnedUsers().forEach(userId -> {
-                //did they leave the guild?
                 if (guild.getMemberById(userId) == null) {
                     toBeOuted.add(userId);
+                    channel.sendMessage(userAsMention(userId)
+                            + " has left this guild and was outed from the game setup.").queue();
                 }
             });
             return outUsers(toBeOuted);
-
-            //TODO whenever time based ins are a thing, this is probably the place to check them
         }
-
-        private TextChannel getChannel(ShardManager shardManager) {
-            TextChannel tc = shardManager.getTextChannelById(this.channelId);
-            if (tc == null) {
-                throw new NullPointerException(String.format("Could not find channel %s of setup", this.channelId));
-            }
-            return tc;
-        }
-
     }
 }

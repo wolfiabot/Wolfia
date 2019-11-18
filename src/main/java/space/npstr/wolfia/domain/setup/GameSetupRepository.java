@@ -27,11 +27,13 @@ import space.npstr.wolfia.game.definitions.Games;
 import javax.annotation.CheckReturnValue;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
 import static space.npstr.wolfia.db.ExtendedPostgresDSL.arrayAppendDistinct;
 import static space.npstr.wolfia.db.ExtendedPostgresDSL.arrayDiff;
+import static space.npstr.wolfia.db.gen.Tables.CHANNEL_SETTINGS;
 import static space.npstr.wolfia.db.gen.Tables.GAME_SETUP;
 
 
@@ -65,6 +67,18 @@ public class GameSetupRepository {
                 .returning()
                 .fetchOne()
                 .into(GameSetup.class)
+        );
+    }
+
+    @CheckReturnValue
+    public CompletionStage<List<GameSetup>> findAutoOutSetupsWhereUserIsInned(long userId) {
+        return this.wrapper.jooq(dsl -> dsl
+                .select(GAME_SETUP.CHANNEL_ID, GAME_SETUP.INNED_USERS, GAME_SETUP.GAME, GAME_SETUP.MODE, GAME_SETUP.DAY_LENGTH)
+                .from(GAME_SETUP)
+                .join(CHANNEL_SETTINGS).on(GAME_SETUP.CHANNEL_ID.eq(CHANNEL_SETTINGS.CHANNEL_ID))
+                .where(CHANNEL_SETTINGS.AUTO_OUT.isTrue())
+                .and(GAME_SETUP.INNED_USERS.contains(new Long[]{userId}))
+                .fetchInto(GameSetup.class)
         );
     }
 

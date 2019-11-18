@@ -25,17 +25,20 @@ import java.util.Set;
 public class ChannelSettings {
 
     private static final long DEFAULT_TAG_COOLDOWN_MINUTES = 5;
+    private static final boolean DEFAULT_AUTO_OUT = false;
 
     private final long channelId;
     private final Optional<Long> accessRoleId;
+    private final Optional<Boolean> autoOut;
     private final Optional<Long> tagCooldownMinutes;
     private final long tagLastUsed;
     private final Set<Long> tags;
 
-    @ConstructorProperties({"channelId", "accessRoleId", "tagCooldown", "tagLastUsed", "tags"})
-    public ChannelSettings(long channelId, @Nullable Long accessRoleId, @Nullable Long tagCooldownMinutes, long tagLastUsed, Long[] tags) {
+    @ConstructorProperties({"channelId", "accessRoleId", "autoOut", "tagCooldown", "tagLastUsed", "tags"})
+    public ChannelSettings(long channelId, @Nullable Long accessRoleId, @Nullable Boolean autoOut, @Nullable Long tagCooldownMinutes, long tagLastUsed, Long[] tags) {
         this.channelId = channelId;
         this.accessRoleId = Optional.ofNullable(accessRoleId);
+        this.autoOut = Optional.ofNullable(autoOut);
         this.tagCooldownMinutes = Optional.ofNullable(tagCooldownMinutes);
         this.tagLastUsed = tagLastUsed;
         this.tags = Set.of(tags);
@@ -47,6 +50,10 @@ public class ChannelSettings {
 
     public Optional<Long> getAccessRoleId() {
         return this.accessRoleId;
+    }
+
+    public boolean isAutoOut() {
+        return this.autoOut.orElse(DEFAULT_AUTO_OUT);
     }
 
     public long getTagCooldownMinutes() {

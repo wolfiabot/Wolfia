@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,12 +31,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static space.npstr.wolfia.TestUtil.sleep;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class PrivateRoomQueueTest extends ApplicationTest {
@@ -195,13 +194,6 @@ class PrivateRoomQueueTest extends ApplicationTest {
         assertThat(thread.isAlive()).isFalse();
         assertThat(taken.get()).satisfies(isRoom(privateRoom));
         assertThat(done.get()).isTrue();
-    }
-
-    private void sleep(Duration duration) {
-        long started = System.currentTimeMillis();
-        await().until(() -> System.currentTimeMillis() - started > duration.toMillis());
-
-        log.info("Slept for {}ms", System.currentTimeMillis() - started);
     }
 
     private Consumer<ManagedPrivateRoom> isRoom(PrivateRoom pr) {

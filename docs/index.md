@@ -83,7 +83,7 @@ Command             | What it does                                        | Exam
 
 Command             | What it does                                        | Example usage / aliases
 ------------------- | --------------------------------------------------- | -------------
-`w.channelsettings` | set up settings for this channel                    | `w.cs accessrole Mafiaplayer` `w.channelsettings tagcooldown 10`
+`w.channelsettings` | set up settings for this channel                    | `w.cs accessrole Mafiaplayer` `w.channelsettings tagcooldown 10` `w.cs auto-out on`
 
 ### Statistics
 

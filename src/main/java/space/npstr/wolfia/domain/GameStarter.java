@@ -18,6 +18,7 @@
 package space.npstr.wolfia.domain;
 
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ import space.npstr.wolfia.domain.setup.GameSetup;
 import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.StatusCommand;
+import space.npstr.wolfia.domain.setup.lastactive.ActivityService;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserFriendlyException;
@@ -38,6 +40,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -51,13 +54,15 @@ public class GameStarter {
     private final GameSetupService gameSetupService;
     private final MaintenanceService maintenanceService;
     private final GameRegistry gameRegistry;
+    private final ActivityService activityService;
 
     public GameStarter(GameSetupService gameSetupService, MaintenanceService maintenanceService,
-                       GameRegistry gameRegistry) {
+                       GameRegistry gameRegistry, ActivityService activityService) {
 
         this.gameSetupService = gameSetupService;
         this.maintenanceService = maintenanceService;
         this.gameRegistry = gameRegistry;
+        this.activityService = activityService;
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
@@ -93,7 +98,14 @@ public class GameStarter {
             throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
         }
 
-        setup = setupAction.cleanUpInnedPlayers(context.getJda().getShardManager());
+        ShardManager shardManager = Objects.requireNonNull(context.getJda().getShardManager());
+        for (long userId : setup.getInnedUsers()) {
+            boolean activeRecently = this.activityService.wasActiveRecently(userId);
+            if (!activeRecently) {
+                setupAction.outUserDueToInactivity(userId, shardManager);
+            }
+        }
+        setup = setupAction.cleanUpInnedPlayers(shardManager);
         final Set<Long> inned = new HashSet<>(setup.getInnedUsers());
         if (!game.isAcceptablePlayerCount(inned.size(), setup.getMode())) {
             RestActions.sendMessage(channel, String.format(
