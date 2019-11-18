@@ -104,7 +104,7 @@ services:
       - traefik
       - default
     labels:
-      - "traefik.docker.network=traefik"
+      - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.backend=redis-exporter-prom"
       - "traefik.port=9121"
