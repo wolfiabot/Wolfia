@@ -27,6 +27,7 @@ import space.npstr.wolfia.commands.Context;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.maintenance.MaintenanceService;
+import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.domain.setup.GameSetup;
 import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.domain.setup.InCommand;
@@ -55,14 +56,17 @@ public class GameStarter {
     private final MaintenanceService maintenanceService;
     private final GameRegistry gameRegistry;
     private final ActivityService activityService;
+    private final ChannelSettingsService channelSettingsService;
 
     public GameStarter(GameSetupService gameSetupService, MaintenanceService maintenanceService,
-                       GameRegistry gameRegistry, ActivityService activityService) {
+                       GameRegistry gameRegistry, ActivityService activityService,
+                       ChannelSettingsService channelSettingsService) {
 
         this.gameSetupService = gameSetupService;
         this.maintenanceService = maintenanceService;
         this.gameRegistry = gameRegistry;
         this.activityService = activityService;
+        this.channelSettingsService = channelSettingsService;
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
@@ -99,10 +103,13 @@ public class GameStarter {
         }
 
         ShardManager shardManager = Objects.requireNonNull(context.getJda().getShardManager());
-        for (long userId : setup.getInnedUsers()) {
-            boolean activeRecently = this.activityService.wasActiveRecently(userId);
-            if (!activeRecently) {
-                setupAction.outUserDueToInactivity(userId, shardManager);
+        boolean autoOut = this.channelSettingsService.channel(channel.getIdLong()).getOrDefault().isAutoOut();
+        if (autoOut) {
+            for (long userId : setup.getInnedUsers()) {
+                boolean activeRecently = this.activityService.wasActiveRecently(userId);
+                if (!activeRecently) {
+                    setupAction.outUserDueToInactivity(userId, shardManager);
+                }
             }
         }
         setup = setupAction.cleanUpInnedPlayers(shardManager);
