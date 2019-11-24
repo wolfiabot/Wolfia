@@ -173,15 +173,15 @@ project(':database-codegen') {
     }
 
     task pullCodegenDbContainer(type: DockerPullImage) {
-        repository.set(codegenDbImageName)
+        image.set(codegenDbImageName)
     }
 
     task createCodegenDbContainer(type: DockerCreateContainer) {
         dependsOn pullCodegenDbContainer
         targetImageId(codegenDbImageName)
         containerName.set(codegenDbContainerName)
-        autoRemove.set(true)
-        portBindings.set(['127.0.0.1:5434:5432'])
+        hostConfig.autoRemove.set(true)
+        hostConfig.portBindings.set(['127.0.0.1:5434:5432'])
         withEnvVar('ROLE', 'codegen')
         withEnvVar('DB', 'codegen')
     }
