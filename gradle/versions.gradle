@@ -10,7 +10,7 @@ ext {
 	bintrayVersion				= '1.8.4'
 	jooqPluginVersion			= '3.0.3'
 	versionsPluginVersion		= '0.27.0'
-	dockerPluginVersion			= '5.3.0'
+	dockerPluginVersion			= '6.0.0'
 	testLoggerVersion			= '2.0.0'
 
 	jdaVersion					= '4.0.0_59'
