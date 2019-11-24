@@ -20,7 +20,6 @@ package space.npstr.wolfia.events;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandHandler;
 
 import javax.annotation.Nonnull;
@@ -32,15 +31,13 @@ import javax.annotation.Nonnull;
 public class CommandListener extends ListenerAdapter {
 
     private final CommandHandler commandHandler;
-    private final CommRegistry commRegistry;
 
-    public CommandListener(CommandHandler commandHandler, final CommRegistry commRegistry) {
+    public CommandListener(CommandHandler commandHandler) {
         this.commandHandler = commandHandler;
-        this.commRegistry = commRegistry;
     }
 
     @Override
     public void onMessageReceived(@Nonnull final MessageReceivedEvent event) {
-        this.commandHandler.handleMessage(this.commRegistry, event);
+        this.commandHandler.handleMessage(event);
     }
 }

@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import io.prometheus.client.Summary;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -31,12 +32,15 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
+import space.npstr.wolfia.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.TimeUnit;
+
+import static io.prometheus.client.Summary.Timer;
 
 /**
  * Created by napster on 12.05.17.
@@ -51,12 +55,17 @@ public class CommandHandler {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommandHandler.class);
 
     private final GameRegistry gameRegistry;
+    private final CommandContextParser commandContextParser;
+    private final CommRegistry commRegistry;
 
-    public CommandHandler(GameRegistry gameRegistry) {
+    public CommandHandler(GameRegistry gameRegistry, CommandContextParser commandContextParser, CommRegistry commRegistry) {
         this.gameRegistry = gameRegistry;
+        this.commandContextParser = commandContextParser;
+        this.commRegistry = commRegistry;
     }
 
-    public void handleMessage(final CommRegistry commRegistry, @Nonnull final MessageReceivedEvent event) {
+    public void handleMessage(@Nonnull final MessageReceivedEvent event) {
+        Timer received = MetricsRegistry.commandRetentionTime.startTimer();
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {
             return;
@@ -73,7 +82,7 @@ public class CommandHandler {
         if (g != null) g.userPosted(event.getMessage());
 
 
-        final CommandContext context = CommandContext.parse(commRegistry, event);
+        final CommandContext context = this.commandContextParser.parse(this.commRegistry, event);
 
         if (context == null) {
             return;
@@ -98,14 +107,14 @@ public class CommandHandler {
             }
         }
 
-        handleCommand(context);
+        handleCommand(context, received);
     }
 
     /**
      * @param context
      *         the parsed input of a user
      */
-    public void handleCommand(@Nonnull final CommandContext context) {
+    private void handleCommand(@Nonnull final CommandContext context, Timer received) {
         try {
             boolean canCallCommand = context.command instanceof PublicCommand || context.isOwner();
             if (!canCallCommand) {
@@ -116,7 +125,11 @@ public class CommandHandler {
             }
             log.info("user {}, channel {}, command {} about to be executed",
                     context.invoker, context.channel, context.msg.getContentRaw());
-            context.invoke();
+
+            received.observeDuration();//retention
+            try (Summary.Timer ignored = MetricsRegistry.commandProcessTime.labels(context.command.getClass().getSimpleName()).startTimer()) {
+                context.command.execute(context);
+            }
         } catch (final UserFriendlyException e) {
             context.reply("There was a problem executing your command:\n" + e.getMessage());
         } catch (final IllegalGameStateException e) {

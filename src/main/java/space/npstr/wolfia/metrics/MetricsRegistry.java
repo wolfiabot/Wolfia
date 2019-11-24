@@ -66,4 +66,30 @@ public class MetricsRegistry {
             .help("Games Played")
             .labelNames("type", "mode")
             .register();
+
+    public static final Summary commandRetentionTime = Summary.build()
+            .name("command_retention_seconds")
+            .help("Time it takes from receiving a command till processing is started")
+            .register();
+
+    public static final Summary commandProcessTime = Summary.build()
+            .name("command_process_seconds")
+            .help("Time the pure processing takes")
+            .labelNames("command") //simple class name of the command
+            .register();
+
+    /**
+     * basically measurement of discord latency, however, ratelimiting  by the library is not accounted for (getting
+     * ratelimited in a channel happens rather fast when users spam)
+     */
+    public static final Summary commandResponseTime = Summary.build()
+            .name("command_response_seconds")
+            .help("Time it takes from replying till the user actually receives the answer")
+            .register();
+
+    public static final Summary commandTotalTime = Summary.build()
+            .name("command_total_seconds")
+            .help("Total time it takes from discord creation timestamp of the trigger message till"
+                    + " discord creation timestamp of the answer message")
+            .register();
 }

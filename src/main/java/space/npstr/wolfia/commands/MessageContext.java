@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
+import io.prometheus.client.Collector;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -28,6 +29,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.App;
+import space.npstr.wolfia.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -188,6 +190,18 @@ public class MessageContext implements Context {
     // ********************************************************************************
 
     private void reply0(@Nonnull final Message message, @Nullable final Consumer<Message> onSuccess) {
-        RestActions.sendMessage(channel, message, onSuccess);
+        long started = System.nanoTime();
+
+        Consumer<Message> successWrapper = m -> {
+            MetricsRegistry.commandResponseTime.observe((System.nanoTime() - started) / Collector.NANOSECONDS_PER_SECOND);
+            long in = getMessage().getTimeCreated().toInstant().toEpochMilli();
+            long out = m.getTimeCreated().toInstant().toEpochMilli();
+            MetricsRegistry.commandTotalTime.observe((out - in) / Collector.MILLISECONDS_PER_SECOND);
+            if (onSuccess != null) {
+                onSuccess.accept(m);
+            }
+        };
+
+        RestActions.sendMessage(channel, message, successWrapper);
     }
 }
