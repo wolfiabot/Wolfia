@@ -23,14 +23,11 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.regex.Pattern;
 
 /**
  * Created by napster on 08.09.17.
@@ -51,52 +48,8 @@ public class CommandContext extends MessageContext {
 //    @Nonnull private final Histogram.Timer received;             // time when we received this command
     //@formatter:on
 
-    /**
-     * @param event
-     *         the event to be parsed
-     *
-     * @return The full context for the triggered command, or null if it's not a command that we know.
-     */
-    public static CommandContext parse(final CommRegistry commRegistry, final MessageReceivedEvent event) {
-
-        final String raw = event.getMessage().getContentRaw();
-        String input;
-
-        final String prefix = WolfiaConfig.DEFAULT_PREFIX;
-        if (raw.toLowerCase().startsWith(prefix.toLowerCase())) {
-            input = raw.substring(prefix.length());
-        } else {
-            return null;
-        }
-
-        input = input.trim();// eliminate possible whitespace between the prefix and the rest of the input
-        if (input.isEmpty()) {
-            return null;
-        }
-
-        //split by any length of white space characters
-        // the \p{javaSpaceChar} instead of the better known \s is used because it actually includes unicode whitespaces
-        final String[] args = input.split("\\p{javaSpaceChar}+");
-        if (args.length < 1) {
-            return null; //while this shouldn't technically be possible due to the preprocessing of the input, better be safe than throw exceptions
-        }
-
-        final String commandTrigger = args[0];
-        final BaseCommand command = commRegistry.getCommand(commandTrigger.toLowerCase());
-
-        if (command == null) {
-            return null;
-        } else {
-            return new CommandContext(event, commandTrigger,
-                    Arrays.copyOfRange(args, 1, args.length),//exclude args[0] that contains the command trigger
-                    input.replaceFirst(Pattern.quote(commandTrigger), "").trim(),
-                    command
-            );
-        }
-    }
-
-    protected CommandContext(@Nonnull final MessageReceivedEvent event, @Nonnull final String trigger,
-                             @Nonnull final String[] args, @Nonnull final String rawArgs, @Nonnull final BaseCommand command) {
+    CommandContext(@Nonnull final MessageReceivedEvent event, @Nonnull final String trigger,
+                   @Nonnull final String[] args, @Nonnull final String rawArgs, @Nonnull final BaseCommand command) {
 
         super(event);
         this.trigger = trigger;
