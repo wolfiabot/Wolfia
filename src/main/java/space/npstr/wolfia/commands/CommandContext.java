@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 import javax.annotation.Nonnull;
@@ -78,10 +77,6 @@ public class CommandContext extends MessageContext {
     //reply with the help
     public void help() {
         reply(this.command.formatHelp(this.invoker));
-    }
-
-    public boolean invoke() throws IllegalGameStateException {
-        return this.command.execute(this);
     }
 
     /**
