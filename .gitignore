@@ -103,6 +103,7 @@ hs_err_pid*
 /build/
 /common/build
 /discord-wrapper/build
+/dashboard/build
 /database-codegen/build
 /platform/build
 

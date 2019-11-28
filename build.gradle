@@ -24,6 +24,7 @@ buildscript {
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
         classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
         classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
+        classpath "org.siouan:frontend-gradle-plugin:$frontendPluginVersion"
     }
 }
 
@@ -301,6 +302,34 @@ project(':common') {
     }
 }
 
+project(':dashboard') {
+    apply plugin: 'org.siouan.frontend'
+
+    frontend {
+        nodeVersion = "$theNodeVersion"
+        yarnEnabled = true
+        yarnVersion = "$theYarnVersion"
+        assembleScript = 'run build'
+        checkScript = 'run lint'
+        installScript = 'install'
+    }
+
+    def frontendBuildCacheConfig = {
+        inputs.files('package.json', 'yarn.lock')
+                .withPropertyName('configFiles')
+                .withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.dir('src')
+                .withPropertyName('frontendSources')
+                .withPathSensitivity(PathSensitivity.RELATIVE)
+        outputs.dir("$buildDir/dist")
+                .withPropertyName('frontendOutput')
+        outputs.cacheIf { true }
+    }
+
+    tasks.named('assembleFrontend').configure frontendBuildCacheConfig
+    tasks.named('checkFrontend').configure frontendBuildCacheConfig
+}
+
 apply plugin: 'application'
 apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'org.ajoberstar.grgit'
@@ -388,6 +417,14 @@ tasks.withType(JavaCompile) {
 
 //required by spring boot configuration processor
 compileJava.dependsOn(processResources)
+
+processResources {
+    dependsOn ':dashboard:assembleFrontend'
+
+    from("${project(':dashboard').buildDir}/dist") {
+        into 'public'
+    }
+}
 
 tasks.withType(SonarQubeTask) {
     dependsOn jacocoTestReport

@@ -13,6 +13,10 @@ ext {
 	dockerPluginVersion			= '6.0.0'
 	testLoggerVersion			= '2.0.0'
 
+	frontendPluginVersion		= '1.2.1'
+	theNodeVersion				= '12.13.1'
+	theYarnVersion				= '1.19.2'
+
 	jdaVersion					= '4.0.0_63'
 	sentryLogbackVersion		= '1.7.28'
 	orgJsonVersion				= '20190722'
