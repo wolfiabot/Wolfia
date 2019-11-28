@@ -1,5 +1,3 @@
-dist: xenial
-sudo: required
 install: true  # skips unnecessary "gradle assemble" install step
 
 services:
