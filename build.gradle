@@ -320,7 +320,7 @@ project(':dashboard') {
         inputs.dir('src')
                 .withPropertyName('frontendSources')
                 .withPathSensitivity(PathSensitivity.RELATIVE)
-        outputs.dir('dist')
+        outputs.dir("$buildDir/dist")
                 .withPropertyName('frontendOutput')
         outputs.cacheIf { true }
     }
