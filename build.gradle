@@ -311,6 +311,7 @@ project(':dashboard') {
         yarnVersion = "$theYarnVersion"
         assembleScript = 'run build'
         checkScript = 'run lint'
+        installScript = 'install'
     }
 
     def frontendBuildCacheConfig = {
