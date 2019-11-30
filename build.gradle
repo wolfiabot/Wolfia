@@ -315,8 +315,8 @@ project(':dashboard') {
     }
 
     def frontendBuildCacheConfig = {
-        inputs.files('package.json', 'yarn.lock')
-                .withPropertyName('configFiles')
+        inputs.files('package.json', 'yarn.lock', 'babel.config.js', 'vue.config.js')
+                .withPropertyName('frontendConfigFiles')
                 .withPathSensitivity(PathSensitivity.RELATIVE)
         inputs.dir('src')
                 .withPropertyName('frontendSources')
