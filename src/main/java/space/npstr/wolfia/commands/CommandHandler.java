@@ -23,6 +23,7 @@ import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jooq.exception.DataAccessException;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.util.HelpCommand;
@@ -64,7 +65,8 @@ public class CommandHandler {
         this.commRegistry = commRegistry;
     }
 
-    public void handleMessage(@Nonnull final MessageReceivedEvent event) {
+    @EventListener
+    public void onMessageReceived(@Nonnull final MessageReceivedEvent event) {
         Timer received = MetricsRegistry.commandRetentionTime.startTimer();
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {

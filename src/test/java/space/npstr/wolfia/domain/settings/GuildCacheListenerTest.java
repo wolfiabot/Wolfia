@@ -27,6 +27,8 @@ import net.dv8tion.jda.api.events.guild.update.GuildUpdateIconEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Consumer;
+
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -41,25 +43,25 @@ class GuildCacheListenerTest {
 
     @Test
     void onGuildJoin_set() {
-        onGuildEvent_set(mock(GuildJoinEvent.class));
+        onGuildEvent_set(mock(GuildJoinEvent.class), listener::onGuildJoin);
     }
 
     @Test
     void onGuildReady_set() {
-        onGuildEvent_set(mock(GuildReadyEvent.class));
+        onGuildEvent_set(mock(GuildReadyEvent.class), listener::onGuildReady);
     }
 
     @Test
     void onGuildUpdateIcon_set() {
-        onGuildEvent_set(mock(GuildUpdateIconEvent.class));
+        onGuildEvent_set(mock(GuildUpdateIconEvent.class), listener::onGuildUpdateIcon);
     }
 
     @Test
     void onGuildUpdateName_set() {
-        onGuildEvent_set(mock(GuildUpdateNameEvent.class));
+        onGuildEvent_set(mock(GuildUpdateNameEvent.class), listener::onGuildUpdateName);
     }
 
-    private void onGuildEvent_set(GenericGuildEvent eventMock) {
+    private <T extends GenericGuildEvent> void onGuildEvent_set(T eventMock, Consumer<T> onEvent) {
         long guildId = uniqueLong();
         var guild = mock(Guild.class);
         when(guild.getIdLong()).thenReturn(guildId);
@@ -68,7 +70,7 @@ class GuildCacheListenerTest {
         when(eventMock.getJDA()).thenReturn(jda);
         when(jda.getAccountType()).thenReturn(AccountType.BOT);
 
-        listener.onEvent(eventMock);
+        onEvent.accept(eventMock);
 
         verify(service).set(eq(guild));
     }

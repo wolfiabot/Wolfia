@@ -24,7 +24,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,7 @@ import static java.util.Objects.requireNonNull;
  * Even though this is a new class it contains mostly behaviour from the legacy 'PrivateGuild' class and
  * needs to be cleaned up as well as made more robust.
  */
-public class ManagedPrivateRoom extends ListenerAdapter {
+public class ManagedPrivateRoom {
 
     private static final Logger log = LoggerFactory.getLogger(ManagedPrivateRoom.class);
 
@@ -79,7 +78,6 @@ public class ManagedPrivateRoom extends ListenerAdapter {
     }
 
     @SuppressWarnings("unchecked")
-    @Override
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
         if (event.getGuild().getIdLong() != this.privateRoom.getGuildId()) {
             return;
