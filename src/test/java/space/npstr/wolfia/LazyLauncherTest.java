@@ -30,8 +30,7 @@ class LazyLauncherTest extends LauncherTest {
     @Test
     void givenLazy_lazyInitShouldBeTrue() {
         assertThat(this.applicationContext.getBeanFactoryPostProcessors())
-                .filteredOnAssertions(b -> assertThat(b).isInstanceOf(LazyInitializationBeanFactoryPostProcessor.class))
-                .hasSizeGreaterThan(0);
+                .hasAtLeastOneElementOfType(LazyInitializationBeanFactoryPostProcessor.class);
     }
 
 }
