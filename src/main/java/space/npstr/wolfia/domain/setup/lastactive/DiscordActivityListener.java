@@ -20,13 +20,15 @@ package space.npstr.wolfia.domain.setup.lastactive;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.UserTypingEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 
 @Component
-public class DiscordActivityListener extends ListenerAdapter {
+public class DiscordActivityListener {
 
     private final ActivityService service;
 
@@ -34,12 +36,14 @@ public class DiscordActivityListener extends ListenerAdapter {
         this.service = service;
     }
 
-    @Override
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @EventListener
     public void onUserTyping(@Nonnull UserTypingEvent event) {
         active(event.getUser());
     }
 
-    @Override
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @EventListener
     public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event) {
         active(event.getAuthor());
     }

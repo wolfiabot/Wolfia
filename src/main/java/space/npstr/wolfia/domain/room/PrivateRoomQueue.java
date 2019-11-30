@@ -17,8 +17,10 @@
 
 package space.npstr.wolfia.domain.room;
 
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -43,6 +45,11 @@ public class PrivateRoomQueue {
         log.info("{} private rooms loaded", privateRooms.size());
         this.allManagedRooms.addAll(privateRooms);
         this.availablePrivateRoomQueue.addAll(privateRooms);
+    }
+
+    @EventListener
+    public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
+        getAllManagedRooms().forEach(room -> room.onGuildMemberJoin(event));
     }
 
     public List<ManagedPrivateRoom> getAllManagedRooms() {

@@ -20,7 +20,8 @@ package space.npstr.wolfia.events;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.utils.discord.Emojis;
@@ -31,7 +32,8 @@ import space.npstr.wolfia.utils.discord.RestActions;
  * <p>
  * Handles special events for the official Wolfia guild
  */
-public class WolfiaGuildListener extends ListenerAdapter {
+@Component
+public class WolfiaGuildListener {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WolfiaGuildListener.class);
 
@@ -45,7 +47,7 @@ public class WolfiaGuildListener extends ListenerAdapter {
             + "<#326353722701774848> for information, rules, and how to play games. Don't forget to enjoy and have "
             + "fun! " + Emojis.WINK;
 
-    @Override
+    @EventListener
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
         if (event.getGuild().getIdLong() != App.WOLFIA_LOUNGE_ID
                 || Launcher.getBotContext().getWolfiaConfig().isDebug()) {

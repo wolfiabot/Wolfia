@@ -15,29 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.events;
+package space.npstr.wolfia.system;
 
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.commands.CommandHandler;
 
 import javax.annotation.Nonnull;
 
-/**
- * Created by npstr on 25.08.2016
- */
 @Component
-public class CommandListener extends ListenerAdapter {
+public class DiscordEventListenerPublisher extends ListenerAdapter {
 
-    private final CommandHandler commandHandler;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public CommandListener(CommandHandler commandHandler) {
-        this.commandHandler = commandHandler;
+    public DiscordEventListenerPublisher(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
-    public void onMessageReceived(@Nonnull final MessageReceivedEvent event) {
-        this.commandHandler.handleMessage(event);
+    public void onGenericEvent(@Nonnull GenericEvent event) {
+        this.eventPublisher.publishEvent(event);
     }
 }

@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.domain.game.GameRegistry;
@@ -36,7 +36,7 @@ import space.npstr.wolfia.utils.discord.Emojis;
  * Events listened to in here are used for bot internal, non-game purposes
  */
 @Component
-public class InternalListener extends ListenerAdapter {
+public class InternalListener {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(InternalListener.class);
 
@@ -46,18 +46,18 @@ public class InternalListener extends ListenerAdapter {
         this.gameRegistry = gameRegistry;
     }
 
-    @Override
+    @EventListener
     public void onReady(final ReadyEvent event) {
         log.info("{} Ready! Version: {} Logged in as: {}", Emojis.ROCKET, App.VERSION, event.getJDA().getSelfUser().getName());
     }
 
-    @Override
+    @EventListener
     public void onGuildJoin(final GuildJoinEvent event) {
         final Guild guild = event.getGuild();
         log.info("Joined guild {} with {} users.", guild.getName(), guild.getMembers().size());
     }
 
-    @Override
+    @EventListener
     public void onGuildLeave(final GuildLeaveEvent event) {
         final Guild guild = event.getGuild();
 
@@ -79,7 +79,7 @@ public class InternalListener extends ListenerAdapter {
                 guild.getName(), guild.getMembers().size(), gamesDestroyed);
     }
 
-    @Override
+    @EventListener
     public void onTextChannelDelete(final TextChannelDeleteEvent event) {
         final long channelId = event.getChannel().getIdLong();
         final long guildId = event.getGuild().getIdLong();

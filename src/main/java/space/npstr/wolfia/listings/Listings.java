@@ -21,8 +21,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import okhttp3.OkHttpClient;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
@@ -41,7 +41,7 @@ import java.util.concurrent.Future;
  * Takes care of posting all our stats to various listing sites
  */
 @Component
-public class Listings extends ListenerAdapter {
+public class Listings {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Listings.class);
 
@@ -89,17 +89,17 @@ public class Listings extends ListenerAdapter {
     }
 
 
-    @Override
+    @EventListener
     public void onGuildJoin(final GuildJoinEvent event) {
         postAllStats(event.getJDA());
     }
 
-    @Override
+    @EventListener
     public void onGuildLeave(final GuildLeaveEvent event) {
         postAllStats(event.getJDA());
     }
 
-    @Override
+    @EventListener
     public void onReady(final ReadyEvent event) {
         postAllStats(event.getJDA());
     }

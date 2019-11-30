@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateIconEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateNameEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Component;
  * ready events happening.
  */
 @Component
-public class GuildCacheListener extends ListenerAdapter {
+public class GuildCacheListener {
 
     private final GuildSettingsService guildSettingsService;
 
@@ -39,22 +39,22 @@ public class GuildCacheListener extends ListenerAdapter {
         this.guildSettingsService = guildSettingsService;
     }
 
-    @Override
+    @EventListener
     public void onGuildJoin(GuildJoinEvent event) {
         dataUpdate(event.getGuild());
     }
 
-    @Override
+    @EventListener
     public void onGuildReady(GuildReadyEvent event) {
         dataUpdate(event.getGuild());
     }
 
-    @Override
+    @EventListener
     public void onGuildUpdateIcon(GuildUpdateIconEvent event) {
         dataUpdate(event.getGuild());
     }
 
-    @Override
+    @EventListener
     public void onGuildUpdateName(GuildUpdateNameEvent event) {
         dataUpdate(event.getGuild());
     }

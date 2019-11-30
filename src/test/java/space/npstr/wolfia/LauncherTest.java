@@ -17,19 +17,22 @@
 
 package space.npstr.wolfia;
 
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.support.AbstractApplicationContext;
 import space.npstr.prometheus_extensions.jda.JdaMetrics;
 import space.npstr.wolfia.commands.CommRegistry;
+import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.config.SentryConfiguration;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.oauth2.OAuth2Refresher;
 import space.npstr.wolfia.domain.setup.lastactive.AutoOuter;
-import space.npstr.wolfia.events.CommandListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 abstract class LauncherTest extends ApplicationTest {
 
@@ -37,12 +40,20 @@ abstract class LauncherTest extends ApplicationTest {
     protected AbstractApplicationContext applicationContext;
 
     @Autowired
+    private ApplicationEventPublisher publisher;
+
+    @Autowired
     private BeanCatcher beanCatcher;
 
     @Test
     void applicationContextLoads() {
+        // ensure event listeners for messages are initiated
+        try {
+            publisher.publishEvent(mock(MessageReceivedEvent.class));
+        } catch (Exception ignored) {}
+
         // smoke test for some usual & important beans
-        assertThatContainsBean("commandListener", CommandListener.class);
+        assertThatContainsBean("commandHandler", CommandHandler.class);
         assertThatContainsBean("commRegistry", CommRegistry.class);
         assertThatContainsBean("shardManager", ShardManager.class);
         assertThatContainsBean("botContext", BotContext.class);
