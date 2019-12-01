@@ -1,6 +1,6 @@
 <template>
   <div class="hello">
-    <h2>Hello there, {{ userName }}!</h2>
+    <h2>Hello there, {{ user.name }}!</h2>
     <h1>{{ msg }}</h1>
     <p>
       For a guide and recipes on how to configure / customize this project,<br>
@@ -39,8 +39,8 @@ export default {
   name: 'HelloWorld',
   props: {
     msg: String,
-    userName: String,
-  }
+    user: Object,
+  },
 }
 </script>
 
