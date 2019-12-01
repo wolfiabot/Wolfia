@@ -384,11 +384,11 @@ dependencies {
     implementation "net.ttddyy:datasource-proxy"
     implementation "org.flywaydb:flyway-core"
 
-    implementation "org.togglz:togglz-core:${togglzVersion}"
-    implementation "org.togglz:togglz-slf4j:${togglzVersion}"
-    implementation "org.togglz:togglz-spring-boot-starter:${togglzVersion}"
-    implementation "org.togglz:togglz-console:${togglzVersion}"
-    implementation "org.togglz:togglz-spring-security:${togglzVersion}"
+    implementation "org.togglz:togglz-core"
+    implementation "org.togglz:togglz-slf4j"
+    implementation "org.togglz:togglz-spring-boot-starter"
+    implementation "org.togglz:togglz-console"
+    implementation "org.togglz:togglz-spring-security"
 
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-undertow"
