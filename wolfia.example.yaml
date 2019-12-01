@@ -30,6 +30,25 @@ spring:
   output:
     ansi:
       enabled: always
+  security:
+    oauth2:
+      client:
+        registration:
+          discord:
+            client-id: "foo"
+            client-secret: "bar"
+            client-authentication-method: post
+            authorization-grant-type: authorization_code
+            scope:
+              - identify
+            redirect-uri: "{baseUrl}/login/oauth2/code/discord"
+            client-name: Log In With Discord
+        provider:
+          discord:
+            authorization-uri: https://discordapp.com/api/oauth2/authorize
+            token-uri: https://discordapp.com/api/oauth2/token
+            user-info-uri: https://discordapp.com/api/users/@me
+            username-attribute: username
 
 togglz:
   enabled: true

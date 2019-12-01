@@ -26,6 +26,7 @@ import org.togglz.spring.security.SpringSecurityUserProvider;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.system.togglz.ExceptionTolerantCachingStateRepo;
 import space.npstr.wolfia.system.togglz.PostgresJdbcStateRepo;
+import space.npstr.wolfia.webapi.Authorization;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -45,6 +46,6 @@ public class TogglzConfiguration {
 
     @Bean
     public UserProvider userProvider() {
-        return new SpringSecurityUserProvider("ROLE_" + WebApplicationSecurity.OWNER.getAuthority());
+        return new SpringSecurityUserProvider("ROLE_" + Authorization.OWNER.getAuthority());
     }
 }
