@@ -126,7 +126,7 @@ services:
       - "traefik.metrics.frontend.auth.basic.users=${METRICS_LOGIN}"
       - "traefik.metrics.frontend.auth.basic.removeHeader=true"
       - "traefik.bot.backend=wolfia-bot"
-      - "traefik.bot.frontend.rule=Host:bot.${DOMAIN};PathPrefix:/{path:(api|login)}"
+      - "traefik.bot.frontend.rule=Host:bot.${DOMAIN}"
     ports:
       - 127.0.0.1:4567:4567   # Wolfia web server
       - 127.0.0.1:8849:8849   # JProfiler
@@ -187,9 +187,7 @@ services:
       - "traefik.enable=true"
       - "traefik.backend=wolfia-redirect-invite"
       - "traefik.port=80"
-      #      - "traefik.frontend.rule=Host:bot.${DOMAIN};Path:/invite"
-      - "traefik.frontend.rule=Host:bot.${DOMAIN}" #todo catch-all until we have a proper website
-      - "traefik.frontend.priority=1" # lowest
+      - "traefik.frontend.rule=Host:bot.${DOMAIN};PathPrefix:/invite"
     environment:
       - SERVER_REDIRECT=discordapp.com
       - SERVER_REDIRECT_PATH=/oauth2/authorize?client_id=306583221565521921\&response_type=code\&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q\&permissions=268787777\&scope=bot
