@@ -1,8 +1,8 @@
 //@formatter:off
 ext {
 
-	springBootVersion			= '2.2.1.RELEASE'
-	flywayVersion				= '6.0.8'
+	springBootVersion			= '2.2.2.RELEASE'
+	flywayVersion				= '6.1.0'
 
 	gradleGitVersion			= '2.2.0'
 	grGitVersion				= '4.0.0'
@@ -17,7 +17,7 @@ ext {
 	theNodeVersion				= '12.13.1'
 	theYarnVersion				= '1.19.2'
 
-	jdaVersion					= '4.0.0_63'
+	jdaVersion					= '4.0.0_72'
 	sentryLogbackVersion		= '1.7.28'
 	orgJsonVersion				= '20190722'
 	annotationsVersion			= '0.0.2'
@@ -31,6 +31,6 @@ ext {
 
 	togglzVersion				= '2.6.1.Final'
 
-	testcontainersVersion		= '1.12.3'
+	testcontainersVersion		= '1.12.4'
 
 }
