@@ -27,6 +27,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
@@ -38,11 +40,16 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequestEntityConverter;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.util.StringUtils;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.webapi.Authorization;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -83,7 +90,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .and().formLogin()
                 .and().httpBasic()
                 .and().oauth2Login().tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
-                .and().userInfoEndpoint().userService(userService())
+                .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
         ;
     }
 
@@ -100,7 +107,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
         inMemory
                 .withUser(webAdmin)
                 .password(passwordEncoder().encode(webPass))
-                .roles(Authorization.USER.getAuthority(), Authorization.OWNER.getAuthority());
+                .authorities(Authorization.USER, Authorization.OWNER);
     }
 
     @Bean
@@ -134,6 +141,35 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
         });
 
         return service;
+    }
+
+
+    @Bean
+    public GrantedAuthoritiesMapper authoritiesMapper() {
+        return (authorities) -> {
+            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+            authorities.forEach(authority -> {
+                if (authority instanceof OAuth2UserAuthority) {
+                    OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority) authority;
+                    Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
+
+
+                    try {
+                        String id = (String) userAttributes.get("id");
+                        long userId = Long.parseLong(id);
+                        if (userId == App.OWNER_ID) {
+                            mappedAuthorities.add(Authorization.OWNER);
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to check for owner id", e);
+                    }
+                    mappedAuthorities.add(Authorization.USER);
+                }
+            });
+
+            return mappedAuthorities;
+        };
     }
 
     private <T> RequestEntity<T> withUserAgent(@Nullable RequestEntity<T> request) {
