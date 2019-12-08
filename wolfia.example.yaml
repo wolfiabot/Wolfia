@@ -30,6 +30,8 @@ spring:
   output:
     ansi:
       enabled: always
+  redis:
+    url: ""
   security:
     oauth2:
       client:
@@ -49,6 +51,11 @@ spring:
             token-uri: https://discordapp.com/api/oauth2/token
             user-info-uri: https://discordapp.com/api/users/@me
             username-attribute: username
+  session:
+    store-type: redis
+    redis:
+      flush-mode: immediate
+    timeout: 365d
 
 togglz:
   enabled: true
