@@ -17,55 +17,83 @@
 
 package space.npstr.wolfia.webapi;
 
-import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * For some reason mockMvc returns 404s against the togglz endpoint, so we're using a different request mechanism
- * for tests that need to hit the endpoint
+ * The Togglz Console is served by a Servlet, so we can't use MockMvc.
  */
-public class TogglzEndpointTest extends ApplicationTest {
+public class TogglzEndpointTest<T extends Session> extends ApplicationTest {
 
-    private static final String TOGGLZ_PATH = "/api/togglz";
+    private static final String TOGGLZ_PATH = "/api/togglz/index";
 
-    @Autowired
     private OkHttpClient httpClient;
 
     @Autowired
-    private WolfiaConfig config;
+    private OkHttpClient.Builder httpClientBuilder;
 
-    @Test
-    void whenGet_withoutAuthentication_returnUnauthorized() throws Exception {
-        mockMvc.perform(get(TOGGLZ_PATH))
-                .andExpect(status().isUnauthorized());
+    @Autowired
+    private SessionRepository<T> sessionRepository;
+
+    @BeforeEach
+    void setup() {
+        httpClient = httpClientBuilder
+                .followRedirects(false)
+                .build();
     }
 
     @Test
-    void whenGet_withRandomAuthentication_returnUnauthorized() throws Exception {
-        mockMvc.perform(get(TOGGLZ_PATH)
-                .with(httpBasic("foo", "bar")))
-                .andExpect(status().isUnauthorized());
+    void whenGet_withoutAuthentication_redirectToLogin() throws Exception {
+        Request request = getTogglzConsole()
+                .build();
+        Response response = httpClient.newCall(request).execute();
+
+        assertThat(response.isRedirect()).isTrue();
+        assertThat(response.header(HttpHeaders.LOCATION)).contains("login");
     }
 
     @Test
-    void whenGet_withWebAdminAuthentication_returnOk() throws IOException {
-        String credentials = Credentials.basic(config.getWebAdmin(), config.getWebPass());
-        Request request = request()
-                .header("Authorization", credentials)
+    void whenGet_withUserAuthority_returnUnauthorized() throws Exception {
+        Session session = generateHttpSession(Authorization.ROLE_USER);
+        Request request = getTogglzConsole()
+                .header(HttpHeaders.COOKIE, getSessionCookie(session))
+                .build();
+
+        Response response = httpClient.newCall(request).execute();
+
+        assertThat(response.code()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    void whenGet_withOwnerAuthority_returnOk() throws IOException {
+        Session session = generateHttpSession(Authorization.ROLE_OWNER);
+        Request request = getTogglzConsole()
+                .header(HttpHeaders.COOKIE, getSessionCookie(session))
                 .build();
 
         Response response = httpClient.newCall(request).execute();
@@ -73,9 +101,45 @@ public class TogglzEndpointTest extends ApplicationTest {
         assertThat(response.code()).isEqualTo(HttpStatus.OK.value());
     }
 
-    private Request.Builder request() {
+    private Request.Builder getTogglzConsole() {
         return new Request.Builder()
                 .get()
-                .url("http://localhost:" + port + "/api/togglz");
+                .url("http://localhost:" + port + TOGGLZ_PATH);
+    }
+
+    private String getSessionCookie(Session session) {
+        return "SESSION=" + Base64.getEncoder().encodeToString(session.getId().getBytes());
+    }
+
+    private T generateHttpSession(final String... requestedAuthorities) {
+        final Set<GrantedAuthority> authorities =
+                Arrays.stream(requestedAuthorities)
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toSet());
+
+        final UserDetails userDetails = new User(
+                "foo",
+                "bar",
+                true,
+                true,
+                true,
+                true,
+                authorities
+        );
+
+        final Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+
+        final UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                userDetails, authentication.getCredentials(), userDetails.getAuthorities());
+        authenticationToken.setDetails(authentication.getDetails());
+
+        final SecurityContext securityContext = new SecurityContextImpl(authentication);
+
+        T session = sessionRepository.createSession();
+        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
+        session.setAttribute("sessionId", session.getId());
+        sessionRepository.save(session);
+        return session;
     }
 }

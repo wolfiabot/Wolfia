@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,9 +40,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequestEnti
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
-import org.springframework.util.StringUtils;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.webapi.Authorization;
 
 import java.util.Arrays;
@@ -69,12 +66,6 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
             "/static/**",
     };
 
-    private final WolfiaConfig config;
-
-    public WebApplicationSecurity(WolfiaConfig config) {
-        this.config = config;
-    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         String[] noAuthEndpoints = Stream.concat(Arrays.stream(MACHINE_ENDPOINTS), Arrays.stream(PUBLIC_ENDPOINTS))
@@ -88,26 +79,9 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .antMatchers(noAuthEndpoints).permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin()
-                .and().httpBasic()
                 .and().oauth2Login().tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
                 .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
         ;
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        var inMemory = auth.inMemoryAuthentication();
-        String webAdmin = this.config.getWebAdmin();
-        String webPass = this.config.getWebPass();
-        if (StringUtils.isEmpty(webAdmin) || StringUtils.isEmpty(webPass)) {
-            log.warn("Web admin/pass is empty, so any dashboards, etc. will not be accessible.");
-            return;
-        }
-
-        inMemory
-                .withUser(webAdmin)
-                .password(passwordEncoder().encode(webPass))
-                .authorities(Authorization.USER, Authorization.OWNER);
     }
 
     @Bean
