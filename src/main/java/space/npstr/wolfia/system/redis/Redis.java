@@ -20,18 +20,17 @@ package space.npstr.wolfia.system.redis;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.config.properties.DatabaseConfig;
 
 @Component
 public class Redis {
-
     private final RedisClient client;
     private final StatefulRedisConnection<String, String> connection;
     private final StatefulRedisPubSubConnection<String, String> pubSub;
 
-    public Redis(DatabaseConfig databaseConfig) {
-        this.client = RedisClient.create(databaseConfig.getRedisUrl());
+    public Redis(RedisProperties redisProperties) {
+        this.client = RedisClient.create(redisProperties.getUrl());
         this.connection = this.client.connect();
         this.pubSub = this.client.connectPubSub();
     }

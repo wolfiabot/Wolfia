@@ -28,7 +28,7 @@ spring:
 togglz:
   enabled: true
   feature-enums: space.npstr.wolfia.domain.FeatureFlag
-  feature-manager-name: default
+  feature-manager-name: "default"
   console:
     enabled: true
     path: /api/togglz

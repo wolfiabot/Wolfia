@@ -24,9 +24,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
@@ -38,11 +39,14 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequestEntityConverter;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.util.StringUtils;
-import space.npstr.wolfia.config.properties.WolfiaConfig;
+import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.webapi.Authorization;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -62,12 +66,6 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
             "/static/**",
     };
 
-    private final WolfiaConfig config;
-
-    public WebApplicationSecurity(WolfiaConfig config) {
-        this.config = config;
-    }
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         String[] noAuthEndpoints = Stream.concat(Arrays.stream(MACHINE_ENDPOINTS), Arrays.stream(PUBLIC_ENDPOINTS))
@@ -80,27 +78,9 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(noAuthEndpoints).permitAll()
                 .anyRequest().authenticated()
-                .and().formLogin()
-                .and().httpBasic()
                 .and().oauth2Login().tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
-                .and().userInfoEndpoint().userService(userService())
+                .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
         ;
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        var inMemory = auth.inMemoryAuthentication();
-        String webAdmin = this.config.getWebAdmin();
-        String webPass = this.config.getWebPass();
-        if (StringUtils.isEmpty(webAdmin) || StringUtils.isEmpty(webPass)) {
-            log.warn("Web admin/pass is empty, so any dashboards, etc. will not be accessible.");
-            return;
-        }
-
-        inMemory
-                .withUser(webAdmin)
-                .password(passwordEncoder().encode(webPass))
-                .roles(Authorization.USER.getAuthority(), Authorization.OWNER.getAuthority());
     }
 
     @Bean
@@ -134,6 +114,35 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
         });
 
         return service;
+    }
+
+
+    @Bean
+    public GrantedAuthoritiesMapper authoritiesMapper() {
+        return (authorities) -> {
+            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+            authorities.forEach(authority -> {
+                if (authority instanceof OAuth2UserAuthority) {
+                    OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority) authority;
+                    Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
+
+
+                    try {
+                        String id = (String) userAttributes.get("id");
+                        long userId = Long.parseLong(id);
+                        if (userId == App.OWNER_ID) {
+                            mappedAuthorities.add(Authorization.OWNER);
+                        }
+                    } catch (Exception e) {
+                        log.warn("Failed to check for owner id", e);
+                    }
+                    mappedAuthorities.add(Authorization.USER);
+                }
+            });
+
+            return mappedAuthorities;
+        };
     }
 
     private <T> RequestEntity<T> withUserAgent(@Nullable RequestEntity<T> request) {

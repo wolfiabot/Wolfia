@@ -22,8 +22,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class Authorization {
 
-    public static final GrantedAuthority USER = new SimpleGrantedAuthority("USER");
-    public static final GrantedAuthority OWNER = new SimpleGrantedAuthority("OWNER");
+    public static final String ROLE_USER = "ROLE_USER";
+    public static final String ROLE_OWNER = "ROLE_OWNER";
+
+    public static final GrantedAuthority USER = new SimpleGrantedAuthority(ROLE_USER);
+    public static final GrantedAuthority OWNER = new SimpleGrantedAuthority(ROLE_OWNER);
 
     private Authorization() {}
 }

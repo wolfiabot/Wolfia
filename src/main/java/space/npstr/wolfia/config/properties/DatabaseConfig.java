@@ -29,7 +29,6 @@ public class DatabaseConfig {
 
     private String jdbcUrl = "";
     private int asyncPoolSize = Runtime.getRuntime().availableProcessors() * 4;
-    private String redisUrl = "";
 
     public String getJdbcUrl() {
         return jdbcUrl;
@@ -45,13 +44,5 @@ public class DatabaseConfig {
 
     public void setAsyncPoolSize(int asyncPoolSize) {
         this.asyncPoolSize = asyncPoolSize;
-    }
-
-    public String getRedisUrl() {
-        return this.redisUrl;
-    }
-
-    public void setRedisUrl(String redisUrl) {
-        this.redisUrl = redisUrl;
     }
 }
