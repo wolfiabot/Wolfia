@@ -74,7 +74,10 @@ public class TogglzEndpointTest<T extends Session> extends ApplicationTest {
         Response response = httpClient.newCall(request).execute();
 
         assertThat(response.isRedirect()).isTrue();
-        assertThat(response.header(HttpHeaders.LOCATION)).contains("login");
+        assertThat(response.header(HttpHeaders.LOCATION)).satisfiesAnyOf(
+                location -> assertThat(location).contains("login"),
+                location -> assertThat(location).contains("oauth2/authorization/discord")
+        );
     }
 
     @Test

@@ -78,7 +78,6 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers(noAuthEndpoints).permitAll()
                 .anyRequest().authenticated()
-                .and().formLogin()
                 .and().oauth2Login().tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
                 .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
         ;
