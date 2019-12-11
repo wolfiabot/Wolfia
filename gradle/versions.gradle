@@ -2,7 +2,7 @@
 ext {
 
 	springBootVersion			= '2.2.2.RELEASE'
-	flywayVersion				= '6.1.0'
+	flywayVersion				= '6.1.1'
 
 	gradleGitVersion			= '2.2.0'
 	grGitVersion				= '4.0.0'
@@ -17,7 +17,7 @@ ext {
 	theNodeVersion				= '12.13.1'
 	theYarnVersion				= '1.21.1'
 
-	jdaVersion					= '4.0.0_72'
+	jdaVersion					= '4.0.0_73'
 	sentryLogbackVersion		= '1.7.28'
 	orgJsonVersion				= '20190722'
 	annotationsVersion			= '0.0.2'
