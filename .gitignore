@@ -128,3 +128,4 @@ wolfia_rsa*
 .env
 
 postgres-data
+redis-data
