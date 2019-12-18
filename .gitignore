@@ -126,6 +126,7 @@ logs/
 *version.properties
 wolfia_rsa*
 .env*
+acme.json
 
 postgres-data
 redis-data
