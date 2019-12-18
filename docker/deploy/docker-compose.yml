@@ -20,7 +20,7 @@ services:
       - dockersock4traefik
 
   traefik:
-    image: traefik:v1.7-alpine
+    image: traefik:v2.1
     container_name: traefik
     restart: always
     ports:
@@ -35,30 +35,29 @@ services:
       - ./acme.json:/acme.json:rw
     labels:
       - "traefik.enable=true"
-      - "traefik.backend=traefik-dash"
       - "traefik.port=8080"
-      - "traefik.frontend.rule=Host:bot.${DOMAIN};PathPrefixStrip:/traefik"
+      - "traefik.http.middlewares.metrics-auth.basicauth.users=${METRICS_LOGIN}"
+      - "traefik.http.middlewares.metrics-auth.basicauth.removeheader=true"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASH_LOGIN}"
+      - "traefik.http.middlewares.whitelist.ipwhitelist.sourcerange=${CF_WHITELIST},${UPTIMEROBOT_WHITELIST}"
+      - "traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.api.service=api@internal"
+      - "traefik.http.routers.api.middlewares=traefik-auth@docker, whitelist@docker"
     command:
-      - --debug=false
-      - --logLevel=INFO
-      - --sendAnonymousUsage=true
-      - --defaultEntryPoints=https
-      - "--entryPoints=Name:https Address::443 TLS WhiteList.SourceRange:${CF_WHITELIST},${UPTIMEROBOT_WHITELIST} WhiteList.UseXForwardedFor:true"
-      - "--entryPoints=Name:traefik Address::8080 Auth.Basic.Users:${TRAEFIK_DASH_LOGIN} WhiteList.SourceRange:${CF_WHITELIST},${UPTIMEROBOT_WHITELIST} WhiteList.UseXForwardedFor:true"
-      - --api.dashboard=true
-      - --api.entryPoint=traefik
-      - --api.statistics=true
-      - --retry
-      - --docker.domain=${DOMAIN}
-      - "--docker.endpoint=tcp://dockerproxy:2375"
-      - --docker.watch=true
-      - --docker.exposedByDefault=false
-      - --acme.dnsChallenge.provider=cloudflare
-      - "--acme.domains=*.${DOMAIN},${DOMAIN}"
-      - --acme.email=${ACME_EMAIL}
-      - --acme.entryPoint=https
-      - --acme.onHostRule=false
-      - --acme.storage=acme.json
+      - "--log.level=info"
+      - "--accesslog=true"
+      - "--global.sendanonymoususage=true"
+      - "--entrypoints.https.address=:443"
+      - "--api.dashboard=true"
+      - "--api.debug=false"
+      - "--providers.docker.endpoint=tcp://dockerproxy:2375"
+      - "--providers.docker.watch=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.swarmmode=false"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare"
+      - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=acme.json"
     environment:
       - CF_API_EMAIL=${CF_MAIL}
       - CF_API_KEY=${CF_KEY}
@@ -106,10 +105,10 @@ services:
     labels:
       - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
-      - "traefik.backend=redis-exporter-prom"
       - "traefik.port=9121"
-      - "traefik.frontend.rule=Host:redis.${DOMAIN};PathPrefix:/metrics"
-      - "traefik.frontend.auth.basic.users=${METRICS_LOGIN}"
+      - "traefik.http.routers.redis-exporter-prom.rule=Host(`redis.${DOMAIN}`) && PathPrefix(`/metrics`)"
+      - "traefik.http.routers.redis-exporter-prom.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.redis-exporter-prom.middlewares=metrics-auth@docker, whitelist@docker"
 
   bot:
     image: napstr/wolfia:ci-master
@@ -121,12 +120,12 @@ services:
       - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.port=4567"
-      - "traefik.metrics.backend=wolfia-metrics"
-      - "traefik.metrics.frontend.rule=Host:bot.${DOMAIN};PathPrefix:/metrics"
-      - "traefik.metrics.frontend.auth.basic.users=${METRICS_LOGIN}"
-      - "traefik.metrics.frontend.auth.basic.removeHeader=true"
-      - "traefik.bot.backend=wolfia-bot"
-      - "traefik.bot.frontend.rule=Host:bot.${DOMAIN}"
+      - "traefik.http.routers.wolfia-metrics.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/metrics`)"
+      - "traefik.http.routers.wolfia-metrics.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wolfia-metrics.middlewares=metrics-auth@docker, whitelist@docker"
+      - "traefik.http.routers.bot.rule=Host(`bot.${DOMAIN}`)"
+      - "traefik.http.routers.bot.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.bot.middlewares=whitelist@docker"
     ports:
       - 127.0.0.1:4567:4567   # Wolfia web server
       - 127.0.0.1:8849:8849   # JProfiler
@@ -166,9 +165,10 @@ services:
     labels:
       - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
-      - "traefik.backend=wolfia-redirect-join"
       - "traefik.port=80"
-      - "traefik.frontend.rule=Host:bot.${DOMAIN};PathPrefix:/join"
+      - "traefik.http.routers.wolfia-redirect-join.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/join`)"
+      - "traefik.http.routers.wolfia-redirect-join.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wolfia-redirect-join.middlewares=whitelist@docker"
     environment:
       - SERVER_REDIRECT=discord.gg
       - SERVER_REDIRECT_PATH=/nvcfX3q
@@ -185,9 +185,10 @@ services:
     labels:
       - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
-      - "traefik.backend=wolfia-redirect-invite"
       - "traefik.port=80"
-      - "traefik.frontend.rule=Host:bot.${DOMAIN};PathPrefix:/invite"
+      - "traefik.http.routers.wolfia-redirect-invite.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/invite`)"
+      - "traefik.http.routers.wolfia-redirect-invite.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wolfia-redirect-invite.middlewares=whitelist@docker"
     environment:
       - SERVER_REDIRECT=discordapp.com
       - SERVER_REDIRECT_PATH=/oauth2/authorize?client_id=306583221565521921\&response_type=code\&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q\&permissions=268787777\&scope=bot

@@ -121,10 +121,12 @@ gradle-app.setting
 *application.yaml
 *javaloader.json
 
-/logs/
+logs/
 
 *version.properties
 wolfia_rsa*
-.env
+.env*
+acme.json
 
 postgres-data
+redis-data
