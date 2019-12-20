@@ -158,7 +158,7 @@ project(':database-codegen') {
         codegenDbImageTag = '12'
         codegenDbImageName = codegenDbImageRepo + ':' + codegenDbImageTag
         codegenDbContainerName = 'wolfia-codegen-postgres'
-        codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5434/codegen?user=codegen"
+        codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5435/codegen?user=codegen"
     }
 
     dependencies {
@@ -182,7 +182,7 @@ project(':database-codegen') {
         targetImageId(codegenDbImageName)
         containerName.set(codegenDbContainerName)
         hostConfig.autoRemove.set(true)
-        hostConfig.portBindings.set(['127.0.0.1:5434:5432'])
+        hostConfig.portBindings.set(['127.0.0.1:5435:5432'])
         withEnvVar('ROLE', 'codegen')
         withEnvVar('DB', 'codegen')
     }
@@ -399,6 +399,7 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -413,6 +414,7 @@ dependencies {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    options.incremental = true
     options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation' << '-Xmaxerrs' << '10000' << '-Xdiags:verbose'
 }
 
