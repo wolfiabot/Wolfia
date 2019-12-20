@@ -414,6 +414,7 @@ dependencies {
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    options.incremental = true
     options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation' << '-Xmaxerrs' << '10000' << '-Xdiags:verbose'
 }
 
