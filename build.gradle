@@ -158,7 +158,7 @@ project(':database-codegen') {
         codegenDbImageTag = '12'
         codegenDbImageName = codegenDbImageRepo + ':' + codegenDbImageTag
         codegenDbContainerName = 'wolfia-codegen-postgres'
-        codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5434/codegen?user=codegen"
+        codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5435/codegen?user=codegen"
     }
 
     dependencies {
@@ -182,7 +182,7 @@ project(':database-codegen') {
         targetImageId(codegenDbImageName)
         containerName.set(codegenDbContainerName)
         hostConfig.autoRemove.set(true)
-        hostConfig.portBindings.set(['127.0.0.1:5434:5432'])
+        hostConfig.portBindings.set(['127.0.0.1:5435:5432'])
         withEnvVar('ROLE', 'codegen')
         withEnvVar('DB', 'codegen')
     }
