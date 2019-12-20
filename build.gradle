@@ -399,6 +399,7 @@ dependencies {
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
