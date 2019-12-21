@@ -18,7 +18,6 @@ buildscript {
         classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:$gradleGitVersion"
         classpath "org.ajoberstar.grgit:grgit-gradle:$grGitVersion"
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:$sonarVersion"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:$bintrayVersion"
         classpath "nu.studer:gradle-jooq-plugin:$jooqPluginVersion"
         classpath "org.jooq:jooq-codegen:$jooqVersion"
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
@@ -104,6 +103,8 @@ allprojects {
             xml.enabled true
         }
     }
+
+    defaultTasks 'build'
 }
 
 project(':platform') {
@@ -334,7 +335,6 @@ apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'org.ajoberstar.grgit'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'org.sonarqube'
-apply plugin: 'com.jfrog.bintray'
 
 version = "${versionTag()}".toString()
 
@@ -456,26 +456,6 @@ bootJar {
         copy {
             from 'build/libs/wolfia.jar'
             into '.'
-        }
-    }
-}
-
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
-    filesSpec {
-        from 'build/libs'
-        into '.'
-        rename '(.+)\\.(.+)', '$1-' + project.version + '.$2'
-    }
-    dryRun = false
-    publish = true
-    pkg {
-        repo = 'wolfia'
-        name = 'beta'
-        userOrg = user
-        version {
-            name = project.version
         }
     }
 }

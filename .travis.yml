@@ -12,8 +12,6 @@ addons:
 env:
   global:
     - BUILD_NUMBER: "$TRAVIS_BUILD_NUMBER"
-    - BINTRAY_USER: napster
-    - secure: "TibOvGlMn0dBK97rMpvHtk17iEQszuZJkL6rqc8FoKOmMb36CFdHK7lGUCGHEoYwCl2Cs4OSICWyLhmYwfP623vYLrXfd5fdBbHWaSO1RtQkGK9+roomb80tkYleKBUArWrteYk+uevWA7HxWoQXmoVKD/DvppF6tZsJq2sv8BFQZSE2XDtiQ5QvotD0j4ypSwatZFT73AAGJlxbT3fBrx5gNw6bLJd8ZEdjRTEL+bHPAh+iqURVg3181RcEJQA3N+uAn2dkdByn4TENBLvsr4HuQmkeG0W7yTWIhZZS+t2sbp4i2PrGmEVaGeqc4DqqVSAR522NLOzwfpxXJcRr9xmfQXnt2qPyfK7cZQET/QuRvUIBw1IQo42Bae2Kk0Xhvm45FSOmgYY1YyFNFhdaK/pCbHd5jmp6djTeajeiEaH7Th6LBcDfTrNK8dmL2THvSxsodH2FRwlks+9t3KY7ZwwxXbpwbPb95qYpR8bDqlf9aIE5awNf6LXTi4l97mMNeLoN9e9yXtmDUdjPGkqZqi1nTdFfJH1Qx3RNwufFRVoIfJ7wNQG1W14hTaw6JGXCbEyJkQ5cHFzSW0T+7KH53IicnXbLDneenViDuw21vBwgT+53aHENhgwR5ZpdbhIyUVdGPvxF8udmp2NCmW3ePJrVKwWHKjj+F9I+5g4F49I="
     - DOCKER_USERNAME: napstr
     - secure: "PocnXWMvuXbHSHjoLZOQI0NNze1pFerioQcp/YRYRDUBs2hoKxmu89XEIeoUcpT/ZgJ3t0aUi8iw4XNRVON4khe0sJmAQLqPwXTlHgIVhM6ON3DgC739U6J286lc+w9cWX/awyOVVB4BwASNXlYILQaV9fQy30SBknKdYY9/MIFs+xhYWQuPHONfpWHfLQeVSWKUalD96+Mhj63BlEFNUUrTbVB5vCB4RacBlr63FV7hFkMA3aXDHOSMlnFhZw9ZXi4RmvgCX9XKKaCsiIXinvA32j6slan9WAH43Ay8dd/PLTWu+ExRWjsx/O7T8zhCIHC935ZpKOaeWySBAvN+jMWKlPV0KfJ5SG7yMAx+gjx2M3tJJ5suYIG2bRI0Rc7yeuvK1qJHTZJLKXVj4Ni7qgXIqYNP7RwwObjqzAJWJlYuE8cCstA0V/wXbZ31MmO/TjQfduGRaVm7X+NaxdoHIcn1SB3fgSwbzD1SVa/5B9VQHjmWzEBwa6UKxHtqVFMMPgXB4A5BpvbDZIhu1NKCsG3s3eONd+2YJ9ukF8j03Bs4SBhiNeUd4awAANpLvk80z3BWnX/gnGUkrKFi89jJLNA9DPyMp8TbecsCdU70yLnphTDorOBCDEmk+k5ahfO2ofMutnYOdrlDa5uM4rjF2VAPVViJxvkH6L7MSXT4MCM="
     # WEBHOOK_URL
@@ -52,61 +50,40 @@ jobs:
       jdk: openjdk11
       before_script:
         - java -Xmx32m -version
-        # to determine version
         - git fetch --unshallow
       script:
         - ./gradlew assemble --info
       after_failure:
-        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
-        - chmod +x send.sh
-        - ./send.sh failure $WEBHOOK_URL
-        - ./send.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
 
     - stage: test
       jdk: openjdk11
       before_script:
         - java -Xmx32m -version
-        # for full sonar cloud blame information
         - git fetch --unshallow
       script:
         - ./gradlew sonarqube
-      after_success:
-        - ./gradlew bootJar
-        - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
-        - CI_IMAGE_NAME=$DOCKER_USERNAME/wolfia:ci-$IMAGE_TAG
-        - echo $CI_IMAGE_NAME
-        - docker build -t "$CI_IMAGE_NAME" -f docker/Dockerfile .
-        - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
-        - docker push $CI_IMAGE_NAME
-        - docker logout
-        # Discord Webhook
-        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
-        - chmod +x send.sh
-        - ./send.sh success $WEBHOOK_URL
-        - ./send.sh success $WEBHOOK_WOLFIA_LOUNGE_URL
       after_failure:
-        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
-        - chmod +x send.sh
-        - ./send.sh failure $WEBHOOK_URL
-        - ./send.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
 
     - stage: publish
       jdk: openjdk11
+      before_script:
+        - java -Xmx32m -version
+        - git fetch --unshallow
       script:
-        - ./gradlew bintrayUpload --info
-        - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
-        - CI_IMAGE_NAME=$DOCKER_USERNAME/wolfia:ci-$IMAGE_TAG
-        - echo $CI_IMAGE_NAME
-        - PUBLIC_IMAGE_NAME=$DOCKER_USERNAME/wolfia:$IMAGE_TAG
-        - echo $PUBLIC_IMAGE_NAME
-        - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
-        - docker pull $CI_IMAGE_NAME
-        - docker tag $CI_IMAGE_NAME $PUBLIC_IMAGE_NAME
-        - docker push $PUBLIC_IMAGE_NAME
-        - docker logout
+        - ./gradlew bootJar
+        - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/docker_build_and_push.sh; fi'
+      after_success:
+        - ./travis/discord_webhook.sh success $WEBHOOK_URL
+        - ./travis/discord_webhook.sh success $WEBHOOK_WOLFIA_LOUNGE_URL
+      after_failure:
+        - ./travis/discord_webhook.sh failure $WEBHOOK_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
 
 stages:
   - build
   - test
-  - name: publish
-    if: tag IS present
+  - publish
