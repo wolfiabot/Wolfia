@@ -111,7 +111,7 @@ services:
       - "traefik.http.routers.redis-exporter-prom.middlewares=metrics-auth@docker, whitelist@docker"
 
   bot:
-    image: napstr/wolfia:ci-master
+    image: napstr/wolfia:master
     restart: always
     networks:
       - traefik
