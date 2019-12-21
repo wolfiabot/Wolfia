@@ -103,6 +103,8 @@ allprojects {
             xml.enabled true
         }
     }
+
+    defaultTasks 'build'
 }
 
 project(':platform') {
