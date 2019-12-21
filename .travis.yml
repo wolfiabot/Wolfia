@@ -54,10 +54,8 @@ jobs:
       script:
         - ./gradlew assemble --info
       after_failure:
-        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
-        - chmod +x send.sh
-        - ./send.sh failure $WEBHOOK_URL
-        - ./send.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
 
     - stage: test
       jdk: openjdk11
@@ -67,10 +65,8 @@ jobs:
       script:
         - ./gradlew sonarqube
       after_failure:
-        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
-        - chmod +x send.sh
-        - ./send.sh failure $WEBHOOK_URL
-        - ./send.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
 
     - stage: publish
       jdk: openjdk11
@@ -81,15 +77,11 @@ jobs:
         - ./gradlew bootJar
         - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/docker_build_and_push.sh; fi'
       after_success:
-        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
-        - chmod +x send.sh
-        - ./send.sh success $WEBHOOK_URL
-        - ./send.sh success $WEBHOOK_WOLFIA_LOUNGE_URL
+        - ./travis/discord_webhook.sh success $WEBHOOK_URL
+        - ./travis/discord_webhook.sh success $WEBHOOK_WOLFIA_LOUNGE_URL
       after_failure:
-        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
-        - chmod +x send.sh
-        - ./send.sh failure $WEBHOOK_URL
-        - ./send.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_URL
+        - ./travis/discord_webhook.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
 
 stages:
   - build
