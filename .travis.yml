@@ -50,7 +50,6 @@ jobs:
       jdk: openjdk11
       before_script:
         - java -Xmx32m -version
-        # to determine version
         - git fetch --unshallow
       script:
         - ./gradlew assemble --info
@@ -64,20 +63,24 @@ jobs:
       jdk: openjdk11
       before_script:
         - java -Xmx32m -version
-        # for full sonar cloud blame information
         - git fetch --unshallow
       script:
         - ./gradlew sonarqube
-      after_success:
+      after_failure:
+        - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
+        - chmod +x send.sh
+        - ./send.sh failure $WEBHOOK_URL
+        - ./send.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
+
+    - stage: publish
+      jdk: openjdk11
+      before_script:
+        - java -Xmx32m -version
+        - git fetch --unshallow
+      script:
         - ./gradlew bootJar
-        - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
-        - CI_IMAGE_NAME=$DOCKER_USERNAME/wolfia:ci-$IMAGE_TAG
-        - echo $CI_IMAGE_NAME
-        - docker build -t "$CI_IMAGE_NAME" -f docker/Dockerfile .
-        - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
-        - docker push $CI_IMAGE_NAME
-        - docker logout
-        # Discord Webhook
+        - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/docker_build_and_push.sh; fi'
+      after_success:
         - wget https://raw.githubusercontent.com/napstr/travis-ci-discord-webhook/master/send.sh
         - chmod +x send.sh
         - ./send.sh success $WEBHOOK_URL
@@ -88,22 +91,7 @@ jobs:
         - ./send.sh failure $WEBHOOK_URL
         - ./send.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
 
-    - stage: publish
-      jdk: openjdk11
-      script:
-        - IMAGE_TAG=$(echo ${TRAVIS_BRANCH} | sed -e 's/\//_/g')
-        - CI_IMAGE_NAME=$DOCKER_USERNAME/wolfia:ci-$IMAGE_TAG
-        - echo $CI_IMAGE_NAME
-        - PUBLIC_IMAGE_NAME=$DOCKER_USERNAME/wolfia:$IMAGE_TAG
-        - echo $PUBLIC_IMAGE_NAME
-        - echo "$DOCKER_PASSWORD" | docker login -u="$DOCKER_USERNAME" --password-stdin
-        - docker pull $CI_IMAGE_NAME
-        - docker tag $CI_IMAGE_NAME $PUBLIC_IMAGE_NAME
-        - docker push $PUBLIC_IMAGE_NAME
-        - docker logout
-
 stages:
   - build
   - test
-  - name: publish
-    if: tag IS present
+  - publish
