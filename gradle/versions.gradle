@@ -7,7 +7,6 @@ ext {
 	gradleGitVersion			= '2.2.0'
 	grGitVersion				= '4.0.0'
 	sonarVersion				= '2.8'
-	bintrayVersion				= '1.8.4'
 	jooqPluginVersion			= '3.0.3'
 	versionsPluginVersion		= '0.27.0'
 	dockerPluginVersion			= '6.0.0'
