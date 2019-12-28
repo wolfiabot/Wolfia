@@ -180,7 +180,9 @@ public class Popcorn extends Game {
                 rolePm.append("If you get shot, you will die. If all wolves get shot, you lose\n");
                 rolePm.append(wolfteamNames);
                 rolePm.append(wolfchatInvite);
-                addToBaddieGuild(player);
+                if (this.mode != GameMode.WILD) {
+                    addToBaddieGuild(player);
+                }
             }
             rolePm.append(guildChannelAndInvite);
 
