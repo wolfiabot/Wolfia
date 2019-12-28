@@ -69,6 +69,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -92,6 +93,8 @@ public abstract class Game {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Game.class);
 
     //to be used to execute tasks for each game
+    //each task scheduled on it needs to check of the game is still running once it continues execution to avoid race
+    //conditions in games ending outside of main loop (shots, bombs, forced destroy by bot admin, etc)
     protected final ExceptionLoggingExecutor executor = new ExceptionLoggingExecutor(10,
             r -> new Thread(r, "game-in-channel-" + Game.this.getChannelId() + "-executor-thread"));
 
@@ -748,6 +751,14 @@ public abstract class Game {
         accessTokenOpt.ifPresent(accessToken ->
                 fetchBaddieChannel().getGuild().addMember(accessToken, player.getUserId()).queue());
         // TODO tell player if they have no valid token
+    }
+
+    protected Future scheduleIfGameStillRuns(Runnable runnable, Duration delay) {
+        return this.executor.schedule(() -> {
+            if (running) {
+                runnable.run();
+            }
+        }, delay.toMillis(), TimeUnit.MILLISECONDS);
     }
 
     //an way to create ActionStats object with a bunch of default/automatically generated values, like time stamps
