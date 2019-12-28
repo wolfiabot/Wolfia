@@ -235,7 +235,7 @@ public class Mafia extends Game {
         RestActions.sendMessage(gameChannel, "Game has started!\n" + listLivingPlayers());
 
         //start the time only after the message was actually sent
-        final Consumer c = aVoid -> this.executor.schedule(this::startDay, 20, TimeUnit.SECONDS);
+        final Consumer c = aVoid -> scheduleIfGameStillRuns(this::startDay, Duration.ofSeconds(20));
         RestActions.sendMessage(gameChannel, "Time to read your role PMs! Day starts in 20 seconds.", c, c);
     }
 
@@ -658,15 +658,15 @@ public class Mafia extends Game {
         }
 
         //set a timer that calls endDay()
-        this.phaseEndTimer = this.executor.schedule(() -> {
+        this.phaseEndTimer = scheduleIfGameStillRuns(() -> {
             try {
                 this.endDay();
             } catch (final DayEndedAlreadyException ignored) {
                 // ignored
             }
-        }, this.dayLengthMillis, TimeUnit.MILLISECONDS);
-        this.phaseEndReminder = this.executor.schedule(() -> RestActions.sendMessage(gameChannel, "One minute left until day end!"),
-                this.dayLengthMillis - 60000, TimeUnit.MILLISECONDS);
+        }, Duration.ofMillis(this.dayLengthMillis));
+        this.phaseEndReminder = scheduleIfGameStillRuns(() -> RestActions.sendMessage(gameChannel, "One minute left until day end!"),
+                Duration.ofMillis(this.dayLengthMillis - 60000));
     }
 
     private void endDay() throws DayEndedAlreadyException {
@@ -949,7 +949,7 @@ public class Mafia extends Game {
 
         if (!isGameOver()) {
             //start the timer only after the message has actually been sent
-            final Consumer c = aVoid -> this.executor.schedule(this::startDay, 10, TimeUnit.SECONDS);
+            final Consumer c = aVoid -> scheduleIfGameStillRuns(this::startDay, Duration.ofSeconds(10));
             RestActions.sendMessage(gameChannel, String.format("Day starts in 10 seconds.%n%s",
                     String.join(", ", getLivingPlayerMentions())),
                     c, c);

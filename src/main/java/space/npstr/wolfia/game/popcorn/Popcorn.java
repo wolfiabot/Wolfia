@@ -547,7 +547,7 @@ public class Popcorn extends Game {
                             out, playerName, Emojis.GUN,
                             TextchatUtils.getOrCreateInviteLinkForChannel(baddieChannel)));
             //give wolves 10 seconds to get back into the chat
-            Popcorn.this.executor.schedule(() -> giveGun(getsGun), 10, TimeUnit.SECONDS);
+            Popcorn.this.scheduleIfGameStillRuns(() -> giveGun(getsGun), Duration.ofSeconds(10));
         }
 
         private EmbedBuilder prepareGunDistributionEmbed(final Map<String, Player> livingVillage,
