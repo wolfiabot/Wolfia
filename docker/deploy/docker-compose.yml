@@ -155,6 +155,26 @@ services:
       - wolfia.jar
 
   # bunch of redirects cause traefik cant do them lol
+  redirect-ideas:
+    image: napstr/docker-nginx-redirect
+    restart: always
+    networks:
+      - traefik
+    expose:
+      - 80
+    labels:
+      - "traefik.docker.network=traefik"
+      - "traefik.enable=true"
+      - "traefik.port=80"
+      - "traefik.http.routers.wolfia-redirect-ideas.rule=Host(`${DOMAIN}`) && PathPrefix(`/ideas`)"
+      - "traefik.http.routers.wolfia-redirect-ideas.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wolfia-redirect-ideas.middlewares=whitelist@docker"
+    environment:
+      - SERVER_REDIRECT=feedback.userreport.com
+      - SERVER_REDIRECT_PATH=/01987d31-0d58-48c6-a4d3-96f2ae42eb14
+      - SERVER_REDIRECT_SCHEME=https
+      - SERVER_REDIRECT_CODE=307
+
   redirect-join:
     image: napstr/docker-nginx-redirect
     restart: always
