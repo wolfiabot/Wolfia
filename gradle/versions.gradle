@@ -16,7 +16,7 @@ ext {
 	theNodeVersion				= '12.13.1'
 	theYarnVersion				= '1.21.1'
 
-	jdaVersion					= '4.1.0_90'
+	jdaVersion					= '4.1.0_91'
 	sentryLogbackVersion		= '1.7.29'
 	orgJsonVersion				= '20190722'
 	annotationsVersion			= '0.0.2'
