@@ -166,7 +166,7 @@ services:
       - "traefik.docker.network=traefik"
       - "traefik.enable=true"
       - "traefik.port=80"
-      - "traefik.http.routers.wolfia-redirect-ideas.rule=Host(`${DOMAIN}`) && PathPrefix(`/ideas`)"
+      - "traefik.http.routers.wolfia-redirect-ideas.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/ideas`)"
       - "traefik.http.routers.wolfia-redirect-ideas.tls.certresolver=letsencrypt"
       - "traefik.http.routers.wolfia-redirect-ideas.middlewares=whitelist@docker"
     environment:

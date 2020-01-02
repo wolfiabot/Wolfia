@@ -52,30 +52,7 @@ jobs:
         - java -Xmx32m -version
         - git fetch --unshallow
       script:
-        - ./gradlew assemble --info
-      after_failure:
-        - ./travis/discord_webhook.sh failure $WEBHOOK_URL
-        - ./travis/discord_webhook.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
-
-    - stage: test
-      jdk: openjdk11
-      before_script:
-        - java -Xmx32m -version
-        - git fetch --unshallow
-      script:
-        - ./gradlew sonarqube
-      after_failure:
-        - ./travis/discord_webhook.sh failure $WEBHOOK_URL
-        - ./travis/discord_webhook.sh failure $WEBHOOK_WOLFIA_LOUNGE_URL
-
-    - stage: publish
-      jdk: openjdk11
-      before_script:
-        - java -Xmx32m -version
-        - git fetch --unshallow
-      script:
-        - ./gradlew bootJar
-        - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/docker_build_and_push.sh; fi'
+        - ./travis/build.sh
       after_success:
         - ./travis/discord_webhook.sh success $WEBHOOK_URL
         - ./travis/discord_webhook.sh success $WEBHOOK_WOLFIA_LOUNGE_URL
@@ -85,5 +62,3 @@ jobs:
 
 stages:
   - build
-  - test
-  - publish
