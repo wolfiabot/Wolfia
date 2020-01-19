@@ -90,7 +90,7 @@ public class Launcher implements ApplicationRunner {
             if (event instanceof ApplicationFailedEvent) {
                 final ApplicationFailedEvent failed = (ApplicationFailedEvent) event;
                 log.error("Application failed", failed.getException());
-                System.exit(2);
+                System.exit(ShutdownHandler.EXIT_CODE_RESTART);
             }
         });
         app.run(args);

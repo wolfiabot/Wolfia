@@ -45,6 +45,7 @@ public class ShutdownHandler {
     public static final int EXIT_CODE_RESTART = 2;
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ShutdownHandler.class);
+    private static final Thread DUMMY_HOOK = new Thread("dummy-hook");
 
     private volatile boolean shutdownHookAdded;
     private volatile boolean shutdownHookExecuted = false;
@@ -169,14 +170,12 @@ public class ShutdownHandler {
         log.info("Main shutdown hook done! Proceeding.");
     }
 
-    private static final Thread DUMMY_HOOK = new Thread();
-
-    public static void shutdown(final int code) {
+    public void shutdown(final int code) {
         log.info("Exiting with code {}", code);
         System.exit(code);
     }
 
-    public static boolean isShuttingDown() {
+    public boolean isShuttingDown() {
         try {
             Runtime.getRuntime().addShutdownHook(DUMMY_HOOK);
             Runtime.getRuntime().removeShutdownHook(DUMMY_HOOK);
