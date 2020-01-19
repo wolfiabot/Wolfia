@@ -57,16 +57,18 @@ public class GameStarter {
     private final GameRegistry gameRegistry;
     private final ActivityService activityService;
     private final ChannelSettingsService channelSettingsService;
+    private final ShutdownHandler shutdownHandler;
 
     public GameStarter(GameSetupService gameSetupService, MaintenanceService maintenanceService,
                        GameRegistry gameRegistry, ActivityService activityService,
-                       ChannelSettingsService channelSettingsService) {
+                       ChannelSettingsService channelSettingsService, ShutdownHandler shutdownHandler) {
 
         this.gameSetupService = gameSetupService;
         this.maintenanceService = maintenanceService;
         this.gameRegistry = gameRegistry;
         this.activityService = activityService;
         this.channelSettingsService = channelSettingsService;
+        this.shutdownHandler = shutdownHandler;
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
@@ -75,7 +77,7 @@ public class GameStarter {
         long commandCallerId = context.getInvoker().getIdLong();
         final MessageChannel channel = context.getChannel();
 
-        if (this.maintenanceService.getMaintenanceFlag() || ShutdownHandler.isShuttingDown()) {
+        if (this.maintenanceService.getMaintenanceFlag() || this.shutdownHandler.isShuttingDown()) {
             RestActions.sendMessage(channel, "The bot is under maintenance. Please try starting a game later.");
             return false;
         }

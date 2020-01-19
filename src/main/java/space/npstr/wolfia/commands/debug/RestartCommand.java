@@ -33,11 +33,13 @@ public class RestartCommand implements BaseCommand {
 
 
     private final GameRegistry gameRegistry;
+    private final ShutdownHandler shutdownHandler;
 
     private boolean reminded = false;
 
-    public RestartCommand(GameRegistry gameRegistry) {
+    public RestartCommand(GameRegistry gameRegistry, ShutdownHandler shutdownHandler) {
         this.gameRegistry = gameRegistry;
+        this.shutdownHandler = shutdownHandler;
     }
 
     @Override
@@ -54,7 +56,7 @@ public class RestartCommand implements BaseCommand {
     @Override
     public boolean execute(@Nonnull final CommandContext context) {
 
-        if (ShutdownHandler.isShuttingDown()) {
+        if (this.shutdownHandler.isShuttingDown()) {
             context.replyWithName(String.format("restart has been queued already! **%s** games still running.",
                     this.gameRegistry.getRunningGamesCount()));
             return false;
@@ -73,7 +75,8 @@ public class RestartCommand implements BaseCommand {
 
         final String message = String.format("**%s** games are still running. Will restart as soon as they are over.",
                 this.gameRegistry.getRunningGamesCount());
-        context.replyWithMention(message, __ -> new Thread(() -> ShutdownHandler.shutdown(ShutdownHandler.EXIT_CODE_RESTART), "shutdown-thread").start());
+        Runnable restart = () -> this.shutdownHandler.shutdown(ShutdownHandler.EXIT_CODE_RESTART);
+        context.replyWithMention(message, __ -> new Thread(restart, "shutdown-thread").start());
         return true;
     }
 }

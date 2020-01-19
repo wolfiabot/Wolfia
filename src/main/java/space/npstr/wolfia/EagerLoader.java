@@ -24,7 +24,7 @@ import space.npstr.wolfia.domain.oauth2.OAuth2Refresher;
 import space.npstr.wolfia.domain.setup.lastactive.AutoOuter;
 
 /**
- * Stuff that is required in the context but gets missed by Spring'S lazy loading.
+ * Stuff that is required in the context but gets missed by Spring's lazy loading.
  */
 @Component
 @SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1068"})
