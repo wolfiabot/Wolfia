@@ -433,6 +433,12 @@ tasks.withType(SonarQubeTask) {
     dependsOn jacocoTestReport
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled true
+    }
+}
+
 springBoot {
     buildInfo()
 }
