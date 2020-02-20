@@ -41,7 +41,7 @@ class MaintenanceServiceTest extends ApplicationTest {
         this.service.flipMaintenanceFlag();
         boolean after = this.service.getMaintenanceFlag();
 
-        assertThat(before).isEqualTo(!after);
+        assertThat(after).isNotEqualTo(before);
     }
 
     @Test
@@ -51,6 +51,6 @@ class MaintenanceServiceTest extends ApplicationTest {
         this.service.flipMaintenanceFlag();
         boolean after = this.service.getMaintenanceFlag();
 
-        assertThat(before).isEqualTo(after);
+        assertThat(after).isEqualTo(before);
     }
 }
