@@ -440,7 +440,11 @@ jacocoTestReport {
 }
 
 springBoot {
-    buildInfo()
+    buildInfo {
+        properties {
+            time = null
+        }
+    }
 }
 
 bootRun {
