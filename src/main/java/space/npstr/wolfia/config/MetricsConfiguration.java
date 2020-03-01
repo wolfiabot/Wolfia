@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import space.npstr.prometheus_extensions.QueryCountCollector;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.prometheus_extensions.jda.JdaMetrics;
-import space.npstr.wolfia.metrics.MetricsRegistry;
+import space.npstr.wolfia.system.metrics.MetricsRegistry;
 
 @Configuration
 public class MetricsConfiguration {

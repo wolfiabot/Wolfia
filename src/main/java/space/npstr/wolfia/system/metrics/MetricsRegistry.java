@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.metrics;
+package space.npstr.wolfia.system.metrics;
 
 import ch.qos.logback.classic.LoggerContext;
 import io.prometheus.client.CollectorRegistry;

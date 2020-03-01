@@ -33,7 +33,7 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-import space.npstr.wolfia.metrics.MetricsRegistry;
+import space.npstr.wolfia.system.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;

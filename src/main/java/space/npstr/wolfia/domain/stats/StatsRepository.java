@@ -28,7 +28,7 @@ import space.npstr.wolfia.db.gen.tables.records.StatsActionRecord;
 import space.npstr.wolfia.db.gen.tables.records.StatsPlayerRecord;
 import space.npstr.wolfia.db.gen.tables.records.StatsTeamRecord;
 import space.npstr.wolfia.game.definitions.Alignments;
-import space.npstr.wolfia.metrics.MetricsRegistry;
+import space.npstr.wolfia.system.metrics.MetricsRegistry;
 
 import javax.annotation.CheckReturnValue;
 import java.math.BigDecimal;

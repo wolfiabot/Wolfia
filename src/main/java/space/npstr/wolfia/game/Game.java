@@ -49,7 +49,7 @@ import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
-import space.npstr.wolfia.metrics.MetricsRegistry;
+import space.npstr.wolfia.system.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
