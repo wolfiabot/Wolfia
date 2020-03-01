@@ -26,6 +26,7 @@ import space.npstr.wolfia.commands.debug.RegisterPrivateRoomCommand;
 import space.npstr.wolfia.commands.debug.RestartCommand;
 import space.npstr.wolfia.commands.debug.ReviveCommand;
 import space.npstr.wolfia.commands.debug.RunningCommand;
+import space.npstr.wolfia.commands.debug.ShardsCommand;
 import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
@@ -270,6 +271,11 @@ class CommRegistryTest extends ApplicationTest {
     @Test
     void hasRunningCommand() {
         assertHasCommand("running", RunningCommand.class);
+    }
+
+    @Test
+    void hasShardsCommand() {
+        assertHasCommand("shards", ShardsCommand.class);
     }
 
     private void assertHasCommand(String trigger, Class<? extends BaseCommand> clazz) {
