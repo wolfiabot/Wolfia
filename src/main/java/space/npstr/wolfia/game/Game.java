@@ -144,29 +144,16 @@ public abstract class Game {
      * @return the role pm of a user
      */
     @Nonnull
-    public String getRolePm(final long userId) throws IllegalGameStateException {
-        return getPlayer(userId).getRolePm();
-    }
-
-    @Nonnull
-    public String getRolePm(@Nonnull final User user) throws IllegalGameStateException {
-        return getRolePm(user.getIdLong());
-    }
-
-    @Nonnull
     public String getRolePm(@Nonnull final Member member) throws IllegalGameStateException {
-        return getRolePm(member.getUser());
+        return getPlayer(member.getUser().getIdLong()).getRolePm();
     }
 
     /**
      * @return true if the user is playing in this game (dead or alive), false if not
      */
-    public boolean isUserPlaying(final long userId) {
-        return this.players.stream().anyMatch(p -> p.userId == userId);
-    }
-
     public boolean isUserPlaying(@Nonnull final User user) {
-        return isUserPlaying(user.getIdLong());
+        long userId = user.getIdLong();
+        return this.players.stream().anyMatch(p -> p.userId == userId);
     }
 
     public boolean isUserPlaying(@Nonnull final Member member) {
