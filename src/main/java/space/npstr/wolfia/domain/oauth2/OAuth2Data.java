@@ -20,7 +20,7 @@ package space.npstr.wolfia.domain.oauth2;
 import space.npstr.wolfia.db.type.OAuth2Scope;
 
 import java.beans.ConstructorProperties;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -29,12 +29,12 @@ public class OAuth2Data {
 
     private final long userId;
     private final String accessToken;
-    private final OffsetDateTime expires;
+    private final Instant expires;
     private final String refreshToken;
     private final Set<OAuth2Scope> scopes;
 
     @ConstructorProperties({"userId", "accessToken", "expires", "refreshToken", "scopes"})
-    public OAuth2Data(long userId, String accessToken, OffsetDateTime expires, String refreshToken, Set<OAuth2Scope> scopes) {
+    public OAuth2Data(long userId, String accessToken, Instant expires, String refreshToken, Set<OAuth2Scope> scopes) {
         this.userId = userId;
         this.accessToken = accessToken;
         this.expires = expires;
@@ -54,7 +54,7 @@ public class OAuth2Data {
         return accessToken;
     }
 
-    public OffsetDateTime expires() {
+    public Instant expires() {
         return expires;
     }
 

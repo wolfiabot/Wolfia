@@ -267,6 +267,17 @@ project(':database-codegen') {
                             includeExpression = '.*'
                             includeTypes = 'hstore'
                         }
+                        forcedType {
+                            userType = 'java.time.Instant'
+                            converter = '''
+                                org.jooq.Converter.ofNullable(
+                                java.time.OffsetDateTime.class,
+                                java.time.Instant.class,
+                                o -> o.toInstant(),
+                                i -> i.atOffset(java.time.ZoneOffset.UTC))
+                             '''
+                            includeTypes = 'timestamp\\ with\\ time\\ zone'
+                        }
                     }
                 }
                 target {

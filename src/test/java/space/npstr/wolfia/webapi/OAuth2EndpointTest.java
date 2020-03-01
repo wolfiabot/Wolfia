@@ -30,9 +30,9 @@ import space.npstr.wolfia.domain.oauth2.DiscordRequestFailedException;
 import space.npstr.wolfia.domain.oauth2.ImmutableAccessTokenResponse;
 import space.npstr.wolfia.domain.oauth2.ImmutableAuthState;
 
-import java.time.OffsetDateTime;
 import java.util.EnumSet;
 
+import static java.time.OffsetDateTime.now;
 import static java.util.concurrent.CompletableFuture.completedStage;
 import static java.util.concurrent.CompletableFuture.failedStage;
 import static org.hamcrest.Matchers.containsString;
@@ -195,7 +195,7 @@ class OAuth2EndpointTest extends ApplicationTest {
     private AccessTokenResponse accessTokenResponse() {
         return ImmutableAccessTokenResponse.builder()
                 .accessToken(ACCESS_TOKEN)
-                .expires(OffsetDateTime.now().plusMonths(1))
+                .expires(now().plusMonths(1).toInstant())
                 .refreshToken(ACCESS_TOKEN)
                 .addAllScopes(EnumSet.allOf(OAuth2Scope.class))
                 .build();

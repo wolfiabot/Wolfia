@@ -23,7 +23,7 @@ import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.type.OAuth2Scope;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -48,7 +48,7 @@ public class OAuth2Repository {
     }
 
     public CompletionStage<List<OAuth2Data>> findAllExpiringIn(Duration duration) {
-        OffsetDateTime expiresOn = OffsetDateTime.now().plusSeconds(duration.toSeconds());
+        Instant expiresOn = Instant.now().plusSeconds(duration.toSeconds());
         return this.wrapper.jooq(dsl -> dsl
                 .selectFrom(OAUTH2)
                 .where(OAUTH2.EXPIRES.lessThan(expiresOn))

@@ -19,7 +19,7 @@ package space.npstr.wolfia.domain.oauth2;
 
 import space.npstr.wolfia.db.type.OAuth2Scope;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Set;
 
 import static org.immutables.value.Value.Immutable;
@@ -31,7 +31,7 @@ public interface AccessTokenResponse {
 
     String accessToken();
 
-    OffsetDateTime expires();
+    Instant expires();
 
     String refreshToken();
 

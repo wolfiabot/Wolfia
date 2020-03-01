@@ -24,7 +24,7 @@ import javax.annotation.CheckReturnValue;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 
-import static java.time.OffsetDateTime.now;
+import static java.time.Instant.now;
 
 @Service
 public class OAuth2Service {

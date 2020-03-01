@@ -22,11 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.db.type.OAuth2Scope;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static java.time.OffsetDateTime.now;
 import static java.util.concurrent.CompletableFuture.completedStage;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +45,7 @@ class OAuth2ServiceTest extends ApplicationTest {
     void whenAcceptCode_requestFromDiscordAndSave() {
         long userId = uniqueLong();
         String accessToken = "foo";
-        OffsetDateTime expires = OffsetDateTime.now().plusDays(14);
+        Instant expires = now().plusDays(14).toInstant();
         String refreshToken = "bar";
         Set<OAuth2Scope> scopes = EnumSet.allOf(OAuth2Scope.class);
         ImmutableAccessTokenResponse codeResponse = ImmutableAccessTokenResponse.builder()
@@ -79,7 +80,7 @@ class OAuth2ServiceTest extends ApplicationTest {
     void givenAccessTokenExists_whenGetAccessTokenForScope_returnAccessToken() {
         long userId = uniqueLong();
         String accessToken = "foo";
-        OAuth2Data validOAuth2Data = new OAuth2Data(userId, accessToken, OffsetDateTime.now().plusDays(14),
+        OAuth2Data validOAuth2Data = new OAuth2Data(userId, accessToken, now().plusDays(14).toInstant(),
                 "bar", EnumSet.allOf(OAuth2Scope.class));
         this.repository.save(validOAuth2Data).toCompletableFuture().join();
 
@@ -92,7 +93,7 @@ class OAuth2ServiceTest extends ApplicationTest {
     void givenAccessTokenExistsWithWrongScope_whenGetAccessTokenForScope_returnEmpty() {
         long userId = uniqueLong();
         String accessToken = "foo";
-        OAuth2Data validOAuth2Data = new OAuth2Data(userId, accessToken, OffsetDateTime.now().plusDays(14),
+        OAuth2Data validOAuth2Data = new OAuth2Data(userId, accessToken, now().plusDays(14).toInstant(),
                 "bar", EnumSet.of(OAuth2Scope.IDENTIFY));
         this.repository.save(validOAuth2Data).toCompletableFuture().join();
 
@@ -105,7 +106,7 @@ class OAuth2ServiceTest extends ApplicationTest {
     void givenAccessTokenExistsOutdated_whenGetAccessTokenForScope_returnEmpty() {
         long userId = uniqueLong();
         String accessToken = "foo";
-        OAuth2Data validOAuth2Data = new OAuth2Data(userId, accessToken, OffsetDateTime.now().minusDays(1),
+        OAuth2Data validOAuth2Data = new OAuth2Data(userId, accessToken, now().minusDays(1).toInstant(),
                 "bar", EnumSet.allOf(OAuth2Scope.class));
         this.repository.save(validOAuth2Data).toCompletableFuture().join();
 

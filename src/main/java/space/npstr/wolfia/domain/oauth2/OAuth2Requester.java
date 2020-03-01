@@ -38,7 +38,7 @@ import space.npstr.wolfia.webapi.OAuth2Endpoint;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
 import java.io.IOException;
-import java.time.OffsetDateTime;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -182,7 +182,7 @@ public class OAuth2Requester {
         String accessToken = json.getString("access_token");
         String refreshToken = json.getString("refresh_token");
         int expiresInSeconds = json.getInt("expires_in");
-        OffsetDateTime expires = OffsetDateTime.now().plusSeconds(expiresInSeconds);
+        Instant expires = Instant.now().plusSeconds(expiresInSeconds);
         String scope = json.getString("scope");
         Set<OAuth2Scope> scopes = Arrays.stream(scope.split(SCOPE_DELIMITER))
                 .map(s -> {
