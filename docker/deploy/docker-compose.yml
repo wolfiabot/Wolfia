@@ -163,7 +163,7 @@ services:
     expose:
       - 80
     labels:
-      - "traefik.docker.network=traefik"
+      - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.port=80"
       - "traefik.http.routers.wolfia-redirect-ideas.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/ideas`)"
