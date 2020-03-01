@@ -18,6 +18,8 @@
 package space.npstr.wolfia;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.config.ShardManagerFactory;
 import space.npstr.wolfia.db.AsyncDbWrapper;
@@ -28,7 +30,6 @@ import space.npstr.wolfia.system.redis.Redis;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 
-import javax.annotation.PreDestroy;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -40,41 +41,43 @@ import java.util.concurrent.TimeoutException;
  * Created by napster on 26.09.18.
  */
 @Component
-public class ShutdownHandler {
+public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> {
 
     public static final int EXIT_CODE_RESTART = 2;
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ShutdownHandler.class);
     private static final Thread DUMMY_HOOK = new Thread("dummy-hook");
+    private final ExceptionLoggingExecutor executor;
+    private final Database database;
+    private final AsyncDbWrapper dbWrapper;
+    private final ShardManagerFactory shardManagerFactory;
+    private final GameRegistry gameRegistry;
+    private final Redis redis;
+    private final ScheduledExecutorService jdaThreadPool;
 
-    private volatile boolean shutdownHookAdded;
-    private volatile boolean shutdownHookExecuted = false;
+    private boolean shuttingDown = false;
 
     public ShutdownHandler(ExceptionLoggingExecutor executor, Database database, AsyncDbWrapper dbWrapper,
-                           ShardManagerFactory shardManagerFactory, ScheduledExecutorService jdaThreadPool,
-                           GameRegistry gameRegistry, Redis redis) {
-
-        this.shutdownHookAdded = false;
-        Thread shutdownHook = new Thread(() -> {
-            try {
-                shutdown(executor, gameRegistry, redis, jdaThreadPool, shardManagerFactory, database, dbWrapper);
-            } catch (Exception e) {
-                log.error("Uncaught exception in shutdown hook", e);
-            } finally {
-                this.shutdownHookExecuted = true;
-            }
-        }, "shutdown-hook");
-
-        Runtime.getRuntime().addShutdownHook(shutdownHook);
-        this.shutdownHookAdded = true;
+                           ShardManagerFactory shardManagerFactory, GameRegistry gameRegistry, Redis redis,
+                           @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool) {
+        this.executor = executor;
+        this.database = database;
+        this.dbWrapper = dbWrapper;
+        this.shardManagerFactory = shardManagerFactory;
+        this.gameRegistry = gameRegistry;
+        this.redis = redis;
+        this.jdaThreadPool = jdaThreadPool;
     }
 
-    private void shutdown(ExceptionLoggingExecutor executor, GameRegistry gameRegistry, Redis redis,
-                          @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool,
-                          ShardManagerFactory shardManagerFactory, Database database, AsyncDbWrapper dbWrapper) {
+    @Override
+    public void onApplicationEvent(ContextClosedEvent event) {
+        shutdown();
+    }
 
+    private void shutdown() {
+        this.shuttingDown = true;
         log.info("Shutdown hook triggered! {} games still ongoing.", gameRegistry.getRunningGamesCount());
-        Future waitForGamesToEnd = executor.submit(() -> {
+        Future<?> waitForGamesToEnd = executor.submit(() -> {
             while (gameRegistry.getRunningGamesCount() > 0) {
                 log.info("Waiting on {} games to finish.", gameRegistry.getRunningGamesCount());
                 try {
@@ -147,35 +150,13 @@ public class ShutdownHandler {
         redis.shutdown();
     }
 
-    @PreDestroy
-    public void waitOnShutdownHook() {
-
-        // This condition can happen when spring encountered an exception during start up and is tearing itself down,
-        // but did not call System.exit, so out shutdown hooks are not being executed.
-        // If spring is tearing itself down, we always want to exit the JVM, so we call System.exit manually here, so
-        // our shutdown hooks will be run, and the loop below does not hang forever.
-        if (!isShuttingDown()) {
-            System.exit(1);
-        }
-
-        while (this.shutdownHookAdded && !this.shutdownHookExecuted) {
-            log.info("Waiting on shutdown hook to be done...");
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ignored) {
-                Thread.currentThread().interrupt();
-            }
-        }
-
-        log.info("Main shutdown hook done! Proceeding.");
-    }
-
     public void shutdown(final int code) {
         log.info("Exiting with code {}", code);
         System.exit(code);
     }
 
     public boolean isShuttingDown() {
+        if (shuttingDown) return true;
         try {
             Runtime.getRuntime().addShutdownHook(DUMMY_HOOK);
             Runtime.getRuntime().removeShutdownHook(DUMMY_HOOK);
