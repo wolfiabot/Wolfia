@@ -82,7 +82,7 @@ public class GameSetupRender {
         neb.addField("Mode", possibleModes.toString(), true);
 
         //day length
-        neb.addField("Day length", TextchatUtils.formatMillis(setup.getDayLength().toMillis()), true);
+        neb.addField("Day length", setup.getDayLength().toMinutes() + " minutes", true);
 
         //accepted player numbers
         neb.addField("Accepted players",
