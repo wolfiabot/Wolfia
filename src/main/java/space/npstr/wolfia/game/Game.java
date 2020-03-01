@@ -539,7 +539,7 @@ public abstract class Game {
         }
         final Guild g = channel.getGuild();
         final List<Permission> missingPermissions = new ArrayList<>();
-        final List<Future> toComplete = new ArrayList<>();
+        final List<Future<?>> toComplete = new ArrayList<>();
 
         //reset permission override for the players
         try {
@@ -572,7 +572,7 @@ public abstract class Game {
         }
 
         if (complete.length > 0 && complete[0]) {
-            for (final Future f : toComplete) {
+            for (final Future<?> f : toComplete) {
                 try {
                     f.get();
                 } catch (final InterruptedException ignored) {
@@ -740,7 +740,7 @@ public abstract class Game {
         // TODO tell player if they have no valid token
     }
 
-    protected Future scheduleIfGameStillRuns(Runnable runnable, Duration delay) {
+    protected Future<?> scheduleIfGameStillRuns(Runnable runnable, Duration delay) {
         return this.executor.schedule(() -> {
             if (running) {
                 runnable.run();
