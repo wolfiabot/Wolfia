@@ -17,12 +17,11 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-
-import javax.annotation.Nonnull;
 
 @Command
 public class AuthCommand implements BaseCommand, PublicCommand {
@@ -54,9 +53,10 @@ public class AuthCommand implements BaseCommand, PublicCommand {
                 .build();
 
         String state = this.stateCache.generateStateParam(authState);
-        String response = "Click here to auth with Wolfia: " + this.requester.getAuthorizationUrl(state);
+        String privateMessage = "Click the following link to connect with Wolfia. This will allow me to automatically "
+                + "add you to wolf chat or global games.\n" + this.requester.getAuthorizationUrl(state);
 
-        context.replyPrivate(response, __ -> context.replyWithMention("check your direct messages!"),
+        context.replyPrivate(privateMessage, __ -> context.replyWithMention("check your direct messages!"),
                 t -> context.replyWithMention("I cannot send you a private message, please unblock me and/or adjust your discord privacy settings."));
         return true;
     }
