@@ -57,10 +57,10 @@ Uptime over last 7 days:
 Command    | What it does                                                 | Example usage / aliases
 ---------- | ------------------------------------------------------------ | -------------
 `w.in`     | sign up for a game                                           | `w.in`
-`w.out`    | drop from the sign up list; moderators can out other players | `w.out` `w.out @player`
+`w.out`    | drop from the sign up list; moderators can out other players | `w.out` `w.out @player`
 `w.setup`  | set up the game in the current channel                       | `w.setup daylength 5` `w.setup game mafia` `w.setup mode classic`
 `w.start`  | start a game                                                 | `w.start`
-`w.rolepm` | ask the bot to resend you your rolepm for the ongoing game   | `w.rpm`
+`w.rolepm` | ask the bot to resend you your rolepm for the ongoing game   | `w.rpm`
 `w.status` | show the current status of an ongoing game or sign ups       | `w.st`
 
 
@@ -68,13 +68,13 @@ Command    | What it does                                                 | Exam
 
 Command             | What it does                                        | Example usage / aliases
 ------------------- | --------------------------------------------------- | -------------
-`w.check`           | check a players alignment                           | `w.check 6`
-`w.shoot`           | shoot another player                                | `w.s @player`
+`w.check`           | check a players alignment                           | `w.check 6`
+`w.shoot`           | shoot another player                                | `w.s @player`
 `w.unvote`          | unvote                                              | `w.u`
-`w.vote`            | vote a player for lynch                             | `w.v @player`
+`w.vote`            | vote a player for lynch                             | `w.v @player`
 `w.votecount`       | post the current votecount                          | `w.vc`
-`w.nightkill`       | vote a player for nightkill (in mafia chat only)    | `w.nk @player`
-`w.hohoho`          | give a player a present (xmas mode only)            | `w.ho 5`
+`w.nightkill`       | vote a player for nightkill (in mafia chat only)    | `w.nk @player`
+`w.hohoho`          | give a player a present (xmas mode only)            | `w.ho 5`
 `w.items`           | list the items that you own (xmas mode only)        | `w.items`
 `w.openpresent`     | open a present that you received (xmas mode only)   | `w.op`
 
@@ -83,7 +83,7 @@ Command             | What it does                                        | Exam
 
 Command             | What it does                                        | Example usage / aliases
 ------------------- | --------------------------------------------------- | -------------
-`w.channelsettings` | set up settings for this channel                    | `w.cs accessrole Mafiaplayer` `w.channelsettings tagcooldown 10` `w.cs auto-out on`
+`w.channelsettings` | set up settings for this channel                    | `w.cs accessrole Mafiaplayer` `w.channelsettings tagcooldown 10` `w.cs auto-out on`
 
 ### Statistics
 
