@@ -18,6 +18,8 @@
 package space.npstr.wolfia.commands;
 
 import io.prometheus.client.Summary;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -37,9 +39,6 @@ import space.npstr.wolfia.system.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import javax.annotation.Nonnull;
-import java.util.concurrent.TimeUnit;
 
 import static io.prometheus.client.Summary.Timer;
 
@@ -155,8 +154,9 @@ public class CommandHandler {
                     } catch (final Exception ex) {
                         log.error("Exception during exception handling of command creating an invite", ex);
                     }
+                    String guild = ev.isFromGuild() ? ev.getGuild().toString() : "not a guild";
                     log.error("Exception `{}` while handling a command in guild {}, channel {}, user {}, invite {}",
-                            t.getMessage(), ev.getGuild(), ev.getChannel().getIdLong(),
+                            t.getMessage(), guild, ev.getChannel().getIdLong(),
                             ev.getAuthor().getIdLong(), inviteLink, t);
                     t = t.getCause();
                 }
@@ -169,6 +169,7 @@ public class CommandHandler {
                                 ev.getAuthor().getAsMention(), context.msg.getContentRaw(), WolfiaConfig.DEFAULT_PREFIX + InviteCommand.TRIGGER));
             } catch (final Exception ex) {
                 log.error("Exception during exception handling of command", ex);
+                log.error("Original exception", e);
             }
         }
     }
