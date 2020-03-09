@@ -17,6 +17,12 @@
 
 package space.npstr.wolfia.config;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -43,13 +49,6 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.webapi.Authorization;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 @Configuration
 public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
 
@@ -64,6 +63,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
             "/api/test/**",
             "/index.html",
             "/static/**",
+            "/"
     };
 
     @Override

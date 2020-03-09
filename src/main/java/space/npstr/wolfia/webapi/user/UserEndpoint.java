@@ -17,7 +17,10 @@
 
 package space.npstr.wolfia.webapi.user;
 
-import org.springframework.http.HttpHeaders;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -27,12 +30,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URI;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping("/api/user")
 public class UserEndpoint {
@@ -40,9 +37,7 @@ public class UserEndpoint {
     @GetMapping
     public ResponseEntity<SelfUser> getSelf(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User)) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setLocation(URI.create("/login"));
-            return new ResponseEntity<>(null, headers, HttpStatus.TEMPORARY_REDIRECT);
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         OAuth2User principal = (OAuth2User) authentication.getPrincipal();
 

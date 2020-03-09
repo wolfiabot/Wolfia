@@ -118,6 +118,7 @@
 				>
 			</li>
 		</ul>
+		<div class="button is-large" v-on:click="logout">Logout</div>
 	</div>
 </template>
 
@@ -127,6 +128,12 @@ export default {
 	props: {
 		msg: String,
 		user: Object
+	},
+	methods: {
+		async logout() {
+			await fetch("/api/login", { method: "DELETE" });
+			this.$store.commit("logOut");
+		}
 	}
 };
 </script>

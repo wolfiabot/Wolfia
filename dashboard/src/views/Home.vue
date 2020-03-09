@@ -1,47 +1,51 @@
 <template>
 	<div class="home">
-		<img v-if="loaded" alt="User logo" :src="avatarUrl" />
-		<img v-else alt="Vue logo" src="../assets/logo.png" />
-		<HelloWorld msg="Welcome to Your Vue.js App" :user="user" />
+		<img v-if="isUserLoaded" alt="User logo" :src="avatarUrl" />
+		<HelloWorld
+			v-if="isUserLoaded"
+			msg="Welcome to Your Vue.js App"
+			:user="getUser"
+		/>
+		<LogIn v-else />
 	</div>
 </template>
 
 <script>
-// @ is an alias to /src
 import HelloWorld from "@/components/HelloWorld.vue";
+import LogIn from "@/components/LogIn";
 
 export default {
 	name: "home",
 	components: {
-		HelloWorld
-	},
-	data() {
-		return {
-			loaded: false,
-			user: {
-				discordId: 42,
-				name: "mysterious person",
-				avatarId: 42
-			}
-		};
+		HelloWorld,
+		LogIn
 	},
 
 	mounted() {
-		this.getUser();
+		this.loadUser();
 	},
 
 	computed: {
+		isUserLoaded() {
+			return this.$store.state.userLoaded;
+		},
+		getUser() {
+			return this.$store.state.user;
+		},
 		avatarUrl() {
-			const ext = this.user.avatarId.startsWith("a_") ? "gif" : "png";
-			return `https://cdn.discordapp.com/avatars/${this.user.discordId}/${this.user.avatarId}.${ext}`;
+			let user = this.$store.state.user;
+			const ext = user.avatarId.startsWith("a_") ? "gif" : "png";
+			return `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatarId}.${ext}`;
 		}
 	},
 
 	methods: {
-		async getUser() {
+		async loadUser() {
 			const response = await fetch("/api/user");
-			this.user = await response.json();
-			this.loaded = true;
+			if (response.status === 200) {
+				let user = await response.json();
+				this.$store.commit("logIn", user);
+			}
 		}
 	}
 };
