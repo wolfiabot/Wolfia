@@ -9,7 +9,6 @@ buildscript {
     apply from: 'gradle/versions.gradle'
     repositories {
         gradlePluginPortal()
-        mavenCentral()
     }
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
@@ -65,10 +64,15 @@ allprojects {
     sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
 
     repositories {
-        jcenter()                               // JDA, maybe others
-        mavenCentral()                          // everything else
-        maven { url 'https://jitpack.io' }      //for getting builds from github
-    }
+		mavenCentral()
+		jcenter {
+			content { includeModule("net.dv8tion", "JDA") }
+		}
+		maven {
+			url 'https://jitpack.io'
+			content { includeGroup("space.npstr") }
+		}
+	}
 
     dependencyUpdates {
         checkConstraints = true
