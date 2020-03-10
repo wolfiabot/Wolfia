@@ -18,6 +18,9 @@
 package space.npstr.wolfia.commands;
 
 
+import java.util.Optional;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -25,10 +28,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Created by napster on 10.09.17.
@@ -60,14 +59,12 @@ public interface Context {
     @CheckReturnValue
     JDA getJda();
 
-    @Nullable
     @CheckReturnValue
-    Guild getGuild();
+    Optional<Guild> getGuild();
 
     /**
      * @return Member entity of the invoker
      */
-    @Nullable
     @CheckReturnValue
-    Member getMember();
+    Optional<Member> getMember();
 }

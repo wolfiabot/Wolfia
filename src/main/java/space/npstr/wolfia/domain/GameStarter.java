@@ -17,6 +17,9 @@
 
 package space.npstr.wolfia.domain;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Set;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
@@ -39,10 +42,7 @@ import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import static java.util.Objects.requireNonNull;
 
 /**
  * This class is responsible for loading the game setup and launching a new game
@@ -104,7 +104,7 @@ public class GameStarter {
             throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
         }
 
-        ShardManager shardManager = Objects.requireNonNull(context.getJda().getShardManager());
+        ShardManager shardManager = requireNonNull(context.getJda().getShardManager());
         boolean autoOut = this.channelSettingsService.channel(channel.getIdLong()).getOrDefault().isAutoOut();
         if (autoOut) {
             for (long userId : setup.getInnedUsers()) {

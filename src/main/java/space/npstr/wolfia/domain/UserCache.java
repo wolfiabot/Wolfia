@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.domain;
 
+import java.util.Optional;
+import javax.annotation.CheckReturnValue;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -25,10 +27,6 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.common.Exceptions;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nullable;
-import java.util.Optional;
 
 /**
  * Not a real cache but that's fine.
@@ -76,11 +74,11 @@ public class UserCache {
         }
 
         @CheckReturnValue
-        public String getEffectiveName(@Nullable Guild guild) {
-            if (guild == null) {
+        public String getEffectiveName(Optional<Guild> guild) {
+            if (guild.isEmpty()) {
                 return getName();
             }
-            return getEffectiveName(guild.getIdLong());
+            return getEffectiveName(guild.get().getIdLong());
         }
 
         @CheckReturnValue

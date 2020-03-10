@@ -17,7 +17,12 @@
 
 package space.npstr.wolfia.domain.setup;
 
+import java.time.Duration;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -28,9 +33,7 @@ import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-import javax.annotation.Nonnull;
-import java.time.Duration;
-import java.util.concurrent.atomic.AtomicBoolean;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by napster on 12.05.17.
@@ -83,7 +86,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             if (allowedToEditSetup(context)) {
                 setupAction.reset();
                 context.replyWithMention("game setup of this channel has been reset.");
-                GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().getShardManager());
+                GameSetup setup = setupAction.cleanUpInnedPlayers(requireNonNull(context.getJda().getShardManager()));
                 context.reply(this.render.render(setup, context));
                 return true;
             } else {
@@ -171,13 +174,17 @@ public class SetupCommand implements BaseCommand, PublicCommand {
             return false;//feedback has been given
         }
         //show the status quo
-        GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().getShardManager());
+        GameSetup setup = setupAction.cleanUpInnedPlayers(requireNonNull(context.getJda().getShardManager()));
         context.reply(this.render.render(setup, context));
         return true;
     }
 
     private boolean allowedToEditSetup(GuildCommandContext context) {
-        return context.getMember().hasPermission(context.getTextChannel(), Permission.MESSAGE_MANAGE)
+        Optional<Member> member = context.getMember();
+        if (member.isEmpty()) {
+            return false;
+        }
+        return member.get().hasPermission(context.getTextChannel(), Permission.MESSAGE_MANAGE)
                 || context.isOwner();
     }
 }

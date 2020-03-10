@@ -17,11 +17,11 @@
 
 package space.npstr.wolfia.commands;
 
+import java.util.Optional;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
-
-import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 09.12.17.
@@ -40,16 +40,14 @@ public class GuildCommandContext extends CommandContext {
     public final TextChannel textChannel;
 
 
-    @Nonnull
     @Override
-    public Guild getGuild() {
-        return this.guild;
+    public Optional<Guild> getGuild() {
+        return Optional.of(this.guild);
     }
 
-    @Nonnull
     @Override
-    public Member getMember() {
-        return this.member;
+    public Optional<Member> getMember() {
+        return Optional.of(this.member);
     }
 
     @Nonnull

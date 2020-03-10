@@ -17,6 +17,21 @@
 
 package space.npstr.wolfia.game.mafia;
 
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -61,22 +76,6 @@ import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import javax.annotation.Nonnull;
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static java.util.Objects.requireNonNull;
 
@@ -254,6 +253,7 @@ public class Mafia extends Game {
         }
 
         //we can compare classes with == as long as we are using the same classloader (which we are)
+        Optional<Guild> guild = context.getGuild();
         if (context.command instanceof VoteCommand) {
             if (context.channel.getIdLong() != this.channelId) {
                 context.replyWithMention("you can issue that command only in the main game channel.");
@@ -269,7 +269,7 @@ public class Mafia extends Game {
                 return false; //ignore vote commands not in game chat
             }
 
-            if (context.getGuild() != null && context.getGuild().getIdLong() == this.wolfChat.getGuildId()) {
+            if (guild.isPresent() && guild.get().getIdLong() == this.wolfChat.getGuildId()) {
                 return nkUnvote(invoker, context);
             }
 
@@ -345,7 +345,7 @@ public class Mafia extends Game {
         } else if (context.command instanceof VoteCountCommand) {
 
             //wolves asked for one, give them a votecount of their nk votes
-            if (this.phase == Phase.NIGHT && context.getGuild() != null && context.getGuild().getIdLong() == this.wolfChat.getGuildId()) {
+            if (this.phase == Phase.NIGHT && guild.isPresent() && guild.get().getIdLong() == this.wolfChat.getGuildId()) {
                 context.reply(this.nightKillVotingBuilder.getEmbed(new HashMap<>(this.nightkillVotes)).build());
                 return true;
             }

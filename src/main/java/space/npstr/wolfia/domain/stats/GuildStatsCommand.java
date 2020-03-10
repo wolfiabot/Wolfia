@@ -17,14 +17,13 @@
 
 package space.npstr.wolfia.domain.stats;
 
+import java.util.Optional;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.Guild;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
-
-import javax.annotation.Nonnull;
-import java.util.Optional;
 
 /**
  * Created by napster on 10.06.17.
@@ -71,12 +70,12 @@ public class GuildStatsCommand implements BaseCommand, PublicCommand {
         }
 
         if (guildId.isEmpty()) {
-            final Guild guild = context.getGuild();
-            if (guild == null) {
+            Optional<Guild> guild = context.getGuild();
+            if (guild.isEmpty()) {
                 context.help();
                 return false;
             }
-            guildId = Optional.of(guild.getIdLong());
+            guildId = guild.map(Guild::getIdLong);
         }
 
         GuildStats guildStats = this.statsProvider.getGuildStats(guildId.get());

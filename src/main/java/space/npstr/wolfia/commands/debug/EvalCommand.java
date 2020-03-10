@@ -17,6 +17,15 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import java.util.Optional;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import javax.annotation.Nonnull;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import net.dv8tion.jda.api.entities.Guild;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import space.npstr.wolfia.Launcher;
@@ -27,14 +36,6 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
-
-import javax.annotation.Nonnull;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by napster on 27.05.17.
@@ -148,9 +149,10 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
         this.engine.put("channel", context.channel);
         this.engine.put("author", context.invoker);
         this.engine.put("bot", context.invoker.getJDA().getSelfUser());
-        this.engine.put("member", context.getGuild() != null ? context.getGuild().getSelfMember() : null);
+        Optional<Guild> guild = context.getGuild();
+        this.engine.put("member", guild.map(Guild::getSelfMember).orElse(null));
         this.engine.put("message", context.msg);
-        this.engine.put("guild", context.getGuild());
+        this.engine.put("guild", guild.orElse(null));
         this.engine.put("game", this.gameRegistry.get(context.channel.getIdLong()));
         this.engine.put("games", this.gameRegistry);
         this.engine.put("db", Launcher.getBotContext().getDatabase());

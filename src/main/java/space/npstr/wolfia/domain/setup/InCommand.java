@@ -17,6 +17,10 @@
 
 package space.npstr.wolfia.domain.setup;
 
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -27,10 +31,7 @@ import space.npstr.wolfia.domain.ban.BanService;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.room.PrivateRoomService;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by npstr on 23.08.2016
@@ -100,7 +101,7 @@ public class InCommand implements BaseCommand, PublicCommand {
                     .collect(Collectors.toSet());
             setupAction.inUsers(userIds);
 
-            GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().getShardManager());
+            GameSetup setup = setupAction.cleanUpInnedPlayers(requireNonNull(context.getJda().getShardManager()));
             context.reply(this.render.render(setup, context));
             return true;
         }
@@ -115,7 +116,7 @@ public class InCommand implements BaseCommand, PublicCommand {
             return false;
         }
         setupAction.inUser(context.invoker.getIdLong());
-        GameSetup setup = setupAction.cleanUpInnedPlayers(context.getJda().getShardManager());
+        GameSetup setup = setupAction.cleanUpInnedPlayers(requireNonNull(context.getJda().getShardManager()));
         context.reply(this.render.render(setup, context));
         return true;
     }

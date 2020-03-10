@@ -18,6 +18,12 @@
 package space.npstr.wolfia.commands;
 
 import io.prometheus.client.Collector;
+import java.awt.Color;
+import java.util.Optional;
+import java.util.function.Consumer;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -32,12 +38,6 @@ import space.npstr.wolfia.App;
 import space.npstr.wolfia.system.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.awt.*;
-import java.util.function.Consumer;
 
 /**
  * Created by napster on 16.11.17.
@@ -102,17 +102,15 @@ public class MessageContext implements Context {
     }
 
     @Override
-    @Nullable
     @CheckReturnValue
-    public Guild getGuild() {
-        return this.event.getGuild();
+    public Optional<Guild> getGuild() {
+        return this.event.isFromGuild() ? Optional.of(this.event.getGuild()) : Optional.empty();
     }
 
     @Override
-    @Nullable
     @CheckReturnValue
-    public Member getMember() {
-        return this.event.getMember();
+    public Optional<Member> getMember() {
+        return Optional.ofNullable(this.event.getMember());
     }
 
     /**
@@ -146,9 +144,9 @@ public class MessageContext implements Context {
     }
 
     public void replyWithName(@Nonnull final String message, @Nullable final Consumer<Message> onSuccess) {
-        final Member member = getMember();
-        if (member != null) {
-            reply(TextchatUtils.prefaceWithName(member, message, true), onSuccess);
+        final Optional<Member> member = getMember();
+        if (member.isPresent()) {
+            reply(TextchatUtils.prefaceWithName(member.get(), message, true), onSuccess);
         } else {
             reply(TextchatUtils.prefaceWithName(invoker, message, true), onSuccess);
         }

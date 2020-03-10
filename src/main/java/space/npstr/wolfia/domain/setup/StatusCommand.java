@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.domain.setup;
 
+import java.util.List;
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -27,8 +29,7 @@ import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
 
-import javax.annotation.Nonnull;
-import java.util.List;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Created by npstr on 24.08.2016
@@ -89,7 +90,7 @@ public class StatusCommand implements BaseCommand, PublicCommand {
                 if (game == null) {
                     context.getTextChannel().getIdLong();
                     GameSetup setup = this.gameSetupService.channel(context.getTextChannel().getIdLong())
-                            .cleanUpInnedPlayers(context.getJda().getShardManager());
+                            .cleanUpInnedPlayers(requireNonNull(context.getJda().getShardManager()));
                     context.reply(this.render.render(setup, context));
                     return true;
                 }
