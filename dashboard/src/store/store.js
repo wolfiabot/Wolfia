@@ -36,7 +36,16 @@ export default new Vuex.Store({
 			}
 		},
 		async [LOG_OUT](context) {
-			await fetch("/api/login", { method: "DELETE" });
+			let csrfToken = document.cookie.replace(
+				/(?:(?:^|.*;\s*)XSRF-TOKEN\s*=\s*([^;]*).*$)|^.*$/,
+				"$1"
+			);
+			await fetch("/api/login", {
+				method: "DELETE",
+				headers: {
+					"X-XSRF-TOKEN": csrfToken
+				}
+			});
 			context.commit(UNLOAD_USER);
 		}
 	},

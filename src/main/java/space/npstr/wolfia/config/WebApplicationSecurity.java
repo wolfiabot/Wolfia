@@ -46,6 +46,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequestEnti
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.webapi.Authorization;
 
@@ -74,6 +75,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
 
         http
                 .csrf().ignoringAntMatchers(MACHINE_ENDPOINTS)
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
                 .authorizeRequests()
                 .antMatchers(noAuthEndpoints).permitAll()
