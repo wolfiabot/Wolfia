@@ -123,6 +123,9 @@
 </template>
 
 <script>
+import { LOG_OUT } from "@/store/action-types";
+import { mapActions } from "vuex";
+
 export default {
 	name: "HelloWorld",
 	props: {
@@ -130,10 +133,7 @@ export default {
 		user: Object
 	},
 	methods: {
-		async logout() {
-			await fetch("/api/login", { method: "DELETE" });
-			this.$store.commit("logOut");
-		}
+		...mapActions({ logout: LOG_OUT })
 	}
 };
 </script>

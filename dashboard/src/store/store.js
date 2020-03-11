@@ -1,5 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import { LOAD_USER, UNLOAD_USER } from "@/store/mutation-types";
+import { FETCH_USER, LOG_OUT } from "@/store/action-types";
 
 Vue.use(Vuex);
 
@@ -16,15 +18,27 @@ export default new Vuex.Store({
 		user: defaultUser
 	},
 	mutations: {
-		logIn(state, user) {
-			state.userLoaded = true;
+		[LOAD_USER](state, user) {
 			state.user = user;
+			state.userLoaded = true;
 		},
-		logOut(state) {
+		[UNLOAD_USER](state) {
 			state.userLoaded = false;
 			state.user = defaultUser;
 		}
 	},
-	actions: {},
+	actions: {
+		async [FETCH_USER](context) {
+			const response = await fetch("/api/user");
+			if (response.status === 200) {
+				let user = await response.json();
+				context.commit(LOAD_USER, user);
+			}
+		},
+		async [LOG_OUT](context) {
+			await fetch("/api/login", { method: "DELETE" });
+			context.commit(UNLOAD_USER);
+		}
+	},
 	modules: {}
 });

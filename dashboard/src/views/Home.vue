@@ -1,10 +1,10 @@
 <template>
 	<div class="home">
-		<img v-if="isUserLoaded" alt="User logo" :src="avatarUrl" />
+		<img v-if="userLoaded" alt="User logo" :src="avatarUrl" />
 		<HelloWorld
-			v-if="isUserLoaded"
+			v-if="userLoaded"
 			msg="Welcome to Your Vue.js App"
-			:user="getUser"
+			:user="user"
 		/>
 		<LogIn v-else />
 	</div>
@@ -13,6 +13,8 @@
 <script>
 import HelloWorld from "@/components/HelloWorld.vue";
 import LogIn from "@/components/LogIn";
+import { FETCH_USER } from "@/store/action-types";
+import { mapActions, mapState } from "vuex";
 
 export default {
 	name: "home",
@@ -22,31 +24,23 @@ export default {
 	},
 
 	mounted() {
-		this.loadUser();
+		this.fetchUser();
 	},
 
 	computed: {
-		isUserLoaded() {
-			return this.$store.state.userLoaded;
-		},
-		getUser() {
-			return this.$store.state.user;
-		},
+		...mapState({
+			userLoaded: state => state.userLoaded,
+			user: state => state.user
+		}),
 		avatarUrl() {
-			let user = this.$store.state.user;
+			let user = this.user;
 			const ext = user.avatarId.startsWith("a_") ? "gif" : "png";
 			return `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatarId}.${ext}`;
 		}
 	},
 
 	methods: {
-		async loadUser() {
-			const response = await fetch("/api/user");
-			if (response.status === 200) {
-				let user = await response.json();
-				this.$store.commit("logIn", user);
-			}
-		}
+		...mapActions({ fetchUser: FETCH_USER })
 	}
 };
 </script>
