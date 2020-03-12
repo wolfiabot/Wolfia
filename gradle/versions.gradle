@@ -2,7 +2,7 @@
 ext {
 
 	springBootVersion			= '2.2.4.RELEASE'
-	flywayVersion				= '6.2.4'
+	flywayVersion				= '6.3.0'
 
 	gradleGitVersion			= '2.2.1'
 	grGitVersion				= '4.0.1'

@@ -240,7 +240,7 @@ project(':database-codegen') {
                     .withPropertyName('flywayMigrationsOutput')
         }
         url = "$codegenJdbcUrl"
-        locations = ['filesystem:database-codegen/src/main/resources/db/migrations']
+        locations = ['filesystem:src/main/resources/db/migrations']
         configurations = ['flywayMigration']
     }
 
