@@ -1,6 +1,6 @@
 {
 	"name": "wolfia",
-	"version": "0.42.0",
+	"version": "0.42.0-DEV",
 	"private": true,
 	"scripts": {
 		"serve": "vue-cli-service serve",
