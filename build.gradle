@@ -28,6 +28,7 @@ buildscript {
 
 ext {
     buildNumber = (System.getenv('CI') ? System.getenv('BUILD_NUMBER') : 'DEV')
+    isProd = project.hasProperty('prod')
 }
 
 configure(allprojects.findAll { it.name != 'platform' }) {
@@ -327,7 +328,7 @@ project(':dashboard') {
         nodeVersion = "$theNodeVersion"
         yarnEnabled = true
         yarnVersion = "$theYarnVersion"
-        assembleScript = 'run build'
+        assembleScript = rootProject.ext.isProd ? 'run build' : 'run build --mode development'
         checkScript = 'run lint'
     }
 
