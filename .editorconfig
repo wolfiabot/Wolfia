@@ -551,7 +551,7 @@ ij_json_spaces_within_brackets = false
 ij_json_wrap_long_lines = false
 
 [{Jenkinsfile,*.gradle,*.groovy,*.gant,*.gdsl,*.gy,*.gson}]
-indent_style = tab
+indent_style = space
 ij_groovy_align_group_field_declarations = false
 ij_groovy_align_multiline_array_initializer_expression = false
 ij_groovy_align_multiline_assignment = false
