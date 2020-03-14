@@ -339,6 +339,9 @@ project(':dashboard') {
         inputs.dir('src')
                 .withPropertyName('frontendSources')
                 .withPathSensitivity(PathSensitivity.RELATIVE)
+        inputs.dir('public')
+                .withPropertyName('frontendPublicDir')
+                .withPathSensitivity(PathSensitivity.RELATIVE)
         outputs.dir("$buildDir/dist")
                 .withPropertyName('frontendOutput')
         outputs.cacheIf { true }
