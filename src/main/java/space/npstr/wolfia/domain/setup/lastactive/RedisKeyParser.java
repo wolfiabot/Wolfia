@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RedisKeyParser {
+class RedisKeyParser {
 
     private static final String PREFIX = "user";
     private static final String SUFFIX = "last_active";

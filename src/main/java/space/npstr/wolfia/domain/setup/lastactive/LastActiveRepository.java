@@ -17,13 +17,12 @@
 
 package space.npstr.wolfia.domain.setup.lastactive;
 
-import org.springframework.stereotype.Repository;
-import space.npstr.wolfia.system.redis.Redis;
-
-import javax.annotation.CheckReturnValue;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.concurrent.CompletionStage;
+import javax.annotation.CheckReturnValue;
+import org.springframework.stereotype.Repository;
+import space.npstr.wolfia.system.redis.Redis;
 
 import static io.lettuce.core.SetArgs.Builder.px;
 

@@ -18,14 +18,13 @@
 package space.npstr.wolfia.domain.setup.lastactive;
 
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
+import java.util.Optional;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.system.redis.Redis;
-
-import java.util.Optional;
 
 /**
  * This component listens the keys expiring from {@link ActivityService} and takes action
@@ -62,21 +61,20 @@ public class AutoOuter extends RedisPubSubAdapter<String, String> {
     @Override
     public void message(String channel, String message) {
         if (EXPIRE_CHANNEL.equals(channel)) {
-            this.expired(channel, message);
+            this.expired(message);
         }
     }
 
     @Override
     public void message(String pattern, String channel, String message) {
         if (EXPIRE_CHANNEL.equals(pattern) || EXPIRE_CHANNEL.equals(channel)) {
-            this.expired(channel, message);
+            this.expired(message);
         }
     }
 
-    private void expired(String channel, String key) {
+    private void expired(String key) {
         Optional<Long> parsed = redisKeyParser.fromKey(key);
         if (parsed.isEmpty()) {
-            log.warn("Received unknown key {} on channel {}", key, channel);
             return;
         }
         outUser(parsed.get());
