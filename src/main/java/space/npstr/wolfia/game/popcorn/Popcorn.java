@@ -17,6 +17,17 @@
 
 package space.npstr.wolfia.game.popcorn;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.LongConsumer;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -47,18 +58,6 @@ import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import javax.annotation.Nonnull;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.function.LongConsumer;
 
 import static java.util.Objects.requireNonNull;
 import static space.npstr.wolfia.game.GameInfo.GameMode;
@@ -543,11 +542,10 @@ public class Popcorn extends Game {
             } catch (final IllegalGameStateException ignored) {
                 // ignored
             }
-            final TextChannel baddieChannel = Popcorn.this.fetchBaddieChannel();
-            RestActions.sendMessage(baddieChannel, //provided invite link may be empty
+            RestActions.sendMessage(fetchBaddieChannel(), //provided invite link may be empty
                     String.format("%s%n@here, %s gets the %s! Game about to start/continue, get back to the main chat.%n%s",
                             out, playerName, Emojis.GUN,
-                            TextchatUtils.getOrCreateInviteLinkForChannel(baddieChannel)));
+                            TextchatUtils.getOrCreateInviteLinkForChannel(fetchGameChannel())));
             //give wolves 10 seconds to get back into the chat
             Popcorn.this.scheduleIfGameStillRuns(() -> giveGun(getsGun), Duration.ofSeconds(10));
         }
