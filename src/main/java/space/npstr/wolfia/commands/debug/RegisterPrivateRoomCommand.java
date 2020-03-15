@@ -17,10 +17,12 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import java.io.IOException;
+import java.util.Optional;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -30,12 +32,6 @@ import space.npstr.wolfia.domain.room.PrivateRoom;
 import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.room.PrivateRoomService;
 import space.npstr.wolfia.utils.discord.RestActions;
-
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.util.Optional;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Created by napster on 11.06.17.
@@ -109,8 +105,6 @@ public class RegisterPrivateRoomCommand implements BaseCommand {
         }
 
         ManagedPrivateRoom managedPrivateRoom = this.privateRoomQueue.add(registered.get());
-        ShardManager shardManager = context.getJda().getShardManager();
-        requireNonNull(shardManager).addEventListener(managedPrivateRoom);
         String name = "Wolfia Private Server #" + managedPrivateRoom.getNumber();
         context.guild.getManager().setName(name)
                 .queue(null, RestActions.defaultOnFail());
