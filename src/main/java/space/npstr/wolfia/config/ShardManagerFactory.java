@@ -102,7 +102,7 @@ public class ShardManagerFactory {
                 .addEventListeners(this.discordEventListenerPublisher)
                 .setHttpClientBuilder(this.httpClientBuilder
                         .eventListener(new OkHttpEventCounter("jda")))
-                .setEnabledCacheFlags(EnumSet.noneOf(CacheFlag.class))
+                .setEnabledCacheFlags(EnumSet.of(CacheFlag.MEMBER_OVERRIDES))
                 .setEnableShutdownHook(false)
                 .setRateLimitPool(this.jdaThreadPool, false)
                 .setCallbackPool(this.jdaThreadPool, false)
