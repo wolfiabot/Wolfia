@@ -23,6 +23,8 @@ import javax.servlet.http.HttpSession;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,22 +36,30 @@ import org.springframework.web.bind.annotation.RestController;
  * (and thus annoying to expose in dev environments to the web frontend server started by yarn).
  */
 @RestController
-@RequestMapping("/api/login")
+@RequestMapping(LoginRedirect.ROUTE)
 public class LoginRedirect {
 
     public static final String INIT_DISCORD_LOGIN = "/oauth2/authorization/discord";
+    public static final String ROUTE = "/api/login";
 
     @GetMapping
     public ResponseEntity<Void> login() {
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create(INIT_DISCORD_LOGIN));
+
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication existingAuth = securityContext.getAuthentication();
+        if (existingAuth != null && existingAuth.isAuthenticated() && existingAuth.getAuthorities().contains(Authorization.USER)) {
+            headers.setLocation(URI.create("/"));
+        } else {
+            headers.setLocation(URI.create(INIT_DISCORD_LOGIN));
+        }
         return new ResponseEntity<>(null, headers, HttpStatus.TEMPORARY_REDIRECT);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> logout(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
         SecurityContextHolder.clearContext();
+        HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }

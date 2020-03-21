@@ -17,15 +17,14 @@
 
 package space.npstr.wolfia;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@Profile("test")
+@Profile(SpringProfiles.TEST)
 @Component
 public class BeanCatcher implements BeanPostProcessor {
 

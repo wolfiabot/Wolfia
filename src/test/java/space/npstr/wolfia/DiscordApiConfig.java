@@ -28,7 +28,7 @@ import space.npstr.wolfia.config.ShardManagerFactory;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-@Profile("test")
+@Profile(SpringProfiles.TEST)
 @Configuration
 public class DiscordApiConfig {
 

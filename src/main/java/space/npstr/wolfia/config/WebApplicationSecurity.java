@@ -49,6 +49,7 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.webapi.Authorization;
+import space.npstr.wolfia.webapi.LoginRedirect;
 
 @Configuration
 public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
@@ -62,6 +63,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/oauth2/**",
             "/api/test/**",
+            LoginRedirect.ROUTE,
             "/index.html",
             "/static/**",
             "/"

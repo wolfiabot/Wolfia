@@ -17,16 +17,16 @@
 
 package space.npstr.wolfia.config;
 
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
+import space.npstr.wolfia.SpringProfiles;
 import space.npstr.wolfia.common.Exceptions;
-
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Configuration
 public class DiscordApiConfiguration {
@@ -43,7 +43,7 @@ public class DiscordApiConfiguration {
         return jdaThreadPool;
     }
 
-    @Profile("!test")
+    @Profile(SpringProfiles.NOT_TEST)
     @Bean(destroyMethod = "") //we manage the lifecycle ourselves tyvm, see shutdown hook in the launcher
     public ShardManager shardManager(ShardManagerFactory shardManagerFactory) {
         return shardManagerFactory.shardManager();
