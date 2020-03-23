@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.commands.util;
 
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -31,9 +33,6 @@ import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import javax.annotation.Nonnull;
-import java.util.function.Consumer;
 
 /**
  * Created by npstr on 09.09.2016
@@ -100,7 +99,7 @@ public class HelpCommand implements BaseCommand, PublicCommand {
                             + "\nSay `%s [command]` to show help for a specific command.",
                     WolfiaConfig.DEFAULT_PREFIX + InCommand.TRIGGER, WolfiaConfig.DEFAULT_PREFIX + StartCommand.TRIGGER,
                     WolfiaConfig.DEFAULT_PREFIX + CommandsCommand.TRIGGER,
-                    WolfiaConfig.DEFAULT_PREFIX + CommandsCommand.TRIGGER);
+                    WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER);
             context.replyWithMention(answer);
         };
         final Consumer<Throwable> onFail = t -> {
