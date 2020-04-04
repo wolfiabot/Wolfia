@@ -39,17 +39,16 @@ layout: default
 
 # Wolfia setup
 
-Wolfia is pretty simple to set up.
-- Invite Wolfia to your server.
-- Revoke Wolfia's write permission on any channel that don't want used to play games
-- Set your channel settings: tag cooldown is how often someone can call the tag list, and auto-out will automactally remove inactive players from the inned list.
-- Set your game settings. See below for detail on each game and mode.
+- Invite Wolfia to your server (see big button above).
+- Revoke Wolfia's write permission on channels where games should not be played.
+- Set your channel settings: `tag cooldown` is how often someone can call the tag list, and `auto-out` will automactally remove inactive players from the sign-up list.
+- Set your game settings. See below for details on each game and mode.
 - Start playing!
 
 A few notes:
-- Wolfia automatically mute and unmutes players as necessary, to prevent non-players and dead players from talking during a game.
-- Wolfia also runs a private server just for the Wolves/Mafia. Players receiving one of those roles will also get an invite to that server in their role PM at the start of the game.
-- Access role is for playing on private channels. This only needs to be set if the Wolfia asks you to set it. Otherwise, leave the access role blank.
+- Wolfia automatically mutes and unmutes players as necessary to prevent non-players and dead players from talking during a game.
+- Wolfia also runs private servers just for the Wolves/Mafia. Players receiving one of those roles will also get an invite to such a server in their role PM at the start of the game. You do not need to create any channels for Wolves/Mafia.
+- `Access role` is for playing on private channels. You do not need to configure this unless Wolfia asks you to.
 
 
 * * *
