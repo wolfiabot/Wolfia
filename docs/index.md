@@ -37,16 +37,19 @@ layout: default
 
 * * *
 
-# β version
+# Wolfia setup
 
-Wolfia is currently in **beta** status, which means the following:
-- A small selection of games and modes is supported. More stuff is being worked on.
-- Bugs during games might happen. Please drop by the Wolfia Lounge to help sort these out.
-- Data and commands might change without notice.
-- Output and formatting of messages might look a bit rough.
+- Invite Wolfia to your server (see big button above).
+- Revoke Wolfia's write permission on channels where games should not be played.
+- Set your channel settings: `tag cooldown` is how often someone can call the tag list, and `auto-out` will automactally remove inactive players from the sign-up list.
+- Set your game settings. See below for details on each game and mode.
+- Start playing!
 
-Uptime over last 7 days:  
-[![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m779169786-261e58b3e3675e8e3e5fdac8.svg?style=flat-square)]()
+A few notes:
+- Wolfia automatically mutes and unmutes players as necessary to prevent non-players and dead players from talking during a game.
+- Wolfia also runs private servers just for the Wolves/Mafia. Players receiving one of those roles will also get an invite to such a server in their role PM at the start of the game. You do not need to create any channels for Wolves/Mafia.
+- `Access role` is for playing on private channels. You do not need to configure this unless Wolfia asks you to.
+
 
 * * *
 
@@ -193,6 +196,19 @@ Nevertheless, and also for the control freaks among us, here is a comprehensive 
 <dt>- Create Instant Invite</dt>
 <dd>Adds invites to the channel where the game is running to role pms and private chat servers which makes for a smooth navigation for players during the game.</dd>
 </dl>
+
+* * *
+
+# β version
+
+Wolfia is currently in **beta** status, which means the following:
+- A small selection of games and modes is supported. More stuff is being worked on.
+- Bugs during games might happen. Please drop by the Wolfia Lounge to help sort these out.
+- Data and commands might change without notice.
+- Output and formatting of messages might look a bit rough.
+
+Uptime over last 7 days:  
+[![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m779169786-261e58b3e3675e8e3e5fdac8.svg?style=flat-square)]()
 
 * * *
 
