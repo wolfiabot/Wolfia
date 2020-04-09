@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.config;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
@@ -26,7 +25,6 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -44,6 +42,11 @@ import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_REACTIONS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_TYPING;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.ACTIVITY;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.CLIENT_STATUS;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.EMOTE;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.MEMBER_OVERRIDES;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.VOICE_STATE;
 
 /**
  * We need a factory around the ShardManager bean to proxy its dependencies, so we can have more realistic
@@ -102,7 +105,8 @@ public class ShardManagerFactory {
                 .addEventListeners(this.discordEventListenerPublisher)
                 .setHttpClientBuilder(this.httpClientBuilder
                         .eventListener(new OkHttpEventCounter("jda")))
-                .setEnabledCacheFlags(EnumSet.of(CacheFlag.MEMBER_OVERRIDES))
+                .disableCache(ACTIVITY, VOICE_STATE, EMOTE, CLIENT_STATUS)
+                .enableCache(MEMBER_OVERRIDES)
                 .setEnableShutdownHook(false)
                 .setRateLimitPool(this.jdaThreadPool, false)
                 .setCallbackPool(this.jdaThreadPool, false)

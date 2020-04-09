@@ -16,13 +16,13 @@
 
 package space.npstr.wolfia.utils.discord;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
-
-import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
+import javax.annotation.Nonnull;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 /**
  * Copied over from JDA when it was removed: https://github.com/DV8FromTheWorld/JDA/commit/5a27dc3f0a6e19a5b464c52806862a0f755ab9b5
@@ -52,6 +52,18 @@ public class EmptyRestAction<T> implements AuditableRestAction<T> {
     @Override
     public AuditableRestAction<T> setCheck(BooleanSupplier checks) {
         return this;
+    }
+
+    @Nonnull
+    @Override
+    public AuditableRestAction<T> timeout(long timeout, @Nonnull TimeUnit unit) {
+        return this; //Noop, this cannot timeout as it does not request in the first place.
+    }
+
+    @Nonnull
+    @Override
+    public AuditableRestAction<T> deadline(long timestamp) {
+        return this; //Noop, this cannot timeout as it does not request in the first place.
     }
 
     @Override
