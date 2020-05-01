@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands.util;
 
 
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.Role;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -28,8 +29,6 @@ import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 07.01.18.
@@ -67,13 +66,7 @@ public class RankCommand implements BaseCommand, PublicCommand {
         }
 
         final Role role;
-        if (TextchatUtils.isSimilarLower("Announcements", context.rawArgs)) {
-            role = context.guild.getRoleById(WolfiaGuildListener.ANNOUNCEMENTS_ROLE_ID);
-            if (role == null) {
-                log.warn("Did the Announcements role disappear in the Wolfia Lounge?");
-                return false;
-            }
-        } else if (TextchatUtils.isSimilarLower("AlphaWolves", context.rawArgs)) {
+        if (TextchatUtils.isSimilarLower("AlphaWolves", context.rawArgs)) {
             role = context.guild.getRoleById(WolfiaGuildListener.ALPHAWOLVES_ROLE_ID);
             if (role == null) {
                 log.warn("Did the AlphaWolves role disappear in the Wolfia Lounge?");
@@ -97,7 +90,7 @@ public class RankCommand implements BaseCommand, PublicCommand {
     @Nonnull
     @Override
     public String help() {
-        return invocation() + " AlphaWolves OR Announcements"
+        return invocation() + " AlphaWolves"
                 + "\n#Add or remove special roles of the official Wolfia Lounge for you.";
     }
 }

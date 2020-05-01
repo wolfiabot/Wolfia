@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.events;
 
-import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import org.springframework.context.event.EventListener;
@@ -38,7 +37,6 @@ public class WolfiaGuildListener {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WolfiaGuildListener.class);
 
     public static final long SPAM_CHANNEL_ID = 388705267916734465L; //#spam-and-bot-commands
-    public static final long ANNOUNCEMENTS_ROLE_ID = 331505585344479232L; //@Announcements
     public static final long ALPHAWOLVES_ROLE_ID = 326147400790179840L; //@AlphaWolves
     public static final long GAME_CATEGORY_ID = 361189457266737152L; //game category parent channel id
     public static final long RULES_CHANNEL_ID = 326353722701774848L; //#rules
@@ -60,14 +58,6 @@ public class WolfiaGuildListener {
             RestActions.sendMessage(spam, String.format(WELCOME_PATTERN, event.getMember().getAsMention()));
         } else {
             log.warn("Did the spam channel disappear in the Wolfia Lounge?");
-        }
-
-        //add role announcements
-        final Role announcements = event.getGuild().getRoleById(ANNOUNCEMENTS_ROLE_ID);
-        if (announcements != null) {
-            event.getGuild().addRoleToMember(event.getMember(), announcements).queue();
-        } else {
-            log.warn("Did the Announcements role disappear in the Wolfia Lounge?");
         }
     }
 }
