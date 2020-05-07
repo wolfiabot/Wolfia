@@ -7,7 +7,7 @@ services:
     image: napstr/wolfia-postgres:12
     restart: always
     ports:
-      - 127.0.0.1:5432:5432
+      - 127.0.0.1:5442:5432
     environment:
       - ROLE=wolfia
       - DB=wolfia
@@ -20,6 +20,6 @@ services:
       - --appendonly
       - "yes"
     ports:
-      - 127.0.0.1:6380:6379
+      - 127.0.0.1:6389:6379
     sysctls:
       - net.core.somaxconn=511   # container was spitting out a warning telling us to do this
