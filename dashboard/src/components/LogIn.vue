@@ -18,7 +18,8 @@
 <template>
 	<div>
 		<p>
-			Hey there! Welcome to the Wolfia Bot. To get started, please log in.
+			Hey there! Welcome to the Wolfia Bot Dashboard. To get started,
+			please log in.
 		</p>
 		<a class="button is-large" href="/api/login">
 			Log In With Discord

@@ -1,6 +1,6 @@
 <template>
 	<div class="home">
-		<img v-if="userLoaded" alt="User logo" :src="avatarUrl" />
+		<img v-if="userLoaded" alt="User logo" :src="user.avatarUrl()" />
 		<HelloWorld
 			v-if="userLoaded"
 			msg="Welcome to Your Vue.js App"
@@ -31,12 +31,7 @@ export default {
 		...mapState({
 			userLoaded: state => state.userLoaded,
 			user: state => state.user
-		}),
-		avatarUrl() {
-			let user = this.user;
-			const ext = user.avatarId.startsWith("a_") ? "gif" : "png";
-			return `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatarId}.${ext}`;
-		}
+		})
 	},
 
 	methods: {

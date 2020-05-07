@@ -2,14 +2,11 @@ import Vue from "vue";
 import Vuex from "vuex";
 import { LOAD_USER, UNLOAD_USER } from "@/store/mutation-types";
 import { FETCH_USER, LOG_OUT } from "@/store/action-types";
+import { User } from "@/store/user";
 
 Vue.use(Vuex);
 
-let defaultUser = {
-	discordId: 42,
-	name: "mysterious person",
-	avatarId: 42
-};
+let defaultUser = new User(42, "mysterious person", null, 42);
 
 export default new Vuex.Store({
 	strict: process.env.NODE_ENV !== "production", //see https://vuex.vuejs.org/guide/strict.html
@@ -32,7 +29,15 @@ export default new Vuex.Store({
 			const response = await fetch("/api/user");
 			if (response.status === 200) {
 				let user = await response.json();
-				context.commit(LOAD_USER, user);
+				context.commit(
+					LOAD_USER,
+					new User(
+						user.discordId,
+						user.name,
+						user.avatarId,
+						user.discriminator
+					)
+				);
 			}
 		},
 		async [LOG_OUT](context) {

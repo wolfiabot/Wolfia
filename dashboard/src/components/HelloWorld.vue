@@ -1,6 +1,6 @@
 <template>
 	<div class="hello">
-		<h2>Hello there, {{ user.name }}!</h2>
+		<h2>Hello there, {{ user.name }}#{{ user.discriminator }}!</h2>
 		<h1>{{ msg }}</h1>
 		<p>
 			For a guide and recipes on how to configure / customize this

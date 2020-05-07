@@ -19,6 +19,7 @@ package space.npstr.wolfia.config.development;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -70,8 +71,8 @@ public class FakeAuther implements HandlerInterceptor {
         Map<String, Object> attributes = Map.of(
                 "id", "166604053629894657",
                 "username", "User McUserface",
-                "avatar", "9277c1d6709b89119f122c833f176cac",
-                "discriminator", "0042",
+                "avatar", "",
+                "discriminator", randomDiscrim(),
                 "locale", "en-US",
                 "mfa_enabled", true,
                 "flags", 640,
@@ -95,5 +96,14 @@ public class FakeAuther implements HandlerInterceptor {
 
         log.info("Fake authenticated user");
         return true;
+    }
+
+    private String randomDiscrim() {
+        int randomDiscrim = ThreadLocalRandom.current().nextInt(1, 10000);
+        StringBuilder result = new StringBuilder(Integer.toString(randomDiscrim));
+        while (result.length() < 4) {
+            result.insert(0, "0");
+        }
+        return result.toString();
     }
 }
