@@ -21,7 +21,7 @@
 			Hey there! Welcome to the Wolfia Bot Dashboard. To get started,
 			please log in.
 		</p>
-		<a class="button is-large" href="/api/login">
+		<a class="button is-large is-link is-outlined" href="/api/login">
 			Log In With Discord
 		</a>
 	</div>

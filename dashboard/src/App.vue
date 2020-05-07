@@ -1,9 +1,19 @@
 <template>
-	<div id="app">
-		<div id="nav">
-			<router-link to="/">Home</router-link> |
-			<router-link to="/about">About</router-link>
-		</div>
+	<div id="app" class="has-text-centered">
+		<nav id="nav" class="navbar has-text-weight-bold">
+			<div class="navbar-brand"></div>
+			<div class="navbar-menu">
+				<div class="navbar-start">
+					<router-link to="/" class="navbar-item">
+						Home
+					</router-link>
+					<hr class="navbar-divider" />
+					<router-link to="/about" class="navbar-item">
+						About
+					</router-link>
+				</div>
+			</div>
+		</nav>
 		<router-view />
 	</div>
 </template>
@@ -35,29 +45,13 @@ export default {
 </script>
 
 <style>
-body {
-	background-color: #001830;
-	height: 100vh;
-	color: beige;
-}
-
 #app {
 	font-family: "Avenir", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	text-align: center;
 }
 
 #nav {
 	padding: 30px;
-}
-
-#nav a {
-	font-weight: bold;
-	color: beige;
-}
-
-#nav a.router-link-exact-active {
-	color: khaki;
 }
 </style>

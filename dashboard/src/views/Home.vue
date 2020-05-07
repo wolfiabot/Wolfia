@@ -1,5 +1,5 @@
 <template>
-	<div class="home">
+	<div class="container">
 		<img v-if="userLoaded" alt="User logo" :src="user.avatarUrl()" />
 		<HelloWorld
 			v-if="userLoaded"

@@ -4,6 +4,10 @@ import router from "@/router/router";
 import store from "@/store/store";
 import * as Sentry from "@sentry/browser";
 import * as Integrations from "@sentry/integrations";
+import Buefy from "buefy";
+import "bulmaswatch/darkly/bulmaswatch.scss";
+
+Vue.use(Buefy);
 
 if (process.env.NODE_ENV === "production") {
 	Sentry.init({
