@@ -16,10 +16,10 @@ export default {
 	name: "HelloWorld",
 	props: {
 		msg: String,
-		user: Object
+		user: Object,
 	},
 	methods: {
-		...mapActions({ logout: LOG_OUT })
-	}
+		...mapActions({ logout: LOG_OUT }),
+	},
 };
 </script>

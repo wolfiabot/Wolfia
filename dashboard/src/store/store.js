@@ -12,7 +12,7 @@ export default new Vuex.Store({
 	strict: process.env.NODE_ENV !== "production", //see https://vuex.vuejs.org/guide/strict.html
 	state: {
 		userLoaded: false,
-		user: defaultUser
+		user: defaultUser,
 	},
 	mutations: {
 		[LOAD_USER](state, user) {
@@ -22,7 +22,7 @@ export default new Vuex.Store({
 		[UNLOAD_USER](state) {
 			state.userLoaded = false;
 			state.user = defaultUser;
-		}
+		},
 	},
 	actions: {
 		async [FETCH_USER](context) {
@@ -48,11 +48,11 @@ export default new Vuex.Store({
 			await fetch("/api/login", {
 				method: "DELETE",
 				headers: {
-					"X-XSRF-TOKEN": csrfToken
-				}
+					"X-XSRF-TOKEN": csrfToken,
+				},
 			});
 			context.commit(UNLOAD_USER);
-		}
+		},
 	},
-	modules: {}
+	modules: {},
 });

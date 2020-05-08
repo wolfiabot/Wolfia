@@ -20,7 +20,7 @@ export default {
 	name: "home",
 	components: {
 		HelloWorld,
-		LogIn
+		LogIn,
 	},
 
 	mounted() {
@@ -29,13 +29,13 @@ export default {
 
 	computed: {
 		...mapState({
-			userLoaded: state => state.userLoaded,
-			user: state => state.user
-		})
+			userLoaded: (state) => state.userLoaded,
+			user: (state) => state.user,
+		}),
 	},
 
 	methods: {
-		...mapActions({ fetchUser: FETCH_USER })
-	}
+		...mapActions({ fetchUser: FETCH_USER }),
+	},
 };
 </script>

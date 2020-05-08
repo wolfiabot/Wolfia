@@ -30,6 +30,6 @@
 <script>
 export default {
 	name: "LogIn",
-	props: {}
+	props: {},
 };
 </script>

@@ -8,9 +8,9 @@ module.exports = {
 			"/api": {
 				target: "http://localhost:4567",
 				ws: true,
-				changeOrigin: true
-			}
+				changeOrigin: true,
+			},
 		},
-		disableHostCheck: true
-	}
+		disableHostCheck: true,
+	},
 };
