@@ -18,7 +18,9 @@
 <template>
 	<div v-if="userLoaded" class="navbar-item has-dropdown is-hoverable">
 		<a class="navbar-link">
-			<img v-if="userLoaded" alt="User logo" :src="user.avatarUrl()" />
+			<div>
+				<img alt="User logo" class="is-pulled-left wolfia-user-logo" :src="user.avatarUrl()" />
+			</div>
 			<div>Hello, {{ user.name }}!</div>
 		</a>
 		<div class="navbar-dropdown">
@@ -55,3 +57,8 @@ export default {
 	},
 };
 </script>
+<style>
+.wolfia-user-logo {
+	margin: 0.5em;
+}
+</style>
