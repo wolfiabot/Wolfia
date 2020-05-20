@@ -1,7 +1,11 @@
 <template>
 	<div id="app" class="has-text-centered">
 		<nav id="nav" class="navbar has-text-weight-bold">
-			<div class="navbar-brand"></div>
+			<div class="navbar-brand">
+				<a class="navbar-item" href="/">
+					<img src="https://i.imgur.com/7Ie8tB3.png" alt="Play Werewolf/Mafia in Discord" />
+				</a>
+			</div>
 			<div class="navbar-menu">
 				<div class="navbar-start">
 					<router-link to="/" class="navbar-item">
@@ -12,6 +16,9 @@
 						About
 					</router-link>
 				</div>
+				<div class="navbar-end">
+					<UserNav></UserNav>
+				</div>
 			</div>
 		</nav>
 		<router-view />
@@ -19,7 +26,12 @@
 </template>
 
 <script>
+import UserNav from "@/components/UserNav";
+
 export default {
+	components: {
+		UserNav,
+	},
 	mounted() {
 		if (process.env.NODE_ENV === "production") {
 			// userreport snippet
@@ -46,9 +58,5 @@ export default {
 	font-family: "Avenir", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-}
-
-#nav {
-	padding: 30px;
 }
 </style>
