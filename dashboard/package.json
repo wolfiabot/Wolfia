@@ -54,6 +54,9 @@
 			"autoprefixer": {}
 		}
 	},
+	"prettier": {
+		"printWidth": 120
+	},
 	"browserslist": [
 		"> 1%",
 		"last 2 versions"

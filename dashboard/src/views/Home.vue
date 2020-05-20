@@ -1,11 +1,7 @@
 <template>
 	<div class="container">
 		<img v-if="userLoaded" alt="User logo" :src="user.avatarUrl()" />
-		<HelloWorld
-			v-if="userLoaded"
-			msg="Welcome to Your Vue.js App"
-			:user="user"
-		/>
+		<HelloWorld v-if="userLoaded" msg="Welcome to Your Vue.js App" :user="user" />
 		<LogIn v-else />
 	</div>
 </template>

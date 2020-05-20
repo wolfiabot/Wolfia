@@ -24,10 +24,7 @@ export default {
 		if (process.env.NODE_ENV === "production") {
 			// userreport snippet
 			window._urq = window._urq || [];
-			window._urq.push([
-				"initSite",
-				"01987d31-0d58-48c6-a4d3-96f2ae42eb14",
-			]);
+			window._urq.push(["initSite", "01987d31-0d58-48c6-a4d3-96f2ae42eb14"]);
 			(function () {
 				const ur = document.createElement("script");
 				ur.type = "text/javascript";

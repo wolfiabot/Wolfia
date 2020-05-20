@@ -1,8 +1,6 @@
 <template>
 	<div class="hello">
-		<h2 class="subtitle">
-			Hello there, {{ user.name }}#{{ user.discriminator }}!
-		</h2>
+		<h2 class="subtitle">Hello there, {{ user.name }}#{{ user.discriminator }}!</h2>
 		<h1 class="title">{{ msg }}</h1>
 		<div class="button is-large" v-on:click="logout">Logout</div>
 	</div>

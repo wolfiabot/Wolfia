@@ -29,22 +29,11 @@ export default new Vuex.Store({
 			const response = await fetch("/api/user");
 			if (response.status === 200) {
 				let user = await response.json();
-				context.commit(
-					LOAD_USER,
-					new User(
-						user.discordId,
-						user.name,
-						user.avatarId,
-						user.discriminator
-					)
-				);
+				context.commit(LOAD_USER, new User(user.discordId, user.name, user.avatarId, user.discriminator));
 			}
 		},
 		async [LOG_OUT](context) {
-			let csrfToken = document.cookie.replace(
-				/(?:(?:^|.*;\s*)XSRF-TOKEN\s*=\s*([^;]*).*$)|^.*$/,
-				"$1"
-			);
+			let csrfToken = document.cookie.replace(/(?:(?:^|.*;\s*)XSRF-TOKEN\s*=\s*([^;]*).*$)|^.*$/, "$1");
 			await fetch("/api/login", {
 				method: "DELETE",
 				headers: {
