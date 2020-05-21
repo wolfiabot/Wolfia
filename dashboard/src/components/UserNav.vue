@@ -40,11 +40,15 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import { LOG_OUT } from "@/store/action-types";
+import { FETCH_USER, LOG_OUT } from "@/store/action-types";
 
 export default {
 	name: "UserNav",
 	props: {},
+
+	mounted() {
+		this.fetchUser();
+	},
 
 	computed: {
 		...mapState({
@@ -53,7 +57,10 @@ export default {
 		}),
 	},
 	methods: {
-		...mapActions({ logout: LOG_OUT }),
+		...mapActions({
+			logout: LOG_OUT,
+			fetchUser: FETCH_USER,
+		}),
 	},
 };
 </script>
