@@ -62,6 +62,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
     };
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/oauth2/**",
+            "/api/staff/**",
             "/api/test/**",
             LoginRedirect.ROUTE,
             "/index.html",

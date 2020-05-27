@@ -14,6 +14,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-export const LOAD_USER = "LOAD_USER";
-export const UNLOAD_USER = "UNLOAD_USER";
-export const LOAD_STAFF = "LOAD_STAFF";
+
+export class StaffMember {
+	constructor(user, staffFunction, slogan, link) {
+		this.user = user;
+		this.staffFunction = staffFunction;
+		this.slogan = slogan;
+		this.link = link;
+	}
+
+	renderStaffFunction = () => {
+		if (this.staffFunction === "DEVELOPER") return "Developer";
+		if (this.staffFunction === "MODERATOR") return "Moderator";
+		if (this.staffFunction === "SETUP_MANAGER") return "Setup Manager";
+		return this.staffFunction;
+	};
+}

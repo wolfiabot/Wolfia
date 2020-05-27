@@ -15,6 +15,9 @@
 					<router-link to="/about" class="navbar-item">
 						About
 					</router-link>
+					<router-link to="/team" class="navbar-item">
+						Team
+					</router-link>
 				</div>
 				<div class="navbar-end">
 					<UserNav></UserNav>

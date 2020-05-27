@@ -52,6 +52,7 @@ import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.OutCommand;
 import space.npstr.wolfia.domain.setup.SetupCommand;
 import space.npstr.wolfia.domain.setup.StatusCommand;
+import space.npstr.wolfia.domain.staff.StaffCommand;
 import space.npstr.wolfia.domain.stats.BotStatsCommand;
 import space.npstr.wolfia.domain.stats.GuildStatsCommand;
 import space.npstr.wolfia.domain.stats.ReplayCommand;
@@ -276,6 +277,11 @@ class CommRegistryTest extends ApplicationTest {
     @Test
     void hasShardsCommand() {
         assertHasCommand("shards", ShardsCommand.class);
+    }
+
+    @Test
+    void hasStaffCommand() {
+        assertHasCommand("staff", StaffCommand.class);
     }
 
     private void assertHasCommand(String trigger, Class<? extends BaseCommand> clazz) {

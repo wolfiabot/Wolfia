@@ -285,6 +285,12 @@ project(':database-codegen') {
                              '''
                             includeTypes = 'timestamp\\ with\\ time\\ zone'
                         }
+                        forcedType {
+                            userType = 'java.net.URI'
+                            converter = 'space.npstr.wolfia.db.converter.UriConverter'
+                            includeExpression = '.*link'
+                            includeTypes = 'text'
+                        }
                     }
                 }
                 target {

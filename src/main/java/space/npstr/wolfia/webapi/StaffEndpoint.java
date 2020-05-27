@@ -14,6 +14,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-export const LOAD_USER = "LOAD_USER";
-export const UNLOAD_USER = "UNLOAD_USER";
-export const LOAD_STAFF = "LOAD_STAFF";
+
+package space.npstr.wolfia.webapi;
+
+import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import space.npstr.wolfia.domain.staff.StaffMember;
+import space.npstr.wolfia.domain.staff.StaffService;
+
+@RestController
+@RequestMapping("/api/staff")
+public class StaffEndpoint {
+
+    private final StaffService staffService;
+
+    public StaffEndpoint(StaffService staffService) {
+        this.staffService = staffService;
+    }
+
+    @GetMapping
+    public List<StaffMember> getStaff() {
+        return this.staffService.getStaffMembers();
+    }
+}

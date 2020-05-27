@@ -139,6 +139,10 @@ public class MessageContext implements Context {
         reply0(message, onSuccess);
     }
 
+    public void reply(@Nonnull final Message message) {
+        reply0(message, null);
+    }
+
     public void reply(@Nonnull final String message) {
         reply(new MessageBuilder().append(message).build(), null);
     }

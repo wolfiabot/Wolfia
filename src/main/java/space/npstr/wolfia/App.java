@@ -17,11 +17,10 @@
 
 package space.npstr.wolfia;
 
+import java.util.ResourceBundle;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-
-import java.util.ResourceBundle;
 
 /**
  * Created by napster on 26.04.17.
@@ -42,6 +41,10 @@ public class App {
     public static final String DOCS_LINK = "https://wolfia.party";
     public static final String GITHUB_LINK = "https://github.com/wolfiabot/wolfia";
     public static final String GAME_STATUS = WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER + " | " + SITE_LINK + " | Public β";
+
+    public static final long MODERATOR_ROLE_ID = 340205944866865162L;
+    public static final long SETUP_MANAGER_ROLE_ID = 328603453544988672L;
+    public static final long DEVELOPER_ROLE_ID = 713041074674860083L;
 
     public static boolean isOwner(final long userId) {
         return OWNER_ID == userId;

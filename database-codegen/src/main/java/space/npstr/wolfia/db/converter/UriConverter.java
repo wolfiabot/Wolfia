@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 Dennis Neufeld
+ * Copyright (C) 2016-2019 Dennis Neufeld
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,6 +14,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-export const LOAD_USER = "LOAD_USER";
-export const UNLOAD_USER = "UNLOAD_USER";
-export const LOAD_STAFF = "LOAD_STAFF";
+
+package space.npstr.wolfia.db.converter;
+
+import java.net.URI;
+import org.jooq.Converter;
+
+public class UriConverter implements Converter<String, URI> {
+
+    @Override
+    public URI from(String databaseObject) {
+        return databaseObject == null ? null : URI.create(databaseObject);
+    }
+
+    @Override
+    public String to(URI userObject) {
+        return userObject == null ? null : userObject.toString();
+    }
+
+    @Override
+    public Class<String> fromType() {
+        return String.class;
+    }
+
+    @Override
+    public Class<URI> toType() {
+        return URI.class;
+    }
+}

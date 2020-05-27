@@ -1,8 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { LOAD_USER, UNLOAD_USER } from "@/store/mutation-types";
-import { FETCH_USER, LOG_OUT } from "@/store/action-types";
+import { LOAD_STAFF, LOAD_USER, UNLOAD_USER } from "@/store/mutation-types";
+import { FETCH_STAFF, FETCH_USER, LOG_OUT } from "@/store/action-types";
 import { User } from "@/store/user";
+import { StaffMember } from "@/store/staffmember";
 
 Vue.use(Vuex);
 
@@ -13,6 +14,7 @@ export default new Vuex.Store({
 	state: {
 		userLoaded: false,
 		user: defaultUser,
+		staff: [],
 	},
 	mutations: {
 		[LOAD_USER](state, user) {
@@ -22,6 +24,9 @@ export default new Vuex.Store({
 		[UNLOAD_USER](state) {
 			state.userLoaded = false;
 			state.user = defaultUser;
+		},
+		[LOAD_STAFF](state, staff) {
+			state.staff = staff;
 		},
 	},
 	actions: {
@@ -41,6 +46,17 @@ export default new Vuex.Store({
 				},
 			});
 			context.commit(UNLOAD_USER);
+		},
+		async [FETCH_STAFF](context) {
+			const response = await fetch("/api/staff");
+			if (response.status === 200) {
+				const staff = await response.json();
+				let mappedStaff = staff.map((member) => {
+					const user = new User(member.discordId, member.name, member.avatarId, member.discriminator);
+					return new StaffMember(user, member.function, member.slogan, member.link);
+				});
+				context.commit(LOAD_STAFF, mappedStaff);
+			}
 		},
 	},
 	modules: {},
