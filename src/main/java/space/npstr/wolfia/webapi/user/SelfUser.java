@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.webapi.user;
 
+import java.util.Optional;
 import java.util.Set;
 
 import static org.immutables.value.Value.Immutable;
@@ -35,7 +36,7 @@ public interface SelfUser {
 
     String getDiscriminator();
 
-    String getAvatarId();
+    Optional<String> getAvatarId();
 
     Set<String> getRoles();
 
