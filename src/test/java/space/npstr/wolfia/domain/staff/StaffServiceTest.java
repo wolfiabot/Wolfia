@@ -59,6 +59,8 @@ class StaffServiceTest extends ApplicationTest {
     private long moderatorUserId = uniqueLong();
     private long setupManagerUserId = uniqueLong();
     private long botUserId = uniqueLong();
+    private Guild guild;
+    private Role developerRole;
 
     @BeforeEach
     void setup() {
@@ -66,8 +68,8 @@ class StaffServiceTest extends ApplicationTest {
                 .deleteFrom(STAFF_MEMBER)
                 .execute()
         )).toCompletableFuture().join();
-        Guild guild = mock(Guild.class);
-        Role developerRole = mock(Role.class);
+        guild = mock(Guild.class);
+        developerRole = mock(Role.class);
         Role moderatorRole = mock(Role.class);
         Role setupManagerRole = mock(Role.class);
         when(guild.getRoleById(eq(App.DEVELOPER_ROLE_ID))).thenReturn(developerRole);
@@ -158,14 +160,56 @@ class StaffServiceTest extends ApplicationTest {
     }
 
     @Test
-    void whenGetStaffMembers_shouldReturnStaffMembers() {
+    void givenUserLostStaffRole_whenUpdateIfPossible_shouldMakeStaffMemberInactive() {
+        this.staffService.updateIfPossible();
+        when(guild.getMembersWithRoles(eq(developerRole))).thenReturn(List.of());
+
         this.staffService.updateIfPossible();
 
-        List<StaffMember> staffMembers = this.staffService.getStaffMembers();
+        StaffMember developer = this.staffService.user(this.developerUserId).get().orElseThrow();
+        assertThat(developer.isActive()).isFalse();
+    }
+
+    @Test
+    void whenGetEnabledActiveStaffMembers_shouldReturnEnabledActiveStaffMembers() {
+        this.staffService.updateIfPossible();
+        this.staffService.user(this.developerUserId).enable();
+        this.staffService.user(this.moderatorUserId).enable();
+        this.staffService.user(this.setupManagerUserId).enable();
+
+        List<StaffMember> staffMembers = this.staffService.getEnabledActiveStaffMembers();
 
         assertThat(staffMembers).anySatisfy(isStaffMember(this.developerUserId, StaffFunction.DEVELOPER));
         assertThat(staffMembers).anySatisfy(isStaffMember(this.moderatorUserId, StaffFunction.MODERATOR));
         assertThat(staffMembers).anySatisfy(isStaffMember(this.setupManagerUserId, StaffFunction.SETUP_MANAGER));
+    }
+
+    @Test
+    void whenGetEnabledActiveStaffMembers_shouldOnlyReturnActive() {
+        this.staffService.updateIfPossible();
+        when(guild.getMembersWithRoles(eq(developerRole))).thenReturn(List.of());
+        this.staffService.updateIfPossible();
+        this.staffService.user(this.developerUserId).enable();
+        this.staffService.user(this.moderatorUserId).enable();
+        this.staffService.user(this.setupManagerUserId).enable();
+
+        List<StaffMember> staffMembers = this.staffService.getEnabledActiveStaffMembers();
+
+        assertThat(staffMembers).allMatch(StaffMember::isActive);
+        assertThat(staffMembers).noneMatch(staffMember -> staffMember.getDiscordId() == developerUserId);
+    }
+
+    @Test
+    void whenGetEnabledActiveStaffMembers_shouldOnlyReturnEnabled() {
+        this.staffService.updateIfPossible();
+        this.staffService.user(developerUserId).disable();
+        this.staffService.user(this.moderatorUserId).enable();
+        this.staffService.user(this.setupManagerUserId).enable();
+
+        List<StaffMember> staffMembers = this.staffService.getEnabledActiveStaffMembers();
+
+        assertThat(staffMembers).allMatch(StaffMember::isEnabled);
+        assertThat(staffMembers).noneMatch(staffMember -> staffMember.getDiscordId() == developerUserId);
     }
 
     @Test

@@ -36,6 +36,6 @@ public class StaffEndpoint {
 
     @GetMapping
     public List<StaffMember> getStaff() {
-        return this.staffService.getStaffMembers();
+        return this.staffService.getEnabledActiveStaffMembers();
     }
 }

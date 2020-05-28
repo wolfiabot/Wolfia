@@ -50,4 +50,6 @@ public interface StaffMember {
     Optional<URI> getLink();
 
     boolean isEnabled();
+
+    boolean isActive();
 }

@@ -71,7 +71,7 @@ public class StaffService {
     /**
      * @return a list of all enabled and active staff members
      */
-    public List<StaffMember> getStaffMembers() {
+    public List<StaffMember> getEnabledActiveStaffMembers() {
         return this.staffRepository.fetchAllStaffMembers()
                 .toCompletableFuture().join().stream()
                 .filter(StaffMemberRecord::getActive)
@@ -83,7 +83,9 @@ public class StaffService {
     }
 
     private boolean isEnabled(StaffMemberRecord record) {
-        return wolfiaConfig.isDebug() || record.getEnabled(); //for debugging, it is handy to see a large list of staffers
+        return
+//                wolfiaConfig.isDebug() || //for debugging/developing, it is handy to see a large list of staffers
+                record.getEnabled();
     }
 
     /**
@@ -215,6 +217,7 @@ public class StaffService {
                 .discriminator(user.getDiscriminator())
                 .function(staffMemberRecord.getFunction())
                 .isEnabled(staffMemberRecord.getEnabled())
+                .isActive(staffMemberRecord.getActive())
                 .avatarId(ofNullable(user.getAvatarId()))
                 .slogan(ofNullable(staffMemberRecord.getSlogan()))
                 .link(ofNullable(staffMemberRecord.getLink()))
