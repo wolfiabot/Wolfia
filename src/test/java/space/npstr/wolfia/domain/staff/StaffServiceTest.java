@@ -87,18 +87,22 @@ class StaffServiceTest extends ApplicationTest {
 
         UserCache.Action getDeveloperAction = mock(UserCache.Action.class);
         doReturn(Optional.of(developer.getUser())).when(getDeveloperAction).get();
+        //noinspection ResultOfMethodCallIgnored
         doReturn(getDeveloperAction).when(this.userCache).user(eq(this.developerUserId));
 
         UserCache.Action getModeratorAction = mock(UserCache.Action.class);
         doReturn(Optional.of(moderator.getUser())).when(getModeratorAction).get();
+        //noinspection ResultOfMethodCallIgnored
         doReturn(getModeratorAction).when(this.userCache).user(eq(this.moderatorUserId));
 
         UserCache.Action getSetupManagerAction = mock(UserCache.Action.class);
         doReturn(Optional.of(setupManager.getUser())).when(getSetupManagerAction).get();
+        //noinspection ResultOfMethodCallIgnored
         doReturn(getSetupManagerAction).when(this.userCache).user(eq(this.setupManagerUserId));
 
         UserCache.Action getBotAction = mock(UserCache.Action.class);
         doReturn(Optional.of(bot.getUser())).when(getBotAction).get();
+        //noinspection ResultOfMethodCallIgnored
         doReturn(getBotAction).when(this.userCache).user(eq(this.botUserId));
 
         doReturn(guild).when(this.shardManager).getGuildById(eq(App.WOLFIA_LOUNGE_ID));
