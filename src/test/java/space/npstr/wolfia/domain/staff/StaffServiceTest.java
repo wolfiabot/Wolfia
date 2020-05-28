@@ -58,6 +58,7 @@ class StaffServiceTest extends ApplicationTest {
     private long developerUserId = uniqueLong();
     private long moderatorUserId = uniqueLong();
     private long setupManagerUserId = uniqueLong();
+    private long botUserId = uniqueLong();
 
     @BeforeEach
     void setup() {
@@ -76,8 +77,9 @@ class StaffServiceTest extends ApplicationTest {
         Member developer = mockMember(this.developerUserId);
         Member moderator = mockMember(this.moderatorUserId);
         Member setupManager = mockMember(this.setupManagerUserId);
+        Member bot = mockMemberBot(this.botUserId);
 
-        when(guild.getMembersWithRoles(eq(developerRole))).thenReturn(List.of(developer));
+        when(guild.getMembersWithRoles(eq(developerRole))).thenReturn(List.of(developer, bot));
         when(guild.getMembersWithRoles(eq(moderatorRole))).thenReturn(List.of(moderator));
         when(guild.getMembersWithRoles(eq(setupManagerRole))).thenReturn(List.of(setupManager));
 
@@ -93,15 +95,27 @@ class StaffServiceTest extends ApplicationTest {
         doReturn(Optional.of(setupManager.getUser())).when(getSetupManagerAction).get();
         doReturn(getSetupManagerAction).when(this.userCache).user(eq(this.setupManagerUserId));
 
+        UserCache.Action getBotAction = mock(UserCache.Action.class);
+        doReturn(Optional.of(bot.getUser())).when(getBotAction).get();
+        doReturn(getBotAction).when(this.userCache).user(eq(this.botUserId));
+
         doReturn(guild).when(this.shardManager).getGuildById(eq(App.WOLFIA_LOUNGE_ID));
     }
 
     private Member mockMember(long userId) {
+        return mockMember(userId, false);
+    }
+
+    private Member mockMemberBot(long userId) {
+        return mockMember(userId, true);
+    }
+
+    private Member mockMember(long userId, boolean isBot) {
         User user = mock(User.class);
         when(user.getIdLong()).thenReturn(userId);
         when(user.getName()).thenReturn("Foo");
         when(user.getDiscriminator()).thenReturn("0001");
-        when(user.isBot()).thenReturn(false);
+        when(user.isBot()).thenReturn(isBot);
 
         Member member = mock(Member.class);
         when(member.getIdLong()).thenReturn(userId);
@@ -121,6 +135,27 @@ class StaffServiceTest extends ApplicationTest {
         assertThat(setupManager).hasValueSatisfying(isStaffMember(this.setupManagerUserId, StaffFunction.SETUP_MANAGER));
     }
 
+    @Test
+    void givenGuildNotAvailable_whenUpdateIfPossible_shouldDoNothing() {
+        doReturn(null).when(this.shardManager).getGuildById(eq(App.WOLFIA_LOUNGE_ID));
+
+        this.staffService.updateIfPossible();
+
+        Optional<StaffMember> developer = this.staffService.user(this.developerUserId).get();
+        assertThat(developer).isEmpty();
+        Optional<StaffMember> moderator = this.staffService.user(this.moderatorUserId).get();
+        assertThat(moderator).isEmpty();
+        Optional<StaffMember> setupManager = this.staffService.user(this.setupManagerUserId).get();
+        assertThat(setupManager).isEmpty();
+    }
+
+    @Test
+    void whenUpdateIfPossible_shouldIgnoreBotUsers() {
+        this.staffService.updateIfPossible();
+
+        Optional<StaffMember> developer = this.staffService.user(this.botUserId).get();
+        assertThat(developer).isEmpty();
+    }
 
     @Test
     void whenGetStaffMembers_shouldReturnStaffMembers() {
