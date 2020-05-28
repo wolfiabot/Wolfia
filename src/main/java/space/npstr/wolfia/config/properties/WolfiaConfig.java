@@ -37,6 +37,10 @@ public class WolfiaConfig {
         return debug;
     }
 
+    public boolean isProd() {
+        return !isDebug();
+    }
+
     public void setDebug(boolean debug) {
         this.debug = debug;
     }

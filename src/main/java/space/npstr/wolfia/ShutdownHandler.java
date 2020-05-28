@@ -17,6 +17,13 @@
 
 package space.npstr.wolfia;
 
+import io.prometheus.client.CollectorRegistry;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
@@ -29,13 +36,6 @@ import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.system.redis.Redis;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
-
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Created by napster on 26.09.18.
@@ -148,6 +148,9 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
         //shutdown Redis connection
         log.info("Shutting down redis connection");
         redis.shutdown();
+
+        //avoid trouble with spring dev tools, see https://github.com/prometheus/client_java/issues/279#issuecomment-335817904
+        CollectorRegistry.defaultRegistry.clear();
     }
 
     public void shutdown(final int code) {

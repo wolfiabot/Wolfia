@@ -19,6 +19,7 @@ package space.npstr.wolfia.webapi.user;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
@@ -55,7 +56,7 @@ public class UserEndpoint {
                 .discordId(userId)
                 .name(principal.getName())
                 .discriminator(discriminator)
-                .avatarId(avatar)
+                .avatarId(Optional.ofNullable(avatar))
                 .addAllRoles(roles)
                 .addAllScopes(scopes)
                 .build();

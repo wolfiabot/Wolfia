@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 Dennis Neufeld
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -15,22 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.webapi.user;
+package space.npstr.wolfia.domain.staff;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import java.net.URI;
 import java.util.Optional;
-import java.util.Set;
+import org.immutables.value.Value;
+import space.npstr.wolfia.db.gen.enums.StaffFunction;
 
-import static org.immutables.value.Value.Immutable;
-import static org.immutables.value.Value.Style;
-
-@Immutable
-@Style(
+/**
+ * A member of the Wolfia staff.
+ */
+@Value.Immutable
+@Value.Style(
         stagedBuilder = true,
         strictBuilder = true
 )
-public interface SelfUser {
+public interface StaffMember {
 
-    String getDiscordId();
+    @JsonSerialize(using = ToStringSerializer.class)
+    long getDiscordId();
 
     String getName();
 
@@ -38,8 +43,13 @@ public interface SelfUser {
 
     Optional<String> getAvatarId();
 
-    Set<String> getRoles();
+    StaffFunction getFunction();
 
-    Set<String> getScopes();
+    Optional<String> getSlogan();
 
+    Optional<URI> getLink();
+
+    boolean isEnabled();
+
+    boolean isActive();
 }

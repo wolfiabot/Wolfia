@@ -15,31 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.webapi.user;
+package space.npstr.wolfia.db.converter;
 
-import java.util.Optional;
-import java.util.Set;
+import java.net.URI;
+import org.jooq.Converter;
 
-import static org.immutables.value.Value.Immutable;
-import static org.immutables.value.Value.Style;
+public class UriConverter implements Converter<String, URI> {
 
-@Immutable
-@Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public interface SelfUser {
+    @Override
+    public URI from(String databaseObject) {
+        return databaseObject == null ? null : URI.create(databaseObject);
+    }
 
-    String getDiscordId();
+    @Override
+    public String to(URI userObject) {
+        return userObject == null ? null : userObject.toString();
+    }
 
-    String getName();
+    @Override
+    public Class<String> fromType() {
+        return String.class;
+    }
 
-    String getDiscriminator();
-
-    Optional<String> getAvatarId();
-
-    Set<String> getRoles();
-
-    Set<String> getScopes();
-
+    @Override
+    public Class<URI> toType() {
+        return URI.class;
+    }
 }

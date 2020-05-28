@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.config.development;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -37,6 +38,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import space.npstr.wolfia.App;
 import space.npstr.wolfia.SpringProfiles;
 import space.npstr.wolfia.webapi.Authorization;
 
@@ -67,17 +69,16 @@ public class FakeAuther implements HandlerInterceptor {
             return true; //nothing to do here
         }
 
-        // Dummy values based on a real login of my own account
-        Map<String, Object> attributes = Map.of(
-                "id", "166604053629894657",
-                "username", "User McUserface",
-                "avatar", "",
-                "discriminator", randomDiscrim(),
-                "locale", "en-US",
-                "mfa_enabled", true,
-                "flags", 640,
-                "premium_type", 1
-        );
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("id", Long.toString(App.OWNER_ID));
+        attributes.put("username", "User McUserface");
+        attributes.put("avatar", null);
+        attributes.put("discriminator", randomDiscrim());
+        attributes.put("locale", "en-US");
+        attributes.put("mfa_enabled", true);
+        attributes.put("flags", 640);
+        attributes.put("premium_type", 1);
+
         var authorities = List.of(
                 new OAuth2UserAuthority(attributes),
                 new SimpleGrantedAuthority("SCOPE_identity")

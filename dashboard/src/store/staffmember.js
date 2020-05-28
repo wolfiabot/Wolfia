@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 Dennis Neufeld
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -15,31 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.webapi.user;
+export class StaffMember {
+	constructor(user, staffFunction, slogan, link) {
+		this.user = user;
+		this.staffFunction = staffFunction;
+		this.slogan = slogan;
+		this.link = link;
+	}
 
-import java.util.Optional;
-import java.util.Set;
-
-import static org.immutables.value.Value.Immutable;
-import static org.immutables.value.Value.Style;
-
-@Immutable
-@Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public interface SelfUser {
-
-    String getDiscordId();
-
-    String getName();
-
-    String getDiscriminator();
-
-    Optional<String> getAvatarId();
-
-    Set<String> getRoles();
-
-    Set<String> getScopes();
-
+	renderStaffFunction = () => {
+		if (this.staffFunction === "DEVELOPER") return "Developer";
+		if (this.staffFunction === "MODERATOR") return "Moderator";
+		if (this.staffFunction === "SETUP_MANAGER") return "Setup Manager";
+		return this.staffFunction;
+	};
 }
