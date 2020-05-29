@@ -17,56 +17,35 @@
 
 package space.npstr.wolfia.domain.staff;
 
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.MessageContext;
-import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
+import space.npstr.wolfia.domain.Conversation;
 import space.npstr.wolfia.system.EventWaiter;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 @Command
-public class StaffCommand implements BaseCommand {
+public class StaffCommand implements BaseCommand, Conversation {
 
-    private static final String OPTION_ENABLE = "enable";
-    private static final String OPTION_DISABLE = "disable";
-    private static final String OPTION_SET_SLOGAN = "set slogan";
-    private static final String OPTION_REMOVE_SLOGAN = "remove slogan";
-    private static final String OPTION_SET_LINK = "set link";
-    private static final String OPTION_REMOVE_LINK = "remove link";
+    private static final String OPTION_PROFILE = "profile";
+    private static final String OPTION_WOOF = "woof";
     private static final String OPTION_DONE = "done";
-
-    private static final String EVENT_WAITER_TIMEOUT_MESSAGE = "Canceled your staff profile editing.";
-    private static final URI TEAM_WEBSITE = URI.create("https://bot.wolfia.party/#/team");
-    private static final int MAX_SLOGAN_LENGTH = 100;
-
 
     private final StaffService staffService;
     private final EventWaiter eventWaiter;
-    private final WolfiaConfig wolfiaConfig;
+    private final StaffProfileConversation staffProfileConversation;
+    private final StaffRoleConversation staffRoleConversation;
 
-    public StaffCommand(StaffService staffService, EventWaiter eventWaiter, WolfiaConfig wolfiaConfig) {
+    public StaffCommand(StaffService staffService, EventWaiter eventWaiter) {
         this.staffService = staffService;
         this.eventWaiter = eventWaiter;
-        this.wolfiaConfig = wolfiaConfig;
+        this.staffProfileConversation = new StaffProfileConversation(staffService, eventWaiter);
+        this.staffRoleConversation = new StaffRoleConversation(eventWaiter);
     }
 
     @Override
@@ -77,7 +56,12 @@ public class StaffCommand implements BaseCommand {
     @Nonnull
     @Override
     public String help() {
-        return "Modify staff profiles.";
+        return "Do staff things.";
+    }
+
+    @Override
+    public EventWaiter getEventWaiter() {
+        return this.eventWaiter;
     }
 
     @Override
@@ -86,109 +70,42 @@ public class StaffCommand implements BaseCommand {
         if (guildCommandContext == null) {
             return false;
         }
-
-        if (this.wolfiaConfig.isProd() && guildCommandContext.guild.getIdLong() != App.WOLFIA_LOUNGE_ID) {
-            return false;
-        }
-
-        Optional<StaffMember> staffMember = this.staffService.user(context.getInvoker().getIdLong()).get();
-        if (staffMember.isEmpty()) {
+        boolean isStaff = this.staffService.user(context.getInvoker().getIdLong()).get()
+                .map(StaffMember::isActive).orElse(false);
+        if (!isStaff && !context.isOwner()) {
             context.replyWithName("I'm sorry, you are not a member of the Wolfia staff, so you cannot invoke this command.");
             return false;
         }
 
-        List<User> mentions = context.getMessage().getMentionedUsers();
-        if (!mentions.isEmpty()) {
-            if (!context.isOwner()) {
-                context.replyWithName("You cannot edit the staff profile of another staff member if you are not the owner.");
-                return false;
-            }
+        return this.start(context);
+    }
 
-            User target = mentions.get(0);
-            staffMember = this.staffService.user(target.getIdLong()).get();
-            if (staffMember.isEmpty()) {
-                context.replyWithName("I'm sorry, " + target.getAsMention() + " is not a member of the Wolfia staff, they have no staff profile.");
-                return false;
-            }
-        }
-
-        return showStaffProfileAndOptions(context, staffMember.get(), "");
+    @Override
+    public boolean start(MessageContext context) {
+        return showConversationOptions(context);
     }
 
     @CheckReturnValue
-    private boolean showStaffProfileAndOptions(MessageContext context, StaffMember staffMember, String plainMessage) {
-        String options = "How do you want to edit your staff profile? Say "
-                + "\n- **" + OPTION_ENABLE + "** to enable your staff profile"
-                + "\n- **" + OPTION_DISABLE + "** to disable your staff profile"
-                + "\n- **" + OPTION_SET_SLOGAN + "** to set a slogan for your staff profile"
-                + "\n- **" + OPTION_REMOVE_SLOGAN + "** to remove the slogan from your staff profile"
-                + "\n- **" + OPTION_SET_LINK + "** to set a link for your staff profile"
-                + "\n- **" + OPTION_REMOVE_LINK + "** to remove the link from your staff profile"
-                + "\n- **" + OPTION_DONE + "** if you're done editing your staff profile";
+    private boolean showConversationOptions(MessageContext context) {
+        String options = "Welcome to staff commands! What do you want to do? Say "
+                + "\n- **" + OPTION_PROFILE + "** to edit your staff profile"
+                + "\n- **" + OPTION_WOOF + "** to post a gif of a flying wolf"
+                + "\n- **" + OPTION_DONE + "** when you're done";
 
-        return show(context, staffMember, plainMessage)
-                && replyAndWaitForAnswer(context, options, e -> optionSelected(e, staffMember));
-    }
-
-    //plainMessage can be empty
-    @CheckReturnValue
-    private boolean show(MessageContext context, StaffMember staffMember, String plainMessage) {
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setTitle("Staff Profile")
-                .addField("Name", staffMember.getName() + "#" + staffMember.getDiscriminator(), true)
-                .addField("Staff Function", staffMember.getFunction().name(), true)
-                .addField("Enabled", staffMember.isEnabled() ? Emojis.CHECK : Emojis.X, true)
-                .addField("Slogan", staffMember.getSlogan().orElse(""), true)
-                .addField("Link", staffMember.getLink().map(URI::toString).orElse(""), true);
-
-
-        Message message = new MessageBuilder(plainMessage)
-                .setEmbed(embedBuilder.build())
-                .build();
-
-        context.reply(message);
-        return true;
+        return replyAndWaitForAnswer(context, options, e -> optionSelected(e));
     }
 
     @CheckReturnValue
-    private boolean optionSelected(MessageReceivedEvent event, StaffMember staffMember) {
+    private boolean optionSelected(MessageReceivedEvent event) {
         MessageContext context = new MessageContext(event);
         String rawContent = context.getMessage().getContentRaw();
 
-        if (rawContent.toLowerCase().startsWith(OPTION_ENABLE)) {
-            StaffMember updated = this.staffService.user(staffMember.getDiscordId()).enable();
-            return showStaffProfileAndOptions(context, updated, "Enabled your staff profile! Check " + TEAM_WEBSITE.toString());
+        if (rawContent.toLowerCase().startsWith(OPTION_PROFILE)) {
+            return this.staffProfileConversation.start(context);
         }
 
-        if (rawContent.toLowerCase().startsWith(OPTION_DISABLE)) {
-            StaffMember updated = this.staffService.user(staffMember.getDiscordId()).disable();
-            return showStaffProfileAndOptions(context, updated, "Disabled your staff profile. " + Emojis.RIP);
-        }
-
-        if (rawContent.toLowerCase().startsWith(OPTION_SET_SLOGAN)) {
-            String args = rawContent.substring(OPTION_SET_SLOGAN.length()).trim();
-            if (!args.isEmpty()) {
-                return setSlogan(context, args, staffMember);
-            }
-            return replyAndWaitForAnswer(context, "Which slogan do you want to set?", e -> setSlogan(e, staffMember));
-        }
-
-        if (rawContent.toLowerCase().startsWith(OPTION_REMOVE_SLOGAN)) {
-            StaffMember updated = this.staffService.user(staffMember.getDiscordId()).removeSlogan();
-            return showStaffProfileAndOptions(context, updated, "Removed your slogan.");
-        }
-
-        if (rawContent.toLowerCase().startsWith(OPTION_SET_LINK)) {
-            String args = rawContent.substring(OPTION_SET_LINK.length()).trim();
-            if (!args.isEmpty()) {
-                return setLink(context, args, staffMember);
-            }
-            return replyAndWaitForAnswer(context, "Which link do you want to set?", e -> setLink(e, staffMember));
-        }
-
-        if (rawContent.toLowerCase().startsWith(OPTION_REMOVE_LINK)) {
-            StaffMember updated = this.staffService.user(staffMember.getDiscordId()).removeLink();
-            return showStaffProfileAndOptions(context, updated, "Removed your link.");
+        if (rawContent.toLowerCase().startsWith(OPTION_WOOF)) {
+            return this.staffRoleConversation.start(context);
         }
 
         if (rawContent.equalsIgnoreCase(OPTION_DONE)) {
@@ -196,64 +113,7 @@ public class StaffCommand implements BaseCommand {
             return true;
         }
 
-        return showStaffProfileAndOptions(context, staffMember, "Sorry, I didn't get that.");
-    }
-
-    @CheckReturnValue
-    private boolean setSlogan(MessageReceivedEvent event, StaffMember staffMember) {
-        MessageContext context = new MessageContext(event);
-        String slogan = context.getMessage().getContentRaw();
-
-        return setSlogan(context, slogan, staffMember);
-    }
-
-    @CheckReturnValue
-    private boolean setSlogan(MessageContext context, String slogan, StaffMember staffMember) {
-        if (slogan.length() > MAX_SLOGAN_LENGTH) {
-            return showStaffProfileAndOptions(context, staffMember, Emojis.X + ": Please keep your slogan to a maximum length of " + MAX_SLOGAN_LENGTH + ".");
-        }
-        StaffMember updated = this.staffService.user(staffMember.getDiscordId())
-                .setSlogan(slogan);
-        return showStaffProfileAndOptions(context, updated, "Set your slogan:");
-    }
-
-    @CheckReturnValue
-    private boolean setLink(MessageReceivedEvent event, StaffMember staffMember) {
-        MessageContext context = new MessageContext(event);
-        String link = context.getMessage().getContentRaw();
-
-        return setLink(context, link, staffMember);
-    }
-
-    @CheckReturnValue
-    private boolean setLink(MessageContext context, String link, StaffMember staffMember) {
-        try {
-            URI uri = new URL(link).toURI();
-            StaffMember updated = this.staffService.user(staffMember.getDiscordId())
-                    .setLink(uri);
-            return showStaffProfileAndOptions(context, updated, "Set your link:");
-        } catch (MalformedURLException | URISyntaxException e) {
-            return showStaffProfileAndOptions(context, staffMember, Emojis.X + ": Failed to parsed your link. Please double check it's a real link.");
-        }
-
-    }
-
-    @CheckReturnValue
-    private boolean replyAndWaitForAnswer(MessageContext context, String sendMessage, Consumer<MessageReceivedEvent> action) {
-        context.reply(sendMessage);
-        this.eventWaiter.waitForEvent(
-                MessageReceivedEvent.class,
-                waitFor(context),
-                action,
-                1, TimeUnit.MINUTES,
-                () -> context.replyWithMention(EVENT_WAITER_TIMEOUT_MESSAGE)
-        );
-        return true;
-    }
-
-    @CheckReturnValue
-    private Predicate<MessageReceivedEvent> waitFor(MessageContext context) {
-        return messageReceived -> messageReceived.getAuthor().equals(context.getInvoker())
-                && messageReceived.getChannel().equals(context.getChannel());
+        context.replyWithMention("Sorry, I didn't get that.");
+        return showConversationOptions(context);
     }
 }

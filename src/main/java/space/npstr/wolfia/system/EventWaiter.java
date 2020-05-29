@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.system;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,7 +61,7 @@ public class EventWaiter {
     }
 
     public <T extends GenericEvent> EventWaiter.WaitingEvent<T> waitForEvent(
-            Class<T> classType, Predicate<T> condition, Consumer<T> action, long timeout, TimeUnit unit,
+            Class<T> classType, Predicate<T> condition, Consumer<T> action, Duration timeout,
             Runnable timeoutAction
     ) {
 
@@ -81,7 +82,7 @@ public class EventWaiter {
                 if (set.isEmpty()) {
                     this.waitingEvents.remove(classType);
                 }
-            }, timeout, unit);
+            }, timeout.toMillis(), TimeUnit.MILLISECONDS);
         });
         return we;
     }

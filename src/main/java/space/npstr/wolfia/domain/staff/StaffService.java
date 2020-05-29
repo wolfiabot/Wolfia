@@ -107,7 +107,7 @@ public class StaffService {
             this.staffService = staffService;
         }
 
-        Optional<StaffMember> get() {
+        public Optional<StaffMember> get() {
             return this.staffRepository.getStaffMember(userId)
                     .toCompletableFuture().join()
                     .flatMap(this.staffService::toStaffMember);
