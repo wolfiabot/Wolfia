@@ -24,13 +24,14 @@ import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
 import space.npstr.wolfia.commands.MessageContext;
+import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.Conversation;
 import space.npstr.wolfia.system.EventWaiter;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 @Command
-public class StaffCommand implements BaseCommand, Conversation {
+public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
 
     private static final String OPTION_PROFILE = "profile";
     private static final String OPTION_WOOF = "woof";
@@ -92,7 +93,7 @@ public class StaffCommand implements BaseCommand, Conversation {
                 + "\n- **" + OPTION_WOOF + "** to post a gif of a flying wolf"
                 + "\n- **" + OPTION_DONE + "** when you're done";
 
-        return replyAndWaitForAnswer(context, options, e -> optionSelected(e));
+        return replyAndWaitForAnswer(context, options, this::optionSelected);
     }
 
     @CheckReturnValue
