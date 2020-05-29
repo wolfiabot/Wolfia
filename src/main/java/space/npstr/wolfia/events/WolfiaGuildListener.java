@@ -43,7 +43,9 @@ public class WolfiaGuildListener {
 
     private static final String WELCOME_PATTERN = "Welcome %s to the **Wolfia Lounge**! Please take a moment and read "
             + "<#326353722701774848> for information, rules, and how to play games. Don't forget to enjoy and have "
-            + "fun! " + Emojis.WINK;
+            + "fun!" + Emojis.WINK; "We have games scheduled at 1 and 5 pm EST each Saturday and Sunday (go to "
+            + " <704040767026626621> to get roles that will be notified at it's respective time and day) but you are "
+            + "welcome to try and start your own as well! "
 
     @EventListener
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
