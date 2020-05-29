@@ -42,7 +42,7 @@ public class WolfiaGuildListener {
     public static final long RULES_CHANNEL_ID = 326353722701774848L; //#rules
 
     private static final String WELCOME_PATTERN = "Welcome %s to the **Wolfia Lounge**! Please take a moment and read "
-            + "<#326353722701774848> for information, rules, and how to play games. Also check <704040767026626621> "
+            + "<#326353722701774848> for information, rules, and how to play games. Also check <#704040767026626621> "
             + "for our scheduled games: you can give yourself the roles for the games you want to be notified about! "
             + "Don't forget to enjoy and have fun! " + Emojis.WINK;
 
