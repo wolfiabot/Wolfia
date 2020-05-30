@@ -66,6 +66,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
             "/api/test/**",
             LoginRedirect.ROUTE,
             "/index.html",
+            "/favicon.ico",
             "/static/**",
             "/"
     };
