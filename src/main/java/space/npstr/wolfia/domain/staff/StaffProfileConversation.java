@@ -47,7 +47,7 @@ class StaffProfileConversation implements Conversation {
     private static final String OPTION_REMOVE_LINK = "remove link";
     private static final String OPTION_DONE = "done";
 
-    private static final URI TEAM_WEBSITE = URI.create("https://bot.wolfia.party/#/team");
+    private static final URI TEAM_WEBSITE = URI.create("https://bot.wolfia.party/team");
     private static final int MAX_SLOGAN_LENGTH = 100;
 
     private final StaffService staffService;
