@@ -32,7 +32,7 @@
 	</div>
 	<div v-else class="navbar-item">
 		<div class="buttons">
-			<a class="button is-light" href="/api/login">
+			<a class="button is-light" href="/public/login">
 				<strong>Login</strong>
 			</a>
 		</div>

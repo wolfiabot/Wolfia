@@ -68,16 +68,12 @@ public class TogglzEndpointTest<T extends Session> extends ApplicationTest {
     }
 
     @Test
-    void whenGet_withoutAuthentication_redirectToLogin() throws Exception {
+    void whenGet_withoutAuthentication_returnUnauthorized() throws Exception {
         Request request = getTogglzConsole()
                 .build();
         Response response = httpClient.newCall(request).execute();
 
-        assertThat(response.isRedirect()).isTrue();
-        assertThat(response.header(HttpHeaders.LOCATION)).satisfiesAnyOf(
-                location -> assertThat(location).contains("login"),
-                location -> assertThat(location).contains("oauth2/authorization/discord")
-        );
+        assertThat(response.code()).isEqualTo(HttpStatus.FORBIDDEN.value());
     }
 
     @Test

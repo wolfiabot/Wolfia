@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LoginRedirect {
 
     public static final String INIT_DISCORD_LOGIN = "/oauth2/authorization/discord";
-    public static final String ROUTE = "/api/login";
+    public static final String ROUTE = "/public/login";
 
     @GetMapping
     public ResponseEntity<Void> login() {

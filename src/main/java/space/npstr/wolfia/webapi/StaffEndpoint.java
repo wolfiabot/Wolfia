@@ -25,7 +25,7 @@ import space.npstr.wolfia.domain.staff.StaffMember;
 import space.npstr.wolfia.domain.staff.StaffService;
 
 @RestController
-@RequestMapping("/api/staff")
+@RequestMapping("/public/staff")
 public class StaffEndpoint {
 
     private final StaffService staffService;

@@ -10,6 +10,11 @@ module.exports = {
 				ws: true,
 				changeOrigin: true,
 			},
+			"/public": {
+				target: "http://localhost:4567",
+				ws: true,
+				changeOrigin: true,
+			},
 		},
 		disableHostCheck: true,
 	},

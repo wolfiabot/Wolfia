@@ -31,7 +31,7 @@ export default new Vuex.Store({
 	},
 	actions: {
 		async [FETCH_USER](context) {
-			const response = await fetch("/api/user");
+			const response = await fetch("/public/user");
 			if (response.status === 200) {
 				let user = await response.json();
 				context.commit(LOAD_USER, new User(user.discordId, user.name, user.avatarId, user.discriminator));
@@ -39,7 +39,7 @@ export default new Vuex.Store({
 		},
 		async [LOG_OUT](context) {
 			let csrfToken = document.cookie.replace(/(?:(?:^|.*;\s*)XSRF-TOKEN\s*=\s*([^;]*).*$)|^.*$/, "$1");
-			await fetch("/api/login", {
+			await fetch("/public/login", {
 				method: "DELETE",
 				headers: {
 					"X-XSRF-TOKEN": csrfToken,
@@ -48,7 +48,7 @@ export default new Vuex.Store({
 			context.commit(UNLOAD_USER);
 		},
 		async [FETCH_STAFF](context) {
-			const response = await fetch("/api/staff");
+			const response = await fetch("/public/staff");
 			if (response.status === 200) {
 				const staff = await response.json();
 				let mappedStaff = staff.map((member) => {

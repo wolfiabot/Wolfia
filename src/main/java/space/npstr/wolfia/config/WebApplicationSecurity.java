@@ -46,10 +46,11 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequestEnti
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.webapi.Authorization;
-import space.npstr.wolfia.webapi.LoginRedirect;
 
 @Configuration
 public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
@@ -61,14 +62,14 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
             "/metrics",
     };
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/api/oauth2/**",
-            "/api/staff/**",
-            "/api/test/**",
-            LoginRedirect.ROUTE,
+            "/public/**",
             "/index.html",
             "/favicon.ico",
             "/static/**",
             "/"
+    };
+    private static final String[] SECURED_ENDPOINTS = {
+            "/api/**",
     };
 
     @Override
@@ -82,9 +83,15 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
                 .authorizeRequests()
+                .antMatchers(SECURED_ENDPOINTS).authenticated()
                 .antMatchers(noAuthEndpoints).permitAll()
-                .anyRequest().authenticated()
-                .and().oauth2Login().tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
+                .anyRequest().permitAll()
+                // To avoid redirects to the spring internal login page when unauthorized requests happen to machine endpoints
+                .and().exceptionHandling().defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), new AntPathRequestMatcher("/api/**"))
+                .and().oauth2Login()
+                // To avoid getting redirected to machine endpoints like /api/user after logging in
+                .defaultSuccessUrl("/", true)
+                .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
                 .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
         ;
     }

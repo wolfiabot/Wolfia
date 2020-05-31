@@ -46,7 +46,7 @@ import static space.npstr.wolfia.common.Exceptions.logIfFailed;
 @RequestMapping("/" + OAuth2Endpoint.CODE_GRANT_PATH)
 public class OAuth2Endpoint extends BaseEndpoint {
 
-    public static final String CODE_GRANT_PATH = "api/oauth2/discord";
+    public static final String CODE_GRANT_PATH = "public/oauth2/discord";
     public static final String GENERIC_ERROR_RESPONSE = "Something was off with your request. Try authorizing again with "
             + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER;
     public static final String WRONG_ACCOUNT_RESPONSE = "It looks like you are logged into a different account in your browser."
