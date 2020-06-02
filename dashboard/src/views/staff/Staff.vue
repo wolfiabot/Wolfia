@@ -18,7 +18,7 @@
 <template>
 	<div>
 		<div class="is-size-1">The team behind Wolfia</div>
-		<div id="staff" class="columns is-centered is-multiline">
+		<div id="staff" class="columns is-centered is-multiline" :class="{ 'is-loading': !staffLoaded }">
 			<div
 				class="member column is-half-tablet is-one-third-desktop"
 				v-for="member in staff"
@@ -47,6 +47,7 @@ export default {
 	computed: {
 		...mapState({
 			staff: (state) => [...state.staff].sort((a, b) => a.user.discordId - b.user.discordId),
+			staffLoaded: (state) => state.staffLoaded,
 		}),
 	},
 	methods: {
@@ -61,6 +62,9 @@ export default {
 #staff {
 	padding-right: 6em;
 	padding-left: 6em;
+	width: 100%;
+	height: 100%;
+	min-height: 10em;
 }
 .member {
 	padding: 1em;

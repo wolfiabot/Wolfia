@@ -82,10 +82,26 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 #app {
 	font-family: "Avenir", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+}
+
+@import "~bulma/sass/utilities/mixins";
+.is-loading {
+	position: relative;
+	pointer-events: none;
+	opacity: 0.5;
+	&:after {
+		@include loader;
+		position: absolute;
+		top: calc(50% - 2.5em);
+		left: calc(50% - 2.5em);
+		width: 5em;
+		height: 5em;
+		border-width: 0.25em;
+	}
 }
 </style>

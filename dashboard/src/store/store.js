@@ -7,13 +7,14 @@ import { StaffMember } from "@/store/staffmember";
 
 Vue.use(Vuex);
 
-let defaultUser = new User(42, "mysterious person", null, 42);
+let defaultUser = new User(69, "User McUserFace", null, "0420");
 
 export default new Vuex.Store({
 	strict: process.env.NODE_ENV !== "production", //see https://vuex.vuejs.org/guide/strict.html
 	state: {
 		userLoaded: false,
 		user: defaultUser,
+		staffLoaded: false,
 		staff: [],
 	},
 	mutations: {
@@ -27,6 +28,7 @@ export default new Vuex.Store({
 		},
 		[LOAD_STAFF](state, staff) {
 			state.staff = staff;
+			state.staffLoaded = true;
 		},
 	},
 	actions: {
@@ -56,6 +58,8 @@ export default new Vuex.Store({
 					return new StaffMember(user, member.function, member.slogan, member.link);
 				});
 				context.commit(LOAD_STAFF, mappedStaff);
+			} else {
+				setTimeout(() => context.dispatch(FETCH_STAFF), 1000);
 			}
 		},
 	},
