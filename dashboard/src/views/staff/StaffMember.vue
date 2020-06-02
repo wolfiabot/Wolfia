@@ -27,7 +27,7 @@
 			</div>
 			<div :class="staffBadgeClass">{{ member.renderStaffFunction() }}</div>
 			<div v-if="member.slogan !== null" class="is-italic slogan">{{ member.slogan }}</div>
-			<div v-if="member.link !== null">
+			<div v-if="member.link !== null" class="link">
 				<a :href="member.link" target="_blank">{{ member.link }}</a>
 			</div>
 		</div>
@@ -56,6 +56,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.link,
 .slogan,
 .username {
 	white-space: normal;
