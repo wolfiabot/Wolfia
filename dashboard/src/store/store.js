@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { LOAD_STAFF, LOAD_USER, UNLOAD_USER } from "@/store/mutation-types";
-import { FETCH_STAFF, FETCH_USER, LOG_OUT } from "@/store/action-types";
+import { FETCH_STAFF, FETCH_USER, FETCHING_STAFF, LOG_OUT } from "@/store/action-types";
 import { User } from "@/store/user";
 import { StaffMember } from "@/store/staffmember";
 
@@ -9,12 +9,15 @@ Vue.use(Vuex);
 
 let defaultUser = new User(69, "User McUserFace", null, "0420");
 
+const FETCH_STAFF_INTERNAL = "FETCH_STAFF_INTERNAL";
+
 export default new Vuex.Store({
 	strict: process.env.NODE_ENV !== "production", //see https://vuex.vuejs.org/guide/strict.html
 	state: {
 		userLoaded: false,
 		user: defaultUser,
-		staffLoaded: false,
+		staffLoading: false, //true each time there is a request for staff in flight
+		staffLoaded: false, //true as soon as we received the data for the first time
 		staff: [],
 	},
 	mutations: {
@@ -27,8 +30,12 @@ export default new Vuex.Store({
 			state.user = defaultUser;
 		},
 		[LOAD_STAFF](state, staff) {
+			state.staffLoading = false;
 			state.staff = staff;
 			state.staffLoaded = true;
+		},
+		[FETCHING_STAFF](state) {
+			state.staffLoading = true;
 		},
 	},
 	actions: {
@@ -50,16 +57,30 @@ export default new Vuex.Store({
 			context.commit(UNLOAD_USER);
 		},
 		async [FETCH_STAFF](context) {
-			const response = await fetch("/public/staff");
-			if (response.status === 200) {
-				const staff = await response.json();
-				let mappedStaff = staff.map((member) => {
-					const user = new User(member.discordId, member.name, member.avatarId, member.discriminator);
-					return new StaffMember(user, member.function, member.slogan, member.link);
-				});
-				context.commit(LOAD_STAFF, mappedStaff);
-			} else {
-				setTimeout(() => context.dispatch(FETCH_STAFF), 1000);
+			if (context.state.staffLoading) {
+				return;
+			}
+			context.commit(FETCHING_STAFF);
+			context.dispatch(FETCH_STAFF_INTERNAL);
+		},
+		async [FETCH_STAFF_INTERNAL](context) {
+			let failed = true;
+			try {
+				const response = await fetch("/public/staff");
+				if (response.status === 200) {
+					const staff = await response.json();
+					let mappedStaff = staff.map((member) => {
+						const user = new User(member.discordId, member.name, member.avatarId, member.discriminator);
+						return new StaffMember(user, member.function, member.slogan, member.link);
+					});
+					context.commit(LOAD_STAFF, mappedStaff);
+					failed = false;
+				}
+			} catch (err) {
+				console.log(err);
+			}
+			if (failed) {
+				setTimeout(() => context.dispatch(FETCH_STAFF_INTERNAL), 1000);
 			}
 		},
 	},
