@@ -3,10 +3,10 @@ layout: default
 ---
 
 {: .invite-image.center}
-[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://discordapp.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot)
+[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://discord.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscord.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot)
 
 {:.center}
-[Click the banner above to invite Wolfia](https://discordapp.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot)
+[Click the banner above to invite Wolfia](https://discord.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscord.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot)
 
 * * *
 
@@ -22,7 +22,7 @@ layout: default
         </ul>
         <p>
             <a href="https://discord.gg/nvcfX3q">
-                <img src="https://discordapp.com/api/guilds/315944983754571796/embed.png?style=banner2" alt="Join Wolfia Lounge">
+                <img src="https://discord.com/api/guilds/315944983754571796/embed.png?style=banner2" alt="Join Wolfia Lounge">
             </a>
         </p>
     </div>
@@ -220,13 +220,13 @@ Uptime over last 7 days:
 * * *
 
 {: .center}
-Coded with lots of ![](https://canary.discordapp.com/assets/25c09e6fde32411da2b0da00f5cb9c84.svg){:height="15" width="15"} by [Napster](https://npstr.space/)
+Coded with lots of ![](https://discord.com/assets/25c09e6fde32411da2b0da00f5cb9c84.svg){:height="15" width="15"} by [Napster](https://npstr.space/)
 
 
-[w]:https://canary.discordapp.com/assets/04ff67f3321f9158ad57242a5412782b.svg
-[v]:https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg
-[m]:https://canary.discordapp.com/assets/a39460d0f6baa307386a4bb2984de363.svg
-[t]:https://canary.discordapp.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg
-[gun]:https://canary.discordapp.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg
-[cop]:https://canary.discordapp.com/assets/3896096ba07324c04ed0fe7e1acc3643.svg
-[santa]:https://canary.discordapp.com/assets/37017a416c2a6ab030f0de3db9f6e73e.svg
+[w]:https://discord.com/assets/04ff67f3321f9158ad57242a5412782b.svg
+[v]:https://discord.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg
+[m]:https://discord.com/assets/a39460d0f6baa307386a4bb2984de363.svg
+[t]:https://discord.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg
+[gun]:https://discord.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg
+[cop]:https://discord.com/assets/3896096ba07324c04ed0fe7e1acc3643.svg
+[santa]:https://discord.com/assets/37017a416c2a6ab030f0de3db9f6e73e.svg

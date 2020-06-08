@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * This component serves two purposes: It secures the OAuth2 flow (see https://discordapp.com/developers/docs/topics/oauth2#state-and-security)
+ * This component serves two purposes: It secures the OAuth2 flow (see https://discord.com/developers/docs/topics/oauth2#state-and-security)
  * and it allows us to redirect the user back to whereever they started the flow from.
  */
 @Component

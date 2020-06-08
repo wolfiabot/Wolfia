@@ -10,9 +10,9 @@
 
 ## A Discord bot to play Mafia, Werewolf and similar games
 
-[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot)
+[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://discord.com/oauth2/authorize?&client_id=306583221565521921&scope=bot)
 
-[Click the banner above or this link](https://discordapp.com/oauth2/authorize?&client_id=306583221565521921&scope=bot)
+[Click the banner above or this link](https://discord.com/oauth2/authorize?&client_id=306583221565521921&scope=bot)
 
 ## Commands and supported modes
 
@@ -23,7 +23,7 @@ Please check out https://wolfia.party for a full list of commands and games!
 
 ## Support, feedback, roadmap and games in the Wolfia Lounge
 
-[![Join Wolfia Lounge](https://discordapp.com/api/guilds/315944983754571796/embed.png?style=banner2)](https://discord.gg/nvcfX3q)
+[![Join Wolfia Lounge](https://discord.com/api/guilds/315944983754571796/embed.png?style=banner2)](https://discord.gg/nvcfX3q)
 
 
 ## Selfhosting

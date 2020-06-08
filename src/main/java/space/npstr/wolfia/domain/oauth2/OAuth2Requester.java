@@ -56,12 +56,12 @@ public class OAuth2Requester {
 
     private static final Logger log = LoggerFactory.getLogger(OAuth2Requester.class);
 
-    //see https://discordapp.com/developers/docs/topics/oauth2#shared-resources-oauth2-urls
-    private static final String AUTHORIZATION_URL = "https://discordapp.com/api/oauth2/authorize";
-    private static final String TOKEN_URL = "https://discordapp.com/api/oauth2/token";
-    private static final String REVOCATION_URL = "https://discordapp.com/api/oauth2/token/revoke";
+    //see https://discord.com/developers/docs/topics/oauth2#shared-resources-oauth2-urls
+    private static final String AUTHORIZATION_URL = "https://discord.com/api/oauth2/authorize";
+    private static final String TOKEN_URL = "https://discord.com/api/oauth2/token";
+    private static final String REVOCATION_URL = "https://discord.com/api/oauth2/token/revoke";
 
-    private static final String DISCORD_API = "https://discordapp.com/api/v6";
+    private static final String DISCORD_API = "https://discord.com/api/v6";
     private static final String GET_USER_URL = DISCORD_API + "/users/@me";
 
     private final OAuth2Config oAuth2Config;
@@ -88,7 +88,7 @@ public class OAuth2Requester {
     }
 
     /**
-     * See https://discordapp.com/developers/docs/topics/oauth2#authorization-code-grant-access-token-exchange-example
+     * See https://discord.com/developers/docs/topics/oauth2#authorization-code-grant-access-token-exchange-example
      */
     @CheckReturnValue
     public CompletionStage<AccessTokenResponse> fetchCodeResponse(String code) {
@@ -114,7 +114,7 @@ public class OAuth2Requester {
     }
 
     /**
-     * See https://discordapp.com/developers/docs/resources/user#get-current-user
+     * See https://discord.com/developers/docs/resources/user#get-current-user
      *
      * @return the id of the user who the passed in accessToken belongs to
      */
@@ -135,7 +135,7 @@ public class OAuth2Requester {
     }
 
     /**
-     * See https://discordapp.com/developers/docs/topics/oauth2#authorization-code-grant-refresh-token-exchange-example
+     * See https://discord.com/developers/docs/topics/oauth2#authorization-code-grant-refresh-token-exchange-example
      *
      * @return a refreshed {@link OAuth2Data}
      */

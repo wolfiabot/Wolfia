@@ -21,7 +21,7 @@ import java.util.Optional;
 
 /**
  * Discord OAuth2 scopes supported by us.
- * See https://discordapp.com/developers/docs/topics/oauth2#shared-resources-oauth2-scopes for the full list.
+ * See https://discord.com/developers/docs/topics/oauth2#shared-resources-oauth2-scopes for the full list.
  */
 public enum OAuth2Scope {
 

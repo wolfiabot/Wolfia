@@ -210,7 +210,7 @@ services:
       - "traefik.http.routers.wolfia-redirect-invite.tls.certresolver=letsencrypt"
       - "traefik.http.routers.wolfia-redirect-invite.middlewares=whitelist@docker"
     environment:
-      - SERVER_REDIRECT=discordapp.com
-      - SERVER_REDIRECT_PATH=/oauth2/authorize?client_id=306583221565521921\&response_type=code\&redirect_uri=https%3A%2F%2Fdiscordapp.com%2Finvite%2FnvcfX3q\&permissions=268787777\&scope=bot
+      - SERVER_REDIRECT=discord.com
+      - SERVER_REDIRECT_PATH=/oauth2/authorize?client_id=306583221565521921\&response_type=code\&redirect_uri=https%3A%2F%2Fdiscord.com%2Finvite%2FnvcfX3q\&permissions=268787777\&scope=bot
       - SERVER_REDIRECT_SCHEME=https
       - SERVER_REDIRECT_CODE=307

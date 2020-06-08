@@ -44,9 +44,9 @@ spring:
             client-name: Log In With Discord
         provider:
           discord:
-            authorization-uri: https://discordapp.com/api/oauth2/authorize
-            token-uri: https://discordapp.com/api/oauth2/token
-            user-info-uri: https://discordapp.com/api/users/@me
+            authorization-uri: https://discord.com/api/oauth2/authorize
+            token-uri: https://discord.com/api/oauth2/token
+            user-info-uri: https://discord.com/api/users/@me
             username-attribute: username
   session:
     store-type: redis
