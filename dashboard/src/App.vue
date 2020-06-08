@@ -89,6 +89,7 @@ export default {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+/*Source: https://github.com/jgthms/bulma/issues/847*/
 @import "~bulma/sass/utilities/mixins";
 .is-loading {
 	position: relative;
