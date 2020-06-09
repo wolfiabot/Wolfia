@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { LOAD_STAFF, LOAD_USER, UNLOAD_USER } from "@/store/mutation-types";
-import { FETCH_STAFF, FETCH_USER, FETCHING_STAFF, LOG_OUT } from "@/store/action-types";
+import { FETCHING_STAFF, LOAD_STAFF, LOAD_USER, UNLOAD_USER } from "@/store/mutation-types";
+import { FETCH_STAFF, FETCH_USER, LOG_OUT } from "@/store/action-types";
 import { User } from "@/store/user";
 import { StaffMember } from "@/store/staffmember";
 
