@@ -26,6 +26,7 @@ import java.util.Optional;
 public enum OAuth2Scope {
 
     IDENTIFY("identify"),
+    GUILDS("guilds"),
     GUILD_JOIN("guilds.join");
 
     private final String discordName;

@@ -15,6 +15,11 @@ module.exports = {
 				ws: true,
 				changeOrigin: true,
 			},
+			"/oauth2": {
+				target: "http://localhost:4567",
+				ws: true,
+				changeOrigin: true,
+			},
 		},
 		disableHostCheck: true,
 	},

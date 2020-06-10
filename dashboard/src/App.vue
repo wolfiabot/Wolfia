@@ -23,6 +23,9 @@
 					<router-link to="/team" class="navbar-item">
 						Team
 					</router-link>
+					<router-link to="/dashboard" class="navbar-item">
+						Dashboard
+					</router-link>
 				</div>
 				<div class="navbar-end">
 					<UserNav></UserNav>

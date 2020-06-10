@@ -14,11 +14,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-export const LOAD_USER = "LOAD_USER";
-export const UNLOAD_USER = "UNLOAD_USER";
 
-export const LOAD_STAFF = "LOAD_STAFF";
-export const FETCHING_STAFF = "FETCHING_STAFF";
+package space.npstr.wolfia.webapi;
 
-export const LOAD_GUILDS = "LOAD_GUILDS";
-export const FETCHING_GUILDS = "FETCHING_GUILDS";
+import org.immutables.value.Value;
+import org.immutables.value.Value.Immutable;
+
+/**
+ * User that is doing the web request
+ */
+@Immutable
+@Value.Style(
+        stagedBuilder = true,
+        strictBuilder = true
+)
+public interface UserData {
+
+    /**
+     * discord id of the user
+     */
+    long id();
+
+    /**
+     * Oauth2 access token
+     */
+    String accessToken();
+}

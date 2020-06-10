@@ -14,11 +14,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-export const LOAD_USER = "LOAD_USER";
-export const UNLOAD_USER = "UNLOAD_USER";
+/**
+ * Represents a single Discord Guild.
+ */
+export class Guild {
+	constructor(discordId, name, icon, botPresent, canEdit) {
+		this.discordId = discordId;
+		this.name = name;
+		this.icon = icon;
+		this.botPresent = botPresent;
+		this.canEdit = canEdit;
+	}
 
-export const LOAD_STAFF = "LOAD_STAFF";
-export const FETCHING_STAFF = "FETCHING_STAFF";
+	iconUrl() {
+		if (this.icon === null || this.icon === "") {
+			return `https://discord.com/assets/2c21aeda16de354ba5334551a883b481.png`;
+		}
 
-export const LOAD_GUILDS = "LOAD_GUILDS";
-export const FETCHING_GUILDS = "FETCHING_GUILDS";
+		const ext = this.icon.startsWith("a_") ? "gif" : "png";
+		return `https://cdn.discordapp.com/icons/${this.discordId}/${this.icon}.${ext}`;
+	}
+}
