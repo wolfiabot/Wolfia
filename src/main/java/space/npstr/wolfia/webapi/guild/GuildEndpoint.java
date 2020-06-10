@@ -41,7 +41,6 @@ import space.npstr.wolfia.domain.guild.GuildInfo;
 import space.npstr.wolfia.domain.guild.RemoteGuildService;
 import space.npstr.wolfia.webapi.ImmutableUserData;
 import space.npstr.wolfia.webapi.UserData;
-import space.npstr.wolfia.webapi.user.UserEndpoint;
 
 import static org.springframework.http.ResponseEntity.notFound;
 
@@ -49,7 +48,7 @@ import static org.springframework.http.ResponseEntity.notFound;
 @RequestMapping("/api")
 public class GuildEndpoint {
 
-    private static final Logger log = LoggerFactory.getLogger(UserEndpoint.class);
+    private static final Logger log = LoggerFactory.getLogger(GuildEndpoint.class);
 
     private final OAuth2AuthorizedClientRepository repository;
     private final RemoteGuildService remoteGuildService;
@@ -124,7 +123,7 @@ public class GuildEndpoint {
             log.debug("Missing guilds scope");
             return Optional.empty();
         }
-        log.debug("{}", scopes.toString());
+        log.debug("{}", scopes);
 
 
         return Optional.of(

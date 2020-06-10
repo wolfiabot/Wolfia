@@ -73,7 +73,7 @@ public class DiscordRequester {
         }
 
         guilds.forEach(guild ->
-                log.debug("{} {} {} {} {}", guild.id(), guild.name(), guild.isOwner(), guild.icon(), guild.permissions())
+                log.debug("{} {} {} {} {}", guild.id(), guild.name(), guild.isOwner(), guild.icon(), guild.permissions())
         );
 
         return guilds;
