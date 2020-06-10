@@ -48,7 +48,7 @@ cache:
 jobs:
   include:
     - stage: build
-      jdk: openjdk11
+      jdk: openjdk14
       before_script:
         - java -Xmx32m -version
         - git fetch --unshallow
