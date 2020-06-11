@@ -32,7 +32,7 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import { FETCH_STAFF } from "@/store/action-types";
+import { FETCH_STAFF } from "@/components/staff/staff-store";
 import StaffCard from "@/components/staff/StaffCard";
 
 export default {
@@ -45,13 +45,13 @@ export default {
 	},
 
 	computed: {
-		...mapState({
+		...mapState("staff", {
 			staff: (state) => [...state.staff].sort((a, b) => a.user.discordId - b.user.discordId),
 			staffLoaded: (state) => state.staffLoaded,
 		}),
 	},
 	methods: {
-		...mapActions({
+		...mapActions("staff", {
 			fetchStaff: FETCH_STAFF,
 		}),
 	},

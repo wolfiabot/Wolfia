@@ -28,7 +28,7 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import { FETCH_GUILDS } from "@/store/action-types";
+import { FETCH_GUILDS } from "@/components/guild/guild-store";
 
 export default {
 	name: "GuildSettings",
@@ -39,7 +39,7 @@ export default {
 		this.fetchGuilds();
 	},
 	computed: {
-		...mapState({
+		...mapState("guild", {
 			loading(state) {
 				return !state.guildsLoaded;
 			},
@@ -49,7 +49,7 @@ export default {
 		}),
 	},
 	methods: {
-		...mapActions({
+		...mapActions("guild", {
 			fetchGuilds: FETCH_GUILDS,
 		}),
 	},

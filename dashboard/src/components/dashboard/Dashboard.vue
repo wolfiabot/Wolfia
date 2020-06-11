@@ -26,7 +26,7 @@
 import GuildList from "@/components/dashboard/GuildList";
 import LogIn from "@/components/LogIn";
 import { mapActions, mapState } from "vuex";
-import { FETCH_USER } from "@/store/action-types";
+import { FETCH_USER } from "@/components/user/user-store";
 
 export default {
 	name: "Dashboard",
@@ -38,13 +38,15 @@ export default {
 		this.fetchUser();
 	},
 	computed: {
-		...mapState({
+		...mapState("user", {
 			userLoaded: (state) => state.userLoaded,
 			user: (state) => state.user,
 		}),
 	},
 	methods: {
-		...mapActions({ fetchUser: FETCH_USER }),
+		...mapActions("user", {
+			fetchUser: FETCH_USER,
+		}),
 	},
 };
 </script>

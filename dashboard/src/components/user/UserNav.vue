@@ -41,7 +41,7 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import { FETCH_USER, LOG_OUT } from "@/store/action-types";
+import { FETCH_USER, LOG_OUT } from "@/components/user/user-store";
 
 export default {
 	name: "UserNav",
@@ -52,13 +52,13 @@ export default {
 	},
 
 	computed: {
-		...mapState({
+		...mapState("user", {
 			userLoaded: (state) => state.userLoaded,
 			user: (state) => state.user,
 		}),
 	},
 	methods: {
-		...mapActions({
+		...mapActions("user", {
 			logout: LOG_OUT,
 			fetchUser: FETCH_USER,
 		}),

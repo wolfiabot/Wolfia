@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { LOG_OUT } from "@/store/action-types";
+import { LOG_OUT } from "@/components/user/user-store";
 import { mapActions } from "vuex";
 
 export default {
@@ -17,7 +17,9 @@ export default {
 		user: Object,
 	},
 	methods: {
-		...mapActions({ logout: LOG_OUT }),
+		...mapActions("user", {
+			logout: LOG_OUT,
+		}),
 	},
 };
 </script>

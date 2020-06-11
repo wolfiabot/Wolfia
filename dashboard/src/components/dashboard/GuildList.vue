@@ -28,7 +28,7 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import { FETCH_GUILDS } from "@/store/action-types";
+import { FETCH_GUILDS } from "@/components/guild/guild-store";
 import GuildCard from "@/components/dashboard/GuildCard";
 
 export default {
@@ -38,7 +38,7 @@ export default {
 		this.fetchGuilds();
 	},
 	computed: {
-		...mapState({
+		...mapState("guild", {
 			guilds: (state) => {
 				return [...state.guilds].sort((a, b) => {
 					// Guilds where the user can edit the setting shown first
@@ -59,7 +59,7 @@ export default {
 		}),
 	},
 	methods: {
-		...mapActions({
+		...mapActions("guild", {
 			fetchGuilds: FETCH_GUILDS,
 		}),
 	},
