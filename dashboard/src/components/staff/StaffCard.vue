@@ -35,10 +35,10 @@
 </template>
 
 <script>
-import { StaffMember } from "@/store/staffmember";
+import { StaffMember } from "@/components/staff/staffmember";
 
 export default {
-	name: "StaffMember",
+	name: "StaffCard",
 	props: {
 		member: StaffMember,
 	},

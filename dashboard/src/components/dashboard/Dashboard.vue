@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import GuildList from "@/views/dashboard/GuildList";
+import GuildList from "@/components/dashboard/GuildList";
 import LogIn from "@/components/LogIn";
 import { mapActions, mapState } from "vuex";
 import { FETCH_USER } from "@/store/action-types";

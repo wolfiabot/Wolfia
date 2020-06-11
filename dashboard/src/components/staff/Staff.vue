@@ -17,10 +17,14 @@
 
 <template>
 	<div>
-		<div class="is-size-1">Please select the guild you want to edit.</div>
-		<div id="guildlist" class="columns is-centered is-multiline" :class="{ 'is-loading': !guildsLoaded }">
-			<div class="guildlist column is-half" v-for="guild in guilds" :key="guild.discordId">
-				<GuildCard :guild="guild" class="guildcard" />
+		<div class="is-size-1">The team behind Wolfia</div>
+		<div id="staff" class="columns is-centered is-multiline" :class="{ 'is-loading': !staffLoaded }">
+			<div
+				class="column is-half-tablet is-one-third-desktop"
+				v-for="member in staff"
+				:key="member.user.discordId"
+			>
+				<StaffCard :member="member" class="staffcard" />
 			</div>
 		</div>
 	</div>
@@ -28,53 +32,41 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-import { FETCH_GUILDS } from "@/store/action-types";
-import GuildCard from "@/views/dashboard/GuildCard";
+import { FETCH_STAFF } from "@/store/action-types";
+import StaffCard from "@/components/staff/StaffCard";
 
 export default {
-	name: "GuildList",
-	components: { GuildCard },
-	mounted() {
-		this.fetchGuilds();
+	name: "Staff",
+	components: {
+		StaffCard,
 	},
+	mounted() {
+		this.fetchStaff();
+	},
+
 	computed: {
 		...mapState({
-			guilds: (state) => {
-				return [...state.guilds].sort((a, b) => {
-					// Guilds where the user can edit the setting shown first
-					if (a.canEdit !== b.canEdit) {
-						return b.canEdit - a.canEdit;
-					}
-
-					// Guilds where the bot is present next
-					if (a.botPresent !== b.botPresent) {
-						return b.botPresent - a.botPresent;
-					}
-
-					// Order by discord id (= age) otherwise
-					return a.discordId - b.discordId;
-				});
-			},
-			guildsLoaded: (state) => state.guildsLoaded,
+			staff: (state) => [...state.staff].sort((a, b) => a.user.discordId - b.user.discordId),
+			staffLoaded: (state) => state.staffLoaded,
 		}),
 	},
 	methods: {
 		...mapActions({
-			fetchGuilds: FETCH_GUILDS,
+			fetchStaff: FETCH_STAFF,
 		}),
 	},
 };
 </script>
 
 <style scoped>
-#guildlist {
+#staff {
 	padding-right: 6em;
 	padding-left: 6em;
 	width: 100%;
 	height: 100%;
 	min-height: 10em;
 }
-.guildcard {
+.staffcard {
 	padding: 1em;
 }
 </style>

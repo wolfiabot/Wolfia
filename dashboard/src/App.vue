@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import UserNav from "@/components/UserNav";
+import UserNav from "@/components/user/UserNav";
 
 export default {
 	components: {

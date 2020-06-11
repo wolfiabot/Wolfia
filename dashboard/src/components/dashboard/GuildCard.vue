@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { Guild } from "@/store/guild";
+import { Guild } from "@/components/guild/guild";
 
 export default {
 	name: "GuildCard",

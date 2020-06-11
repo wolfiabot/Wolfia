@@ -9,9 +9,9 @@ import {
 	UNLOAD_USER,
 } from "@/store/mutation-types";
 import { FETCH_GUILDS, FETCH_STAFF, FETCH_USER, LOG_OUT } from "@/store/action-types";
-import { User } from "@/store/user";
-import { StaffMember } from "@/store/staffmember";
-import { Guild } from "@/store/guild";
+import { User } from "@/components/user/user";
+import { StaffMember } from "@/components/staff/staffmember";
+import { Guild } from "@/components/guild/guild";
 
 Vue.use(Vuex);
 
