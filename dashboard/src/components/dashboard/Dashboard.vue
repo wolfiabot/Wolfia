@@ -17,11 +17,11 @@
 
 <template>
 	<div class="container">
-		<div v-if="userLoaded">
+		<LogIn v-if="!userLoaded" />
+		<div v-else>
 			<GuildList v-if="!id" />
-			<GuildSettings :id="id" v-else />
+			<GuildSettings v-else :id="id" />
 		</div>
-		<LogIn v-else />
 	</div>
 </template>
 
