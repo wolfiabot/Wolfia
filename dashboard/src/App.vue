@@ -3,7 +3,7 @@
 		<nav id="nav" class="navbar has-text-weight-bold">
 			<div class="navbar-brand">
 				<a class="navbar-item" href="/">
-					<img src="https://i.imgur.com/7Ie8tB3.png" alt="Play Werewolf/Mafia in Discord" />
+					<img src="./assets/logo.png" alt="Play Werewolf/Mafia in Discord" />
 				</a>
 				<a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
 					<span aria-hidden="true"></span>
