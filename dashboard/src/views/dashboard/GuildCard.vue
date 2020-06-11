@@ -16,22 +16,22 @@
   -->
 
 <template>
-	<div class="card">
+	<div class="card guildcard">
 		<figure class="card-image">
 			<img alt="Guild logo" class="is-square" :src="guild.iconUrl()" />
 		</figure>
-		<div class="card-content has-text-left">
+		<div class="card-content">
 			<div class="guildname">
-				<strong class="is-size-4">{{ guild.name }}</strong>
+				<strong class="is-size-3">{{ guild.name }}</strong>
 			</div>
 		</div>
-		<footer class="card-footer">
-			<div v-if="!guild.botPresent" class="card-footer-item">
-				<a href="https://bot.wolfia.party/invite" target="_blank">Invite</a>
-			</div>
-			<div v-if="guild.canEdit" class="card-footer-item">
-				<a :href="'/guild/' + guild.discordId">Settings</a>
-			</div>
+		<footer class="card-footer is-size-4">
+			<a v-if="!guild.botPresent" class="card-footer-item" href="https://bot.wolfia.party/invite" target="_blank">
+				Invite
+			</a>
+			<a v-if="guild.canEdit" class="card-footer-item" :href="'/guild/' + guild.discordId">
+				Settings
+			</a>
 		</footer>
 	</div>
 </template>
@@ -40,11 +40,22 @@
 import { Guild } from "@/store/guild";
 
 export default {
-	name: "Guild",
+	name: "GuildCard",
 	props: {
 		guild: Guild,
 	},
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+@import "node_modules/bulmaswatch/darkly/variables";
+.card-footer-item {
+	background-image: linear-gradient(to right, rgba(255, 255, 255, 0) 50%, $primary 50%);
+	background-position: -0% 0;
+	background-size: 200% auto;
+	transition: background-position 0.5s ease-out;
+}
+.card-footer-item:hover {
+	background-position: -99.99% 0;
+}
+</style>

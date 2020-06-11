@@ -19,8 +19,8 @@
 	<div>
 		<div class="is-size-1">Please select the guild you want to edit.</div>
 		<div id="guildlist" class="columns is-centered is-multiline" :class="{ 'is-loading': !guildsLoaded }">
-			<div class="guild column is-half" v-for="guild in guilds" :key="guild.discordId">
-				<Guild :guild="guild" class="guild" />
+			<div class="guildlist column is-half" v-for="guild in guilds" :key="guild.discordId">
+				<GuildCard :guild="guild" class="guildcard" />
 			</div>
 		</div>
 	</div>
@@ -29,11 +29,11 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { FETCH_GUILDS } from "@/store/action-types";
-import Guild from "@/views/dashboard/Guild";
+import GuildCard from "@/views/dashboard/GuildCard";
 
 export default {
 	name: "GuildList",
-	components: { Guild },
+	components: { GuildCard },
 	mounted() {
 		this.fetchGuilds();
 	},
@@ -74,7 +74,7 @@ export default {
 	height: 100%;
 	min-height: 10em;
 }
-.guild {
+.guildcard {
 	padding: 1em;
 }
 </style>
