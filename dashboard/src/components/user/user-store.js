@@ -21,6 +21,7 @@ export const LOG_OUT = "LOG_OUT";
 
 const LOAD_USER = "LOAD_USER";
 const UNLOAD_USER = "UNLOAD_USER";
+const FETCHING_USER = "FETCHING_USER";
 
 const defaultUser = new User(69, "User McUserFace", null, "0420");
 
@@ -28,12 +29,14 @@ export const userStore = {
 	namespaced: true,
 	modules: {},
 	state: () => ({
-		userLoaded: false,
+		userLoading: false, //true each time there is a request for the user in flight
+		userLoaded: false, //true as soon as we received the data for the first time, false after logout
 		user: defaultUser,
 	}),
 	getters: {},
 	mutations: {
 		[LOAD_USER](state, user) {
+			state.userLoading = false;
 			state.user = user;
 			state.userLoaded = true;
 		},
@@ -41,9 +44,13 @@ export const userStore = {
 			state.userLoaded = false;
 			state.user = defaultUser;
 		},
+		[FETCHING_USER](state) {
+			state.userLoading = true;
+		},
 	},
 	actions: {
 		async [FETCH_USER](context) {
+			context.commit(FETCHING_USER);
 			const response = await fetch("/public/user");
 			if (response.status === 200) {
 				let user = await response.json();

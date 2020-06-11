@@ -16,15 +16,17 @@
   -->
 
 <template>
-	<div v-if="loading">Loading</div>
-	<div v-else-if="guild">
-		<figure class="card-image">
-			<img alt="Guild logo" class="is-square" :src="guild.iconUrl()" />
-		</figure>
-		<strong>Henlo, {{ guild.name }}</strong>
+	<div class="guild-settings">
+		<div v-if="loading" class="is-loading"></div>
+		<div v-else-if="guild">
+			<figure class="card-image">
+				<img alt="Guild logo" class="is-square" :src="guild.iconUrl()" />
+			</figure>
+			<strong>Henlo, {{ guild.name }}</strong>
+		</div>
+		<!-- TODO better fallback -->
+		<div v-else>Nope</div>
 	</div>
-	<!-- TODO better fallback -->
-	<div v-else>Nope</div>
 </template>
 
 <script>

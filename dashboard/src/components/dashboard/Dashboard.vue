@@ -16,8 +16,9 @@
   -->
 
 <template>
-	<div class="container">
-		<LogIn v-if="!userLoaded" />
+	<div class="dashboard">
+		<div v-if="loading" class="is-loading"></div>
+		<LogIn v-else-if="!userLoaded" />
 		<div v-else>
 			<GuildList v-if="!id" />
 			<GuildSettings v-else :id="id" />
@@ -47,6 +48,7 @@ export default {
 	},
 	computed: {
 		...mapState("user", {
+			loading: (state) => !state.userLoaded && state.userLoading,
 			userLoaded: (state) => state.userLoaded,
 			user: (state) => state.user,
 		}),
