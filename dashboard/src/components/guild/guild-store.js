@@ -56,7 +56,6 @@ export const guildStore = {
 				const response = await fetch("/api/guilds");
 				if (response.status === 200) {
 					const guildInfos = await response.json();
-					console.log(guildInfos);
 					let mappedGuilds = guildInfos.map((guildInfo) => {
 						return new Guild(
 							guildInfo.guild.id,

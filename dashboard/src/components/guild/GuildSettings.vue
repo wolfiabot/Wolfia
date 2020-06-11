@@ -23,6 +23,7 @@
 		</figure>
 		<strong>Henlo, {{ guild.name }}</strong>
 	</div>
+	<!-- TODO better fallback -->
 	<div v-else>Nope</div>
 </template>
 
