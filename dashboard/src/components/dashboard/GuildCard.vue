@@ -29,9 +29,9 @@
 			<a v-if="!guild.botPresent" class="card-footer-item" href="https://bot.wolfia.party/invite" target="_blank">
 				Invite
 			</a>
-			<a v-if="guild.canEdit" class="card-footer-item" :href="'/guild/' + guild.discordId">
+			<router-link v-if="guild.canEdit" class="card-footer-item" :to="'/dashboard/' + guild.discordId">
 				Settings
-			</a>
+			</router-link>
 		</footer>
 	</div>
 </template>

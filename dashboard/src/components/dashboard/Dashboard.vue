@@ -17,7 +17,10 @@
 
 <template>
 	<div class="container">
-		<GuildList v-if="userLoaded" />
+		<div v-if="userLoaded">
+			<GuildList v-if="!id" />
+			<GuildSettings :id="id" v-else />
+		</div>
 		<LogIn v-else />
 	</div>
 </template>
@@ -27,12 +30,17 @@ import GuildList from "@/components/dashboard/GuildList";
 import LogIn from "@/components/LogIn";
 import { mapActions, mapState } from "vuex";
 import { FETCH_USER } from "@/components/user/user-store";
+import GuildSettings from "@/components/guild/GuildSettings";
 
 export default {
 	name: "Dashboard",
 	components: {
 		GuildList,
+		GuildSettings,
 		LogIn,
+	},
+	props: {
+		id: String,
 	},
 	mounted() {
 		this.fetchUser();

@@ -41,14 +41,9 @@ const routes = [
 		component: () => import(/* webpackChunkName: "team" */ "@/components/staff/Staff.vue"),
 	},
 	{
-		path: "/dashboard",
+		path: "/dashboard/:id?",
 		name: "dashboard",
 		component: () => import(/* webpackChunkName: "dashboard" */ "@/components/dashboard/Dashboard.vue"),
-	},
-	{
-		path: "/guild/:id",
-		name: "guild settings",
-		component: () => import(/* webpackChunkName: "guild" */ "@/components/guild/GuildSettings.vue"),
 		props: true,
 	},
 ];
