@@ -72,7 +72,6 @@ export default {
 	padding-left: 6em;
 	width: 100%;
 	height: 100%;
-	min-height: 10em;
 }
 .guildcard {
 	padding: 1em;

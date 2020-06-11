@@ -98,6 +98,7 @@ export default {
 	position: relative;
 	pointer-events: none;
 	opacity: 0.5;
+	min-height: 10em;
 	&:after {
 		@include loader;
 		position: absolute;
