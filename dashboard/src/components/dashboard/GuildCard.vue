@@ -26,7 +26,13 @@
 			</div>
 		</div>
 		<footer class="card-footer is-size-4">
-			<a v-if="!guild.botPresent" class="card-footer-item" href="https://bot.wolfia.party/invite" target="_blank">
+			<a
+				v-if="!guild.botPresent"
+				class="card-footer-item"
+				:href="`/invite?guild_id=${guild.discordId}&redirect_uri=${getHost()}/dashboard`"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
 				Invite
 			</a>
 			<router-link v-if="guild.canEdit" class="card-footer-item" :to="'/dashboard/' + guild.discordId">
@@ -43,6 +49,11 @@ export default {
 	name: "GuildCard",
 	props: {
 		guild: Guild,
+	},
+	methods: {
+		getHost: function () {
+			return "https://" + location.host;
+		},
 	},
 };
 </script>

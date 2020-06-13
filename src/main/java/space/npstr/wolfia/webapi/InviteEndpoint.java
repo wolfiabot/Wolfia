@@ -53,7 +53,8 @@ public class InviteEndpoint {
      */
     @GetMapping
     public ResponseEntity<Void> redirectToInvite(
-            @RequestParam(required = false, name = "guild_id") Optional<String> guildId
+            @RequestParam(required = false, name = "guild_id") Optional<String> guildId,
+            @RequestParam(required = false, name = "redirect_uri") Optional<String> redirectUri
     ) {
         HttpUrl.Builder inviteUrlBuilder = new HttpUrl.Builder()
                 .scheme("https")
@@ -64,9 +65,9 @@ public class InviteEndpoint {
                 .addQueryParameter("scope", "bot")
                 .addQueryParameter("permissions", Long.toString(getPermissions()))
                 // This is a hack that will redirect the user after the invite to the Wolfia Lounge.
-                // It is probably a bad idea to redirect to URLs we don't trust as they might received OAuth2 access tokens of the user.
+                // It is probably a bad idea to redirect to URLs we don't trust as they might receive OAuth2 access tokens of the user.
                 .addQueryParameter("response_type", "code")
-                .addQueryParameter("redirect_uri", App.WOLFIA_LOUNGE_INVITE);
+                .addQueryParameter("redirect_uri", redirectUri.orElse(App.WOLFIA_LOUNGE_INVITE));
 
         guildId.ifPresent(s -> inviteUrlBuilder.addQueryParameter("guild_id", s));
 

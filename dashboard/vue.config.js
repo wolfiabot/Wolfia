@@ -20,6 +20,11 @@ module.exports = {
 				ws: true,
 				changeOrigin: true,
 			},
+			"/invite": {
+				target: "http://localhost:4567",
+				ws: true,
+				changeOrigin: true,
+			},
 		},
 		disableHostCheck: true,
 	},

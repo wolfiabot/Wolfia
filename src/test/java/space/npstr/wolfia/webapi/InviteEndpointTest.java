@@ -76,4 +76,20 @@ class InviteEndpointTest extends ApplicationTest {
         };
     }
 
+    @Test
+    void whenGetWithCustomRedirectUri_redirectHasRedirectToCustomUri() throws Exception {
+        String redirectUri = "https://example.org/foo?bar=baz";
+        mockMvc.perform(get("/invite?redirect_uri={redirectUri}", redirectUri))
+                .andExpect(hasRedirectUrl(redirectUri));
+    }
+
+    private ResultMatcher hasRedirectUrl(String redirectUrl) {
+        return result -> {
+            String location = result.getResponse().getHeader(HttpHeaders.LOCATION);
+            assertThat(location).isNotNull();
+            HttpUrl httpUrl = HttpUrl.get(location);
+            assertThat(httpUrl).isNotNull();
+            assertThat(httpUrl.queryParameter("redirect_uri")).isEqualTo(redirectUrl);
+        };
+    }
 }
