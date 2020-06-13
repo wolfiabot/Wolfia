@@ -66,7 +66,8 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
             "/index.html",
             "/favicon.ico",
             "/static/**",
-            "/"
+            "/",
+            "/invite",
     };
     private static final String[] SECURED_ENDPOINTS = {
             "/api/**",

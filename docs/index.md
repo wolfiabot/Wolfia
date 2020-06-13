@@ -3,10 +3,10 @@ layout: default
 ---
 
 {: .invite-image.center}
-[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://discord.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscord.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot)
+[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://bot.wolfia.party/invite)
 
 {:.center}
-[Click the banner above to invite Wolfia](https://discord.com/oauth2/authorize?client_id=306583221565521921&response_type=code&redirect_uri=https%3A%2F%2Fdiscord.com%2Finvite%2FnvcfX3q&permissions=268787777&scope=bot)
+[Click the banner above to invite Wolfia](https://bot.wolfia.party/invite)
 
 * * *
 

@@ -17,8 +17,12 @@
 
 package space.npstr.wolfia;
 
+import java.util.stream.Stream;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.cache.ShardCacheView;
 import net.dv8tion.jda.api.utils.cache.SnowflakeCacheView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,10 +31,14 @@ import space.npstr.wolfia.config.ShardManagerFactory;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 @Profile(SpringProfiles.TEST)
 @Configuration
 public class DiscordApiConfig {
+
+    public static long SELF_ID = uniqueLong();
 
     // the shardManagerFactory is required to ensure the same dependencies between beans exist
     // in the test application context as in the real application context
@@ -48,6 +56,17 @@ public class DiscordApiConfig {
 
         SnowflakeCacheView guildCache = mock(SnowflakeCacheView.class);
         doReturn(guildCache).when(shardManager).getGuildCache();
+
+        ShardCacheView shardCache = mock(ShardCacheView.class);
+        doReturn(shardCache).when(shardManager).getShardCache();
+
+        JDA jda = mock(JDA.class);
+        when(shardCache.stream()).thenAnswer(invocation -> Stream.of(jda));
+
+        SelfUser selfUser = mock(SelfUser.class);
+        when(jda.getSelfUser()).thenReturn(selfUser);
+
+        when(selfUser.getIdLong()).thenReturn(SELF_ID);
 
         return shardManager;
     }

@@ -10,9 +10,9 @@
 
 ## A Discord bot to play Mafia, Werewolf and similar games
 
-[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://discord.com/oauth2/authorize?&client_id=306583221565521921&scope=bot)
+[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://bot.wolfia.party/invite)
 
-[Click the banner above or this link](https://discord.com/oauth2/authorize?&client_id=306583221565521921&scope=bot)
+[Click the banner above or this link](https://bot.wolfia.party/invite)
 
 ## Commands and supported modes
 
