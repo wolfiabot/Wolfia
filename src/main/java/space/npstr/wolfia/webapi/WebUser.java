@@ -17,10 +17,12 @@
 
 package space.npstr.wolfia.webapi;
 
+import java.util.Set;
 import org.immutables.value.Value;
 import org.immutables.value.Value.Immutable;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import space.npstr.wolfia.db.type.OAuth2Scope;
 
 /**
  * User that is doing the web request
@@ -46,4 +48,12 @@ public interface WebUser {
      * Oauth2 access token
      */
     OAuth2AccessToken accessToken();
+
+    /**
+     * @return true if this web user has access to the requested scope
+     */
+    default boolean hasScope(OAuth2Scope scope) {
+        Set<String> scopes = accessToken().getScopes();
+        return scopes.contains(scope.discordName());
+    }
 }

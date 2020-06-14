@@ -19,7 +19,6 @@ package space.npstr.wolfia.webapi.guild;
 
 import java.util.List;
 import javax.annotation.Nullable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 import space.npstr.wolfia.db.type.OAuth2Scope;
 import space.npstr.wolfia.domain.guild.GuildInfo;
 import space.npstr.wolfia.domain.guild.RemoteGuildService;
-import space.npstr.wolfia.webapi.AccessVerifier;
 import space.npstr.wolfia.webapi.BaseEndpoint;
 import space.npstr.wolfia.webapi.WebUser;
 
@@ -38,22 +36,19 @@ import static org.springframework.http.ResponseEntity.notFound;
 @RequestMapping("/api")
 public class GuildEndpoint extends BaseEndpoint {
 
-    private final AccessVerifier accessVerifier;
     private final RemoteGuildService remoteGuildService;
 
-    public GuildEndpoint(AccessVerifier accessVerifier, RemoteGuildService remoteGuildService) {
-
-        this.accessVerifier = accessVerifier;
+    public GuildEndpoint(RemoteGuildService remoteGuildService) {
         this.remoteGuildService = remoteGuildService;
     }
 
     @GetMapping("/guild/{guildId}")
     public ResponseEntity<GuildInfo> getGuild(@PathVariable long guildId, @Nullable WebUser user) {
         if (user == null) {
-            return nope();
+            return unauthorized();
         }
-        if (!this.accessVerifier.hasScope(user, OAuth2Scope.GUILDS)) {
-            return nope();
+        if (!user.hasScope(OAuth2Scope.GUILDS)) {
+            return unauthorized();
         }
 
         return this.remoteGuildService.asUser(user)
@@ -63,21 +58,14 @@ public class GuildEndpoint extends BaseEndpoint {
     }
 
     @GetMapping("/guilds")
-    public ResponseEntity<List<GuildInfo>> getGuilds(WebUser user) {
-        if (user == null) {
-            return nope();
-        }
-        if (!this.accessVerifier.hasScope(user, OAuth2Scope.GUILDS)) {
-            return nope();
+    public ResponseEntity<List<GuildInfo>> getGuilds(@Nullable WebUser user) {
+        if (user == null || !user.hasScope(OAuth2Scope.GUILDS)) {
+            return unauthorized();
         }
 
         return ResponseEntity.ok(
                 this.remoteGuildService.asUser(user)
                         .fetchAllGuilds()
         );
-    }
-
-    private <T> ResponseEntity<T> nope() {
-        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }
