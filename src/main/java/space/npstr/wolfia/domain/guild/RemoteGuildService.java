@@ -30,7 +30,7 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.domain.discord.DiscordRequester;
 import space.npstr.wolfia.domain.discord.PartialGuild;
-import space.npstr.wolfia.webapi.UserData;
+import space.npstr.wolfia.webapi.WebUser;
 
 import static java.util.Optional.ofNullable;
 
@@ -46,7 +46,7 @@ public class RemoteGuildService {
     private final DiscordRequester discordRequester;
     private final ShardManager shardManager;
 
-    private final Cache<UserData, List<PartialGuild>> cache = Caffeine.newBuilder()
+    private final Cache<WebUser, List<PartialGuild>> cache = Caffeine.newBuilder()
             .expireAfterWrite(CACHE_DURATION)
             .build();
 
@@ -55,15 +55,15 @@ public class RemoteGuildService {
         this.shardManager = shardManager;
     }
 
-    public Action asUser(UserData userData) {
-        return new Action(userData);
+    public Action asUser(WebUser webUser) {
+        return new Action(webUser);
     }
 
     public class Action {
-        private final UserData userData;
+        private final WebUser webUser;
 
-        private Action(UserData userData) {
-            this.userData = userData;
+        private Action(WebUser webUser) {
+            this.webUser = webUser;
         }
 
         public Optional<GuildInfo> fetchGuild(long guildId) {
@@ -73,10 +73,10 @@ public class RemoteGuildService {
         }
 
         public List<GuildInfo> fetchAllGuilds() {
-            return ofNullable(cache.get(this.userData, data -> discordRequester.fetchAllGuilds(data.accessToken())))
+            return ofNullable(cache.get(this.webUser, user -> discordRequester.fetchAllGuilds(user.accessToken().getTokenValue())))
                     .orElseGet(List::of)
                     .stream()
-                    .map(partialGuild -> toGuildInfo(partialGuild, this.userData.id()))
+                    .map(partialGuild -> toGuildInfo(partialGuild, this.webUser.id()))
                     .collect(Collectors.toList());
         }
 

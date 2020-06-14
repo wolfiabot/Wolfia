@@ -22,28 +22,27 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import space.npstr.wolfia.webapi.WebUser;
 
 @RestController
 @RequestMapping("/public/user")
 public class UserEndpoint {
 
     @GetMapping
-    public ResponseEntity<SelfUser> getSelf() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof OAuth2User)) {
+    public ResponseEntity<SelfUser> getSelf(@Nullable WebUser webUser) {
+        if (webUser == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        OAuth2User principal = (OAuth2User) authentication.getPrincipal();
 
+        OAuth2User principal = webUser.principal();
         Map<String, Object> attributes = principal.getAttributes();
         String userId = (String) attributes.get("id");
         String discriminator = (String) attributes.get("discriminator");

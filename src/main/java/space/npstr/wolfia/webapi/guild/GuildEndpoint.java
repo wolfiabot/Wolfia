@@ -18,20 +18,9 @@
 package space.npstr.wolfia.webapi.guild;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,98 +28,52 @@ import org.springframework.web.bind.annotation.RestController;
 import space.npstr.wolfia.db.type.OAuth2Scope;
 import space.npstr.wolfia.domain.guild.GuildInfo;
 import space.npstr.wolfia.domain.guild.RemoteGuildService;
-import space.npstr.wolfia.webapi.ImmutableUserData;
-import space.npstr.wolfia.webapi.UserData;
+import space.npstr.wolfia.webapi.AccessVerifier;
+import space.npstr.wolfia.webapi.BaseEndpoint;
+import space.npstr.wolfia.webapi.WebUser;
 
 import static org.springframework.http.ResponseEntity.notFound;
 
 @RestController
 @RequestMapping("/api")
-public class GuildEndpoint {
+public class GuildEndpoint extends BaseEndpoint {
 
-    private static final Logger log = LoggerFactory.getLogger(GuildEndpoint.class);
-
-    private final OAuth2AuthorizedClientRepository repository;
+    private final AccessVerifier accessVerifier;
     private final RemoteGuildService remoteGuildService;
 
-    public GuildEndpoint(OAuth2AuthorizedClientRepository repository, RemoteGuildService remoteGuildService) {
-        this.repository = repository;
+    public GuildEndpoint(AccessVerifier accessVerifier, RemoteGuildService remoteGuildService) {
+
+        this.accessVerifier = accessVerifier;
         this.remoteGuildService = remoteGuildService;
     }
 
     @GetMapping("/guild/{guildId}")
-    public ResponseEntity<GuildInfo> getGuild(HttpServletRequest request, @PathVariable long guildId) {
-        Optional<UserData> userDataOpt = identifyUser(request);
-        if (userDataOpt.isEmpty()) {
+    public ResponseEntity<GuildInfo> getGuild(@PathVariable long guildId, @Nullable WebUser user) {
+        if (user == null) {
+            return nope();
+        }
+        if (!this.accessVerifier.hasScope(user, OAuth2Scope.GUILDS)) {
             return nope();
         }
 
-        UserData userData = userDataOpt.get();
-
-        return this.remoteGuildService.asUser(userData)
+        return this.remoteGuildService.asUser(user)
                 .fetchGuild(guildId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> notFound().build());
     }
 
     @GetMapping("/guilds")
-    public ResponseEntity<List<GuildInfo>> getGuilds(HttpServletRequest request) {
-        Optional<UserData> userDataOpt = identifyUser(request);
-        if (userDataOpt.isEmpty()) {
+    public ResponseEntity<List<GuildInfo>> getGuilds(WebUser user) {
+        if (user == null) {
             return nope();
         }
-        UserData userData = userDataOpt.get();
+        if (!this.accessVerifier.hasScope(user, OAuth2Scope.GUILDS)) {
+            return nope();
+        }
+
         return ResponseEntity.ok(
-                this.remoteGuildService.asUser(userData)
+                this.remoteGuildService.asUser(user)
                         .fetchAllGuilds()
-        );
-    }
-
-
-    private Optional<UserData> identifyUser(HttpServletRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null
-                || !(authentication instanceof OAuth2AuthenticationToken)
-                || !(authentication.getPrincipal() instanceof OAuth2User)) {
-            log.debug("Missing authentication or wrong types");
-            return Optional.empty();
-        }
-        OAuth2AuthenticationToken authenticationToken = (OAuth2AuthenticationToken) authentication;
-        OAuth2User principal = (OAuth2User) authentication.getPrincipal();
-        String userIdStr = (String) principal.getAttributes().get("id");
-        long userId;
-        try {
-            userId = Long.parseLong(userIdStr);
-        } catch (NumberFormatException e) {
-            log.warn("User id '{}' is not a valid long!", userIdStr);
-            return Optional.empty();
-        }
-
-        String clientRegistrationId = authenticationToken.getAuthorizedClientRegistrationId();
-        OAuth2AuthorizedClient client = repository.loadAuthorizedClient(clientRegistrationId, authentication, request);
-        if (client == null) {
-            log.debug("Missing OAuth2AuthorizedClient");
-            return Optional.empty();
-        }
-        OAuth2AccessToken accessToken = client.getAccessToken();
-        if (accessToken == null) {
-            log.debug("Missing OAuth2AccessToken");
-            return Optional.empty();
-        }
-
-        Set<String> scopes = accessToken.getScopes();
-        if (!scopes.contains(OAuth2Scope.GUILDS.discordName())) {
-            log.debug("Missing guilds scope");
-            return Optional.empty();
-        }
-        log.debug("{}", scopes);
-
-
-        return Optional.of(
-                ImmutableUserData.builder()
-                        .id(userId)
-                        .accessToken(accessToken.getTokenValue())
-                        .build()
         );
     }
 

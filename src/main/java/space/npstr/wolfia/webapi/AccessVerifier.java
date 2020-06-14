@@ -17,26 +17,28 @@
 
 package space.npstr.wolfia.webapi;
 
-import org.immutables.value.Value;
-import org.immutables.value.Value.Immutable;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import space.npstr.wolfia.db.type.OAuth2Scope;
 
 /**
- * User that is doing the web request
+ * Help verify user access to various resources at the web controller level.
  */
-@Immutable
-@Value.Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public interface UserData {
+@Component
+public class AccessVerifier {
 
-    /**
-     * discord id of the user
-     */
-    long id();
+    private static final Logger log = LoggerFactory.getLogger(AccessVerifier.class);
 
-    /**
-     * Oauth2 access token
-     */
-    String accessToken();
+    public boolean hasScope(WebUser user, OAuth2Scope scope) {
+        Set<String> scopes = user.accessToken().getScopes();
+        if (!scopes.contains(scope.discordName())) {
+            log.debug("Missing guilds scope");
+            return false;
+        }
+
+        return true;
+    }
 }
+
