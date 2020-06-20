@@ -18,7 +18,7 @@
 <template>
 	<div class="card guildcard">
 		<figure class="card-image">
-			<img alt="Guild logo" class="is-square" :src="guild.iconUrl()" />
+			<img alt="Guild logo" class="is-square guild-logo" :src="guild.iconUrl()" />
 		</figure>
 		<div class="card-content">
 			<div class="guildname">
@@ -68,5 +68,9 @@ export default {
 }
 .card-footer-item:hover {
 	background-position: -99.99% 0;
+}
+.guild-logo {
+	height: 10em;
+	width: 10em;
 }
 </style>
