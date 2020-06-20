@@ -22,6 +22,7 @@ export const LOG_OUT = "LOG_OUT";
 const LOAD_USER = "LOAD_USER";
 const UNLOAD_USER = "UNLOAD_USER";
 const FETCHING_USER = "FETCHING_USER";
+const LOAD_FAILED = "LOAD_FAILED";
 
 const defaultUser = new User(69, "User McUserFace", null, "0420");
 
@@ -47,6 +48,9 @@ export const userStore = {
 		[FETCHING_USER](state) {
 			state.userLoading = true;
 		},
+		[LOAD_FAILED](state) {
+			state.userLoading = false;
+		},
 	},
 	actions: {
 		async [FETCH_USER](context) {
@@ -55,6 +59,8 @@ export const userStore = {
 			if (response.status === 200) {
 				let user = await response.json();
 				context.commit(LOAD_USER, new User(user.discordId, user.name, user.avatarId, user.discriminator));
+			} else {
+				context.commit(LOAD_FAILED);
 			}
 		},
 		async [LOG_OUT](context) {
