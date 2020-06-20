@@ -17,56 +17,54 @@
 
 package space.npstr.wolfia.webapi.guild;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
+import java.util.List;
+import javax.annotation.Nullable;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import space.npstr.wolfia.db.type.OAuth2Scope;
+import space.npstr.wolfia.domain.guild.GuildInfo;
 import space.npstr.wolfia.domain.guild.RemoteGuildService;
-import space.npstr.wolfia.webapi.BaseEndpoint;
 import space.npstr.wolfia.webapi.WebUser;
 
-public abstract class GuildEndpoint extends BaseEndpoint {
+@RestController
+@RequestMapping("/api")
+public class GuildInfoEndpoint extends GuildEndpoint {
 
     private final RemoteGuildService remoteGuildService;
-    private final ShardManager shardManager;
 
-    public GuildEndpoint(RemoteGuildService remoteGuildService, ShardManager shardManager) {
+    public GuildInfoEndpoint(RemoteGuildService remoteGuildService, ShardManager shardManager) {
+        super(remoteGuildService, shardManager);
         this.remoteGuildService = remoteGuildService;
-        this.shardManager = shardManager;
     }
 
-    protected WebContext assertGuildAccess(WebUser user, long guildId) {
+    @GetMapping("/guild/{guildId}")
+    public ResponseEntity<GuildInfo> getGuild(@PathVariable long guildId, @Nullable WebUser user) {
+        WebContext context = assertGuildAccess(user, guildId);
+
+        return this.remoteGuildService.asUser(context.user)
+                .fetchGuild(guildId)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/guilds")
+    public ResponseEntity<List<GuildInfo>> getGuilds(@Nullable WebUser user) {
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
         if (!user.hasScope(OAuth2Scope.GUILDS)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        if (!this.remoteGuildService.asUser(user).knowsGuild(guildId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
 
-        Guild guild = getGuild(guildId);
-        Member member = getMember(guild, user.id());
-
-        return new WebContext(user, guild, member);
-    }
-
-    protected Guild getGuild(long guildId) {
-        Guild guild = this.shardManager.getGuildById(guildId);
-        if (guild == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        return guild;
-    }
-
-    protected Member getMember(Guild guild, long userId) {
-        Member member = guild.getMemberById(userId);
-        if (member == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
-        return member;
+        return ResponseEntity.ok(
+                this.remoteGuildService.asUser(user)
+                        .fetchAllGuilds()
+        );
     }
 }

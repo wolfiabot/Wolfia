@@ -17,14 +17,11 @@
 
 package space.npstr.wolfia.domain.settings;
 
-import net.dv8tion.jda.api.entities.Guild;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class GuildSettingsRepositoryTest extends ApplicationTest {
@@ -64,16 +61,11 @@ class GuildSettingsRepositoryTest extends ApplicationTest {
         long guildId = uniqueLong();
         String name = "Wolfia Lounge";
 
-        Guild guild = mock(Guild.class);
-        doReturn(guildId).when(guild).getIdLong();
-        doReturn(name).when(guild).getName();
-
         this.repository.set(guildId, name, null)
                 .toCompletableFuture().join();
 
         var settings = this.repository.findOneOrDefault(guildId)
                 .toCompletableFuture().join();
-
         assertThat(settings.getGuildId()).isEqualTo(guildId);
         assertThat(settings.getName()).isEqualTo(name);
         assertThat(settings.getIconId()).isEmpty();

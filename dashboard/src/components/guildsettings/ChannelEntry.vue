@@ -16,47 +16,30 @@
   -->
 
 <template>
-	<div class="dashboard">
-		<div v-if="loading" class="is-loading"></div>
-		<LogIn v-else-if="!userLoaded" />
-		<div v-else>
-			<GuildList v-if="!guildId" />
-			<GuildSettings v-else :guild-id="guildId" />
+	<div class="level is-mobile">
+		<div class="level-left">
+			<span class="level-item">#{{ channel.name }}</span>
+		</div>
+		<div class="level-right">
+			<div class="level-item field">
+				<b-switch :value="channel.isGameChannel" @click.prevent.native="toggle"></b-switch>
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
-import GuildList from "@/components/dashboard/GuildList";
-import LogIn from "@/components/LogIn";
-import { mapActions, mapState } from "vuex";
-import { FETCH_USER } from "@/components/user/user-store";
-import GuildSettings from "@/components/guildsettings/GuildSettings";
+import { ChannelSettings } from "@/components/guildsettings/channel-settings";
 
 export default {
-	name: "Dashboard",
-	components: {
-		GuildList,
-		GuildSettings,
-		LogIn,
-	},
+	name: "ChannelEntry",
 	props: {
-		guildId: String,
-	},
-	mounted() {
-		this.fetchUser();
-	},
-	computed: {
-		...mapState("user", {
-			loading: (state) => !state.userLoaded && state.userLoading,
-			userLoaded: (state) => state.userLoaded,
-			user: (state) => state.user,
-		}),
+		channel: ChannelSettings,
 	},
 	methods: {
-		...mapActions("user", {
-			fetchUser: FETCH_USER,
-		}),
+		toggle() {
+			this.$emit("toggle", this.channel);
+		},
 	},
 };
 </script>

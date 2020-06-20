@@ -17,11 +17,11 @@
 
 package space.npstr.wolfia.domain.settings;
 
-import org.springframework.stereotype.Service;
-
 import java.time.Clock;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ChannelSettingsService {
@@ -32,6 +32,23 @@ public class ChannelSettingsService {
     public ChannelSettingsService(ChannelSettingsRepository repository, Clock clock) {
         this.repository = repository;
         this.clock = clock;
+    }
+
+    public MultiAction channels(Collection<Long> channelIds) {
+        return new MultiAction(channelIds);
+    }
+
+    public class MultiAction {
+        private final Collection<Long> channelIds;
+
+        private MultiAction(Collection<Long> channelIds) {
+            this.channelIds = channelIds;
+        }
+
+        public List<ChannelSettings> getOrDefault() {
+            return repository.findOrDefault(channelIds)
+                    .toCompletableFuture().join();
+        }
     }
 
     /**
@@ -69,6 +86,16 @@ public class ChannelSettingsService {
 
         public ChannelSettings disableAutoOut() {
             return repository.setAutoOut(this.channelId, false)
+                    .toCompletableFuture().join();
+        }
+
+        public ChannelSettings enableGameChannel() {
+            return repository.setGameChannel(this.channelId, true)
+                    .toCompletableFuture().join();
+        }
+
+        public ChannelSettings disableGameChannel() {
+            return repository.setGameChannel(this.channelId, false)
                     .toCompletableFuture().join();
         }
 

@@ -5,6 +5,7 @@ import store from "@/store";
 import * as Sentry from "@sentry/browser";
 import * as Integrations from "@sentry/integrations";
 import Buefy from "buefy";
+import "buefy/dist/buefy.css";
 import "bulmaswatch/darkly/bulmaswatch.scss";
 
 Vue.use(Buefy);

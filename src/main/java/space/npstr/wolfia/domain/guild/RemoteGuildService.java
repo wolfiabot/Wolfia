@@ -66,6 +66,10 @@ public class RemoteGuildService {
             this.webUser = webUser;
         }
 
+        public boolean knowsGuild(long guildId) {
+            return fetchGuild(guildId).isPresent();
+        }
+
         public Optional<GuildInfo> fetchGuild(long guildId) {
             return fetchAllGuilds().stream()
                     .filter(guildInfo -> guildInfo.guild().id() == guildId)

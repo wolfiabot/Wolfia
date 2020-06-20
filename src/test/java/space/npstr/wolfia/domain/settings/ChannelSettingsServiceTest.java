@@ -17,11 +17,10 @@
 
 package space.npstr.wolfia.domain.settings;
 
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -75,6 +74,26 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
         assertThat(settings.isAutoOut()).isFalse();
+    }
+
+    @Test
+    void whenEnablingGameChannel_gameChannelShouldBeEnabled() {
+        long channelId = uniqueLong();
+
+        this.service.channel(channelId).enableGameChannel();
+
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        assertThat(settings.isGameChannel()).isTrue();
+    }
+
+    @Test
+    void whenDisablingGameChannel_gameChannelShouldBeDisabled() {
+        long channelId = uniqueLong();
+
+        this.service.channel(channelId).disableGameChannel();
+
+        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        assertThat(settings.isGameChannel()).isFalse();
     }
 
     @Test

@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.domain.settings;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
@@ -75,6 +76,32 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
         assertThat(settings.getTagCooldownMinutes()).isEqualTo(tagCooldown);
+    }
+
+    @Test
+    void givenMixedExistingEntries_whenFetchingDefault_returnRequestedEntries() {
+        long channelIdA = uniqueLong();
+        long channelIdB = uniqueLong();
+
+        this.repository.setTagCooldown(channelIdA, uniqueLong())
+                .toCompletableFuture().join();
+
+        var settingsList = this.repository.findOrDefault(List.of(channelIdA, channelIdB))
+                .toCompletableFuture().join();
+
+        assertThat(settingsList).hasSize(2);
+        assertThat(settingsList).anySatisfy(channelSettings -> {
+            assertThat(channelSettings.getChannelId()).isEqualTo(channelIdA);
+        });
+        assertThat(settingsList).anySatisfy(channelSettings -> {
+            assertThat(channelSettings.getChannelId()).isEqualTo(channelIdB);
+        });
+        var createdA = this.repository.findOne(channelIdA)
+                .toCompletableFuture().join();
+        assertThat(createdA.isPresent()).isTrue();
+        var createdB = this.repository.findOne(channelIdB)
+                .toCompletableFuture().join();
+        assertThat(createdB.isPresent()).isFalse();
     }
 
 }

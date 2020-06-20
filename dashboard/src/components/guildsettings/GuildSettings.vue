@@ -18,11 +18,18 @@
 <template>
 	<div class="guild-settings">
 		<div v-if="loading" class="is-loading"></div>
-		<div v-else-if="guild">
-			<figure class="card-image">
-				<img alt="Guild logo" class="is-square" :src="guild.iconUrl()" />
-			</figure>
-			<strong>Henlo, {{ guild.name }}</strong>
+		<div v-else-if="guild && guildSettings">
+			<div class="box">
+				<figure class="card-image">
+					<img alt="Guild logo" class="is-square" :src="guild.iconUrl()" />
+				</figure>
+				<div class="is-size-3">
+					<strong>{{ guild.name }}</strong>
+				</div>
+			</div>
+			<div class="columns is-centered">
+				<GameChannels :guild-id="guild.discordId" :guildSettings="guildSettings" class="column is-half" />
+			</div>
 		</div>
 		<!-- TODO better fallback -->
 		<div v-else>Nope</div>
@@ -32,28 +39,46 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { FETCH_GUILDS } from "@/components/guild/guild-store";
+import GameChannels from "@/components/dashboard/GameChannels";
+import { FETCH_GUILD_SETTINGS } from "@/components/guildsettings/guild-settings-store";
 
 export default {
 	name: "GuildSettings",
+	components: { GameChannels },
 	props: {
-		id: String,
+		guildId: String,
 	},
 	mounted() {
 		this.fetchGuilds();
+		this.fetchGuildSettings(this.guildId);
 	},
 	computed: {
 		...mapState("guild", {
-			loading(state) {
+			loadingGuild(state) {
 				return !state.guildsLoaded;
 			},
 			guild(state) {
-				return state.guilds.find((g) => g.discordId === this.id);
+				return state.guilds.find((g) => g.discordId === this.guildId);
 			},
 		}),
+		...mapState("guildSettings", {
+			loadingGuildSettings(state) {
+				return !state.guildSettingsLoaded;
+			},
+			guildSettings(state) {
+				return state.guildSettings;
+			},
+		}),
+		loading: function () {
+			return this.loadingGuild || this.loadingGuildSettings;
+		},
 	},
 	methods: {
 		...mapActions("guild", {
 			fetchGuilds: FETCH_GUILDS,
+		}),
+		...mapActions("guildSettings", {
+			fetchGuildSettings: FETCH_GUILD_SETTINGS,
 		}),
 	},
 };

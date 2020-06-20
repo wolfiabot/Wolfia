@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.game;
 
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -25,9 +26,9 @@ import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.GameStarter;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.room.PrivateRoomService;
+import space.npstr.wolfia.domain.settings.ChannelSettings;
+import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-
-import javax.annotation.Nonnull;
 
 /**
  * Created by npstr on 14.09.2016
@@ -42,11 +43,15 @@ public class StartCommand implements BaseCommand, PublicCommand {
     private final GameStarter gameStarter;
     private final PrivateRoomService privateRoomService;
     private final GameRegistry gameRegistry;
+    private final ChannelSettingsService channelSettingsService;
 
-    public StartCommand(GameStarter gameStarter, PrivateRoomService privateRoomService, GameRegistry gameRegistry) {
+    public StartCommand(GameStarter gameStarter, PrivateRoomService privateRoomService, GameRegistry gameRegistry,
+                        ChannelSettingsService channelSettingsService) {
+
         this.gameStarter = gameStarter;
         this.privateRoomService = privateRoomService;
         this.gameRegistry = gameRegistry;
+        this.channelSettingsService = channelSettingsService;
     }
 
     @Override
@@ -77,6 +82,12 @@ public class StartCommand implements BaseCommand, PublicCommand {
         //check for private guilds where we dont want games to be started
         if (this.privateRoomService.guild(context.guild.getIdLong()).isPrivateRoom()) {
             context.replyWithMention("you can't play games in a private guild.");
+            return false;
+        }
+
+        ChannelSettings channelSettings = this.channelSettingsService.channel(context.getChannel().getIdLong()).getOrDefault();
+        if (!channelSettings.isGameChannel()) {
+            context.replyWithMention("this channel may not be used for playing games.");
             return false;
         }
 

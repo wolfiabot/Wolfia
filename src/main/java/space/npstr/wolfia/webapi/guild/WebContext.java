@@ -15,25 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Vue from "vue";
-import Vuex from "vuex";
-import { userStore } from "@/components/user/user-store";
-import { staffStore } from "@/components/staff/staff-store";
-import { guildStore } from "@/components/guild/guild-store";
-import { guildSettingsStore } from "@/components/guildsettings/guild-settings-store";
+package space.npstr.wolfia.webapi.guild;
 
-Vue.use(Vuex);
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import space.npstr.wolfia.webapi.WebUser;
 
-export default new Vuex.Store({
-	strict: process.env.NODE_ENV !== "production", //see https://vuex.vuejs.org/guide/strict.html
-	modules: {
-		user: userStore,
-		staff: staffStore,
-		guild: guildStore,
-		guildSettings: guildSettingsStore,
-	},
-	state: {},
-	getters: {},
-	mutations: {},
-	actions: {},
-});
+class WebContext {
+    public final WebUser user;
+    public final Guild guild;
+    public final Member member;
+
+    WebContext(WebUser user, Guild guild, Member member) {
+        this.user = user;
+        this.guild = guild;
+        this.member = member;
+    }
+}

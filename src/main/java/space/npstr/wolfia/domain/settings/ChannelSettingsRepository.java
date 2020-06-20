@@ -17,15 +17,16 @@
 
 package space.npstr.wolfia.domain.settings;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.CheckReturnValue;
 import org.jooq.Field;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import space.npstr.wolfia.db.AsyncDbWrapper;
-
-import javax.annotation.CheckReturnValue;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.concurrent.CompletionStage;
 
 import static space.npstr.wolfia.db.ExtendedPostgresDSL.arrayAppendDistinct;
 import static space.npstr.wolfia.db.ExtendedPostgresDSL.arrayDiff;
@@ -70,6 +71,29 @@ public class ChannelSettingsRepository {
     }
 
     @CheckReturnValue
+    public CompletionStage<List<ChannelSettings>> findOrDefault(Collection<Long> channelIds) {
+        if (channelIds.isEmpty()) {
+            return CompletableFuture.completedFuture(List.of());
+        }
+
+        return this.wrapper.jooq(dsl -> {
+            var insert = dsl.insertInto(CHANNEL_SETTINGS)
+                    .columns(CHANNEL_SETTINGS.CHANNEL_ID);
+            for (long channelId : channelIds) {
+                insert = insert.values(channelId);
+            }
+            // See https://github.com/jOOQ/jOOQ/issues/5214#issuecomment-213574749
+            var excluded = CHANNEL_SETTINGS.as("excluded");
+            return insert
+                    .onDuplicateKeyUpdate() // cant ignore, otherwise returning() will be empty on conflict
+                    .set(CHANNEL_SETTINGS.CHANNEL_ID, excluded.CHANNEL_ID)
+                    .returning()
+                    .fetch()
+                    .into(ChannelSettings.class);
+        });
+    }
+
+    @CheckReturnValue
     public CompletionStage<ChannelSettings> setAccessRoleId(long channelId, long accessRoleId) {
         return set(channelId, CHANNEL_SETTINGS.ACCESS_ROLE_ID, accessRoleId);
     }
@@ -77,6 +101,11 @@ public class ChannelSettingsRepository {
     @CheckReturnValue
     public CompletionStage<ChannelSettings> setAutoOut(long channelId, boolean autoOut) {
         return set(channelId, CHANNEL_SETTINGS.AUTO_OUT, autoOut);
+    }
+
+    @CheckReturnValue
+    public CompletionStage<ChannelSettings> setGameChannel(long channelId, boolean isGameChannel) {
+        return set(channelId, CHANNEL_SETTINGS.IS_GAME_CHANNEL, isGameChannel);
     }
 
     @CheckReturnValue
