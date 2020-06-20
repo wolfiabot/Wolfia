@@ -72,7 +72,7 @@ export const guildStore = {
 				console.log(err);
 			}
 			if (failed) {
-				setTimeout(() => context.dispatch(FETCH_GUILDS_INTERNAL, 5000));
+				setTimeout(() => context.dispatch(FETCH_GUILDS_INTERNAL), 5000);
 			}
 		},
 	},
