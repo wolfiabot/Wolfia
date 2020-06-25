@@ -1,25 +1,26 @@
 ---
 
 wolfia:
-  debug:            true   # Some things are different. Set to false to properly run the bot.
-  discordToken:     ""     # Discord bot token
-  logChannelId:     0      # Id of a channel where to post general bot activity like games starting and ending.
+  debug:           true   # Some things are different. Set to false to properly run the bot.
+  discordToken:    ""     # Discord bot token
+  logChannelId:    0      # Id of a channel where to post general bot activity like games starting and ending.
 
 database:
-  jdbcUrl:          ""     # Postgres database. When running with the bundled docker-compose file, set to jdbc:postgresql://db:5432/wolfia?user=wolfia
+  jdbcUrl:         ""     # Postgres database. When running with the bundled docker-compose file, set to "jdbc:postgresql://db:5442/wolfia?user=wolfia&password=wolfia"
 
 oauth2:
-  clientId:         ""
-  clientSecret:     ""
-  baseRedirectUrl:  ""
+  clientId:        ""     # From Discord's Developer console: https://discord.com/developers/applications
+  clientSecret:    ""     # From Discord's Developer console: https://discord.com/developers/applications
+  baseRedirectUrl: "/"    # URL that should be redirected to after a successful authentication (usually the root).
+  #baseRedirectUrl: "https://xyz.ngrok.io" # During development, put in your ngrok subdomain and uncomment instead of line above.
 
 server:
-  port:             4567   # Port of Wolfia's API.
+  port:            4567   # Port of Wolfia's API.
   servlet:
     application-display-name: "Wolfia"
 
 sentry:
-  dsn:              ""     # Error aggregation service. See https://sentry.io
+  dsn:             ""     # Error aggregation service. See https://sentry.io
 
 spring:
   main:
@@ -28,20 +29,21 @@ spring:
     ansi:
       enabled: always
   redis:
-    url: ""
+    url:           ""     # Redis database. When running with the bundled docker-compose file, set to "redis://localhost:6389/0"
   security:
     oauth2:
       client:
         registration:
           discord:
-            client-id: "foo"
-            client-secret: "bar"
+            client-id: ""      # From Discord's Developer console: https://discord.com/developers/applications
+            client-secret: ""      # From Discord's Developer console: https://discord.com/developers/applications
             client-authentication-method: post
             authorization-grant-type: authorization_code
             scope:
               - identify
               - guilds
             redirect-uri: "{baseUrl}/login/oauth2/code/discord"
+            #redirect-uri: "https://xyz.ngrok.io/login/oauth2/code/discord" # During development, put in your ngrok subdomain and uncomment instead of line above.
             client-name: Log In With Discord
         provider:
           discord:
@@ -74,3 +76,4 @@ logging:
   level:
     root: INFO
     space.npstr: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
