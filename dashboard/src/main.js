@@ -7,6 +7,7 @@ import * as Integrations from "@sentry/integrations";
 import Buefy from "buefy";
 import "buefy/dist/buefy.css";
 import "bulmaswatch/darkly/bulmaswatch.scss";
+import fetcher from "@/fetcher";
 
 Vue.use(Buefy);
 
@@ -26,6 +27,7 @@ if (process.env.NODE_ENV === "production") {
 
 Vue.config.productionTip = false;
 
+fetcher.setStore(store);
 new Vue({
 	router,
 	store,

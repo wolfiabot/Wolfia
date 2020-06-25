@@ -16,6 +16,7 @@
  */
 import { User } from "@/components/user/user";
 import { StaffMember } from "@/components/staff/staffmember";
+import fetcher from "@/fetcher";
 
 export const FETCH_STAFF = "FETCH_STAFF";
 
@@ -52,24 +53,17 @@ export const staffStore = {
 			context.dispatch(FETCH_STAFF_INTERNAL);
 		},
 		async [FETCH_STAFF_INTERNAL](context) {
-			let failed = true;
-			try {
-				const response = await fetch("/public/staff");
-				if (response.status === 200) {
-					const staff = await response.json();
-					let mappedStaff = staff.map((member) => {
-						const user = new User(member.discordId, member.name, member.avatarId, member.discriminator);
-						return new StaffMember(user, member.function, member.slogan, member.link);
-					});
-					context.commit(LOAD_STAFF, mappedStaff);
-					failed = false;
-				}
-			} catch (err) {
-				console.log(err);
-			}
-			if (failed) {
+			const staff = await fetcher.get("/public/staff");
+			if (!staff) {
 				setTimeout(() => context.dispatch(FETCH_STAFF_INTERNAL), 5000);
+				return;
 			}
+
+			let mappedStaff = staff.map((member) => {
+				const user = new User(member.discordId, member.name, member.avatarId, member.discriminator);
+				return new StaffMember(user, member.function, member.slogan, member.link);
+			});
+			context.commit(LOAD_STAFF, mappedStaff);
 		},
 	},
 };

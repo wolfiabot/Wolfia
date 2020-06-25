@@ -18,7 +18,6 @@
 package space.npstr.wolfia.webapi.user;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +29,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import space.npstr.wolfia.db.type.OAuth2Scope;
+import space.npstr.wolfia.domain.discord.DiscordRequester;
+import space.npstr.wolfia.domain.discord.PartialUser;
 import space.npstr.wolfia.webapi.BaseEndpoint;
 import space.npstr.wolfia.webapi.WebUser;
 
@@ -37,18 +38,25 @@ import space.npstr.wolfia.webapi.WebUser;
 @RequestMapping("/public/user")
 public class UserEndpoint extends BaseEndpoint {
 
+    private final DiscordRequester discordRequester;
+
+    public UserEndpoint(DiscordRequester discordRequester) {
+        this.discordRequester = discordRequester;
+    }
+
     @GetMapping
     public ResponseEntity<SelfUser> getSelf(@Nullable WebUser user) {
         if (user == null || !user.hasScope(OAuth2Scope.IDENTIFY)) {
             return unauthorized();
         }
 
-        OAuth2User principal = user.principal();
-        Map<String, Object> attributes = principal.getAttributes();
-        String userId = (String) attributes.get("id");
-        String discriminator = (String) attributes.get("discriminator");
-        String avatar = (String) attributes.get("avatar");
+        // Explicitly fetching the user ensures that the token still works and is not expired or revoked.
+        PartialUser partialUser = this.discordRequester.fetchUser(user.accessToken().getTokenValue());
+        long userId = partialUser.id();
+        String discriminator = partialUser.discriminator();
+        String avatar = partialUser.avatar();
 
+        OAuth2User principal = user.principal();
         Set<String> roles = filterAndCollectByPrefix(principal.getAuthorities(), "ROLE_");
         Set<String> scopes = filterAndCollectByPrefix(principal.getAuthorities(), "SCOPE_");
 

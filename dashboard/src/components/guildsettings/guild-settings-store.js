@@ -16,7 +16,7 @@
  */
 import { GuildSettings } from "@/components/guildsettings/guild-settings";
 import { ChannelSettings } from "@/components/guildsettings/channel-settings";
-import { ToastProgrammatic as Toast } from "buefy";
+import fetcher from "@/fetcher";
 
 export const FETCH_GUILD_SETTINGS = "FETCH_GUILD_SETTINGS";
 export const SET_GAME_CHANNEL = "SET_GAME_CHANNEL";
@@ -53,21 +53,16 @@ export const guildSettingsStore = {
 			context.commit(FETCHING_GUILD_SETTINGS);
 			context.dispatch(FETCH_GUILD_SETTINGS_INTERNAL, guildId);
 		},
+
 		async [FETCH_GUILD_SETTINGS_INTERNAL](context, guildId) {
-			let failed = true;
-			try {
-				const response = await fetch(`/api/guild_settings/${guildId}`);
-				if (response.status === 200) {
-					await storeGuildSettings(context, response);
-					failed = false;
-				}
-			} catch (err) {
-				console.log(err);
-			}
-			if (failed) {
+			const guildSettings = await fetcher.get(`/api/guild_settings/${guildId}`);
+			if (!guildSettings) {
 				setTimeout(() => context.dispatch(FETCH_GUILD_SETTINGS_INTERNAL, guildId), 5000);
+				return;
 			}
+			storeGuildSettings(context, guildSettings);
 		},
+
 		async [SET_GAME_CHANNEL](context, { guildId, body }) {
 			await setGameChannel(context, guildId, body);
 		},
@@ -75,30 +70,13 @@ export const guildSettingsStore = {
 };
 
 async function setGameChannel(context, guildId, body) {
-	try {
-		let csrfToken = document.cookie.replace(/(?:(?:^|.*;\s*)XSRF-TOKEN\s*=\s*([^;]*).*$)|^.*$/, "$1");
-		const response = await fetch(`/api/guild_settings/${guildId}/channel_settings/game_channel`, {
-			method: "POST",
-			headers: {
-				"X-XSRF-TOKEN": csrfToken,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(body),
-		});
-		if (response.status === 200) {
-			await storeGuildSettings(context, response);
-		}
-	} catch (err) {
-		Toast.open({
-			message: "Oh no, is your internet down?",
-			type: "is-danger",
-		});
-		console.log(err);
+	const guildSettings = await fetcher.post(`/api/guild_settings/${guildId}/channel_settings/game_channel`, body);
+	if (guildSettings) {
+		storeGuildSettings(context, guildSettings);
 	}
 }
 
-async function storeGuildSettings(context, response) {
-	const guildSettings = await response.json();
+function storeGuildSettings(context, guildSettings) {
 	const channelSettings = guildSettings.channelSettings.map((cs) => {
 		return new ChannelSettings(cs.discordId, cs.name, cs.isGameChannel);
 	});

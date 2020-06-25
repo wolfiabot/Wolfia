@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import { Guild } from "@/components/guild/guild";
+import fetcher from "@/fetcher";
 
 export const FETCH_GUILDS = "FETCH_GUILDS";
 
@@ -51,29 +52,21 @@ export const guildStore = {
 			context.dispatch(FETCH_GUILDS_INTERNAL);
 		},
 		async [FETCH_GUILDS_INTERNAL](context) {
-			let failed = true;
-			try {
-				const response = await fetch("/api/guilds");
-				if (response.status === 200) {
-					const guildInfos = await response.json();
-					let mappedGuilds = guildInfos.map((guildInfo) => {
-						return new Guild(
-							guildInfo.guild.id,
-							guildInfo.guild.name,
-							guildInfo.guild.icon,
-							guildInfo.botPresent,
-							guildInfo.canEdit
-						);
-					});
-					context.commit(LOAD_GUILDS, mappedGuilds);
-					failed = false;
-				}
-			} catch (err) {
-				console.log(err);
-			}
-			if (failed) {
+			const guildInfos = await fetcher.get("/api/guilds");
+			if (!guildInfos) {
 				setTimeout(() => context.dispatch(FETCH_GUILDS_INTERNAL), 5000);
+				return;
 			}
+			let mappedGuilds = guildInfos.map((guildInfo) => {
+				return new Guild(
+					guildInfo.guild.id,
+					guildInfo.guild.name,
+					guildInfo.guild.icon,
+					guildInfo.botPresent,
+					guildInfo.canEdit
+				);
+			});
+			context.commit(LOAD_GUILDS, mappedGuilds);
 		},
 	},
 };

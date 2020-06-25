@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import { User } from "@/components/user/user";
+import fetcher from "@/fetcher";
 
 export const FETCH_USER = "FETCH_USER";
 export const LOG_OUT = "LOG_OUT";
@@ -34,7 +35,11 @@ export const userStore = {
 		userLoaded: false, //true as soon as we received the data for the first time, false after logout
 		user: defaultUser,
 	}),
-	getters: {},
+	getters: {
+		userLoaded: (state) => {
+			return state.userLoaded;
+		},
+	},
 	mutations: {
 		[LOAD_USER](state, user) {
 			state.userLoading = false;
@@ -55,22 +60,15 @@ export const userStore = {
 	actions: {
 		async [FETCH_USER](context) {
 			context.commit(FETCHING_USER);
-			const response = await fetch("/public/user");
-			if (response.status === 200) {
-				let user = await response.json();
+			const user = await fetcher.get("/public/user");
+			if (user) {
 				context.commit(LOAD_USER, new User(user.discordId, user.name, user.avatarId, user.discriminator));
 			} else {
 				context.commit(LOAD_FAILED);
 			}
 		},
 		async [LOG_OUT](context) {
-			let csrfToken = document.cookie.replace(/(?:(?:^|.*;\s*)XSRF-TOKEN\s*=\s*([^;]*).*$)|^.*$/, "$1");
-			await fetch("/public/login", {
-				method: "DELETE",
-				headers: {
-					"X-XSRF-TOKEN": csrfToken,
-				},
-			});
+			await fetcher.delete("/public/login");
 			context.commit(UNLOAD_USER);
 		},
 	},

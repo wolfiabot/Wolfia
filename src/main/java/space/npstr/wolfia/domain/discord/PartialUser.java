@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 Dennis Neufeld
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -15,34 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.webapi.user;
+package space.npstr.wolfia.domain.discord;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import java.util.Optional;
-import java.util.Set;
+import javax.annotation.Nullable;
 
 import static org.immutables.value.Value.Immutable;
 import static org.immutables.value.Value.Style;
 
+/**
+ * User fetched via OAuth2, see https://discord.com/developers/docs/resources/user#get-user
+ */
 @Immutable
 @Style(
         stagedBuilder = true,
         strictBuilder = true
 )
-public interface SelfUser {
+@JsonDeserialize(as = ImmutablePartialUser.class)
+public interface PartialUser {
 
     @JsonSerialize(using = ToStringSerializer.class)
-    long getDiscordId();
+    long id();
 
-    String getName();
+    @JsonProperty("username")
+    String name();
 
-    String getDiscriminator();
+    String discriminator();
 
-    Optional<String> getAvatarId();
-
-    Set<String> getRoles();
-
-    Set<String> getScopes();
-
+    @Nullable
+    String avatar();
 }

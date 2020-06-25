@@ -18,18 +18,24 @@
 package space.npstr.wolfia.domain.discord;
 
 import java.util.List;
+import java.util.Objects;
+import javax.servlet.http.HttpSession;
 import okhttp3.OkHttpClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.OkHttp3ClientHttpRequestFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ResponseStatusException;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 
 /**
@@ -40,10 +46,8 @@ import space.npstr.prometheus_extensions.OkHttpEventCounter;
 @Component
 public class DiscordRequester {
 
-    private static final Logger log = LoggerFactory.getLogger(DiscordRequester.class);
     private static final String DISCORD_API_URL = "https://discord.com/api/v6";
 
-    //TODO Use Spring WebClient?
     private final RestTemplate restTemplate;
 
     public DiscordRequester(OkHttpClient.Builder httpClientBuilder) {
@@ -56,26 +60,55 @@ public class DiscordRequester {
                 .build();
     }
 
-    //TODO don't block, leave that to the service layer
+    public PartialUser fetchUser(String accessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+
+        ResponseEntity<PartialUser> exchange;
+        try {
+            exchange = this.restTemplate.exchange(
+                    "/users/@me",
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    new ParameterizedTypeReference<>() {}
+            );
+        } catch (HttpClientErrorException.Unauthorized e) {
+            throw handleUnauthorized();
+        }
+
+        PartialUser user = exchange.getBody();
+        Objects.requireNonNull(user, "fetched user is null");
+        return user;
+    }
+
     public List<PartialGuild> fetchAllGuilds(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
-        ResponseEntity<List<PartialGuild>> exchange = this.restTemplate.exchange(
-                "/users/@me/guilds",
-                HttpMethod.GET,
-                new HttpEntity<>(headers),
-                new ParameterizedTypeReference<>() {}
-        );
 
-        List<PartialGuild> guilds = exchange.getBody();
-        if (guilds == null) {
-            guilds = List.of();
+        ResponseEntity<List<PartialGuild>> exchange;
+        try {
+            exchange = this.restTemplate.exchange(
+                    "/users/@me/guilds",
+                    HttpMethod.GET,
+                    new HttpEntity<>(headers),
+                    new ParameterizedTypeReference<>() {}
+            );
+        } catch (HttpClientErrorException.Unauthorized e) {
+            throw handleUnauthorized();
         }
 
-        guilds.forEach(guild ->
-                log.debug("{} {} {} {} {}", guild.id(), guild.name(), guild.isOwner(), guild.icon(), guild.permissions())
-        );
-
+        List<PartialGuild> guilds = exchange.getBody();
+        Objects.requireNonNull(guilds, "fetched guilds are null");
         return guilds;
+    }
+
+    private ResponseStatusException handleUnauthorized() {
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+        SecurityContextHolder.clearContext();
+        HttpSession session = requestAttributes.getRequest().getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
 }
