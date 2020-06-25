@@ -4,7 +4,7 @@ module.exports = {
 	outputDir: "build/dist",
 	assetsDir: "static",
 	devServer: {
-		public: "xxx.ngrok.io",
+		//public: "xxx.ngrok.io",
 		proxy: {
 			"/api": {
 				target: "http://localhost:4567",

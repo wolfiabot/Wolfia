@@ -10,7 +10,7 @@ Install it and start it on the port where the frontend dev server will run later
 ```
 ngrok http 8080
 ```
-Copy the assigned subdomain, we'll need it later. The subdomain is found here:
+Copy the assigned subdomain, we'll need it later. The assigned subdomain is found here:
 ![ngrok subdomain](https://i.imgur.com/0DB8TjW.png)
 
 ### Running the backend
@@ -19,7 +19,7 @@ Copy the assigned subdomain, we'll need it later. The subdomain is found here:
 - Install [docker-compose](https://docs.docker.com/compose/install/)
 - Fill out the [wolfia.example.yaml](../wolfia.example.yaml) file
 - Rename the [wolfia.example.yaml](../wolfia.example.yaml) to `wolfia.yaml`
-- Copy (or better, symlink) it to [./src/main/resources/](../src/main/resources)
+- Copy (or better, symlink) it to [src/main/resources/](../src/main/resources)
 - Start docker containers with:
 ```shell script
 docker-compose -f docker/dev/docker-compose.yaml up -d
@@ -46,7 +46,7 @@ https://discord.com/invite/nvcfX3q
 https://discord.gg/nvcfX3q
 https://discordapp.com/invite/nvcfX3q
 ```
-- Add your ngrok subdomain to the [vue.config.js](./vue.config.js) file
+- Add your ngrok subdomain to the [vue.config.js](./vue.config.js) file and uncoment the line
 - Install Frontend dependencies if you haven't done so yet:
 ```shell script
 yarn install
@@ -58,10 +58,23 @@ yarn serve
 - Open browser at your ngrok address https://xyz.ngrok.io
 
 
-## Implemented status codes
+## API
 
-200 is sent for any success, to keep things uncomplicated.
+### Style
 
-401 or 403 either means the user is not logged in, or the Discord token timed out on the backend. Either way, they need to log in again.
+We're creating a JSON-RPC style API.
+That's like REST but without the unnecessary parts like lots of relational endpoints with lots of HTTP verbs and lots of
+status codes. We don't want any of those. Keep the API small and to the point, create API endpoints ad hoc as necessary
+when new features are being built.
 
-500 usually means the server is down.
+The existing backend api endpoints are located in [src/main/java/space/npstr/wolfia/webapi](../src/main/java/space/npstr/wolfia/webapi)
+
+### Generally used status codes
+
+200 is sent for any success, to keep things uncomplicated no other success codes are used.
+
+401 means the user is not logged in or the Discord token timed out. Either way, they should log in (again).
+
+403 means a user is logged in but tried to access or modify a resource they should have not access to.
+
+500 means the server is down or the internet connection between client and backend is bad.
