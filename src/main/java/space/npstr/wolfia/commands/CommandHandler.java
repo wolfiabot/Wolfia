@@ -28,10 +28,15 @@ import org.jooq.exception.DataAccessException;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
+import space.npstr.wolfia.commands.game.StartCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.commands.util.InviteCommand;
+import space.npstr.wolfia.commands.util.TagCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.game.GameRegistry;
+import space.npstr.wolfia.domain.settings.ChannelSettings;
+import space.npstr.wolfia.domain.settings.ChannelSettingsService;
+import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -57,11 +62,15 @@ public class CommandHandler {
     private final GameRegistry gameRegistry;
     private final CommandContextParser commandContextParser;
     private final CommRegistry commRegistry;
+    private final ChannelSettingsService channelSettingsService;
 
-    public CommandHandler(GameRegistry gameRegistry, CommandContextParser commandContextParser, CommRegistry commRegistry) {
+    public CommandHandler(GameRegistry gameRegistry, CommandContextParser commandContextParser,
+                          CommRegistry commRegistry, ChannelSettingsService channelSettingsService) {
+
         this.gameRegistry = gameRegistry;
         this.commandContextParser = commandContextParser;
         this.commRegistry = commRegistry;
+        this.channelSettingsService = channelSettingsService;
     }
 
     @EventListener
@@ -88,6 +97,19 @@ public class CommandHandler {
         if (context == null) {
             return;
         }
+
+        BaseCommand command = context.command;
+        if (command instanceof GameCommand
+                || command instanceof StartCommand
+                || command instanceof InCommand
+                || command instanceof TagCommand) {
+            ChannelSettings channelSettings = this.channelSettingsService.channel(context.getChannel().getIdLong()).getOrDefault();
+            if (!channelSettings.isGameChannel()) {
+                context.replyWithMention("this channel is not enabled for playing games.");
+                return;
+            }
+        }
+
 
         //filter for _special_ ppl in the Wolfia guild
         final GuildCommandContext guildContext = context.requireGuild(false);

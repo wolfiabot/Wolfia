@@ -26,8 +26,6 @@ import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.GameStarter;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.room.PrivateRoomService;
-import space.npstr.wolfia.domain.settings.ChannelSettings;
-import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 /**
@@ -43,15 +41,12 @@ public class StartCommand implements BaseCommand, PublicCommand {
     private final GameStarter gameStarter;
     private final PrivateRoomService privateRoomService;
     private final GameRegistry gameRegistry;
-    private final ChannelSettingsService channelSettingsService;
 
-    public StartCommand(GameStarter gameStarter, PrivateRoomService privateRoomService, GameRegistry gameRegistry,
-                        ChannelSettingsService channelSettingsService) {
+    public StartCommand(GameStarter gameStarter, PrivateRoomService privateRoomService, GameRegistry gameRegistry) {
 
         this.gameStarter = gameStarter;
         this.privateRoomService = privateRoomService;
         this.gameRegistry = gameRegistry;
-        this.channelSettingsService = channelSettingsService;
     }
 
     @Override
@@ -82,12 +77,6 @@ public class StartCommand implements BaseCommand, PublicCommand {
         //check for private guilds where we dont want games to be started
         if (this.privateRoomService.guild(context.guild.getIdLong()).isPrivateRoom()) {
             context.replyWithMention("you can't play games in a private guild.");
-            return false;
-        }
-
-        ChannelSettings channelSettings = this.channelSettingsService.channel(context.getChannel().getIdLong()).getOrDefault();
-        if (!channelSettings.isGameChannel()) {
-            context.replyWithMention("this channel may not be used for playing games.");
             return false;
         }
 
