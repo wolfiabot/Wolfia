@@ -50,6 +50,7 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import space.npstr.wolfia.App;
+import space.npstr.wolfia.config.properties.OAuth2Config;
 import space.npstr.wolfia.webapi.Authorization;
 
 @Configuration
@@ -73,6 +74,12 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
             "/api/**",
     };
 
+    private final OAuth2Config oAuth2Config;
+
+    public WebApplicationSecurity(OAuth2Config oAuth2Config) {
+        this.oAuth2Config = oAuth2Config;
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         String[] noAuthEndpoints = Stream.concat(Arrays.stream(MACHINE_ENDPOINTS), Arrays.stream(PUBLIC_ENDPOINTS))
@@ -91,7 +98,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .and().exceptionHandling().defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), new AntPathRequestMatcher("/api/**"))
                 .and().oauth2Login()
                 // To avoid getting redirected to machine endpoints like /api/user after logging in
-                .defaultSuccessUrl("/", true)
+                .defaultSuccessUrl(this.oAuth2Config.getBaseRedirectUrl(), true)
                 .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
                 .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
         ;
