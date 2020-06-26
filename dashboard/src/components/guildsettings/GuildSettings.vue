@@ -39,7 +39,7 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { FETCH_GUILDS } from "@/components/guild/guild-store";
-import GameChannels from "@/components/dashboard/GameChannels";
+import GameChannels from "@/components/guildsettings/GameChannels";
 import { FETCH_GUILD_SETTINGS } from "@/components/guildsettings/guild-settings-store";
 
 export default {
