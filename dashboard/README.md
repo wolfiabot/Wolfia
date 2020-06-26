@@ -71,7 +71,9 @@ The existing backend api endpoints are located in [src/main/java/space/npstr/wol
 
 ### Generally used status codes
 
-200 is sent for any success, to keep things uncomplicated no other success codes are used.
+200 is sent for successes that have a response body.
+
+204 is sent for successes that do not have a response body.
 
 401 means the user is not logged in or the Discord token timed out. Either way, they should log in (again).
 

@@ -57,28 +57,28 @@ export default {
 	},
 
 	/**
-	 * @return {Promise<Response>} returns the json response of the request or in case an error happened null
+	 * @return {Promise<any>} returns the json response of the request or in case an error happened null
 	 */
 	get(url) {
 		return this.fetch(url, "GET", this.headers(), this.defaultFailureCallback());
 	},
 
 	/**
-	 * @return {Promise<Response>} returns the json response of the request or in case an error happened null
+	 * @return {Promise<any>} returns the json response of the request or in case an error happened null
 	 */
 	delete(url) {
 		return this.fetch(url, "DELETE", this.headers(), this.defaultFailureCallback());
 	},
 
 	/**
-	 * @return {Promise<Response>} returns the json response of the request or in case an error happened null
+	 * @return {Promise<any>} returns the json response of the request or in case an error happened null
 	 */
 	post(url, body) {
 		return this.fetch(url, "POST", this.headers(), this.defaultFailureCallback(), body);
 	},
 
 	/**
-	 * @return {Promise<Response>} returns the json response of the request or in case an error happened null
+	 * @return {Promise<any> | Promise<string>} returns the json response of the request or in case an error happened null
 	 */
 	async fetch(url, method, headers, failureCallback, body) {
 		try {
@@ -88,16 +88,19 @@ export default {
 				body: JSON.stringify(body),
 			});
 
-			if (response.status !== 200) {
+			if (response.status !== 200 && response.status !== 204) {
 				if (failureCallback) {
 					failureCallback(response);
 				}
 				throw new Error("Response is not successful: " + response.status);
 			}
 
-			return response.json();
+			if (response.status === 204) {
+				return await response.text();
+			}
+			return await response.json();
 		} catch (err) {
-			console.log(err);
+			console.error(err);
 			if (failureCallback) {
 				failureCallback();
 			}
