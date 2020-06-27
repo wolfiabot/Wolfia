@@ -31,8 +31,10 @@
 				<GameChannels :guild-id="guild.discordId" :guildSettings="guildSettings" class="column is-half" />
 			</div>
 		</div>
-		<!-- TODO better fallback -->
-		<div v-else>Nope</div>
+		<div class="fallback" v-else>
+			<p class="is-size-2">Uh oh where did that guild go?</p>
+			<router-link class="button is-large is-link is-outlined" to="/dashboard">Go Back</router-link>
+		</div>
 	</div>
 </template>
 
@@ -84,4 +86,11 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.fallback {
+	margin: 2em;
+}
+.button {
+	margin: 2em;
+}
+</style>
