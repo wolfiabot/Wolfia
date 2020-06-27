@@ -16,10 +16,9 @@
   -->
 
 <template>
-	<div>
-		<p>
-			Hey there! Welcome to the Wolfia Bot Dashboard. To get started, please log in.
-		</p>
+	<div class="login">
+		<p class="is-size-1">{{ randomGreeting() }}</p>
+		<p class="is-size-2">Welcome to the Wolfia Bot Dashboard</p>
 		<a class="button is-large is-link is-outlined" href="/public/login">
 			Log In With Discord
 		</a>
@@ -30,5 +29,54 @@
 export default {
 	name: "LogIn",
 	props: {},
+	methods: {
+		randomGreeting: function () {
+			return greetings[Math.floor(Math.random() * greetings.length)];
+		},
+	},
 };
+const greetings = [
+	"Ahoy!",
+	"Aloha!",
+	"Bonjour!",
+	"Cheerio!",
+	"Ciao!",
+	"Good to see you!",
+	"Guten Tag!",
+	"Greetings!",
+	"Howdy, partner!",
+	"Hello, sunshine!",
+	"Hello, stranger!",
+	"Henlo!",
+	"Hey there!",
+	"Heyyy!",
+	"Halo!",
+	"Hi!",
+	"Hiya!",
+	"Hola!",
+	"Konnichi wa!",
+	"Long time no see!",
+	"Namaste!",
+	"Nice to meet you!",
+	"Привет!",
+	"Salutations!",
+	"Salaam alaikum!",
+	"Shalom!",
+	"'Sup nerd!",
+	"There you are!",
+	"Well met!",
+	"Well, look at you!",
+	"Why, hello there!",
+	"Yo!",
+	"[Hat tip]",
+];
 </script>
+
+<style scoped>
+.login {
+	margin: 2em;
+}
+.button {
+	margin-top: 2em;
+}
+</style>
