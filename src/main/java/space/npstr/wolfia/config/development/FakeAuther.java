@@ -84,7 +84,7 @@ public class FakeAuther implements HandlerInterceptor {
                 new SimpleGrantedAuthority("SCOPE_identity")
         );
 
-        OAuth2User principal = new DefaultOAuth2User(authorities, attributes, "username");
+        OAuth2User principal = new DefaultOAuth2User(authorities, attributes, "id");
         OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(
                 principal,
                 grantedAuthoritiesMapper.mapAuthorities(authorities),

@@ -62,7 +62,7 @@ public class UserEndpoint extends BaseEndpoint {
 
         SelfUser selfUser = ImmutableSelfUser.builder()
                 .discordId(userId)
-                .name(principal.getName())
+                .name(partialUser.name())
                 .discriminator(discriminator)
                 .avatarId(Optional.ofNullable(avatar))
                 .addAllRoles(roles)

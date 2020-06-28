@@ -50,7 +50,10 @@ spring:
             authorization-uri: https://discord.com/api/oauth2/authorize
             token-uri: https://discord.com/api/oauth2/token
             user-info-uri: https://discord.com/api/users/@me
-            username-attribute: username
+            # Spring Session assumes the principal name is unique, and indexes sessions by it for example.
+            # The discord username is not unique though, and it can be changed anytime.
+            # That is why we use the id here instead.
+            username-attribute: id
   session:
     store-type: redis
     redis:
