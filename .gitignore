@@ -116,7 +116,7 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
-wolfia-secrets.yaml
+/wolfia-secrets.yaml
 *javaloader.json
 
 logs/
