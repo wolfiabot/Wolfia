@@ -50,8 +50,8 @@ public class Oauth2Config implements BeanClassLoaderAware {
         return new HttpSessionOAuth2AuthorizedClientRepository();
     }
 
-    @Bean
-    public RedisSerializer<Object> springSessionRedisSerializer() {
+    @Bean(name = "springSessionDefaultRedisSerializer")
+    public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
         return new GenericJackson2JsonRedisSerializer(objectMapper());
     }
 
