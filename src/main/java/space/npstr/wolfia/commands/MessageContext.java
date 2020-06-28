@@ -46,7 +46,9 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  */
 public class MessageContext implements Context {
 
-    public static final Color BLACKIA = new Color(0, 24, 48); //blueish black that reminds of a clear nights sky
+    // blueish black that reminds of a clear nights sky
+    // #001830
+    public static final Color BLACKIA = new Color(0, 24, 48);
 
     //@formatter:off
     @Nonnull public final MessageChannel channel;
