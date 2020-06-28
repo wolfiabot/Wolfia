@@ -25,6 +25,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 
@@ -56,9 +61,33 @@ public class Oauth2Config implements BeanClassLoaderAware {
         return mapper;
     }
 
+    /**
+     * Copypasta from {@link org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration.OAuth2ClientWebMvcSecurityConfiguration}
+     * <p>
+     * We need this for our {@link space.npstr.wolfia.webapi.WebUserArgumentResolver} so that it does refreshes automatically.
+     */
+    @Bean
+    public OAuth2AuthorizedClientManager oAuth2AuthorizedClientManager(
+            ClientRegistrationRepository clientRegistrationRepository,
+            OAuth2AuthorizedClientRepository authorizedClientRepository
+    ) {
+
+        OAuth2AuthorizedClientProviderBuilder authorizedClientProviderBuilder =
+                OAuth2AuthorizedClientProviderBuilder.builder()
+                        .authorizationCode()
+                        .refreshToken()
+                        .password()
+                        .clientCredentials();
+        OAuth2AuthorizedClientProvider authorizedClientProvider = authorizedClientProviderBuilder.build();
+        DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
+                clientRegistrationRepository, authorizedClientRepository);
+        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+        return authorizedClientManager;
+    }
+
     @Override
     public void setBeanClassLoader(@Nonnull ClassLoader classLoader) {
         this.loader = classLoader;
-
     }
 }

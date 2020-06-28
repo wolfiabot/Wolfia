@@ -21,14 +21,16 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
@@ -45,10 +47,10 @@ public class WebUserArgumentResolver implements HandlerMethodArgumentResolver {
 
     private static final Logger log = LoggerFactory.getLogger(WebUserArgumentResolver.class);
 
-    private final OAuth2AuthorizedClientRepository oAuth2Repository;
+    private final OAuth2AuthorizedClientManager auth2AuthorizedClientManager;
 
-    public WebUserArgumentResolver(OAuth2AuthorizedClientRepository oAuth2Repository) {
-        this.oAuth2Repository = oAuth2Repository;
+    public WebUserArgumentResolver(OAuth2AuthorizedClientManager auth2AuthorizedClientManager) {
+        this.auth2AuthorizedClientManager = auth2AuthorizedClientManager;
     }
 
     @Override
@@ -96,11 +98,22 @@ public class WebUserArgumentResolver implements HandlerMethodArgumentResolver {
 
         String clientRegistrationId = authenticationToken.getAuthorizedClientRegistrationId();
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+        HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
         if (request == null) {
             log.debug("Missing request");
             return null;
         }
-        OAuth2AuthorizedClient client = this.oAuth2Repository.loadAuthorizedClient(clientRegistrationId, authentication, request);
+        if (response == null) {
+            log.debug("Missing response");
+            return null;
+        }
+        OAuth2AuthorizeRequest oAuth2AuthorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId(clientRegistrationId)
+                .principal(authentication)
+                .attribute(HttpServletRequest.class.getName(), request)
+                .attribute(HttpServletResponse.class.getName(), response)
+                .build();
+
+        OAuth2AuthorizedClient client = this.auth2AuthorizedClientManager.authorize(oAuth2AuthorizeRequest);
         if (client == null) {
             log.debug("Missing OAuth2AuthorizedClient");
             return null;
