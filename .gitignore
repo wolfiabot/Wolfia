@@ -116,9 +116,7 @@ gradle-app.setting
 # Cache of project
 .gradletasknamecache
 
-*sneaky.yaml
-*wolfia.yaml
-*application.yaml
+wolfia-secrets.yaml
 *javaloader.json
 
 logs/

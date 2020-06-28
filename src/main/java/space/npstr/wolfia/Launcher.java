@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia;
 
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.JDAInfo;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -33,9 +35,6 @@ import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.utils.GitRepoState;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import javax.annotation.Nonnull;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * Created by napster on 10.05.18.
@@ -83,6 +82,7 @@ public class Launcher implements ApplicationRunner {
 
         System.setProperty("spring.config.name", "wolfia");
         SpringApplication app = new SpringApplication(Launcher.class);
+        app.setAdditionalProfiles("secrets");
         app.addListeners(event -> {
             if (event instanceof ApplicationEnvironmentPreparedEvent) {
                 log.info(getVersionInfo());

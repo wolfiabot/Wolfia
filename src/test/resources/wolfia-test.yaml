@@ -1,10 +1,4 @@
-wolfia:
-  webAdmin: "test"
-  webPass: "test"
-
 spring:
-  main:
-    lazy-initialization: true
   security:
     oauth2:
       client:
@@ -12,26 +6,3 @@ spring:
           discord:
             client-id: "foo"
             client-secret: "bar"
-            client-authentication-method: post
-            authorization-grant-type: authorization_code
-            scope:
-              - identify
-              - guilds
-            redirect-uri: "{baseUrl}/login/oauth2/code/discord"
-            client-name: Log In With Discord
-        provider:
-          discord:
-            authorization-uri: https://discord.com/api/oauth2/authorize
-            token-uri: https://discord.com/api/oauth2/token
-            user-info-uri: https://discord.com/api/users/@me
-            username-attribute: username
-
-togglz:
-  enabled: true
-  feature-enums: space.npstr.wolfia.domain.FeatureFlag
-  feature-manager-name: "default"
-  console:
-    enabled: true
-    path: /api/togglz
-    secured: true
-    use-management-port: false

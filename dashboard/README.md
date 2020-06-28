@@ -17,9 +17,8 @@ Copy the assigned subdomain, we'll need it later. The assigned subdomain is foun
 - Install [Java 11+ using sdkman](https://sdkman.io/)
 - Install [docker](https://docs.docker.com/engine/install/)
 - Install [docker-compose](https://docs.docker.com/compose/install/)
-- Fill out the [wolfia.example.yaml](../wolfia.example.yaml) file
-- Rename the [wolfia.example.yaml](../wolfia.example.yaml) to `wolfia.yaml`
-- Copy (or better, symlink) it to [src/main/resources/](../src/main/resources)
+- Fill out the [wolfia-secrets.example.yaml](../wolfia-secrets.example.yaml) file
+- Rename the [wolfia-secrets.example.yaml](../wolfia-secrets.example.yaml) to `wolfia-secrets.yaml`
 - Start docker containers with:
 ```shell script
 docker-compose -f docker/dev/docker-compose.yaml up -d

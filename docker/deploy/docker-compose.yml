@@ -130,7 +130,7 @@ services:
       - 127.0.0.1:4567:4567   # Wolfia web server
       - 127.0.0.1:8849:8849   # JProfiler
     volumes:
-      - ./wolfia.yaml:/opt/wolfia/wolfia.yaml:ro
+      - ./wolfia-secrets.yaml:/opt/wolfia/wolfia-secrets.yaml:ro
       - ./logs:/opt/wolfia/logs
       - ./logs/gc:/opt/wolfia/logs/gc
     stop_grace_period: 7200s #should really be enough to finish all games

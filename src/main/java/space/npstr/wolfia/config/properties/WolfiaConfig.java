@@ -31,7 +31,6 @@ public class WolfiaConfig {
 
     private boolean debug = true;
     private String discordToken = "";
-    private long logChannelId = 0;
 
     public boolean isDebug() {
         return debug;
@@ -51,14 +50,6 @@ public class WolfiaConfig {
 
     public void setDiscordToken(String discordToken) {
         this.discordToken = discordToken;
-    }
-
-    public long getLogChannelId() {
-        return logChannelId;
-    }
-
-    public void setLogChannelId(long logChannelId) {
-        this.logChannelId = logChannelId;
     }
 
     public String getDefaultPrefix() {
