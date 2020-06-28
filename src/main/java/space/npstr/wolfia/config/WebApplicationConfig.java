@@ -25,8 +25,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import space.npstr.wolfia.config.development.RequestLoggingInterceptor;
 import space.npstr.wolfia.webapi.WebUserArgumentResolver;
 
 @Configuration
@@ -34,10 +36,16 @@ public class WebApplicationConfig implements WebMvcConfigurer {
 
     private static final String NOT_FOUND_URL_PATH = "/notFound";
 
+    private final RequestLoggingInterceptor requestLoggingInterceptor = new RequestLoggingInterceptor();
     private final WebUserArgumentResolver webUserArgumentResolver;
 
     public WebApplicationConfig(WebUserArgumentResolver webUserArgumentResolver) {
         this.webUserArgumentResolver = webUserArgumentResolver;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(this.requestLoggingInterceptor);
     }
 
     /**
