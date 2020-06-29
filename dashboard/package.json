@@ -5,7 +5,8 @@
 	"scripts": {
 		"serve": "vue-cli-service serve",
 		"build": "vue-cli-service build",
-		"lint": "vue-cli-service lint"
+		"lint": "vue-cli-service lint",
+		"fix": "eslint --fix src/ --ext .vue,.js,.html"
 	},
 	"dependencies": {
 		"@sentry/browser": "^5.17.0",
