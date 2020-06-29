@@ -19,6 +19,7 @@ Copy the assigned subdomain, we'll need it later. The assigned subdomain is foun
 - Install [docker-compose](https://docs.docker.com/compose/install/)
 - Fill out the [wolfia-secrets.example.yaml](../wolfia-secrets.example.yaml) file
 - Rename the [wolfia-secrets.example.yaml](../wolfia-secrets.example.yaml) to `wolfia-secrets.yaml`
+- Copy or move it to [src/main/resources/](../src/main/resources) (a symlink is also a great idea)
 - Start docker containers with:
 ```shell script
 docker-compose -f docker/dev/docker-compose.yaml up -d
