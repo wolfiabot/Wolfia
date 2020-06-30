@@ -28,11 +28,5 @@ public class SpringProfiles {
     public static final String TEST = "test";
     public static final String NOT_TEST = "!" + TEST;
 
-    /**
-     * Enable fake logins for any web request. This is especially useful when developing the dashboard, as it allows
-     * local development without having to go through a complicated OAuth2 setup.
-     */
-    public static final String FAKE_LOGIN = "fake-login";
-
     private SpringProfiles() {}
 }
