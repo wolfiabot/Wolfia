@@ -4,7 +4,7 @@
 		<main>
 			<router-view />
 		</main>
-		<Footer class="Footer"/>
+		<Footer class="Footer" />
 	</div>
 </template>
 
@@ -64,29 +64,24 @@ export default {
 	font-family: "Avenir", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	//Generic css resets
 	box-sizing: border-box;
-	display: flex;
-	align-items: center;
-	flex-direction: column;
-	justify-content: center;
 	margin: 0;
 	padding: 0;
 	height: 100vh;
-}
 
-.Header, .Footer {
-	width: 100%;
+	//The main container needs to be flex, so that the footer can stick to the bottom
+	display: flex;
+	flex-direction: column;
 }
 
 main {
-	flex: auto;
+	flex: 1;
 }
+//Sticky footer end
 
-.Footer {
-	margin-bottom: 5px;
-}
-
-/*Source: https://github.com/jgthms/bulma/issues/847*/
+/*Source: https://github.com/jgthms/bulma/issues/847 */
 @import "~bulma/sass/utilities/mixins";
 .is-loading {
 	position: relative;
