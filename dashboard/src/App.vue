@@ -1,47 +1,21 @@
 <template>
 	<div id="app" class="has-text-centered">
-		<nav id="nav" class="navbar has-text-weight-bold">
-			<div class="navbar-brand">
-				<router-link class="navbar-item" to="/">
-					<img src="./assets/logo.png" alt="Play Werewolf/Mafia in Discord" />
-				</router-link>
-				<a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
-					<span aria-hidden="true"></span>
-					<span aria-hidden="true"></span>
-					<span aria-hidden="true"></span>
-				</a>
-			</div>
-			<div class="navbar-menu" id="navMenu">
-				<div class="navbar-start">
-					<router-link to="/" class="navbar-item">
-						Home
-					</router-link>
-					<hr class="navbar-divider" />
-					<router-link to="/about" class="navbar-item">
-						About
-					</router-link>
-					<router-link to="/team" class="navbar-item">
-						Team
-					</router-link>
-					<router-link to="/dashboard" class="navbar-item">
-						Dashboard
-					</router-link>
-				</div>
-				<div class="navbar-end">
-					<UserNav></UserNav>
-				</div>
-			</div>
-		</nav>
-		<router-view />
+		<Header class="Header" />
+		<main>
+			<router-view />
+		</main>
+		<Footer class="Footer" />
 	</div>
 </template>
 
 <script>
-import UserNav from "@/components/user/UserNav";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default {
 	components: {
-		UserNav,
+		Header,
+		Footer,
 	},
 	mounted() {
 		if (process.env.NODE_ENV === "production") {
@@ -90,9 +64,24 @@ export default {
 	font-family: "Avenir", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	//Generic css resets
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	height: 100vh;
+
+	//The main container needs to be flex, so that the footer can stick to the bottom
+	display: flex;
+	flex-direction: column;
 }
 
-/*Source: https://github.com/jgthms/bulma/issues/847*/
+main {
+	flex: 1;
+}
+//Sticky footer end
+
+/*Source: https://github.com/jgthms/bulma/issues/847 */
 @import "~bulma/sass/utilities/mixins";
 .is-loading {
 	position: relative;
