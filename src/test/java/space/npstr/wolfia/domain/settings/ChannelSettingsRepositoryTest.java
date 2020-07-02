@@ -89,19 +89,20 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
         var settingsList = this.repository.findOrDefault(List.of(channelIdA, channelIdB))
                 .toCompletableFuture().join();
 
-        assertThat(settingsList).hasSize(2);
-        assertThat(settingsList).anySatisfy(channelSettings -> {
-            assertThat(channelSettings.getChannelId()).isEqualTo(channelIdA);
-        });
+        assertThat(settingsList)
+                .hasSize(2)
+                .anySatisfy(channelSettings ->
+                        assertThat(channelSettings.getChannelId()).isEqualTo(channelIdA)
+                );
         assertThat(settingsList).anySatisfy(channelSettings -> {
             assertThat(channelSettings.getChannelId()).isEqualTo(channelIdB);
         });
         var createdA = this.repository.findOne(channelIdA)
                 .toCompletableFuture().join();
-        assertThat(createdA.isPresent()).isTrue();
+        assertThat(createdA).isPresent();
         var createdB = this.repository.findOne(channelIdB)
                 .toCompletableFuture().join();
-        assertThat(createdB.isPresent()).isFalse();
+        assertThat(createdB).isEmpty();
     }
 
 }
