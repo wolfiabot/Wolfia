@@ -17,6 +17,9 @@
 
 package space.npstr.wolfia.domain.room;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,10 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.db.Database;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -99,7 +98,6 @@ class PrivateRoomServiceTest extends ApplicationTest {
 
         Optional<PrivateRoom> registered = this.service.guild(guildId).register();
 
-        assertThat(registered).isPresent();
         assertThat(registered).hasValueSatisfying(room -> assertThat(room.getGuildId()).isEqualTo(guildId));
     }
 

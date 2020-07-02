@@ -102,8 +102,8 @@ public class Mafia extends Game {
     private final Map<Player, ActionStats> nightKillVoteActions = new HashMap<>();
     private final Map<Player, ActionStats> nightActions = new HashMap<>();
 
-    private Future phaseEndTimer;
-    private Future phaseEndReminder;
+    private Future<?> phaseEndTimer;
+    private Future<?> phaseEndReminder;
     private final VotingBuilder votingBuilder = new VotingBuilder()
             .unvoteEmoji(Emojis.X)
             .header("Day ends in **%timeleft** with a lynch.")
@@ -225,7 +225,7 @@ public class Mafia extends Game {
 
         // - start the game
         String info = Games.getInfo(this).textRep();
-        log.info("Game started in guild {} {}, channel #{} {}, {} {} {} players",
+        log.info("Game started in guild {} {}, channel #{} {}, {} {} {} players",
                 g.getName(), g.getIdLong(), gameChannel.getName(), gameChannel.getIdLong(),
                 info, mode.textRep, this.players.size());
         this.running = true;
@@ -234,8 +234,8 @@ public class Mafia extends Game {
         RestActions.sendMessage(gameChannel, "Game has started!\n" + listLivingPlayers());
 
         //start the time only after the message was actually sent
-        final Consumer c = aVoid -> scheduleIfGameStillRuns(this::startDay, Duration.ofSeconds(20));
-        RestActions.sendMessage(gameChannel, "Time to read your role PMs! Day starts in 20 seconds.", c, c);
+        final Consumer whenDone = aVoid -> scheduleIfGameStillRuns(this::startDay, Duration.ofSeconds(20));
+        RestActions.sendMessage(gameChannel, "Time to read your role PMs! Day starts in 20 seconds.", whenDone, whenDone);
     }
 
     @Override
@@ -286,8 +286,8 @@ public class Mafia extends Game {
                 return false;
             }
 
-            if (invoker.role != Roles.COP && !invoker.hasItemOfType(Item.Items.MAGNIFIER)) {
-                context.replyWithMention("you can't issue a check when you aren't a cop and don't own a " + Item.Items.MAGNIFIER + ".");
+            if (invoker.role != Roles.COP && !invoker.hasItemOfType(Item.ItemType.MAGNIFIER)) {
+                context.replyWithMention("you can't issue a check when you aren't a cop and don't own a " + Item.ItemType.MAGNIFIER + ".");
                 return false;
             }
 
@@ -328,8 +328,8 @@ public class Mafia extends Game {
                 return false;
             }
 
-            if (!invoker.hasItemOfType(Item.Items.GUN)) {
-                context.reply("You can't shoot if you don't own a " + Item.Items.GUN + ".");
+            if (!invoker.hasItemOfType(Item.ItemType.GUN)) {
+                context.reply("You can't shoot if you don't own a " + Item.ItemType.GUN + ".");
                 return false;
             }
 
@@ -462,7 +462,7 @@ public class Mafia extends Game {
         }
 
         this.nightActions.put(invoker, simpleAction(invoker.userId, Actions.GIVE_PRESENT, target.userId));
-        context.reply("You are climbing down " + target.bothNamesFormatted() + "'s chimney tonight and leaving them a " + Item.Items.PRESENT);
+        context.reply("You are climbing down " + target.bothNamesFormatted() + "'s chimney tonight and leaving them a " + Item.ItemType.PRESENT);
         return true;
     }
 
@@ -470,7 +470,7 @@ public class Mafia extends Game {
 
         Item hasPresent = null;
         for (final Item item : invoker.items) {
-            if (item.item == Item.Items.PRESENT) {
+            if (item.itemType == Item.ItemType.PRESENT) {
                 hasPresent = item;
                 break;
             }
@@ -484,20 +484,20 @@ public class Mafia extends Game {
             invoker.items.remove(hasPresent);
         }
 
-        final Item.Items openedPresent = GameUtils.rand(Arrays.asList(Item.Items.GUN, Item.Items.MAGNIFIER, Item.Items.BOMB, Item.Items.ANGEL));
+        final Item.ItemType openedPresent = GameUtils.rand(Arrays.asList(Item.ItemType.GUN, Item.ItemType.MAGNIFIER, Item.ItemType.BOMB, Item.ItemType.ANGEL));
         invoker.items.add(new Item(hasPresent.sourceId, openedPresent));
         this.gameStats.addAction(simpleAction(invoker.userId, Actions.OPEN_PRESENT, invoker.userId).setAdditionalInfo(openedPresent.name()));
 
         context.reply("You received a " + openedPresent.emoji + "! This has the following effect:\n" + openedPresent.explanation);
 
-        if (openedPresent == Item.Items.BOMB) {
+        if (openedPresent == Item.ItemType.BOMB) {
 
             //use up an angel if this person has one
-            final Optional<Item> angel = invoker.items.stream().filter(i -> i.item == Item.Items.ANGEL).findAny();
+            final Optional<Item> angel = invoker.items.stream().filter(i -> i.itemType == Item.ItemType.ANGEL).findAny();
             if (angel.isPresent()) {
                 invoker.items.remove(angel.get());
                 invoker.sendMessage(String.format("Your present contained a %s, but luckily one of your %ss saved you! Say `%s` to see what items you have left.",
-                        Item.Items.BOMB, Item.Items.ANGEL, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
+                        Item.ItemType.BOMB, Item.ItemType.ANGEL, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
                 RestActions.sendMessage(fetchGameChannel(), "An explosion is heard, but nobody dies.");
                 return true;
             }
@@ -524,7 +524,7 @@ public class Mafia extends Game {
 
             //send info
             final String message = String.format("%s %s opened a %s and found a lit %s inside, killing them immediately.%n%s",
-                    Emojis.BOOM, dying.asMention(), Item.Items.PRESENT, Item.Items.BOMB, getReveal(dying));
+                    Emojis.BOOM, dying.asMention(), Item.ItemType.PRESENT, Item.ItemType.BOMB, getReveal(dying));
             RestActions.sendMessage(gameChannel, message);
             if (this.phase == Phase.NIGHT) {
                 RestActions.sendMessage(fetchBaddieChannel(), message);
@@ -550,19 +550,19 @@ public class Mafia extends Game {
         this.gameStats.addAction(simpleAction(invoker.userId, Actions.SHOOT, dying.userId));
 
         //use up a gun if the invoker has one
-        final Optional<Item> gun = invoker.items.stream().filter(i -> i.item == Item.Items.GUN).findAny();
+        final Optional<Item> gun = invoker.items.stream().filter(i -> i.itemType == Item.ItemType.GUN).findAny();
         if (gun.isPresent()) {
             invoker.items.remove(gun.get());
             invoker.sendMessage(String.format("You used up one of your %ss. Say `%s` to see what items you have left.",
-                    Item.Items.GUN, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
+                    Item.ItemType.GUN, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
         }
 
         //use up an angel if the target has one
-        final Optional<Item> angel = target.items.stream().filter(i -> i.item == Item.Items.ANGEL).findAny();
+        final Optional<Item> angel = target.items.stream().filter(i -> i.itemType == Item.ItemType.ANGEL).findAny();
         if (angel.isPresent()) {
             target.items.remove(angel.get());
             target.sendMessage(String.format("One of your %ss saved you! Say `%s` to see what items you have left.",
-                    Item.Items.ANGEL, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
+                    Item.ItemType.ANGEL, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
             RestActions.sendMessage(fetchGameChannel(), "A shot rings out, but nobody dies.");
             return true;
         }
@@ -814,12 +814,12 @@ public class Mafia extends Game {
                 final EmbedBuilder livingPlayersWithNumbers = listLivingPlayersWithNumbers(p);
                 final String out = String.format("**You are Santa Claus. Use `%s [name or number]` to send a %s to another player.**%n"
                                 + "If they decide to open the present, it may contain one of the following things at random:"
-                                + "\n" + Item.Items.GUN + " Allows the target player to shoot another player during the day."
-                                + "\n" + Item.Items.MAGNIFIER + " Allows the target player to check another player's alignment during the night."
-                                + "\n" + Item.Items.BOMB + " Kills the target player immediately."
-                                + "\n" + Item.Items.ANGEL + " Protects the target from death once, but not from the lynch."
+                                + "\n" + Item.ItemType.GUN + " Allows the target player to shoot another player during the day."
+                                + "\n" + Item.ItemType.MAGNIFIER + " Allows the target player to check another player's alignment during the night."
+                                + "\n" + Item.ItemType.BOMB + " Kills the target player immediately."
+                                + "\n" + Item.ItemType.ANGEL + " Protects the target from death once, but not from the lynch."
                                 + "\n\nIf you don't submit an action, a random living player will receive the present.",
-                        WolfiaConfig.DEFAULT_PREFIX + HohohoCommand.TRIGGER, Item.Items.PRESENT);
+                        WolfiaConfig.DEFAULT_PREFIX + HohohoCommand.TRIGGER, Item.ItemType.PRESENT);
                 livingPlayersWithNumbers.addField("", out, false);
                 final Collection<Long> randSantaTargets = getLivingPlayerIds();
                 randSantaTargets.remove(p.userId);//dont randomly gift themselves
@@ -901,11 +901,11 @@ public class Mafia extends Game {
                     this.gameStats.addAction(nightAction);
 
                     //use up a mag if this player has one
-                    final Optional<Item> mag = checker.items.stream().filter(i -> i.item == Item.Items.MAGNIFIER).findAny();
+                    final Optional<Item> mag = checker.items.stream().filter(i -> i.itemType == Item.ItemType.MAGNIFIER).findAny();
                     if (mag.isPresent()) {
                         checker.items.remove(mag.get());
                         checker.sendMessage(String.format("You used up your %s. Say `%s` to see what items you have left.",
-                                Item.Items.MAGNIFIER, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
+                                Item.ItemType.MAGNIFIER, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
                     }
                 } catch (final IllegalGameStateException e) {
                     log.error("Checked player {} not a player of the ongoing game in {}.", nightAction.getTarget(), this.channelId);
@@ -914,9 +914,9 @@ public class Mafia extends Game {
                 try {
                     final Player receiver = getPlayer(nightAction.getTarget());
                     final String message = String.format("Someone left a %s under your Xmas tree! Say `%s` to open it, if you dare.",
-                            Item.Items.PRESENT.emoji, WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.TRIGGER);
+                            Item.ItemType.PRESENT.emoji, WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.TRIGGER);
                     receiver.sendMessage(message, RestActions.defaultOnFail());
-                    receiver.items.add(new Item(nightAction.getActor(), Item.Items.PRESENT));
+                    receiver.items.add(new Item(nightAction.getActor(), Item.ItemType.PRESENT));
                     this.gameStats.addAction(nightAction);
                 } catch (final IllegalGameStateException e) {
                     log.error("Player {} getting a present not a player of the ongoing game in {}.", nightAction.getTarget(), this.channelId);
@@ -928,11 +928,11 @@ public class Mafia extends Game {
 
         final TextChannel gameChannel = fetchGameChannel();
         //use up an angel if the target has one
-        final Optional<Item> angel = nightKillCandidate.items.stream().filter(i -> i.item == Item.Items.ANGEL).findAny();
+        final Optional<Item> angel = nightKillCandidate.items.stream().filter(i -> i.itemType == Item.ItemType.ANGEL).findAny();
         if (angel.isPresent()) {
             nightKillCandidate.items.remove(angel.get());
             nightKillCandidate.sendMessage(String.format("One of your %ss saved you! Say `%s` to see what items you have left.",
-                    Item.Items.ANGEL, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
+                    Item.ItemType.ANGEL, WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER), RestActions.defaultOnFail());
             RestActions.sendMessage(gameChannel, "Nobody died during the night.");
         } else {
             try {
@@ -949,10 +949,10 @@ public class Mafia extends Game {
 
         if (!isGameOver()) {
             //start the timer only after the message has actually been sent
-            final Consumer c = aVoid -> scheduleIfGameStillRuns(this::startDay, Duration.ofSeconds(10));
+            final Consumer whenDone = aVoid -> scheduleIfGameStillRuns(this::startDay, Duration.ofSeconds(10));
             RestActions.sendMessage(gameChannel, String.format("Day starts in 10 seconds.%n%s",
                     String.join(", ", getLivingPlayerMentions())),
-                    c, c);
+                    whenDone, whenDone);
         }
     }
 

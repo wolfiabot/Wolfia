@@ -17,15 +17,14 @@
 
 package space.npstr.wolfia.utils;
 
-import space.npstr.wolfia.Launcher;
-
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import space.npstr.wolfia.Launcher;
 
 public class PeriodicTimer {
     private final Consumer<Void> updateCallback;
-    private final ScheduledFuture updates;
+    private final ScheduledFuture<?> updates;
     private final Consumer<Void> selfDestructCallback;
 
     /**

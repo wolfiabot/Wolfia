@@ -17,6 +17,13 @@
 
 package space.npstr.wolfia.listings;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -26,14 +33,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Created by napster on 23.07.17.
@@ -46,7 +45,7 @@ public class Listings {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Listings.class);
 
     //serves as both a set of registered listings and keeping track of ongoing tasks of posting stats
-    private final Map<Listing, Future> tasks = new HashMap<>();
+    private final Map<Listing, Future<?>> tasks = new HashMap<>();
     private final ExceptionLoggingExecutor executor;
 
     public Listings(OkHttpClient.Builder httpClientBuilder, ExceptionLoggingExecutor executor) {
@@ -59,7 +58,7 @@ public class Listings {
         this.tasks.put(new Carbonitex(httpClient), null);
     }
 
-    private static boolean isTaskRunning(@Nullable final Future task) {
+    private static boolean isTaskRunning(@Nullable final Future<?> task) {
         return task != null && !task.isDone() && !task.isCancelled();
     }
 
@@ -72,7 +71,7 @@ public class Listings {
     }
 
     private synchronized void postStats(@Nonnull final Listing listing, @Nonnull final JDA jda) {
-        final Future task = this.tasks.get(listing);
+        final Future<?> task = this.tasks.get(listing);
         if (isTaskRunning(task)) {
             log.info("Skipping posting stats to {} since there is a task to do that running already.", listing.name);
             return;

@@ -199,8 +199,9 @@ class StaffServiceTest extends ApplicationTest {
 
         List<StaffMember> staffMembers = this.staffService.getEnabledActiveStaffMembers();
 
-        assertThat(staffMembers).allMatch(StaffMember::isActive);
-        assertThat(staffMembers).noneMatch(staffMember -> staffMember.getDiscordId() == developerUserId);
+        assertThat(staffMembers)
+                .allMatch(StaffMember::isActive)
+                .noneMatch(staffMember -> staffMember.getDiscordId() == developerUserId);
     }
 
     @Test
@@ -212,8 +213,9 @@ class StaffServiceTest extends ApplicationTest {
 
         List<StaffMember> staffMembers = this.staffService.getEnabledActiveStaffMembers();
 
-        assertThat(staffMembers).allMatch(StaffMember::isEnabled);
-        assertThat(staffMembers).noneMatch(staffMember -> staffMember.getDiscordId() == developerUserId);
+        assertThat(staffMembers)
+                .allMatch(StaffMember::isEnabled)
+                .noneMatch(staffMember -> staffMember.getDiscordId() == developerUserId);
     }
 
     @Test

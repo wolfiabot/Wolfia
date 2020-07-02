@@ -17,18 +17,17 @@
 
 package space.npstr.wolfia.domain.room;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
@@ -122,8 +121,9 @@ class PrivateRoomQueueTest extends ApplicationTest {
 
         ManagedPrivateRoom take = this.privateRoomQueue.take();
 
-        assertThat(take).isNotNull();
-        assertThat(take).satisfies(isRoom(privateRoom));
+        assertThat(take)
+                .isNotNull()
+                .satisfies(isRoom(privateRoom));
     }
 
     @Test

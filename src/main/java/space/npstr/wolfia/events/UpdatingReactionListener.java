@@ -17,15 +17,14 @@
 
 package space.npstr.wolfia.events;
 
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import space.npstr.wolfia.Launcher;
-
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+import space.npstr.wolfia.Launcher;
 
 /**
  * Created by napster on 09.07.17.
@@ -35,7 +34,7 @@ import java.util.function.Predicate;
 public class UpdatingReactionListener extends ReactionListener {
 
     private final Consumer<Void> updateCallback;
-    private final ScheduledFuture updates;
+    private final ScheduledFuture<?> updates;
 
     /**
      * @param message              The message on which to listen for reactions

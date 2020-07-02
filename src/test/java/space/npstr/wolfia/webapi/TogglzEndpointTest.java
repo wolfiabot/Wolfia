@@ -17,6 +17,11 @@
 
 package space.npstr.wolfia.webapi;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Set;
+import java.util.stream.Collectors;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -37,18 +42,12 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import space.npstr.wolfia.ApplicationTest;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * The Togglz Console is served by a Servlet, so we can't use MockMvc.
  */
-public class TogglzEndpointTest<T extends Session> extends ApplicationTest {
+class TogglzEndpointTest<T extends Session> extends ApplicationTest {
 
     private static final String TOGGLZ_PATH = "/api/togglz/index";
 

@@ -17,6 +17,22 @@
 
 package space.npstr.wolfia.game;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -55,23 +71,6 @@ import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.LogTheStackException;
-
-import javax.annotation.Nonnull;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * Created by npstr on 14.09.2016
@@ -450,7 +449,7 @@ public abstract class Game {
                 throw new UserFriendlyException(String.format(
                         "The bot is missing the permission `%s` to run the selected game and mode in this channel.",
                         e.getPermission().getName()
-                ), e);
+                ));
             }
         }
     }
@@ -695,7 +694,7 @@ public abstract class Game {
             final TextChannel gameChannel = fetchGameChannel();
             String info = Games.getInfo(this).textRep();
             long gameId = this.gameStats.getGameId().orElseThrow();
-            log.info("Game #{} ended in guild {} {}, channel #{} {}, {} {} {} players",
+            log.info("Game #{} ended in guild {} {}, channel #{} {}, {} {} {} players",
                     gameId, gameChannel.getGuild().getName(), gameChannel.getGuild().getIdLong(),
                     gameChannel.getName(), gameChannel.getIdLong(), info, this.mode.textRep, this.players.size());
             // removing the game from the registry has to be the very last statement, since if a restart is queued, it

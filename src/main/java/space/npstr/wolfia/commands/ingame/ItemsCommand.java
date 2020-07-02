@@ -17,6 +17,9 @@
 
 package space.npstr.wolfia.commands.ingame;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.ChannelType;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
@@ -27,10 +30,6 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by napster on 14.12.17.
@@ -73,7 +72,7 @@ public class ItemsCommand extends GameCommand {
                 if (p.items.isEmpty()) {
                     context.reply("You don't possess any items.");
                 } else {
-                    final List<String> itemsList = p.items.stream().map(i -> i.item.emoji + ": " + i.item.explanation).collect(Collectors.toList());
+                    final List<String> itemsList = p.items.stream().map(i -> i.itemType.emoji + ": " + i.itemType.explanation).collect(Collectors.toList());
                     context.reply("You have the following items:\n" + String.join("\n", itemsList));
                 }
                 issued = true;

@@ -17,14 +17,13 @@
 
 package space.npstr.wolfia.game.definitions;
 
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.OpenPresentCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.setup.StatusCommand;
 import space.npstr.wolfia.utils.discord.Emojis;
-
-import javax.annotation.Nonnull;
 
 /**
  * Created by napster on 14.12.17.
@@ -35,14 +34,14 @@ import javax.annotation.Nonnull;
  */
 public class Item {
     public final long sourceId;
-    public final Items item;
+    public final ItemType itemType;
 
-    public Item(final long sourceId, @Nonnull final Items item) {
+    public Item(final long sourceId, @Nonnull final ItemType itemType) {
         this.sourceId = sourceId;
-        this.item = item;
+        this.itemType = itemType;
     }
 
-    public enum Items {
+    public enum ItemType {
 
         //may contain other items
         PRESENT(Emojis.PRESENT, String.format("You may open the present in your DMs with `%s`, or shorter `%s`",
@@ -74,7 +73,7 @@ public class Item {
         @Nonnull
         public final String explanation;
 
-        Items(@Nonnull final String emoji, @Nonnull final String explanation) {
+        ItemType(@Nonnull final String emoji, @Nonnull final String explanation) {
             this.emoji = emoji;
             this.explanation = explanation;
         }

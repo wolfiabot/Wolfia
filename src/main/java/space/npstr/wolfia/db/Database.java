@@ -19,6 +19,10 @@ package space.npstr.wolfia.db;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.metrics.prometheus.PrometheusMetricsTrackerFactory;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.annotation.concurrent.ThreadSafe;
 import net.ttddyy.dsproxy.listener.QueryCountStrategy;
 import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
@@ -30,11 +34,6 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.DatabaseConfig;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-
-import javax.annotation.concurrent.ThreadSafe;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by napster on 26.04.18.
@@ -80,7 +79,7 @@ public class Database {
                             log.info("Initial db connection succeeded");
                             this.dbConnection.set(singleton);
                         } catch (Exception e) {
-                            log.info("Failed initial db connection, retrying in a moment", e);
+                            log.warn("Failed initial db connection, retrying in a moment", e);
                             try {
                                 this.dbConnection.wait(1000);
                             } catch (InterruptedException ignored) {
@@ -139,9 +138,7 @@ public class Database {
                             .locations("db/migrations")
             );
         } catch (Exception e) {
-            String message = "Failed to set up database";
-            log.error(message, e);
-            throw new RuntimeException(message, e);
+            throw new RuntimeException("Failed to set up database", e);
         }
     }
 

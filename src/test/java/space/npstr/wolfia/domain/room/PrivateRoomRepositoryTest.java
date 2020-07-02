@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.domain.room;
 
+import java.util.Optional;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,8 +25,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.db.Database;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -54,7 +53,6 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
 
         Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
 
-        assertThat(inserted).isPresent();
         assertThat(inserted).hasValueSatisfying(pr -> {
                     assertThat(pr.getGuildId()).isEqualTo(guildId);
                     assertThat(pr.getNumber()).isEqualTo(1);
@@ -78,7 +76,6 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
 
         Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
 
-        assertThat(inserted).isPresent();
         assertThat(inserted).hasValueSatisfying(pr -> {
                     assertThat(pr.getGuildId()).isEqualTo(guildId);
                     assertThat(pr.getNumber()).isEqualTo(2);
@@ -94,7 +91,6 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
 
         Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
 
-        assertThat(inserted).isPresent();
         assertThat(inserted).hasValueSatisfying(pr -> {
                     assertThat(pr.getGuildId()).isEqualTo(guildId);
                     assertThat(pr.getNumber()).isEqualTo(3);
@@ -110,7 +106,6 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
 
         Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
 
-        assertThat(inserted).isPresent();
         assertThat(inserted).hasValueSatisfying(pr -> {
                     assertThat(pr.getGuildId()).isEqualTo(guildId);
                     assertThat(pr.getNumber()).isEqualTo(2);
@@ -126,7 +121,6 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
 
         Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
 
-        assertThat(inserted).isPresent();
         assertThat(inserted).hasValueSatisfying(pr -> {
                     assertThat(pr.getGuildId()).isEqualTo(guildId);
                     assertThat(pr.getNumber()).isEqualTo(1);
@@ -156,7 +150,6 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
 
         Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
 
-        assertThat(inserted).isPresent();
         assertThat(inserted).hasValueSatisfying(pr -> {
                     assertThat(pr.getGuildId()).isEqualTo(guildId);
                     assertThat(pr.getNumber()).isEqualTo(expectedNumber);

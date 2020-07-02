@@ -17,6 +17,16 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.stream.Collectors;
+import javax.annotation.CheckReturnValue;
+import javax.annotation.Nonnull;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Credentials;
@@ -29,22 +39,12 @@ import okhttp3.Response;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.wolfia.config.properties.OAuth2Config;
 import space.npstr.wolfia.db.type.OAuth2Scope;
 import space.npstr.wolfia.webapi.OAuth2Endpoint;
-
-import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 /**
  * Handle http request stuff related to oauth2
@@ -102,7 +102,7 @@ public class OAuth2Requester {
         String authorization = Credentials.basic(this.oAuth2Config.getClientId(), this.oAuth2Config.getClientSecret());
         Request request = new Request.Builder()
                 .url(TOKEN_URL)
-                .header("Authorization", authorization)
+                .header(HttpHeaders.AUTHORIZATION, authorization)
                 .post(requestBody)
                 .build();
 
@@ -122,7 +122,7 @@ public class OAuth2Requester {
     public CompletionStage<Long> identifyUser(String accessToken) {
         Request userInfoRequest = new Request.Builder()
                 .url(GET_USER_URL)
-                .header("Authorization", "Bearer " + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .get()
                 .build();
 
@@ -152,7 +152,7 @@ public class OAuth2Requester {
         String authorization = Credentials.basic(this.oAuth2Config.getClientId(), this.oAuth2Config.getClientSecret());
         Request refreshRequest = new Request.Builder()
                 .url(TOKEN_URL)
-                .header("Authorization", authorization)
+                .header(HttpHeaders.AUTHORIZATION, authorization)
                 .post(requestBody)
                 .build();
 

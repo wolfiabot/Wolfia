@@ -17,6 +17,11 @@
 
 package space.npstr.wolfia.game;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
@@ -30,12 +35,6 @@ import space.npstr.wolfia.utils.UserNotPresentException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.function.Consumer;
 
 /**
  * Created by napster on 05.07.17.
@@ -102,8 +101,8 @@ public class Player {
         return this.alignment == Alignments.VILLAGE;
     }
 
-    public boolean hasItemOfType(@Nonnull final Item.Items item) {
-        return this.items.stream().anyMatch(i -> i.item.equals(item));
+    public boolean hasItemOfType(@Nonnull final Item.ItemType item) {
+        return this.items.stream().anyMatch(i -> i.itemType.equals(item));
     }
 
     /**
@@ -115,7 +114,7 @@ public class Player {
         try {
             return Launcher.getBotContext().getUserCache().user(this.userId).getName();
         } catch (final Exception e) {
-            log.warn("Failed to fetch user {} name", this.userId, e);
+            log.warn("Failed to fetch user {} name", this.userId, e);
             return UNKNOWN_NAME;
         }
     }

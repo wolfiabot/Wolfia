@@ -51,7 +51,7 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
     private final GameRegistry gameRegistry;
     private ApplicationContext applicationContext;
 
-    private Future lastTask;
+    private Future<?> lastTask;
 
     //Thanks Fred & Dinos!
     private final ScriptEngine engine;

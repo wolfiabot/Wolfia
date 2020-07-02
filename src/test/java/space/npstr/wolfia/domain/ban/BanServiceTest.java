@@ -18,6 +18,8 @@
 package space.npstr.wolfia.domain.ban;
 
 
+import java.util.List;
+import java.util.function.Consumer;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.gen.tables.records.BanRecord;
-
-import java.util.List;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -83,8 +82,9 @@ class BanServiceTest extends ApplicationTest {
 
         var bans = this.banService.getActiveBans();
 
-        assertThat(bans).hasSize(1);
-        assertThat(bans).hasOnlyOneElementSatisfying(isUser(userId));
+        assertThat(bans)
+                .hasSize(1)
+                .hasOnlyOneElementSatisfying(isUser(userId));
     }
 
     @Test

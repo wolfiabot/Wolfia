@@ -140,7 +140,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     @Bean
     public GrantedAuthoritiesMapper authoritiesMapper() {
-        return (authorities) -> {
+        return authorities -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
             authorities.forEach(authority -> {

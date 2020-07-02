@@ -17,6 +17,11 @@
 
 package space.npstr.wolfia.domain.stats;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -35,12 +40,6 @@ import space.npstr.wolfia.game.definitions.Item;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static space.npstr.wolfia.game.Player.UNKNOWN_NAME;
@@ -253,10 +252,10 @@ public class StatsRender {
                 result += String.format("%s: %s receives the gun", Emojis.GUN, getFormattedNickFromStats(game, actionStats.getTarget()));
                 break;
             case GIVE_PRESENT:
-                result += String.format("%s: %s gives %s a present", Item.Items.PRESENT, getFormattedNickFromStats(game, actionStats.getActor()), getFormattedNickFromStats(game, actionStats.getTarget()));
+                result += String.format("%s: %s gives %s a present", Item.ItemType.PRESENT, getFormattedNickFromStats(game, actionStats.getActor()), getFormattedNickFromStats(game, actionStats.getTarget()));
                 break;
             case OPEN_PRESENT:
-                result += String.format("%s: %s opens a present and receives a %s", Item.Items.PRESENT, getFormattedNickFromStats(game, actionStats.getTarget()), Item.Items.valueOf(actionStats.getAdditionalInfo()));
+                result += String.format("%s: %s opens a present and receives a %s", Item.ItemType.PRESENT, getFormattedNickFromStats(game, actionStats.getTarget()), Item.ItemType.valueOf(actionStats.getAdditionalInfo()));
                 break;
             default:
                 throw new IllegalArgumentException("Encountered an action that is not defined/has no text representation: " + actionStats.getActionType());

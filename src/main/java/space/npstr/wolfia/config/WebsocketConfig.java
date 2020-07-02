@@ -36,7 +36,7 @@ import org.springframework.core.Ordered;
 public class WebsocketConfig {
 
     @Bean
-    public WebServerFactoryCustomizer undertowWebSocketServletWebServerCustomizer() {
+    public WebServerFactoryCustomizer<UndertowServletWebServerFactory> undertowWebSocketServletWebServerCustomizer() {
         return new UndertowWebSocketServletWebServerCustomizer();
     }
 

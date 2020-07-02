@@ -18,6 +18,12 @@
 package space.npstr.wolfia.utils.discord;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
@@ -32,13 +38,6 @@ import net.dv8tion.jda.internal.utils.PermissionUtil;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.UserFriendlyException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Created by npstr on 18.11.2016
@@ -157,7 +156,7 @@ public class RoleAndPermissionUtils {
         }
 
         final PermissionOverride po = channel.getPermissionOverride(memberOrRole);
-        final RestAction ra;
+        final RestAction<?> ra;
         if (po != null) {
             switch (action) {
                 case GRANT:
