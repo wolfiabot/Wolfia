@@ -17,7 +17,9 @@
 
 package space.npstr.wolfia.webapi;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -26,12 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -87,12 +91,20 @@ public class WebUserArgumentResolver implements HandlerMethodArgumentResolver {
         }
         OAuth2AuthenticationToken authenticationToken = (OAuth2AuthenticationToken) authentication;
         OAuth2User principal = (OAuth2User) authentication.getPrincipal();
-        String userIdStr = (String) principal.getAttributes().get("id");
+
+        // We need to rewrite the principal with merged authorities, otherwise it is missing our mapped authories which
+        // are only set on the token itself
+        Set<GrantedAuthority> mergedAuthorities = new HashSet<>();
+        mergedAuthorities.addAll(authenticationToken.getAuthorities());
+        mergedAuthorities.addAll(principal.getAuthorities());
+        principal = new DefaultOAuth2User(mergedAuthorities, principal.getAttributes(), "id");
+
+        String name = principal.getName();
         long userId;
         try {
-            userId = Long.parseLong(userIdStr);
+            userId = Long.parseLong(name);
         } catch (NumberFormatException e) {
-            log.warn("User id '{}' is not a valid long!", userIdStr);
+            log.warn("User id '{}' is not a valid snowflake!", name);
             return null;
         }
 

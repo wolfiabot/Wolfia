@@ -141,7 +141,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
     @Bean
     public GrantedAuthoritiesMapper authoritiesMapper() {
         return authorities -> {
-            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+            Set<GrantedAuthority> mappedAuthorities = new HashSet<>(authorities);
 
             authorities.forEach(authority -> {
                 if (authority instanceof OAuth2UserAuthority) {
@@ -158,7 +158,6 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                     } catch (Exception e) {
                         log.warn("Failed to check for owner id", e);
                     }
-                    mappedAuthorities.add(Authorization.USER);
                 }
             });
 
