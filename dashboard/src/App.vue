@@ -53,6 +53,10 @@ body {
 	overflow: hidden !important;
 }
 
+.Header {
+	margin-bottom: 1.5em;
+}
+
 #app {
 	font-family: "Avenir", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
