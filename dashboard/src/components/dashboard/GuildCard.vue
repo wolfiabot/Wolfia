@@ -22,10 +22,10 @@
 		</figure>
 		<div class="card-content">
 			<div class="guildname">
-				<strong class="is-size-3">{{ guild.name }}</strong>
+				<strong class="is-size-5">{{ guild.name }}</strong>
 			</div>
 		</div>
-		<footer class="card-footer is-size-4">
+		<footer class="card-footer is-size-6">
 			<a
 				v-if="!guild.botPresent"
 				class="card-footer-item"
@@ -70,7 +70,6 @@ export default {
 	background-position: -99.99% 0;
 }
 .guild-logo {
-	height: 10em;
-	width: 10em;
+	height: 5em;
 }
 </style>

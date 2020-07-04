@@ -16,11 +16,9 @@
 					Home
 				</router-link>
 				<hr class="navbar-divider" />
-				<router-link to="/about" class="navbar-item">
-					About
-				</router-link>
-				<router-link to="/team" class="navbar-item">
-					Team
+
+				<router-link to="/" class="navbar-item">
+					Bot <!--Placeholder for the commands/gamemodes-->
 				</router-link>
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard
@@ -33,6 +31,12 @@
 				>
 					Ideas
 				</a>
+				<router-link to="/team" class="navbar-item">
+					Team
+				</router-link>
+				<router-link to="/about" class="navbar-item">
+					About
+				</router-link>
 				<router-link to="/togglz" class="navbar-item" v-if="isAdmin">
 					Feature Flags
 				</router-link>
@@ -58,4 +62,9 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss">
+	nav {
+		padding: 0 1.5em;
+		border-radius: 0em !important;
+	}
+</style>

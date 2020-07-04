@@ -65,7 +65,6 @@ export const userStore = {
 			context.commit(FETCHING_USER);
 			const user = await fetcher.get("/public/user");
 			if (user) {
-				console.log(user);
 				context.commit(
 					LOAD_USER,
 					new User(user.discordId, user.name, user.avatarId, user.discriminator, user.roles)

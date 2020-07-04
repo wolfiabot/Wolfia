@@ -24,7 +24,6 @@
 			<div>Hello, {{ user.name }}!</div>
 		</a>
 		<div class="navbar-dropdown">
-			<hr class="navbar-divider" />
 			<a class="navbar-item" v-on:click="logout">
 				Logout
 			</a>

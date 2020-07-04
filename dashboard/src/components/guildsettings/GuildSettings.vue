@@ -19,17 +19,11 @@
 	<div class="guild-settings">
 		<div v-if="loading" class="is-loading"></div>
 		<div v-else-if="guild && guildSettings">
-			<div class="box">
-				<figure class="card-image">
-					<img alt="Guild logo" class="is-square" :src="guild.iconUrl()" />
-				</figure>
-				<div class="is-size-3">
-					<strong>{{ guild.name }}</strong>
-				</div>
+			<div class="box guild-header">
+				<p>{{ guild.name }}</p>
+				<img alt="Guild logo" class="is-square" :src="guild.iconUrl()" />
 			</div>
-			<div class="columns is-centered">
-				<GameChannels :guild-id="guild.discordId" :guildSettings="guildSettings" class="column is-half" />
-			</div>
+			<GameChannels :guild-id="guild.discordId" :guildSettings="guildSettings" class="column is-half" />
 		</div>
 		<GoBack v-else to="/dashboard" />
 	</div>
@@ -84,8 +78,19 @@ export default {
 };
 </script>
 
-<style scoped>
-.button {
-	margin: 2em;
+<style lang="scss" scoped>
+.guild-header {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5em 0;
+	img {
+		height: 5em;
+	}
+	p {
+		font-weight: bold;
+		margin-right: 1em;
+		font-size: 1.75em;
+	}
 }
 </style>
