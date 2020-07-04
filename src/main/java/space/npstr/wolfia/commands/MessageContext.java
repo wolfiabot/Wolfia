@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import space.npstr.wolfia.App;
+import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.system.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -56,6 +56,7 @@ public class MessageContext implements Context {
     @Nonnull public final JDA jda;
     //@formatter:on
 
+    private final ApplicationInfoProvider appInfoProvider;
 
     public MessageContext(@Nonnull final MessageReceivedEvent event) {
         this.channel = event.getChannel();
@@ -63,6 +64,7 @@ public class MessageContext implements Context {
         this.msg = event.getMessage();
         this.event = event;
         this.jda = event.getJDA();
+        this.appInfoProvider = new ApplicationInfoProvider(event.getJDA().getShardManager());
     }
 
 
@@ -117,7 +119,7 @@ public class MessageContext implements Context {
      * @return true if the invoker is the bot owner, false otherwise
      */
     public boolean isOwner() {
-        return App.isOwner(this.invoker);
+        return this.appInfoProvider.isOwner(this.invoker);
     }
 
 

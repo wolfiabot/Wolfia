@@ -18,7 +18,6 @@
 package space.npstr.wolfia;
 
 import java.util.ResourceBundle;
-import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 
@@ -30,7 +29,6 @@ public class App {
     private static final ResourceBundle props = ResourceBundle.getBundle("META-INF/build-info");
     public static final String VERSION = props.getString("build.version");
 
-    public static final long OWNER_ID = 166604053629894657L;//Napster
     /**
      * See {@link space.npstr.wolfia.webapi.InviteEndpoint}
      */
@@ -48,14 +46,6 @@ public class App {
     public static final long MODERATOR_ROLE_ID = 340205944866865162L;
     public static final long SETUP_MANAGER_ROLE_ID = 328603453544988672L;
     public static final long DEVELOPER_ROLE_ID = 713041074674860083L;
-
-    public static boolean isOwner(final long userId) {
-        return OWNER_ID == userId;
-    }
-
-    public static boolean isOwner(final User user) {
-        return isOwner(user.getIdLong());
-    }
 
     private App() {}
 }

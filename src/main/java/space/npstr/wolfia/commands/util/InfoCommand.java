@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.util;
 
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDAInfo;
@@ -30,17 +31,10 @@ import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.game.GameRegistry;
-
-import javax.annotation.Nonnull;
+import space.npstr.wolfia.system.ApplicationInfoProvider;
 
 import static java.util.Objects.requireNonNull;
 
-
-/**
- * Created by napster on 28.05.17.
- * <p>
- * Thanks Fred
- */
 @Command
 public class InfoCommand implements BaseCommand, PublicCommand {
 
@@ -75,7 +69,8 @@ public class InfoCommand implements BaseCommand, PublicCommand {
 
     private void execute(@Nonnull final CommandContext context, String description) {
         ShardManager shardManager = requireNonNull(context.getJda().getShardManager());
-        final User owner = shardManager.getUserById(App.OWNER_ID);
+        var appInfoProvider = new ApplicationInfoProvider(context.getJda().getShardManager());
+        final User owner = appInfoProvider.getApplicationInfo().getOwner();
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
         maStats += "-> Of which is used:    " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000 + "MB\n";
@@ -92,9 +87,7 @@ public class InfoCommand implements BaseCommand, PublicCommand {
         botInfo += "Version:                " + App.VERSION + "\n";
         botInfo += "JDA responses total:    " + shardManager.getShards().stream().mapToLong(JDA::getResponseTotal).sum() + "\n";
         botInfo += "JDA version:            " + JDAInfo.VERSION + "\n";
-        if (owner != null) {
-            botInfo += "Bot owner:              " + owner.getName() + "#" + owner.getDiscriminator() + "\n";
-        }
+        botInfo += "Bot owner:              " + owner.getName() + "#" + owner.getDiscriminator() + "\n";
         botInfo += "```";
 
         final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
