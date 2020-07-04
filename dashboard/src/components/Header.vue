@@ -25,6 +25,9 @@
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard
 				</router-link>
+				<router-link to="/ideas" class="navbar-item">
+					Ideas
+				</router-link>
 			</div>
 			<div class="navbar-end">
 				<UserNav></UserNav>

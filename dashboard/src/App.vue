@@ -18,23 +18,6 @@ export default {
 		Footer,
 	},
 	mounted() {
-		if (process.env.NODE_ENV === "production") {
-			// userreport snippet
-			window._urq = window._urq || [];
-			window._urq.push(["initSite", "01987d31-0d58-48c6-a4d3-96f2ae42eb14"]);
-			(function () {
-				const ur = document.createElement("script");
-				ur.type = "text/javascript";
-				ur.async = true;
-				ur.src =
-					document.location.protocol === "https:"
-						? "https://cdn.userreport.com/userreport.js"
-						: "http://cdn.userreport.com/userreport.js";
-				const s = document.getElementsByTagName("script")[0];
-				s.parentNode.insertBefore(ur, s);
-			})();
-		}
-
 		document.addEventListener("DOMContentLoaded", () => {
 			// Get all "navbar-burger" elements
 			const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll(".navbar-burger"), 0);
