@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.domain.ban;
 
+import java.util.List;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -25,12 +27,7 @@ import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-
 /**
- * Created by napster on 07.07.17.
- * <p>
  * Ban users from playing the game.
  */
 @Command

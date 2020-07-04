@@ -21,8 +21,6 @@ import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 
 /**
- * Created by napster on 02.09.17.
- * <p>
  * deliberate misspelling with the german word for character to avoid confusion with Java's Character class
  */
 public class Charakter {

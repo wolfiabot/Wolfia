@@ -17,11 +17,6 @@
 
 package space.npstr.wolfia.game.tools;
 
-import space.npstr.wolfia.game.Player;
-import space.npstr.wolfia.game.definitions.Phase;
-import space.npstr.wolfia.utils.discord.Emojis;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,10 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import space.npstr.wolfia.game.Player;
+import space.npstr.wolfia.game.definitions.Phase;
+import space.npstr.wolfia.utils.discord.Emojis;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
- * Created by napster on 16.07.17.
- * <p>
  * Easy vote embeds
  */
 public class VotingBuilder {

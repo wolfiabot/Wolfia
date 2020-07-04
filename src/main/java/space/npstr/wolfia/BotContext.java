@@ -31,8 +31,6 @@ import space.npstr.wolfia.domain.stats.StatsRepository;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 /**
- * Created by napster on 10.05.18.
- * <p>
  * Temporary uber class that allows resources that were previously accessed statically to continue to be accessed
  * that way through {@link Launcher#getBotContext()}, until the whole project is refactored into non-static components.
  * <p>

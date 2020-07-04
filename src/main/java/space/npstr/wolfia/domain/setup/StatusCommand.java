@@ -32,12 +32,10 @@ import space.npstr.wolfia.game.Game;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Created by npstr on 24.08.2016
+ * This command should display the status of whatever is happening in a channel currently
  * <p>
- * this command should display the status of whatever is happening in a channel currently
- * <p>
- * is there a game running, whats it's state?
- * if not, is there a setup created for this channel, whats the status here, inned players etc?
+ * Is there a game running, whats it's state?
+ * If not, is there a setup created for this channel, whats the status here, inned players etc?
  */
 @Command
 public class StatusCommand implements BaseCommand, PublicCommand {

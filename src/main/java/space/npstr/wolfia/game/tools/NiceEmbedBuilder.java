@@ -17,18 +17,15 @@
 
 package space.npstr.wolfia.game.tools;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import space.npstr.wolfia.commands.MessageContext;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 /**
- * Created by napster on 27.07.17.
- * <p>
  * An embed builder that accepts ChunkingFields which respect value length and chunk themselves up into acceptable lengths
  */
 public class NiceEmbedBuilder extends EmbedBuilder {

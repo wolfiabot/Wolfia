@@ -34,9 +34,7 @@ import space.npstr.wolfia.domain.room.PrivateRoomService;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 /**
- * Created by napster on 11.06.17.
- * <p>
- * //this command will register a guild for use as a place to provide private communications, like wolfchat
+ * This command will register a guild for use as a place to provide private communications, like wolfchat
  */
 @Command
 public class RegisterPrivateRoomCommand implements BaseCommand {

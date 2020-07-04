@@ -17,18 +17,15 @@
 
 package space.npstr.wolfia.domain.stats;
 
-import org.springframework.stereotype.Component;
-import space.npstr.wolfia.game.definitions.Alignments;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.stereotype.Component;
+import space.npstr.wolfia.game.definitions.Alignments;
 
 /**
- * Created by napster on 10.06.17.
- * <p>
  * Collect various stats from the stats tables.
  */
 @Component

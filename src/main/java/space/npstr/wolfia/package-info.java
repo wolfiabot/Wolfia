@@ -15,9 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Created by napster on 10.05.18.
- */
 @FieldsAreNonNullByDefault
 @ParametersAreNonnullByDefault
 @ReturnTypesAreNonNullByDefault

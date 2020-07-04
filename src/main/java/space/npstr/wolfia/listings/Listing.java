@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.listings;
 
+import java.io.IOException;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.MediaType;
@@ -25,14 +27,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 import space.npstr.wolfia.Launcher;
 
-import javax.annotation.Nonnull;
-import java.io.IOException;
-
 import static java.util.Objects.requireNonNull;
 
 /**
- * Created by napster on 06.10.17.
- * <p>
  * Template for various bot listing sites
  */
 public abstract class Listing {

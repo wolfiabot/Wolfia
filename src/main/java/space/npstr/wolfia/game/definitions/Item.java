@@ -26,8 +26,6 @@ import space.npstr.wolfia.domain.setup.StatusCommand;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 /**
- * Created by napster on 14.12.17.
- * <p>
  * Created for use with the Santa role
  * <p>
  * Type like class to represent a present + it's source. the source should be a userId

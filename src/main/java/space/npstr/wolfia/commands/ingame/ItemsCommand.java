@@ -31,9 +31,6 @@ import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
-/**
- * Created by napster on 14.12.17.
- */
 @Command
 public class ItemsCommand extends GameCommand {
 

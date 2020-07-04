@@ -17,17 +17,14 @@
 
 package space.npstr.wolfia.commands;
 
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
-import javax.annotation.Nonnull;
-
 /**
- * Created by napster on 21.05.17.
- * <p>
  * Game commands are different from regular commands as they can be registered by games.
  */
 public abstract class GameCommand implements BaseCommand, PublicCommand {

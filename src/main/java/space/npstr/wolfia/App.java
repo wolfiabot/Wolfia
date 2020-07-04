@@ -23,8 +23,6 @@ import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 /**
- * Created by napster on 26.04.17.
- * <p>
  * Provides some static information about this bot
  */
 public class App {

@@ -17,17 +17,15 @@
 
 package space.npstr.wolfia.game.tools;
 
-import javax.annotation.Nonnull;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
 
 /**
- * Created by napster on 06.08.17.
- * <p>
  * This executor logs exceptions of its tasks.
  */
 public class ExceptionLoggingExecutor extends ScheduledThreadPoolExecutor {

@@ -37,8 +37,6 @@ import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
- * Created by napster on 05.07.17.
- * <p>
  * Representing a player in a game
  */
 public class Player {

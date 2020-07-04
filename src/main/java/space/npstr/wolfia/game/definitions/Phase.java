@@ -18,8 +18,6 @@
 package space.npstr.wolfia.game.definitions;
 
 /**
- * Created by napster on 06.07.17.
- * <p>
  * Possible phases of a cycle
  */
 public enum Phase {

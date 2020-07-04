@@ -31,8 +31,6 @@ import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
- * Created by napster on 07.01.18.
- * <p>
  * Allows users to add / remove special roles in the Wolfia Lounge
  */
 @Command

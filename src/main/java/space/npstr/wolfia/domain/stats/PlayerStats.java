@@ -17,15 +17,12 @@
 
 package space.npstr.wolfia.domain.stats;
 
+import java.util.Optional;
+import javax.annotation.Nullable;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 
-import javax.annotation.Nullable;
-import java.util.Optional;
-
 /**
- * Created by napster on 30.05.17.
- * <p>
  * Describe a participant of a game
  */
 public class PlayerStats {

@@ -17,17 +17,14 @@
 
 package space.npstr.wolfia.domain.stats;
 
+import java.util.Optional;
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
 
-import javax.annotation.Nonnull;
-import java.util.Optional;
-
 /**
- * Created by napster on 03.06.17.
- * <p>
  * Shows replays of games that are over
  */
 @Command

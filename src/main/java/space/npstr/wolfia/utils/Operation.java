@@ -18,10 +18,7 @@
 package space.npstr.wolfia.utils;
 
 /**
- * Created by napster on 25.05.17.
- * <p>
- * a super simple action that neither takes arguments nor returns anything
- * to be used as a lamda
+ * A super simple action that neither takes arguments nor returns anything to be used as a lamda
  */
 @FunctionalInterface
 public interface Operation {

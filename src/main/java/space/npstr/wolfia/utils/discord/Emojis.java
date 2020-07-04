@@ -21,9 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by napster on 21.05.17.
- * <p>
- * contains various emojis used in the bot
+ * Contains various emojis used in the bot
  */
 public class Emojis {
 

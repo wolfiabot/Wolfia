@@ -37,9 +37,6 @@ import space.npstr.wolfia.system.redis.Redis;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 
-/**
- * Created by napster on 26.09.18.
- */
 @Component
 public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> {
 

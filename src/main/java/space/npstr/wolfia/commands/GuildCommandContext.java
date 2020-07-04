@@ -24,8 +24,6 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
- * Created by napster on 09.12.17.
- * <p>
  * Provides @Nonnull methods for accessing guild entities after an elegant transformation from a CommandContext
  * Same rules as for the CommandContext, don't save these or hold on to these for an extended period of time as it
  * holds direct references to the entities.

@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.commands.ingame;
 
+import java.util.List;
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
@@ -26,12 +28,6 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-
-/**
- * Created by napster on 14.12.17.
- */
 @Command
 public class OpenPresentCommand extends GameCommand {
 

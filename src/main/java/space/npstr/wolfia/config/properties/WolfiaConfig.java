@@ -20,9 +20,6 @@ package space.npstr.wolfia.config.properties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-/**
- * Created by napster on 10.05.18.
- */
 @Component
 @ConfigurationProperties("wolfia")
 public class WolfiaConfig {

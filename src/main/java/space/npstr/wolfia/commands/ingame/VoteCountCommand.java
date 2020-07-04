@@ -17,16 +17,12 @@
 
 package space.npstr.wolfia.commands.ingame;
 
+import java.util.List;
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.game.GameRegistry;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-
-/**
- * Created by napster on 06.08.17.
- */
 @Command
 public class VoteCountCommand extends GameCommand {
 

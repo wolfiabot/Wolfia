@@ -20,8 +20,6 @@ package space.npstr.wolfia.game.definitions;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 /**
- * Created by napster on 31.05.17.
- * <p>
  * Roles related stuff. Don't just change once created enums in production or things break
  */
 public enum Roles {

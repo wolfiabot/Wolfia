@@ -17,13 +17,6 @@
 
 package space.npstr.wolfia.game;
 
-import net.dv8tion.jda.api.entities.User;
-import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.domain.setup.StatusCommand;
-import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,10 +27,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.annotation.Nonnull;
+import net.dv8tion.jda.api.entities.User;
+import space.npstr.wolfia.commands.CommandContext;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.domain.setup.StatusCommand;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
- * Created by napster on 21.05.17.
- * <p>
  * Helpful mehtods for running games
  */
 public class GameUtils {

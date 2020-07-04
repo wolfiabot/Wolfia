@@ -30,8 +30,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
- * Created by napster on 10.09.17.
- * <p>
  * Provides a context to whats going on. Where is it happening, who caused it?
  * Also home to a bunch of convenience methods
  */

@@ -31,8 +31,6 @@ import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 /**
- * Created by napster on 23.07.17.
- * <p>
  * Events listened to in here are used for bot internal, non-game purposes
  */
 @Component

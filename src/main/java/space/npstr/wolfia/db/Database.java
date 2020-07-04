@@ -36,8 +36,6 @@ import space.npstr.wolfia.config.properties.DatabaseConfig;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 /**
- * Created by napster on 26.04.18.
- * <p>
  * Serves lazily initialized database connection and wrapper singletons
  */
 @ThreadSafe

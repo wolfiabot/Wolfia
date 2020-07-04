@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import java.util.Arrays;
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
@@ -24,12 +26,6 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.utils.UserFriendlyException;
 
-import javax.annotation.Nonnull;
-import java.util.Arrays;
-
-/**
- * Created by napster on 24.07.17.
- */
 @Command
 public class KillGameCommand implements BaseCommand {
 

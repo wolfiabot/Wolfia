@@ -17,9 +17,6 @@
 
 package space.npstr.wolfia.utils;
 
-/**
- * Created by napster on 07.12.17.
- */
 public class UserNotPresentException extends RuntimeException {
 
     public UserNotPresentException(final long id) {

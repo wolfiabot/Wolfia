@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.listings;
 
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.JDA;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -25,11 +26,6 @@ import org.json.JSONObject;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Launcher;
 
-import javax.annotation.Nonnull;
-
-/**
- * Created by napster on 06.10.17.
- */
 public class DiscordBotsPw extends Listing {
 
     //https://bots.discord.pw

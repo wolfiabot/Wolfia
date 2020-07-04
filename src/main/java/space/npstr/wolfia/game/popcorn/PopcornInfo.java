@@ -17,6 +17,11 @@
 
 package space.npstr.wolfia.game.popcorn;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.game.CharakterSetup;
 import space.npstr.wolfia.game.GameInfo;
@@ -25,15 +30,7 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.game.definitions.Scope;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Created by napster on 20.06.17.
- * <p>
  * Static information about the popcorn game
  */
 public class PopcornInfo implements GameInfo {

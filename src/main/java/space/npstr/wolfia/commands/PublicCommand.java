@@ -18,8 +18,6 @@
 package space.npstr.wolfia.commands;
 
 /**
- * Created by napster on 27.05.17.
- * <p>
  * Marker interface for public commands. Commands that any user should be able to run need to implement this
  */
 public interface PublicCommand {

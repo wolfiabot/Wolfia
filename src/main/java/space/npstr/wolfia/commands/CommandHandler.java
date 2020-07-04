@@ -48,8 +48,6 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import static io.prometheus.client.Summary.Timer;
 
 /**
- * Created by napster on 12.05.17.
- * <p>
  * Some architectural notes:
  * Issued commands will always go through here. It is their own job to find out for which game they have been issued,
  * and make the appropriate calls or handle any user errors

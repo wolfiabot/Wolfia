@@ -17,17 +17,14 @@
 
 package space.npstr.wolfia.game;
 
-import space.npstr.wolfia.game.definitions.Alignments;
-import space.npstr.wolfia.game.definitions.Roles;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import space.npstr.wolfia.game.definitions.Alignments;
+import space.npstr.wolfia.game.definitions.Roles;
 
 /**
- * Created by napster on 05.07.17.
- * <p>
  * A configuration of roles that define a game setup, mainly used by mafia games
  */
 public class CharakterSetup {

@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -24,13 +25,8 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
 
-import javax.annotation.Nonnull;
-
 import static java.util.Objects.requireNonNull;
 
-/**
- * Created by napster on 19.11.17.
- */
 @Command
 public class ReviveCommand implements BaseCommand {
 

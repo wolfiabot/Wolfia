@@ -37,8 +37,6 @@ import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
- * Created by napster on 10.05.18.
- *
  *  //general list of todos etc
  *  //todo rename role pm/dm -> rolecard
  */

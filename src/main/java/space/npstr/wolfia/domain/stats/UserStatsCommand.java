@@ -17,17 +17,14 @@
 
 package space.npstr.wolfia.domain.stats;
 
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
 
-import javax.annotation.Nonnull;
-
 /**
- * Created by napster on 08.06.17.
- * <p>
  * Display stats for a user
  */
 @Command

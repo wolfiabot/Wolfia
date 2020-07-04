@@ -26,8 +26,6 @@ import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
 
 /**
- * Created by napster on 10.06.17.
- * <p>
  * Display stats for a guild
  */
 @Command

@@ -18,8 +18,6 @@
 package space.npstr.wolfia.utils;
 
 /**
- * Created by napster on 22.06.17.
- * <p>
  * These Exceptions are allowed to happen, for example if the bot is misconfigured by the user,
  * and their content is save to be shown to users and considered part of the UX
  */

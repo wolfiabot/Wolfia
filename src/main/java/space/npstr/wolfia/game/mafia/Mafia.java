@@ -80,8 +80,6 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Created by napster on 02.07.17.
- * <p>
  * This is it, the actual werewolf/mafia game!
  */
 public class Mafia extends Game {

@@ -18,8 +18,6 @@
 package space.npstr.wolfia.game.exceptions;
 
 /**
- * Created by napster on 21.05.17.
- * <p>
  * Exception for when a game enters a faulty state, the messages should be shown to the end user.
  */
 public class IllegalGameStateException extends Exception {

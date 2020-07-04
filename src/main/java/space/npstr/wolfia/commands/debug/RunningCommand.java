@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import java.util.Map;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -28,14 +30,9 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-import javax.annotation.Nonnull;
-import java.util.Map;
-
 import static java.util.Objects.requireNonNull;
 
 /**
- * Created by napster on 24.07.17.
- * <p>
  * List running games
  */
 @Command

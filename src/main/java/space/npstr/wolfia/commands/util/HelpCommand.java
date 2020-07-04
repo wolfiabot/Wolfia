@@ -34,9 +34,6 @@ import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-/**
- * Created by npstr on 09.09.2016
- */
 public class HelpCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "help";

@@ -17,17 +17,14 @@
 
 package space.npstr.wolfia.game;
 
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.game.definitions.Scope;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Created by napster on 20.06.17.
- * <p>
- * should provide some static information about a game
+ * Should provide some static information about a game.
  */
 public interface GameInfo {
 

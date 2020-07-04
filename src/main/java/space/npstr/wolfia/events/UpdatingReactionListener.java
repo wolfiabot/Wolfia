@@ -27,8 +27,6 @@ import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import space.npstr.wolfia.Launcher;
 
 /**
- * Created by napster on 09.07.17.
- * <p>
  * This reaction listener will call for updates
  */
 public class UpdatingReactionListener extends ReactionListener {

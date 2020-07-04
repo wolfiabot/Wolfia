@@ -35,8 +35,6 @@ import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 /**
- * Created by napster on 23.07.17.
- * <p>
  * Takes care of posting all our stats to various listing sites
  */
 @Component

@@ -27,8 +27,6 @@ import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 /**
- * Created by napster on 07.01.18.
- * <p>
  * Handles special events for the official Wolfia guild
  */
 @Component

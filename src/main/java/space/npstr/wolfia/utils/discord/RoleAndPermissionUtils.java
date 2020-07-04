@@ -40,8 +40,6 @@ import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.UserFriendlyException;
 
 /**
- * Created by npstr on 18.11.2016
- * <p>
  * This class is there to easy handling roles, like their creation, assignment to players, and granting and denying rights
  */
 public class RoleAndPermissionUtils {

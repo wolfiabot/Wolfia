@@ -38,9 +38,7 @@ import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 /**
- * Created by napster on 27.05.17.
- * <p>
- * run js code in the bot
+ * Run js code in the bot.
  */
 @Command
 public class EvalCommand implements BaseCommand, ApplicationContextAware {

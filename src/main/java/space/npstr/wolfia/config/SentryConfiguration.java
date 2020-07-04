@@ -28,9 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import space.npstr.wolfia.config.properties.SentryConfig;
 import space.npstr.wolfia.utils.GitRepoState;
 
-/**
- * Created by napster on 11.05.18.
- */
 @Configuration
 public class SentryConfiguration {
 

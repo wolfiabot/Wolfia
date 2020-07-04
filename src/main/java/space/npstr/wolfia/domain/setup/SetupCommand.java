@@ -36,8 +36,6 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Created by napster on 12.05.17.
- * <p>
  * Start setting up a game in a channel
  */
 @Command

@@ -20,8 +20,6 @@ package space.npstr.wolfia.game.definitions;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 /**
- * Created by napster on 02.06.17.
- * <p>
  * Possible alignments in the game
  */
 public enum Alignments {

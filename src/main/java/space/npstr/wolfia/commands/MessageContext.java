@@ -40,8 +40,6 @@ import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 /**
- * Created by napster on 16.11.17.
- * <p>
  * Contexts intended for fast usage, dont save these in any kind of variables
  */
 public class MessageContext implements Context {

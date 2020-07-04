@@ -33,9 +33,6 @@ import space.npstr.wolfia.domain.room.PrivateRoomService;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Created by npstr on 23.08.2016
- */
 @Command
 public class OutCommand implements BaseCommand, PublicCommand {
 
