@@ -55,8 +55,6 @@ https://xyz.ngrok.io/dashboard
 https://xyz.ngrok.io/login/oauth2/code/discord
 
 # Not so important:
-http://xyz.ngrok.io/dashboard
-http://xyz.ngrok.io/login/oauth2/code/discord
 https://discord.com/invite/nvcfX3q
 https://discord.gg/nvcfX3q
 https://discordapp.com/invite/nvcfX3q
