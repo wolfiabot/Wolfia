@@ -31,10 +31,7 @@
 				<GameChannels :guild-id="guild.discordId" :guildSettings="guildSettings" class="column is-half" />
 			</div>
 		</div>
-		<div class="fallback" v-else>
-			<p class="is-size-2">Uh oh where did that guild go?</p>
-			<router-link class="button is-large is-link is-outlined" to="/dashboard">Go Back</router-link>
-		</div>
+		<GoBack v-else to="/dashboard" />
 	</div>
 </template>
 
@@ -43,10 +40,11 @@ import { mapActions, mapState } from "vuex";
 import { FETCH_GUILDS } from "@/components/guild/guild-store";
 import GameChannels from "@/components/guildsettings/GameChannels";
 import { FETCH_GUILD_SETTINGS } from "@/components/guildsettings/guild-settings-store";
+import GoBack from "@/components/GoBack";
 
 export default {
 	name: "GuildSettings",
-	components: { GameChannels },
+	components: { GoBack, GameChannels },
 	props: {
 		guildId: String,
 	},
@@ -87,9 +85,6 @@ export default {
 </script>
 
 <style scoped>
-.fallback {
-	margin: 2em;
-}
 .button {
 	margin: 2em;
 }
