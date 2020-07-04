@@ -42,8 +42,7 @@ export default {
 @import "node_modules/bulmaswatch/darkly/variables";
 /*This achieves a full screen size of the iframe*/
 .iframe-container {
-	position: fixed;
-	height: 85%; //Good enough so that the footer is still visible
+	height: 100%;
 	width: 100%;
 	/* The Togglz widget has a light background.
 	Setting a lighter one here avoid flickering between dark and light when loading */
