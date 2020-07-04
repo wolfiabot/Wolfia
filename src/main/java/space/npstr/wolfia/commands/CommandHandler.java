@@ -40,6 +40,7 @@ import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
+import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.system.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -113,10 +114,11 @@ public class CommandHandler {
         final GuildCommandContext guildContext = context.requireGuild(false);
         if (guildContext != null && guildContext.guild.getIdLong() == App.WOLFIA_LOUNGE_ID) {
             final Category parent = guildContext.getTextChannel().getParent();
+            var appInfoProvider = new ApplicationInfoProvider(event.getJDA().getShardManager());
             //noinspection StatementWithEmptyBody
             if (guildContext.getTextChannel().getIdLong() == WolfiaGuildListener.SPAM_CHANNEL_ID //spam channel is k
                     || (parent != null && parent.getIdLong() == WolfiaGuildListener.GAME_CATEGORY_ID) //game channels are k
-                    || context.invoker.getIdLong() == App.OWNER_ID) { //owner is k
+                    || appInfoProvider.isOwner(context.getInvoker())) { //owner is k
                 //allowed
             } else {
                 context.replyWithMention("read the **rules** in <#" + WolfiaGuildListener.RULES_CHANNEL_ID + ">.",

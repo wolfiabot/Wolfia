@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -52,8 +53,8 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.OAuth2Config;
+import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.webapi.Authorization;
 
 @Configuration
@@ -78,9 +79,11 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
     };
 
     private final OAuth2Config oAuth2Config;
+    private final ApplicationInfoProvider appInfoProvider;
 
-    public WebApplicationSecurity(OAuth2Config oAuth2Config) {
+    public WebApplicationSecurity(OAuth2Config oAuth2Config, ShardManager shardManager) {
         this.oAuth2Config = oAuth2Config;
+        this.appInfoProvider = new ApplicationInfoProvider(shardManager);
     }
 
     @Override
@@ -161,11 +164,10 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                     OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority) authority;
                     Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
 
-
                     try {
                         String id = (String) userAttributes.get("id");
                         long userId = Long.parseLong(id);
-                        if (userId == App.OWNER_ID) {
+                        if (this.appInfoProvider.isOwner(userId)) {
                             mappedAuthorities.add(Authorization.OWNER);
                         }
                     } catch (Exception e) {
