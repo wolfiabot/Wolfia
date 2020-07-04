@@ -52,9 +52,6 @@
 				<router-link to="/team" class="navbar-item">
 					Team
 				</router-link>
-				<router-link to="/about" class="navbar-item">
-					About
-				</router-link>
 				<router-link to="/togglz" class="navbar-item" v-if="isAdmin">
 					Feature Flags
 				</router-link>
