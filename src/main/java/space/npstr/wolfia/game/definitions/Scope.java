@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,8 +18,6 @@
 package space.npstr.wolfia.game.definitions;
 
 /**
- * Created by napster on 20.06.17.
- * <p>
  * Just some scope definitions
  */
 public enum Scope {

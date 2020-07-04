@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.commands.ingame;
 
+import java.util.List;
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -27,12 +29,7 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
-import javax.annotation.Nonnull;
-import java.util.List;
-
 /**
- * Created by napster on 21.05.17.
- * <p>
  * A player shoots another player
  */
 @Command

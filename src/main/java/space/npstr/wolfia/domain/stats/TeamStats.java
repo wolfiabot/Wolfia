@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,18 +17,15 @@
 
 package space.npstr.wolfia.domain.stats;
 
-import space.npstr.wolfia.game.definitions.Alignments;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import space.npstr.wolfia.game.definitions.Alignments;
 
 /**
- * Created by napster on 01.06.17.
- * <p>
- * model of a team in a game
+ * Model of a team in a game.
  */
 public class TeamStats {
 

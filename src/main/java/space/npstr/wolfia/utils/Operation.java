@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,10 +18,7 @@
 package space.npstr.wolfia.utils;
 
 /**
- * Created by napster on 25.05.17.
- * <p>
- * a super simple action that neither takes arguments nor returns anything
- * to be used as a lamda
+ * A super simple action that neither takes arguments nor returns anything to be used as a lamda
  */
 @FunctionalInterface
 public interface Operation {

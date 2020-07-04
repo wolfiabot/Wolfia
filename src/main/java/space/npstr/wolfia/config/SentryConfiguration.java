@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -28,9 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import space.npstr.wolfia.config.properties.SentryConfig;
 import space.npstr.wolfia.utils.GitRepoState;
 
-/**
- * Created by napster on 11.05.18.
- */
 @Configuration
 public class SentryConfiguration {
 

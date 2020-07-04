@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,11 @@
 
 package space.npstr.wolfia.game.mafia;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.game.CharakterSetup;
 import space.npstr.wolfia.game.GameInfo;
@@ -25,15 +30,7 @@ import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Roles;
 import space.npstr.wolfia.game.definitions.Scope;
 
-import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Created by napster on 02.07.17.
- * <p>
  * Static information about the mafia game
  */
 public class MafiaInfo implements GameInfo {

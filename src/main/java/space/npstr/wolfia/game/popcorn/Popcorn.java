@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -63,8 +63,6 @@ import static java.util.Objects.requireNonNull;
 import static space.npstr.wolfia.game.GameInfo.GameMode;
 
 /**
- * Created by npstr on 22.10.2016
- * <p>
  * The Popcorn game logic is in here.
  * This is organized after a thing that almost looks like a state machine that I drew up on my whiteboard.
  * Here's a picture:

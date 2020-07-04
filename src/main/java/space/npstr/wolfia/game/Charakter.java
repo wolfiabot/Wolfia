@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -21,8 +21,6 @@ import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Roles;
 
 /**
- * Created by napster on 02.09.17.
- * <p>
  * deliberate misspelling with the german word for character to avoid confusion with Java's Character class
  */
 public class Charakter {

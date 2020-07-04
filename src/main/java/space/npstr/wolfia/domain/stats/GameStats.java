@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,22 +17,18 @@
 
 package space.npstr.wolfia.domain.stats;
 
-import space.npstr.wolfia.game.definitions.Games;
-
 import java.beans.ConstructorProperties;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import space.npstr.wolfia.game.definitions.Games;
 
 import static space.npstr.wolfia.game.GameInfo.GameMode;
 
 /**
- * Created by napster on 30.05.17.
- * <p>
  * Describe a game that happened
- * <p>
  */
 public class GameStats {
 

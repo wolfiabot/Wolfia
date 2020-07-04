@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,17 +17,13 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import javax.annotation.Nonnull;
 import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.game.GameRegistry;
 
-import javax.annotation.Nonnull;
-
-/**
- * Created by napster on 28.05.17.
- */
 @Command
 public class RestartCommand implements BaseCommand {
 

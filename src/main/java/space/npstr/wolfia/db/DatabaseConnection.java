@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -19,13 +19,12 @@ package space.npstr.wolfia.db;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import javax.sql.DataSource;
 import net.ttddyy.dsproxy.support.ProxyDataSource;
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.jooq.exception.DataAccessException;
-
-import javax.sql.DataSource;
 
 public class DatabaseConnection {
 
@@ -43,7 +42,9 @@ public class DatabaseConnection {
             this.hikariDataSource = new HikariDataSource(hikariConfig);
 
             flywayConfig.dataSource(this.hikariDataSource);
-            new Flyway(flywayConfig).migrate();
+            Flyway flyway = new Flyway(flywayConfig);
+            flyway.repair();
+            flyway.migrate();
 
             this.proxiedDataSource = proxyDataSourceBuilder
                     .dataSource(this.hikariDataSource)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,8 +18,6 @@
 package space.npstr.wolfia.commands;
 
 /**
- * Created by napster on 27.05.17.
- * <p>
  * Marker interface for public commands. Commands that any user should be able to run need to implement this
  */
 public interface PublicCommand {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,8 +18,6 @@
 package space.npstr.wolfia.game.exceptions;
 
 /**
- * Created by napster on 21.05.17.
- * <p>
  * Exception for when a game enters a faulty state, the messages should be shown to the end user.
  */
 public class IllegalGameStateException extends Exception {

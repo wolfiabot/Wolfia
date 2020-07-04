@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,8 +18,6 @@
 package space.npstr.wolfia.game.exceptions;
 
 /**
- * Created by napster on 06.08.17.
- * <p>
  * Thrown when trying to end a day that has ended already. This conflict usually comes from concurrent paths to a days
  * end, for example in Popcorn a day can end by timer or by a user shooting someone; in Mafia day can end by timer or by
  * majority lynch. There is special carefulness required to handle a consistent game state.

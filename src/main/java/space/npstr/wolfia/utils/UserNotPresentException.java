@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,9 +17,6 @@
 
 package space.npstr.wolfia.utils;
 
-/**
- * Created by napster on 07.12.17.
- */
 public class UserNotPresentException extends RuntimeException {
 
     public UserNotPresentException(final long id) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,8 +18,6 @@
 package space.npstr.wolfia.utils.log;
 
 /**
- * Created by napster on 04.09.17.
- * <p>
  * This exception exists for the purpose of providing an anchor to the source of a call to queue()
  * NOTE: This does call the "expensive" {@link java.lang.Throwable#fillInStackTrace()} method like all instantiations
  * of exceptions do. There is no way around that if we want the original stack trace up to the queue() call in case of

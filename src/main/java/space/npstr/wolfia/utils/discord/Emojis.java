@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -21,9 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Created by napster on 21.05.17.
- * <p>
- * contains various emojis used in the bot
+ * Contains various emojis used in the bot
  */
 public class Emojis {
 

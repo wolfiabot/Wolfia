@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -26,8 +26,6 @@ import space.npstr.wolfia.domain.setup.StatusCommand;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 /**
- * Created by napster on 14.12.17.
- * <p>
  * Created for use with the Santa role
  * <p>
  * Type like class to represent a present + it's source. the source should be a userId

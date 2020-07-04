@@ -1,5 +1,5 @@
 <!--
-  - Copyright (C) 2016-2020 Dennis Neufeld
+  - Copyright (C) 2016-2020 the original author or authors
   -
   - This program is free software: you can redistribute it and/or modify
   - it under the terms of the GNU Affero General Public License as published
@@ -19,7 +19,11 @@
 	<div>
 		<div class="is-size-1">Please select the guild you want to edit.</div>
 		<div id="guildlist" class="columns is-centered is-multiline" :class="{ 'is-loading': !guildsLoaded }">
-			<div class="guildlist column is-one-third-tablet is-one-fifth-desktop" v-for="guild in guilds" :key="guild.discordId">
+			<div
+				class="guildlist column is-one-third-tablet is-one-fifth-desktop"
+				v-for="guild in guilds"
+				:key="guild.discordId"
+			>
 				<GuildCard :guild="guild" class="guildcard" />
 			</div>
 		</div>

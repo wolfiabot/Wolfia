@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.game.definitions;
 
+import java.util.HashMap;
+import java.util.Map;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.mafia.Mafia;
@@ -24,12 +26,7 @@ import space.npstr.wolfia.game.mafia.MafiaInfo;
 import space.npstr.wolfia.game.popcorn.Popcorn;
 import space.npstr.wolfia.game.popcorn.PopcornInfo;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Created by napster on 20.05.17.
- *
  * All games supported by the bot
  */
 public enum Games {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -31,8 +31,6 @@ import space.npstr.wolfia.domain.stats.StatsRepository;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 /**
- * Created by napster on 10.05.18.
- * <p>
  * Temporary uber class that allows resources that were previously accessed statically to continue to be accessed
  * that way through {@link Launcher#getBotContext()}, until the whole project is refactored into non-static components.
  * <p>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.commands;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
@@ -25,12 +27,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.utils.discord.RestActions;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /**
- * Created by napster on 08.09.17.
- * <p>
  * Convenience container for values associated with an issued command, also does the parsing
  * <p>
  * Don't save these anywhere as they hold references to JDA objects, just pass them down through (short-lived) command execution

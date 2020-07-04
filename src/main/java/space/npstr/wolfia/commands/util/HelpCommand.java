@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -34,9 +34,6 @@ import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-/**
- * Created by npstr on 09.09.2016
- */
 public class HelpCommand implements BaseCommand, PublicCommand {
 
     public static final String TRIGGER = "help";

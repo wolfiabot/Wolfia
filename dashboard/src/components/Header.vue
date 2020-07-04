@@ -1,3 +1,20 @@
+<!--
+  - Copyright (C) 2016-2020 the original author or authors
+  -
+  - This program is free software: you can redistribute it and/or modify
+  - it under the terms of the GNU Affero General Public License as published
+  - by the Free Software Foundation, either version 3 of the License, or
+  - (at your option) any later version.
+  -
+  - This program is distributed in the hope that it will be useful,
+  - but WITHOUT ANY WARRANTY; without even the implied warranty of
+  - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  - GNU Affero General Public License for more details.
+  -
+  - You should have received a copy of the GNU Affero General Public License
+  - along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <template>
 	<nav id="nav" class="navbar has-text-weight-bold">
 		<div class="navbar-brand">
@@ -18,7 +35,8 @@
 				<hr class="navbar-divider" />
 
 				<router-link to="/" class="navbar-item">
-					Bot <!--Placeholder for the commands/gamemodes-->
+					Bot
+					<!--Placeholder for the commands/gamemodes-->
 				</router-link>
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard
@@ -63,8 +81,8 @@ export default {
 </script>
 
 <style lang="scss">
-	nav {
-		padding: 0 1.5em;
-		border-radius: 0em !important;
-	}
+nav {
+	padding: 0 1.5em;
+	border-radius: 0em !important;
+}
 </style>

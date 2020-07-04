@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -31,9 +31,6 @@ import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
-/**
- * Created by napster on 14.12.17.
- */
 @Command
 public class ItemsCommand extends GameCommand {
 

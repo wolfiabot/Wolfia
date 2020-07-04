@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Dennis Neufeld
+ * Copyright (C) 2016-2020 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -29,9 +29,7 @@ import space.npstr.wolfia.domain.room.PrivateRoomService;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
 /**
- * Created by npstr on 14.09.2016
- * <p>
- * any signed up player can use this command to start a game
+ * Any signed up player can use this command to start a game
  */
 @Command
 public class StartCommand implements BaseCommand, PublicCommand {
