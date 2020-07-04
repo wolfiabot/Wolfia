@@ -43,7 +43,8 @@ export default {
 </script>
 
 <style lang="scss">
-html, body {
+html,
+body {
 	//Generic css resets
 	box-sizing: border-box;
 	margin: 0;
