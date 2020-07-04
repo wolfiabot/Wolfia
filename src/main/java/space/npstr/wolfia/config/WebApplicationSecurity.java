@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.config;
 
+import io.undertow.util.Headers;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,6 +49,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.config.properties.OAuth2Config;
@@ -101,7 +104,17 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl(this.oAuth2Config.getBaseRedirectUrl(), true)
                 .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
                 .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
+                .and().and()
+                .headers().addHeaderWriter(allowTogglzIFrame())
         ;
+    }
+
+    private HeaderWriter allowTogglzIFrame() {
+        return (request, response) -> {
+            if (request.getRequestURI().startsWith("/api/togglz")) {
+                response.setHeader(Headers.X_FRAME_OPTIONS_STRING, XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN.name());
+            }
+        };
     }
 
     @Bean
@@ -141,7 +154,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
     @Bean
     public GrantedAuthoritiesMapper authoritiesMapper() {
         return authorities -> {
-            Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+            Set<GrantedAuthority> mappedAuthorities = new HashSet<>(authorities);
 
             authorities.forEach(authority -> {
                 if (authority instanceof OAuth2UserAuthority) {
@@ -158,7 +171,6 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                     } catch (Exception e) {
                         log.warn("Failed to check for owner id", e);
                     }
-                    mappedAuthorities.add(Authorization.USER);
                 }
             });
 

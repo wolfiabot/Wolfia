@@ -46,6 +46,11 @@ const routes = [
 		component: () => import(/* webpackChunkName: "dashboard" */ "@/components/dashboard/Dashboard.vue"),
 		props: true,
 	},
+	{
+		path: "/togglz",
+		name: "togglz",
+		component: () => import(/* webpackChunkName: "togglz" */ "@/components/Togglz.vue"),
+	},
 ];
 
 const router = new VueRouter({

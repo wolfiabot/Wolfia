@@ -25,6 +25,17 @@
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard
 				</router-link>
+				<a
+					class="navbar-item"
+					target="_blank"
+					rel="noopener noreferrer"
+					href="https://feedback.userreport.com/01987d31-0d58-48c6-a4d3-96f2ae42eb14#ideas"
+				>
+					Ideas
+				</a>
+				<router-link to="/togglz" class="navbar-item" v-if="isAdmin">
+					Feature Flags
+				</router-link>
 			</div>
 			<div class="navbar-end">
 				<UserNav></UserNav>
@@ -35,10 +46,14 @@
 
 <script>
 import UserNav from "@/components/user/UserNav";
+import { mapGetters } from "vuex";
 
 export default {
 	components: {
 		UserNav,
+	},
+	computed: {
+		...mapGetters("user", ["isAdmin"]),
 	},
 };
 </script>

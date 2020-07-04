@@ -25,7 +25,7 @@ const UNLOAD_USER = "UNLOAD_USER";
 const FETCHING_USER = "FETCHING_USER";
 const LOAD_FAILED = "LOAD_FAILED";
 
-const defaultUser = new User(69, "User McUserFace", null, "0420");
+const defaultUser = new User(69, "User McUserFace", null, "0420", []);
 
 export const userStore = {
 	namespaced: true,
@@ -38,6 +38,9 @@ export const userStore = {
 	getters: {
 		userLoaded: (state) => {
 			return state.userLoaded;
+		},
+		isAdmin: (state) => {
+			return state.user.roles.includes("OWNER");
 		},
 	},
 	mutations: {
@@ -62,7 +65,11 @@ export const userStore = {
 			context.commit(FETCHING_USER);
 			const user = await fetcher.get("/public/user");
 			if (user) {
-				context.commit(LOAD_USER, new User(user.discordId, user.name, user.avatarId, user.discriminator));
+				console.log(user);
+				context.commit(
+					LOAD_USER,
+					new User(user.discordId, user.name, user.avatarId, user.discriminator, user.roles)
+				);
 			} else {
 				context.commit(LOAD_FAILED);
 			}

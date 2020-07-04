@@ -2,11 +2,12 @@
  * Represents a single Discord User.
  */
 export class User {
-	constructor(discordId, name, avatarId, discriminator) {
+	constructor(discordId, name, avatarId, discriminator, roles) {
 		this.discordId = discordId;
 		this.name = name;
 		this.avatarId = avatarId;
 		this.discriminator = discriminator;
+		this.roles = roles;
 	}
 
 	avatarUrl() {
