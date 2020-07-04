@@ -43,15 +43,21 @@ export default {
 </script>
 
 <style lang="scss">
+html, body {
+	//Generic css resets
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	outline: 0;
+	overflow: hidden !important;
+}
+
 #app {
 	font-family: "Avenir", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 
-	//Generic css resets
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
+	overflow: auto;
 	height: 100vh;
 
 	//The main container needs to be flex, so that the footer can stick to the bottom
