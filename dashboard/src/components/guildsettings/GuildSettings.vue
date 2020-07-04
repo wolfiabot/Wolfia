@@ -27,9 +27,7 @@
 					<strong>{{ guild.name }}</strong>
 				</div>
 			</div>
-			<div class="columns is-centered">
-				<GameChannels :guild-id="guild.discordId" :guildSettings="guildSettings" class="column is-half" />
-			</div>
+			<GameChannels :guild-id="guild.discordId" :guildSettings="guildSettings" class="column is-half" />
 		</div>
 		<GoBack v-else to="/dashboard" />
 	</div>
