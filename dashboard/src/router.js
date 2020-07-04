@@ -51,6 +51,11 @@ const routes = [
 		name: "ideas",
 		component: () => import(/* webpackChunkName: "ideas" */ "@/components/Ideas.vue"),
 	},
+	{
+		path: "/togglz",
+		name: "togglz",
+		component: () => import(/* webpackChunkName: "togglz" */ "@/components/Togglz.vue"),
+	},
 ];
 
 const router = new VueRouter({

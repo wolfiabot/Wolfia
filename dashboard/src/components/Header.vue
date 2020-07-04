@@ -28,6 +28,9 @@
 				<router-link to="/ideas" class="navbar-item">
 					Ideas
 				</router-link>
+				<router-link to="/togglz" class="navbar-item" v-if="isAdmin">
+					Feature Flags
+				</router-link>
 			</div>
 			<div class="navbar-end">
 				<UserNav></UserNav>
@@ -38,10 +41,14 @@
 
 <script>
 import UserNav from "@/components/user/UserNav";
+import { mapGetters } from "vuex";
 
 export default {
 	components: {
 		UserNav,
+	},
+	computed: {
+		...mapGetters("user", ["isAdmin"]),
 	},
 };
 </script>
