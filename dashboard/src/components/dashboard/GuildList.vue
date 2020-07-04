@@ -19,7 +19,7 @@
 	<div>
 		<div class="is-size-1">Please select the guild you want to edit.</div>
 		<div id="guildlist" class="columns is-centered is-multiline" :class="{ 'is-loading': !guildsLoaded }">
-			<div class="guildlist column is-half" v-for="guild in guilds" :key="guild.discordId">
+			<div class="guildlist column is-one-fifth" v-for="guild in guilds" :key="guild.discordId">
 				<GuildCard :guild="guild" class="guildcard" />
 			</div>
 		</div>
@@ -68,10 +68,10 @@ export default {
 
 <style scoped>
 #guildlist {
-	padding-right: 6em;
-	padding-left: 6em;
+	padding: 0 6em;
 	width: 100%;
 	height: 100%;
+	margin: 2em auto;
 }
 .guildcard {
 	padding: 1em;
