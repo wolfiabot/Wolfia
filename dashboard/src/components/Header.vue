@@ -62,4 +62,9 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss">
+	nav {
+		padding: 0 1.5em;
+		border-radius: 0em !important;
+	}
+</style>
