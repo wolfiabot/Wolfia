@@ -47,11 +47,6 @@ const routes = [
 		props: true,
 	},
 	{
-		path: "/ideas",
-		name: "ideas",
-		component: () => import(/* webpackChunkName: "ideas" */ "@/components/Ideas.vue"),
-	},
-	{
 		path: "/togglz",
 		name: "togglz",
 		component: () => import(/* webpackChunkName: "togglz" */ "@/components/Togglz.vue"),

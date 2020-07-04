@@ -25,9 +25,14 @@
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard
 				</router-link>
-				<router-link to="/ideas" class="navbar-item">
+				<a
+					class="navbar-item"
+					target="_blank"
+					rel="noopener noreferrer"
+					href="https://feedback.userreport.com/01987d31-0d58-48c6-a4d3-96f2ae42eb14#ideas"
+				>
 					Ideas
-				</router-link>
+				</a>
 				<router-link to="/togglz" class="navbar-item" v-if="isAdmin">
 					Feature Flags
 				</router-link>
