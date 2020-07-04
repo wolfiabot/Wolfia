@@ -35,7 +35,8 @@
 				<hr class="navbar-divider" />
 
 				<router-link to="/" class="navbar-item">
-					Bot <!--Placeholder for the commands/gamemodes-->
+					Bot
+					<!--Placeholder for the commands/gamemodes-->
 				</router-link>
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard
@@ -80,8 +81,8 @@ export default {
 </script>
 
 <style lang="scss">
-	nav {
-		padding: 0 1.5em;
-		border-radius: 0em !important;
-	}
+nav {
+	padding: 0 1.5em;
+	border-radius: 0em !important;
+}
 </style>
