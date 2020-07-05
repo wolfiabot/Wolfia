@@ -16,7 +16,7 @@
   -->
 
 <template>
-	<div>
+	<div class="container">
 		<div class="is-size-1">The team behind Wolfia</div>
 		<div id="staff" class="columns is-centered is-multiline" :class="{ 'is-loading': !staffLoaded }">
 			<div
@@ -59,6 +59,9 @@ export default {
 </script>
 
 <style scoped>
+.container {
+	margin: 2em;
+}
 #staff {
 	padding-right: 6em;
 	padding-left: 6em;
