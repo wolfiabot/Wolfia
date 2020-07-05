@@ -39,6 +39,9 @@
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard
 				</router-link>
+				<router-link to="/team" class="navbar-item">
+					Team
+				</router-link>
 				<a
 					class="navbar-item"
 					target="_blank"
@@ -47,9 +50,6 @@
 				>
 					Ideas
 				</a>
-				<router-link to="/team" class="navbar-item">
-					Team
-				</router-link>
 				<router-link to="/togglz" class="navbar-item" v-if="isAdmin">
 					Feature Flags
 				</router-link>
