@@ -32,9 +32,8 @@
 			<div class="navbar-start">
 				<hr class="navbar-divider" />
 
-				<router-link to="/" class="navbar-item">
-					Bot
-					<!--Placeholder for the commands/gamemodes-->
+				<router-link to="/commands" class="navbar-item">
+					Commands
 				</router-link>
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard

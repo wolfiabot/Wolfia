@@ -19,15 +19,7 @@
 	<div class="hero is-fullheight-with-navbar">
 		<div class="hero-body">
 			<div class="container">
-				<h1 class="title is-size-1-desktop">Play Werewolf & Mafia games on Discord!</h1>
-				<div class="columns is-centered">
-					<div class="column is-one-quarter">
-						<router-link class="button is-large is-link" to="/dashboard">Add to Discord</router-link>
-					</div>
-					<div class="column is-one-quarter">
-						<router-link class="button is-large is-info" to="/commands">See Commands</router-link>
-					</div>
-				</div>
+				<h1 class="title is-size-1-desktop">Coming soon</h1>
 			</div>
 		</div>
 	</div>
@@ -35,7 +27,8 @@
 
 <script>
 export default {
-	name: "home",
+	name: "Commands",
 };
 </script>
+
 <style scoped></style>
