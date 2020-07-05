@@ -16,12 +16,16 @@
   -->
 
 <template>
-	<div class="login">
-		<p class="is-size-1">{{ randomGreeting() }}</p>
-		<p class="is-size-2">Welcome to the Wolfia Bot Dashboard</p>
-		<a class="button is-large is-link is-outlined" href="/public/login">
-			Log In With Discord
-		</a>
+	<div class="hero is-fullheight-with-navbar">
+		<div class="hero-body">
+			<div class="container">
+				<h1 class="title is-size-1">{{ randomGreeting() }}</h1>
+				<h2 class="subtitle is-size-2-desktop is-size-3-mobile">Welcome to the Wolfia Bot Dashboard</h2>
+				<a class="button is-large is-link" href="/public/login">
+					Log In With Discord
+				</a>
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -73,10 +77,7 @@ const greetings = [
 </script>
 
 <style scoped>
-.login {
-	margin: 2em;
-}
 .button {
-	margin-top: 2em;
+	margin-top: 1em;
 }
 </style>
