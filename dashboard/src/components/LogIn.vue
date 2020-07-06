@@ -79,7 +79,6 @@ const greetings = [
 	justify-content: center;
 	align-items: center;
 	height: 100%;
-	background-color: rgba($color: #fff, $alpha: 0.1);
 
 	.button {
 		display: flex;

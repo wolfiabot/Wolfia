@@ -85,6 +85,7 @@ body {
 
 main {
 	flex: 1;
+	background-color: rgba($color: #fff, $alpha: 0.1);
 }
 //Sticky footer end
 

@@ -40,7 +40,6 @@ export default {
 	flex-direction: column;
 	justify-content: center;
 	height: 100%;
-	background-color: rgba($color: #fff, $alpha: 0.1);
 
 	.buttons {
 		width: 100%;
