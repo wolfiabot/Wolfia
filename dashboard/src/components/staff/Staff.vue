@@ -18,7 +18,7 @@
 <template>
 	<div class="Staff">
 		<div class="is-size-1">The team behind Wolfia</div>
-		<div id="staff" class="columns is-centered is-multiline" :class="{ 'is-loading': !staffLoaded }">
+		<div class="stafflist columns is-centered is-multiline" :class="{ 'is-loading': !staffLoaded }">
 			<div
 				class="column is-half-tablet is-one-third-desktop"
 				v-for="member in staff"
@@ -64,7 +64,7 @@ export default {
 	flex-direction: column;
 	align-items: center;
 }
-#staff {
+.stafflist {
 	padding-right: 6em;
 	padding-left: 6em;
 	width: 100%;
