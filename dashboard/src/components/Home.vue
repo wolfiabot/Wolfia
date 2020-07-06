@@ -16,7 +16,7 @@
   -->
 
 <template>
-	<div class="landing">
+	<div class="Home">
 		<h1 class="title is-size-1-desktop">Play Werewolf & Mafia games on Discord!</h1>
 		<div class="buttons">
 			<div class="column is-one-quarter">
@@ -35,7 +35,7 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-.landing {
+.Home {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
