@@ -62,7 +62,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-	.Dashboard {
-		height: 100%;
-	}
+.Dashboard {
+	height: 100%;
+}
 </style>
