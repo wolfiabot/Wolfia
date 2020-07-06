@@ -14,6 +14,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+const webpack = require("webpack");
+
+const devHost = "xyz.ngrok.io";
+const prodHost = "bot.wolfia.party";
+const deployHost = process.env.NODE_ENV === "production" ? prodHost : devHost;
+const deployBaseUrl = `https://${deployHost}`;
 
 process.env.VUE_APP_VERSION = require("./package.json").version;
 
@@ -21,7 +27,7 @@ module.exports = {
 	outputDir: "build/dist",
 	assetsDir: "static",
 	devServer: {
-		//public: "xxx.ngrok.io",
+		public: deployBaseUrl,
 		proxy: {
 			"/api": {
 				target: "http://localhost:4567",
@@ -45,5 +51,15 @@ module.exports = {
 			},
 		},
 		disableHostCheck: true,
+	},
+	configureWebpack: {
+		plugins: [
+			new webpack.DefinePlugin({
+				//Used as templates in index.html
+				DEPLOY_URL: JSON.stringify(deployBaseUrl),
+				TITLE: JSON.stringify("Wolfia Dashboard"),
+				DESCRIPTION: JSON.stringify("Web Dashboard for the Wolfia Discord Bot"),
+			}),
+		],
 	},
 };
