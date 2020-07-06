@@ -16,16 +16,12 @@
   -->
 
 <template>
-	<div class="hero is-fullheight-with-navbar">
-		<div class="hero-body">
-			<div class="container">
-				<h1 class="title is-size-1">{{ randomGreeting() }}</h1>
-				<h2 class="subtitle is-size-2-desktop is-size-3-mobile">Welcome to the Wolfia Bot Dashboard</h2>
-				<a class="button is-large is-link" href="/public/login">
-					Log In With Discord
-				</a>
-			</div>
-		</div>
+	<div class="Login">
+		<h1 class="title is-size-1">{{ randomGreeting() }}</h1>
+		<h2 class="subtitle is-size-2-desktop is-size-3-mobile">Welcome to the Wolfia Bot Dashboard</h2>
+		<a class="button is-large is-link" href="/public/login">
+			Log In With Discord
+		</a>
 	</div>
 </template>
 
@@ -76,8 +72,19 @@ const greetings = [
 ];
 </script>
 
-<style scoped>
-.button {
-	margin-top: 1em;
+<style scoped lang="scss">
+.Login {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	background-color: rgba($color: #fff, $alpha: 0.1);
+
+	.button {
+		display: flex;
+		justify-content: center;
+		max-width: 20%;
+	}
 }
 </style>

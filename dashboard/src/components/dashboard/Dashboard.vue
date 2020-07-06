@@ -16,7 +16,7 @@
   -->
 
 <template>
-	<div class="dashboard">
+	<div class="Dashboard">
 		<div v-if="loading" class="is-loading"></div>
 		<LogIn v-else-if="!userLoaded" />
 		<div v-else>
@@ -61,4 +61,8 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+	.Dashboard {
+		height: 100%;
+	}
+</style>
