@@ -16,13 +16,9 @@
   -->
 
 <template>
-	<div class="hero is-fullheight-with-navbar">
-		<div class="hero-body">
-			<div class="container">
-				<h1 class="title is-size-1-desktop">Coming soon</h1>
-			</div>
-		</div>
-	</div>
+  <div class="Commands">
+    <h1 class="title is-size-1-desktop">Coming soon</h1>
+  </div>
 </template>
 
 <script>
@@ -31,4 +27,11 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped lang="scss">
+  .Commands {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+</style>
