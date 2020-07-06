@@ -16,18 +16,14 @@
   -->
 
 <template>
-	<div class="hero is-fullheight-with-navbar">
-		<div class="hero-body">
-			<div class="container">
-				<h1 class="title is-size-1-desktop">Play Werewolf & Mafia games on Discord!</h1>
-				<div class="columns is-centered">
-					<div class="column is-one-quarter">
-						<router-link class="button is-large is-link" to="/dashboard">Add to Discord</router-link>
-					</div>
-					<div class="column is-one-quarter">
-						<router-link class="button is-large is-info" to="/commands">See Commands</router-link>
-					</div>
-				</div>
+	<div class="landing">
+		<h1 class="title is-size-1-desktop">Play Werewolf & Mafia games on Discord!</h1>
+		<div class="buttons">
+			<div class="column is-one-quarter">
+				<router-link class="button is-large is-link" to="/dashboard">Add to Discord</router-link>
+			</div>
+			<div class="column is-one-quarter">
+				<router-link class="button is-large is-info" to="/commands">See Commands</router-link>
 			</div>
 		</div>
 	</div>
@@ -38,4 +34,18 @@ export default {
 	name: "home",
 };
 </script>
-<style scoped></style>
+<style scoped lang="scss">
+.landing {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	height: 100%;
+	background-color: rgba($color: #fff, $alpha: 0.1);
+
+	.buttons {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+}
+</style>
