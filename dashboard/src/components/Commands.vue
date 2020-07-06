@@ -16,9 +16,9 @@
   -->
 
 <template>
-  <div class="Commands">
-    <h1 class="title is-size-1-desktop">Coming soon</h1>
-  </div>
+	<div class="Commands">
+		<h1 class="title is-size-1-desktop">Coming soon</h1>
+	</div>
 </template>
 
 <script>
@@ -28,10 +28,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .Commands {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
+.Commands {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
 </style>
