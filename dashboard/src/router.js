@@ -28,6 +28,11 @@ const routes = [
 		component: Home,
 	},
 	{
+		path: "/commands",
+		name: "commands",
+		component: () => import(/* webpackChunkName: "commands" */ "@/components/Commands.vue"),
+	},
+	{
 		path: "/team",
 		name: "team",
 		component: () => import(/* webpackChunkName: "team" */ "@/components/staff/Staff.vue"),

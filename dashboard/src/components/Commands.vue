@@ -16,27 +16,22 @@
   -->
 
 <template>
-	<div class="hello">
-		<h2 class="subtitle">Hello there, {{ user.name }}#{{ user.discriminator }}!</h2>
-		<h1 class="title">{{ msg }}</h1>
-		<div class="button is-large" v-on:click="logout">Logout</div>
+	<div class="Commands">
+		<h1 class="title is-size-1-desktop">Coming soon</h1>
 	</div>
 </template>
 
 <script>
-import { LOG_OUT } from "@/components/user/user-store";
-import { mapActions } from "vuex";
-
 export default {
-	name: "HelloWorld",
-	props: {
-		msg: String,
-		user: Object,
-	},
-	methods: {
-		...mapActions("user", {
-			logout: LOG_OUT,
-		}),
-	},
+	name: "Commands",
 };
 </script>
+
+<style scoped lang="scss">
+.Commands {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+</style>

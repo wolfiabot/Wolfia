@@ -19,7 +19,8 @@
 	<nav id="nav" class="navbar has-text-weight-bold">
 		<div class="navbar-brand">
 			<router-link class="navbar-item" to="/">
-				<img src="../assets/logo.png" alt="Play Werewolf/Mafia in Discord" />
+				<img src="../assets/logo.png" class="wolfia-logo" alt="Play Werewolf & Mafia games on Discord" />
+				<div>Wolfia</div>
 			</router-link>
 			<a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
 				<span aria-hidden="true"></span>
@@ -29,17 +30,16 @@
 		</div>
 		<div class="navbar-menu" id="navMenu">
 			<div class="navbar-start">
-				<router-link to="/" class="navbar-item">
-					Home
-				</router-link>
 				<hr class="navbar-divider" />
 
-				<router-link to="/" class="navbar-item">
-					Bot
-					<!--Placeholder for the commands/gamemodes-->
+				<router-link to="/commands" class="navbar-item">
+					Commands
 				</router-link>
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard
+				</router-link>
+				<router-link to="/team" class="navbar-item">
+					Team
 				</router-link>
 				<a
 					class="navbar-item"
@@ -49,9 +49,6 @@
 				>
 					Ideas
 				</a>
-				<router-link to="/team" class="navbar-item">
-					Team
-				</router-link>
 				<router-link to="/togglz" class="navbar-item" v-if="isAdmin">
 					Feature Flags
 				</router-link>
@@ -77,9 +74,12 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 nav {
 	padding: 0 1.5em;
 	border-radius: 0em !important;
+}
+.wolfia-logo {
+	margin: 0.5em;
 }
 </style>

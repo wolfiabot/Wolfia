@@ -60,6 +60,8 @@ export default {
 </script>
 
 <style lang="scss">
+@import "node_modules/bulmaswatch/darkly/variables";
+
 html,
 body {
 	//Generic css resets
@@ -68,10 +70,6 @@ body {
 	padding: 0;
 	outline: 0;
 	overflow: hidden !important;
-}
-
-.Header {
-	margin-bottom: 1.5em;
 }
 
 #app {
@@ -89,6 +87,7 @@ body {
 
 main {
 	flex: 1;
+	background-color: $grey-dark;
 }
 //Sticky footer end
 

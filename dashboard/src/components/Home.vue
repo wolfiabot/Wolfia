@@ -16,43 +16,35 @@
   -->
 
 <template>
-	<div class="container">
-		<div v-if="userLoaded">
-			<img alt="User logo" :src="user.avatarUrl()" />
-			<HelloWorld msg="Welcome to Your Vue.js App" :user="user" />
+	<div class="Home">
+		<h1 class="title is-size-1-desktop">Play Werewolf & Mafia games on Discord!</h1>
+		<div class="buttons">
+			<div class="column is-one-quarter">
+				<router-link class="button is-large is-link" to="/dashboard">Add to Discord</router-link>
+			</div>
+			<div class="column is-one-quarter">
+				<router-link class="button is-large is-info" to="/commands">See Commands</router-link>
+			</div>
 		</div>
-		<LogIn v-else />
 	</div>
 </template>
 
 <script>
-import HelloWorld from "@/components/HelloWorld.vue";
-import LogIn from "@/components/LogIn";
-import { FETCH_USER } from "@/components/user/user-store";
-import { mapActions, mapState } from "vuex";
-
 export default {
 	name: "home",
-	components: {
-		HelloWorld,
-		LogIn,
-	},
-
-	mounted() {
-		this.fetchUser();
-	},
-
-	computed: {
-		...mapState("user", {
-			userLoaded: (state) => state.userLoaded,
-			user: (state) => state.user,
-		}),
-	},
-
-	methods: {
-		...mapActions("user", {
-			fetchUser: FETCH_USER,
-		}),
-	},
 };
 </script>
+<style scoped lang="scss">
+.Home {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	height: 100%;
+
+	.buttons {
+		width: 100%;
+		display: flex;
+		justify-content: center;
+	}
+}
+</style>
