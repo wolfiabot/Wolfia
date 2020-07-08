@@ -83,7 +83,6 @@ const greetings = [
 	.button {
 		display: flex;
 		justify-content: center;
-		max-width: 20%;
 	}
 }
 </style>
