@@ -35,6 +35,9 @@
 				<router-link to="/commands" class="navbar-item">
 					Commands
 				</router-link>
+				<router-link to="/gamemodes" class="navbar-item">
+					Game modes
+				</router-link>
 				<router-link to="/dashboard" class="navbar-item">
 					Dashboard
 				</router-link>
