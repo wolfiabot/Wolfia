@@ -17,22 +17,37 @@
 
 <template>
 	<div class="Status">
-		I am inevitable
-
-		<div class="shard">
-			<p>{{ shard.id }}</p>
-			<p>{{ shard.status }}</p>
-		</div>
+    <div class="is-size-1">Wolfia Shard Status</div>
+		<div class="stafflist columns is-centered is-multiline" :class="{ 'is-loading': !shardsLoaded }">
+      <Shard />
+    </div>
 	</div>
 </template>
 
 <script>
-import { Shard } from "@/components/status/shard";
+import { mapActions, mapState } from "vuex";
+import { FETCH_SHARDS } from "@/components/status/shard-store";
+import Shard from "@/components/status/Shard.vue";
 
 export default {
-	name: "Status",
-	props: {
-		shard: Shard,
+  name: "Status",
+  components: {
+    Shard,
+  },
+  mounted() {
+    this.fetchShards()
+  },
+
+	computed: {
+		...mapState("shards", {
+			shard: (state) => [...state.shard].sort((a, b) => a.shard.id - b.shard.id),
+			shardsLoaded: (state) => state.shardsLoaded,
+		}),
+	},
+	methods: {
+		...mapActions("shards", {
+			fetchShards: FETCH_SHARDS,
+		}),
 	},
 };
 </script>
@@ -40,5 +55,12 @@ export default {
 <style scoped lang="scss">
 * {
 	border: 1px solid black;
+}
+
+.stafflist {
+	padding-right: 6em;
+	padding-left: 6em;
+	width: 100%;
+	height: 100%;
 }
 </style>
