@@ -28,7 +28,7 @@ export const shardStore = {
 	namespaced: true,
 	modules: {},
 	state: () => ({
-		shardsLoading: false, //true each time there is a request for staff in flight
+		shardsLoading: false, //true each time there is a request for shards in flight
 		shardsLoaded: false, //true as soon as we received the data for the first time
 		shards: [],
 	}),
