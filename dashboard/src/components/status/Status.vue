@@ -21,7 +21,7 @@
 		<div class="stafflist columns is-centered is-multiline" :class="{ 'is-loading': !shardsLoaded }">
       <div
         v-for="shard in shards"
-				:key="shard"
+				:key="shard.id"
       >
         <Shard :shard="shard"/>
       </div>
