@@ -35,6 +35,7 @@ export default {
 		shard: Shard,
 	},
 };
+
 </script>
 
 <style scoped lang="scss">

@@ -52,17 +52,17 @@ export const shardStore = {
 			context.dispatch(FETCH_SHARDS_INTERNAL);
 		},
 		async [FETCH_SHARDS_INTERNAL](context) {
-			let shards = await fetcher.get("/public/shards");
+			const shards = await fetcher.get("/public/shards");
 			if (!shards) {
 				setTimeout(() => context.dispatch(FETCH_SHARDS_INTERNAL), 5000);
 				return;
 			}
 
-			let mappedShareds = shards.map((shard) => {
+			let mappedShards = shards.map((shard) => {
 				return new Shard(shard.id, shard.status);
 			});
 
-			context.commit(LOAD_SHARDS, mappedShareds);
+			context.commit(LOAD_SHARDS, mappedShards);
 		},
 	},
 };
