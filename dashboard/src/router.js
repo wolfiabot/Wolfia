@@ -46,7 +46,7 @@ const routes = [
 	{
 		path: "/status",
 		name: "status",
-		component: () => import(/* webpackChunkName: "dashboard" */ "@/components/status/Status.vue"),
+		component: () => import(/* webpackChunkName: "status" */ "@/components/status/Status.vue"),
 	},
 	{
 		path: "/togglz",
