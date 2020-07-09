@@ -44,6 +44,11 @@ const routes = [
 		props: true,
 	},
 	{
+		path: "/status",
+		name: "status",
+		component: () => import(/* webpackChunkName: "dashboard" */ "@/components/status/Status.vue"),
+	},
+	{
 		path: "/togglz",
 		name: "togglz",
 		component: () => import(/* webpackChunkName: "togglz" */ "@/components/Togglz.vue"),
