@@ -16,20 +16,29 @@
   -->
 
 <template>
-    <div class="Status">
-        I am inevitable
-    </div>
-  
+	<div class="Status">
+		I am inevitable
+
+		<div class="shard">
+			<p>{{ shard.id }}</p>
+			<p>{{ shard.status }}</p>
+		</div>
+	</div>
 </template>
 
 <script>
-export default {
+import { Shard } from "@/components/status/shard";
 
-}
+export default {
+	name: "Status",
+	props: {
+		shard: Shard,
+	},
+};
 </script>
 
 <style scoped lang="scss">
-    *{
-        border: 1px solid black;
-    }
+* {
+	border: 1px solid black;
+}
 </style>
