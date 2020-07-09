@@ -19,7 +19,12 @@
 	<div class="Status">
     <div class="is-size-1">Wolfia Shard Status</div>
 		<div class="stafflist columns is-centered is-multiline" :class="{ 'is-loading': !shardsLoaded }">
-      <Shard />
+      <div
+        v-for="shard in shards"
+				:key="shard"
+      >
+        <Shard :shard="shard"/>
+      </div>
     </div>
 	</div>
 </template>
