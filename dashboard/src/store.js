@@ -20,6 +20,7 @@ import Vuex from "vuex";
 import { userStore } from "@/components/user/user-store";
 import { staffStore } from "@/components/staff/staff-store";
 import { guildStore } from "@/components/guild/guild-store";
+import { shardStore } from "@/components/status/shard-store";
 import { guildSettingsStore } from "@/components/guildsettings/guild-settings-store";
 
 Vue.use(Vuex);
@@ -31,6 +32,7 @@ export default new Vuex.Store({
 		staff: staffStore,
 		guild: guildStore,
 		guildSettings: guildSettingsStore,
+		shards: shardStore,
 	},
 	state: {},
 	getters: {},
