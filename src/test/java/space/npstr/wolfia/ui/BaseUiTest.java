@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
  * <p>
  * This base class will then execute each {@link UiTest} against multiple browsers.
  */
-public abstract class BaseUiTest extends ApplicationTest {
+abstract class BaseUiTest extends ApplicationTest {
 
     protected static final BrowserWebDriverContainer<?> CHROME_CONTAINER = new BrowserWebDriverContainer<>()
             .withLogConsumer(new Slf4jLogConsumer(containerLogger("Chrome")))
