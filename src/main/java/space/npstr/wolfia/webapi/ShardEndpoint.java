@@ -17,24 +17,31 @@
 
 package space.npstr.wolfia.webapi;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import net.minidev.json.JSONObject;
-import space.npstr.wolfia.domain.stats.ShardService;
 
 @RestController
 @RequestMapping("/public/shards")
 public class ShardEndpoint {
 
-    private final ShardService shardService;
+    private final ShardManager shardManager;
 
-    public ShardEndpoint(ShardService shardService) {
-        this.shardService = shardService;
+    public ShardEndpoint(ShardManager shardManager) {
+        this.shardManager = shardManager;
     }
 
     @GetMapping
-    public JSONObject getShards() {
-        return this.shardService.getShardStatus();
+    public List<Shard> getShards() {
+        return this.shardManager.getShards().stream()
+                .map(jda -> ImmutableShard.builder()
+                        .id(jda.getShardInfo().getShardId())
+                        .status(jda.getStatus().name())
+                        .build()
+                )
+                .collect(Collectors.toList());
     }
 }

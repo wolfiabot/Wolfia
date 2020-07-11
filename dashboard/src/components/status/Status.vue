@@ -17,15 +17,12 @@
 
 <template>
 	<div class="Status">
-    <div class="is-size-1">Wolfia Shard Status</div>
+		<div class="is-size-1">Wolfia Shard Status</div>
 		<div class="stafflist columns is-centered is-multiline" :class="{ 'is-loading': !shardsLoaded }">
-      <div
-        v-for="shard in shards"
-				:key="shard.id"
-      >
-        <Shard :shard="shard"/>
-      </div>
-    </div>
+			<div v-for="shard in shards" :key="shard.id">
+				<Shard :shard="shard" />
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -35,17 +32,17 @@ import { FETCH_SHARDS } from "@/components/status/shard-store";
 import Shard from "@/components/status/Shard.vue";
 
 export default {
-  name: "Status",
-  components: {
-    Shard,
-  },
-  mounted() {
-    this.fetchShards()
-  },
+	name: "Status",
+	components: {
+		Shard,
+	},
+	mounted() {
+		this.fetchShards();
+	},
 
 	computed: {
 		...mapState("shards", {
-			shard: (state) => [...state.shard].sort((a, b) => a.shard.id - b.shard.id),
+			shards: (state) => [...state.shards].sort((a, b) => a.shard.id - b.shard.id),
 			shardsLoaded: (state) => state.shardsLoaded,
 		}),
 	},

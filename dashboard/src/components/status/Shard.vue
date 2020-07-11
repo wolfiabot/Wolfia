@@ -16,23 +16,21 @@
   -->
 
 <template>
-    <div>
-        <p>{{shard.id}}</p>
-        <p>{{shard.status}}</p>
-    </div>
+	<div>
+		<p>{{ shard.id }}</p>
+		<p>{{ shard.status }}</p>
+	</div>
 </template>
 
 <script>
-import { Shard } from "@/components/status/shard.js"
+import { Shard } from "@/components/status/shard.js";
 
 export default {
-    name: "Shard",
-    props: {
-        shard: Shard,
-    }
+	name: "Shard",
+	props: {
+		shard: Shard,
+	},
 };
 </script>
 
-<style>
-
-</style>
+<style></style>
