@@ -33,6 +33,11 @@ const routes = [
 		component: () => import(/* webpackChunkName: "commands" */ "@/components/Commands.vue"),
 	},
 	{
+		path: "/gamemodes",
+		name: "gamemodes",
+		component: () => import(/* webpackChunkName: "gamemodes" */ "@/components/Gamemodes.vue"),
+	},
+	{
 		path: "/team",
 		name: "team",
 		component: () => import(/* webpackChunkName: "team" */ "@/components/staff/Staff.vue"),
