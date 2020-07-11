@@ -29,8 +29,6 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.BrowserWebDriverContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
@@ -45,14 +43,12 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
  */
 public abstract class BaseUiTest extends ApplicationTest {
 
-    private static final Logger log = LoggerFactory.getLogger(BaseUiTest.class);
-
     protected static final BrowserWebDriverContainer<?> CHROME_CONTAINER = new BrowserWebDriverContainer<>()
-            .withLogConsumer(new Slf4jLogConsumer(log))
+            .withLogConsumer(new Slf4jLogConsumer(containerLogger("Chrome")))
             .withCapabilities(new ChromeOptions());
 
     protected static final BrowserWebDriverContainer<?> FIREFOX_CONTAINER = new BrowserWebDriverContainer<>()
-            .withLogConsumer(new Slf4jLogConsumer(log))
+            .withLogConsumer(new Slf4jLogConsumer(containerLogger("Firefox")))
             .withCapabilities(new FirefoxOptions());
 
 
