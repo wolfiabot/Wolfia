@@ -20,10 +20,14 @@
 		<h1 class="title is-size-1-desktop">Play Werewolf & Mafia games on Discord!</h1>
 		<div class="buttons">
 			<div class="column is-one-quarter">
-				<router-link class="button is-large is-link" to="/dashboard">Add to Discord</router-link>
+				<router-link class="button is-large is-link" id="dashboard_button" to="/dashboard"
+					>Add to Discord</router-link
+				>
 			</div>
 			<div class="column is-one-quarter">
-				<router-link class="button is-large is-info" to="/commands">See Commands</router-link>
+				<router-link class="button is-large is-info" id="documentation_button" to="/commands"
+					>See Commands</router-link
+				>
 			</div>
 		</div>
 	</div>

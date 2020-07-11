@@ -165,6 +165,8 @@ project(':platform') {
             api "org.togglz:togglz-spring-security:$togglzVersion"
 
             api "org.testcontainers:testcontainers:$testcontainersVersion"
+            api "org.testcontainers:selenium:$testcontainersVersion"
+            api "com.codeborne:selenide:$selenideVersion"
         }
     }
 }
@@ -455,6 +457,8 @@ dependencies {
     }
     testImplementation "org.springframework.security:spring-security-test"
     testImplementation "org.testcontainers:testcontainers"
+    testImplementation "org.testcontainers:selenium"
+    testImplementation "com.codeborne:selenide"
     testImplementation "org.assertj:assertj-core"
     testImplementation "org.mockito:mockito-inline" // to mock final classes
     testImplementation "org.awaitility:awaitility"
@@ -479,12 +483,6 @@ processResources {
 
 tasks.withType(SonarQubeTask) {
     dependsOn jacocoTestReport
-}
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-    }
 }
 
 springBoot {
