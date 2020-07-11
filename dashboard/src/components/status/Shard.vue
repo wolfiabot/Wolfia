@@ -16,9 +16,8 @@
   -->
 
 <template>
-	<div class="Shard" :class="shardStatusClass">
-		<p class="is-size-4">Shard</p>
-		<p class="is-size-3">{{ this.shard.id }}</p>
+	<div class="Shard is-size-3" :class="shardStatusClass">
+    {{ this.shard.id }}
 	</div>
 </template>
 
@@ -45,16 +44,25 @@ export default {
 <style scoped lang="scss">
 @import "node_modules/bulmaswatch/darkly/variables";
 
-* {
-	// border: 1px solid black;
-}
 .Shard {
-	flex-basis: 5em;
-	padding: 1em 2em;
-	margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  margin: 0.5em;
+  border-radius: 0.1em;
 }
 
 .online {
 	background-color: $green;
+}
+
+.connecting {
+  background-color: $yellow;
+}
+
+.offline {
+  background-color: $red;
 }
 </style>

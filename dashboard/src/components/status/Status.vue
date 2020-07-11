@@ -57,10 +57,6 @@ export default {
 </script>
 
 <style scoped lang="scss">
-// * {
-// 	border: 1px solid black;
-// }
-
 .Status {
 	display: flex;
 	flex-direction: column;
@@ -75,20 +71,10 @@ export default {
 	align-items: center;
 }
 
-.statusHeader {
-	flex-grow: 1;
-}
-
 .shardList {
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: flex-start;
-	align-items: flex-start;
-	flex-grow: 4;
+	align-items: start;
 	width: 90%;
-}
-
-.statusNote {
-	flex-grow: 1;
 }
 </style>
