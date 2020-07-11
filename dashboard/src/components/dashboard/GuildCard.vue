@@ -16,7 +16,7 @@
   -->
 
 <template>
-	<div class="card guildcard">
+	<div class="card guildcard card-equal-height">
 		<figure class="card-image">
 			<img alt="Guild logo" class="is-square guild-logo" :src="guild.iconUrl()" />
 		</figure>
