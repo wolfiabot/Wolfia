@@ -42,7 +42,7 @@ export default {
 
 	computed: {
 		...mapState("shards", {
-			shards: (state) => [...state.shards].sort((a, b) => a.shard.id - b.shard.id),
+			shards: (state) => [...state.shards].sort((a, b) => a.id - b.id),
 			shardsLoaded: (state) => state.shardsLoaded,
 		}),
 	},
