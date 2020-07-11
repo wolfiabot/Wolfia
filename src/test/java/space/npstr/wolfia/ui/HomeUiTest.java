@@ -19,35 +19,28 @@ package space.npstr.wolfia.ui;
 
 import com.codeborne.selenide.WebDriverRunner;
 
-import static com.codeborne.selenide.Condition.matchesText;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Condition.appear;
 import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.Selenide.open;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class HomeUiTest extends BaseUiTest {
 
     @UiTest
-    void homeHasButtons() {
+    void hasButtons() {
         open("/");
-        var buttons = $$(".Home .buttons .button");
-        buttons.shouldHaveSize(2);
-        assertThat(buttons)
-                .anySatisfy(button -> button.should(text("Add to Discord")))
-                .anySatisfy(button -> button.should(text("See Commands")));
+
+        $("#dashboard_button").should(appear);
+        $("#documentation_button").should(appear);
     }
 
     @UiTest
-    void addToDiscordButtonRedirectsToDashboard() {
+    void whenClickOnDashboardButton_redirectedToDashboard() {
         open("/");
-        var buttons = $$(".Home .buttons .button");
-
-        var button = buttons.findBy(matchesText("Add to Discord"));
+        var button = $("#dashboard_button");
         button.click();
 
-        $(".Dashboard").should(visible);
+        $(".Dashboard").should(appear); //await navigation to be done
         assertThat(WebDriverRunner.url()).endsWith("/dashboard");
     }
 
