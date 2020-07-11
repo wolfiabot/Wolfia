@@ -15,9 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const offline = ["FAILED_TO_LOGIN"];
-const connecting = ["LOADING_SUBSYSTEMS"];
 const online = ["CONNECTED"];
+const offline = [
+	"FAILED_TO_LOGIN",
+	"INITIALIZING",
+	"SHUTTING_DOWN",
+	"SHUTDOWN",
+	"FAILED_TO_LOGIN"
+];
 export class Shard {
 	constructor(id, status) {
 		this.id = id;
@@ -25,8 +30,12 @@ export class Shard {
 	}
 
 	getShardStatus = () => {
-		if (online.includes(this.status)) return "Online";
-		if (connecting.includes(this.status)) return "Connecting";
-		if (offline.includes(this.status)) return "Offline";
+		if (online.includes(this.status)) {
+			return "Online"
+		} else if (offline.includes(this.status)){
+			return "Offline"
+		} else {
+			return "Connecting"
+		}
 	};
 }
