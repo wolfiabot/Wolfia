@@ -48,5 +48,5 @@ ext {
 	togglzVersion				= '2.6.1.Final'
 
 	testcontainersVersion		= '1.14.3'
-
+	selenideVersion             = '5.13.0'
 }
