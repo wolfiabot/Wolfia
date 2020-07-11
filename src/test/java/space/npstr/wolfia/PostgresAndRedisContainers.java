@@ -17,7 +17,10 @@
 
 package space.npstr.wolfia;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 
 /**
  * Set up our testcontainers & pass their urls into the application config.
@@ -25,7 +28,10 @@ import org.testcontainers.containers.GenericContainer;
  */
 public abstract class PostgresAndRedisContainers {
 
+    private static final Logger log = LoggerFactory.getLogger(PostgresAndRedisContainers.class);
+
     private static final GenericContainer<?> DB = new GenericContainer<>("napstr/wolfia-postgres:12")
+            .withLogConsumer(new Slf4jLogConsumer(log))
             .withEnv("ROLE", "wolfia_test")
             .withEnv("DB", "wolfia_test")
             .withExposedPorts(5432);
@@ -40,6 +46,7 @@ public abstract class PostgresAndRedisContainers {
 
 
     private static final GenericContainer<?> REDIS = new GenericContainer<>("redis:5-alpine")
+            .withLogConsumer(new Slf4jLogConsumer(log))
             .withExposedPorts(6379);
 
     static {
