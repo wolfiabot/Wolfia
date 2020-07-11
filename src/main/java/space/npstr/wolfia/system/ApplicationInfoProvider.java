@@ -20,6 +20,7 @@ package space.npstr.wolfia.system;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import net.dv8tion.jda.api.entities.ApplicationInfo;
+import net.dv8tion.jda.api.entities.ApplicationTeam;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.utils.Memoizer;
@@ -49,7 +50,13 @@ public class ApplicationInfoProvider {
     }
 
     public boolean isOwner(long userId) {
-        return getApplicationInfo().getOwner().getIdLong() == userId;
+        ApplicationInfo appInfo = getApplicationInfo();
+        ApplicationTeam team = appInfo.getTeam();
+        if (team == null) {
+            return appInfo.getOwner().getIdLong() == userId;
+        }
+
+        return team.getOwnerIdLong() == userId;
     }
 
     private Supplier<ApplicationInfo> getMemoizer() {
