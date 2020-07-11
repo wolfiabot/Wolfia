@@ -17,11 +17,13 @@
 
 <template>
 	<div class="Status">
-		<div class="is-size-1">Wolfia Shard Status</div>
-		<div class="stafflist columns is-centered is-multiline" :class="{ 'is-loading': !shardsLoaded }">
-			<div v-for="shard in shards" :key="shard.id">
-				<Shard :shard="shard" />
-			</div>
+		<div class="is-size-1 statusHeader">Wolfia Shard Status</div>
+		<div class="shardList card" :class="{ 'is-loading': !shardsLoaded }">
+			<Shard v-for="shard in shards" :key="shard.id" :shard="shard" />
+		</div>
+
+		<div class="statusNote">
+			If you notice any issues, do not hesitate to notify staff memebers [link here]
 		</div>
 	</div>
 </template>
@@ -55,14 +57,38 @@ export default {
 </script>
 
 <style scoped lang="scss">
-* {
-	border: 1px solid black;
+// * {
+// 	border: 1px solid black;
+// }
+
+.Status {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	align-items: center;
+	height: 100%;
 }
 
-.stafflist {
-	padding-right: 6em;
-	padding-left: 6em;
-	width: 100%;
-	height: 100%;
+.statusHeader,
+.statusNote {
+	display: flex;
+	align-items: center;
+}
+
+.statusHeader {
+	flex-grow: 1;
+}
+
+.shardList {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: flex-start;
+	flex-grow: 4;
+	width: 90%;
+}
+
+.statusNote {
+	flex-grow: 1;
 }
 </style>

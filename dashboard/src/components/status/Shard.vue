@@ -16,9 +16,9 @@
   -->
 
 <template>
-	<div>
-		<p>{{ shard.id }}</p>
-		<p>{{ shard.status }}</p>
+	<div class="Shard" :class="shardStatusClass">
+		<p class="is-size-4">Shard</p>
+		<p class="is-size-3">{{ this.shard.id }}</p>
 	</div>
 </template>
 
@@ -30,7 +30,31 @@ export default {
 	props: {
 		shard: Shard,
 	},
+	computed: {
+		shardStatusClass: function () {
+			return {
+				online: this.shard.getShardStatus() === "Online",
+				connecting: this.shard.getShardStatus() === "Connecting",
+				offline: this.shard.getShardStatus() === "Offline",
+			};
+		},
+	},
 };
 </script>
 
-<style></style>
+<style scoped lang="scss">
+@import "node_modules/bulmaswatch/darkly/variables";
+
+* {
+	// border: 1px solid black;
+}
+.Shard {
+	flex-basis: 5em;
+	padding: 1em 2em;
+	margin: auto;
+}
+
+.online {
+	background-color: $green;
+}
+</style>
