@@ -17,7 +17,7 @@
 
 <template>
 	<div class="Staff">
-		<div class="is-size-1">The team behind Wolfia</div>
+		<div class="title is-size-1">The team behind Wolfia</div>
 		<div class="stafflist columns is-centered is-multiline" :class="{ 'is-loading': !staffLoaded }">
 			<div
 				class="column is-half-tablet is-one-third-desktop"

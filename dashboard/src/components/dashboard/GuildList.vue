@@ -17,7 +17,7 @@
 
 <template>
 	<div>
-		<div class="is-size-1">Please select the guild you want to edit.</div>
+		<div class="title is-size-1">Please select the guild you want to edit.</div>
 		<div class="guildlist columns is-centered is-multiline" :class="{ 'is-loading': !guildsLoaded }">
 			<div
 				class="column is-one-third-tablet is-one-fifth-desktop"

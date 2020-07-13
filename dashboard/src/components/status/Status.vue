@@ -17,7 +17,7 @@
 
 <template>
 	<div class="Status">
-		<div class="statusHeader is-size-1">
+		<div class="statusHeader title is-size-1">
 			Wolfia Shard Status
 		</div>
 
