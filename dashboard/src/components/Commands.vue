@@ -17,7 +17,7 @@
 
 <template>
 	<div class="Commands">
-		<h1 class="title is-size-1-desktop">Coming soon</h1>
+		<h1 class="title has-text-weight-light is-size-1-desktop">Coming soon</h1>
 	</div>
 </template>
 

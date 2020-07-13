@@ -17,7 +17,7 @@
 
 <template>
 	<div class="Home">
-		<h1 class="title is-size-1-desktop">Play Werewolf & Mafia games on Discord!</h1>
+		<h1 class="title has-text-weight-light is-size-1-desktop">Play Werewolf & Mafia games on Discord!</h1>
 		<div class="buttons">
 			<div class="column is-one-quarter">
 				<router-link class="button is-large is-link" id="dashboard_button" to="/dashboard"

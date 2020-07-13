@@ -17,9 +17,9 @@
 
 <template>
 	<div class="Status">
-		<div class="statusHeader title is-size-1">
+		<h1 class="statusHeader title has-text-weight-light is-size-1">
 			Wolfia Shard Status
-		</div>
+		</h1>
 
 		<div class="statusContent" :class="{ 'is-loading': !shardsLoaded }">
 			<div class="is-size-3">

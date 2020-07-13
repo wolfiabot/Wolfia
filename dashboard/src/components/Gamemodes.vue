@@ -15,7 +15,7 @@
   - along with this program.  If not, see <http://www.gnu.org/licenses/>.
   -->
 <template>
-	<div class="Gamemodes"><h1 class="title is-size-1-desktop">Coming soon</h1></div>
+	<div class="Gamemodes"><h1 class="title has-text-weight-light is-size-1-desktop">Coming soon</h1></div>
 </template>
 <script>
 export default {
