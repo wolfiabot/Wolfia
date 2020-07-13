@@ -15,24 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { CONNECTING, OFFLINE, ONLINE } from "@/components/status/shard-status";
-
-const online = ["CONNECTED"];
-const offline = ["FAILED_TO_LOGIN", "SHUTTING_DOWN", "SHUTDOWN"];
-
-export class Shard {
-	constructor(id, status) {
-		this.id = id;
-		this.status = status;
-	}
-
-	getShardStatus = () => {
-		if (online.includes(this.status)) {
-			return ONLINE;
-		} else if (offline.includes(this.status)) {
-			return OFFLINE;
-		} else {
-			return CONNECTING;
-		}
-	};
-}
+export const ONLINE = "ONLINE";
+export const CONNECTING = "CONNECTING";
+export const OFFLINE = "OFFLINE";

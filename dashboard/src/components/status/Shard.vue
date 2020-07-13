@@ -23,6 +23,7 @@
 
 <script>
 import { Shard } from "@/components/status/shard.js";
+import { CONNECTING, OFFLINE, ONLINE } from "@/components/status/shard-status";
 
 export default {
 	name: "Shard",
@@ -32,9 +33,9 @@ export default {
 	computed: {
 		shardStatusClass: function () {
 			return {
-				online: this.shard.getShardStatus() === "Online",
-				connecting: this.shard.getShardStatus() === "Connecting",
-				offline: this.shard.getShardStatus() === "Offline",
+				online: this.shard.getShardStatus() === ONLINE,
+				connecting: this.shard.getShardStatus() === CONNECTING,
+				offline: this.shard.getShardStatus() === OFFLINE,
 			};
 		},
 	},
