@@ -57,7 +57,7 @@
 				</router-link>
 			</div>
 			<div class="navbar-end">
-				<UserNav></UserNav>
+				<UserNav />
 			</div>
 		</div>
 	</nav>
