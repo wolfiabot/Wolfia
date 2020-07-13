@@ -60,7 +60,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "node_modules/bulmaswatch/darkly/variables";
+@import "node_modules/buefy/dist/buefy";
+@import "node_modules/bulmaswatch/darkly/bulmaswatch";
 
 html,
 body {
@@ -72,8 +73,9 @@ body {
 	overflow: hidden !important;
 }
 
+@import "assets/fonts_muli.css";
 #app {
-	font-family: "Avenir", Helvetica, Arial, sans-serif;
+	font-family: "Muli", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 

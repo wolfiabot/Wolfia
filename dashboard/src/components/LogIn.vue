@@ -17,7 +17,7 @@
 
 <template>
 	<div class="Login">
-		<h1 class="title is-size-1">{{ randomGreeting() }}</h1>
+		<h1 class="title has-text-weight-light is-size-1">{{ randomGreeting() }}</h1>
 		<h2 class="subtitle is-size-2-desktop is-size-3-touch">Welcome to the Wolfia Bot Dashboard</h2>
 		<a class="button is-large is-link" href="/public/login">
 			Log In With Discord

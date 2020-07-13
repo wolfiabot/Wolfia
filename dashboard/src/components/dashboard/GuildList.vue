@@ -17,13 +17,9 @@
 
 <template>
 	<div>
-		<div class="is-size-1">Please select the guild you want to edit.</div>
+		<h1 class="title has-text-weight-light is-size-1">Please select the guild you want to edit.</h1>
 		<div class="guildlist columns is-centered is-multiline" :class="{ 'is-loading': !guildsLoaded }">
-			<div
-				class="column is-one-third-tablet is-one-fifth-desktop"
-				v-for="guild in guilds"
-				:key="guild.discordId"
-			>
+			<div class="column is-one-third-tablet is-one-fifth-desktop" v-for="guild in guilds" :key="guild.discordId">
 				<GuildCard :guild="guild" class="guildcard" />
 			</div>
 		</div>
