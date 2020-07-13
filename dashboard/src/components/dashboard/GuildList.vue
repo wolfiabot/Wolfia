@@ -18,9 +18,9 @@
 <template>
 	<div>
 		<div class="is-size-1">Please select the guild you want to edit.</div>
-		<div id="guildlist" class="columns is-centered is-multiline" :class="{ 'is-loading': !guildsLoaded }">
+		<div class="guildlist columns is-centered is-multiline" :class="{ 'is-loading': !guildsLoaded }">
 			<div
-				class="guildlist column is-one-third-tablet is-one-fifth-desktop"
+				class="column is-one-third-tablet is-one-fifth-desktop"
 				v-for="guild in guilds"
 				:key="guild.discordId"
 			>
@@ -71,7 +71,7 @@ export default {
 </script>
 
 <style scoped>
-#guildlist {
+.guildlist {
 	padding: 0 6em;
 	width: 100%;
 	height: 100%;

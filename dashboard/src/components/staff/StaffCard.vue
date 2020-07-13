@@ -16,7 +16,7 @@
   -->
 
 <template>
-	<div class="card">
+	<div class="card card-equal-height">
 		<figure class="card-image">
 			<img alt="Staff member logo" class="is-square avatar" :src="member.user.avatarUrl()" />
 		</figure>

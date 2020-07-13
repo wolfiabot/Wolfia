@@ -16,7 +16,7 @@
   -->
 
 <template>
-	<div class="card guildcard">
+	<div class="card guildcard card-equal-height">
 		<figure class="card-image">
 			<img alt="Guild logo" class="is-square guild-logo" :src="guild.iconUrl()" />
 		</figure>
@@ -64,7 +64,7 @@ export default {
 	background-image: linear-gradient(to right, rgba(255, 255, 255, 0) 50%, $primary 50%);
 	background-position: -0% 0;
 	background-size: 200% auto;
-	transition: background-position 0.5s ease-out;
+	transition: background-position 0.2s ease-out;
 }
 .card-footer-item:hover {
 	background-position: -99.99% 0;

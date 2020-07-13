@@ -108,4 +108,14 @@ main {
 		border-width: 0.25em;
 	}
 }
+/* Make cards have the same height when displayed as columns
+   Source: https://github.com/jgthms/bulma/issues/218#issuecomment-301706143 */
+.card-equal-height {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+.card-equal-height .card-footer {
+	margin-top: auto;
+}
 </style>
