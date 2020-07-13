@@ -41,6 +41,9 @@
 				<router-link to="/team" class="navbar-item">
 					Team
 				</router-link>
+				<router-link to="/status" class="navbar-item">
+					Status
+				</router-link>
 				<a
 					class="navbar-item"
 					target="_blank"

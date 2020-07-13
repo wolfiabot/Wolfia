@@ -17,7 +17,7 @@
 
 <template>
 	<div class="Shard is-size-3" :class="shardStatusClass">
-    {{ this.shard.id }}
+		{{ this.shard.id }}
 	</div>
 </template>
 
@@ -45,13 +45,13 @@ export default {
 @import "node_modules/bulmaswatch/darkly/variables";
 
 .Shard {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2em;
-  height: 2em;
-  margin: 0.5em;
-  border-radius: 0.1em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2em;
+	height: 2em;
+	margin: 0.5em;
+	border-radius: 0.1em;
 }
 
 .online {
@@ -59,10 +59,10 @@ export default {
 }
 
 .connecting {
-  background-color: $yellow;
+	background-color: $yellow;
 }
 
 .offline {
-  background-color: $red;
+	background-color: $red;
 }
 </style>

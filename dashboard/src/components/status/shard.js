@@ -16,13 +16,7 @@
  */
 
 const online = ["CONNECTED"];
-const offline = [
-	"FAILED_TO_LOGIN",
-	"INITIALIZING",
-	"SHUTTING_DOWN",
-	"SHUTDOWN",
-	"FAILED_TO_LOGIN"
-];
+const offline = ["FAILED_TO_LOGIN", "INITIALIZING", "SHUTTING_DOWN", "SHUTDOWN", "FAILED_TO_LOGIN"];
 export class Shard {
 	constructor(id, status) {
 		this.id = id;
@@ -31,11 +25,11 @@ export class Shard {
 
 	getShardStatus = () => {
 		if (online.includes(this.status)) {
-			return "Online"
-		} else if (offline.includes(this.status)){
-			return "Offline"
+			return "Online";
+		} else if (offline.includes(this.status)) {
+			return "Offline";
 		} else {
-			return "Connecting"
+			return "Connecting";
 		}
 	};
 }

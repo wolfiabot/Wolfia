@@ -17,13 +17,27 @@
 
 <template>
 	<div class="Status">
-		<div class="is-size-1 statusHeader">Wolfia Shard Status</div>
-		<div class="shardList card" :class="{ 'is-loading': !shardsLoaded }">
-			<Shard v-for="shard in shards" :key="shard.id" :shard="shard" />
+		<div class="statusHeader is-size-1">
+			Wolfia Shard Status
 		</div>
 
-		<div class="statusNote">
-			If you notice any issues, do not hesitate to notify staff memebers [link here]
+		<div class="statusContent" :class="{ 'is-loading': !shardsLoaded }">
+			<div class="is-size-3">
+				{{ shards.filter((shard) => shard.status === "CONNECTED").length }}
+				/
+				{{ shards.length }}
+				online
+			</div>
+			<div class="shardList card">
+				<Shard v-for="shard in shards" :key="shard.id" :shard="shard" />
+			</div>
+		</div>
+
+		<div class="statusFooter">
+			<p>
+				If you notice any issues, do not hesitate to reach out to us on our
+				<a href="https://discord.gg/nvcfX3q">Discord server</a>.
+			</p>
 		</div>
 	</div>
 </template>
@@ -66,15 +80,21 @@ export default {
 }
 
 .statusHeader,
-.statusNote {
+.statusFooter,
+.statusContent {
 	display: flex;
 	align-items: center;
+}
+
+.statusContent {
+	display: flex;
+	flex-direction: column;
 }
 
 .shardList {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: start;
+	align-items: flex-start;
 	width: 90%;
 }
 </style>
