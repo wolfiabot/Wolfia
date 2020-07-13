@@ -60,7 +60,8 @@ export default {
 </script>
 
 <style lang="scss">
-@import "node_modules/bulmaswatch/darkly/variables";
+@import "node_modules/buefy/dist/buefy";
+@import "node_modules/bulmaswatch/darkly/bulmaswatch";
 
 html,
 body {
