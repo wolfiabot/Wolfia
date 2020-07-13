@@ -73,8 +73,9 @@ body {
 	overflow: hidden !important;
 }
 
+@import "assets/fonts_muli.css";
 #app {
-	font-family: "Avenir", Helvetica, Arial, sans-serif;
+	font-family: "Muli", Helvetica, Arial, sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 

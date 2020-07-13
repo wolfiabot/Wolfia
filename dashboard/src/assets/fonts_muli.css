@@ -1,0 +1,183 @@
+/*
+ * Copyright (C) 2016-2020 the original author or authors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/**
+ * How the fonts were created:
+ *
+ * - Downloaded Muli from Google Fonts
+ * - Generated WOFF & WOFF2 with https://transfonter.org/
+ * - Ordered the entries below by font weight
+ */
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli ExtraLight'), local('Muli-ExtraLight'),
+	url('font/Muli/Muli-ExtraLight.woff2') format('woff2'),
+	url('font/Muli/Muli-ExtraLight.woff') format('woff');
+	font-weight: 200;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli ExtraLight Italic'), local('Muli-ExtraLightItalic'),
+	url('font/Muli/Muli-ExtraLightItalic.woff2') format('woff2'),
+	url('font/Muli/Muli-ExtraLightItalic.woff') format('woff');
+	font-weight: 200;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Light'), local('Muli-Light'),
+	url('font/Muli/Muli-Light.woff2') format('woff2'),
+	url('font/Muli/Muli-Light.woff') format('woff');
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Light Italic'), local('Muli-LightItalic'),
+	url('font/Muli/Muli-LightItalic.woff2') format('woff2'),
+	url('font/Muli/Muli-LightItalic.woff') format('woff');
+	font-weight: 300;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Regular'), local('Muli-Regular'),
+	url('font/Muli/Muli-Regular.woff2') format('woff2'),
+	url('font/Muli/Muli-Regular.woff') format('woff');
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Italic'), local('Muli-Italic'),
+	url('font/Muli/Muli-Italic.woff2') format('woff2'),
+	url('font/Muli/Muli-Italic.woff') format('woff');
+	font-weight: normal;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Medium'), local('Muli-Medium'),
+	url('font/Muli/Muli-Medium.woff2') format('woff2'),
+	url('font/Muli/Muli-Medium.woff') format('woff');
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Medium Italic'), local('Muli-MediumItalic'),
+	url('font/Muli/Muli-MediumItalic.woff2') format('woff2'),
+	url('font/Muli/Muli-MediumItalic.woff') format('woff');
+	font-weight: 500;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli SemiBold'), local('Muli-SemiBold'),
+	url('font/Muli/Muli-SemiBold.woff2') format('woff2'),
+	url('font/Muli/Muli-SemiBold.woff') format('woff');
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli SemiBold Italic'), local('Muli-SemiBoldItalic'),
+	url('font/Muli/Muli-SemiBoldItalic.woff2') format('woff2'),
+	url('font/Muli/Muli-SemiBoldItalic.woff') format('woff');
+	font-weight: 600;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Bold'), local('Muli-Bold'),
+	url('font/Muli/Muli-Bold.woff2') format('woff2'),
+	url('font/Muli/Muli-Bold.woff') format('woff');
+	font-weight: bold;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Bold Italic'), local('Muli-BoldItalic'),
+	url('font/Muli/Muli-BoldItalic.woff2') format('woff2'),
+	url('font/Muli/Muli-BoldItalic.woff') format('woff');
+	font-weight: bold;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli ExtraBold'), local('Muli-ExtraBold'),
+	url('font/Muli/Muli-ExtraBold.woff2') format('woff2'),
+	url('font/Muli/Muli-ExtraBold.woff') format('woff');
+	font-weight: 800;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli ExtraBold Italic'), local('Muli-ExtraBoldItalic'),
+	url('font/Muli/Muli-ExtraBoldItalic.woff2') format('woff2'),
+	url('font/Muli/Muli-ExtraBoldItalic.woff') format('woff');
+	font-weight: 800;
+	font-style: italic;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Black'), local('Muli-Black'),
+	url('font/Muli/Muli-Black.woff2') format('woff2'),
+	url('font/Muli/Muli-Black.woff') format('woff');
+	font-weight: 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: 'Muli';
+	src: local('Muli Black Italic'), local('Muli-BlackItalic'),
+	url('font/Muli/Muli-BlackItalic.woff2') format('woff2'),
+	url('font/Muli/Muli-BlackItalic.woff') format('woff');
+	font-weight: 900;
+	font-style: italic;
+	font-display: swap;
+}
