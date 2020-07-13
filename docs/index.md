@@ -208,7 +208,7 @@ Wolfia is currently in **beta** status, which means the following:
 - Output and formatting of messages might look a bit rough.
 
 Uptime over last 7 days:  
-[![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m779169786-261e58b3e3675e8e3e5fdac8.svg?style=flat-square)]()
+[![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m785556907-c9756379df3db09306af6eda.svg?style=flat-square)]()
 
 * * *
 
