@@ -15,27 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Vue from "vue";
-import Vuex from "vuex";
-import { userStore } from "@/components/user/user-store";
-import { staffStore } from "@/components/staff/staff-store";
-import { guildStore } from "@/components/guild/guild-store";
-import { shardStore } from "@/components/status/shard-store";
-import { guildSettingsStore } from "@/components/guildsettings/guild-settings-store";
+package space.npstr.wolfia.webapi;
 
-Vue.use(Vuex);
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-export default new Vuex.Store({
-	strict: process.env.NODE_ENV !== "production", //see https://vuex.vuejs.org/guide/strict.html
-	modules: {
-		user: userStore,
-		staff: staffStore,
-		guild: guildStore,
-		guildSettings: guildSettingsStore,
-		shards: shardStore,
-	},
-	state: {},
-	getters: {},
-	mutations: {},
-	actions: {},
-});
+import static org.immutables.value.Value.Immutable;
+import static org.immutables.value.Value.Style;
+
+@Immutable
+@Style(
+        stagedBuilder = true,
+        strictBuilder = true
+)
+@JsonSerialize(as = ImmutableShard.class)
+public interface Shard {
+
+    int id();
+
+    String status();
+}

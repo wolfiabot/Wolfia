@@ -15,27 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Vue from "vue";
-import Vuex from "vuex";
-import { userStore } from "@/components/user/user-store";
-import { staffStore } from "@/components/staff/staff-store";
-import { guildStore } from "@/components/guild/guild-store";
-import { shardStore } from "@/components/status/shard-store";
-import { guildSettingsStore } from "@/components/guildsettings/guild-settings-store";
+import { CONNECTING, OFFLINE, ONLINE } from "@/components/status/shard-status";
 
-Vue.use(Vuex);
+const online = ["CONNECTED"];
+const offline = ["FAILED_TO_LOGIN", "SHUTTING_DOWN", "SHUTDOWN"];
 
-export default new Vuex.Store({
-	strict: process.env.NODE_ENV !== "production", //see https://vuex.vuejs.org/guide/strict.html
-	modules: {
-		user: userStore,
-		staff: staffStore,
-		guild: guildStore,
-		guildSettings: guildSettingsStore,
-		shards: shardStore,
-	},
-	state: {},
-	getters: {},
-	mutations: {},
-	actions: {},
-});
+export class Shard {
+	constructor(id, status) {
+		this.id = id;
+		this.status = status;
+	}
+
+	getShardStatus = () => {
+		if (online.includes(this.status)) {
+			return ONLINE;
+		} else if (offline.includes(this.status)) {
+			return OFFLINE;
+		} else {
+			return CONNECTING;
+		}
+	};
+}

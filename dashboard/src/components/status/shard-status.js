@@ -15,27 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Vue from "vue";
-import Vuex from "vuex";
-import { userStore } from "@/components/user/user-store";
-import { staffStore } from "@/components/staff/staff-store";
-import { guildStore } from "@/components/guild/guild-store";
-import { shardStore } from "@/components/status/shard-store";
-import { guildSettingsStore } from "@/components/guildsettings/guild-settings-store";
-
-Vue.use(Vuex);
-
-export default new Vuex.Store({
-	strict: process.env.NODE_ENV !== "production", //see https://vuex.vuejs.org/guide/strict.html
-	modules: {
-		user: userStore,
-		staff: staffStore,
-		guild: guildStore,
-		guildSettings: guildSettingsStore,
-		shards: shardStore,
-	},
-	state: {},
-	getters: {},
-	mutations: {},
-	actions: {},
-});
+export const ONLINE = "ONLINE";
+export const CONNECTING = "CONNECTING";
+export const OFFLINE = "OFFLINE";
