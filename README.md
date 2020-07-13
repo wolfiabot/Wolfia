@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/travis/wolfiabot/wolfia/master.svg?style=flat-square)](https://travis-ci.org/wolfiabot/wolfia)
 [![License](https://img.shields.io/github/license/wolfiabot/wolfia.svg?style=flat-square)]()
-[![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m779169786-261e58b3e3675e8e3e5fdac8.svg?style=flat-square)]()
+[![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m785556907-c9756379df3db09306af6eda.svg?style=flat-square)]()
 [![Discord](https://img.shields.io/discord/315944983754571796.svg?style=flat-square)](https://discord.gg/nvcfX3q)  
 [![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-black.svg)](https://sonarcloud.io/dashboard?id=space.npstr.wolfia%3Awolfia)
 
