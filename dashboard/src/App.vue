@@ -61,7 +61,10 @@ export default {
 
 <style lang="scss">
 @import "node_modules/buefy/dist/buefy";
-@import "node_modules/bulmaswatch/darkly/bulmaswatch";
+@import "node_modules/bulmaswatch/darkly/variables";
+@import "node_modules/bulma/bulma";
+$bulmaswatch-import-font: false;
+@import "node_modules/bulmaswatch/darkly/overrides";
 
 html,
 body {
