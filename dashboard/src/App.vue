@@ -28,6 +28,7 @@
 <script>
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { ToastProgrammatic as Toast } from "buefy";
 
 export default {
 	components: {
@@ -55,6 +56,41 @@ export default {
 				});
 			}
 		});
+
+		this.checkLogin(this.$route);
+		this.$router.afterEach((to) => {
+			this.checkLogin(to);
+		});
+	},
+
+	methods: {
+		checkLogin: function (route) {
+			const loginParam = route.query["login"];
+			if (loginParam) {
+				this.handleLogin(loginParam);
+				this.$router.replace({
+					...route,
+					query: {
+						login: undefined,
+					},
+				});
+			}
+		},
+		handleLogin: function (loginParam) {
+			if (loginParam === "success") {
+				Toast.open({
+					message: "Login Successful!",
+					type: "is-success",
+					duration: 3000,
+				});
+			} else if (loginParam === "failed") {
+				Toast.open({
+					message: "Looks like something went wrong with your login. Please try again!",
+					type: "is-warning",
+					duration: 5000,
+				});
+			}
+		},
 	},
 };
 </script>
