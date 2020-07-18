@@ -25,7 +25,7 @@ process.env.VUE_APP_VERSION = require("./package.json").version;
 
 module.exports = {
 	outputDir: "build/dist",
-	assetsDir: "static",
+	assetsDir: "asset",
 	devServer: {
 		public: deployBaseUrl,
 		proxy: {

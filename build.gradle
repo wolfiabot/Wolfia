@@ -477,7 +477,7 @@ processResources {
     dependsOn ':dashboard:assembleFrontend'
 
     from("${project(':dashboard').buildDir}/dist") {
-        into 'public'
+        into 'static'
     }
 }
 
