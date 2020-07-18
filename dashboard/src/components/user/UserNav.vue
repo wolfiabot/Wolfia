@@ -31,7 +31,7 @@
 	</div>
 	<div v-else class="navbar-item">
 		<div class="buttons">
-			<a class="button is-light" href="/public/login">
+			<a class="button is-light" :href="loginLink">
 				<strong>Login</strong>
 			</a>
 		</div>
@@ -55,6 +55,9 @@ export default {
 			userLoaded: (state) => state.userLoaded,
 			user: (state) => state.user,
 		}),
+		loginLink: function () {
+			return `/public/login?login_redirect=${encodeURIComponent(this.$route.fullPath)}`;
+		},
 	},
 	methods: {
 		...mapActions("user", {

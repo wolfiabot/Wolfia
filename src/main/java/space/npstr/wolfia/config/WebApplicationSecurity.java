@@ -18,13 +18,18 @@
 package space.npstr.wolfia.config;
 
 import io.undertow.util.Headers;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import okhttp3.HttpUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +39,8 @@ import org.springframework.http.RequestEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -48,6 +55,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequestEnti
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.HeaderWriter;
@@ -56,6 +65,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import space.npstr.wolfia.config.properties.OAuth2Config;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.webapi.Authorization;
+import space.npstr.wolfia.webapi.LoginRedirect;
 
 @Configuration
 public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
@@ -92,6 +102,8 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .collect(Collectors.toSet())
                 .toArray(new String[]{});
 
+        LoginRedirectHandler loginRedirectHandler = new LoginRedirectHandler(this.oAuth2Config.getBaseRedirectUrl());
+
         http
                 .csrf().ignoringAntMatchers(MACHINE_ENDPOINTS)
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
@@ -103,8 +115,8 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 // To avoid redirects to the spring internal login page when unauthorized requests happen to machine endpoints
                 .and().exceptionHandling().defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), new AntPathRequestMatcher("/api/**"))
                 .and().oauth2Login()
-                // To avoid getting redirected to machine endpoints like /api/user after logging in
-                .defaultSuccessUrl(this.oAuth2Config.getBaseRedirectUrl(), true)
+                .successHandler(loginRedirectHandler)
+                .failureHandler(loginRedirectHandler)
                 .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
                 .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
                 .and().and()
@@ -189,5 +201,57 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
         headers.add(HttpHeaders.USER_AGENT, DISCORD_BOT_USER_AGENT);
 
         return new RequestEntity<>(request.getBody(), headers, request.getMethod(), request.getUrl());
+    }
+
+    /**
+     * Handle a potential login redirect target saved in the session.
+     */
+    private static final class LoginRedirectHandler implements AuthenticationSuccessHandler, AuthenticationFailureHandler {
+
+        private final String defaultTargetUrl;
+
+        private LoginRedirectHandler(String defaultTargetUrl) {
+            this.defaultTargetUrl = defaultTargetUrl;
+        }
+
+        @Override
+        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                            Authentication authentication) throws IOException {
+
+            onLogin(request, response, true);
+        }
+
+        @Override
+        public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+                                            AuthenticationException exception) throws IOException {
+
+            onLogin(request, response, false);
+        }
+
+        private void onLogin(HttpServletRequest request, HttpServletResponse response, boolean success) throws IOException {
+            String redirectUrl = determineRedirectUrl(request, success);
+
+            response.sendRedirect(redirectUrl);
+        }
+
+        private String determineRedirectUrl(HttpServletRequest request, boolean wasSuccess) {
+            String loginValue = wasSuccess ? "success" : "failed";
+
+            HttpSession session = request.getSession();
+            String loginRedirect = (String) session.getAttribute(LoginRedirect.LOGIN_REDIRECT_SESSION_ATTRIBUTE);
+            session.removeAttribute(LoginRedirect.LOGIN_REDIRECT_SESSION_ATTRIBUTE);
+            if (loginRedirect == null) {
+                loginRedirect = this.defaultTargetUrl;
+            }
+            try {
+                HttpUrl httpUrl = HttpUrl.get(loginRedirect).newBuilder()
+                        .addQueryParameter("login", loginValue)
+                        .build();
+                return httpUrl.toString();
+            } catch (Exception e) {
+                log.warn("Failed to create login redirect URI: {}", loginRedirect);
+                return this.defaultTargetUrl;
+            }
+        }
     }
 }
