@@ -76,6 +76,7 @@ export default {
 	justify-content: space-between;
 	align-items: center;
 	margin-top: 2em;
+	height: 80%;
 }
 
 .statusHeader,
