@@ -67,12 +67,11 @@
 </template>
 
 <script>
-import UserNav from "@/components/user/UserNav";
 import { mapGetters } from "vuex";
 
 export default {
 	components: {
-		UserNav,
+		UserNav: () => import("@/components/user/UserNav"),
 	},
 	computed: {
 		...mapGetters("user", ["isAdmin"]),

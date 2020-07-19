@@ -26,14 +26,12 @@
 </template>
 
 <script>
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { ToastProgrammatic as Toast } from "buefy";
 
 export default {
 	components: {
-		Header,
-		Footer,
+		Header: () => import("@/components/Header"),
+		Footer: () => import("@/components/Footer"),
 	},
 	mounted() {
 		document.addEventListener("DOMContentLoaded", () => {

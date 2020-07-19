@@ -29,11 +29,12 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { FETCH_GUILDS } from "@/components/guild/guild-store";
-import GuildCard from "@/components/dashboard/GuildCard";
 
 export default {
 	name: "GuildList",
-	components: { GuildCard },
+	components: {
+		GuildCard: () => import("@/components/dashboard/GuildCard"),
+	},
 	mounted() {
 		this.fetchGuilds();
 	},

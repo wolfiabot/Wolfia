@@ -27,18 +27,15 @@
 </template>
 
 <script>
-import GuildList from "@/components/dashboard/GuildList";
-import LogIn from "@/components/LogIn";
 import { mapActions, mapState } from "vuex";
 import { FETCH_USER } from "@/components/user/user-store";
-import GuildSettings from "@/components/guildsettings/GuildSettings";
 
 export default {
 	name: "Dashboard",
 	components: {
-		GuildList,
-		GuildSettings,
-		LogIn,
+		GuildList: () => import("@/components/dashboard/GuildList"),
+		GuildSettings: () => import("@/components/guildsettings/GuildSettings"),
+		LogIn: () => import("@/components/LogIn"),
 	},
 	props: {
 		guildId: String,

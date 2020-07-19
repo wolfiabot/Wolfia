@@ -33,12 +33,11 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { FETCH_STAFF } from "@/components/staff/staff-store";
-import StaffCard from "@/components/staff/StaffCard";
 
 export default {
 	name: "Staff",
 	components: {
-		StaffCard,
+		StaffCard: () => import("@/components/staff/StaffCard"),
 	},
 	mounted() {
 		this.fetchStaff();

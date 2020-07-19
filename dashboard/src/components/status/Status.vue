@@ -45,12 +45,11 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { FETCH_SHARDS } from "@/components/status/shard-store";
-import Shard from "@/components/status/Shard.vue";
 
 export default {
 	name: "Status",
 	components: {
-		Shard,
+		Shard: () => import("@/components/status/Shard.vue"),
 	},
 	mounted() {
 		this.fetchShards();

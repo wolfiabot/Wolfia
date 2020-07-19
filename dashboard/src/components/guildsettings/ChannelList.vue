@@ -24,10 +24,11 @@
 </template>
 
 <script>
-import ChannelEntry from "@/components/guildsettings/ChannelEntry";
 export default {
 	name: "ChannelList",
-	components: { ChannelEntry },
+	components: {
+		ChannelEntry: () => import("@/components/guildsettings/ChannelEntry"),
+	},
 	props: {
 		channels: Array,
 	},

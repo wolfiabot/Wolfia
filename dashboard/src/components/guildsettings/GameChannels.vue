@@ -28,11 +28,12 @@
 <script>
 import { mapActions } from "vuex";
 import { SET_GAME_CHANNEL } from "@/components/guildsettings/guild-settings-store";
-import ChannelList from "@/components/guildsettings/ChannelList";
 import { GuildSettings } from "@/components/guildsettings/guild-settings";
 export default {
 	name: "GameChannels",
-	components: { ChannelList },
+	components: {
+		ChannelList: () => import("@/components/guildsettings/ChannelList"),
+	},
 	props: {
 		guildSettings: GuildSettings,
 	},

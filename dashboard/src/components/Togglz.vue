@@ -27,11 +27,12 @@
 
 <script>
 import { mapGetters } from "vuex";
-import GoBack from "@/components/GoBack";
 
 export default {
 	name: "Togglz",
-	components: { GoBack },
+	components: {
+		GoBack: () => import("@/components/GoBack"),
+	},
 	computed: {
 		...mapGetters("user", ["isAdmin"]),
 	},

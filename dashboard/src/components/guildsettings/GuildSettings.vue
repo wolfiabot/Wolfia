@@ -32,13 +32,14 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { FETCH_GUILDS } from "@/components/guild/guild-store";
-import GameChannels from "@/components/guildsettings/GameChannels";
 import { FETCH_GUILD_SETTINGS } from "@/components/guildsettings/guild-settings-store";
-import GoBack from "@/components/GoBack";
 
 export default {
 	name: "GuildSettings",
-	components: { GoBack, GameChannels },
+	components: {
+		GoBack: () => import("@/components/GoBack"),
+		GameChannels: () => import("@/components/guildsettings/GameChannels"),
+	},
 	props: {
 		guildId: String,
 	},
