@@ -73,9 +73,9 @@ export default {
 .Status {
 	display: flex;
 	flex-direction: column;
-	justify-content: space-around;
+	justify-content: space-between;
 	align-items: center;
-	height: 100%;
+	margin-top: 2em;
 }
 
 .statusHeader,

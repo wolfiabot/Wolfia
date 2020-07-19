@@ -27,11 +27,12 @@
 
 <style lang="scss">
 footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 	font-size: 0.75em;
 	img {
 		height: 1em;
 	}
-
-	margin-bottom: 0.5rem;
 }
 </style>

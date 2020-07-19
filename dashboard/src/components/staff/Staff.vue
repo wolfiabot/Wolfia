@@ -57,17 +57,17 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .Staff {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	margin-top: 2em;
 }
 .stafflist {
 	padding-right: 6em;
 	padding-left: 6em;
 	width: 100%;
-	height: 100%;
 }
 .staffcard {
 	padding: 1em;
