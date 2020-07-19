@@ -29,7 +29,7 @@
 	url('font/Muli/Muli-ExtraLight.woff') format('woff');
 	font-weight: 200;
 	font-style: normal;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -39,7 +39,7 @@
 	url('font/Muli/Muli-ExtraLightItalic.woff') format('woff');
 	font-weight: 200;
 	font-style: italic;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -49,7 +49,7 @@
 	url('font/Muli/Muli-Light.woff') format('woff');
 	font-weight: 300;
 	font-style: normal;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -59,7 +59,7 @@
 	url('font/Muli/Muli-LightItalic.woff') format('woff');
 	font-weight: 300;
 	font-style: italic;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -69,7 +69,7 @@
 	url('font/Muli/Muli-Regular.woff') format('woff');
 	font-weight: normal;
 	font-style: normal;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -79,7 +79,7 @@
 	url('font/Muli/Muli-Italic.woff') format('woff');
 	font-weight: normal;
 	font-style: italic;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -89,7 +89,7 @@
 	url('font/Muli/Muli-Medium.woff') format('woff');
 	font-weight: 500;
 	font-style: normal;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -99,7 +99,7 @@
 	url('font/Muli/Muli-MediumItalic.woff') format('woff');
 	font-weight: 500;
 	font-style: italic;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -109,7 +109,7 @@
 	url('font/Muli/Muli-SemiBold.woff') format('woff');
 	font-weight: 600;
 	font-style: normal;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -119,7 +119,7 @@
 	url('font/Muli/Muli-SemiBoldItalic.woff') format('woff');
 	font-weight: 600;
 	font-style: italic;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -129,7 +129,7 @@
 	url('font/Muli/Muli-Bold.woff') format('woff');
 	font-weight: bold;
 	font-style: normal;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -139,7 +139,7 @@
 	url('font/Muli/Muli-BoldItalic.woff') format('woff');
 	font-weight: bold;
 	font-style: italic;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -149,7 +149,7 @@
 	url('font/Muli/Muli-ExtraBold.woff') format('woff');
 	font-weight: 800;
 	font-style: normal;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -159,7 +159,7 @@
 	url('font/Muli/Muli-ExtraBoldItalic.woff') format('woff');
 	font-weight: 800;
 	font-style: italic;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -169,7 +169,7 @@
 	url('font/Muli/Muli-Black.woff') format('woff');
 	font-weight: 900;
 	font-style: normal;
-	font-display: swap;
+	font-display: block;
 }
 
 @font-face {
@@ -179,5 +179,5 @@
 	url('font/Muli/Muli-BlackItalic.woff') format('woff');
 	font-weight: 900;
 	font-style: italic;
-	font-display: swap;
+	font-display: block;
 }
