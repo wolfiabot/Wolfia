@@ -19,6 +19,7 @@ package space.npstr.wolfia;
 
 import io.prometheus.client.CollectorRegistry;
 import java.time.Clock;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,9 @@ public abstract class ApplicationTest extends PostgresAndRedisContainers {
 
     @MockBean
     protected OAuth2Requester oAuth2Requester;
+
+    @Autowired // is actually a mock, see DiscordApiConfig
+    protected ShardManager shardManager;
 
     @Autowired
     protected MockMvc mockMvc;
