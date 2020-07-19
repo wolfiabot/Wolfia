@@ -30,7 +30,7 @@ ext {
 	testLoggerVersion			= '2.0.0'
 
 	frontendPluginVersion		= '3.0.0'
-	theNodeVersion				= '12.18.0'
+	theNodeVersion				= '12.18.2'
 	theYarnVersion				= '1.22.4'
 
 	jdaVersion					= '4.1.1_165'
