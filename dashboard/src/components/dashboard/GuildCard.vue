@@ -25,7 +25,7 @@
 				<strong class="is-size-5">{{ guild.name }}</strong>
 			</div>
 		</div>
-		<div class="card-footer is-size-6">
+		<footer class="card-footer is-size-6">
 			<a
 				v-if="!guild.botPresent"
 				class="card-footer-item"
@@ -38,7 +38,7 @@
 			<router-link v-if="guild.canEdit" class="card-footer-item" :to="'/dashboard/' + guild.discordId">
 				Settings
 			</router-link>
-		</div>
+		</footer>
 	</div>
 </template>
 
