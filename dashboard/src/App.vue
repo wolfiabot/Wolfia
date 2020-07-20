@@ -130,6 +130,12 @@ main {
 }
 //Sticky footer end
 
+.Footer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 /*Source: https://github.com/jgthms/bulma/issues/847 */
 @import "~bulma/sass/utilities/mixins";
 .is-loading {
