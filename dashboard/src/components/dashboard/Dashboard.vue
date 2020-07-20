@@ -60,6 +60,7 @@ export default {
 
 <style scoped lang="scss">
 .Dashboard {
+	height: calc(100% - 2em);
 	margin-top: 2em;
 }
 </style>
