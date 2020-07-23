@@ -57,7 +57,6 @@ https://xyz.ngrok.io/login/oauth2/code/discord
 # Not so important:
 https://discord.com/invite/nvcfX3q
 https://discord.gg/nvcfX3q
-https://discordapp.com/invite/nvcfX3q
 ```
 - Add your ngrok subdomain to the `devHost` constant in the [vue.config.js](./vue.config.js) file
 - Install Frontend dependencies if you haven't done so yet or in a while:
