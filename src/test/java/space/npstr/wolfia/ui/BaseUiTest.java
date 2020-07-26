@@ -22,11 +22,14 @@ import com.codeborne.selenide.Configuration;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
+import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testcontainers.Testcontainers;
@@ -43,13 +46,41 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
  */
 abstract class BaseUiTest extends ApplicationTest {
 
-    protected static final BrowserWebDriverContainer<?> CHROME_CONTAINER = new BrowserWebDriverContainer<>()
-            .withLogConsumer(new Slf4jLogConsumer(containerLogger("Chrome")))
-            .withCapabilities(new ChromeOptions());
+    private static final MutableCapabilities CHROME_CAPABILITIES;
+    private static final BrowserWebDriverContainer<?> CHROME_CONTAINER;
 
-    protected static final BrowserWebDriverContainer<?> FIREFOX_CONTAINER = new BrowserWebDriverContainer<>()
-            .withLogConsumer(new Slf4jLogConsumer(containerLogger("Firefox")))
-            .withCapabilities(new FirefoxOptions());
+    private static final MutableCapabilities CHROME_MOBILE_CAPABILITIES;
+    private static final BrowserWebDriverContainer<?> CHROME_MOBILE_CONTAINER;
+
+    private static final MutableCapabilities FIREFOX_CAPABILITIES;
+    private static final BrowserWebDriverContainer<?> FIREFOX_CONTAINER;
+
+    private static final MutableCapabilities FIREFOX_MOBILE_CAPABILITIES;
+    private static final BrowserWebDriverContainer<?> FIREFOX_MOBILE_CONTAINER;
+
+    static {
+        CHROME_CAPABILITIES = new ChromeOptions();
+        CHROME_CONTAINER = new BrowserWebDriverContainer<>()
+                .withLogConsumer(new Slf4jLogConsumer(containerLogger("Chrome")))
+                .withCapabilities(CHROME_CAPABILITIES);
+
+        CHROME_MOBILE_CAPABILITIES = new ChromeOptions()
+                .setExperimentalOption("mobileEmulation", Map.of("deviceName", "Nexus 5"));
+        CHROME_MOBILE_CONTAINER = new BrowserWebDriverContainer<>()
+                .withLogConsumer(new Slf4jLogConsumer(containerLogger("ChromeMobile")))
+                .withCapabilities(CHROME_MOBILE_CAPABILITIES);
+
+        FIREFOX_CAPABILITIES = new FirefoxOptions();
+        FIREFOX_CONTAINER = new BrowserWebDriverContainer<>()
+                .withLogConsumer(new Slf4jLogConsumer(containerLogger("Firefox")))
+                .withCapabilities(FIREFOX_CAPABILITIES);
+
+        FIREFOX_MOBILE_CAPABILITIES = new FirefoxOptions();
+        FIREFOX_MOBILE_CAPABILITIES.setCapability("mobileEmulation", Map.of("deviceName", "Nexus 5"));
+        FIREFOX_MOBILE_CONTAINER = new BrowserWebDriverContainer<>()
+                .withLogConsumer(new Slf4jLogConsumer(containerLogger("FirefoxMobile")))
+                .withCapabilities(FIREFOX_MOBILE_CAPABILITIES);
+    }
 
 
     private boolean started = false;
@@ -58,8 +89,12 @@ abstract class BaseUiTest extends ApplicationTest {
         if (started) return;
 
         Testcontainers.exposeHostPorts(this.port);
-        CHROME_CONTAINER.start();
-        FIREFOX_CONTAINER.start();
+        CompletableFuture.allOf( // Start containers in parallel, saves 5-10 seconds per container each test suite run
+                CompletableFuture.runAsync(CHROME_CONTAINER::start),
+                CompletableFuture.runAsync(CHROME_MOBILE_CONTAINER::start),
+                CompletableFuture.runAsync(FIREFOX_CONTAINER::start),
+                CompletableFuture.runAsync(FIREFOX_MOBILE_CONTAINER::start)
+        ).join();
 
         // We can't use BrowserWebDriverContainer#getTestHostIpAddress as it requires docker-machine,
         // but there is a different way to expose a host IP to the containers:
@@ -88,8 +123,17 @@ abstract class BaseUiTest extends ApplicationTest {
                                 useChrome();
                                 method.invoke(this);
                             }),
+
+                            dynamicTest(name + "_onChromeMobile", () -> {
+                                useChromeMobile();
+                                method.invoke(this);
+                            }),
                             dynamicTest(name + "_onFirefox", () -> {
                                 useFirefox();
+                                method.invoke(this);
+                            }),
+                            dynamicTest(name + "_onFirefoxMobile", () -> {
+                                useFirefoxMobile();
                                 method.invoke(this);
                             })
                     );
@@ -105,10 +149,24 @@ abstract class BaseUiTest extends ApplicationTest {
     private void useChrome() {
         Configuration.remote = CHROME_CONTAINER.getSeleniumAddress().toString();
         Configuration.browser = Browsers.CHROME;
+        Configuration.browserCapabilities = CHROME_CAPABILITIES;
+    }
+
+    private void useChromeMobile() {
+        Configuration.remote = CHROME_MOBILE_CONTAINER.getSeleniumAddress().toString();
+        Configuration.browser = Browsers.CHROME;
+        Configuration.browserCapabilities = CHROME_MOBILE_CAPABILITIES;
     }
 
     private void useFirefox() {
         Configuration.remote = FIREFOX_CONTAINER.getSeleniumAddress().toString();
         Configuration.browser = Browsers.FIREFOX;
+        Configuration.browserCapabilities = FIREFOX_CAPABILITIES;
+    }
+
+    private void useFirefoxMobile() {
+        Configuration.remote = FIREFOX_MOBILE_CONTAINER.getSeleniumAddress().toString();
+        Configuration.browser = Browsers.FIREFOX;
+        Configuration.browserCapabilities = FIREFOX_MOBILE_CAPABILITIES;
     }
 }
