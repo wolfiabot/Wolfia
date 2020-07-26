@@ -22,13 +22,20 @@
 				<img src="../assets/logo.png" class="wolfia-logo" alt="Play Werewolf & Mafia games on Discord" />
 				<div>Wolfia</div>
 			</router-link>
-			<a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false">
+			<a
+				role="button"
+				class="navbar-burger"
+				aria-label="menu"
+				aria-expanded="false"
+				@click="toggleNavbar"
+				:class="{ 'is-active': showNavbar }"
+			>
 				<span aria-hidden="true"></span>
 				<span aria-hidden="true"></span>
 				<span aria-hidden="true"></span>
 			</a>
 		</div>
-		<div class="navbar-menu" id="navMenu">
+		<div class="navbar-menu" :class="{ 'is-active': showNavbar }">
 			<div class="navbar-start">
 				<hr class="navbar-divider" />
 
@@ -73,8 +80,18 @@ export default {
 	components: {
 		UserNav: () => import("@/components/user/UserNav"),
 	},
+	data: function () {
+		return {
+			showNavbar: false,
+		};
+	},
 	computed: {
 		...mapGetters("user", ["isAdmin"]),
+	},
+	methods: {
+		toggleNavbar: function () {
+			this.showNavbar = !this.showNavbar;
+		},
 	},
 };
 </script>
