@@ -29,7 +29,7 @@ spring:
       client:
         registration:
           discord:
-            client-authentication-method: post
+            client-authentication-method: none
             authorization-grant-type: authorization_code
             scope:
               - identify
