@@ -28,6 +28,7 @@ public class WolfiaConfig {
 
     private boolean debug = true;
     private String discordToken = "";
+    private String botstatusWebhook = "";
 
     public boolean isDebug() {
         return debug;
@@ -47,6 +48,14 @@ public class WolfiaConfig {
 
     public void setDiscordToken(String discordToken) {
         this.discordToken = discordToken;
+    }
+
+    public String getBotstatusWebhook() {
+        return botstatusWebhook;
+    }
+
+    public void setBotstatusWebhook(String botstatusWebhook) {
+        this.botstatusWebhook = botstatusWebhook;
     }
 
     public String getDefaultPrefix() {

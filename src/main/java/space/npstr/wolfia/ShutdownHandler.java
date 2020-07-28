@@ -32,6 +32,7 @@ import space.npstr.wolfia.config.ShardManagerFactory;
 import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.game.GameRegistry;
+import space.npstr.wolfia.events.BotStatusLogger;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.system.redis.Redis;
 import space.npstr.wolfia.utils.UserFriendlyException;
@@ -44,6 +45,7 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ShutdownHandler.class);
     private static final Thread DUMMY_HOOK = new Thread("dummy-hook");
+    private final BotStatusLogger botStatusLogger;
     private final ExceptionLoggingExecutor executor;
     private final Database database;
     private final AsyncDbWrapper dbWrapper;
@@ -54,9 +56,10 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
 
     private boolean shuttingDown = false;
 
-    public ShutdownHandler(ExceptionLoggingExecutor executor, Database database, AsyncDbWrapper dbWrapper,
-                           ShardManagerFactory shardManagerFactory, GameRegistry gameRegistry, Redis redis,
-                           @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool) {
+    public ShutdownHandler(BotStatusLogger botStatusLogger, ExceptionLoggingExecutor executor, Database database,
+                           AsyncDbWrapper dbWrapper, ShardManagerFactory shardManagerFactory, GameRegistry gameRegistry,
+                           Redis redis, @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool) {
+        this.botStatusLogger = botStatusLogger;
         this.executor = executor;
         this.database = database;
         this.dbWrapper = dbWrapper;
@@ -73,7 +76,9 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
 
     private void shutdown() {
         this.shuttingDown = true;
-        log.info("Shutdown hook triggered! {} games still ongoing.", gameRegistry.getRunningGamesCount());
+        String shutdownStart = String.format("\uD83D\uDCA4 Shutdown hook triggered! %d games still ongoing.", gameRegistry.getRunningGamesCount());
+        log.info(shutdownStart);
+        this.botStatusLogger.log(shutdownStart);
         Future<?> waitForGamesToEnd = executor.submit(() -> {
             while (gameRegistry.getRunningGamesCount() > 0) {
                 log.info("Waiting on {} games to finish.", gameRegistry.getRunningGamesCount());
@@ -96,8 +101,18 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
             // ignored
         }
 
-        if (gameRegistry.getRunningGamesCount() > 0) {
-            log.error("Killing {} games while exiting", gameRegistry.getRunningGamesCount());
+        int runningGamesCount = gameRegistry.getRunningGamesCount();
+        String gamesStopped = String.format("\uD83D\uDED1 Killing %d games while exiting", runningGamesCount);
+        try {
+            // This is the last bot status message sent.
+            // Await its completion, otherwise we risk that the scheduler gets closed before it is done sending.
+            this.botStatusLogger.log(gamesStopped).toCompletableFuture().get(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while awaiting last bot status message to be sent", e);
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException | TimeoutException ignored) {}
+        if (runningGamesCount > 0) {
+            log.error(gamesStopped);
             String reason = "Wolfia is shutting down. I'll probably be right back!";
             gameRegistry.getAll().values().forEach(game -> game.destroy(new UserFriendlyException(reason)));
         }

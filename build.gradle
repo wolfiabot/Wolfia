@@ -84,15 +84,16 @@ allprojects {
     sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
 
     repositories {
-		mavenCentral()
-		jcenter {
-			content { includeModule("net.dv8tion", "JDA") }
-		}
-		maven {
-			url 'https://jitpack.io'
-			content { includeGroup("space.npstr") }
-		}
-	}
+        mavenCentral()
+        jcenter {
+            content { includeModule("net.dv8tion", "JDA") }
+            content { includeModule("club.minnced", "discord-webhooks") }
+        }
+        maven {
+            url 'https://jitpack.io'
+            content { includeGroup("space.npstr") }
+        }
+    }
 
     dependencyUpdates {
         checkConstraints = true
@@ -140,6 +141,7 @@ project(':platform') {
         api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
         constraints {
             api "net.dv8tion:JDA:$jdaVersion"
+            api "club.minnced:discord-webhooks:$discordWebhooksVersion"
             api "io.sentry:sentry-logback:$sentryLogbackVersion"
             api "org.json:json:$orgJsonVersion"
             api "space.npstr:annotations:$annotationsVersion"
@@ -405,6 +407,7 @@ dependencies {
     implementation project(':database-codegen')
 
     implementation "net.dv8tion:JDA"
+    implementation "club.minnced:discord-webhooks"
 
     implementation "ch.qos.logback:logback-classic"
     implementation "io.sentry:sentry-logback"

@@ -34,6 +34,7 @@ ext {
 	theYarnVersion				= '1.22.4'
 
 	jdaVersion					= '4.1.1_165'
+	discordWebhooksVersion      = '0.3.2'
 	sentryLogbackVersion		= '1.7.30'
 	orgJsonVersion				= '20200518'
 	annotationsVersion			= '0.0.2'
