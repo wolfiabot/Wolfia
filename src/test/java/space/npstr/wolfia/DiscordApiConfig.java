@@ -61,6 +61,7 @@ public class DiscordApiConfig {
         doReturn(shardCache).when(shardManager).getShardCache();
 
         JDA jda = mock(JDA.class);
+        when(jda.getStatus()).thenReturn(JDA.Status.CONNECTED);
         when(shardCache.stream()).thenAnswer(invocation -> Stream.of(jda));
 
         SelfUser selfUser = mock(SelfUser.class);
