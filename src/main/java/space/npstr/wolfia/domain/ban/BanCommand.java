@@ -22,7 +22,6 @@ import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.db.gen.tables.records.BanRecord;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -67,8 +66,7 @@ public class BanCommand implements BaseCommand {
         }
 
         if (option.equalsIgnoreCase("list")) {
-            final List<BanRecord> bans = this.banService.getActiveBans();
-            String out = bans.stream()
+            String out = this.banService.getActiveBans().stream()
                     .map(ban -> ban.getUserId() + " " + TextchatUtils.userAsMention(ban.getUserId()) + " "
                             + this.userCache.user(ban.getUserId()).getEffectiveName(context.getGuild())
                     )

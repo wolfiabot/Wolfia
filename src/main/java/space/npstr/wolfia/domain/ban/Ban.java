@@ -17,38 +17,25 @@
 
 package space.npstr.wolfia.domain.ban;
 
-import java.util.List;
-import org.springframework.stereotype.Service;
+import java.beans.ConstructorProperties;
 import space.npstr.wolfia.game.definitions.Scope;
 
-@Service
-public class BanService {
+public class Ban {
 
-    private final BanRepository repository;
+    private final long userId;
+    private final Scope scope;
 
-    public BanService(BanRepository repository) {
-        this.repository = repository;
+    @ConstructorProperties({"userId", "scope"})
+    public Ban(long userId, Scope scope) {
+        this.userId = userId;
+        this.scope = scope;
     }
 
-    public boolean isBanned(long userId) {
-        return this.repository.findOne(userId, Scope.GLOBAL)
-                .toCompletableFuture().join()
-                .isPresent();
+    public long getUserId() {
+        return this.userId;
     }
 
-    public void ban(long userId) {
-        this.repository.setScope(userId, Scope.GLOBAL)
-                .toCompletableFuture().join();
+    public Scope getScope() {
+        return this.scope;
     }
-
-    public void unban(long userId) {
-        this.repository.setScope(userId, Scope.NONE)
-                .toCompletableFuture().join();
-    }
-
-    public List<Ban> getActiveBans() {
-        return this.repository.findByScope(Scope.GLOBAL)
-                .toCompletableFuture().join();
-    }
-
 }
