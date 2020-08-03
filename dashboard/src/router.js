@@ -58,6 +58,11 @@ const routes = [
 		name: "togglz",
 		component: () => import(/* webpackChunkName: "togglz" */ "@/components/Togglz.vue"),
 	},
+	{
+		path: "/privacy",
+		name: "privacy",
+		component: () => import(/* webpackChunkName: "privacy" */ "@/components/PrivacyPolicy.vue"),
+	},
 ];
 
 const router = new VueRouter({
