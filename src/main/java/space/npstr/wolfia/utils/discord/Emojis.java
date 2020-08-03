@@ -46,6 +46,7 @@ public class Emojis {
 
     public static final String X = "❌";
     public static final String CHECK = "✅";
+    public static final String WARN = "⚠️";
 
     public static final String BALLOT_BOX = "🗳";
     public static final String FIRE = "🔥";

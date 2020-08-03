@@ -47,6 +47,7 @@ import space.npstr.wolfia.commands.util.TagCommand;
 import space.npstr.wolfia.domain.ban.BanCommand;
 import space.npstr.wolfia.domain.maintenance.MaintenanceCommand;
 import space.npstr.wolfia.domain.oauth2.AuthCommand;
+import space.npstr.wolfia.domain.privacy.PrivacyCommand;
 import space.npstr.wolfia.domain.settings.ChannelSettingsCommand;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.OutCommand;
@@ -214,6 +215,11 @@ class CommRegistryTest extends ApplicationTest {
     void hasInviteCommand() {
         assertHasCommand("invite", InviteCommand.class);
         assertHasCommand("inv", InviteCommand.class);
+    }
+
+    @Test
+    void hasPrivacyCommand() {
+        assertHasCommand("privacy", PrivacyCommand.class);
     }
 
     @Test
