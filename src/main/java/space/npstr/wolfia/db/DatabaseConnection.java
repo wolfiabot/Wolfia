@@ -43,7 +43,6 @@ public class DatabaseConnection {
 
             flywayConfig.dataSource(this.hikariDataSource);
             Flyway flyway = new Flyway(flywayConfig);
-            flyway.repair();
             flyway.migrate();
 
             this.proxiedDataSource = proxyDataSourceBuilder
