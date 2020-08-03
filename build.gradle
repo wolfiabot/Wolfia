@@ -116,6 +116,11 @@ allprojects {
     test {
         useJUnitPlatform()
         jvmArgs '-XX:TieredStopAtLevel=1'
+        filter {
+            if (project.hasProperty('excludeUiTests')) {
+                excludeTestsMatching "*UiTest"
+            }
+        }
     }
 
     testlogger {
