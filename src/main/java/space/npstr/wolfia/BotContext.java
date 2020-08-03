@@ -27,7 +27,7 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.oauth2.OAuth2Service;
 import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
-import space.npstr.wolfia.domain.stats.StatsRepository;
+import space.npstr.wolfia.domain.stats.StatsService;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 /**
@@ -47,14 +47,14 @@ public class BotContext {
     private final ShardManager shardManager;
     private final ChannelSettingsService channelSettingsService;
     private final UserCache userCache;
-    private final StatsRepository statsRepository;
+    private final StatsService statsService;
     private final GameRegistry gameRegistry;
     private final OAuth2Service oAuth2Service;
 
     public BotContext(final Database database, final WolfiaConfig wolfiaConfig, final ListingsConfig listingsConfig,
                       PrivateRoomQueue privateRoomQueue, ExceptionLoggingExecutor executor,
                       ShardManager shardManager, ChannelSettingsService channelSettingsService, UserCache userCache,
-                      StatsRepository statsRepository, GameRegistry gameRegistry, OAuth2Service oAuth2Service) {
+                      StatsService statsService, GameRegistry gameRegistry, OAuth2Service oAuth2Service) {
 
         this.database = database;
         this.wolfiaConfig = wolfiaConfig;
@@ -64,7 +64,7 @@ public class BotContext {
         this.shardManager = shardManager;
         this.channelSettingsService = channelSettingsService;
         this.userCache = userCache;
-        this.statsRepository = statsRepository;
+        this.statsService = statsService;
         this.gameRegistry = gameRegistry;
         this.oAuth2Service = oAuth2Service;
     }
@@ -101,8 +101,8 @@ public class BotContext {
         return this.userCache;
     }
 
-    public StatsRepository getStatsRepository() {
-        return this.statsRepository;
+    public StatsService getStatsService() {
+        return this.statsService;
     }
 
     public GameRegistry getGameRegistry() {
