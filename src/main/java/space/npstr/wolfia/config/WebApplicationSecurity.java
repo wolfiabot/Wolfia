@@ -43,6 +43,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
@@ -63,6 +64,7 @@ import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import space.npstr.wolfia.config.properties.OAuth2Config;
+import space.npstr.wolfia.domain.privacy.PrivacyService;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.webapi.Authorization;
 import space.npstr.wolfia.webapi.LoginRedirect;
@@ -90,10 +92,12 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     private final OAuth2Config oAuth2Config;
     private final ApplicationInfoProvider appInfoProvider;
+    private final PrivacyService privacyService;
 
-    public WebApplicationSecurity(OAuth2Config oAuth2Config, ShardManager shardManager) {
+    public WebApplicationSecurity(OAuth2Config oAuth2Config, ShardManager shardManager, PrivacyService privacyService) {
         this.oAuth2Config = oAuth2Config;
         this.appInfoProvider = new ApplicationInfoProvider(shardManager);
+        this.privacyService = privacyService;
     }
 
     @Override
@@ -102,7 +106,10 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .collect(Collectors.toSet())
                 .toArray(new String[]{});
 
-        LoginRedirectHandler loginRedirectHandler = new LoginRedirectHandler(this.oAuth2Config.getBaseRedirectUrl());
+        LoginRedirectHandler loginRedirectHandler = new LoginRedirectHandler(
+                this.oAuth2Config.getBaseRedirectUrl(),
+                this.privacyService
+        );
 
         http
                 .csrf().ignoringAntMatchers(MACHINE_ENDPOINTS)
@@ -208,14 +215,35 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
     private static final class LoginRedirectHandler implements AuthenticationSuccessHandler, AuthenticationFailureHandler {
 
         private final String defaultTargetUrl;
+        private final PrivacyService privacyService;
 
-        private LoginRedirectHandler(String defaultTargetUrl) {
+        private LoginRedirectHandler(String defaultTargetUrl, PrivacyService privacyService) {
             this.defaultTargetUrl = defaultTargetUrl;
+            this.privacyService = privacyService;
         }
 
         @Override
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                             Authentication authentication) throws IOException {
+
+            if (authentication != null && (authentication.getPrincipal() instanceof OAuth2User)) {
+                OAuth2User principal = (OAuth2User) authentication.getPrincipal();
+                String name = principal.getName();
+                try {
+                    long userId = Long.parseLong(name);
+                    if (!this.privacyService.isDataProcessingEnabled(userId)) {
+                        SecurityContextHolder.clearContext();
+                        HttpSession session = request.getSession(false);
+                        if (session != null) {
+                            session.invalidate();
+                        }
+                        onLogin(request, response, false);
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    log.warn("User id '{}' is not a valid snowflake!", name);
+                }
+            }
 
             onLogin(request, response, true);
         }

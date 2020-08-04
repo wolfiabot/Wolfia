@@ -153,7 +153,7 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
 
             if (rawContent.toLowerCase().startsWith(OPTION_CONFIRM)) {
                 context.reply("Goodbye.");
-                privacyService.delete(event.getAuthor().getIdLong());
+                privacyService.dataDelete(event.getAuthor().getIdLong());
                 return true;
             }
 

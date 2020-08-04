@@ -17,27 +17,56 @@
 
 package space.npstr.wolfia.domain.privacy;
 
+import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 @Service
 public class PrivacyService {
 
-    private final ApplicationEventPublisher eventPublisher;
+    private static final Logger log = LoggerFactory.getLogger(PrivacyService.class);
 
-    public PrivacyService(ApplicationEventPublisher eventPublisher) {
+    private final ApplicationEventPublisher eventPublisher;
+    private final PrivacyRepository privacyRepository;
+
+    public PrivacyService(ApplicationEventPublisher eventPublisher, PrivacyRepository privacyRepository,
+                          ExceptionLoggingExecutor executor) {
+
         this.eventPublisher = eventPublisher;
+        this.privacyRepository = privacyRepository;
+
+        executor.scheduleAtFixedRate(this::syncBans, 1, 1, TimeUnit.MINUTES);
     }
 
-    public void delete(long userId) {
-        eventPublisher.publishEvent(ImmutablePersonalDataDelete.builder()
-                .userId(userId)
-                .build()
-        );
+    public boolean isDataProcessingEnabled(long userId) {
+        return this.privacyRepository.findOne(userId)
+                .toCompletableFuture().join()
+                .map(Privacy::isProcessData)
+                .orElse(true);
+    }
+
+    public void dataDelete(long userId) {
+        this.privacyRepository.setProcessData(userId, false)
+                .toCompletableFuture().join();
+        try {
+            this.eventPublisher.publishEvent(ImmutablePersonalDataDelete.builder()
+                    .userId(userId)
+                    .build()
+            );
+        } catch (Exception e) {
+            log.warn("Something went wrong when publishing data deletion for user {}", userId, e);
+        }
     }
 
     public void request() {
         throw new UnsupportedOperationException(); //TODO implement
     }
 
+
+    public void syncBans() {
+        //TODO
+    }
 }
