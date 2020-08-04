@@ -165,6 +165,16 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
         return service;
     }
 
+    private <T> RequestEntity<T> withUserAgent(@Nullable RequestEntity<T> request) {
+        if (request == null) {
+            return null;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.putAll(request.getHeaders());
+        headers.add(HttpHeaders.USER_AGENT, DISCORD_BOT_USER_AGENT);
+
+        return new RequestEntity<>(request.getBody(), headers, request.getMethod(), request.getUrl());
+    }
 
     @Bean
     public GrantedAuthoritiesMapper authoritiesMapper() {
@@ -190,17 +200,6 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
 
             return mappedAuthorities;
         };
-    }
-
-    private <T> RequestEntity<T> withUserAgent(@Nullable RequestEntity<T> request) {
-        if (request == null) {
-            return null;
-        }
-        HttpHeaders headers = new HttpHeaders();
-        headers.putAll(request.getHeaders());
-        headers.add(HttpHeaders.USER_AGENT, DISCORD_BOT_USER_AGENT);
-
-        return new RequestEntity<>(request.getBody(), headers, request.getMethod(), request.getUrl());
     }
 
     /**
