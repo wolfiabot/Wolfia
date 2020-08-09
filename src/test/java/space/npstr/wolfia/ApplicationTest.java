@@ -35,6 +35,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.oauth2.OAuth2Requester;
+import space.npstr.wolfia.domain.privacy.PrivacyBanService;
 import space.npstr.wolfia.domain.privacy.PrivacyCommand;
 import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.domain.stats.StatsService;
@@ -68,6 +69,9 @@ public abstract class ApplicationTest extends PostgresAndRedisContainers {
 
     @SpyBean
     protected StatsService statsService;
+
+    @SpyBean
+    protected PrivacyBanService privacyBanService;
 
     @MockBean
     protected OAuth2Requester oAuth2Requester;

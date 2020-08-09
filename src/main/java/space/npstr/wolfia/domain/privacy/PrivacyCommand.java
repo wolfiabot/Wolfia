@@ -133,11 +133,11 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
                     + "\nWe understand your request to delete your personal data"
                     + " as a withdrawal of consent to further process your personal data."
                     + " This means your confirmation will have the following effects:"
-                    + "\n- Your participation in already recorded games will be anonymized." //TODO implement
-                    + "\n- This bot will ignore all your commands." //TODO implement
-                    + "\n- You will not be able to play any games with this bot anymore." //TODO implement
-                    + "\n- You will be logged out of the dashboard, and will not be able to log in again." //TODO implement
-                    + "\n- You will be banned from the Wolfia Lounge." //TODO implement
+                    + "\n- Your participation in already recorded games will be anonymized."
+                    + "\n- This bot will ignore all your commands."
+                    + "\n- You will not be able to play any games with this bot anymore."
+                    + "\n- You will be logged out of the dashboard, and will not be able to log in again."
+                    + "\n- You will be banned from the Wolfia Lounge."
                     + "\nThese measures are necessary to ensure we comply with your request to not process any of your personal data."
                     + "\n**This action cannot be undone**. Think carefully. Say "
                     + "\n- **" + OPTION_CONFIRM + "** to delete your data with the consequences as described above."

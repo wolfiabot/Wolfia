@@ -18,6 +18,7 @@
 package space.npstr.wolfia.domain.privacy;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.JDA;
@@ -124,11 +125,17 @@ class PrivacyServiceTest<T extends Session> extends ApplicationTest {
         throw new UnsupportedOperationException();
     }
 
+
+    /**
+     * See {@link PrivacyBanServiceTest} for a more complete test of this
+     */
     @Test
-    @Disabled
     void whenDataDelete_bannedFromHomeGuild() {
-        // TODO
-        throw new UnsupportedOperationException();
+        long userId = uniqueLong();
+
+        this.privacyService.dataDelete(userId);
+
+        verify(privacyBanService).privacyBanAll(eq(List.of(userId)));
     }
 
 

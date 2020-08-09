@@ -17,12 +17,10 @@
 
 package space.npstr.wolfia.domain.privacy;
 
-import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 @Service
 public class PrivacyService {
@@ -32,13 +30,9 @@ public class PrivacyService {
     private final ApplicationEventPublisher eventPublisher;
     private final PrivacyRepository privacyRepository;
 
-    public PrivacyService(ApplicationEventPublisher eventPublisher, PrivacyRepository privacyRepository,
-                          ExceptionLoggingExecutor executor) {
-
+    public PrivacyService(ApplicationEventPublisher eventPublisher, PrivacyRepository privacyRepository) {
         this.eventPublisher = eventPublisher;
         this.privacyRepository = privacyRepository;
-
-        executor.scheduleAtFixedRate(this::syncBans, 1, 1, TimeUnit.MINUTES);
     }
 
     public boolean isDataProcessingEnabled(long userId) {
@@ -63,10 +57,5 @@ public class PrivacyService {
 
     public void request() {
         throw new UnsupportedOperationException(); //TODO implement
-    }
-
-
-    public void syncBans() {
-        //TODO
     }
 }
