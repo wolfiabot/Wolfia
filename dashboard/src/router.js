@@ -67,6 +67,16 @@ const routes = [
 
 const router = new VueRouter({
 	mode: "history",
+	// see https://router.vuejs.org/guide/advanced/scroll-behavior.html#scroll-behavior
+	scrollBehavior(to, from, savedPosition) {
+		if (savedPosition) {
+			return savedPosition;
+		}
+		if (to.hash) {
+			return { selector: to.hash };
+		}
+		return { x: 0, y: 0 };
+	},
 	routes,
 });
 

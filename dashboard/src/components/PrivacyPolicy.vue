@@ -230,8 +230,13 @@ export default {
 		for (const closeButton of closeButtons) {
 			closeButton.onclick = () => this.toggleModal();
 		}
-		const el = document.querySelector(this.$route.hash);
-		el && el.scrollIntoView();
+
+		//Fix hash navigation, as it seems to not be supported by vue-router natively when opening the link
+		const hash = this.$route.hash;
+		if (hash) {
+			const el = document.querySelector(hash);
+			el && el.scrollIntoView();
+		}
 	},
 	computed: {
 		...mapState("user", {
