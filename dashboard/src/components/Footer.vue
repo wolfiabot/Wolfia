@@ -40,7 +40,7 @@ export default {
 	name: "Footer",
 	data: function () {
 		return {
-			sourceCodeLink: process.env.VUE_APP_PP_SOURCE_CODE_LINK,
+			sourceCodeLink: process.env.VUE_APP_SOURCE_CODE_LINK,
 		};
 	},
 };

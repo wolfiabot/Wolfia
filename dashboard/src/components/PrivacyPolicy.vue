@@ -220,11 +220,11 @@ export default {
 	},
 	data: function () {
 		return {
-			sourceCodeLink: process.env.VUE_APP_PP_SOURCE_CODE_LINK,
+			sourceCodeLink: process.env.VUE_APP_SOURCE_CODE_LINK,
 			host: `${window.location.protocol}//${window.location.hostname}`,
-			owner: process.env.VUE_APP_PP_OWNER,
-			ownerLink: process.env.VUE_APP_PP_OWNER_LINK,
-			serverLocation: process.env.VUE_APP_PP_SERVER_LOCATION,
+			owner: process.env.VUE_APP_OWNER_NAME,
+			ownerLink: process.env.VUE_APP_OWNER_LINK,
+			serverLocation: process.env.VUE_APP_SERVER_LOCATION,
 			invite: process.env.VUE_APP_SUPPORT_INVITE,
 		};
 	},
