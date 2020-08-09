@@ -42,6 +42,7 @@ import space.npstr.wolfia.commands.CommandHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -60,13 +61,20 @@ class PrivacyServiceTest<T extends Session> extends ApplicationTest {
     @Autowired
     private CommandHandler commandHandler;
 
+    /**
+     * See {@link space.npstr.wolfia.domain.stats.StatsServiceTest} for a more complete test of this
+     */
     @Test
-    void anonymized() {
-        // TODO
+    void whenDataDelete_gameStatsOfUserAreAnonymized() {
+        long userId = uniqueLong();
+
+        this.privacyService.dataDelete(userId);
+
+        verify(statsService).anonymize(eq(userId));
     }
 
     @Test
-    void commandsIgnored() {
+    void afterDataDelete_commandsByUserAreIgnored() {
         long userId = uniqueLong();
         User user = mock(User.class);
         when(user.getIdLong()).thenReturn(userId);
@@ -99,7 +107,7 @@ class PrivacyServiceTest<T extends Session> extends ApplicationTest {
     }
 
     @Test
-    void sessionsDeleted() {
+    void whenDataDelete_sessionsOfUserAreDeleted() {
         long userId = uniqueLong();
         T session = generateHttpSession(userId);
         assertThat(this.sessionRepository.findById(session.getId())).isNotNull();
@@ -111,13 +119,16 @@ class PrivacyServiceTest<T extends Session> extends ApplicationTest {
 
     @Test
     @Disabled
-    void cantLogin() {
+    void afterDataDelete_userCantLogin() {
         // TODO how do we test this? our login logic is very much bound to Discords OAuth2 api and mocking it is not worht the effort
+        throw new UnsupportedOperationException();
     }
 
     @Test
-    void banned() {
+    @Disabled
+    void whenDataDelete_bannedFromHomeGuild() {
         // TODO
+        throw new UnsupportedOperationException();
     }
 
 

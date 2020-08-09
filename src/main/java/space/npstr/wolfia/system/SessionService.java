@@ -33,7 +33,7 @@ public class SessionService {
         this.sessionRepository = sessionRepository;
     }
 
-    @EventListener(PersonalDataDelete.class)
+    @EventListener
     public void onDataDelete(PersonalDataDelete dataDelete) {
         String principalName = Long.toString(dataDelete.userId());
         removeAllSessions(principalName);

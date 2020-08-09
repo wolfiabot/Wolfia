@@ -17,7 +17,13 @@
 
 package space.npstr.wolfia.domain.stats;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import space.npstr.wolfia.domain.privacy.PersonalDataDelete;
 
 @Service
 public class StatsService {
@@ -31,5 +37,47 @@ public class StatsService {
     public GameStats recordGameStats(GameStats gameStats) {
         return this.statsRepository.insertGameStats(gameStats)
                 .toCompletableFuture().join();
+    }
+
+    @EventListener
+    public void onDataDelete(PersonalDataDelete dataDelete) {
+        anonymize(dataDelete.userId());
+    }
+
+    public void anonymize(long userId) {
+        List<Long> gameIds = this.statsRepository.findGameIdsByUser(userId)
+                .toCompletableFuture().join();
+        gameIds.forEach(gameId -> {
+            Optional<GameStats> statsOpt = this.statsRepository.findGameStats(gameId).toCompletableFuture().join();
+            if (statsOpt.isEmpty()) {
+                return;
+            }
+            GameStats gameStats = statsOpt.get();
+
+            List<PlayerStats> sortedPlayerStats = gameStats.getStartingTeams().stream()
+                    .flatMap(team -> team.getPlayers().stream())
+                    .sorted(Comparator.comparingLong(PlayerStats::getUserId))
+                    .collect(Collectors.toList());
+
+            if (sortedPlayerStats.isEmpty()) {
+                throw new IllegalStateException("Empty list of players for game " + gameId);
+            }
+
+            PlayerStats player = null;
+            int playerNumber = 0;
+            for (var playerStats : sortedPlayerStats) {
+                playerNumber++;
+                if (playerStats.getUserId() == userId) {
+                    player = playerStats;
+                    break;
+                }
+            }
+            if (player == null) {
+                throw new IllegalArgumentException("List does not contain a player for user " + userId);
+            }
+
+            this.statsRepository.setPlayerNickame(player.getPlayerId().orElseThrow(), "Player " + playerNumber)
+                    .toCompletableFuture().join();
+        });
     }
 }
