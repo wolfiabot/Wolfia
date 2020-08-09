@@ -30,10 +30,10 @@ import space.npstr.wolfia.domain.Conversation;
 import space.npstr.wolfia.system.EventWaiter;
 import space.npstr.wolfia.utils.discord.Emojis;
 
-// TODO verify it can be found from the w.commands command
-// TODO mention it in the privacy policy
 @Command
 public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation {
+
+    public static final String TRIGGER = "privacy";
 
     private static final String OPTION_READ = "read";
     private static final String OPTION_REQUEST = "request";
@@ -55,7 +55,7 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
 
     @Override
     public String getTrigger() {
-        return "privacy";
+        return TRIGGER;
     }
 
     @Override
