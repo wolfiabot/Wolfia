@@ -114,8 +114,8 @@
 			</ul>
 			<br />
 			<p>
-				If you would like to exercise any of these rights, please contact us at our email
-				<a :href="`mailto:${mail}`">{{ mail }}</a> or join <a :href="invite">our support server</a>.
+				If you would like to exercise any of these rights, please
+				<a @click="scrollToHash('#access')">scroll further down</a>.
 			</p>
 
 			<h2 class="subtitle">Cookies</h2>
@@ -136,15 +136,19 @@
 			<h2 class="subtitle">Changes to our privacy policy</h2>
 			<p>
 				This Wolfia instance keeps its privacy policy under regular review and places any updates on this web
-				page. This privacy policy was last updated on 2nd August 2020.
+				page. This privacy policy was last updated on 10th August 2020.
 			</p>
 
 			<h2 class="subtitle">How to contact us</h2>
 			<p>
 				If you have any questions about this Wolfia’s instance privacy policy, the data we hold on you, or you
-				would like to exercise one of your data protection rights, please do not hesitate to contact us: Email
-				us at <a :href="`mailto:${mail}`">{{ mail }}</a> or join <a :href="invite">our support server</a>.
+				would like to exercise one of your data protection rights, please do not hesitate to contact us:
 			</p>
+			<ul>
+				<li>- <a @click="scrollToHash('#access')">Scroll further down</a> to access & manage your data</li>
+				<li>- Run the <code>w.privacy</code> command on Discord</li>
+				<li>- Join <a :href="invite">our support server</a></li>
+			</ul>
 			<br />
 			<p>This Privacy Policy has been adapted from <a href="https://gdpr.eu/privacy-notice">GDPR.EU</a></p>
 
@@ -220,7 +224,6 @@ export default {
 			host: `${window.location.protocol}//${window.location.hostname}`,
 			owner: process.env.VUE_APP_PP_OWNER,
 			ownerLink: process.env.VUE_APP_PP_OWNER_LINK,
-			mail: `hello@${window.location.hostname}`,
 			serverLocation: process.env.VUE_APP_PP_SERVER_LOCATION,
 			invite: process.env.VUE_APP_SUPPORT_INVITE,
 		};
@@ -232,11 +235,7 @@ export default {
 		}
 
 		//Fix hash navigation, as it seems to not be supported by vue-router natively when opening the link
-		const hash = this.$route.hash;
-		if (hash) {
-			const el = document.querySelector(hash);
-			el && el.scrollIntoView();
-		}
+		this.scrollToHash(this.$route.hash);
 	},
 	computed: {
 		...mapState("user", {
@@ -249,6 +248,12 @@ export default {
 		...mapActions("user", {
 			logout: LOG_OUT,
 		}),
+		scrollToHash: function (hash) {
+			if (hash) {
+				const el = document.querySelector(hash);
+				el && el.scrollIntoView();
+			}
+		},
 		toggleModal: function () {
 			const modal = document.getElementById("delete-modal");
 			if (modal.classList.contains("is-active")) {
