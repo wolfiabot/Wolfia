@@ -96,7 +96,8 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
         }
 
         if (rawContent.toLowerCase().startsWith(OPTION_REQUEST)) {
-            return false; // TODO
+            context.reply("You can access your personal data on our privacy policy page: " + App.DATA_ACCESS_LINK);
+            return true;
         }
 
         if (rawContent.toLowerCase().startsWith(OPTION_DELETE)) {

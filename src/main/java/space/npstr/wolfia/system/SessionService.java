@@ -17,7 +17,9 @@
 
 package space.npstr.wolfia.system;
 
+import java.util.Collection;
 import org.springframework.context.event.EventListener;
+import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.stereotype.Service;
 import space.npstr.wolfia.domain.privacy.PersonalDataDelete;
@@ -31,6 +33,11 @@ public class SessionService {
 
     public SessionService(RedisIndexedSessionRepository sessionRepository) {
         this.sessionRepository = sessionRepository;
+    }
+
+    public Collection<? extends Session> getAllSessionsOfUser(long userId) {
+        return this.sessionRepository.findByIndexNameAndIndexValue(PRINCIPAL_NAME_INDEX_NAME, Long.toString(userId))
+                .values();
     }
 
     @EventListener

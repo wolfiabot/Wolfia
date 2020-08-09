@@ -17,7 +17,9 @@
 
 <template>
 	<div class="columns">
-		<div class="column is-half is-full-touch is-offset-one-quarter-desktop has-text-left">
+		<div
+			class="column is-half is-offset-one-quarter-desktop is-three-fifths-touch is-offset-one-fifth-touch has-text-left"
+		>
 			<h1 class="title">Wolfia Privacy Policy</h1>
 			<p>Wolfia is an Open Source project.</p>
 			<p>
@@ -145,13 +147,73 @@
 			</p>
 			<br />
 			<p>This Privacy Policy has been adapted from <a href="https://gdpr.eu/privacy-notice">GDPR.EU</a></p>
+
+			<div>
+				<a id="access"></a>
+				<h1 class="title">Access Your Personal Data</h1>
+				<div v-if="loading" class="is-loading"></div>
+				<div v-else-if="!userLoaded">
+					<LoginButton />
+				</div>
+				<div v-else class="level">
+					<div class="button is-large is-danger" @click="toggleModal">Delete</div>
+					<div class="is-divider-vertical"></div>
+					<a class="button is-large is-link" href="/api/privacy/request" :download="`${user.discordId}.json`"
+						>Download</a
+					>
+				</div>
+			</div>
+
+			<div class="modal" id="delete-modal">
+				<div class="modal-background"></div>
+				<div class="modal-card">
+					<header class="modal-card-head">
+						<p class="modal-card-title">ATTENTION, READ CAREFULLY</p>
+						<button class="delete" aria-label="close" @click="toggleModal"></button>
+					</header>
+					<section class="modal-card-body has-text-left">
+						We understand your request to delete your personal data as a withdrawal of consent to further
+						process your personal data. This means your confirmation will have the following effects:
+						<br />
+						<ul>
+							<li>- Your participation in already recorded games will be anonymized.</li>
+							<li>- This bot will ignore all your commands.</li>
+							<li>- You will not be able to play any games with this bot anymore.</li>
+							<li>
+								- You will be logged out of the dashboard, and will not be able to log in again
+							</li>
+							<li>- You will be banned from the Wolfia Lounge.</li>
+						</ul>
+						<br />
+						These measures are necessary to ensure we comply with your request to not process any of your
+						personal data.
+						<br />
+						<br />
+						<strong class="is-size-4">This action cannot be undone.</strong>
+						<br />
+						<br />
+						Think carefully!
+					</section>
+					<footer class="modal-card-foot">
+						<button class="button is-danger" @click="deleteData">Confirm Deletion</button>
+						<button class="button" @click="toggleModal">Cancel</button>
+					</footer>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+import { mapActions, mapState } from "vuex";
+import fetcher from "@/fetcher";
+import { LOG_OUT } from "@/components/user/user-store";
+import { ToastProgrammatic as Toast } from "buefy";
 export default {
 	name: "PrivacyPolicy",
+	components: {
+		LoginButton: () => import("@/components/LoginButton.vue"),
+	},
 	data: function () {
 		return {
 			sourceCodeLink: process.env.VUE_APP_PP_SOURCE_CODE_LINK,
@@ -163,10 +225,52 @@ export default {
 			invite: process.env.VUE_APP_SUPPORT_INVITE,
 		};
 	},
+	mounted() {
+		const closeButtons = document.getElementsByClassName("modal-close");
+		for (const closeButton of closeButtons) {
+			closeButton.onclick = () => this.toggleModal();
+		}
+		const el = document.querySelector(this.$route.hash);
+		el && el.scrollIntoView();
+	},
+	computed: {
+		...mapState("user", {
+			loading: (state) => !state.userLoaded && state.userLoading,
+			userLoaded: (state) => state.userLoaded,
+			user: (state) => state.user,
+		}),
+	},
+	methods: {
+		...mapActions("user", {
+			logout: LOG_OUT,
+		}),
+		toggleModal: function () {
+			const modal = document.getElementById("delete-modal");
+			if (modal.classList.contains("is-active")) {
+				modal.classList.remove("is-active");
+			} else {
+				modal.classList.add("is-active");
+			}
+		},
+		deleteData: async function () {
+			await fetcher.delete("/api/privacy/delete");
+			this.toggleModal();
+			this.logout();
+			await this.$router.push("/");
+			Toast.open({
+				message: "You have been logged out.",
+				type: "is-info",
+				duration: 3000,
+			});
+		},
+	},
 };
 </script>
 
 <style scoped>
+.columns {
+	margin: 0;
+}
 .title,
 .subtitle {
 	margin-top: 1.5em;

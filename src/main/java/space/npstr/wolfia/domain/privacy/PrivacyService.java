@@ -54,8 +54,4 @@ public class PrivacyService {
             log.warn("Something went wrong when publishing data deletion for user {}", userId, e);
         }
     }
-
-    public void request() {
-        throw new UnsupportedOperationException(); //TODO implement
-    }
 }
