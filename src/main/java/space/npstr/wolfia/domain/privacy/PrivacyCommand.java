@@ -66,7 +66,7 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
     @Nonnull
     @Override
     public String help() {
-        return "Show Wolfia's Privacy Policy."; //TODO better description
+        return "Show Wolfia's Privacy Policy options.";
     }
 
     @Override
@@ -76,7 +76,7 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
 
     @CheckReturnValue
     private boolean showConversationOptions(MessageContext context) {
-        String options = "Welcome to Wolfia privacy options! Say "
+        String options = "Welcome to Wolfia privacy policy options! Say "
                 + "\n- **" + OPTION_READ + "** to read our privacy policy"
                 + "\n- **" + OPTION_REQUEST + "** to request all data this Wolfia instance has collected about you"
                 + "\n- **" + OPTION_DELETE + "** to delete all your personal data"

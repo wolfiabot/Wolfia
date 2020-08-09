@@ -17,7 +17,8 @@
 
 package space.npstr.wolfia.system;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.context.event.EventListener;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
@@ -35,9 +36,11 @@ public class SessionService {
         this.sessionRepository = sessionRepository;
     }
 
-    public Collection<? extends Session> getAllSessionsOfUser(long userId) {
-        return this.sessionRepository.findByIndexNameAndIndexValue(PRINCIPAL_NAME_INDEX_NAME, Long.toString(userId))
-                .values();
+    public List<Session> getAllSessionsOfUser(long userId) {
+        return new ArrayList<>(this.sessionRepository.findByIndexNameAndIndexValue(
+                PRINCIPAL_NAME_INDEX_NAME,
+                Long.toString(userId)
+        ).values());
     }
 
     @EventListener
