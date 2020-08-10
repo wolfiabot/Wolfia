@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.commands.util;
 
+import java.util.List;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -37,6 +39,7 @@ import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.oauth2.AuthCommand;
+import space.npstr.wolfia.domain.privacy.PrivacyCommand;
 import space.npstr.wolfia.domain.settings.ChannelSettingsCommand;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.OutCommand;
@@ -46,9 +49,6 @@ import space.npstr.wolfia.domain.stats.BotStatsCommand;
 import space.npstr.wolfia.domain.stats.GuildStatsCommand;
 import space.npstr.wolfia.domain.stats.ReplayCommand;
 import space.npstr.wolfia.domain.stats.UserStatsCommand;
-
-import javax.annotation.Nonnull;
-import java.util.List;
 
 @Command
 public class CommandsCommand implements BaseCommand, PublicCommand {
@@ -114,6 +114,7 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
                 + WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + InfoCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + InviteCommand.TRIGGER + "\n"
+                + WolfiaConfig.DEFAULT_PREFIX + PrivacyCommand.TRIGGER  + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + RankCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + ReplayCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + TagCommand.TRIGGER + "\n"

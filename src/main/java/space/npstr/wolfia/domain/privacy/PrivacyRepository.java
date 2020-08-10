@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.domain.ban;
+package space.npstr.wolfia.domain.privacy;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,47 +24,47 @@ import javax.annotation.CheckReturnValue;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import space.npstr.wolfia.db.AsyncDbWrapper;
-import space.npstr.wolfia.game.definitions.Scope;
 
 import static space.npstr.wolfia.db.gen.Tables.DISCORD_USER;
 
 @Repository
-public class BanRepository {
+public class PrivacyRepository {
 
     private final AsyncDbWrapper wrapper;
 
-    public BanRepository(AsyncDbWrapper wrapper) {
+    public PrivacyRepository(AsyncDbWrapper wrapper) {
         this.wrapper = wrapper;
     }
 
     @CheckReturnValue
-    public CompletionStage<Optional<Ban>> findOne(long userId, Scope scope) {
+    public CompletionStage<Optional<Privacy>> findOne(long userId) {
         return this.wrapper.jooq(dsl -> dsl
                 .selectFrom(DISCORD_USER)
-                .where(DISCORD_USER.USER_ID.eq(userId).and(DISCORD_USER.BAN.eq(scope.name())))
-                .fetchOptionalInto(Ban.class));
+                .where(DISCORD_USER.USER_ID.eq(userId))
+                .fetchOptionalInto(Privacy.class));
     }
 
     @CheckReturnValue
-    public CompletionStage<Ban> setScope(long userId, Scope scope) {
+    public CompletionStage<Privacy> setProcessData(long userId, boolean processData) {
         return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
                 .insertInto(DISCORD_USER)
-                .columns(DISCORD_USER.USER_ID, DISCORD_USER.BAN)
-                .values(userId, scope.name())
+                .columns(DISCORD_USER.USER_ID, DISCORD_USER.PROCESS_DATA)
+                .values(userId, processData)
                 .onDuplicateKeyUpdate()
-                .set(DISCORD_USER.BAN, scope.name())
+                .set(DISCORD_USER.PROCESS_DATA, processData)
                 .returning()
                 .fetchOne()
-                .into(Ban.class)
+                .into(Privacy.class)
         ));
     }
 
     @CheckReturnValue
-    public CompletionStage<List<Ban>> findByScope(Scope scope) {
+    public CompletionStage<List<Privacy>> findAllDeniedProcessData() {
         return this.wrapper.jooq(dsl -> dsl
                 .selectFrom(DISCORD_USER)
-                .where(DISCORD_USER.BAN.eq(scope.name()))
-                .fetchInto(Ban.class)
+                .where(DISCORD_USER.PROCESS_DATA.eq(false))
+                .fetchInto(Privacy.class)
         );
     }
+
 }

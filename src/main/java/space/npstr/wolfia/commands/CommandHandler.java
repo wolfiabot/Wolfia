@@ -34,6 +34,7 @@ import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.commands.util.TagCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.game.GameRegistry;
+import space.npstr.wolfia.domain.privacy.PrivacyService;
 import space.npstr.wolfia.domain.settings.ChannelSettings;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.domain.setup.InCommand;
@@ -62,14 +63,17 @@ public class CommandHandler {
     private final CommandContextParser commandContextParser;
     private final CommRegistry commRegistry;
     private final ChannelSettingsService channelSettingsService;
+    private final PrivacyService privacyService;
 
     public CommandHandler(GameRegistry gameRegistry, CommandContextParser commandContextParser,
-                          CommRegistry commRegistry, ChannelSettingsService channelSettingsService) {
+                          CommRegistry commRegistry, ChannelSettingsService channelSettingsService,
+                          PrivacyService privacyService) {
 
         this.gameRegistry = gameRegistry;
         this.commandContextParser = commandContextParser;
         this.commRegistry = commRegistry;
         this.channelSettingsService = channelSettingsService;
+        this.privacyService = privacyService;
     }
 
     @EventListener
@@ -94,6 +98,13 @@ public class CommandHandler {
         final CommandContext context = this.commandContextParser.parse(this.commRegistry, event);
 
         if (context == null) {
+            return;
+        }
+
+        // this check does a database request so we want it to be further down the check chain.
+        // we can put this check behind the user stats processing, because users who dont have data processing enabled,
+        // cannot issue commands, so they cannot join games, to their user stats won't be processed
+        if (!this.privacyService.isDataProcessingEnabled(event.getAuthor().getIdLong())) {
             return;
         }
 

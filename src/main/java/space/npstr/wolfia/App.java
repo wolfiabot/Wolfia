@@ -40,6 +40,8 @@ public class App {
     public static final long WOLFIA_LOUNGE_ID = 315944983754571796L;
     public static final String SITE_LINK = "https://wolfia.party";
     public static final String DOCS_LINK = "https://wolfia.party";
+    public static final String PRIVACY_LINK = "https://bot.wolfia.party/privacy";
+    public static final String DATA_ACCESS_LINK = PRIVACY_LINK + "#access";
     public static final String GITHUB_LINK = "https://github.com/wolfiabot/wolfia";
     public static final String GAME_STATUS = WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER + " | " + SITE_LINK + " | Public β";
 

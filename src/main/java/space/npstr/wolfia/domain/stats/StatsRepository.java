@@ -18,6 +18,13 @@
 package space.npstr.wolfia.domain.stats;
 
 import io.prometheus.client.Summary;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
+import javax.annotation.CheckReturnValue;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
 import org.jooq.RecordMapper;
@@ -29,14 +36,6 @@ import space.npstr.wolfia.db.gen.tables.records.StatsPlayerRecord;
 import space.npstr.wolfia.db.gen.tables.records.StatsTeamRecord;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.system.metrics.MetricsRegistry;
-
-import javax.annotation.CheckReturnValue;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletionStage;
 
 import static org.jooq.impl.DSL.avg;
 import static org.jooq.impl.DSL.count;
@@ -289,6 +288,32 @@ public class StatsRepository {
                     return gameStats;
                 }
         )));
+    }
+
+    @CheckReturnValue
+    public CompletionStage<List<Long>> findGameIdsByUser(long userId) {
+        Summary.Child timer = MetricsRegistry.queryTime.labels("findGameStatsByUser");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
+                .select(STATS_GAME.GAME_ID)
+                .from(STATS_GAME)
+                .join(STATS_TEAM).on(STATS_TEAM.GAME_ID.eq(STATS_GAME.GAME_ID))
+                .join(STATS_PLAYER).on(STATS_PLAYER.TEAM_ID.eq(STATS_TEAM.TEAM_ID))
+                .where(STATS_PLAYER.USER_ID.eq(userId))
+                .fetch(STATS_GAME.GAME_ID)
+        ));
+    }
+
+    @CheckReturnValue
+    public CompletionStage<Optional<PlayerStats>> setPlayerNickame(long playerId, String nickname) {
+        Summary.Child timer = MetricsRegistry.queryTime.labels("setPlayerName");
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> timer.time((() -> DSL.using(config)
+                .update(STATS_PLAYER)
+                .set(STATS_PLAYER.NICKNAME, nickname)
+                .where(STATS_PLAYER.PLAYER_ID.eq(playerId))
+                .returningResult()
+                .fetchOptional()
+                .map(r -> r.into(PlayerStats.class))
+        ))));
     }
 
     private RecordMapper<StatsTeamRecord, TeamStats> teamMapper(GameStats gameStats) {

@@ -16,43 +16,20 @@
   -->
 
 <template>
-	<footer class="level">
-		<div class="level-item">
-			<a :href="sourceCodeLink" target="_blank" rel="noopener noreferrer">Source Code</a>
-		</div>
-		<div class="level-item">
-			<p>
-				Created with lots of
-				<img src="https://discord.com/assets/25c09e6fde32411da2b0da00f5cb9c84.svg" alt="coffee" /> by
-				<a :href="sourceCodeLink + '/graphs/contributors'" target="_blank" rel="noopener noreferrer"
-					>a pack of wolves</a
-				>
-			</p>
-		</div>
-		<div class="level-item">
-			<router-link to="/privacy">Privacy Policy</router-link>
-		</div>
-	</footer>
+	<a class="button is-large is-link" :href="loginLink">
+		Log In With Discord
+	</a>
 </template>
 
 <script>
 export default {
-	name: "Footer",
-	data: function () {
-		return {
-			sourceCodeLink: process.env.VUE_APP_SOURCE_CODE_LINK,
-		};
+	name: "LoginButton",
+	computed: {
+		loginLink: function () {
+			return `/public/login?login_redirect=${encodeURIComponent(this.$route.fullPath)}`;
+		},
 	},
 };
 </script>
 
-<style scoped lang="scss">
-footer {
-	font-size: 1em;
-	padding: 0.25em;
-
-	img {
-		height: 1.25em;
-	}
-}
-</style>
+<style scoped></style>

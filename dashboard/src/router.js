@@ -58,10 +58,25 @@ const routes = [
 		name: "togglz",
 		component: () => import(/* webpackChunkName: "togglz" */ "@/components/Togglz.vue"),
 	},
+	{
+		path: "/privacy",
+		name: "privacy",
+		component: () => import(/* webpackChunkName: "privacy" */ "@/components/PrivacyPolicy.vue"),
+	},
 ];
 
 const router = new VueRouter({
 	mode: "history",
+	// see https://router.vuejs.org/guide/advanced/scroll-behavior.html#scroll-behavior
+	scrollBehavior(to, from, savedPosition) {
+		if (savedPosition) {
+			return savedPosition;
+		}
+		if (to.hash) {
+			return { selector: to.hash };
+		}
+		return { x: 0, y: 0 };
+	},
 	routes,
 });
 
