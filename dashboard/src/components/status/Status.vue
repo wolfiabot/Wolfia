@@ -36,7 +36,7 @@
 		<div class="statusFooter">
 			<p>
 				If you notice any issues, do not hesitate to reach out to us on our
-				<a href="https://discord.gg/nvcfX3q">Discord server</a>.
+				<a href="https://discord.gg/nvcfX3q" target="_blank" rel="noopener noreferrer">Discord server</a>.
 			</p>
 		</div>
 	</div>

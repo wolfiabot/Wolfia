@@ -23,12 +23,14 @@
 			<h1 class="title">Wolfia Privacy Policy</h1>
 			<p>Wolfia is an Open Source project.</p>
 			<p>
-				The source code can be found <a :href="sourceCodeLink">here</a>. Anyone can host a copy of Wolfia
-				provided they adhere to the license and make the source code available to end users.
+				The source code can be found
+				<a :href="sourceCodeLink" target="_blank" rel="noopener noreferrer">here</a>. Anyone can host a copy of
+				Wolfia provided they adhere to the license and make the source code available to end users.
 			</p>
 			<p>
-				This specific instance on <a :href="host">{{ host }}</a> is hosted by
-				<a :href="ownerLink">{{ owner }}</a> and will further be referred to as "this Wolfia instance".
+				This specific instance on <a :href="host" target="_blank" rel="noopener noreferrer">{{ host }}</a> is
+				hosted by <a :href="ownerLink" target="_blank" rel="noopener noreferrer">{{ owner }}</a> and will
+				further be referred to as "this Wolfia instance".
 			</p>
 			<p>
 				This privacy policy will explain how this Wolfia instance uses the personal data it collects from you
@@ -44,21 +46,22 @@
 
 			<h2 class="subtitle">How do we collect your data?</h2>
 			<p>
-				We receive this data from the Discord API when an admin of a Discord server adds Wolfia to a server you
-				are a member of as well, or you log into the website using Discord OAuth2. We collect statistics when
-				you interact with this Wolfia instance via commands on Discord and play games with it.
+				Admins of Discord servers can add bots such as this Wolfia instace to their servers. On mutual servers
+				between this Wolfia instance and you, the Discord API may send this Wolfia instance certain events of
+				you, such as your commands. We collect statistics when you interact with this Wolfia instance via
+				commands on Discord and play games with it. We also create a web session for you when you log into this
+				website using Discord OAuth2. For more information, please see the
+				<a href="https://discord.com/developers/docs/intro" target="_blank" rel="noopener noreferrer"
+					>Discord API Documentation</a
+				>.
 			</p>
 
 			<h2 class="subtitle">How will we use your data?</h2>
-			<p>
-				The data is used to
-			</p>
-			<br />
 			<ul>
-				<li>- display your statistics</li>
-				<li>- display replays of games</li>
-				<li>- display your logged-in status on the website</li>
-				<li>- remove users from signed up games when they go inactive</li>
+				<li>- Display your statistics</li>
+				<li>- Display replays of games</li>
+				<li>- Display your logged-in status on the website</li>
+				<li>- Remove users from signed up games when they go inactive</li>
 			</ul>
 
 			<h2 class="subtitle">How do we store your data?</h2>
@@ -75,7 +78,9 @@
 					- Last activity is kept until timing out and being removed from signed up games (20 minutes by
 					default)
 				</li>
-				<li>- Sessions on the website are kept until you log yourself out or a timeout of one year</li>
+				<li>
+					- Sessions on the website are kept until you log yourself out or a timeout (one year by default)
+				</li>
 			</ul>
 
 			<h2 class="subtitle">What are your data protection rights?</h2>
@@ -109,9 +114,11 @@
 				<li>
 					<strong>The right to data portability</strong> – You have the right to request that this Wolfia
 					instance transfer the data that we have collected to another organization, or directly to you, under
-					certain conditions. If you make a request, we have one month to respond to you.
+					certain conditions.
 				</li>
 			</ul>
+			<br />
+			<p>If you make a request, we have one month to respond to you.</p>
 			<br />
 			<p>
 				If you would like to exercise any of these rights, please
@@ -136,21 +143,25 @@
 			<h2 class="subtitle">Changes to our privacy policy</h2>
 			<p>
 				This Wolfia instance keeps its privacy policy under regular review and places any updates on this web
-				page. This privacy policy was last updated on 10th August 2020.
+				page. This privacy policy was last updated on 11th August 2020.
 			</p>
 
 			<h2 class="subtitle">How to contact us</h2>
 			<p>
 				If you have any questions about this Wolfia’s instance privacy policy, the data we hold on you, or you
-				would like to exercise one of your data protection rights, please do not hesitate to contact us:
+				would like to exercise one of your data protection rights, please do not hesitate to contact us by one
+				of the following ways:
 			</p>
 			<ul>
 				<li>- <a @click="scrollToHash('#access')">Scroll further down</a> to access & manage your data</li>
 				<li>- Run the <code>w.privacy</code> command on Discord</li>
-				<li>- Join <a :href="invite">our support server</a></li>
+				<li>- Join <a :href="invite" target="_blank" rel="noopener noreferrer">our support server</a></li>
 			</ul>
 			<br />
-			<p>This Privacy Policy has been adapted from <a href="https://gdpr.eu/privacy-notice">GDPR.EU</a></p>
+			<p>
+				This Privacy Policy has been adapted from
+				<a href="https://gdpr.eu/privacy-notice" target="_blank" rel="noopener noreferrer">GDPR.EU</a>
+			</p>
 
 			<div>
 				<a id="access"></a>

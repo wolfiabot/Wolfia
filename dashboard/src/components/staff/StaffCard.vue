@@ -28,7 +28,7 @@
 			<div :class="staffBadgeClass">{{ member.renderStaffFunction() }}</div>
 			<div v-if="member.slogan !== null" class="is-italic slogan">{{ member.slogan }}</div>
 			<div v-if="member.link !== null" class="link">
-				<a :href="member.link" target="_blank">{{ member.link }}</a>
+				<a :href="member.link" target="_blank" rel="noopener noreferrer">{{ member.link }}</a>
 			</div>
 		</div>
 	</div>
