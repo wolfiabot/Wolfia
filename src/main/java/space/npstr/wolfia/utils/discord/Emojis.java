@@ -42,6 +42,8 @@ public class Emojis {
     public static final String ONE_HUNDRED = "💯";
     public static final String SLEEP = "💤";
     public static final String STOP = "🛑";
+    public static final String TOOLS = "🛠️";
+    public static final String CHECKERED_FLAG = "🏁";
 
     public static final String SUNNY = "☀";
     public static final String FULL_MOON = "🌕";
