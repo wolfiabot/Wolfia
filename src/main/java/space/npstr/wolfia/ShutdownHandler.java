@@ -36,6 +36,7 @@ import space.npstr.wolfia.events.BotStatusLogger;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.system.redis.Redis;
 import space.npstr.wolfia.utils.UserFriendlyException;
+import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 @Component
@@ -76,9 +77,9 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
 
     private void shutdown() {
         this.shuttingDown = true;
-        String shutdownStart = String.format("\uD83D\uDCA4 Shutdown hook triggered! %d games still ongoing.", gameRegistry.getRunningGamesCount());
+        String shutdownStart = String.format("Shutdown hook triggered! %d games still ongoing.", gameRegistry.getRunningGamesCount());
         log.info(shutdownStart);
-        this.botStatusLogger.log(shutdownStart);
+        this.botStatusLogger.log(Emojis.SLEEP, shutdownStart);
         Future<?> waitForGamesToEnd = executor.submit(() -> {
             while (gameRegistry.getRunningGamesCount() > 0) {
                 log.info("Waiting on {} games to finish.", gameRegistry.getRunningGamesCount());
@@ -102,11 +103,11 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
         }
 
         int runningGamesCount = gameRegistry.getRunningGamesCount();
-        String gamesStopped = String.format("\uD83D\uDED1 Killing %d games while exiting", runningGamesCount);
+        String gamesStopped = String.format("Stopping %d games while exiting", runningGamesCount);
         try {
             // This is the last bot status message sent.
             // Await its completion, otherwise we risk that the scheduler gets closed before it is done sending.
-            this.botStatusLogger.log(gamesStopped).toCompletableFuture().get(10, TimeUnit.SECONDS);
+            this.botStatusLogger.log(Emojis.STOP, gamesStopped).toCompletableFuture().get(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.warn("Interrupted while awaiting last bot status message to be sent", e);
             Thread.currentThread().interrupt();

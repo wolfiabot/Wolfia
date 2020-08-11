@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.springframework.stereotype.Component;
+import space.npstr.wolfia.utils.discord.TextchatUtils;
 
 @Component
 public class BotStatusLogger {
@@ -36,10 +37,12 @@ public class BotStatusLogger {
         this.botStatusWebhook = botStatusWebhook;
     }
 
-    public CompletionStage<Optional<ReadonlyMessage>> log(String message) {
+    public CompletionStage<Optional<ReadonlyMessage>> log(String emoji, String message) {
+        String zalgoMessage = Zalgo.convert(message);
+        String content = TextchatUtils.toUtcTime(System.currentTimeMillis()) + " " + emoji + " " + zalgoMessage;
         return this.botStatusWebhook
                 .map(webhookClient -> webhookClient.send(deepFriedBuilder()
-                        .setContent(Zalgo.convert(message))
+                        .setContent(content)
                         .build())
                         .thenApply(Optional::ofNullable)
                 )

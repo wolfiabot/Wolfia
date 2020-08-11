@@ -36,6 +36,7 @@ import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.events.BotStatusLogger;
 import space.npstr.wolfia.utils.GitRepoState;
+import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -111,7 +112,7 @@ public class Launcher implements ApplicationRunner {
     @Override
     public void run(final ApplicationArguments args) throws Exception {
         this.poolMetrics.addPool("restActions", (ScheduledThreadPoolExecutor) RestActions.restService);
-        this.botStatusLogger.log("\uD83D\uDE80 Starting...");
+        this.botStatusLogger.log(Emojis.ROCKET, "Starting...");
         if (this.wolfiaConfig.isDebug())
             log.info("Running DEBUG configuration");
         else
@@ -120,7 +121,7 @@ public class Launcher implements ApplicationRunner {
         while (!allShardsUp()) {
             Thread.sleep(100);
         }
-        this.botStatusLogger.log("\uD83D\uDCAF All shards connected!");
+        this.botStatusLogger.log(Emojis.ONE_HUNDRED, "All shards connected!");
     }
 
     private boolean allShardsUp() {
