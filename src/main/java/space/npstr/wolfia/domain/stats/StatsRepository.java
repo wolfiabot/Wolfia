@@ -229,6 +229,22 @@ public class StatsRepository {
         ));
     }
 
+    private RecordMapper<StatsTeamRecord, TeamStats> teamMapper(GameStats gameStats) {
+        return record -> new TeamStats(record.getTeamId(), record.getAlignment(), record.getIsWinner(),
+                record.getName(), gameStats, record.getTeamSize());
+    }
+
+    private RecordMapper<StatsPlayerRecord, PlayerStats> playerMapper(TeamStats teamStats) {
+        return record -> new PlayerStats(record.getPlayerId(), record.getNickname(), record.getRole(),
+                record.getTotalPostlength(), record.getTotalPosts(), record.getUserId(), teamStats, record.getAlignment());
+    }
+
+    private RecordMapper<StatsActionRecord, ActionStats> actionMapper(GameStats gameStats) {
+        return record -> new ActionStats(record.getActionId(), record.getActionType(), record.getActor(),
+                record.getCycle(), record.getSequence(), record.getTarget(), record.getHappened(),
+                record.getSubmitted(), gameStats, record.getPhase(), record.getAdditionalInfo());
+    }
+
     @CheckReturnValue
     public CompletionStage<GameStats> insertGameStats(GameStats gameStats) {
         Summary.Child timer = MetricsRegistry.queryTime.labels("insertGameStats");
@@ -314,21 +330,5 @@ public class StatsRepository {
                 .fetchOptional()
                 .map(r -> r.into(PlayerStats.class))
         ))));
-    }
-
-    private RecordMapper<StatsTeamRecord, TeamStats> teamMapper(GameStats gameStats) {
-        return record -> new TeamStats(record.getTeamId(), record.getAlignment(), record.getIsWinner(),
-                record.getName(), gameStats, record.getTeamSize());
-    }
-
-    private RecordMapper<StatsPlayerRecord, PlayerStats> playerMapper(TeamStats teamStats) {
-        return record -> new PlayerStats(record.getPlayerId(), record.getNickname(), record.getRole(),
-                record.getTotalPostlength(), record.getTotalPosts(), record.getUserId(), teamStats, record.getAlignment());
-    }
-
-    private RecordMapper<StatsActionRecord, ActionStats> actionMapper(GameStats gameStats) {
-        return record -> new ActionStats(record.getActionId(), record.getActionType(), record.getActor(),
-                record.getCycle(), record.getSequence(), record.getTarget(), record.getHappened(),
-                record.getSubmitted(), gameStats, record.getPhase(), record.getAdditionalInfo());
     }
 }
