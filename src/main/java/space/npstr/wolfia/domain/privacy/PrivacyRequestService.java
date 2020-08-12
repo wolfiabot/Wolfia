@@ -21,15 +21,12 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector;
 import java.time.Duration;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.session.Session;
 import org.springframework.stereotype.Service;
-import space.npstr.wolfia.domain.stats.ActionStats;
-import space.npstr.wolfia.domain.stats.GameStats;
-import space.npstr.wolfia.domain.stats.PlayerStats;
 import space.npstr.wolfia.domain.stats.StatsRepository;
 import space.npstr.wolfia.system.SessionService;
 
@@ -66,13 +63,15 @@ public class PrivacyRequestService {
                 .map(this::mapSession)
                 .collect(Collectors.toList());
 
-        List<PrivacyGame> games = this.statsRepository.findGameIdsByUser(userId)
-                .toCompletableFuture().join()
-                .stream()
-                .map(gameId -> this.statsRepository.findGameStats(gameId).toCompletableFuture().join())
-                .map(gameOpt -> gameOpt.orElse(null))
-                .filter(Objects::nonNull)
-                .map(gameStats -> this.mapGame(gameStats, userId))
+        List<PrivacyGame> games = this.statsRepository.getAllGameStatsOfUser(userId).toCompletableFuture().join();
+        Map<Long, List<PrivacyAction>> actions = this.statsRepository.getAllActionStatsOfUser(userId).toCompletableFuture().join();
+
+        games = games.stream()
+                .map(game -> {
+                    List<PrivacyAction> gameActions = actions.computeIfAbsent(game.getGameId(), __ -> new ArrayList<>());
+                    return ImmutablePrivacyGame.copyOf(game)
+                            .withActions(gameActions);
+                })
                 .collect(Collectors.toList());
 
         return ImmutablePrivacyResponse.builder()
@@ -86,37 +85,6 @@ public class PrivacyRequestService {
                 .creationTime(session.getCreationTime())
                 .lastAccessedTime(session.getLastAccessedTime())
                 .isExpired(session.isExpired())
-                .build();
-    }
-
-    private PrivacyGame mapGame(GameStats gameStats, long userId) {
-        PlayerStats player = gameStats.getStartingTeams().stream()
-                .flatMap(team -> team.getPlayers().stream())
-                .filter(p -> p.getUserId() == userId)
-                .findAny()
-                .orElseThrow();
-
-        return ImmutablePrivacyGame.builder()
-                .gameId(gameStats.getGameId().orElseThrow())
-                .alignment(player.getAlignment().name())
-                .isWinner(player.getTeam().isWinner())
-                .startDate(Instant.ofEpochMilli(gameStats.getStartTime()))
-                .endDate(Instant.ofEpochMilli(gameStats.getEndTime()))
-                .nickname(player.getNickname())
-                .totalPosts(player.getTotalPosts())
-                .totalPostLength(player.getTotalPostLength())
-                .addAllActions(gameStats.getActions().stream()
-                        .filter(action -> action.getActor() == player.getPlayerId().orElseThrow())
-                        .map(this::mapAction)
-                        .collect(Collectors.toList())
-                )
-                .build();
-    }
-
-    private PrivacyAction mapAction(ActionStats actionStats) {
-        return ImmutablePrivacyAction.builder()
-                .type(actionStats.getActionType())
-                .submitted(Instant.ofEpochMilli(actionStats.getTimeStampSubmitted()))
                 .build();
     }
 }

@@ -19,14 +19,18 @@ package space.npstr.wolfia.domain.stats;
 
 import io.prometheus.client.Summary;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.CheckReturnValue;
 import org.jooq.DSLContext;
 import org.jooq.Record1;
+import org.jooq.Record3;
+import org.jooq.Record8;
 import org.jooq.RecordMapper;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
@@ -34,6 +38,11 @@ import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.gen.tables.records.StatsActionRecord;
 import space.npstr.wolfia.db.gen.tables.records.StatsPlayerRecord;
 import space.npstr.wolfia.db.gen.tables.records.StatsTeamRecord;
+import space.npstr.wolfia.domain.privacy.ImmutablePrivacyAction;
+import space.npstr.wolfia.domain.privacy.ImmutablePrivacyGame;
+import space.npstr.wolfia.domain.privacy.PrivacyAction;
+import space.npstr.wolfia.domain.privacy.PrivacyGame;
+import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.system.metrics.MetricsRegistry;
 
@@ -317,6 +326,64 @@ public class StatsRepository {
                 .where(STATS_PLAYER.USER_ID.eq(userId))
                 .fetch(STATS_GAME.GAME_ID)
         ));
+    }
+
+    @CheckReturnValue
+    public CompletionStage<List<PrivacyGame>> getAllGameStatsOfUser(long userId) {
+        Summary.Child timer = MetricsRegistry.queryTime.labels("getAllGameStatsOfUser");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
+                .select(
+                        STATS_GAME.GAME_ID,
+                        STATS_GAME.START_TIME,
+                        STATS_GAME.END_TIME,
+                        STATS_TEAM.ALIGNMENT,
+                        STATS_TEAM.IS_WINNER,
+                        STATS_PLAYER.NICKNAME,
+                        STATS_PLAYER.TOTAL_POSTS,
+                        STATS_PLAYER.TOTAL_POSTLENGTH
+                )
+                .from(STATS_GAME)
+                .join(STATS_TEAM).on(STATS_TEAM.GAME_ID.eq(STATS_GAME.GAME_ID))
+                .join(STATS_PLAYER).on(STATS_PLAYER.TEAM_ID.eq(STATS_TEAM.TEAM_ID))
+                .where(STATS_PLAYER.USER_ID.eq(userId))
+                .fetch(privacyGameMapper())
+        ));
+    }
+
+    private RecordMapper<Record8<Long, Long, Long, String, Boolean, String, Integer, Integer>, PrivacyGame> privacyGameMapper() {
+        return record -> ImmutablePrivacyGame.builder()
+                .gameId(record.get(STATS_GAME.GAME_ID))
+                .startTime(Instant.ofEpochMilli(record.get(STATS_GAME.START_TIME)))
+                .endTime(Instant.ofEpochMilli(record.get(STATS_GAME.END_TIME)))
+                .alignment(record.get(STATS_TEAM.ALIGNMENT))
+                .isWinner(record.get(STATS_TEAM.IS_WINNER))
+                .nickname(record.get(STATS_PLAYER.NICKNAME))
+                .totalPosts(record.get(STATS_PLAYER.TOTAL_POSTS))
+                .totalPostLength(record.get(STATS_PLAYER.TOTAL_POSTLENGTH))
+                .build();
+    }
+
+    @CheckReturnValue
+    public CompletionStage<Map<Long, List<PrivacyAction>>> getAllActionStatsOfUser(long userId) {
+        Summary.Child timer = MetricsRegistry.queryTime.labels("getAllActionStatsOfUser");
+        return this.wrapper.jooq(dsl -> timer.time(() -> dsl
+                .select(
+                        STATS_GAME.GAME_ID,
+                        STATS_ACTION.ACTION_TYPE,
+                        STATS_ACTION.SUBMITTED
+                )
+                .from(STATS_GAME)
+                .join(STATS_ACTION).on(STATS_ACTION.GAME_ID.eq(STATS_GAME.GAME_ID))
+                .where(STATS_ACTION.ACTOR.eq(userId))
+                .fetchGroups(STATS_GAME.GAME_ID, privacyActionMapper())
+        ));
+    }
+
+    private RecordMapper<Record3<Long, String, Long>, PrivacyAction> privacyActionMapper() {
+        return record -> ImmutablePrivacyAction.builder()
+                .type(Actions.valueOf(record.get(STATS_ACTION.ACTION_TYPE)))
+                .submitted(Instant.ofEpochMilli(record.get(STATS_ACTION.SUBMITTED)))
+                .build();
     }
 
     @CheckReturnValue
