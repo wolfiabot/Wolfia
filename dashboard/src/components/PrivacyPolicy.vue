@@ -180,7 +180,7 @@
 			</div>
 
 			<div class="modal" id="delete-modal">
-				<div class="modal-background"></div>
+				<div class="modal-background" @click="closeModal"></div>
 				<div class="modal-card">
 					<header class="modal-card-head">
 						<p class="modal-card-title">ATTENTION, READ CAREFULLY</p>
@@ -265,12 +265,22 @@ export default {
 				el && el.scrollIntoView();
 			}
 		},
+		isModalShown: function () {
+			const modal = document.getElementById("delete-modal");
+			return modal.classList.contains("is-active");
+		},
 		toggleModal: function () {
 			const modal = document.getElementById("delete-modal");
-			if (modal.classList.contains("is-active")) {
+			if (this.isModalShown()) {
 				modal.classList.remove("is-active");
 			} else {
 				modal.classList.add("is-active");
+			}
+		},
+		closeModal: function () {
+			const modal = document.getElementById("delete-modal");
+			if (this.isModalShown()) {
+				modal.classList.remove("is-active");
 			}
 		},
 		deleteData: async function () {
