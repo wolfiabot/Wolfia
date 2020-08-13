@@ -54,7 +54,7 @@ class StatsServiceTest extends ApplicationTest {
                 .toCompletableFuture().join().orElseThrow()
                 .getStartingTeams().stream().findAny().orElseThrow()
                 .getPlayers().stream().findAny().orElseThrow();
-        assertThat(player.getNickname()).isEqualTo("Player 1");
+        assertThat(player.getNickname()).isNull();
     }
 
 }
