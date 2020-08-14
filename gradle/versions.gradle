@@ -24,7 +24,7 @@ ext {
 	gradleGitVersion			= '2.2.3'
 	grGitVersion				= '4.0.2'
 	sonarVersion				= '3.0'
-	jooqPluginVersion			= '4.2'
+	jooqPluginVersion			= '5.0.1'
 	versionsPluginVersion		= '0.29.0'
 	dockerPluginVersion			= '6.6.1'
 	testLoggerVersion			= '2.1.0'

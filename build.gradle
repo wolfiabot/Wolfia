@@ -197,14 +197,14 @@ project(':database-codegen') {
 
     dependencies {
         flywayMigration platform(project(':platform'))
-        jooqRuntime platform(project(':platform'))
+        jooqGenerator platform(project(':platform'))
 
         api "org.jooq:jooq"
         implementation "org.jooq:jooq-meta"
         implementation "org.jooq:jooq-codegen"
         api "org.postgresql:postgresql"
         flywayMigration "org.postgresql:postgresql"
-        jooqRuntime "org.postgresql:postgresql"
+        jooqGenerator "org.postgresql:postgresql"
     }
 
     task pullCodegenDbContainer(type: DockerPullImage) {
@@ -272,62 +272,66 @@ project(':database-codegen') {
 
     jooq {
         version = jooqVersion
-        edition = 'OSS'
-        wolfia(sourceSets.main) {
-            logging = 'WARN'
-            jdbc {
-                driver = 'org.postgresql.Driver'
-                url = "$codegenJdbcUrl"
-            }
-            generator {
-                name = 'org.jooq.codegen.DefaultGenerator'
-                strategy {
-                    name = 'org.jooq.codegen.DefaultGeneratorStrategy'
-                }
-                database {
-                    name = 'org.jooq.meta.postgres.PostgresDatabase'
-                    inputSchema = 'public'
-                    forcedTypes {
-                        forcedType {
-                            userType = 'space.npstr.wolfia.db.type.OAuth2Scope[]'
-                            converter = 'space.npstr.wolfia.db.converter.OAuth2ScopeEnumArrayConverter'
-                            includeExpression = '.*'
-                            includeTypes = '_OAuth2Scope'
+        edition = nu.studer.gradle.jooq.JooqEdition.OSS
+        configurations {
+            main {
+                generationTool {
+                    logging = org.jooq.meta.jaxb.Logging.WARN
+                    jdbc {
+                        driver = 'org.postgresql.Driver'
+                        url = "$codegenJdbcUrl"
+                    }
+                    generator {
+                        name = 'org.jooq.codegen.DefaultGenerator'
+                        strategy {
+                            name = 'org.jooq.codegen.DefaultGeneratorStrategy'
                         }
-                        forcedType {
-                            userType = 'java.util.HashMap<java.lang.String, java.lang.String>'
-                            binding = 'space.npstr.wolfia.db.PostgresHstoreBinding'
-                            includeExpression = '.*'
-                            includeTypes = 'hstore'
-                        }
-                        forcedType {
-                            userType = 'java.time.Instant'
-                            converter = '''
+                        database {
+                            name = 'org.jooq.meta.postgres.PostgresDatabase'
+                            inputSchema = 'public'
+                            forcedTypes {
+                                forcedType {
+                                    userType = 'space.npstr.wolfia.db.type.OAuth2Scope[]'
+                                    converter = 'space.npstr.wolfia.db.converter.OAuth2ScopeEnumArrayConverter'
+                                    includeExpression = '.*'
+                                    includeTypes = '_OAuth2Scope'
+                                }
+                                forcedType {
+                                    userType = 'java.util.HashMap<java.lang.String, java.lang.String>'
+                                    binding = 'space.npstr.wolfia.db.PostgresHstoreBinding'
+                                    includeExpression = '.*'
+                                    includeTypes = 'hstore'
+                                }
+                                forcedType {
+                                    userType = 'java.time.Instant'
+                                    converter = '''
                                 org.jooq.Converter.ofNullable(
                                 java.time.OffsetDateTime.class,
                                 java.time.Instant.class,
                                 o -> o.toInstant(),
                                 i -> i.atOffset(java.time.ZoneOffset.UTC))
                              '''
-                            includeTypes = 'timestamp\\ with\\ time\\ zone'
+                                    includeTypes = 'timestamp\\ with\\ time\\ zone'
+                                }
+                                forcedType {
+                                    userType = 'java.net.URI'
+                                    converter = 'space.npstr.wolfia.db.converter.UriConverter'
+                                    includeExpression = '.*link'
+                                    includeTypes = 'text'
+                                }
+                            }
                         }
-                        forcedType {
-                            userType = 'java.net.URI'
-                            converter = 'space.npstr.wolfia.db.converter.UriConverter'
-                            includeExpression = '.*link'
-                            includeTypes = 'text'
+                        target {
+                            packageName = 'space.npstr.wolfia.db.gen'
+                            directory = 'build/classes/generated/java'
                         }
                     }
-                }
-                target {
-                    packageName = 'space.npstr.wolfia.db.gen'
-                    directory = 'build/classes/generated/java'
                 }
             }
         }
     }
 
-    generateWolfiaJooqSchemaSource {
+    generateJooq {
         inputs.files(migrationsInput)
                 .withPropertyName('jooqMigrationsInput')
                 .withPathSensitivity(PathSensitivity.RELATIVE)
