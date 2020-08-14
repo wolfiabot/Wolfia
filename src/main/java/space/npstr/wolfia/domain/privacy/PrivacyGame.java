@@ -33,20 +33,20 @@ public interface PrivacyGame {
 
     long getGameId();
 
+    Instant getStartTime();
+
+    Instant getEndTime();
+
     String getAlignment();
 
     boolean isWinner();
 
-    Instant getStartDate();
-
-    Instant getEndDate();
-
     String getNickname();
-
-    List<PrivacyAction> getActions();
 
     int getTotalPosts();
 
     int getTotalPostLength();
+
+    List<PrivacyAction> getActions();
 
 }

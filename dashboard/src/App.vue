@@ -66,6 +66,12 @@ export default {
 					type: "is-warning",
 					duration: 5000,
 				});
+			} else if (loginParam === "no-consent") {
+				Toast.open({
+					message: "No consent to process your data.",
+					type: "is-info",
+					duration: 5000,
+				});
 			}
 		},
 	},
