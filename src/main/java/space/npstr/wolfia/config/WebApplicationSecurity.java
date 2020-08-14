@@ -237,7 +237,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                         if (session != null) {
                             session.invalidate();
                         }
-                        onLogin(request, response, false);
+                        onLogin(request, response, "no-consent");
                         return;
                     }
                 } catch (NumberFormatException e) {
@@ -245,25 +245,23 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 }
             }
 
-            onLogin(request, response, true);
+            onLogin(request, response, "success");
         }
 
         @Override
         public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                             AuthenticationException exception) throws IOException {
 
-            onLogin(request, response, false);
+            onLogin(request, response, "failed");
         }
 
-        private void onLogin(HttpServletRequest request, HttpServletResponse response, boolean success) throws IOException {
-            String redirectUrl = determineRedirectUrl(request, success);
+        private void onLogin(HttpServletRequest request, HttpServletResponse response, String loginValue) throws IOException {
+            String redirectUrl = determineRedirectUrl(request, loginValue);
 
             response.sendRedirect(redirectUrl);
         }
 
-        private String determineRedirectUrl(HttpServletRequest request, boolean wasSuccess) {
-            String loginValue = wasSuccess ? "success" : "failed";
-
+        private String determineRedirectUrl(HttpServletRequest request, String loginValue) {
             HttpSession session = request.getSession();
             String loginRedirect = (String) session.getAttribute(LoginRedirect.LOGIN_REDIRECT_SESSION_ATTRIBUTE);
             session.removeAttribute(LoginRedirect.LOGIN_REDIRECT_SESSION_ATTRIBUTE);
