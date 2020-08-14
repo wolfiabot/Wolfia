@@ -17,6 +17,9 @@
 
 package space.npstr.wolfia.webapi;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import javax.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,18 +38,21 @@ public class PrivacyRequestEndpoint {
 
     private final PrivacyRequestService privacyRequestService;
     private final PrivacyService privacyService;
+    private final ObjectMapper objectMapper;
 
     public PrivacyRequestEndpoint(PrivacyRequestService privacyRequestService, PrivacyService privacyService) {
         this.privacyRequestService = privacyRequestService;
         this.privacyService = privacyService;
+        this.objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
     }
 
     @GetMapping("/request")
-    public ResponseEntity<PrivacyResponse> request(@Nullable WebUser user) {
+    public ResponseEntity<String> request(@Nullable WebUser user) throws JsonProcessingException {
         if (user == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
-        return ResponseEntity.ok(privacyRequestService.request(user.id()));
+        PrivacyResponse response = privacyRequestService.request(user.id());
+        return ResponseEntity.ok(this.objectMapper.writeValueAsString(response));
     }
 
     @DeleteMapping("/delete")

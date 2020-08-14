@@ -173,7 +173,10 @@
 				<div v-else class="level">
 					<div class="button is-large is-danger" @click="showModal">Delete</div>
 					<div class="is-divider-vertical"></div>
-					<a class="button is-large is-link" href="/api/privacy/request" :download="`${user.discordId}.json`"
+					<a
+						class="button is-large is-link"
+						href="/api/privacy/request"
+						:download="`${user.discordId}-wolfia.json`"
 						>Download</a
 					>
 				</div>
