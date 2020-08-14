@@ -171,7 +171,7 @@
 					<LoginButton />
 				</div>
 				<div v-else class="level">
-					<div class="button is-large is-danger" @click="toggleModal">Delete</div>
+					<div class="button is-large is-danger" @click="showModal">Delete</div>
 					<div class="is-divider-vertical"></div>
 					<a class="button is-large is-link" href="/api/privacy/request" :download="`${user.discordId}.json`"
 						>Download</a
@@ -184,7 +184,7 @@
 				<div class="modal-card">
 					<header class="modal-card-head">
 						<p class="modal-card-title">ATTENTION, READ CAREFULLY</p>
-						<button class="delete" aria-label="close" @click="toggleModal"></button>
+						<button class="delete" aria-label="close" @click="closeModal"></button>
 					</header>
 					<section class="modal-card-body has-text-left">
 						We understand your request to delete your personal data as a withdrawal of consent to further
@@ -210,8 +210,10 @@
 						Think carefully!
 					</section>
 					<footer class="modal-card-foot">
-						<button class="button is-danger" @click="deleteData">Confirm Deletion</button>
-						<button class="button" @click="toggleModal">Cancel</button>
+						<button class="button is-danger" :disabled="disableDeleteButton" @click="deleteData">
+							Confirm Deletion
+						</button>
+						<button class="button" @click="closeModal">Cancel</button>
 					</footer>
 				</div>
 			</div>
@@ -237,14 +239,11 @@ export default {
 			ownerLink: process.env.VUE_APP_OWNER_LINK,
 			serverLocation: process.env.VUE_APP_SERVER_LOCATION,
 			invite: process.env.VUE_APP_SUPPORT_INVITE,
+			disableDeleteButton: true,
+			timer: null,
 		};
 	},
 	mounted() {
-		const closeButtons = document.getElementsByClassName("modal-close");
-		for (const closeButton of closeButtons) {
-			closeButton.onclick = () => this.toggleModal();
-		}
-
 		//Fix hash navigation, as it seems to not be supported by vue-router natively when opening the link
 		this.scrollToHash(this.$route.hash);
 	},
@@ -269,11 +268,13 @@ export default {
 			const modal = document.getElementById("delete-modal");
 			return modal.classList.contains("is-active");
 		},
-		toggleModal: function () {
+		showModal: function () {
 			const modal = document.getElementById("delete-modal");
-			if (this.isModalShown()) {
-				modal.classList.remove("is-active");
-			} else {
+			if (!this.isModalShown()) {
+				this.disableDeleteButton = true;
+				this.timer = setTimeout(() => {
+					this.disableDeleteButton = false;
+				}, 5000);
 				modal.classList.add("is-active");
 			}
 		},
@@ -281,11 +282,14 @@ export default {
 			const modal = document.getElementById("delete-modal");
 			if (this.isModalShown()) {
 				modal.classList.remove("is-active");
+				if (this.timer) {
+					clearTimeout(this.timer);
+				}
 			}
 		},
 		deleteData: async function () {
 			await fetcher.delete("/api/privacy/delete");
-			this.toggleModal();
+			this.closeModal();
 			this.logout();
 			await this.$router.push("/");
 			Toast.open({
