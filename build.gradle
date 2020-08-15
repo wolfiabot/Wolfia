@@ -357,7 +357,7 @@ project(':common') {
     }
 }
 
-project(':dashboard') {
+project(':frontend') {
     apply plugin: 'org.siouan.frontend'
 
     frontend {
@@ -486,9 +486,9 @@ tasks.withType(JavaCompile) {
 compileJava.dependsOn(processResources)
 
 processResources {
-    dependsOn ':dashboard:assembleFrontend'
+    dependsOn ':frontend:assembleFrontend'
 
-    from("${project(':dashboard').buildDir}/dist") {
+    from("${project(':frontend').buildDir}/dist") {
         into 'static'
     }
 }

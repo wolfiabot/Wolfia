@@ -1,6 +1,6 @@
 # Dashboard Dev Docs
 
-Some hints and documentation on how to develop the Wolfia Dashboard
+Some hints and documentation on how to develop the Wolfia web frontend
 
 ## How to start everything
 

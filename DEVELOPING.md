@@ -62,7 +62,7 @@ autoformatter set up for the Java sources. If you know a decent one, please sugg
 For the frontend, an eslint configuration is provided. Ideally, you should set up your IDE to run eslint on file changes
 or on save. You can run eslint manually like this:
 ```
-cd dashboard
+cd frontend
 yarn run lint
 ```
 
@@ -82,7 +82,7 @@ There are several reasons to do so:
 ## Libraries & Frameworks
 
 ### Frontend
-The web frontend aka [dashboard](dashboard) uses the [Vue.js framework](https://vuejs.org/) including
+The [web frontend](frontend) uses the [Vue.js framework](https://vuejs.org/) including
 [Vue router](https://router.vuejs.org/) and [Vuex](https://vuex.vuejs.org/).
 
 We also use the [Bulma](https://bulma.io/) CSS framework, together with [Buefy](https://buefy.org/) components
@@ -118,7 +118,7 @@ We make use of the Spring Eventsystem to decouple our components where necessary
 `@EventListener`s processing these events.
 
 ##### Web Server
-We use Spring's web server abstraction to serve various endpoints for the dashboard, receiving webhooks,
+We use Spring's web server abstraction to serve various endpoints for the frontend, receiving webhooks,
 or allowing metrics collection from other parts of the infrastructure.
 
 ##### Three layers

@@ -1,5 +1,5 @@
 {
-	"name": "wolfia-dashboard",
+	"name": "wolfia-frontend",
 	"version": "0.42.0-DEV",
 	"private": true,
 	"scripts": {
