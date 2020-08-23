@@ -134,8 +134,6 @@ services:
       - ./logs:/opt/wolfia/logs
       - ./logs/gc:/opt/wolfia/logs/gc
     stop_grace_period: 7200s #should really be enough to finish all games
-    security_opt: # recommended for -Xgcpolicy:balanced
-      - seccomp:unconfined
     entrypoint:
       - java
 # Common JVM Options:
