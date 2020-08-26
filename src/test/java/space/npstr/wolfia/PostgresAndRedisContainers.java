@@ -33,6 +33,7 @@ public abstract class PostgresAndRedisContainers {
             .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust")
             .withEnv("ROLE", "wolfia_test")
             .withEnv("DB", "wolfia_test")
+            .withEnv("EXTENSIONS", "hstore")
             .withExposedPorts(5432);
 
     static {

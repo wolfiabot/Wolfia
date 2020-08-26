@@ -19,5 +19,8 @@ psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -tc "SELECT 1 FROM pg_database WHERE
 # make sure the database is owned by the role
 psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -c "ALTER DATABASE $DB OWNER TO $ROLE;"
 psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -c "GRANT ALL PRIVILEGES ON DATABASE $DB TO $ROLE;"
-# make sure HSTORE extension is enabled
-psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$DB" -c "CREATE EXTENSION IF NOT EXISTS hstore;"
+# make sure extensions are set up
+for extension in $EXTENSIONS; do
+  psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$DB" -c "CREATE EXTENSION IF NOT EXISTS $extension;"
+  psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$DB" -c "ALTER EXTENSION $extension SET SCHEMA pg_catalog;"
+done

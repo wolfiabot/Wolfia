@@ -74,6 +74,7 @@ services:
       # See the README of the database docker image
       - ROLE=wolfia
       - DB=wolfia
+      - EXTENSIONS=hstore
       - BACKUP_DB=wolfia
       - BACKUP_APPNAME=wolfia
       - BACKUP_BUCKET_DAILY=wolfia-backups-daily

@@ -12,6 +12,7 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
       - ROLE=wolfia
       - DB=wolfia
+      - EXTENSIONS=hstore
 
   dev-redis:
     image: redis:5-alpine

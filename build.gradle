@@ -220,6 +220,7 @@ project(':database-codegen') {
         withEnvVar('POSTGRES_HOST_AUTH_METHOD', 'trust')
         withEnvVar('ROLE', 'codegen')
         withEnvVar('DB', 'codegen')
+        withEnvVar('EXTENSIONS', 'hstore')
     }
 
     task stopCodegenDbContainerPre(type: StopCodegenDbContainer) {

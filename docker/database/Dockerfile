@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN pip install b2
 
-ENV POSTGRES_USER wolfia
+ENV POSTGRES_USER postgres
 
 COPY initdb.sh /usr/local/bin/
 COPY run.sh /usr/local/bin/
