@@ -3,9 +3,6 @@ other applications.
 
 This image is built abd published manually whenever there is an actual change to it (rare).
 
-Some of the things here might looks complicated, they are the result of lessons learned when 
-supporting selfhosting.
-
 Rationale behind the way this image creates the hstore extension:
 
 - We can't create the Hstore extension from application code, because it requires using a role
@@ -34,6 +31,7 @@ docker push napstr/wolfia-postgres:$BRANCH
 ```
 ROLE                        user / role of the application
 DB                          database used by the application
+EXTENSIONS                  any additional extensions
 
 BACKUP_DB                   database to backup
 BACKUP_APPNAME              name of the application to backup (meta information)

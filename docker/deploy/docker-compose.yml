@@ -70,8 +70,11 @@ services:
     volumes:
       - ./postgres-data/12/data:/var/lib/postgresql/data
     environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      # See the README of the database docker image
       - ROLE=wolfia
       - DB=wolfia
+      - EXTENSIONS=hstore
       - BACKUP_DB=wolfia
       - BACKUP_APPNAME=wolfia
       - BACKUP_BUCKET_DAILY=wolfia-backups-daily
@@ -134,8 +137,6 @@ services:
       - ./logs:/opt/wolfia/logs
       - ./logs/gc:/opt/wolfia/logs/gc
     stop_grace_period: 7200s #should really be enough to finish all games
-    security_opt: # recommended for -Xgcpolicy:balanced
-      - seccomp:unconfined
     entrypoint:
       - java
 # Common JVM Options:

@@ -1,10 +1,14 @@
 FROM postgres:12
 MAINTAINER napster@npstr.space
 
-RUN apt-get update && apt-get install -y python-pip
+RUN apt-get update && apt-get install -y \
+    python-pip \
+    cron \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN pip install b2
 
-ENV POSTGRES_USER wolfia
+ENV POSTGRES_USER postgres
 
 COPY initdb.sh /usr/local/bin/
 COPY run.sh /usr/local/bin/
