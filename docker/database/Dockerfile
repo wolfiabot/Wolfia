@@ -1,7 +1,11 @@
 FROM postgres:12
 MAINTAINER napster@npstr.space
 
-RUN apt-get update && apt-get install -y python-pip
+RUN apt-get update && apt-get install -y \
+    python-pip \
+    cron \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN pip install b2
 
 ENV POSTGRES_USER wolfia

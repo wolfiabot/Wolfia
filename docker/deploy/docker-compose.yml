@@ -70,6 +70,8 @@ services:
     volumes:
       - ./postgres-data/12/data:/var/lib/postgresql/data
     environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      # See the README of the database docker image
       - ROLE=wolfia
       - DB=wolfia
       - BACKUP_DB=wolfia
