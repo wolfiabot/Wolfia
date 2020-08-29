@@ -28,7 +28,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
  */
 public abstract class PostgresAndRedisContainers {
 
-    private static final GenericContainer<?> DB = new GenericContainer<>("napstr/wolfia-postgres:12")
+    private static final GenericContainer<?> DB = new GenericContainer<>("napstr/poggres:12")
             .withLogConsumer(new Slf4jLogConsumer(containerLogger("Postgres")))
             .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust")
             .withEnv("ROLE", "wolfia_test")
