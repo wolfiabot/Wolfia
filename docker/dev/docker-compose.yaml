@@ -4,13 +4,14 @@ version: '3.7'
 
 services:
   dev-postgres:
-    image: napstr/wolfia-postgres:12
+    image: napstr/poggres:12
     restart: always
     ports:
       - 127.0.0.1:5442:5432
     environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      - POSTGRES_PASSWORD=wolfia
       - ROLE=wolfia
+      - PASSWORD=wolfia
       - DB=wolfia
       - EXTENSIONS=hstore
 
