@@ -19,12 +19,18 @@ package space.npstr.wolfia.system.redis;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
+import io.lettuce.core.event.connection.ConnectedEvent;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Redis {
+
+    private static final Logger log = LoggerFactory.getLogger(Redis.class);
+
     private final RedisClient client;
     private final StatefulRedisConnection<String, String> connection;
     private final StatefulRedisPubSubConnection<String, String> pubSub;
@@ -33,6 +39,28 @@ public class Redis {
         this.client = RedisClient.create(redisProperties.getUrl());
         this.connection = this.client.connect();
         this.pubSub = this.client.connectPubSub();
+
+        this.client.getResources().eventBus().get().subscribe(event -> {
+            if (event instanceof ConnectedEvent) {
+                enableExpirationEvents();
+            }
+        });
+        enableExpirationEvents();
+    }
+
+    private void enableExpirationEvents() {
+        // see https://redis.io/topics/notifications
+        this.pubSub.async().configSet("notify-keyspace-events", "Ex")
+                .thenAccept(configResult -> {
+                    if (!"OK".equals(configResult)) {
+                        log.warn("Failed to update redis config: {}", configResult);
+                    }
+                })
+                .whenComplete((v, t) -> {
+                    if (t != null) {
+                        log.warn("Failed to update redis config", t);
+                    }
+                });
     }
 
     public StatefulRedisConnection<String, String> getConnection() {

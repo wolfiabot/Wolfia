@@ -20,8 +20,6 @@ package space.npstr.wolfia.domain.setup.lastactive;
 import io.lettuce.core.pubsub.RedisPubSubAdapter;
 import java.util.Optional;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.system.redis.Redis;
@@ -35,8 +33,6 @@ import space.npstr.wolfia.system.redis.Redis;
 @Component
 public class AutoOuter extends RedisPubSubAdapter<String, String> {
 
-    private static final Logger log = LoggerFactory.getLogger(AutoOuter.class);
-
     private static final String EXPIRE_CHANNEL = "__keyevent@*__:expired";
 
     private final RedisKeyParser redisKeyParser = new RedisKeyParser();
@@ -49,13 +45,8 @@ public class AutoOuter extends RedisPubSubAdapter<String, String> {
         this.shardManager = shardManager;
 
         var pubSub = redis.getPubSub();
-        // see https://redis.io/topics/notifications
-        String configResult = pubSub.sync().configSet("notify-keyspace-events", "Ex");
-        if (!"OK".equals(configResult)) {
-            log.warn("Failed to update redis config: {}", configResult);
-        }
         pubSub.addListener(this);
-        redis.getPubSub().sync().psubscribe(EXPIRE_CHANNEL);
+        pubSub.sync().psubscribe(EXPIRE_CHANNEL);
     }
 
     @Override
