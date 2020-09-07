@@ -19,7 +19,7 @@ package space.npstr.wolfia.system.redis;
 
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.event.connection.ConnectedEvent;
+import io.lettuce.core.event.connection.ConnectionActivatedEvent;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class Redis {
         this.pubSub = this.client.connectPubSub();
 
         this.client.getResources().eventBus().get().subscribe(event -> {
-            if (event instanceof ConnectedEvent) {
+            if (event instanceof ConnectionActivatedEvent) {
                 enableExpirationEvents();
             }
         });
