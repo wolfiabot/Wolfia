@@ -18,10 +18,17 @@
 package space.npstr.wolfia.commands;
 
 import io.prometheus.client.Summary;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.IMentionable;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jooq.exception.DataAccessException;
@@ -115,7 +122,15 @@ public class CommandHandler {
                 || command instanceof TagCommand) {
             ChannelSettings channelSettings = this.channelSettingsService.channel(context.getChannel().getIdLong()).getOrDefault();
             if (!channelSettings.isGameChannel()) {
-                context.replyWithMention("this channel is not enabled for playing games.");
+                String alternativeChannels = "";
+                List<TextChannel> suggestedChannels = suggestGameEnabledChannels(context);
+                if (!suggestedChannels.isEmpty()) {
+                    String suggestedString = suggestedChannels.stream()
+                            .map(IMentionable::getAsMention)
+                            .collect(Collectors.joining(", "));
+                    alternativeChannels = String.format(" Try %s instead.", suggestedString);
+                }
+                context.replyWithMention("this channel is not enabled for playing games." + alternativeChannels);
                 return;
             }
         }
@@ -144,9 +159,23 @@ public class CommandHandler {
         handleCommand(context, received);
     }
 
+    private List<TextChannel> suggestGameEnabledChannels(CommandContext context) {
+        Optional<Member> memberOpt = context.getMember();
+        if (memberOpt.isEmpty()) {
+            return List.of();
+        }
+        Member member = memberOpt.get();
+        List<TextChannel> textChannels = new ArrayList<>(member.getGuild().getTextChannels());
+        Collections.shuffle(textChannels);
+        return textChannels.stream()
+                .filter(channel -> channel.canTalk(member))
+                .filter(channel -> channelSettingsService.channel(channel.getIdLong()).getOrDefault().isGameChannel())
+                .limit(3)
+                .collect(Collectors.toList());
+    }
+
     /**
-     * @param context
-     *         the parsed input of a user
+     * @param context the parsed input of a user
      */
     private void handleCommand(@Nonnull final CommandContext context, Timer received) {
         try {
