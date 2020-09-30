@@ -49,7 +49,10 @@ public class SentryConfiguration {
 
     private void turnOn(String dsn) {
         log.info("Turning on sentry");
-        Sentry.init(dsn).setRelease(GitRepoState.getGitRepositoryState().commitId);
+        Sentry.init(options -> {
+            options.setDsn(dsn);
+            options.setRelease(GitRepoState.getGitRepositoryState().commitId);
+        });
         getSentryLogbackAppender().start();
     }
 

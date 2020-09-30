@@ -72,9 +72,10 @@ configure(allprojects.findAll { it.name != 'platform' }) {
     }
 }
 
+apply plugin: 'com.github.ben-manes.versions'
+
 allprojects {
     apply plugin: 'org.ajoberstar.grgit'
-    apply plugin: 'com.github.ben-manes.versions'
     apply plugin: 'com.adarshr.test-logger'
     apply plugin: 'jacoco'
 
@@ -334,6 +335,7 @@ project(':database-codegen') {
     }
 
     generateJooq {
+        allInputsDeclared.set(true)
         inputs.files(migrationsInput)
                 .withPropertyName('jooqMigrationsInput')
                 .withPathSensitivity(PathSensitivity.RELATIVE)
