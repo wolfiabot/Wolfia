@@ -110,6 +110,7 @@ public class ShardManagerFactory {
                 .setEnableShutdownHook(false)
                 .setRateLimitPool(this.jdaThreadPool, false)
                 .setCallbackPool(this.jdaThreadPool, false)
+                .setAudioPool(this.jdaThreadPool, false)
                 .setGatewayPool(this.jdaThreadPool, false);
 
         ShardManager shardManager;
