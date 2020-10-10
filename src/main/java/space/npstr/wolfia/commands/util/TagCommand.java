@@ -68,8 +68,8 @@ public class TagCommand implements BaseCommand, PublicCommand {
     public String help() {
         return invocation() + " add/remove/[your message]"
                 + "\n#Add or remove yourself from the taglist, or tag members who signed up for the taglist with an optional message. Examples:"
-                + "\n  " + invocation() + " add"
-                + "\n  " + invocation() + " remove"
+                + "\n  " + invocation() + " add (or +)"
+                + "\n  " + invocation() + " remove (or -)"
                 + "\n  " + invocation() + " WANT SUM GAME?";
     }
 
