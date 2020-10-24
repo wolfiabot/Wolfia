@@ -197,9 +197,7 @@
 							<li>- Your participation in already recorded games will be anonymized.</li>
 							<li>- This bot will ignore all your commands.</li>
 							<li>- You will not be able to play any games with this bot anymore.</li>
-							<li>
-								- You will be logged out of the dashboard, and will not be able to log in again
-							</li>
+							<li>- You will be logged out of the dashboard, and will not be able to log in again</li>
 							<li>- You will be banned from the Wolfia Lounge.</li>
 						</ul>
 						<br />

@@ -24,9 +24,7 @@
 			<div>Hello, {{ user.name }}!</div>
 		</a>
 		<div class="navbar-dropdown">
-			<a class="navbar-item" v-on:click="logout">
-				Logout
-			</a>
+			<a class="navbar-item" v-on:click="logout">Logout</a>
 		</div>
 	</div>
 	<div v-else class="navbar-item">

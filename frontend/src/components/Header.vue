@@ -39,21 +39,11 @@
 			<div class="navbar-start">
 				<hr class="navbar-divider" />
 
-				<router-link to="/commands" class="navbar-item">
-					Commands
-				</router-link>
-				<router-link to="/gamemodes" class="navbar-item">
-					Game modes
-				</router-link>
-				<router-link to="/dashboard" class="navbar-item">
-					Dashboard
-				</router-link>
-				<router-link to="/team" class="navbar-item">
-					Team
-				</router-link>
-				<router-link to="/status" class="navbar-item">
-					Status
-				</router-link>
+				<router-link to="/commands" class="navbar-item">Commands</router-link>
+				<router-link to="/gamemodes" class="navbar-item"> Gamemodes</router-link>
+				<router-link to="/dashboard" class="navbar-item">Dashboard</router-link>
+				<router-link to="/team" class="navbar-item">Team</router-link>
+				<router-link to="/status" class="navbar-item">Status</router-link>
 				<a
 					class="navbar-item"
 					target="_blank"
@@ -62,9 +52,7 @@
 				>
 					Ideas
 				</a>
-				<router-link to="/togglz" class="navbar-item" v-if="isAdmin">
-					Feature Flags
-				</router-link>
+				<router-link to="/togglz" class="navbar-item" v-if="isAdmin">Feature Flags</router-link>
 			</div>
 			<div class="navbar-end">
 				<UserNav />

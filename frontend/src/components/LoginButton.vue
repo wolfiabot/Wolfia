@@ -16,9 +16,7 @@
   -->
 
 <template>
-	<a class="button is-large is-link" :href="loginLink">
-		Log In With Discord
-	</a>
+	<a class="button is-large is-link" :href="loginLink">Log In With Discord</a>
 </template>
 
 <script>
