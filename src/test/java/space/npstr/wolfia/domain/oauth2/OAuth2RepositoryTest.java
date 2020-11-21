@@ -123,7 +123,9 @@ class OAuth2RepositoryTest extends ApplicationTest {
 
         List<OAuth2Data> expiring = this.repository.findAllExpiringIn(Duration.ofDays(2)).toCompletableFuture().join();
 
-        assertThat(expiring).hasOnlyOneElementSatisfying(isOAuth2Data(expiringSoon));
+        assertThat(expiring)
+                .singleElement()
+                .satisfies(isOAuth2Data(expiringSoon));
     }
 
     @Test

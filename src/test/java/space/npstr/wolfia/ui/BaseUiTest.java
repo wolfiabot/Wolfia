@@ -123,7 +123,6 @@ abstract class BaseUiTest extends ApplicationTest {
                                 useChrome();
                                 method.invoke(this);
                             }),
-
                             dynamicTest(name + "_onChromeMobile", () -> {
                                 useChromeMobile();
                                 method.invoke(this);

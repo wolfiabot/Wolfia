@@ -82,8 +82,8 @@ class BanServiceTest extends ApplicationTest {
         var bans = this.banService.getActiveBans();
 
         assertThat(bans)
-                .hasSize(1)
-                .hasOnlyOneElementSatisfying(isUser(userId));
+                .singleElement()
+                .satisfies(isUser(userId));
     }
 
     @Test
