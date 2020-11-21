@@ -39,7 +39,7 @@ buildscript {
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
         classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
         classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
-        classpath "org.siouan:frontend-gradle-plugin:$frontendPluginVersion"
+        classpath "org.siouan:frontend-gradle-plugin-jdk11:$frontendPluginVersion"
     }
 }
 
@@ -367,7 +367,7 @@ project(':common') {
 }
 
 project(':frontend') {
-    apply plugin: 'org.siouan.frontend'
+    apply plugin: 'org.siouan.frontend-jdk11'
 
     frontend {
         nodeVersion = "$theNodeVersion"

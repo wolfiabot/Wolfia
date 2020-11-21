@@ -30,8 +30,8 @@ ext {
 	dockerPluginVersion			= '6.6.1'
 	testLoggerVersion			= '2.1.1'
 
-	frontendPluginVersion		= '3.0.0'
-	theNodeVersion				= '12.19.0'
+	frontendPluginVersion		= '4.0.1'
+	theNodeVersion				= '12.19.1'
 	theYarnVersion				= '1.22.5'
 
 	jdaVersion					= '4.2.0_219'
