@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import net.dv8tion.jda.api.entities.ApplicationInfo;
 import net.dv8tion.jda.api.entities.ApplicationTeam;
+import net.dv8tion.jda.api.entities.TeamMember;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.utils.Memoizer;
@@ -50,13 +51,22 @@ public class ApplicationInfoProvider {
     }
 
     public boolean isOwner(long userId) {
+        return getOwner().getIdLong() == userId;
+    }
+
+    public User getOwner() {
         ApplicationInfo appInfo = getApplicationInfo();
         ApplicationTeam team = appInfo.getTeam();
         if (team == null) {
-            return appInfo.getOwner().getIdLong() == userId;
+            return appInfo.getOwner();
         }
 
-        return team.getOwnerIdLong() == userId;
+        TeamMember owner = team.getOwner();
+        if (owner == null) {
+            return appInfo.getOwner();
+        }
+
+        return owner.getUser();
     }
 
     private Supplier<ApplicationInfo> getMemoizer() {

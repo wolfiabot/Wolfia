@@ -43,6 +43,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
@@ -63,6 +64,7 @@ import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import space.npstr.wolfia.config.properties.OAuth2Config;
+import space.npstr.wolfia.domain.privacy.PrivacyService;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.webapi.Authorization;
 import space.npstr.wolfia.webapi.LoginRedirect;
@@ -90,10 +92,12 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
 
     private final OAuth2Config oAuth2Config;
     private final ApplicationInfoProvider appInfoProvider;
+    private final PrivacyService privacyService;
 
-    public WebApplicationSecurity(OAuth2Config oAuth2Config, ShardManager shardManager) {
+    public WebApplicationSecurity(OAuth2Config oAuth2Config, ShardManager shardManager, PrivacyService privacyService) {
         this.oAuth2Config = oAuth2Config;
         this.appInfoProvider = new ApplicationInfoProvider(shardManager);
+        this.privacyService = privacyService;
     }
 
     @Override
@@ -102,7 +106,10 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .collect(Collectors.toSet())
                 .toArray(new String[]{});
 
-        LoginRedirectHandler loginRedirectHandler = new LoginRedirectHandler(this.oAuth2Config.getBaseRedirectUrl());
+        LoginRedirectHandler loginRedirectHandler = new LoginRedirectHandler(
+                this.oAuth2Config.getBaseRedirectUrl(),
+                this.privacyService
+        );
 
         http
                 .csrf().ignoringAntMatchers(MACHINE_ENDPOINTS)
@@ -165,6 +172,16 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
         return service;
     }
 
+    private <T> RequestEntity<T> withUserAgent(@Nullable RequestEntity<T> request) {
+        if (request == null) {
+            return null;
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.putAll(request.getHeaders());
+        headers.add(HttpHeaders.USER_AGENT, DISCORD_BOT_USER_AGENT);
+
+        return new RequestEntity<>(request.getBody(), headers, request.getMethod(), request.getUrl());
+    }
 
     @Bean
     public GrantedAuthoritiesMapper authoritiesMapper() {
@@ -192,51 +209,59 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
         };
     }
 
-    private <T> RequestEntity<T> withUserAgent(@Nullable RequestEntity<T> request) {
-        if (request == null) {
-            return null;
-        }
-        HttpHeaders headers = new HttpHeaders();
-        headers.putAll(request.getHeaders());
-        headers.add(HttpHeaders.USER_AGENT, DISCORD_BOT_USER_AGENT);
-
-        return new RequestEntity<>(request.getBody(), headers, request.getMethod(), request.getUrl());
-    }
-
     /**
      * Handle a potential login redirect target saved in the session.
      */
     private static final class LoginRedirectHandler implements AuthenticationSuccessHandler, AuthenticationFailureHandler {
 
         private final String defaultTargetUrl;
+        private final PrivacyService privacyService;
 
-        private LoginRedirectHandler(String defaultTargetUrl) {
+        private LoginRedirectHandler(String defaultTargetUrl, PrivacyService privacyService) {
             this.defaultTargetUrl = defaultTargetUrl;
+            this.privacyService = privacyService;
         }
 
         @Override
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                             Authentication authentication) throws IOException {
 
-            onLogin(request, response, true);
+            if (authentication != null && (authentication.getPrincipal() instanceof OAuth2User)) {
+                OAuth2User principal = (OAuth2User) authentication.getPrincipal();
+                String name = principal.getName();
+                try {
+                    long userId = Long.parseLong(name);
+                    if (!this.privacyService.isDataProcessingEnabled(userId)) {
+                        SecurityContextHolder.clearContext();
+                        HttpSession session = request.getSession(false);
+                        if (session != null) {
+                            session.invalidate();
+                        }
+                        onLogin(request, response, "no-consent");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    log.warn("User id '{}' is not a valid snowflake!", name);
+                }
+            }
+
+            onLogin(request, response, "success");
         }
 
         @Override
         public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                             AuthenticationException exception) throws IOException {
 
-            onLogin(request, response, false);
+            onLogin(request, response, "failed");
         }
 
-        private void onLogin(HttpServletRequest request, HttpServletResponse response, boolean success) throws IOException {
-            String redirectUrl = determineRedirectUrl(request, success);
+        private void onLogin(HttpServletRequest request, HttpServletResponse response, String loginValue) throws IOException {
+            String redirectUrl = determineRedirectUrl(request, loginValue);
 
             response.sendRedirect(redirectUrl);
         }
 
-        private String determineRedirectUrl(HttpServletRequest request, boolean wasSuccess) {
-            String loginValue = wasSuccess ? "success" : "failed";
-
+        private String determineRedirectUrl(HttpServletRequest request, String loginValue) {
             HttpSession session = request.getSession();
             String loginRedirect = (String) session.getAttribute(LoginRedirect.LOGIN_REDIRECT_SESSION_ATTRIBUTE);
             session.removeAttribute(LoginRedirect.LOGIN_REDIRECT_SESSION_ATTRIBUTE);

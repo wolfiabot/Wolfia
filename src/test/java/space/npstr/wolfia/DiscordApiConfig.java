@@ -51,16 +51,17 @@ public class DiscordApiConfig {
     private ShardManager createMockShardManager() {
         ShardManager shardManager = mock(ShardManager.class);
 
-        RestAction restAction = mock(RestAction.class);
+        RestAction<?> restAction = mock(RestAction.class);
         doReturn(restAction).when(shardManager).retrieveApplicationInfo();
 
-        SnowflakeCacheView guildCache = mock(SnowflakeCacheView.class);
+        SnowflakeCacheView<?> guildCache = mock(SnowflakeCacheView.class);
         doReturn(guildCache).when(shardManager).getGuildCache();
 
         ShardCacheView shardCache = mock(ShardCacheView.class);
         doReturn(shardCache).when(shardManager).getShardCache();
 
         JDA jda = mock(JDA.class);
+        when(jda.getStatus()).thenReturn(JDA.Status.CONNECTED);
         when(shardCache.stream()).thenAnswer(invocation -> Stream.of(jda));
 
         SelfUser selfUser = mock(SelfUser.class);

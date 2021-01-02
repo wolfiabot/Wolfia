@@ -22,9 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.lang.NonNull;
+import org.springframework.web.servlet.HandlerInterceptor;
 
-public class RequestLoggingInterceptor extends HandlerInterceptorAdapter {
+public class RequestLoggingInterceptor implements HandlerInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(RequestLoggingInterceptor.class);
 
@@ -33,9 +34,8 @@ public class RequestLoggingInterceptor extends HandlerInterceptorAdapter {
     public static final String UNKNOWN_REQUEST_ID = "Unknown request id";
 
     @Override
-    public boolean preHandle(final HttpServletRequest request, final HttpServletResponse response,
-                             final Object handler)
-            throws Exception {
+    public boolean preHandle(final HttpServletRequest request, final @NonNull HttpServletResponse response,
+                             final @NonNull Object handler) {
 
         long requestId = REQUEST_ID.getAndIncrement();
         request.setAttribute(REQUEST_ID_ATTRIBUTE, requestId);
@@ -45,12 +45,12 @@ public class RequestLoggingInterceptor extends HandlerInterceptorAdapter {
                 request.getRequestURI()
         );
 
-        return super.preHandle(request, response, handler);
+        return true;
     }
 
     @Override
-    public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response,
-                                final Object handler, final Exception ex) {
+    public void afterCompletion(final HttpServletRequest request, final @NonNull HttpServletResponse response,
+                                final @NonNull Object handler, final Exception ex) {
         Object requestId = request.getAttribute(REQUEST_ID_ATTRIBUTE);
         if (requestId == null) requestId = UNKNOWN_REQUEST_ID;
         log.debug("<<< {} {} {}",

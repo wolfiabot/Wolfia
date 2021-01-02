@@ -159,7 +159,7 @@ public class StatsRender {
         stats.getStartingTeams().forEach(team ->
                 eb.addField(stats.getGameType() == Games.POPCORN ? team.getAlignment().textRepWW : team.getAlignment().textRepMaf,
                         team.getPlayers().stream()
-                                .map(player -> "`" + player.getNickname() + "`")
+                                .map(player -> "`" + determineNickname(player, stats) + "`")
                                 .collect(Collectors.joining(", ")),
                         true)
         );
@@ -281,17 +281,47 @@ public class StatsRender {
 
 
     private String getFormattedNickFromStats(GameStats gameStats, final long userId) {
-        String baddieEmoji = Emojis.SPY;
-        if (gameStats.getGameType() == Games.POPCORN) baddieEmoji = Emojis.WOLF;
+        String baddieEmoji = gameStats.getGameType() == Games.POPCORN
+                ? Emojis.WOLF
+                : Emojis.SPY;
+
         for (final TeamStats team : gameStats.getStartingTeams()) {
             for (final PlayerStats player : team.getPlayers()) {
-                if (player.getUserId() == userId)
-                    return "`" + player.getNickname() + "` " + (player.getAlignment() == Alignments.VILLAGE ? Emojis.COWBOY : baddieEmoji);
+                if (player.getUserId() == userId) {
+                    String nickname = determineNickname(player, gameStats);
+                    return "`" + nickname + "` " + (player.getAlignment() == Alignments.VILLAGE ? Emojis.COWBOY : baddieEmoji);
+                }
             }
         }
         final String message = String.format("No such player %s in this game %s", userId, gameStats.getGameId().orElseThrow());
         log.error(message, new IllegalArgumentException(message));
         return UNKNOWN_NAME;
+    }
+
+    private String determineNickname(PlayerStats player, GameStats gameStats) {
+        String nickname = player.getNickname();
+        if (nickname != null) {
+            return nickname;
+        }
+
+        List<PlayerStats> allPlayers = gameStats.getStartingTeams().stream()
+                .flatMap(team -> team.getPlayers().stream())
+                .collect(Collectors.toList());
+
+        if (allPlayers.isEmpty()) {
+            throw new IllegalArgumentException("Empty list of players for game " + gameStats.getGameId());
+        }
+        if (!allPlayers.contains(player)) {
+            throw new IllegalArgumentException("Player list of game #" + gameStats.getGameId() + " does not contain user " + player.getUserId());
+        }
+
+        long left = allPlayers.stream()
+                .sorted(Comparator.comparingLong(p -> p.getPlayerId().orElseThrow()))
+                .dropWhile(playerStats -> playerStats.getPlayerId() != player.getPlayerId())
+                .count();
+        long playerNumber = allPlayers.size() - left + 1;
+
+        return "Player#" + playerNumber;
     }
 
 }

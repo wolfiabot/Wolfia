@@ -1,1 +1,75 @@
-../../../wolfia.yaml
+# This file contains defaults of the configuration which are checked into the repository and shipped with the jar, but can be overriden by other profiles.
+# Secrets do not belong here - instead they should go into a secrets profile configuraiton file (e.g. wolfia-secrets.yaml).
+
+---
+wolfia:
+  debug: true   # Some things are different. Set to false to properly run the bot.
+
+database:
+  jdbcUrl: "jdbc:postgresql://localhost:5442/wolfia?user=wolfia&password=wolfia"   # From the docker/dev/docker-compose file
+
+oauth2:
+  baseRedirectUrl: "/"    # URL that should be redirected to after a successful authentication (usually the root).
+
+server:
+  port: 4567   # Port of Wolfia's API.
+  servlet:
+    application-display-name: Wolfia
+
+spring:
+  main:
+    lazy-initialization: true
+  output:
+    ansi:
+      enabled: always
+  redis:
+    url: "redis://localhost:6389/0"   # From the docker/dev/docker-compose file
+  security:
+    oauth2:
+      client:
+        registration:
+          discord:
+            client-authentication-method: none
+            authorization-grant-type: authorization_code
+            scope:
+              - identify
+              - guilds
+            redirect-uri: "{baseUrl}/login/oauth2/code/discord"
+            client-name: Log In With Discord
+        provider:
+          discord:
+            authorization-uri: https://discord.com/api/oauth2/authorize
+            token-uri: https://discord.com/api/oauth2/token
+            user-info-uri: https://discord.com/api/users/@me
+            # Spring Session assumes the principal name is unique, and indexes sessions by it for example.
+            # The discord username is not unique though, and it can be changed anytime.
+            # That is why we use the id here instead.
+            username-attribute: id
+  session:
+    store-type: redis
+    redis:
+      flush-mode: immediate
+    timeout: 365d
+
+togglz:
+  enabled: true
+  feature-enums: space.npstr.wolfia.domain.FeatureFlag
+  feature-manager-name: "default"
+  console:
+    enabled: true
+    path: /api/togglz
+    secured: true
+    use-management-port: false
+
+logging:
+  file:
+    name: ./logs/wolfia.log
+  logback:
+    rollingpolicy:
+      max-history: 30
+      max-file-size: 1GB
+
+  level:
+    root: INFO
+    space.npstr: DEBUG
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG

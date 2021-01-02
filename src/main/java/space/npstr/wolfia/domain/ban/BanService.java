@@ -17,11 +17,9 @@
 
 package space.npstr.wolfia.domain.ban;
 
-import org.springframework.stereotype.Service;
-import space.npstr.wolfia.db.gen.tables.records.BanRecord;
-import space.npstr.wolfia.game.definitions.Scope;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
+import space.npstr.wolfia.game.definitions.Scope;
 
 @Service
 public class BanService {
@@ -48,7 +46,7 @@ public class BanService {
                 .toCompletableFuture().join();
     }
 
-    public List<BanRecord> getActiveBans() {
+    public List<Ban> getActiveBans() {
         return this.repository.findByScope(Scope.GLOBAL)
                 .toCompletableFuture().join();
     }

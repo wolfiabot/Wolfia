@@ -8,7 +8,7 @@ Mac and Linux operating systems work best for development.
 Using Windows is not recommended (utilizing the [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/install-win10) is an option however).
 
 #### IDE
-Recommended: [IntelliJ IDEA](https://www.jetbrains.com/idea/) Community Version. IntelliJ is [sponsoring](https://www.jetbrains.com/community/opensource/#support)
+Recommended: [IntelliJ IDEA](https://www.jetbrains.com/idea/) Community Version. JetBrains is [sponsoring](https://www.jetbrains.com/community/opensource/#support)
 ultimate licenses for core contributors of the project.
 
 #### Java
@@ -62,8 +62,8 @@ autoformatter set up for the Java sources. If you know a decent one, please sugg
 For the frontend, an eslint configuration is provided. Ideally, you should set up your IDE to run eslint on file changes
 or on save. You can run eslint manually like this:
 ```
-cd dashboard
-yarn run fix
+cd frontend
+yarn run lint
 ```
 
 ## Philosophy
@@ -76,16 +76,17 @@ There are several reasons to do so:
 - Short living branches result in fewer merge conflicts. Noone likes solving merge conflicts.
 - Code is deployed daily. This opportunity should be used to see it in action as fast a possible.
 - Reviewing large Pull Requests is hard and takes a lot of time until feedback is ready.
-- Getting feedback early and often is important for everyones happyness. Dropping a 2k lines of code pull request that needs to be done from scratch makes noone happy.
+- Getting feedback early and often is important for everyones happyness. Dropping a 2k lines of code pull request that, after review, needs to be done from scratch does not create any positive feelings.
 
 
 ## Libraries & Frameworks
 
 ### Frontend
-The web frontend aka [dashboard](dashboard) uses the [Vue.js framework](https://vuejs.org/) including
+The [web frontend](frontend) uses the [Vue.js framework](https://vuejs.org/) including
 [Vue router](https://router.vuejs.org/) and [Vuex](https://vuex.vuejs.org/).
 
-We also use the [Bulma](https://bulma.io/) CSS framework, together with [Buefy](https://buefy.org/) components.
+We also use the [Bulma](https://bulma.io/) CSS framework, together with [Buefy](https://buefy.org/) components
+and a [Bulmaswatch](https://jenil.github.io/bulmaswatch/) theme.
 
 ### Backend
 
@@ -102,7 +103,7 @@ extensions as well as backup scripts to back up the data to [Backblaze B2](https
 [jOOQ](https://www.jooq.org/) is used for database querying.
 
 During build time, [Docker](https://docs.docker.com/get-docker/), [Flyway](https://flywaydb.org/) and [jOOQ](https://www.jooq.org/)
-are using to run migrations against a temporary database container and generate code from that.
+are using to run migrations against a temporary database container and generate code from the resulting database schema.
 
 #### Spring Boot
 The [Spring Framework](https://spring.io/) via [Spring Boot](https://spring.io/projects/spring-boot) is the main
@@ -117,13 +118,13 @@ We make use of the Spring Eventsystem to decouple our components where necessary
 `@EventListener`s processing these events.
 
 ##### Web Server
-We use Spring's web server abstraction to serve various endpoints for the dashboard, receiving webhooks,
+We use Spring's web server abstraction to serve various endpoints for the frontend, receiving webhooks,
 or allowing metrics collection from other parts of the infrastructure.
 
 ##### Three layers
 The Spring Application Context is populated with Components.
 Roughly, there are three types (or layers) to the various Spring Components:
-1. Controllers & Commands / C&C
+1. Controllers & Commands aka C&C
 2. Services
 3. Repositories
 
@@ -131,7 +132,7 @@ There are also Components that do not belong to any of the layers, for example s
 Commands, and some Components are necessary to interact with datasources like the database for example.
 
 **Controllers** receive user input from the web. **Commands** receive user input from Discord.
-Both of them make sure it has the input has an expected format, identify the user,
+Both of them make sure that the input has an expected format, identify the user,
 and make sure they are allowed to do what they are trying to do.
 C&C should only talk to services, not other C&Cs or Repositories.
 Controllers can be identified by the `@RestController` annotation in the code.

@@ -28,10 +28,10 @@ import space.npstr.wolfia.Launcher;
 
 public class DiscordBotsOrg extends Listing {
 
-    //https://discordbots.org/
-    //api docs: https://discordbots.org/api/docs
+    //https://top.gg/
+    //api docs: https://top.gg/api/docs
     public DiscordBotsOrg(@Nonnull final OkHttpClient httpClient) {
-        super("discordbots.org", httpClient);
+        super("top.gg", httpClient);
     }
 
     @Nonnull
@@ -50,7 +50,7 @@ public class DiscordBotsOrg extends Listing {
         final RequestBody body = RequestBody.create(JSON, payload);
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
-                .url(String.format("https://discordbots.org/api/bots/%s/stats", botId))
+                .url(String.format("https://top.gg/api/bots/%s/stats", botId))
                 .addHeader("Authorization", Launcher.getBotContext().getListingsConfig().getDblToken())
                 .post(body);
     }

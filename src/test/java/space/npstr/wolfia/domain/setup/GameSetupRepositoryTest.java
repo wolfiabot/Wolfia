@@ -100,8 +100,9 @@ class GameSetupRepositoryTest extends ApplicationTest {
         List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId)
                 .toCompletableFuture().join();
 
-        assertThat(setups).hasSize(1);
-        assertThat(setups).hasOnlyOneElementSatisfying(isSetupInChannel(channelId));
+        assertThat(setups)
+                .singleElement()
+                .satisfies(isSetupInChannel(channelId));
     }
 
     @Test

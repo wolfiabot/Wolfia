@@ -17,31 +17,35 @@
 
 package space.npstr.wolfia.config;
 
+import java.time.Clock;
+import java.time.Duration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.togglz.core.logging.LoggingStateRepository;
 import org.togglz.core.repository.StateRepository;
+import org.togglz.core.repository.composite.CompositeStateRepository;
 import org.togglz.core.user.UserProvider;
 import org.togglz.spring.security.SpringSecurityUserProvider;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.system.togglz.ExceptionTolerantCachingStateRepo;
 import space.npstr.wolfia.system.togglz.PostgresJdbcStateRepo;
+import space.npstr.wolfia.system.togglz.StatusLoggingStateRepo;
 import space.npstr.wolfia.webapi.Authorization;
-
-import java.time.Clock;
-import java.time.Duration;
 
 @Configuration
 public class TogglzConfiguration {
 
     @Bean
-    public StateRepository stateRepository(Database database, Clock clock) {
+    public StateRepository stateRepository(Database database, Clock clock, StatusLoggingStateRepo statusLoggingStateRepo) {
         var jdbcStateRepository = new PostgresJdbcStateRepo(database.getConnection().getDataSource());
         Duration ttl = Duration.ofMinutes(1);
         Duration stalePeriod = Duration.ofMinutes(1);
         var cachingJdbcStateRepo = new ExceptionTolerantCachingStateRepo(jdbcStateRepository,
                 ttl, clock, stalePeriod);
-        return new LoggingStateRepository(cachingJdbcStateRepo);
+        var loggingStateRepository = new LoggingStateRepository(cachingJdbcStateRepo);
+        var compositeStateRepository = new CompositeStateRepository(statusLoggingStateRepo, loggingStateRepository);
+        compositeStateRepository.setSetterSelection(CompositeStateRepository.SetterSelection.ALL);
+        return compositeStateRepository;
     }
 
     @Bean

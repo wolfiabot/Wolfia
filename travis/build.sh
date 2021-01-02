@@ -2,7 +2,7 @@
 set -e
 
 ./gradlew assemble --info -Pprod
-./gradlew test sonarqube
+./gradlew check sonarqube
 
 if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
   ./gradlew bootJar -Pprod

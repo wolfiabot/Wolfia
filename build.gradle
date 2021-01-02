@@ -39,7 +39,7 @@ buildscript {
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
         classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
         classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
-        classpath "org.siouan:frontend-gradle-plugin:$frontendPluginVersion"
+        classpath "org.siouan:frontend-gradle-plugin-jdk11:$frontendPluginVersion"
     }
 }
 
@@ -72,35 +72,41 @@ configure(allprojects.findAll { it.name != 'platform' }) {
     }
 }
 
+apply plugin: 'com.github.ben-manes.versions'
+
 allprojects {
     apply plugin: 'org.ajoberstar.grgit'
-    apply plugin: 'com.github.ben-manes.versions'
     apply plugin: 'com.adarshr.test-logger'
     apply plugin: 'jacoco'
 
     group = 'space.npstr.wolfia'
     version = "${versionTag()}".toString()
 
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(javaVersion)
+        }
+    }
 
     repositories {
-		mavenCentral()
-		jcenter {
-			content { includeModule("net.dv8tion", "JDA") }
-		}
-		maven {
-			url 'https://jitpack.io'
-			content { includeGroup("space.npstr") }
-		}
-	}
+        mavenCentral()
+        jcenter {
+            content { includeModule("net.dv8tion", "JDA") }
+            content { includeModule("club.minnced", "discord-webhooks") }
+        }
+        maven {
+            url 'https://jitpack.io'
+            content { includeGroup("space.npstr") }
+        }
+    }
 
     dependencyUpdates {
         checkConstraints = true
         resolutionStrategy {
             componentSelection { rules ->
                 rules.all { ComponentSelection selection ->
-                    boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'm4', 'preview', 'pr1', 'pr2', 'pr3',
-                                        'b180830.0438', 'b180830.0359', 'b180725.0644', 'b180725.0427', '2.3.3-b01', '2.3.3-b02' // jaxb bullshit
+                    boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'm4', 'm5', 'preview', 'pr1', 'pr2', 'pr3',
+                                        'b180830.0438', 'b180830.0359', 'b180725.0644', 'b180725.0427', // jaxb bullshit
                     ].any {
                         q -> selection.candidate.version.toLowerCase().contains(q)
                     }
@@ -115,6 +121,11 @@ allprojects {
     test {
         useJUnitPlatform()
         jvmArgs '-XX:TieredStopAtLevel=1'
+        filter {
+            if (project.hasProperty('excludeUiTests')) {
+                excludeTestsMatching "*UiTest"
+            }
+        }
     }
 
     testlogger {
@@ -140,10 +151,12 @@ project(':platform') {
         api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
         constraints {
             api "net.dv8tion:JDA:$jdaVersion"
+            api "club.minnced:discord-webhooks:$discordWebhooksVersion"
             api "io.sentry:sentry-logback:$sentryLogbackVersion"
             api "org.json:json:$orgJsonVersion"
             api "space.npstr:annotations:$annotationsVersion"
             api "org.immutables:value:$immutablesVersion"
+            api "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
 
             api "io.prometheus:simpleclient:$prometheusVersion"
             api "io.prometheus:simpleclient_hotspot:$prometheusVersion"
@@ -181,7 +194,7 @@ project(':database-codegen') {
     }
 
     ext {
-        codegenDbImageRepo = 'napstr/wolfia-postgres'
+        codegenDbImageRepo = 'napstr/poggres'
         codegenDbImageTag = '12'
         codegenDbImageName = codegenDbImageRepo + ':' + codegenDbImageTag
         codegenDbContainerName = 'wolfia-codegen-postgres'
@@ -190,14 +203,14 @@ project(':database-codegen') {
 
     dependencies {
         flywayMigration platform(project(':platform'))
-        jooqRuntime platform(project(':platform'))
+        jooqGenerator platform(project(':platform'))
 
         api "org.jooq:jooq"
         implementation "org.jooq:jooq-meta"
         implementation "org.jooq:jooq-codegen"
         api "org.postgresql:postgresql"
         flywayMigration "org.postgresql:postgresql"
-        jooqRuntime "org.postgresql:postgresql"
+        jooqGenerator "org.postgresql:postgresql"
     }
 
     task pullCodegenDbContainer(type: DockerPullImage) {
@@ -210,8 +223,10 @@ project(':database-codegen') {
         containerName.set(codegenDbContainerName)
         hostConfig.autoRemove.set(true)
         hostConfig.portBindings.set(['127.0.0.1:5435:5432'])
+        withEnvVar('POSTGRES_HOST_AUTH_METHOD', 'trust')
         withEnvVar('ROLE', 'codegen')
         withEnvVar('DB', 'codegen')
+        withEnvVar('EXTENSIONS', 'hstore')
     }
 
     task stopCodegenDbContainerPre(type: StopCodegenDbContainer) {
@@ -265,62 +280,67 @@ project(':database-codegen') {
 
     jooq {
         version = jooqVersion
-        edition = 'OSS'
-        wolfia(sourceSets.main) {
-            logging = 'WARN'
-            jdbc {
-                driver = 'org.postgresql.Driver'
-                url = "$codegenJdbcUrl"
-            }
-            generator {
-                name = 'org.jooq.codegen.DefaultGenerator'
-                strategy {
-                    name = 'org.jooq.codegen.DefaultGeneratorStrategy'
-                }
-                database {
-                    name = 'org.jooq.meta.postgres.PostgresDatabase'
-                    inputSchema = 'public'
-                    forcedTypes {
-                        forcedType {
-                            userType = 'space.npstr.wolfia.db.type.OAuth2Scope[]'
-                            converter = 'space.npstr.wolfia.db.converter.OAuth2ScopeEnumArrayConverter'
-                            includeExpression = '.*'
-                            includeTypes = '_OAuth2Scope'
+        edition = nu.studer.gradle.jooq.JooqEdition.OSS
+        configurations {
+            main {
+                generationTool {
+                    logging = org.jooq.meta.jaxb.Logging.WARN
+                    jdbc {
+                        driver = 'org.postgresql.Driver'
+                        url = "$codegenJdbcUrl"
+                    }
+                    generator {
+                        name = 'org.jooq.codegen.DefaultGenerator'
+                        strategy {
+                            name = 'org.jooq.codegen.DefaultGeneratorStrategy'
                         }
-                        forcedType {
-                            userType = 'java.util.HashMap<java.lang.String, java.lang.String>'
-                            binding = 'space.npstr.wolfia.db.PostgresHstoreBinding'
-                            includeExpression = '.*'
-                            includeTypes = 'hstore'
-                        }
-                        forcedType {
-                            userType = 'java.time.Instant'
-                            converter = '''
+                        database {
+                            name = 'org.jooq.meta.postgres.PostgresDatabase'
+                            inputSchema = 'public'
+                            forcedTypes {
+                                forcedType {
+                                    userType = 'space.npstr.wolfia.db.type.OAuth2Scope[]'
+                                    converter = 'space.npstr.wolfia.db.converter.OAuth2ScopeEnumArrayConverter'
+                                    includeExpression = '.*'
+                                    includeTypes = '_OAuth2Scope'
+                                }
+                                forcedType {
+                                    userType = 'java.util.HashMap<java.lang.String, java.lang.String>'
+                                    binding = 'space.npstr.wolfia.db.PostgresHstoreBinding'
+                                    includeExpression = '.*'
+                                    includeTypes = 'hstore'
+                                }
+                                forcedType {
+                                    userType = 'java.time.Instant'
+                                    converter = '''
                                 org.jooq.Converter.ofNullable(
                                 java.time.OffsetDateTime.class,
                                 java.time.Instant.class,
                                 o -> o.toInstant(),
                                 i -> i.atOffset(java.time.ZoneOffset.UTC))
                              '''
-                            includeTypes = 'timestamp\\ with\\ time\\ zone'
+                                    includeTypes = 'timestamp\\ with\\ time\\ zone'
+                                }
+                                forcedType {
+                                    userType = 'java.net.URI'
+                                    converter = 'space.npstr.wolfia.db.converter.UriConverter'
+                                    includeExpression = '.*link'
+                                    includeTypes = 'text'
+                                }
+                            }
                         }
-                        forcedType {
-                            userType = 'java.net.URI'
-                            converter = 'space.npstr.wolfia.db.converter.UriConverter'
-                            includeExpression = '.*link'
-                            includeTypes = 'text'
+                        target {
+                            packageName = 'space.npstr.wolfia.db.gen'
+                            directory = 'build/classes/generated/java'
                         }
                     }
-                }
-                target {
-                    packageName = 'space.npstr.wolfia.db.gen'
-                    directory = 'build/classes/generated/java'
                 }
             }
         }
     }
 
-    generateWolfiaJooqSchemaSource {
+    generateJooq {
+        allInputsDeclared.set(true)
         inputs.files(migrationsInput)
                 .withPropertyName('jooqMigrationsInput')
                 .withPathSensitivity(PathSensitivity.RELATIVE)
@@ -346,8 +366,8 @@ project(':common') {
     }
 }
 
-project(':dashboard') {
-    apply plugin: 'org.siouan.frontend'
+project(':frontend') {
+    apply plugin: 'org.siouan.frontend-jdk11'
 
     frontend {
         nodeVersion = "$theNodeVersion"
@@ -405,6 +425,7 @@ dependencies {
     implementation project(':database-codegen')
 
     implementation "net.dv8tion:JDA"
+    implementation "club.minnced:discord-webhooks"
 
     implementation "ch.qos.logback:logback-classic"
     implementation "io.sentry:sentry-logback"
@@ -474,9 +495,9 @@ tasks.withType(JavaCompile) {
 compileJava.dependsOn(processResources)
 
 processResources {
-    dependsOn ':dashboard:assembleFrontend'
+    dependsOn ':frontend:assembleFrontend'
 
-    from("${project(':dashboard').buildDir}/dist") {
+    from("${project(':frontend').buildDir}/dist") {
         into 'static'
     }
 }
@@ -508,12 +529,6 @@ bootRun {
 
 bootJar {
     archiveFileName = "wolfia.jar"
-    doLast {
-        copy {
-            from 'build/libs/wolfia.jar'
-            into '.'
-        }
-    }
 }
 
 //need two of these tasks, otherwise gradle complains about circular dependencies

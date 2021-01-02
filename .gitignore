@@ -126,4 +126,5 @@ wolfia_rsa*
 acme.json
 
 postgres-data
+postgres-data.tar.gz
 redis-data

@@ -70,7 +70,7 @@ public class InfoCommand implements BaseCommand, PublicCommand {
     private void execute(@Nonnull final CommandContext context, String description) {
         ShardManager shardManager = requireNonNull(context.getJda().getShardManager());
         var appInfoProvider = new ApplicationInfoProvider(context.getJda().getShardManager());
-        final User owner = appInfoProvider.getApplicationInfo().getOwner();
+        final User owner = appInfoProvider.getOwner();
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
         maStats += "-> Of which is used:    " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000 + "MB\n";

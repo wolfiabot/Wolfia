@@ -17,18 +17,16 @@
 
 package space.npstr.wolfia.domain.ban;
 
-import org.jooq.impl.DSL;
-import org.springframework.stereotype.Repository;
-import space.npstr.wolfia.db.AsyncDbWrapper;
-import space.npstr.wolfia.db.gen.tables.records.BanRecord;
-import space.npstr.wolfia.game.definitions.Scope;
-
-import javax.annotation.CheckReturnValue;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import javax.annotation.CheckReturnValue;
+import org.jooq.impl.DSL;
+import org.springframework.stereotype.Repository;
+import space.npstr.wolfia.db.AsyncDbWrapper;
+import space.npstr.wolfia.game.definitions.Scope;
 
-import static space.npstr.wolfia.db.gen.Tables.BAN;
+import static space.npstr.wolfia.db.gen.Tables.DISCORD_USER;
 
 @Repository
 public class BanRepository {
@@ -40,32 +38,33 @@ public class BanRepository {
     }
 
     @CheckReturnValue
-    public CompletionStage<Optional<BanRecord>> findOne(long userId, Scope scope) {
+    public CompletionStage<Optional<Ban>> findOne(long userId, Scope scope) {
         return this.wrapper.jooq(dsl -> dsl
-                .selectFrom(BAN)
-                .where(BAN.USER_ID.eq(userId).and(BAN.SCOPE.eq(scope.name())))
-                .fetchOptional());
+                .selectFrom(DISCORD_USER)
+                .where(DISCORD_USER.USER_ID.eq(userId).and(DISCORD_USER.BAN.eq(scope.name())))
+                .fetchOptionalInto(Ban.class));
     }
 
     @CheckReturnValue
-    public CompletionStage<BanRecord> setScope(long userId, Scope scope) {
+    public CompletionStage<Ban> setScope(long userId, Scope scope) {
         return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
-                .insertInto(BAN)
-                .columns(BAN.USER_ID, BAN.SCOPE)
+                .insertInto(DISCORD_USER)
+                .columns(DISCORD_USER.USER_ID, DISCORD_USER.BAN)
                 .values(userId, scope.name())
                 .onDuplicateKeyUpdate()
-                .set(BAN.SCOPE, scope.name())
+                .set(DISCORD_USER.BAN, scope.name())
                 .returning()
                 .fetchOne()
+                .into(Ban.class)
         ));
     }
 
     @CheckReturnValue
-    public CompletionStage<List<BanRecord>> findByScope(Scope scope) {
+    public CompletionStage<List<Ban>> findByScope(Scope scope) {
         return this.wrapper.jooq(dsl -> dsl
-                .selectFrom(BAN)
-                .where(BAN.SCOPE.eq(scope.name()))
-                .fetch()
+                .selectFrom(DISCORD_USER)
+                .where(DISCORD_USER.BAN.eq(scope.name()))
+                .fetchInto(Ban.class)
         );
     }
 }

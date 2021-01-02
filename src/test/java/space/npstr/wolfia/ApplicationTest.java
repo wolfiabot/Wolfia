@@ -19,6 +19,7 @@ package space.npstr.wolfia;
 
 import io.prometheus.client.CollectorRegistry;
 import java.time.Clock;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.oauth2.OAuth2Requester;
+import space.npstr.wolfia.domain.privacy.PrivacyBanService;
+import space.npstr.wolfia.domain.privacy.PrivacyCommand;
 import space.npstr.wolfia.domain.setup.GameSetupService;
+import space.npstr.wolfia.domain.stats.StatsService;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -60,8 +64,20 @@ public abstract class ApplicationTest extends PostgresAndRedisContainers {
     @SpyBean
     protected UserCache userCache;
 
+    @SpyBean
+    protected PrivacyCommand privacyCommand;
+
+    @SpyBean
+    protected StatsService statsService;
+
+    @SpyBean
+    protected PrivacyBanService privacyBanService;
+
     @MockBean
     protected OAuth2Requester oAuth2Requester;
+
+    @Autowired // is actually a mock, see DiscordApiConfig
+    protected ShardManager shardManager;
 
     @Autowired
     protected MockMvc mockMvc;

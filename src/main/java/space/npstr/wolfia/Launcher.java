@@ -19,7 +19,9 @@ package space.npstr.wolfia;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import javax.annotation.Nonnull;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDAInfo;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -32,7 +34,9 @@ import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEven
 import org.springframework.boot.context.event.ApplicationFailedEvent;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
+import space.npstr.wolfia.events.BotStatusLogger;
 import space.npstr.wolfia.utils.GitRepoState;
+import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -55,9 +59,10 @@ public class Launcher implements ApplicationRunner {
 
     private final ThreadPoolCollector poolMetrics;
     private final WolfiaConfig wolfiaConfig;
-
     @SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1068"}) //see EagerLoader
     private final EagerLoader eagerLoader;
+    private final BotStatusLogger botStatusLogger;
+    private final ShardManager shardManager;
 
     public static BotContext getBotContext() {
         return botContext;
@@ -95,21 +100,36 @@ public class Launcher implements ApplicationRunner {
     }
 
     public Launcher(BotContext botContext, ThreadPoolCollector poolMetrics, WolfiaConfig wolfiaConfig,
-                    EagerLoader eagerLoader) {
+                    EagerLoader eagerLoader, BotStatusLogger botStatusLogger, ShardManager shardManager) {
         Launcher.botContext = botContext;
         this.poolMetrics = poolMetrics;
         this.wolfiaConfig = wolfiaConfig;
         this.eagerLoader = eagerLoader;
+        this.botStatusLogger = botStatusLogger;
+        this.shardManager = shardManager;
     }
 
     @Override
-    public void run(final ApplicationArguments args) {
+    public void run(final ApplicationArguments args) throws Exception {
         this.poolMetrics.addPool("restActions", (ScheduledThreadPoolExecutor) RestActions.restService);
-
+        this.botStatusLogger.log(Emojis.ROCKET, "Starting...");
         if (this.wolfiaConfig.isDebug())
             log.info("Running DEBUG configuration");
         else
             log.info("Running PRODUCTION configuration");
+
+        while (!allShardsUp()) {
+            Thread.sleep(100);
+        }
+        this.botStatusLogger.log(Emojis.ONE_HUNDRED, "All shards connected!");
+    }
+
+    private boolean allShardsUp() {
+        if (this.shardManager.getShardCache().size() < this.shardManager.getShardsTotal()) {
+            return false;
+        }
+
+        return this.shardManager.getShardCache().stream().allMatch(shard -> shard.getStatus() == JDA.Status.CONNECTED);
     }
 
     @Nonnull

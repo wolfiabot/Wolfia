@@ -678,8 +678,7 @@ public abstract class Game {
                     .labels(this.gameStats.getGameType().name(), this.gameStats.getGameMode().name())
                     .inc();
             try {
-                this.gameStats = Launcher.getBotContext().getStatsRepository().insertGameStats(this.gameStats)
-                        .toCompletableFuture().join();
+                this.gameStats = Launcher.getBotContext().getStatsService().recordGameStats(this.gameStats);
 
                 long gameId = this.gameStats.getGameId().orElseThrow();
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",

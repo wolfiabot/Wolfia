@@ -26,11 +26,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.db.AsyncDbWrapper;
-import space.npstr.wolfia.db.gen.tables.records.BanRecord;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
-import static space.npstr.wolfia.db.gen.Tables.BAN;
+import static space.npstr.wolfia.db.gen.Tables.DISCORD_USER;
 
 class BanServiceTest extends ApplicationTest {
 
@@ -44,7 +43,7 @@ class BanServiceTest extends ApplicationTest {
     @BeforeEach
     void setup() {
         this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
-                .deleteFrom(BAN)
+                .deleteFrom(DISCORD_USER)
                 .execute()
         )).toCompletableFuture().join();
     }
@@ -70,7 +69,7 @@ class BanServiceTest extends ApplicationTest {
 
     @Test
     void givenNoBans_whenGetAllBansCalled_returnNoBans() {
-        List<BanRecord> bans = this.banService.getActiveBans();
+        List<Ban> bans = this.banService.getActiveBans();
 
         assertThat(bans).isEmpty();
     }
@@ -83,8 +82,8 @@ class BanServiceTest extends ApplicationTest {
         var bans = this.banService.getActiveBans();
 
         assertThat(bans)
-                .hasSize(1)
-                .hasOnlyOneElementSatisfying(isUser(userId));
+                .singleElement()
+                .satisfies(isUser(userId));
     }
 
     @Test
@@ -121,7 +120,7 @@ class BanServiceTest extends ApplicationTest {
         assertThat(bans).filteredOnAssertions(isUser(userIdB)).hasSize(1);
     }
 
-    private Consumer<BanRecord> isUser(long userId) {
+    private Consumer<Ban> isUser(long userId) {
         return ban -> assertThat(ban.getUserId()).isEqualTo(userId);
     }
 }
