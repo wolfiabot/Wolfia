@@ -86,7 +86,7 @@ allprojects {
         toolchain {
             languageVersion = JavaLanguageVersion.of(javaVersion)
             vendor = JvmVendorSpec.ADOPTOPENJDK
-            implementation = JvmImplementation.J9
+            // implementation = JvmImplementation.J9 seems to break CI builds due to different nano second resolution
         }
         consistentResolution {
             useCompileClasspathVersions()
