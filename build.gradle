@@ -85,6 +85,11 @@ allprojects {
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(javaVersion)
+            vendor = JvmVendorSpec.ADOPTOPENJDK
+            implementation = JvmImplementation.J9
+        }
+        consistentResolution {
+            useCompileClasspathVersions()
         }
     }
 
