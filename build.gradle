@@ -154,6 +154,7 @@ project(':platform') {
     }
     dependencies {
         api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
+        api platform("io.prometheus:simpleclient_bom:$prometheusVersion")
         constraints {
             api "net.dv8tion:JDA:$jdaVersion"
             api "club.minnced:discord-webhooks:$discordWebhooksVersion"
@@ -163,11 +164,6 @@ project(':platform') {
             api "org.immutables:value:$immutablesVersion"
             api "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
 
-            api "io.prometheus:simpleclient:$prometheusVersion"
-            api "io.prometheus:simpleclient_hotspot:$prometheusVersion"
-            api "io.prometheus:simpleclient_logback:$prometheusVersion"
-            api "io.prometheus:simpleclient_common:$prometheusVersion"
-            api "io.prometheus:simpleclient_caffeine:$prometheusVersion"
             api "space.npstr:prometheus_extensions:$promExtVersion"
 
             api "net.ttddyy:datasource-proxy:$dsProxyVersion"

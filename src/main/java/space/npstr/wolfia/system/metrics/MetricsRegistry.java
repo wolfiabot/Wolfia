@@ -62,7 +62,7 @@ public class MetricsRegistry {
             .register();
 
     public static final Counter gamesPlayed = Counter.build()
-            .name("games_played")
+            .name("games_played_total")
             .help("Games Played")
             .labelNames("type", "mode")
             .register();

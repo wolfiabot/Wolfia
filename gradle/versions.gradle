@@ -42,8 +42,8 @@ ext {
 	immutablesVersion			= '2.8.8'
 	jaxbImplVersion				= '3.0.0'
 
-	prometheusVersion			= '0.9.0'
-	promExtVersion				= '1.3.4'
+	prometheusVersion			= '0.10.0'
+	promExtVersion				= '1.4.0'
 
 	dsProxyVersion				= '1.7'
 	jooqVersion					= '3.14.4'
