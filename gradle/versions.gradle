@@ -20,11 +20,11 @@ ext {
 
 	javaVersion                 = '11'
 	springBootVersion			= '2.4.2'
-	flywayVersion				= '7.5.0'
+	flywayVersion				= '7.5.2'
 
 	gradleGitVersion			= '2.2.4'
 	grGitVersion				= '4.1.0'
-	sonarVersion				= '3.1'
+	sonarVersion				= '3.1.1'
 	jooqPluginVersion			= '5.2'
 	versionsPluginVersion		= '0.36.0'
 	dockerPluginVersion			= '6.7.0'
@@ -46,10 +46,10 @@ ext {
 	promExtVersion				= '1.4.0'
 
 	dsProxyVersion				= '1.7'
-	jooqVersion					= '3.14.4'
+	jooqVersion					= '3.14.7'
 
 	togglzVersion				= '2.8.0'
 
 	testcontainersVersion		= '1.15.1'
-	selenideVersion             = '5.17.4'
+	selenideVersion             = '5.18.0'
 }
