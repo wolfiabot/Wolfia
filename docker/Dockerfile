@@ -1,6 +1,11 @@
 FROM adoptopenjdk:11-openj9
 MAINTAINER napster@npstr.space
 
+RUN groupadd -g 420 wolfia && \
+	useradd -r -u 420 -g wolfia wolfia
+
+USER wolfia:wolfia
+
 ENV ENV docker
 
 WORKDIR /opt/wolfia
