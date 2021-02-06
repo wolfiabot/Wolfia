@@ -36,7 +36,7 @@ ext {
 
 	jdaVersion					= '4.2.0_227'
 	discordWebhooksVersion      = '0.5.4'
-	sentryLogbackVersion		= '3.2.0'
+	sentryLogbackVersion		= '4.1.0'
 	orgJsonVersion				= '20201115'
 	annotationsVersion			= '0.0.2'
 	immutablesVersion			= '2.8.8'
