@@ -63,12 +63,12 @@ services:
       - CF_API_KEY=${CF_KEY}
 
   db:
-    image: napstr/poggres:12
+    image: napstr/poggres:13
     restart: always
     ports:
       - 127.0.0.1:5432:5432
     volumes:
-      - ./postgres-data/12/data:/var/lib/postgresql/data
+      - ./postgres-data/13/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=${PG_PASS}
       # See https://github.com/napstr/poggres#env-vars

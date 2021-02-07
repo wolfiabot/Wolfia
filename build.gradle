@@ -196,7 +196,7 @@ project(':database-codegen') {
 
     ext {
         codegenDbImageRepo = 'napstr/poggres'
-        codegenDbImageTag = '12'
+        codegenDbImageTag = '13'
         codegenDbImageName = codegenDbImageRepo + ':' + codegenDbImageTag
         codegenDbContainerName = 'wolfia-codegen-postgres'
         codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5435/codegen?user=codegen"
