@@ -62,7 +62,7 @@ public class InviteEndpoint {
                 .addPathSegment("oauth2")
                 .addPathSegment("authorize")
                 .addQueryParameter("client_id", Long.toString(getBotId()))
-                .addQueryParameter("scope", "bot")
+                .addQueryParameter("scope", "bot applications.commands")
                 .addQueryParameter("permissions", Long.toString(getPermissions()))
                 // This is a hack that will redirect the user after the invite to the Wolfia Lounge.
                 // It is probably a bad idea to redirect to URLs we don't trust as they might receive OAuth2 access tokens of the user.
