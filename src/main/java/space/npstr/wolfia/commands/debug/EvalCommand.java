@@ -176,6 +176,9 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
                     future.cancel(true);
                     context.reply("Task exceeded time limit of " + timeOut + " seconds.");
                 } catch (final Exception ex) {
+                    if (ex instanceof InterruptedException) {
+                        Thread.currentThread().interrupt();
+                    }
                     context.reply(String.format("`%s`%n%n`%sms`",
                             ex.getMessage(), System.currentTimeMillis() - started));
                 }
