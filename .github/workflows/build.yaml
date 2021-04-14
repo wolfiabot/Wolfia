@@ -1,0 +1,80 @@
+name: Build
+
+on: push
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
+        with:
+          fetch-depth: 0
+
+      - name: Gradle Wrapper Verification
+        uses: gradle/wrapper-validation-action@e2c57acffb2c9aa5a8dc6eda2bbae0b6e495bd4c # v1.0.3
+
+      - name: Set up env
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        # Build number is increased by 1000 due to legacy reasons from previous CI systems
+        run: |
+          echo $GITHUB_RUN_NUMBER
+          BUILD_NUMBER=$((1000 + $GITHUB_RUN_NUMBER))
+          echo $BUILD_NUMBER
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+
+          IMAGE_BASE=${{ env.DOCKER_USERNAME }}/wolfia
+
+          IMAGE_TAG=$(echo $GITHUB_REF | sed -e 's+refs/heads/++g' | sed -e 's+/+_+g')
+          echo $IMAGE_TAG
+          echo "BRANCH_TAG=$IMAGE_BASE:$IMAGE_TAG" >> "$GITHUB_ENV"
+
+          GIT_HASH=$(git rev-parse HEAD)
+          echo "Full git hash: $GIT_HASH"
+          GIT_HASH_SHORT=$(echo "$GIT_HASH" | sed 's/\(.\{8\}\).*/\1/')
+          echo "Git hash version tag: $GIT_HASH_SHORT"
+
+          echo "GIT_HASH_TAG=$IMAGE_BASE:$GIT_HASH_SHORT" >> "$GITHUB_ENV"
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@f3364599c6aa293cdc2b8391b1b56d0c30e45c8a # v1.8.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Setup JDK
+        uses: actions/setup-java@d202f5dbf7256730fb690ec59f6381650114feb2 # v1.4.3
+        with:
+          java-version: 13
+
+      - name: Print JDK info
+        run: java -Xmx32m --version
+
+      - name: Gradle Assemble
+        uses: burrunan/gradle-cache-action@cbdf4342ff988d143aa7a5aeceedffafb8c74bcf # v1.10
+        with:
+          arguments: assemble --info -Pprod
+
+      - name: Sonarqube
+        uses: burrunan/gradle-cache-action@cbdf4342ff988d143aa7a5aeceedffafb8c74bcf # v1.10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          arguments: sonarqube -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=wolfiabot -Dsonar.login=${{ env.SONAR_TOKEN }}
+
+      - name: Gradle BootJar
+        uses: burrunan/gradle-cache-action@cbdf4342ff988d143aa7a5aeceedffafb8c74bcf # v1.10
+        with:
+          arguments: bootJar --info -Pprod
+
+      - name: Docker Build
+        run: docker build -t "${{ env.BRANCH_TAG }}" -t "${{ env.GIT_HASH_TAG }}" -f docker/Dockerfile .
+
+      - name: Docker Push
+        run: |
+          docker push "${{ env.BRANCH_TAG }}"
+          docker push "${{ env.GIT_HASH_TAG }}"
