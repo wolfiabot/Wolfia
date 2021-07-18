@@ -17,9 +17,8 @@
 
 <template>
 	<div class="columns">
-		<div
-			class="column is-half is-offset-one-quarter-desktop is-three-fifths-touch is-offset-one-fifth-touch has-text-left"
-		>
+		<!-- eslint-disable-next-line -->
+		<div class="column is-half is-offset-one-quarter-desktop is-three-fifths-touch is-offset-one-fifth-touch has-text-left">
 			<h1 class="title">Wolfia Privacy Policy</h1>
 			<p>Wolfia is an Open Source project.</p>
 			<p>
