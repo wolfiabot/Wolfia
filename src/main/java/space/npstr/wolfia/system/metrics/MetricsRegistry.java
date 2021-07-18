@@ -20,6 +20,7 @@ package space.npstr.wolfia.system.metrics;
 import ch.qos.logback.classic.LoggerContext;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Counter;
+import io.prometheus.client.Gauge;
 import io.prometheus.client.Summary;
 import io.prometheus.client.hotspot.DefaultExports;
 import io.prometheus.client.logback.InstrumentedAppender;
@@ -91,5 +92,10 @@ public class MetricsRegistry {
             .name("command_total_seconds")
             .help("Total time it takes from discord creation timestamp of the trigger message till"
                     + " discord creation timestamp of the answer message")
+            .register();
+
+    public static final Gauge availablePrivateRooms = Gauge.build()
+            .name("private_rooms_available")
+            .help("Amount of available private rooms")
             .register();
 }

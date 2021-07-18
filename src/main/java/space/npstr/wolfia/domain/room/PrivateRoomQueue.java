@@ -17,18 +17,18 @@
 
 package space.npstr.wolfia.domain.room;
 
-import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+import space.npstr.wolfia.system.metrics.MetricsRegistry;
 
 @Component
 public class PrivateRoomQueue {
@@ -57,21 +57,35 @@ public class PrivateRoomQueue {
     }
 
     public ManagedPrivateRoom take() throws InterruptedException {
-        return this.availablePrivateRoomQueue.take();
+        try {
+            return this.availablePrivateRoomQueue.take();
+        } finally {
+            MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
+        }
     }
 
     public Optional<ManagedPrivateRoom> poll() {
-        return Optional.ofNullable(this.availablePrivateRoomQueue.poll());
+        try {
+            return Optional.ofNullable(this.availablePrivateRoomQueue.poll());
+        } finally {
+            MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
+        }
     }
 
     public void putBack(ManagedPrivateRoom privateRoom) {
         this.availablePrivateRoomQueue.add(privateRoom);
+        MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
     }
 
     public ManagedPrivateRoom add(PrivateRoom privateRoom) {
         ManagedPrivateRoom managedPrivateRoom = new ManagedPrivateRoom(privateRoom, this);
         this.allManagedRooms.add(managedPrivateRoom);
         this.availablePrivateRoomQueue.add(managedPrivateRoom);
+        MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
         return managedPrivateRoom;
+    }
+
+    public int availableRoomsAmount() {
+        return availablePrivateRoomQueue.size();
     }
 }
