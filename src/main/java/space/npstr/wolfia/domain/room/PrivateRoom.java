@@ -40,4 +40,12 @@ public class PrivateRoom {
     public int getNumber() {
         return number;
     }
+
+    @Override
+    public String toString() {
+        return "PrivateRoom{" +
+                "guildId=" + guildId +
+                ", number=" + number +
+                '}';
+    }
 }

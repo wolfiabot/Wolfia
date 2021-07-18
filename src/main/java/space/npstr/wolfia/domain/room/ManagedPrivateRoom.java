@@ -17,6 +17,13 @@
 
 package space.npstr.wolfia.domain.room;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -32,14 +39,6 @@ import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 import space.npstr.wolfia.utils.log.LogTheStackException;
-
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
@@ -75,6 +74,19 @@ public class ManagedPrivateRoom {
 
     public int getNumber() {
         return this.privateRoom.getNumber();
+    }
+
+    public boolean isInUse() {
+        return inUse;
+    }
+
+    @Override
+    public String toString() {
+        return "ManagedPrivateRoom{" +
+                "privateRoom=" + privateRoom +
+                ", inUse=" + inUse +
+                ", currentChannelId=" + currentChannelId +
+                '}';
     }
 
     @SuppressWarnings("unchecked")
@@ -149,7 +161,11 @@ public class ManagedPrivateRoom {
     public void endUsage() {
         synchronized (usageLock) {
             if (!this.inUse) {
-                throw new IllegalStateException("Can't end the usage of a private guild #" + this.privateRoom.getNumber() + " that is not in use ");
+                log.warn("Can't end the usage of a private room #{} that is not in use", this.privateRoom.getNumber(),
+                        new IllegalStateException("Tried ending usage of unused private room")
+                );
+                this.privateRoomQueue.putBack(this);
+                return;
             }
             cleanUpMembers();
             try {//complete() in here to catch errors

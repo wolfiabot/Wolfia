@@ -47,6 +47,10 @@ public class PrivateRoomQueue {
         this.availablePrivateRoomQueue.addAll(privateRooms);
     }
 
+    public int availableRoomsAmount() {
+        return availablePrivateRoomQueue.size();
+    }
+
     @EventListener
     public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
         getAllManagedRooms().forEach(room -> room.onGuildMemberJoin(event));
@@ -57,23 +61,37 @@ public class PrivateRoomQueue {
     }
 
     public ManagedPrivateRoom take() throws InterruptedException {
-        try {
-            return this.availablePrivateRoomQueue.take();
-        } finally {
-            MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
+        ManagedPrivateRoom room = this.availablePrivateRoomQueue.take();
+        MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
+        if (room.isInUse()) {
+            log.warn("Got a room that is still in use: {}", room);
         }
+        return room;
     }
 
     public Optional<ManagedPrivateRoom> poll() {
-        try {
-            return Optional.ofNullable(this.availablePrivateRoomQueue.poll());
-        } finally {
+        ManagedPrivateRoom room = this.availablePrivateRoomQueue.poll();
+        if (room != null) {
+            if (room.isInUse()) {
+                log.warn("Got a room that is still in use: {}", room);
+            }
             MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
         }
+        return Optional.ofNullable(room);
     }
 
-    public void putBack(ManagedPrivateRoom privateRoom) {
-        this.availablePrivateRoomQueue.add(privateRoom);
+    public void putBack(ManagedPrivateRoom room) {
+        if (room.isInUse()) {
+            log.warn("Putting back a room that is still in use: {}", room);
+        }
+        boolean alreadyInQueue = this.availablePrivateRoomQueue.stream()
+                .anyMatch(it -> it.getGuildId() == room.getGuildId());
+        if (alreadyInQueue) {
+            log.warn("Tried to put room into queue that is already there: {}", room);
+            return;
+        }
+
+        this.availablePrivateRoomQueue.add(room);
         MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
     }
 
@@ -83,9 +101,5 @@ public class PrivateRoomQueue {
         this.availablePrivateRoomQueue.add(managedPrivateRoom);
         MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
         return managedPrivateRoom;
-    }
-
-    public int availableRoomsAmount() {
-        return availablePrivateRoomQueue.size();
     }
 }
