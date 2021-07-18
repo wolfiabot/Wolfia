@@ -58,7 +58,7 @@ public class RestActions {
 
     @Nonnull
     public static Message from(final MessageEmbed embed) {
-        return new MessageBuilder().setEmbed(embed).build();
+        return new MessageBuilder().setEmbeds(embed).build();
     }
 
 

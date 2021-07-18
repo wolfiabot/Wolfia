@@ -121,7 +121,7 @@ class StaffProfileConversation implements Conversation {
 
 
         Message message = new MessageBuilder(plainMessage)
-                .setEmbed(embedBuilder.build())
+                .setEmbeds(embedBuilder.build())
                 .build();
 
         context.reply(message);

@@ -1,0 +1,8 @@
+apply from: "../gradle/versions.gradle"
+
+repositories {
+	gradlePluginPortal()
+}
+dependencies {
+	implementation "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
+}

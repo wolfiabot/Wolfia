@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import net.dv8tion.jda.api.JDA;
 
+import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.appear;
 import static com.codeborne.selenide.Condition.attributeMatching;
 import static com.codeborne.selenide.Condition.cssClass;
@@ -61,7 +62,7 @@ class StatusUiTest extends BaseUiTest {
 
         $(".statusContent").should(appear);
         ElementsCollection shards = $$(".Shard");
-        shards.shouldHaveSize(1);
+        shards.shouldHave(size(1));
         shards.get(0).should(cssClass(expectedClass));
     }
 
@@ -78,7 +79,7 @@ class StatusUiTest extends BaseUiTest {
 
         $(".statusContent").should(appear);
         ElementsCollection shards = $$(".Shard");
-        shards.shouldHaveSize(jdas.size());
+        shards.shouldHave(size(jdas.size()));
         shards.get(0).should(cssClass("online"));
         shards.get(1).should(cssClass("connecting"));
         shards.get(2).should(cssClass("offline"));

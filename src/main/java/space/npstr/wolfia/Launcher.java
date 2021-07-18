@@ -30,6 +30,7 @@ import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
@@ -48,7 +49,8 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
         DataSourceAutoConfiguration.class,
         DataSourceTransactionManagerAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
-        FlywayAutoConfiguration.class
+        FlywayAutoConfiguration.class,
+        R2dbcAutoConfiguration.class,
 })
 public class Launcher implements ApplicationRunner {
 

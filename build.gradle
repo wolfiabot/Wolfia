@@ -15,12 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
-import com.bmuschko.gradle.docker.tasks.container.extras.DockerWaitHealthyContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 import org.sonarqube.gradle.SonarQubeTask
+import space.npstr.gradle.docker.DockerWaitHealthyContainer
 
 buildscript {
     apply from: 'gradle/versions.gradle'
@@ -74,6 +75,24 @@ configure(allprojects.findAll { it.name != 'platform' }) {
 
 apply plugin: 'com.github.ben-manes.versions'
 
+dependencyUpdates {
+    checkConstraints = true
+    resolutionStrategy {
+        componentSelection { rules ->
+            rules.all { ComponentSelection selection ->
+                boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'm4', 'm5', 'preview', 'pr1', 'pr2', 'pr3',
+                                    'b180830.0438', 'b180830.0359', 'b180725.0644', 'b180725.0427', 'b01', // jaxb bullshit
+                ].any {
+                    q -> selection.candidate.version.toLowerCase().contains(q)
+                }
+                if (rejected) {
+                    selection.reject('Alpha or beta version')
+                }
+            }
+        }
+    }
+}
+
 allprojects {
     apply plugin: 'org.ajoberstar.grgit'
     apply plugin: 'com.adarshr.test-logger'
@@ -95,31 +114,14 @@ allprojects {
 
     repositories {
         mavenCentral()
-        jcenter {
+        maven {
+            url 'https://m2.dv8tion.net/releases'
             content { includeModule("net.dv8tion", "JDA") }
-            content { includeModule("club.minnced", "discord-webhooks") }
+            content { includeGroup("club.minnced") }
         }
         maven {
             url 'https://jitpack.io'
             content { includeGroup("space.npstr") }
-        }
-    }
-
-    dependencyUpdates {
-        checkConstraints = true
-        resolutionStrategy {
-            componentSelection { rules ->
-                rules.all { ComponentSelection selection ->
-                    boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'm4', 'm5', 'preview', 'pr1', 'pr2', 'pr3',
-                                        'b180830.0438', 'b180830.0359', 'b180725.0644', 'b180725.0427', // jaxb bullshit
-                    ].any {
-                        q -> selection.candidate.version.toLowerCase().contains(q)
-                    }
-                    if (rejected) {
-                        selection.reject('Alpha or beta version')
-                    }
-                }
-            }
         }
     }
 
@@ -140,7 +142,7 @@ allprojects {
 
     jacocoTestReport {
         reports {
-            xml.enabled true
+            xml.required.set(true)
         }
     }
 
@@ -163,6 +165,8 @@ project(':platform') {
             api "space.npstr:annotations:$annotationsVersion"
             api "org.immutables:value:$immutablesVersion"
             api "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
+            api "org.glassfish.jaxb:jaxb-core:$jaxbImplVersion"
+            api "org.glassfish.jaxb:jaxb-runtime:$jaxbImplVersion"
 
             api "space.npstr:prometheus_extensions:$promExtVersion"
 
@@ -255,6 +259,13 @@ project(':database-codegen') {
     def migrationsOutput = fileTree('build/classes/generated/java/space/npstr/wolfia/db/gen')
 
     flyway {
+        tasks.withType(org.flywaydb.gradle.task.AbstractFlywayTask) {
+            inputs.files(migrationsInput)
+                    .withPropertyName("flywayMigrationsInput")
+                    .withPathSensitivity(PathSensitivity.RELATIVE)
+            outputs.files(migrationsOutput)
+                    .withPropertyName("flywayMigrationsOutput")
+        }
         flywayMigrate {
             doFirst {
                 // running these manually in a doFirst closure ensures that they are not executed all the time
@@ -265,15 +276,8 @@ project(':database-codegen') {
                 startCodegenDbContainer.start()
                 awaitCodegenDbContainer.start()
             }
-
-            // combining input and output files ensures that this is task is run/cached correctly
-            def inOut = migrationsInput + migrationsOutput
-            inputs.files(inOut)
-                    .withPropertyName('flywayMigrationsInput')
-                    .withPathSensitivity(PathSensitivity.RELATIVE)
-            outputs.files(inOut)
-                    .withPropertyName('flywayMigrationsOutput')
         }
+
         url = "$codegenJdbcUrl"
         locations = ['filesystem:src/main/resources/db/migrations']
         configurations = ['flywayMigration']
@@ -388,12 +392,14 @@ project(':frontend') {
         inputs.dir('public')
                 .withPropertyName('frontendPublicDir')
                 .withPathSensitivity(PathSensitivity.RELATIVE)
+    }
+
+    tasks.named('assembleFrontend') {
+        configure frontendBuildCacheConfig
         outputs.dir("$buildDir/dist")
                 .withPropertyName('frontendOutput')
         outputs.cacheIf { true }
     }
-
-    tasks.named('assembleFrontend').configure frontendBuildCacheConfig
     tasks.named('checkFrontend').configure frontendBuildCacheConfig
 
     tasks.register('setVersion', org.siouan.frontendgradleplugin.infrastructure.gradle.RunNpmYarn) {

@@ -17,7 +17,9 @@
 
 package space.npstr.wolfia.db;
 
+import org.jooq.DataType;
 import org.jooq.Field;
+import org.jooq.impl.SQLDataType;
 import org.jooq.util.postgres.PostgresDSL;
 
 /**
@@ -40,7 +42,7 @@ public class ExtendedPostgresDSL extends PostgresDSL {
      * See V2 migration.
      */
     public static <T> Field<T[]> arrayAppendDistinct(Field<T[]> array1, Field<T[]> array2) {
-        return function("array_append_distinct", nullSafeDataType(array1), array1, array2);
+        return function("array_append_distinct", nullSafeDataTypeCopy(array1), array1, array2);
     }
 
     /**
@@ -55,7 +57,13 @@ public class ExtendedPostgresDSL extends PostgresDSL {
      * See V2 migration.
      */
     public static <T> Field<T[]> arrayDiff(Field<T[]> array1, Field<T[]> array2) {
-        return function("array_diff", nullSafeDataType(array1), array1, array2);
+        return function("array_diff", nullSafeDataTypeCopy(array1), array1, array2);
+    }
+
+    // Deprecated in jOOQ 3.15, so we copy it
+    @SuppressWarnings("unchecked")
+    private static <T> DataType<T> nullSafeDataTypeCopy(Field<T> field) {
+        return (DataType<T>) (field == null ? SQLDataType.OTHER : field.getDataType());
     }
 
     private ExtendedPostgresDSL() {}
