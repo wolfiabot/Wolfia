@@ -19,8 +19,8 @@
 ext {
 
 	javaVersion                 = '11'
-	springBootVersion			= '2.5.2'
-	flywayVersion				= '7.11.2'
+	springBootVersion			= '2.5.3'
+	flywayVersion				= '7.13.0'
 
 	gradleGitVersion			= '2.2.4'
 	grGitVersion				= '4.1.0'
@@ -30,17 +30,17 @@ ext {
 	dockerPluginVersion			= '7.1.0'
 	testLoggerVersion			= '3.0.0'
 
-	frontendPluginVersion		= '5.2.0'
+	frontendPluginVersion		= '5.3.0'
 	theNodeVersion				= '16.5.0'
 	theYarnVersion				= '1.22.10'
 
-	jdaVersion					= '4.3.0_297'
-	discordWebhooksVersion      = '0.5.7'
+	jdaVersion					= '4.3.0_309'
+	discordWebhooksVersion      = '0.5.8'
 	sentryLogbackVersion		= '5.0.1'
 	orgJsonVersion				= '20210307'
 	annotationsVersion			= '0.0.2'
 	immutablesVersion			= '2.8.8'
-	jaxbImplVersion				= '3.0.1'
+	jaxbImplVersion				= '3.0.2'
 
 	prometheusVersion			= '0.11.0'
 	promExtVersion				= '1.4.0'
@@ -48,8 +48,8 @@ ext {
 	dsProxyVersion				= '1.7'
 	jooqVersion					= '3.15.1'
 
-	togglzVersion				= '2.9.8'
+	togglzVersion				= '2.9.9'
 
-	testcontainersVersion		= '1.15.3'
-	selenideVersion             = '5.23.0'
+	testcontainersVersion		= '1.16.0'
+	selenideVersion             = '5.23.2'
 }
