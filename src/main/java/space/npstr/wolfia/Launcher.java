@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia;
 
+import io.prometheus.client.CollectorRegistry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.JDA;
@@ -55,6 +56,11 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
 public class Launcher implements ApplicationRunner {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Launcher.class);
+
+    static {
+        // https://github.com/prometheus/client_java/issues/279
+        CollectorRegistry.defaultRegistry.clear();
+    }
 
     @SuppressWarnings("NullableProblems")
     private static BotContext botContext;
