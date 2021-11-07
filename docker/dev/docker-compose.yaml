@@ -4,7 +4,7 @@ version: '3.7'
 
 services:
   dev-postgres:
-    image: napstr/poggres:13
+    image: napstr/poggres:14
     restart: always
     ports:
       - 127.0.0.1:5442:5432
