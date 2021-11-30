@@ -34,6 +34,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.BrowserWebDriverContainer;
+import org.testcontainers.containers.BrowserWebDriverContainer.VncRecordingMode;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import space.npstr.wolfia.ApplicationTest;
 
@@ -61,23 +62,27 @@ abstract class BaseUiTest extends ApplicationTest {
     static {
         CHROME_CAPABILITIES = new ChromeOptions();
         CHROME_CONTAINER = new BrowserWebDriverContainer<>()
+                .withRecordingMode(VncRecordingMode.SKIP, null)
                 .withLogConsumer(new Slf4jLogConsumer(containerLogger("Chrome")))
                 .withCapabilities(CHROME_CAPABILITIES);
 
         CHROME_MOBILE_CAPABILITIES = new ChromeOptions()
                 .setExperimentalOption("mobileEmulation", Map.of("deviceName", "Nexus 5"));
         CHROME_MOBILE_CONTAINER = new BrowserWebDriverContainer<>()
+                .withRecordingMode(VncRecordingMode.SKIP, null)
                 .withLogConsumer(new Slf4jLogConsumer(containerLogger("ChromeMobile")))
                 .withCapabilities(CHROME_MOBILE_CAPABILITIES);
 
         FIREFOX_CAPABILITIES = new FirefoxOptions();
         FIREFOX_CONTAINER = new BrowserWebDriverContainer<>()
+                .withRecordingMode(VncRecordingMode.SKIP, null)
                 .withLogConsumer(new Slf4jLogConsumer(containerLogger("Firefox")))
                 .withCapabilities(FIREFOX_CAPABILITIES);
 
         FIREFOX_MOBILE_CAPABILITIES = new FirefoxOptions();
         FIREFOX_MOBILE_CAPABILITIES.setCapability("mobileEmulation", Map.of("deviceName", "Nexus 5"));
         FIREFOX_MOBILE_CONTAINER = new BrowserWebDriverContainer<>()
+                .withRecordingMode(VncRecordingMode.SKIP, null)
                 .withLogConsumer(new Slf4jLogConsumer(containerLogger("FirefoxMobile")))
                 .withCapabilities(FIREFOX_MOBILE_CAPABILITIES);
     }
