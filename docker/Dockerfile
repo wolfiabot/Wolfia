@@ -1,4 +1,4 @@
-FROM adoptopenjdk:11-openj9
+FROM eclipse-temurin:17-jdk
 MAINTAINER napster@npstr.space
 
 RUN groupadd -g 420 wolfia && \
