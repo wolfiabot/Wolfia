@@ -167,6 +167,7 @@ project(':platform') {
             api "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
             api "org.glassfish.jaxb:jaxb-core:$jaxbImplVersion"
             api "org.glassfish.jaxb:jaxb-runtime:$jaxbImplVersion"
+            api "org.openjdk.nashorn:nashorn-core:$nashornVersion"
 
             api "space.npstr:prometheus_extensions:$promExtVersion"
 
@@ -442,6 +443,7 @@ dependencies {
     implementation "com.github.ben-manes.caffeine:caffeine"
     implementation "org.json:json"
     implementation "space.npstr:annotations"
+    implementation "org.openjdk.nashorn:nashorn-core"
 
     implementation "io.lettuce:lettuce-core"
     implementation(group: "io.netty", name: "netty-transport-native-epoll", classifier: "linux-x86_64")
