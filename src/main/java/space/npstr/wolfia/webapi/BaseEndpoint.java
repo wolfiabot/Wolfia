@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
  * Common base class for endpoints
@@ -33,12 +32,6 @@ public abstract class BaseEndpoint {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(BaseEndpoint.class);
 
     protected static final ResponseEntity<String> NOT_FOUND = ResponseEntity.notFound().build();
-
-    @ExceptionHandler
-    protected String logUnhandledExceptions(Exception exception) {
-        log.warn("Unhandled web exception", exception);
-        return "forward:/error";
-    }
 
     protected CompletionStage<ResponseEntity<String>> logAndCatchAll(HttpServletRequest request) {
         String method = request.getMethod();
