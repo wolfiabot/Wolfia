@@ -34,7 +34,7 @@ import space.npstr.wolfia.domain.privacy.PrivacyService;
 
 @RestController
 @RequestMapping("/api/privacy")
-public class PrivacyRequestEndpoint {
+public class PrivacyRequestEndpoint extends BaseEndpoint {
 
     private final PrivacyRequestService privacyRequestService;
     private final PrivacyService privacyService;
