@@ -134,6 +134,7 @@ services:
     ports:
       - 127.0.0.1:4567:4567   # Wolfia web server
       - 127.0.0.1:8849:8849   # JProfiler
+      - 127.0.0.1:5005:5005   # Remote debug
     volumes:
       - ./wolfia-secrets.yaml:/opt/wolfia/wolfia-secrets.yaml:ro
       - ./logs:/opt/wolfia/logs
@@ -145,6 +146,7 @@ services:
       - -Xms6g
       - -Xmx6g
       - -XX:HeapDumpPath=emergencydump.hprof
+      - -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
 # Hotspot Options:
 #      - -XX:+HeapDumpOnOutOfMemoryError
 #      - -Xlog:gc*:logs/gc/gc-%t.log::filesize=1g
