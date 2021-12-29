@@ -23,7 +23,7 @@
 		<div class="level-item">
 			<p>
 				Created with lots of
-				<img src="https://discord.com/assets/25c09e6fde32411da2b0da00f5cb9c84.svg" alt="coffee" /> by
+				<img src="../assets/coffee.svg" alt="coffee" /> by
 				<a :href="sourceCodeLink + '/graphs/contributors'" target="_blank" rel="noopener noreferrer"
 					>a pack of wolves</a
 				>
