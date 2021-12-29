@@ -27,13 +27,14 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapActions, mapState } from "vuex";
 import { FETCH_GUILDS } from "@/components/guild/guild-store";
 
 export default {
 	name: "GuildList",
 	components: {
-		GuildCard: () => import("@/components/dashboard/GuildCard"),
+		GuildCard: defineAsyncComponent(() => import("@/components/dashboard/GuildCard")),
 	},
 	mounted() {
 		this.fetchGuilds();

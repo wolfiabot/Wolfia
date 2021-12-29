@@ -62,11 +62,12 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 
 export default {
 	components: {
-		UserNav: () => import("@/components/user/UserNav"),
+		UserNav: defineAsyncComponent(() => import("@/components/user/UserNav")),
 	},
 	data: function () {
 		return {

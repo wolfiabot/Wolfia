@@ -31,13 +31,14 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapActions, mapState } from "vuex";
 import { FETCH_STAFF } from "@/components/staff/staff-store";
 
 export default {
 	name: "Staff",
 	components: {
-		StaffCard: () => import("@/components/staff/StaffCard"),
+		StaffCard: defineAsyncComponent(() => import("@/components/staff/StaffCard")),
 	},
 	mounted() {
 		this.fetchStaff();

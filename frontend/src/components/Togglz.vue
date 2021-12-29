@@ -26,12 +26,13 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapGetters } from "vuex";
 
 export default {
 	name: "Togglz",
 	components: {
-		GoBack: () => import("@/components/GoBack"),
+		GoBack: defineAsyncComponent(() => import("@/components/GoBack")),
 	},
 	computed: {
 		...mapGetters("user", ["isAdmin"]),

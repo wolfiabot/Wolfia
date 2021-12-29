@@ -19,20 +19,29 @@
 	<div class="box container">
 		<span class="is-size-2">Game Channels</span>
 		<div class="field">
-			<b-switch :value="isEveryChannelAGameChannel" @input="handleAllToggle">Enable All</b-switch>
+			<input
+				id="all"
+				type="checkbox"
+				class="switch is-rounded is-info"
+				:checked="isEveryChannelAGameChannel"
+				@input="handleAllToggle"
+			/>
+			<label for="all">Enable All</label>
 		</div>
 		<ChannelList :channels="guildSettings.channelSettings" @toggle="handleToggle" />
 	</div>
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapActions } from "vuex";
 import { SET_GAME_CHANNEL } from "@/components/guildsettings/guild-settings-store";
 import { GuildSettings } from "@/components/guildsettings/guild-settings";
+
 export default {
 	name: "GameChannels",
 	components: {
-		ChannelList: () => import("@/components/guildsettings/ChannelList"),
+		ChannelList: defineAsyncComponent(() => import("@/components/guildsettings/ChannelList")),
 	},
 	props: {
 		guildSettings: GuildSettings,
@@ -46,13 +55,14 @@ export default {
 		...mapActions("guildSettings", {
 			setGameChannel: SET_GAME_CHANNEL,
 		}),
-		handleAllToggle: function (value) {
+		handleAllToggle: function (event) {
+			const checked = event.target.checked;
 			const body = this.guildSettings.channelSettings
-				.filter((channel) => channel.isGameChannel !== value)
+				.filter((channel) => channel.isGameChannel !== checked)
 				.map((channel) => {
 					return {
 						channelId: channel.discordId,
-						isGameChannel: value,
+						isGameChannel: checked,
 					};
 				});
 			this.setGameChannel({

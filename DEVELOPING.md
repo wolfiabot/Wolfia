@@ -85,8 +85,7 @@ There are several reasons to do so:
 The [web frontend](frontend) uses the [Vue.js framework](https://vuejs.org/) including
 [Vue router](https://router.vuejs.org/) and [Vuex](https://vuex.vuejs.org/).
 
-We also use the [Bulma](https://bulma.io/) CSS framework, together with [Buefy](https://buefy.org/) components
-and a [Bulmaswatch](https://jenil.github.io/bulmaswatch/) theme.
+We also use the [Bulma](https://bulma.io/) CSS framework, together with a [Bulmaswatch](https://jenil.github.io/bulmaswatch/) theme.
 
 ### Backend
 

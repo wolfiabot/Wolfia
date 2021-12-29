@@ -24,10 +24,12 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
+
 export default {
 	name: "ChannelList",
 	components: {
-		ChannelEntry: () => import("@/components/guildsettings/ChannelEntry"),
+		ChannelEntry: defineAsyncComponent(() => import("@/components/guildsettings/ChannelEntry")),
 	},
 	props: {
 		channels: Array,

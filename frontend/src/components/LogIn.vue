@@ -24,10 +24,12 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
+
 export default {
 	name: "LogIn",
 	components: {
-		LoginButton: () => import("@/components/LoginButton.vue"),
+		LoginButton: defineAsyncComponent(() => import("@/components/LoginButton.vue")),
 	},
 	methods: {
 		randomGreeting: function () {

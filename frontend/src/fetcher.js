@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { ToastProgrammatic as Toast } from "buefy";
+import { toast } from "bulma-toast";
 import { LOG_OUT } from "@/components/user/user-store";
 
 let theStore;
@@ -40,17 +40,19 @@ export default {
 				const userLoaded = await theStore.getters["user/userLoaded"];
 				if (userLoaded) {
 					theStore.dispatch("user/" + LOG_OUT);
-					Toast.open({
+					toast({
 						message: "Looks like you need to log in again!",
 						type: "is-warning",
 						duration: 3000,
+						position: "top-center",
 					});
 				}
 			} else {
-				Toast.open({
+				toast({
 					message: "Oh no, is your internet down? Try again in a moment.",
 					type: "is-danger",
 					duration: 3000,
+					position: "top-center",
 				});
 			}
 		};

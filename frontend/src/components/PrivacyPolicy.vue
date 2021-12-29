@@ -222,14 +222,16 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapActions, mapState } from "vuex";
 import fetcher from "@/fetcher";
 import { LOG_OUT } from "@/components/user/user-store";
-import { ToastProgrammatic as Toast } from "buefy";
+import { toast } from "bulma-toast";
+
 export default {
 	name: "PrivacyPolicy",
 	components: {
-		LoginButton: () => import("@/components/LoginButton.vue"),
+		LoginButton: defineAsyncComponent(() => import("@/components/LoginButton.vue")),
 	},
 	data: function () {
 		return {
@@ -292,10 +294,11 @@ export default {
 			this.closeModal();
 			this.logout();
 			await this.$router.push("/");
-			Toast.open({
+			toast({
 				message: "You have been logged out.",
 				type: "is-info",
 				duration: 3000,
+				position: "top-center",
 			});
 		},
 	},

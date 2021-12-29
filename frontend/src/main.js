@@ -15,39 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Vue from "vue";
+import { createApp } from "vue";
 import App from "@/App.vue";
 import router from "@/router";
+import * as Sentry from "@sentry/vue";
 import store from "@/store";
-import * as Sentry from "@sentry/browser";
-import * as Integrations from "@sentry/integrations";
-import Buefy from "buefy";
 import fetcher from "@/fetcher";
 
-Vue.use(Buefy);
+const app = createApp(App);
 
 if (process.env.NODE_ENV === "production") {
 	Sentry.init({
+		app,
+		attachProps: true,
+		logErrors: true,
 		dsn: process.env.VUE_APP_SENTRY_DSN,
-		integrations: [
-			new Integrations.Vue({
-				Vue,
-				attachProps: true,
-				logErrors: true,
-			}),
-		],
 		release: process.env.VUE_APP_VERSION,
 	});
 }
 
-Vue.config.productionTip = false;
-
 fetcher.setStore(store);
-new Vue({
-	router,
-	store,
-	render: (h) => h(App),
-}).$mount("#app");
+
+app.use(router);
+app.use(store);
+router.isReady().then(() => app.mount("#app"));
 
 console.log(`
                               __

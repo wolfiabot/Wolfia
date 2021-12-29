@@ -41,13 +41,14 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapActions, mapState } from "vuex";
 import { FETCH_SHARDS } from "@/components/status/shard-store";
 
 export default {
 	name: "Status",
 	components: {
-		Shard: () => import("@/components/status/Shard.vue"),
+		Shard: defineAsyncComponent(() => import("@/components/status/Shard.vue")),
 	},
 	mounted() {
 		this.fetchShards();

@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapActions, mapState } from "vuex";
 import { FETCH_GUILDS } from "@/components/guild/guild-store";
 import { FETCH_GUILD_SETTINGS } from "@/components/guildsettings/guild-settings-store";
@@ -37,8 +38,8 @@ import { FETCH_GUILD_SETTINGS } from "@/components/guildsettings/guild-settings-
 export default {
 	name: "GuildSettings",
 	components: {
-		GoBack: () => import("@/components/GoBack"),
-		GameChannels: () => import("@/components/guildsettings/GameChannels"),
+		GoBack: defineAsyncComponent(() => import("@/components/GoBack")),
+		GameChannels: defineAsyncComponent(() => import("@/components/guildsettings/GameChannels")),
 	},
 	props: {
 		guildId: String,

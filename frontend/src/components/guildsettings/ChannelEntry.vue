@@ -22,7 +22,14 @@
 		</div>
 		<div class="level-right">
 			<div class="level-item field">
-				<b-switch :value="channel.isGameChannel" @click.prevent.native="toggle"></b-switch>
+				<input
+					:id="channel.discordId"
+					type="checkbox"
+					class="switch is-rounded is-info"
+					:checked="channel.isGameChannel"
+					@click.prevent.native="toggle"
+				/>
+				<label :for="channel.discordId"></label>
 			</div>
 		</div>
 	</div>

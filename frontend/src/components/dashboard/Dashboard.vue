@@ -27,15 +27,16 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from "vue";
 import { mapActions, mapState } from "vuex";
 import { FETCH_USER } from "@/components/user/user-store";
 
 export default {
 	name: "Dashboard",
 	components: {
-		GuildList: () => import("@/components/dashboard/GuildList"),
-		GuildSettings: () => import("@/components/guildsettings/GuildSettings"),
-		LogIn: () => import("@/components/LogIn"),
+		GuildList: defineAsyncComponent(() => import("@/components/dashboard/GuildList")),
+		GuildSettings: defineAsyncComponent(() => import("@/components/guildsettings/GuildSettings")),
+		LogIn: defineAsyncComponent(() => import("@/components/LogIn")),
 	},
 	props: {
 		guildId: String,

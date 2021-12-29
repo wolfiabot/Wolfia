@@ -26,12 +26,13 @@
 </template>
 
 <script>
-import { ToastProgrammatic as Toast } from "buefy";
+import { defineAsyncComponent } from "vue";
+import { toast } from "bulma-toast";
 
 export default {
 	components: {
-		Header: () => import("@/components/Header"),
-		Footer: () => import("@/components/Footer"),
+		Header: defineAsyncComponent(() => import("@/components/Header")),
+		Footer: defineAsyncComponent(() => import("@/components/Footer")),
 	},
 	mounted() {
 		this.checkLogin(this.$route);
@@ -55,22 +56,25 @@ export default {
 		},
 		handleLogin: function (loginParam) {
 			if (loginParam === "success") {
-				Toast.open({
+				toast({
 					message: "Login Successful!",
 					type: "is-success",
 					duration: 3000,
+					position: "top-center",
 				});
 			} else if (loginParam === "failed") {
-				Toast.open({
+				toast({
 					message: "Looks like something went wrong with your login. Please try again!",
 					type: "is-warning",
 					duration: 5000,
+					position: "top-center",
 				});
 			} else if (loginParam === "no-consent") {
-				Toast.open({
+				toast({
 					message: "No consent to process your data.",
 					type: "is-info",
 					duration: 5000,
+					position: "top-center",
 				});
 			}
 		},
@@ -79,9 +83,9 @@ export default {
 </script>
 
 <style lang="scss">
-@import "node_modules/buefy/dist/buefy";
 @import "node_modules/bulmaswatch/darkly/variables";
 @import "node_modules/bulma/bulma";
+@import "~bulma-switch";
 $bulmaswatch-import-font: false;
 @import "node_modules/bulmaswatch/darkly/overrides";
 
