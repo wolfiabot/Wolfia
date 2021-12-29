@@ -10,13 +10,19 @@ There are three levels of frontend development accessible:
 3. To develop all parts including the dashboard which is visible only to authenticated users, keep on reading.
 
 ### Set up  port forwarding
-[Ngrok](https://ngrok.com/) or [localhost.run](https://localhost.run/) or a similar service is necessary to enable
+[localhost.run](https://localhost.run/) or [ngrok](https://ngrok.com/) or a similar service is necessary to enable
 Discord authentication during development.
 Start it on the port where the frontend dev server will run later:
+```sh
+ssh -R 80:localhost:8080 nokey@localhost.run
 ```
+or
+```sh
 ngrok http 8080
 ```
 Copy the assigned subdomain, we'll need it later. The assigned subdomain is found here:
+![localhost.run subdomain](https://i.imgur.com/czA2N1k.png)
+or
 ![ngrok subdomain](https://i.imgur.com/0DB8TjW.png)
 
 ### Backend
@@ -46,19 +52,10 @@ docker-compose -f docker/dev/docker-compose.yaml up -d
 #### Frontend Setup
 - Install [NodeJs](https://nodejs.org)
 - Install [Yarn](https://classic.yarnpkg.com/en/docs/install)
-- Configure OAuth2 redirects in the [Discord developer console](https://discord.com/developers/applications) with your
-ngrok subdomain:
-![AOuth2 Redirect Config](https://i.imgur.com/ISnzOgq.png)
-```
-# Important:
-https://xyz.ngrok.io/dashboard
-https://xyz.ngrok.io/login/oauth2/code/discord
+- Configure OAuth2 redirects in the [Discord developer console](https://discord.com/developers/applications) with your subdomain:
+![AOuth2 Redirect Config](https://i.imgur.com/fSVTLjR.png)
 
-# Not so important:
-https://discord.com/invite/nvcfX3q
-https://discord.gg/nvcfX3q
-```
-- Add your ngrok subdomain to the `devHost` constant in the [vue.config.js](./vue.config.js) file
+- Add your subdomain to the `devHost` constant in the [vue.config.js](./vue.config.js) file
 - Install Frontend dependencies if you haven't done so yet or in a while:
 ```shell script
 yarn install
@@ -69,7 +66,7 @@ yarn install
 ```shell script
 yarn serve
 ```
-- Open browser at your ngrok address https://xyz.ngrok.io
+- Open browser at your subdomain address https://xyz.localhost.run
 
 
 ## API

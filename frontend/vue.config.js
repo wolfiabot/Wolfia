@@ -16,7 +16,7 @@
  */
 const webpack = require("webpack");
 
-const devHost = "xyz.ngrok.io";
+const devHost = "xyz.localhost.run";
 const prodHost = "bot.wolfia.party";
 const deployHost = process.env.NODE_ENV === "production" ? prodHost : devHost;
 const deployBaseUrl = `https://${deployHost}`;
