@@ -223,10 +223,10 @@ Uptime over last 7 days:
 Coded with lots of ![](https://discord.com/assets/25c09e6fde32411da2b0da00f5cb9c84.svg){:height="15" width="15"} by [Napster](https://npstr.space/)
 
 
-[w]:https://discord.com/assets/04ff67f3321f9158ad57242a5412782b.svg
-[v]:https://discord.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg
-[m]:https://discord.com/assets/a39460d0f6baa307386a4bb2984de363.svg
-[t]:https://discord.com/assets/984390b3eefc024ea770ccbfcfbdc4e2.svg
-[gun]:https://discord.com/assets/3071dbc60204c84ca0cf423b8b08a204.svg
-[cop]:https://discord.com/assets/3896096ba07324c04ed0fe7e1acc3643.svg
-[santa]:https://discord.com/assets/37017a416c2a6ab030f0de3db9f6e73e.svg
+[w]:assets/img/wolf.svg
+[v]:assets/img/villager.svg
+[m]:assets/img/mafia.svg
+[t]:assets/img/townie.svg
+[gun]:assets/img/gun.svg
+[cop]:assets/img/cop.svg
+[santa]:assets/img/santa.svg
