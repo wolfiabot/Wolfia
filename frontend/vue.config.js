@@ -27,7 +27,9 @@ module.exports = {
 	outputDir: "build/dist",
 	assetsDir: "asset",
 	devServer: {
-		public: deployBaseUrl,
+		client: {
+			webSocketURL: deployBaseUrl,
+		},
 		proxy: {
 			"/api": {
 				target: "http://localhost:4567",
@@ -50,7 +52,7 @@ module.exports = {
 				changeOrigin: true,
 			},
 		},
-		disableHostCheck: true,
+		allowedHosts: "all",
 	},
 	configureWebpack: {
 		plugins: [
