@@ -20,6 +20,7 @@ package space.npstr.wolfia.webapi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import javax.annotation.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,10 @@ public class PrivacyRequestEndpoint {
     public PrivacyRequestEndpoint(PrivacyRequestService privacyRequestService, PrivacyService privacyService) {
         this.privacyRequestService = privacyRequestService;
         this.privacyService = privacyService;
-        this.objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
+        this.objectMapper = new ObjectMapper()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .registerModule(new JavaTimeModule())
+        ;
     }
 
     @GetMapping("/request")
