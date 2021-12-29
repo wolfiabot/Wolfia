@@ -50,8 +50,8 @@ public class OAuth2Endpoint extends BaseEndpoint {
     public static final String GENERIC_ERROR_RESPONSE = "Something was off with your request. Try authorizing again with "
             + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER;
     public static final String WRONG_ACCOUNT_RESPONSE = "It looks like you are logged into a different account in your browser."
-            + " than in your app. Log out in your browser, say " + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER
-            + " to start authication again, and then log in into the same account you are using to play Wolfia.";
+            + " than in your app. Log out in your browser, then say " + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER
+            + " to start authentication again, and then log in into the same account you are using to play Wolfia.";
     public static final String DISCORD_ISSUES = "Something went :boom: when talking to Discord. Try authorizing again with "
             + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER + " or try again later.";
 
