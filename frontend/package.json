@@ -69,5 +69,6 @@
 		"last 2 versions",
 		"not dead",
 		"not ie 11"
-	]
+	],
+	"packageManager": "yarn@1.22.17"
 }

@@ -42,6 +42,13 @@ buildscript {
         classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
         classpath "org.siouan:frontend-gradle-plugin-jdk11:$frontendPluginVersion"
     }
+
+    // Fix for https://github.com/etiennestuder/gradle-jooq-plugin/issues/202
+    configurations['classpath'].resolutionStrategy.eachDependency {
+        if (requested.group == 'org.jooq') {
+            useVersion '3.15.6'
+        }
+    }
 }
 
 ext {
@@ -403,7 +410,7 @@ project(':frontend') {
     }
     tasks.named('checkFrontend').configure frontendBuildCacheConfig
 
-    tasks.register('setVersion', org.siouan.frontendgradleplugin.infrastructure.gradle.RunNpmYarn) {
+    tasks.register('setVersion', org.siouan.frontendgradleplugin.infrastructure.gradle.RunYarn) {
         dependsOn tasks.named('installNode')
         script = "version --no-git-tag-version --new-version ${rootProject.version}"
     }
