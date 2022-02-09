@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2022 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -41,13 +41,6 @@ buildscript {
         classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
         classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
         classpath "org.siouan:frontend-gradle-plugin-jdk11:$frontendPluginVersion"
-    }
-
-    // Fix for https://github.com/etiennestuder/gradle-jooq-plugin/issues/202
-    configurations['classpath'].resolutionStrategy.eachDependency {
-        if (requested.group == 'org.jooq') {
-            useVersion '3.15.6'
-        }
     }
 }
 
@@ -111,7 +104,7 @@ allprojects {
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(javaVersion)
-            vendor = JvmVendorSpec.ADOPTOPENJDK
+            vendor = JvmVendorSpec.ADOPTIUM
             // implementation = JvmImplementation.J9 seems to break CI builds due to different nano second resolution
         }
         consistentResolution {
