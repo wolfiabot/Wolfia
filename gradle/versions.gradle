@@ -19,19 +19,19 @@
 ext {
 
 	javaVersion                 = '17'
-	springBootVersion			= '2.6.3'
-	flywayVersion				= '8.4.4'
+	springBootVersion			= '2.6.4'
+	flywayVersion				= '8.5.1'
 
 	gradleGitVersion			= '2.2.4'
-	grGitVersion				= '4.1.1'
+	grGitVersion				= '5.0.0'
 	sonarVersion				= '3.3'
-	jooqPluginVersion			= '7.1'
+	jooqPluginVersion			= '7.1.1'
 	versionsPluginVersion		= '0.42.0'
 	dockerPluginVersion			= '7.2.0'
 	testLoggerVersion			= '3.1.0'
 
 	frontendPluginVersion		= '6.0.0'
-	theNodeVersion				= '16.13.0'
+	theNodeVersion				= '16.14.0'
 	theYarnVersion				= '1.22.17'
 
 	jdaVersion					= '4.4.0_352'
@@ -52,5 +52,5 @@ ext {
 	togglzVersion				= '3.1.1'
 
 	testcontainersVersion		= '1.16.3'
-	selenideVersion             = '6.3.1'
+	selenideVersion             = '6.3.3'
 }
