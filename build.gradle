@@ -178,7 +178,6 @@ project(':platform') {
             api "org.jooq:jooq-codegen:$jooqVersion"
 
             api "org.togglz:togglz-core:$togglzVersion"
-            api "org.togglz:togglz-slf4j:$togglzVersion"
             api "org.togglz:togglz-spring-boot-starter:$togglzVersion"
             api "org.togglz:togglz-console:$togglzVersion"
             api "org.togglz:togglz-spring-security:$togglzVersion"
@@ -463,7 +462,6 @@ dependencies {
     implementation "org.flywaydb:flyway-core"
 
     implementation "org.togglz:togglz-core"
-    implementation "org.togglz:togglz-slf4j"
     implementation "org.togglz:togglz-spring-boot-starter"
     implementation "org.togglz:togglz-console"
     implementation "org.togglz:togglz-spring-security"
