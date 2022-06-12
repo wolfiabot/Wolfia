@@ -47,7 +47,7 @@ public class DiscordBotsOrg extends Listing {
     @Nonnull
     @Override
     protected Request.Builder createRequest(final long botId, @Nonnull final String payload) {
-        final RequestBody body = RequestBody.create(JSON, payload);
+        final RequestBody body = RequestBody.create(payload, JSON);
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
                 .url(String.format("https://top.gg/api/bots/%s/stats", botId))

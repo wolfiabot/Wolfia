@@ -38,7 +38,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -56,6 +55,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequestEnti
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
@@ -70,7 +70,7 @@ import space.npstr.wolfia.webapi.Authorization;
 import space.npstr.wolfia.webapi.LoginRedirect;
 
 @Configuration
-public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
+public class WebApplicationSecurity {
 
     private static final Logger log = LoggerFactory.getLogger(WebApplicationSecurity.class);
     private static final String DISCORD_BOT_USER_AGENT = "DiscordBot (https://github.com/wolfiabot/)";
@@ -100,8 +100,8 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
         this.privacyService = privacyService;
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         String[] noAuthEndpoints = Stream.concat(Arrays.stream(MACHINE_ENDPOINTS), Arrays.stream(PUBLIC_ENDPOINTS))
                 .collect(Collectors.toSet())
                 .toArray(new String[]{});
@@ -111,7 +111,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 this.privacyService
         );
 
-        http
+        return http
                 .csrf().ignoringAntMatchers(MACHINE_ENDPOINTS)
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
@@ -128,7 +128,7 @@ public class WebApplicationSecurity extends WebSecurityConfigurerAdapter {
                 .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
                 .and().and()
                 .headers().addHeaderWriter(allowTogglzIFrame())
-        ;
+                .and().build();
     }
 
     private HeaderWriter allowTogglzIFrame() {
