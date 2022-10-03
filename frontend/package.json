@@ -70,5 +70,5 @@
 		"not dead",
 		"not ie 11"
 	],
-	"packageManager": "yarn@1.22.18"
+	"packageManager": "yarn@1.22.19"
 }
