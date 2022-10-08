@@ -32,7 +32,7 @@ import { mapGetters } from "vuex";
 export default {
 	name: "Togglz",
 	components: {
-		GoBack: defineAsyncComponent(() => import("@/components/GoBack")),
+		GoBack: defineAsyncComponent(() => import("@/components/GoBack.vue")),
 	},
 	computed: {
 		...mapGetters("user", ["isAdmin"]),

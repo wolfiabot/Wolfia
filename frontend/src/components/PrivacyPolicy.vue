@@ -235,12 +235,12 @@ export default {
 	},
 	data: function () {
 		return {
-			sourceCodeLink: process.env.VUE_APP_SOURCE_CODE_LINK,
+			sourceCodeLink: import.meta.env.VITE_APP_SOURCE_CODE_LINK,
 			host: `${window.location.protocol}//${window.location.hostname}`,
-			owner: process.env.VUE_APP_OWNER_NAME,
-			ownerLink: process.env.VUE_APP_OWNER_LINK,
-			serverLocation: process.env.VUE_APP_SERVER_LOCATION,
-			invite: process.env.VUE_APP_SUPPORT_INVITE,
+			owner: import.meta.env.VITE_APP_OWNER_NAME,
+			ownerLink: import.meta.env.VITE_APP_OWNER_LINK,
+			serverLocation: import.meta.env.VITE_APP_SERVER_LOCATION,
+			invite: import.meta.env.VITE_APP_SUPPORT_INVITE,
 			disableDeleteButton: true,
 			timer: null,
 		};

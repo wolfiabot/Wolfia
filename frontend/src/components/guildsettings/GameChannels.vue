@@ -41,7 +41,7 @@ import { GuildSettings } from "@/components/guildsettings/guild-settings";
 export default {
 	name: "GameChannels",
 	components: {
-		ChannelList: defineAsyncComponent(() => import("@/components/guildsettings/ChannelList")),
+		ChannelList: defineAsyncComponent(() => import("@/components/guildsettings/ChannelList.vue")),
 	},
 	props: {
 		guildSettings: GuildSettings,

@@ -23,7 +23,7 @@ import { shardStore } from "@/components/status/shard-store";
 import { guildSettingsStore } from "@/components/guildsettings/guild-settings-store";
 
 export default createStore({
-	strict: process.env.NODE_ENV !== "production", //see https://vuex.vuejs.org/guide/strict.html
+	strict: import.meta.env.DEV, //see https://vuex.vuejs.org/guide/strict.html
 	modules: {
 		user: userStore,
 		staff: staffStore,

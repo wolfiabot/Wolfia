@@ -34,9 +34,9 @@ import { FETCH_USER } from "@/components/user/user-store";
 export default {
 	name: "Dashboard",
 	components: {
-		GuildList: defineAsyncComponent(() => import("@/components/dashboard/GuildList")),
-		GuildSettings: defineAsyncComponent(() => import("@/components/guildsettings/GuildSettings")),
-		LogIn: defineAsyncComponent(() => import("@/components/LogIn")),
+		GuildList: defineAsyncComponent(() => import("@/components/dashboard/GuildList.vue")),
+		GuildSettings: defineAsyncComponent(() => import("@/components/guildsettings/GuildSettings.vue")),
+		LogIn: defineAsyncComponent(() => import("@/components/LogIn.vue")),
 	},
 	props: {
 		guildId: String,

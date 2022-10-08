@@ -34,7 +34,7 @@ import { FETCH_GUILDS } from "@/components/guild/guild-store";
 export default {
 	name: "GuildList",
 	components: {
-		GuildCard: defineAsyncComponent(() => import("@/components/dashboard/GuildCard")),
+		GuildCard: defineAsyncComponent(() => import("@/components/dashboard/GuildCard.vue")),
 	},
 	mounted() {
 		this.fetchGuilds();

@@ -27,38 +27,38 @@ const routes = [
 	{
 		path: "/commands",
 		name: "commands",
-		component: () => import(/* webpackChunkName: "commands" */ "@/components/Commands.vue"),
+		component: () => import("@/components/Commands.vue"),
 	},
 	{
 		path: "/gamemodes",
 		name: "gamemodes",
-		component: () => import(/* webpackChunkName: "gamemodes" */ "@/components/Gamemodes.vue"),
+		component: () => import("@/components/Gamemodes.vue"),
 	},
 	{
 		path: "/team",
 		name: "team",
-		component: () => import(/* webpackChunkName: "team" */ "@/components/staff/Staff.vue"),
+		component: () => import("@/components/staff/Staff.vue"),
 	},
 	{
 		path: "/dashboard/:guildId?",
 		name: "dashboard",
-		component: () => import(/* webpackChunkName: "dashboard" */ "@/components/dashboard/Dashboard.vue"),
+		component: () => import("@/components/dashboard/Dashboard.vue"),
 		props: true,
 	},
 	{
 		path: "/status",
 		name: "status",
-		component: () => import(/* webpackChunkName: "status" */ "@/components/status/Status.vue"),
+		component: () => import("@/components/status/Status.vue"),
 	},
 	{
 		path: "/togglz",
 		name: "togglz",
-		component: () => import(/* webpackChunkName: "togglz" */ "@/components/Togglz.vue"),
+		component: () => import("@/components/Togglz.vue"),
 	},
 	{
 		path: "/privacy",
 		name: "privacy",
-		component: () => import(/* webpackChunkName: "privacy" */ "@/components/PrivacyPolicy.vue"),
+		component: () => import("@/components/PrivacyPolicy.vue"),
 	},
 ];
 
