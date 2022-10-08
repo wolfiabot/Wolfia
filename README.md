@@ -1,6 +1,6 @@
 <img align="right" src="https://i.imgur.com/7Ie8tB3.png" height="200" width="200">
 
-[![Build Status](https://img.shields.io/travis/wolfiabot/wolfia/master.svg?style=flat-square)](https://travis-ci.org/wolfiabot/wolfia)
+[![Build Status](https://img.shields.io/github/workflow/status/wolfiabot/Wolfia/Build?style=flat-square)](https://github.com/wolfiabot/Wolfia/actions/workflows/build.yaml)
 [![License](https://img.shields.io/github/license/wolfiabot/wolfia.svg?style=flat-square)]()
 [![Uptime Robot ratio (7 days)](https://img.shields.io/uptimerobot/ratio/7/m785556907-c9756379df3db09306af6eda.svg?style=flat-square)]()
 [![Discord](https://img.shields.io/discord/315944983754571796.svg?style=flat-square)](https://discord.gg/nvcfX3q)  

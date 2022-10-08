@@ -166,7 +166,6 @@ source.
 - DTOs/VOs etc
 - spring profiles
 - nullability
-- travis
 - .gitignore
 - secrets file
 - listings
