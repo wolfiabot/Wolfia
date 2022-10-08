@@ -55,7 +55,7 @@ docker-compose -f docker/dev/docker-compose.yaml up -d
 - Configure OAuth2 redirects in the [Discord developer console](https://discord.com/developers/applications) with your subdomain:
 ![AOuth2 Redirect Config](https://i.imgur.com/fSVTLjR.png)
 
-- Add your subdomain to the `devHost` constant in the [vue.config.js](./vue.config.js) file
+- Add your subdomain to the `VITE_DEPLOY_URL` var in the [.env](./.env) file
 - Install Frontend dependencies if you haven't done so yet or in a while:
 ```shell script
 yarn install
@@ -64,9 +64,9 @@ yarn install
 #### Start Frontend
 - Run the frontend dev server:
 ```shell script
-yarn serve
+yarn dev
 ```
-- Open browser at your subdomain address https://xyz.localhost.run
+- Open browser at your subdomain address https://xyz.lhr.life
 
 
 ## API

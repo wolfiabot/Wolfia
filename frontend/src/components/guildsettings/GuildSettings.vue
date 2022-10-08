@@ -38,8 +38,8 @@ import { FETCH_GUILD_SETTINGS } from "@/components/guildsettings/guild-settings-
 export default {
 	name: "GuildSettings",
 	components: {
-		GoBack: defineAsyncComponent(() => import("@/components/GoBack")),
-		GameChannels: defineAsyncComponent(() => import("@/components/guildsettings/GameChannels")),
+		GoBack: defineAsyncComponent(() => import("@/components/GoBack.vue")),
+		GameChannels: defineAsyncComponent(() => import("@/components/guildsettings/GameChannels.vue")),
 	},
 	props: {
 		guildId: String,

@@ -31,8 +31,8 @@ import { toast } from "bulma-toast";
 
 export default {
 	components: {
-		Header: defineAsyncComponent(() => import("@/components/Header")),
-		Footer: defineAsyncComponent(() => import("@/components/Footer")),
+		Header: defineAsyncComponent(() => import("@/components/Header.vue")),
+		Footer: defineAsyncComponent(() => import("@/components/Footer.vue")),
 	},
 	mounted() {
 		this.checkLogin(this.$route);
@@ -84,8 +84,11 @@ export default {
 
 <style lang="scss">
 @import "node_modules/bulmaswatch/darkly/variables";
+//wtf darkly
+$size-6: 1rem;
+$size-7: 0.85rem;
 @import "node_modules/bulma/bulma";
-@import "~bulma-switch";
+@import "node_modules/bulma-switch/src/sass/index";
 $bulmaswatch-import-font: false;
 @import "node_modules/bulmaswatch/darkly/overrides";
 
@@ -119,7 +122,7 @@ main {
 }
 
 /*Source: https://github.com/jgthms/bulma/issues/847 */
-@import "~bulma/sass/utilities/mixins";
+@import "node_modules/bulma/sass/utilities/mixins";
 .is-loading {
 	position: relative;
 	pointer-events: none;

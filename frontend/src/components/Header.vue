@@ -19,7 +19,7 @@
 	<nav id="nav" class="navbar has-text-weight-bold">
 		<div class="navbar-brand">
 			<router-link class="navbar-item" to="/">
-				<img src="../assets/logo.png" class="wolfia-logo" alt="Play Werewolf & Mafia games on Discord" />
+				<img src="../../logo.png" class="wolfia-logo" alt="Play Werewolf & Mafia games on Discord" />
 				<div>Wolfia</div>
 			</router-link>
 			<a
@@ -67,7 +67,7 @@ import { mapGetters } from "vuex";
 
 export default {
 	components: {
-		UserNav: defineAsyncComponent(() => import("@/components/user/UserNav")),
+		UserNav: defineAsyncComponent(() => import("@/components/user/UserNav.vue")),
 	},
 	data: function () {
 		return {

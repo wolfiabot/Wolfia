@@ -29,7 +29,7 @@ import { defineAsyncComponent } from "vue";
 export default {
 	name: "ChannelList",
 	components: {
-		ChannelEntry: defineAsyncComponent(() => import("@/components/guildsettings/ChannelEntry")),
+		ChannelEntry: defineAsyncComponent(() => import("@/components/guildsettings/ChannelEntry.vue")),
 	},
 	props: {
 		channels: Array,

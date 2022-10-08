@@ -24,13 +24,13 @@ import fetcher from "@/fetcher";
 
 const app = createApp(App);
 
-if (process.env.NODE_ENV === "production") {
+if (import.meta.env.PROD) {
 	Sentry.init({
 		app,
 		attachProps: true,
 		logErrors: true,
-		dsn: process.env.VUE_APP_SENTRY_DSN,
-		release: process.env.VUE_APP_VERSION,
+		dsn: import.meta.env.VITE_APP_SENTRY_DSN,
+		release: import.meta.env.VITE_APP_VERSION,
 	});
 }
 

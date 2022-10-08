@@ -38,7 +38,7 @@ import { FETCH_STAFF } from "@/components/staff/staff-store";
 export default {
 	name: "Staff",
 	components: {
-		StaffCard: defineAsyncComponent(() => import("@/components/staff/StaffCard")),
+		StaffCard: defineAsyncComponent(() => import("@/components/staff/StaffCard.vue")),
 	},
 	mounted() {
 		this.fetchStaff();
