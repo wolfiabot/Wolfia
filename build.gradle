@@ -395,6 +395,7 @@ project(':frontend') {
     }
 
     tasks.named('assembleFrontend') {
+        dependsOn 'setVersion'
         configure frontendBuildCacheConfig
         outputs.dir("$buildDir/dist")
                 .withPropertyName('frontendOutput')
@@ -406,7 +407,6 @@ project(':frontend') {
         dependsOn tasks.named('installNode')
         script = "version --no-git-tag-version --new-version ${rootProject.version}"
     }
-    tasks.named('assembleFrontend').configure { dependsOn 'setVersion' }
 }
 
 apply plugin: 'application'
