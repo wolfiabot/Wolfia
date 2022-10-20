@@ -43,6 +43,9 @@ export default defineConfig(({ mode }) => {
 				"@": path.resolve(__dirname, "./src"),
 			},
 		},
+		build: {
+			outDir: "build/dist",
+		},
 		server: {
 			port: 8080,
 			proxy: {
