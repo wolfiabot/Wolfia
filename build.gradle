@@ -20,7 +20,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
-import org.sonarqube.gradle.SonarQubeTask
+import org.sonarqube.gradle.SonarTask
 import space.npstr.gradle.docker.DockerWaitHealthyContainer
 
 buildscript {
@@ -509,7 +509,7 @@ processResources {
     }
 }
 
-tasks.withType(SonarQubeTask) {
+tasks.withType(SonarTask) {
     dependsOn jacocoTestReport
 }
 
