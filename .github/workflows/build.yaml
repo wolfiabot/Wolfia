@@ -9,12 +9,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2.3.4
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
         with:
           fetch-depth: 0
 
       - name: Gradle Wrapper Verification
-        uses: gradle/wrapper-validation-action@e2c57acffb2c9aa5a8dc6eda2bbae0b6e495bd4c # v1.0.3
+        uses: gradle/wrapper-validation-action@55e685c48d84285a5b0418cd094606e199cca3b6 # v1.0.5
 
       - name: Set up env
         env:
@@ -40,13 +40,13 @@ jobs:
           echo "GIT_HASH_TAG=$IMAGE_BASE:$GIT_HASH_SHORT" >> "$GITHUB_ENV"
 
       - name: Login to Docker Hub
-        uses: docker/login-action@f3364599c6aa293cdc2b8391b1b56d0c30e45c8a # v1.8.0
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Setup JDK
-        uses: actions/setup-java@3bc31aaf88e8fc94dc1e632d48af61be5ca8721c # v2.3.0
+        uses: actions/setup-java@de1bb2b0c5634f0fc4438d7aa9944e68f9bf86cc # v3.6.0
         with:
           distribution: "temurin"
           java-version: 17
@@ -56,12 +56,12 @@ jobs:
         run: java -Xmx32m --version
 
       - name: Gradle Assemble
-        uses: burrunan/gradle-cache-action@cbdf4342ff988d143aa7a5aeceedffafb8c74bcf # v1.10
+        uses: burrunan/gradle-cache-action@5424817e64ccb6bf267f715f5a46de1bf777c633 # v1.12
         with:
           arguments: assemble --info -Pprod
 
       - name: Sonarqube
-        uses: burrunan/gradle-cache-action@cbdf4342ff988d143aa7a5aeceedffafb8c74bcf # v1.10
+        uses: burrunan/gradle-cache-action@5424817e64ccb6bf267f715f5a46de1bf777c633 # v1.12
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
           arguments: sonarqube -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=wolfiabot -Dsonar.login=${{ env.SONAR_TOKEN }}
 
       - name: Gradle BootJar
-        uses: burrunan/gradle-cache-action@cbdf4342ff988d143aa7a5aeceedffafb8c74bcf # v1.10
+        uses: burrunan/gradle-cache-action@5424817e64ccb6bf267f715f5a46de1bf777c633 # v1.12
         with:
           arguments: bootJar --info -Pprod
 
