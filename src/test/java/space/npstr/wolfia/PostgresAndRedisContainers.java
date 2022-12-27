@@ -17,10 +17,13 @@
 
 package space.npstr.wolfia;
 
+import com.github.dockerjava.api.model.HealthCheck;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 /**
  * Set up our testcontainers & pass their urls into the application config.
@@ -34,6 +37,8 @@ public abstract class PostgresAndRedisContainers {
             .withEnv("ROLE", "wolfia_test")
             .withEnv("DB", "wolfia_test")
             .withEnv("EXTENSIONS", "hstore")
+            .withCreateContainerCmdModifier(it -> it.withHealthcheck(new HealthCheck().withInterval(Duration.ofSeconds(1).toNanos())))
+            .waitingFor(Wait.forHealthcheck())
             .withExposedPorts(5432);
 
     static {

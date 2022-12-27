@@ -228,6 +228,7 @@ project(':database-codegen') {
         containerName.set(codegenDbContainerName)
         hostConfig.autoRemove.set(true)
         hostConfig.portBindings.set(['127.0.0.1:5435:5432'])
+        healthCheck.interval.set(1000 * 1_000_000L) // nanoseconds.....
         withEnvVar('POSTGRES_HOST_AUTH_METHOD', 'trust')
         withEnvVar('ROLE', 'codegen')
         withEnvVar('DB', 'codegen')
