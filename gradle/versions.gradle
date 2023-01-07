@@ -27,7 +27,7 @@ ext {
 	sonarVersion				= '3.5.0.2730'
 	jooqPluginVersion			= '8.0'
 	versionsPluginVersion		= '0.43.0'
-	dockerPluginVersion			= '8.1.0'
+	dockerPluginVersion			= '9.1.0'
 	testLoggerVersion			= '3.2.0'
 
 	frontendPluginVersion		= '6.0.0'

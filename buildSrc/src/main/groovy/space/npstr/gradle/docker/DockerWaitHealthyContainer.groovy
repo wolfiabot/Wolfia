@@ -1,8 +1,8 @@
 package space.npstr.gradle.docker
 
+import com.bmuschko.gradle.docker.shaded.com.github.dockerjava.api.command.InspectContainerCmd
+import com.bmuschko.gradle.docker.shaded.com.github.dockerjava.api.command.InspectContainerResponse
 import com.bmuschko.gradle.docker.tasks.container.DockerExistingContainer
-import com.github.dockerjava.api.command.InspectContainerCmd
-import com.github.dockerjava.api.command.InspectContainerResponse
 import groovy.transform.CompileStatic
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property
