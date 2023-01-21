@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.debug;
 
 import java.util.Map;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -49,14 +49,14 @@ public class RunningCommand implements BaseCommand {
         return "running";
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return "List all running games";
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
+    public boolean execute(@NonNull final CommandContext context) {
 
         final Map<Long, Game> games = this.gameRegistry.getAll();
         for (final Game game : games.values()) {

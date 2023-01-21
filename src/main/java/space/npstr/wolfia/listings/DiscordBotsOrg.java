@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.listings;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.JDA;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -30,13 +30,13 @@ public class DiscordBotsOrg extends Listing {
 
     //https://top.gg/
     //api docs: https://top.gg/api/docs
-    public DiscordBotsOrg(@Nonnull final OkHttpClient httpClient) {
+    public DiscordBotsOrg(@NonNull final OkHttpClient httpClient) {
         super("top.gg", httpClient);
     }
 
-    @Nonnull
+    @NonNull
     @Override
-    protected String createPayload(@Nonnull final JDA jda) {
+    protected String createPayload(@NonNull final JDA jda) {
         return new JSONObject()
                 .put("server_count", jda.getGuildCache().size())
                 .put("shard_id", jda.getShardInfo().getShardId())
@@ -44,9 +44,9 @@ public class DiscordBotsOrg extends Listing {
                 .toString();
     }
 
-    @Nonnull
+    @NonNull
     @Override
-    protected Request.Builder createRequest(final long botId, @Nonnull final String payload) {
+    protected Request.Builder createRequest(final long botId, @NonNull final String payload) {
         final RequestBody body = RequestBody.create(payload, JSON);
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")

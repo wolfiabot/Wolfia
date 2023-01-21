@@ -18,12 +18,12 @@
 package space.npstr.wolfia.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javax.annotation.Nonnull;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.lang.NonNull;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
@@ -72,6 +72,7 @@ public class Oauth2Config implements BeanClassLoaderAware {
             OAuth2AuthorizedClientRepository authorizedClientRepository
     ) {
 
+        @SuppressWarnings("deprecation") // dont care, original code does the same
         OAuth2AuthorizedClientProviderBuilder authorizedClientProviderBuilder =
                 OAuth2AuthorizedClientProviderBuilder.builder()
                         .authorizationCode()
@@ -87,7 +88,7 @@ public class Oauth2Config implements BeanClassLoaderAware {
     }
 
     @Override
-    public void setBeanClassLoader(@Nonnull ClassLoader classLoader) {
+    public void setBeanClassLoader(@NonNull ClassLoader classLoader) {
         this.loader = classLoader;
     }
 }

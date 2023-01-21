@@ -21,7 +21,7 @@ package space.npstr.wolfia.commands;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -44,12 +44,12 @@ public interface BaseCommand {
     /**
      * Execute the command
      */
-    boolean execute(@Nonnull CommandContext context) throws IllegalGameStateException;
+    boolean execute(@NonNull CommandContext context) throws IllegalGameStateException;
 
     /**
      * @return a help string that should explain the usage of this command
      */
-    @Nonnull
+    @NonNull
     String help();
 
     /**
@@ -77,7 +77,7 @@ public interface BaseCommand {
     /**
      * @return how to invoke this command with its main trigger
      */
-    @Nonnull
+    @NonNull
     default String invocation() {
         return WolfiaConfig.DEFAULT_PREFIX + getTrigger();
     }

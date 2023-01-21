@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.util;
 
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.Role;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -46,7 +46,7 @@ public class RankCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) {
+    public boolean execute(@NonNull final CommandContext commandContext) {
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
@@ -85,7 +85,7 @@ public class RankCommand implements BaseCommand, PublicCommand {
         return true;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " AlphaWolves"

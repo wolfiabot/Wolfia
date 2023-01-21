@@ -20,7 +20,7 @@ package space.npstr.wolfia.domain.settings;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -64,7 +64,7 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
         return List.of("cs");
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " [key value]"
@@ -76,7 +76,7 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) {
+    public boolean execute(@NonNull final CommandContext commandContext) {
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;

@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.commands.util;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDAInfo;
@@ -51,7 +51,7 @@ public class InfoCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation()
@@ -59,7 +59,7 @@ public class InfoCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
+    public boolean execute(@NonNull final CommandContext context) {
         ShardManager shardManager = context.getJda().getShardManager();
         requireNonNull(shardManager).retrieveApplicationInfo().submit()
                 .thenApply(ApplicationInfo::getDescription)
@@ -67,7 +67,7 @@ public class InfoCommand implements BaseCommand, PublicCommand {
         return true;
     }
 
-    private void execute(@Nonnull final CommandContext context, String description) {
+    private void execute(@NonNull final CommandContext context, String description) {
         ShardManager shardManager = requireNonNull(context.getJda().getShardManager());
         var appInfoProvider = new ApplicationInfoProvider(context.getJda().getShardManager());
         final User owner = appInfoProvider.getOwner();

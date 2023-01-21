@@ -18,7 +18,7 @@
 package space.npstr.wolfia.domain.stats;
 
 import java.util.Optional;
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Phase;
 

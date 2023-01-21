@@ -17,9 +17,9 @@
 
 package space.npstr.wolfia.domain.discord;
 
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Objects;
-import javax.servlet.http.HttpSession;
 import okhttp3.OkHttpClient;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;

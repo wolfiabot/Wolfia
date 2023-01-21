@@ -20,7 +20,7 @@ package space.npstr.wolfia.game.tools;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import space.npstr.wolfia.commands.MessageContext;
@@ -33,7 +33,7 @@ public class NiceEmbedBuilder extends EmbedBuilder {
     /**
      * @return a general purpose preformatted nice builder for embeds
      */
-    @Nonnull
+    @NonNull
     public static NiceEmbedBuilder defaultBuilder() {
         final NiceEmbedBuilder neb = new NiceEmbedBuilder();
         neb.setColor(MessageContext.BLACKIA);

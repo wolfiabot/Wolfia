@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.util;
 
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -49,7 +49,7 @@ public class HelpCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " [command]"
@@ -59,7 +59,7 @@ public class HelpCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
+    public boolean execute(@NonNull final CommandContext context) {
         if (Launcher.getBotContext().getWolfiaConfig().isDebug() && !context.isOwner()) {
             return true;//dont answer the help command in debug mode unless it's the owner
         }

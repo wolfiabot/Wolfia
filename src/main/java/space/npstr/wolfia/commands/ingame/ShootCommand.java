@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -51,7 +51,7 @@ public class ShootCommand extends GameCommand {
         return List.of("s", "blast");
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " @player"
@@ -60,7 +60,7 @@ public class ShootCommand extends GameCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
+    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
         //this command may be called in a guild for popcorn and a private channel for mafia
 
         final GuildCommandContext context = commandContext.requireGuild(false);

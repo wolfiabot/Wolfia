@@ -26,6 +26,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -76,6 +77,7 @@ class TogglzEndpointTest<T extends Session> extends ApplicationTest {
     }
 
     @Test
+    @Disabled("Wait for https://github.com/togglz/togglz/pull/917 release")
     void whenGet_withUserAuthority_returnUnauthorized() throws Exception {
         Session session = generateHttpSession(Authorization.ROLE_USER);
         Request request = getTogglzConsole()
@@ -88,6 +90,7 @@ class TogglzEndpointTest<T extends Session> extends ApplicationTest {
     }
 
     @Test
+    @Disabled("Wait for https://github.com/togglz/togglz/pull/917 release")
     void whenGet_withOwnerAuthority_returnOk() throws IOException {
         Session session = generateHttpSession(Authorization.ROLE_OWNER);
         Request request = getTogglzConsole()

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
@@ -124,7 +124,7 @@ public class GameUtils {
     /**
      * @return the exact player found, or null and post a message
      */
-    public static Player identifyPlayer(final Collection<Player> players, @Nonnull final CommandContext context) {
+    public static Player identifyPlayer(final Collection<Player> players, @NonNull final CommandContext context) {
         final List<Player> found = findPlayer(players, context);
 
         final String explanation = String.format("Please use a mention or the player number which you can find with " +
@@ -147,7 +147,7 @@ public class GameUtils {
      * Will return an empty list if no match was found, a list with a single play if there was one match, or a list with
      * more than one of player in case of more than one hit. It is up to the caller to handle the cases.
      */
-    public static List<Player> findPlayer(final Collection<Player> players, @Nonnull final CommandContext context, final int... levenshteinThreshold) {
+    public static List<Player> findPlayer(final Collection<Player> players, @NonNull final CommandContext context, final int... levenshteinThreshold) {
 
         //by mention
         for (final User u : context.msg.getMentionedUsers()) {

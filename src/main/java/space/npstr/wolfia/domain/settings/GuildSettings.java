@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.domain.settings;
 
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 import java.beans.ConstructorProperties;
 import java.util.Optional;
 

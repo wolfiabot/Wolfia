@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.game.GameRegistry;
@@ -45,7 +45,7 @@ public class VoteCommand extends GameCommand {
         return List.of("v", "lynch");
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " @player"

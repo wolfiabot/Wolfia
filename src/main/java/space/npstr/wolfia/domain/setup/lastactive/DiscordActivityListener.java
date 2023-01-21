@@ -25,7 +25,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 @Component
 public class DiscordActivityListener {
@@ -38,13 +38,13 @@ public class DiscordActivityListener {
 
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    public void onUserTyping(@Nonnull UserTypingEvent event) {
+    public void onUserTyping(@NonNull UserTypingEvent event) {
         active(event.getUser());
     }
 
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    public void onGuildMessageReceived(@Nonnull GuildMessageReceivedEvent event) {
+    public void onGuildMessageReceived(@NonNull GuildMessageReceivedEvent event) {
         active(event.getAuthor());
     }
 

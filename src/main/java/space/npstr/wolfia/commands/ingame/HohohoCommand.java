@@ -26,7 +26,7 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.List;
 
 @Command
@@ -48,7 +48,7 @@ public class HohohoCommand extends GameCommand {
         return List.of("ho");
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " name or number"
@@ -57,7 +57,7 @@ public class HohohoCommand extends GameCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
+    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
         //this command is expected to be called by a player in a private channel
 
         //todo handle a player being part of multiple games properly

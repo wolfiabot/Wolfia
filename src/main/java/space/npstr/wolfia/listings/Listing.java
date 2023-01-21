@@ -18,7 +18,7 @@
 package space.npstr.wolfia.listings;
 
 import java.io.IOException;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.MediaType;
@@ -43,22 +43,22 @@ public abstract class Listing {
 
     private String lastPayload;
 
-    public Listing(@Nonnull final String name, @Nonnull final OkHttpClient httpClient) {
+    public Listing(@NonNull final String name, @NonNull final OkHttpClient httpClient) {
         this.name = name;
         this.httpClient = httpClient;
     }
 
-    @Nonnull
-    protected abstract String createPayload(@Nonnull JDA jda);
+    @NonNull
+    protected abstract String createPayload(@NonNull JDA jda);
 
-    @Nonnull
-    protected abstract Request.Builder createRequest(long botId, @Nonnull String payload);
+    @NonNull
+    protected abstract Request.Builder createRequest(long botId, @NonNull String payload);
 
     //return false if there is no token configured, or whatever is needed to post to the site
     protected abstract boolean isConfigured();
 
     //retries with growing delay until it is successful
-    public void postStats(@Nonnull final JDA jda) throws InterruptedException {
+    public void postStats(@NonNull final JDA jda) throws InterruptedException {
         if (!isConfigured()) {
             log.debug("Skipping posting stats to {} due to not being configured", this.name);
             return;

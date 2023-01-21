@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -63,7 +63,7 @@ public class TagCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " add/remove/[your message]"
@@ -74,7 +74,7 @@ public class TagCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) {
+    public boolean execute(@NonNull final CommandContext commandContext) {
 
         final GuildCommandContext context = commandContext.requireGuild(false);
         if (context == null) {

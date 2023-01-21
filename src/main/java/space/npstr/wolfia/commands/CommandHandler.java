@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -84,7 +84,7 @@ public class CommandHandler {
     }
 
     @EventListener
-    public void onMessageReceived(@Nonnull final MessageReceivedEvent event) {
+    public void onMessageReceived(@NonNull final MessageReceivedEvent event) {
         Timer received = MetricsRegistry.commandRetentionTime.startTimer();
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {
@@ -177,7 +177,7 @@ public class CommandHandler {
     /**
      * @param context the parsed input of a user
      */
-    private void handleCommand(@Nonnull final CommandContext context, Timer received) {
+    private void handleCommand(@NonNull final CommandContext context, Timer received) {
         try {
             boolean canCallCommand = context.command instanceof PublicCommand || context.isOwner();
             if (!canCallCommand) {

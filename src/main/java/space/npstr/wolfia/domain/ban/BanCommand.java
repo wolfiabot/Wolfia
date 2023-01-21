@@ -18,7 +18,7 @@
 package space.npstr.wolfia.domain.ban;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -45,14 +45,14 @@ public class BanCommand implements BaseCommand {
         return "ban";
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return "Globally ban mentioned user from signing up for games.";
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
+    public boolean execute(@NonNull final CommandContext context) {
 
         //is the user allowed to do that?
         if (!context.isOwner()) {

@@ -24,8 +24,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -97,7 +97,7 @@ public class TextchatUtils {
 
     //a more aggressive variant of getOrCreateInviteLinkForChannel() which will try to create an invite anywhere into
     // a guild
-    public static String getOrCreateInviteLinkForGuild(@Nonnull final Guild guild, @Nullable final TextChannel preferred,
+    public static String getOrCreateInviteLinkForGuild(@NonNull final Guild guild, @Nullable final TextChannel preferred,
                                                        final Operation... onFail) {
         if (preferred != null) {
             final String preferredInvite = getOrCreateInviteLinkForChannel(preferred);
@@ -137,7 +137,7 @@ public class TextchatUtils {
      * <p>
      * expected complexity: O(b + a*b)  (a and b = lengths of a and b)
      */
-    public static int levenshteinDist(@Nonnull final String x, @Nonnull final String y) {
+    public static int levenshteinDist(@NonNull final String x, @NonNull final String y) {
         final String a = x.toLowerCase();
         final String b = y.toLowerCase();
         final int[] costs = new int[b.length() + 1];
@@ -160,21 +160,21 @@ public class TextchatUtils {
      *
      * @return returns true if the distance is equal or smaller than maxDist, false otherwise
      */
-    public static boolean isSimilar(@Nonnull final String x, @Nonnull final String y, final int maxDistance) {
+    public static boolean isSimilar(@NonNull final String x, @NonNull final String y, final int maxDistance) {
         return levenshteinDist(x, y) <= maxDistance;
     }
 
     /**
      * Same as {@link TextchatUtils#isSimilar(String, String, int)}, just with a default maxDistance of 3
      */
-    public static boolean isSimilar(@Nonnull final String x, @Nonnull final String y) {
+    public static boolean isSimilar(@NonNull final String x, @NonNull final String y) {
         return isSimilar(x, y, 3);
     }
 
     /**
      * Same as {@link TextchatUtils#isSimilar(String, String)}, but forces string to be lower case before comparing them
      */
-    public static boolean isSimilarLower(@Nonnull final String x, @Nonnull final String y) {
+    public static boolean isSimilarLower(@NonNull final String x, @NonNull final String y) {
         return isSimilar(x.toLowerCase(), y.toLowerCase());
     }
 
@@ -209,8 +209,8 @@ public class TextchatUtils {
     private static final List<Character> MARKDOWN_CHARS = Arrays.asList('*', '`', '~', '_');
 
     //thanks fredboat
-    @Nonnull
-    public static String escapeMarkdown(@Nonnull final String str) {
+    @NonNull
+    public static String escapeMarkdown(@NonNull final String str) {
         final StringBuilder revisedString = new StringBuilder(str.length());
         for (final Character n : str.toCharArray()) {
             if (MARKDOWN_CHARS.contains(n)) {
@@ -221,8 +221,8 @@ public class TextchatUtils {
         return revisedString.toString();
     }
 
-    @Nonnull
-    public static Message prefaceWithName(@Nonnull final User user, @Nonnull final String msg, final boolean escape) {
+    @NonNull
+    public static Message prefaceWithName(@NonNull final User user, @NonNull final String msg, final boolean escape) {
         String name = user.getName();
         if (escape) {
             name = escapeMarkdown(name);
@@ -230,8 +230,8 @@ public class TextchatUtils {
         return prefaceWithString(name, msg);
     }
 
-    @Nonnull
-    public static Message prefaceWithName(@Nonnull final Member member, @Nonnull final String msg, final boolean escape) {
+    @NonNull
+    public static Message prefaceWithName(@NonNull final Member member, @NonNull final String msg, final boolean escape) {
         String name = member.getEffectiveName();
         if (escape) {
             name = escapeMarkdown(name);
@@ -239,14 +239,14 @@ public class TextchatUtils {
         return prefaceWithString(name, msg);
     }
 
-    @Nonnull
-    public static Message prefaceWithMention(@Nonnull final User user, @Nonnull final String msg) {
+    @NonNull
+    public static Message prefaceWithMention(@NonNull final User user, @NonNull final String msg) {
         return prefaceWithString(user.getAsMention(), msg);
     }
 
     //thanks fredboat
-    @Nonnull
-    private static Message prefaceWithString(@Nonnull final String preface, @Nonnull final String msg) {
+    @NonNull
+    private static Message prefaceWithString(@NonNull final String preface, @NonNull final String msg) {
         final String message = ensureSpace(msg);
         return new MessageBuilder()
                 .append(preface)
@@ -256,8 +256,8 @@ public class TextchatUtils {
     }
 
     //thanks fredboat
-    @Nonnull
-    private static String ensureSpace(@Nonnull final String msg) {
+    @NonNull
+    private static String ensureSpace(@NonNull final String msg) {
         return msg.charAt(0) == ' ' ? msg : " " + msg;
     }
 

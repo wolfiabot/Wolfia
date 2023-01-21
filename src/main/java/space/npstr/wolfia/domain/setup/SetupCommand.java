@@ -20,7 +20,7 @@ package space.npstr.wolfia.domain.setup;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -58,7 +58,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " [key value]"
@@ -70,7 +70,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) {
+    public boolean execute(@NonNull final CommandContext commandContext) {
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;

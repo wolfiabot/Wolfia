@@ -34,7 +34,7 @@ import space.npstr.wolfia.domain.oauth2.AuthStateCache;
 import space.npstr.wolfia.domain.oauth2.DiscordRequestFailedException;
 import space.npstr.wolfia.domain.oauth2.OAuth2Service;
 
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;

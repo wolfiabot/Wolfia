@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.game.GameRegistry;
@@ -36,7 +36,7 @@ public abstract class GameCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
+    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;

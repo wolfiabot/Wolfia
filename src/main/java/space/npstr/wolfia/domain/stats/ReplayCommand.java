@@ -18,7 +18,7 @@
 package space.npstr.wolfia.domain.stats;
 
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
@@ -45,7 +45,7 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " #gameid"
@@ -55,7 +55,7 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
+    public boolean execute(@NonNull final CommandContext context) {
 
         if (!context.hasArguments()) {
             context.help();

@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.game.CharakterSetup;
 import space.npstr.wolfia.game.GameInfo;
@@ -84,9 +84,9 @@ public class MafiaInfo implements GameInfo {
     /**
      * @return a character setup for the provided mode and player count, never null
      */
-    @Nonnull
+    @NonNull
     @Override
-    public CharakterSetup getCharacterSetup(@Nonnull final GameMode mode, final int playerCount) {
+    public CharakterSetup getCharacterSetup(@NonNull final GameMode mode, final int playerCount) {
         if (!isAcceptablePlayerCount(playerCount, mode)) {
             throw new IllegalArgumentException(String.format(
                     "There is no possible character setup for the provided player count %s in this game %s mode %s",

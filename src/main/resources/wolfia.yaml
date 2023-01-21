@@ -6,10 +6,10 @@ wolfia:
   debug: true   # Some things are different. Set to false to properly run the bot.
 
 database:
-  jdbcUrl: "jdbc:postgresql://localhost:5442/wolfia?user=wolfia&password=wolfia"   # From the docker/dev/docker-compose file
+  jdbc-url: "jdbc:postgresql://localhost:5442/wolfia?user=wolfia&password=wolfia"   # From the docker/dev/docker-compose file
 
 oauth2:
-  baseRedirectUrl: "/"    # URL that should be redirected to after a successful authentication (usually the root).
+  base-redirect-url: "/"    # URL that should be redirected to after a successful authentication (usually the root).
 
 server:
   port: 4567   # Port of Wolfia's API.
@@ -22,8 +22,6 @@ spring:
   output:
     ansi:
       enabled: always
-  redis:
-    url: "redis://localhost:6389/0"   # From the docker/dev/docker-compose file
   security:
     oauth2:
       client:
@@ -44,12 +42,15 @@ spring:
             # Spring Session assumes the principal name is unique, and indexes sessions by it for example.
             # The discord username is not unique though, and it can be changed anytime.
             # That is why we use the id here instead.
-            username-attribute: id
+            user-name-attribute: id
   session:
-    store-type: redis
     redis:
       flush-mode: immediate
+      repository-type: indexed
     timeout: 365d
+  data:
+    redis:
+      url: "redis://localhost:6389/0"
 
 togglz:
   enabled: true

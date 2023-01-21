@@ -32,7 +32,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -140,20 +140,20 @@ public abstract class Game {
     /**
      * @return the role pm of a user
      */
-    @Nonnull
-    public String getRolePm(@Nonnull final Member member) throws IllegalGameStateException {
+    @NonNull
+    public String getRolePm(@NonNull final Member member) throws IllegalGameStateException {
         return getPlayer(member.getUser().getIdLong()).getRolePm();
     }
 
     /**
      * @return true if the user is playing in this game (dead or alive), false if not
      */
-    public boolean isUserPlaying(@Nonnull final User user) {
+    public boolean isUserPlaying(@NonNull final User user) {
         long userId = user.getIdLong();
         return this.players.stream().anyMatch(p -> p.userId == userId);
     }
 
-    public boolean isUserPlaying(@Nonnull final Member member) {
+    public boolean isUserPlaying(@NonNull final Member member) {
         return isUserPlaying(member.getUser());
     }
 
@@ -191,7 +191,7 @@ public abstract class Game {
     /**
      * @return the main game channel
      */
-    @Nonnull
+    @NonNull
     protected TextChannel fetchGameChannel() {
         return fetchTextChannel(this.channelId);
     }
@@ -200,7 +200,7 @@ public abstract class Game {
      * @return the baddie game channel
      * Might throw an exception if called in the wrong game mode or never return
      */
-    @Nonnull
+    @NonNull
     protected TextChannel fetchBaddieChannel() {
         return fetchTextChannel(this.wolfChat.getChannelId());
     }
@@ -218,7 +218,7 @@ public abstract class Game {
         return false;
     }
 
-    @Nonnull
+    @NonNull
     protected Player getPlayer(final long userId) throws IllegalGameStateException {
         for (final Player p : this.players) {
             if (p.userId == userId) {
@@ -228,8 +228,8 @@ public abstract class Game {
         throw new IllegalGameStateException("Requested player " + userId + " is not in the player list");
     }
 
-    @Nonnull
-    public Player getPlayer(@Nonnull final User user) throws IllegalGameStateException {
+    @NonNull
+    public Player getPlayer(@NonNull final User user) throws IllegalGameStateException {
         return getPlayer(user.getIdLong());
     }
 
@@ -789,14 +789,14 @@ public abstract class Game {
      * @throws IllegalGameStateException
      *         if the command entered led to an illegal game state
      */
-    public abstract boolean issueCommand(@Nonnull CommandContext context)
+    public abstract boolean issueCommand(@NonNull CommandContext context)
             throws IllegalGameStateException;
 
 
     //this method assumes that the id itself is legit and not a mistake
     // it is an attempt to improve the occasional inconsistency of discord which makes looking up entities a gamble
-    // the main feature being the @Nonnull return contract, over the @Nullable contract of looking the entity up in JDA
-    @Nonnull
+    // the main feature being the @NonNull return contract, over the @Nullable contract of looking the entity up in JDA
+    @NonNull
     private static TextChannel fetchTextChannel(final long channelId) {
         ShardManager shardManager = Launcher.getBotContext().getShardManager();
         TextChannel tc = shardManager.getTextChannelById(channelId);

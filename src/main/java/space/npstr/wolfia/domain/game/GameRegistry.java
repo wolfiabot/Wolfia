@@ -21,8 +21,8 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.game.Game;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -48,7 +48,7 @@ public class GameRegistry {
     }
 
     @Nullable
-    public Game get(@Nonnull final TextChannel channel) {
+    public Game get(@NonNull final TextChannel channel) {
         return get(channel.getIdLong());
     }
 

@@ -19,7 +19,7 @@ package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.ChannelType;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
@@ -45,7 +45,7 @@ public class ItemsCommand extends GameCommand {
         return TRIGGER;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + "\n#Show your items.";
@@ -53,7 +53,7 @@ public class ItemsCommand extends GameCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@Nonnull final CommandContext context) throws IllegalGameStateException {
+    public boolean execute(@NonNull final CommandContext context) throws IllegalGameStateException {
         //this command is expected to be called by a player in a private channel
 
         if (context.channel.getType() != ChannelType.PRIVATE) {

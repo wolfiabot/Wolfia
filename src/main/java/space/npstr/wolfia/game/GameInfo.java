@@ -19,7 +19,7 @@ package space.npstr.wolfia.game;
 
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.game.definitions.Scope;
 
@@ -67,8 +67,8 @@ public interface GameInfo {
 
     boolean isAcceptablePlayerCount(int playerCount, GameMode mode);
 
-    @Nonnull
-    CharakterSetup getCharacterSetup(@Nonnull GameMode mode, int playerCount);
+    @NonNull
+    CharakterSetup getCharacterSetup(@NonNull GameMode mode, int playerCount);
 
     String textRep();
 }

@@ -18,23 +18,23 @@
 package space.npstr.wolfia.commands;
 
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
- * Provides @Nonnull methods for accessing guild entities after an elegant transformation from a CommandContext
+ * Provides @NonNull methods for accessing guild entities after an elegant transformation from a CommandContext
  * Same rules as for the CommandContext, don't save these or hold on to these for an extended period of time as it
  * holds direct references to the entities.
  */
 public class GuildCommandContext extends CommandContext {
 
-    @Nonnull
+    @NonNull
     public final Guild guild;
-    @Nonnull
+    @NonNull
     public final Member member;
-    @Nonnull
+    @NonNull
     public final TextChannel textChannel;
 
 
@@ -48,13 +48,13 @@ public class GuildCommandContext extends CommandContext {
         return Optional.of(this.member);
     }
 
-    @Nonnull
+    @NonNull
     public TextChannel getTextChannel() {
         return this.textChannel;
     }
 
-    public GuildCommandContext(@Nonnull final CommandContext context, @Nonnull final Guild guild,
-                               @Nonnull final Member member, @Nonnull final TextChannel textChannel) {
+    public GuildCommandContext(@NonNull final CommandContext context, @NonNull final Guild guild,
+                               @NonNull final Member member, @NonNull final TextChannel textChannel) {
         super(context.event, context.trigger, context.args, context.rawArgs, context.command);
         this.guild = guild;
         this.member = member;

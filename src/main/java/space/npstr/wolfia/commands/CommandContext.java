@@ -17,8 +17,8 @@
 
 package space.npstr.wolfia.commands;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
@@ -37,15 +37,15 @@ public class CommandContext extends MessageContext {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommandContext.class);
 
     //@formatter:off
-    @Nonnull public final String trigger;                        // the command trigger, e.g. "play", or "p", or "pLaY", whatever the user typed
-    @Nonnull public final String[] args ;                        // the arguments split by whitespace, excluding prefix and trigger
-    @Nonnull public final String rawArgs;                        // raw arguments excluding prefix and trigger, trimmed
-    @Nonnull public final BaseCommand command;
-//    @Nonnull private final Histogram.Timer received;             // time when we received this command
+    @NonNull public final String trigger;                        // the command trigger, e.g. "play", or "p", or "pLaY", whatever the user typed
+    @NonNull public final String[] args ;                        // the arguments split by whitespace, excluding prefix and trigger
+    @NonNull public final String rawArgs;                        // raw arguments excluding prefix and trigger, trimmed
+    @NonNull public final BaseCommand command;
+//    @NonNull private final Histogram.Timer received;             // time when we received this command
     //@formatter:on
 
-    CommandContext(@Nonnull final MessageReceivedEvent event, @Nonnull final String trigger,
-                   @Nonnull final String[] args, @Nonnull final String rawArgs, @Nonnull final BaseCommand command) {
+    CommandContext(@NonNull final MessageReceivedEvent event, @NonNull final String trigger,
+                   @NonNull final String[] args, @NonNull final String rawArgs, @NonNull final BaseCommand command) {
 
         super(event);
         this.trigger = trigger;
@@ -79,14 +79,12 @@ public class CommandContext extends MessageContext {
     /**
      * Transforms this context into a guild context, telling the invoker to run the command in a guild if requested
      *
-     * @param answerUser
-     *         set to false to not tell the invoker about running the command in a guild
-     *         <p>
-     *
+     * @param answerUser set to false to not tell the invoker about running the command in a guild
+     *                   <p>
      * @return a GuildCommandContext if this command was issued in a guild, null otherwise
      */
     @Nullable
-    public GuildCommandContext requireGuild(@Nonnull final boolean... answerUser) {
+    public GuildCommandContext requireGuild(@NonNull final boolean... answerUser) {
         if (this.channel.getType() == ChannelType.TEXT) {
             final TextChannel tc = (TextChannel) this.channel;
             final Guild g = tc.getGuild();

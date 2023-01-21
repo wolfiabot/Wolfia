@@ -18,8 +18,8 @@
 package space.npstr.wolfia.domain.privacy;
 
 import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -59,11 +59,11 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
     }
 
     @Override
-    public boolean execute(@Nonnull CommandContext context) {
+    public boolean execute(@NonNull CommandContext context) {
         return start(context);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return "Show Wolfia's Privacy Policy options.";

@@ -18,7 +18,7 @@
 package space.npstr.wolfia.webapi.guild;
 
 import java.util.List;
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

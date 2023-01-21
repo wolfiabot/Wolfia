@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
@@ -43,7 +43,7 @@ public class AuthCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull CommandContext context) {
+    public boolean execute(@NonNull CommandContext context) {
 
         String jumpUrl = context.getMessage().getJumpUrl();
 
@@ -61,7 +61,7 @@ public class AuthCommand implements BaseCommand, PublicCommand {
         return true;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return "Start the authorization flow with Wolfia. Once you have successfully authorized with me, "

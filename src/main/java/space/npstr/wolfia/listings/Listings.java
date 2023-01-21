@@ -22,8 +22,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
@@ -61,14 +61,14 @@ public class Listings {
     }
 
     //according to discordbotspw and discordbotsorg docs: post stats on guild join, guild leave, and ready events
-    private void postAllStats(@Nonnull final JDA jda) {
+    private void postAllStats(@NonNull final JDA jda) {
         final Set<Listing> listings = new HashSet<>(this.tasks.keySet());
         for (final Listing listing : listings) {
             postStats(listing, jda);
         }
     }
 
-    private synchronized void postStats(@Nonnull final Listing listing, @Nonnull final JDA jda) {
+    private synchronized void postStats(@NonNull final Listing listing, @NonNull final JDA jda) {
         final Future<?> task = this.tasks.get(listing);
         if (isTaskRunning(task)) {
             log.info("Skipping posting stats to {} since there is a task to do that running already.", listing.name);

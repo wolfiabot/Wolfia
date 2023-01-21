@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.game;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -52,14 +52,14 @@ public class RolePmCommand implements BaseCommand, PublicCommand {
         return List.of("rpm");
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + "\n#Send your role for the ongoing game in a private message.";
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
+    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;

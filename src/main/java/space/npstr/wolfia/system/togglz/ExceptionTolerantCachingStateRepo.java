@@ -22,7 +22,7 @@ import org.togglz.core.repository.FeatureState;
 import org.togglz.core.repository.StateRepository;
 import org.togglz.core.repository.cache.CachingStateRepository;
 
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;

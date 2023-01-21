@@ -23,7 +23,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 
 /**
  * This executor logs exceptions of its tasks.
@@ -45,43 +45,43 @@ public class ExceptionLoggingExecutor extends ScheduledThreadPoolExecutor {
         super.execute(wrapRunnableExceptionSafe(command));
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit timeUnit) {
         return super.schedule(wrapRunnableExceptionSafe(command), delay, timeUnit);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public <V> ScheduledFuture<V> schedule(final Callable<V> callable, final long delay, final TimeUnit unit) {
         return super.schedule(wrapExceptionSafe(callable), delay, unit);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public ScheduledFuture<?> scheduleAtFixedRate(final Runnable command, final long initialDelay, final long period, final TimeUnit unit) {
         return super.scheduleAtFixedRate(wrapRunnableExceptionSafe(command), initialDelay, period, unit);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public ScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay, final long delay, final TimeUnit unit) {
         return super.scheduleWithFixedDelay(wrapRunnableExceptionSafe(command), initialDelay, delay, unit);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public Future<?> submit(final Runnable task) {
         return super.submit(wrapRunnableExceptionSafe(task));
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public <T> Future<T> submit(final Runnable task, final T result) {
         return super.submit(wrapRunnableExceptionSafe(task), result);
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public <T> Future<T> submit(final Callable<T> task) {
         return super.submit(wrapExceptionSafe(task));

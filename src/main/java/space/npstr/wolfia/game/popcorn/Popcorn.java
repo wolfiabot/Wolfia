@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongConsumer;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -226,7 +226,7 @@ public class Popcorn extends Game {
     }
 
     @Override
-    public boolean issueCommand(@Nonnull final CommandContext context)
+    public boolean issueCommand(@NonNull final CommandContext context)
             throws IllegalGameStateException {
         if (context.command instanceof ShootCommand) {
             final long shooter = context.invoker.getIdLong();

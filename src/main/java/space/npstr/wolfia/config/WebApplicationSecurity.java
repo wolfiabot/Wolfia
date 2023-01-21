@@ -18,6 +18,9 @@
 package space.npstr.wolfia.config;
 
 import io.undertow.util.Headers;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -25,9 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.HttpUrl;
 import org.slf4j.Logger;
@@ -112,12 +112,11 @@ public class WebApplicationSecurity {
         );
 
         return http
-                .csrf().ignoringAntMatchers(MACHINE_ENDPOINTS)
+                .csrf().ignoringRequestMatchers(MACHINE_ENDPOINTS)
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .and()
-                .authorizeRequests()
-                .antMatchers(SECURED_ENDPOINTS).authenticated()
-                .antMatchers(noAuthEndpoints).permitAll()
+                .and().authorizeHttpRequests()
+                .requestMatchers(SECURED_ENDPOINTS).authenticated()
+                .requestMatchers(noAuthEndpoints).permitAll()
                 .anyRequest().permitAll()
                 // To avoid redirects to the spring internal login page when unauthorized requests happen to machine endpoints
                 .and().exceptionHandling().defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), new AntPathRequestMatcher("/api/**"))

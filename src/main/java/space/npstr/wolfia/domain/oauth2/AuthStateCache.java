@@ -22,7 +22,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
+import org.springframework.lang.Nullable;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;

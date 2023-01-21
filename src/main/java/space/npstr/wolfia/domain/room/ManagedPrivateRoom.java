@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -204,8 +204,8 @@ public class ManagedPrivateRoom {
 
     //this method assumes that the id itself is legit and not a mistake and we are member of this private guild
     // it is an attempt to improve the occasional inconsistency of discord which makes looking up entities a gamble
-    // the main feature being the @Nonnull return contract, over the @Nullable contract of looking the entity up in JDA
-    @Nonnull
+    // the main feature being the @NonNull return contract, over the @Nullable contract of looking the entity up in JDA
+    @NonNull
     private Guild fetchThisGuild() {
         ShardManager shardManager = Launcher.getBotContext().getShardManager();
         Guild guild = shardManager.getGuildById(this.privateRoom.getGuildId());

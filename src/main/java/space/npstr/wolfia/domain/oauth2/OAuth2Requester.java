@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Credentials;
@@ -258,12 +258,12 @@ public class OAuth2Requester {
     private Callback asCallback(CompletableFuture<Response> completableFuture) {
         return new Callback() {
             @Override
-            public void onFailure(@Nonnull Call call, @Nonnull IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 completableFuture.completeExceptionally(e);
             }
 
             @Override
-            public void onResponse(@Nonnull Call call, @Nonnull Response response) {
+            public void onResponse(@NonNull Call call, @NonNull Response response) {
                 completableFuture.complete(response);
             }
         };

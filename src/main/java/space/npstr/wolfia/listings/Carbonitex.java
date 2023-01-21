@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.listings;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.JDA;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -30,22 +30,22 @@ public class Carbonitex extends Listing {
 
     //https://www.carbonitex.net/
     //api docs: https://www.carbonitex.net/discord/data/botdata.php?key=MAH_KEY
-    public Carbonitex(@Nonnull final OkHttpClient httpClient) {
+    public Carbonitex(@NonNull final OkHttpClient httpClient) {
         super("carbonitex.net", httpClient);
     }
 
-    @Nonnull
+    @NonNull
     @Override
-    protected String createPayload(@Nonnull final JDA jda) {
+    protected String createPayload(@NonNull final JDA jda) {
         return new JSONObject()
                 .put("key", Launcher.getBotContext().getListingsConfig().getCarbonitexKey())
                 .put("servercount", Launcher.getBotContext().getShardManager().getGuildCache().size())
                 .toString();
     }
 
-    @Nonnull
+    @NonNull
     @Override
-    protected Request.Builder createRequest(final long botId, @Nonnull final String payload) {
+    protected Request.Builder createRequest(final long botId, @NonNull final String payload) {
         final RequestBody body = RequestBody.create(payload, JSON);
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")

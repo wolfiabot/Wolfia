@@ -21,8 +21,8 @@ import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -51,12 +51,12 @@ public class RestActions {
 
 
     //May not be an empty string, as MessageBuilder#build() will throw an exception
-    @Nonnull
+    @NonNull
     public static Message from(final String string) {
         return new MessageBuilder().append(string).build();
     }
 
-    @Nonnull
+    @NonNull
     public static Message from(final MessageEmbed embed) {
         return new MessageBuilder().setEmbeds(embed).build();
     }
@@ -67,16 +67,12 @@ public class RestActions {
     // ********************************************************************************
 
     /**
-     * @param channel
-     *         The channel that should be messaged
-     * @param message
-     *         Message to be sent
-     * @param onSuccess
-     *         Optional success handler
-     * @param onFail
-     *         Optional exception handler
+     * @param channel   The channel that should be messaged
+     * @param message   Message to be sent
+     * @param onSuccess Optional success handler
+     * @param onFail    Optional exception handler
      */
-    public static void sendMessage(@Nonnull final MessageChannel channel, @Nonnull final Message message,
+    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final Message message,
                                    @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
         sendMessage0(
                 channel,
@@ -87,7 +83,7 @@ public class RestActions {
     }
 
     // Message
-    public static void sendMessage(@Nonnull final MessageChannel channel, @Nonnull final Message message,
+    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final Message message,
                                    @Nullable final Consumer<Message> onSuccess) {
         sendMessage0(
                 channel,
@@ -98,7 +94,7 @@ public class RestActions {
     }
 
     // Embed
-    public static void sendMessage(@Nonnull final MessageChannel channel, @Nonnull final MessageEmbed embed,
+    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final MessageEmbed embed,
                                    @Nullable final Consumer<Message> onSuccess) {
         sendMessage0(
                 channel,
@@ -109,7 +105,7 @@ public class RestActions {
     }
 
     // Embed
-    public static void sendMessage(@Nonnull final MessageChannel channel, @Nonnull final MessageEmbed embed) {
+    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final MessageEmbed embed) {
         sendMessage0(
                 channel,
                 from(embed),
@@ -119,7 +115,7 @@ public class RestActions {
     }
 
     // String
-    public static void sendMessage(@Nonnull final MessageChannel channel, @Nonnull final String content,
+    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final String content,
                                    @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
         sendMessage0(
                 channel,
@@ -130,7 +126,7 @@ public class RestActions {
     }
 
     // String
-    public static void sendMessage(@Nonnull final MessageChannel channel, @Nonnull final String content,
+    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final String content,
                                    @Nullable final Consumer<Message> onSuccess) {
         sendMessage0(
                 channel,
@@ -141,7 +137,7 @@ public class RestActions {
     }
 
     // String
-    public static void sendMessage(@Nonnull final MessageChannel channel, @Nonnull final String content) {
+    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final String content) {
         sendMessage0(
                 channel,
                 from(content),
@@ -151,16 +147,16 @@ public class RestActions {
     }
 
     // private
-    public static void sendPrivateMessage(@Nonnull final User user, @Nonnull final String content,
-                                          @Nullable final Consumer<Message> onSuccess, @Nonnull final Consumer<Throwable> onFail) {
+    public static void sendPrivateMessage(@NonNull final User user, @NonNull final String content,
+                                          @Nullable final Consumer<Message> onSuccess, @NonNull final Consumer<Throwable> onFail) {
         sendPrivateMessage(user, from(content), onSuccess, onFail);
     }
 
     // private
     // in Wolfia, it is very important that messages reach their destination, that's why private messages require a failure
     // handler, so that each time a private message is coded a conscious decision is made how a failure should be handled
-    public static void sendPrivateMessage(@Nonnull final User user, @Nonnull final Message message,
-                                          @Nullable final Consumer<Message> onSuccess, @Nonnull final Consumer<Throwable> onFail) {
+    public static void sendPrivateMessage(@NonNull final User user, @NonNull final Message message,
+                                          @Nullable final Consumer<Message> onSuccess, @NonNull final Consumer<Throwable> onFail) {
         user.openPrivateChannel().queue(
                 privateChannel -> sendMessage(privateChannel, message, onSuccess, onFail),
                 onFail
@@ -171,7 +167,7 @@ public class RestActions {
     //                            Message editing methods
     // ********************************************************************************
 
-    public static void editMessage(@Nonnull final Message oldMessage, @Nonnull final String newContent) {
+    public static void editMessage(@NonNull final Message oldMessage, @NonNull final String newContent) {
         editMessage0(
                 oldMessage.getChannel(),
                 oldMessage.getIdLong(),
@@ -179,7 +175,7 @@ public class RestActions {
         );
     }
 
-    public static void editMessage(@Nonnull final Message oldMessage, @Nonnull final MessageEmbed newEmbed) {
+    public static void editMessage(@NonNull final Message oldMessage, @NonNull final MessageEmbed newEmbed) {
         editMessage0(
                 oldMessage.getChannel(),
                 oldMessage.getIdLong(),
@@ -191,7 +187,7 @@ public class RestActions {
     //                   Miscellaneous messaging related methods
     // ********************************************************************************
 
-    public static void sendTyping(@Nonnull final MessageChannel channel) {
+    public static void sendTyping(@NonNull final MessageChannel channel) {
         try {
             channel.sendTyping().queue(
                     null,
@@ -204,7 +200,7 @@ public class RestActions {
 
     //make sure that the message passed in here is actually existing in Discord
     // e.g. dont pass messages in here that were created with a MessageBuilder in our code
-    public static void deleteMessage(@Nonnull final Message message) {
+    public static void deleteMessage(@NonNull final Message message) {
         try {
             message.delete().queue(
                     null,
@@ -222,7 +218,7 @@ public class RestActions {
     // ********************************************************************************
 
     //class internal message sending method
-    private static void sendMessage0(@Nonnull final MessageChannel channel, @Nonnull final Message message,
+    private static void sendMessage0(@NonNull final MessageChannel channel, @NonNull final Message message,
                                      @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
         final Consumer<Message> successWrapper = m -> {
             if (onSuccess != null) {
@@ -257,8 +253,8 @@ public class RestActions {
     }
 
     //class internal editing method
-    private static void editMessage0(@Nonnull final MessageChannel channel, final long oldMessageId,
-                                     @Nonnull final Message newMessage) {
+    private static void editMessage0(@NonNull final MessageChannel channel, final long oldMessageId,
+                                     @NonNull final Message newMessage) {
 
         final Consumer<Throwable> failureWrapper = t -> {
             final String info = String.format("Could not edit message %s in channel %s in guild %s with new content %s and %s embeds",
@@ -275,8 +271,8 @@ public class RestActions {
         }
     }
 
-    private static void handleInsufficientPermissionsException(@Nonnull final MessageChannel channel,
-                                                               @Nonnull final InsufficientPermissionException e) {
+    private static void handleInsufficientPermissionsException(@NonNull final MessageChannel channel,
+                                                               @NonNull final InsufficientPermissionException e) {
         //only ever try sending a simple string from here so we don't end up handling a loop of insufficient permissions
         sendMessage(channel, "Please give me the permission to " + " **" + e.getPermission().getName() + "!**");
     }

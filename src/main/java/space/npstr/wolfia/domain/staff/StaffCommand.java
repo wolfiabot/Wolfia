@@ -18,7 +18,7 @@
 package space.npstr.wolfia.domain.staff;
 
 import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -54,7 +54,7 @@ public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
         return "staff";
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return "Do staff things.";
@@ -66,7 +66,7 @@ public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull CommandContext context) {
+    public boolean execute(@NonNull CommandContext context) {
         GuildCommandContext guildCommandContext = context.requireGuild(false);
         if (guildCommandContext == null) {
             return false;

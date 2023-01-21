@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.util;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -67,7 +67,7 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
         return List.of("comms");
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation()
@@ -75,7 +75,7 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
+    public boolean execute(@NonNull final CommandContext context) {
         //@formatter:off
         final String gameCommands = ""
                 + WolfiaConfig.DEFAULT_PREFIX + InCommand.TRIGGER + "\n"

@@ -19,7 +19,7 @@ package space.npstr.wolfia.commands.debug;
 
 import java.io.IOException;
 import java.util.Optional;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -54,14 +54,14 @@ public class RegisterPrivateRoomCommand implements BaseCommand {
         return "register";
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return "Register a guild as a private room.";
     }
 
     @Override
-    public synchronized boolean execute(@Nonnull final CommandContext commandContext) {
+    public synchronized boolean execute(@NonNull final CommandContext commandContext) {
 
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {

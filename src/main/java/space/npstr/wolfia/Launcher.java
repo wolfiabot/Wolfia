@@ -19,7 +19,6 @@ package space.npstr.wolfia;
 
 import io.prometheus.client.CollectorRegistry;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import javax.annotation.Nonnull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDAInfo;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -34,6 +33,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
+import org.springframework.lang.NonNull;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.events.BotStatusLogger;
@@ -140,7 +140,7 @@ public class Launcher implements ApplicationRunner {
         return this.shardManager.getShardCache().stream().allMatch(shard -> shard.getStatus() == JDA.Status.CONNECTED);
     }
 
-    @Nonnull
+    @NonNull
     private static String getVersionInfo() {
         return ART
                 + "\n"

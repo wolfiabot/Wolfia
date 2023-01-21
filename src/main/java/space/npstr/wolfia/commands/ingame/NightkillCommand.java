@@ -18,7 +18,7 @@
 package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -46,7 +46,7 @@ public class NightkillCommand extends GameCommand {
         return List.of("nk");
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " name or number"
@@ -54,7 +54,7 @@ public class NightkillCommand extends GameCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) throws IllegalGameStateException {
+    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
         final GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;

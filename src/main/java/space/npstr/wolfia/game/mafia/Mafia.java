@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -237,7 +237,7 @@ public class Mafia extends Game {
     }
 
     @Override
-    public boolean issueCommand(@Nonnull final CommandContext context) {
+    public boolean issueCommand(@NonNull final CommandContext context) {
         final Player invoker;
         try {
             invoker = getPlayer(context.invoker.getIdLong());
@@ -368,7 +368,7 @@ public class Mafia extends Game {
         }
     }
 
-    private boolean vote(@Nonnull final Player voter, @Nonnull final Player candidate, @Nonnull final MessageContext context) {
+    private boolean vote(@NonNull final Player voter, @NonNull final Player candidate, @NonNull final MessageContext context) {
 
         final TextChannel gameChannel = fetchGameChannel();
         if (this.phase != Phase.DAY) {
@@ -404,7 +404,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean unvote(@Nonnull final Player unvoter, @Nonnull final MessageContext context, final boolean... silent) {
+    private boolean unvote(@NonNull final Player unvoter, @NonNull final MessageContext context, final boolean... silent) {
 
         final boolean shutUp = silent.length > 0 && silent[0];
         final TextChannel gameChannel = fetchGameChannel();
@@ -432,7 +432,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean check(@Nonnull final Player invoker, @Nonnull final Player target, @Nonnull final CommandContext context) {
+    private boolean check(@NonNull final Player invoker, @NonNull final Player target, @NonNull final CommandContext context) {
         if (target.isDead()) {
             context.reply("You can't check a dead player.");
             return false;
@@ -448,7 +448,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean givePresent(@Nonnull final Player invoker, @Nonnull final Player target, @Nonnull final CommandContext context) {
+    private boolean givePresent(@NonNull final Player invoker, @NonNull final Player target, @NonNull final CommandContext context) {
         if (target.isDead()) {
             context.reply("You can't give a present to a dead player.");
             return false;
@@ -464,7 +464,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean openPresent(@Nonnull final Player invoker, @Nonnull final CommandContext context) {
+    private boolean openPresent(@NonNull final Player invoker, @NonNull final CommandContext context) {
 
         Item hasPresent = null;
         for (final Item item : invoker.items) {
@@ -532,7 +532,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean shoot(@Nonnull final Player invoker, @Nonnull final Player target, @Nonnull final CommandContext context) {
+    private boolean shoot(@NonNull final Player invoker, @NonNull final Player target, @NonNull final CommandContext context) {
         if (invoker.equals(target)) {
             context.reply(String.format("Please don't %s yourself, that would make a big mess.", Emojis.GUN));
             return false;
@@ -594,7 +594,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private void clearVotesForPlayer(@Nonnull final Player player, @Nonnull final MessageContext context) {
+    private void clearVotesForPlayer(@NonNull final Player player, @NonNull final MessageContext context) {
         final Set<Player> toUnvote = new HashSet<>();
         for (final Map.Entry<Player, Player> vote : this.votes.entrySet()) {
             final Player voter = vote.getKey();
@@ -608,7 +608,7 @@ public class Mafia extends Game {
         }
     }
 
-    private void clearNkVotesForPlayer(@Nonnull final Player player, @Nonnull final MessageContext context) {
+    private void clearNkVotesForPlayer(@NonNull final Player player, @NonNull final MessageContext context) {
         final Set<Player> toUnvoteNk = new HashSet<>();
         for (final Map.Entry<Player, Player> vote : this.nightkillVotes.entrySet()) {
             final Player voter = vote.getKey();
@@ -827,7 +827,7 @@ public class Mafia extends Game {
         }
     }
 
-    private boolean nkVote(final Player voter, final Player nightkillVote, @Nonnull final CommandContext context) {
+    private boolean nkVote(final Player voter, final Player nightkillVote, @NonNull final CommandContext context) {
 
         if (this.phase != Phase.NIGHT) {
             context.replyWithMention("you can only vote during the night.");
@@ -854,7 +854,7 @@ public class Mafia extends Game {
         return true;
     }
 
-    private boolean nkUnvote(final Player unvoter, @Nonnull final MessageContext context, final boolean... silent) {
+    private boolean nkUnvote(final Player unvoter, @NonNull final MessageContext context, final boolean... silent) {
         final boolean shutUp = silent.length > 0 && silent[0];
 
         if (this.phase != Phase.NIGHT) {
@@ -883,7 +883,7 @@ public class Mafia extends Game {
     }
 
     @SuppressWarnings("unchecked")
-    private void endNight(@Nonnull final Player nightKillCandidate) {
+    private void endNight(@NonNull final Player nightKillCandidate) {
 
         this.gameStats.addAction(simpleAction(this.selfUserId, Actions.NIGHTEND, -1));
 
@@ -954,8 +954,8 @@ public class Mafia extends Game {
         }
     }
 
-    @Nonnull
-    private static String getReveal(@Nonnull final Player dying) {
+    @NonNull
+    private static String getReveal(@NonNull final Player dying) {
         return String.format("They were **%s %s** %s", dying.alignment.textRepMaf, dying.role.textRep, dying.getCharakterEmoji());
     }
 }

@@ -23,7 +23,7 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
 
 import javax.annotation.CheckReturnValue;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -40,7 +40,7 @@ public class ShardsCommand implements BaseCommand {
         return "shards";
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return "Show status of all shards.";

@@ -18,7 +18,7 @@
 package space.npstr.wolfia.domain.setup;
 
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -62,7 +62,7 @@ public class StatusCommand implements BaseCommand, PublicCommand {
         return List.of("st");
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + "\n#Post the current game status or sign up list.";
@@ -70,7 +70,7 @@ public class StatusCommand implements BaseCommand, PublicCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@Nonnull final CommandContext commandContext) {
+    public boolean execute(@NonNull final CommandContext commandContext) {
         //this command may be called from any channel. if its a private channel, look for ongoing games of the invoker
 
         final GuildCommandContext context = commandContext.requireGuild(false);

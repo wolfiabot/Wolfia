@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -71,7 +71,7 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
     }
 
     @Override
-    public void setApplicationContext(@Nonnull ApplicationContext applicationContext) {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
@@ -80,7 +80,7 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
         return "eval";
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return "Run js code with the Nashorn engine. By default no timeout is set for the task, set a timeout by "
@@ -89,7 +89,7 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
+    public boolean execute(@NonNull final CommandContext context) {
         final long started = System.currentTimeMillis();
 
         String source = context.rawArgs;

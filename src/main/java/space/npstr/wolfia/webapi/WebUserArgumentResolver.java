@@ -17,16 +17,16 @@
 
 package space.npstr.wolfia.webapi;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,7 +58,7 @@ public class WebUserArgumentResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public boolean supportsParameter(@Nonnull MethodParameter parameter) {
+    public boolean supportsParameter(@NonNull MethodParameter parameter) {
         MethodParameter methodParameter = parameter.nestedIfOptional();
         Class<?> parameterType = methodParameter.getNestedParameterType();
         return parameterType.equals(WebUser.class);
@@ -67,9 +67,9 @@ public class WebUserArgumentResolver implements HandlerMethodArgumentResolver {
     @Nullable
     @Override
     public Object resolveArgument(
-            @Nonnull MethodParameter parameter,
+            @NonNull MethodParameter parameter,
             ModelAndViewContainer mavContainer,
-            @Nonnull NativeWebRequest webRequest,
+            @NonNull NativeWebRequest webRequest,
             WebDataBinderFactory binderFactory
     ) {
         WebUser webUser = resolveArgument(webRequest);

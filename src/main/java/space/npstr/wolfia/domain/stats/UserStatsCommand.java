@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.domain.stats;
 
-import javax.annotation.Nonnull;
+import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -45,7 +45,7 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String help() {
         return invocation() + " [@user or user ID]"
@@ -56,7 +56,7 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@Nonnull final CommandContext context) {
+    public boolean execute(@NonNull final CommandContext context) {
         if (context.msg.getMentionedUsers().isEmpty()) {
             long userId = context.invoker.getIdLong();
             //noinspection Duplicates

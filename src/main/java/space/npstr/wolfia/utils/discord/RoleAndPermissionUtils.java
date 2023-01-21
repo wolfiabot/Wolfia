@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
@@ -142,11 +142,11 @@ public class RoleAndPermissionUtils {
     private enum PermissionAction {GRANT, DENY, CLEAR}
 
     //i personally allow this thing to be ugly
-    @Nonnull
-    private static RestAction<?> setPermissionsInChannelForRoleOrMember(@Nonnull final GuildChannel channel,
+    @NonNull
+    private static RestAction<?> setPermissionsInChannelForRoleOrMember(@NonNull final GuildChannel channel,
                                                                         @Nullable final IPermissionHolder memberOrRole,
-                                                                        @Nonnull final PermissionAction action,
-                                                                        @Nonnull final Permission... permissions) {
+                                                                        @NonNull final PermissionAction action,
+                                                                        @NonNull final Permission... permissions) {
 
         if (memberOrRole == null) {
             log.warn("PermissionHolder is null, returning an empty action");
@@ -210,25 +210,22 @@ public class RoleAndPermissionUtils {
     }
 
     /**
-     * @param channel
-     *         Channel where this role and permission should take effect
-     * @param memberOrRole
-     *         Member or Role that will be granted/denied the permission
-     * @param permissions
-     *         Permissions that shall be granted/denied to the member/role
+     * @param channel      Channel where this role and permission should take effect
+     * @param memberOrRole Member or Role that will be granted/denied the permission
+     * @param permissions  Permissions that shall be granted/denied to the member/role
      */
-    public static RestAction<?> grant(@Nonnull final GuildChannel channel, @Nullable final IPermissionHolder memberOrRole,
-                                      @Nonnull final Permission... permissions) {
+    public static RestAction<?> grant(@NonNull final GuildChannel channel, @Nullable final IPermissionHolder memberOrRole,
+                                      @NonNull final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.GRANT, permissions);
     }
 
-    public static RestAction<?> deny(@Nonnull final GuildChannel channel, @Nullable final IPermissionHolder memberOrRole,
-                                     @Nonnull final Permission... permissions) {
+    public static RestAction<?> deny(@NonNull final GuildChannel channel, @Nullable final IPermissionHolder memberOrRole,
+                                     @NonNull final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.DENY, permissions);
     }
 
-    public static RestAction<?> clear(@Nonnull final GuildChannel channel, @Nullable final IPermissionHolder memberOrRole,
-                                      @Nonnull final Permission... permissions) {
+    public static RestAction<?> clear(@NonNull final GuildChannel channel, @Nullable final IPermissionHolder memberOrRole,
+                                      @NonNull final Permission... permissions) {
         return setPermissionsInChannelForRoleOrMember(channel, memberOrRole, PermissionAction.CLEAR, permissions);
     }
 
