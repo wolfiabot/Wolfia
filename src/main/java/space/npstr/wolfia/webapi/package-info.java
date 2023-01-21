@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2021 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -15,11 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@FieldsAreNonNullByDefault
-@ParametersAreNonnullByDefault
-@ReturnTypesAreNonNullByDefault
+@NonNullApi
+@NonNullFields
 package space.npstr.wolfia.webapi;
 
-import space.npstr.annotations.FieldsAreNonNullByDefault;
-import space.npstr.annotations.ParametersAreNonnullByDefault;
-import space.npstr.annotations.ReturnTypesAreNonNullByDefault;
+import org.springframework.lang.NonNullApi;
+import org.springframework.lang.NonNullFields;

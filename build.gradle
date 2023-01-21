@@ -158,7 +158,6 @@ project(':platform') {
             api "club.minnced:discord-webhooks:$discordWebhooksVersion"
             api "io.sentry:sentry-logback:$sentryLogbackVersion"
             api "org.json:json:$orgJsonVersion"
-            api "space.npstr:annotations:$annotationsVersion"
             api "org.immutables:value:$immutablesVersion"
             api "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
             api "org.glassfish.jaxb:jaxb-core:$jaxbImplVersion"
@@ -438,7 +437,6 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp"
     implementation "com.github.ben-manes.caffeine:caffeine"
     implementation "org.json:json"
-    implementation "space.npstr:annotations"
     implementation "org.openjdk.nashorn:nashorn-core"
 
     implementation "io.lettuce:lettuce-core"

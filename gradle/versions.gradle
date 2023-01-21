@@ -38,7 +38,6 @@ ext {
 	discordWebhooksVersion      = '0.8.2'
 	sentryLogbackVersion		= '6.12.1'
 	orgJsonVersion				= '20220924'
-	annotationsVersion			= '0.0.2'
 	immutablesVersion			= '2.9.2'
 	jaxbImplVersion				= '4.0.1'
     nashornVersion				= '15.4'
