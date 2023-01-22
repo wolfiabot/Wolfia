@@ -9,7 +9,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
         with:
           fetch-depth: 0
 
@@ -46,7 +46,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Setup JDK
-        uses: actions/setup-java@de1bb2b0c5634f0fc4438d7aa9944e68f9bf86cc # v3.6.0
+        uses: actions/setup-java@1df8dbefe2a8cbc99770194893dd902763bee34b # v3.9.0
         with:
           distribution: "temurin"
           java-version: 17
@@ -56,12 +56,12 @@ jobs:
         run: java -Xmx32m --version
 
       - name: Gradle Assemble
-        uses: burrunan/gradle-cache-action@5424817e64ccb6bf267f715f5a46de1bf777c633 # v1.12
+        uses: burrunan/gradle-cache-action@f9ec73cf67dd8ed9a057978212c988945b2f0405 # v1.15
         with:
           arguments: assemble --info -Pprod
 
       - name: Sonar
-        uses: burrunan/gradle-cache-action@5424817e64ccb6bf267f715f5a46de1bf777c633 # v1.12
+        uses: burrunan/gradle-cache-action@f9ec73cf67dd8ed9a057978212c988945b2f0405 # v1.15
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
           arguments: sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=wolfiabot -Dsonar.login=${{ env.SONAR_TOKEN }}
 
       - name: Gradle BootJar
-        uses: burrunan/gradle-cache-action@5424817e64ccb6bf267f715f5a46de1bf777c633 # v1.12
+        uses: burrunan/gradle-cache-action@f9ec73cf67dd8ed9a057978212c988945b2f0405 # v1.15
         with:
           arguments: bootJar --info -Pprod
 
