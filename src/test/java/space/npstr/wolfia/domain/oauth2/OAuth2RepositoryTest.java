@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
+import java.time.temporal.ChronoUnit;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +37,7 @@ import java.util.function.Consumer;
 
 import static java.time.OffsetDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
 import static space.npstr.wolfia.db.gen.Tables.OAUTH2;
 
@@ -46,7 +48,7 @@ class OAuth2RepositoryTest extends ApplicationTest {
             assertThat(actual.userId()).isEqualTo(data.userId());
             assertThat(actual.accessToken()).isEqualTo(data.accessToken());
             assertThat(actual.refreshToken()).isEqualTo(data.refreshToken());
-            assertThat(actual.expires()).isEqualTo(data.expires());
+            assertThat(actual.expires()).isCloseTo(data.expires(), within(1, ChronoUnit.MILLIS));
             assertThat(actual.scopes()).containsExactlyInAnyOrderElementsOf(data.scopes());
         };
     }

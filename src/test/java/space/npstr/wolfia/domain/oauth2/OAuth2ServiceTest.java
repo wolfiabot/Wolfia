@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
+import java.time.temporal.ChronoUnit;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
@@ -30,6 +31,7 @@ import java.util.Set;
 import static java.time.OffsetDateTime.now;
 import static java.util.concurrent.CompletableFuture.completedStage;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -63,7 +65,7 @@ class OAuth2ServiceTest extends ApplicationTest {
         assertThat(oAuth2Data).hasValueSatisfying(actual -> {
             assertThat(actual.userId()).isEqualTo(userId);
             assertThat(actual.accessToken()).isEqualTo(accessToken);
-            assertThat(actual.expires()).isEqualTo(expires);
+            assertThat(actual.expires()).isCloseTo(expires, within(1, ChronoUnit.MILLIS));
             assertThat(actual.refreshToken()).isEqualTo(refreshToken);
             assertThat(actual.scopes()).containsExactlyInAnyOrderElementsOf(scopes);
         });

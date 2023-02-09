@@ -59,7 +59,7 @@ public abstract class PostgresAndRedisContainers {
         String host = REDIS.getHost();
         int port = REDIS.getMappedPort(6379);
         String redisUrl = "redis://" + host + ":" + port + "/1";
-        System.setProperty("spring.redis.url", redisUrl);
+        System.setProperty("spring.data.redis.url", redisUrl);
     }
 
     protected static Logger containerLogger(String suffix) {
