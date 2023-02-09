@@ -66,7 +66,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          arguments: sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=wolfiabot -Dsonar.login=${{ env.SONAR_TOKEN }}
+          arguments: check sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=wolfiabot -Dsonar.login=${{ env.SONAR_TOKEN }}
 
       - name: Gradle BootJar
         uses: burrunan/gradle-cache-action@f9ec73cf67dd8ed9a057978212c988945b2f0405 # v1.15
