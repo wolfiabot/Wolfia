@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -49,7 +49,7 @@ public class PrivacyBanService {
 
     @EventListener
     public void onDataDelete(PersonalDataDelete dataDelete) {
-        privacyBanAll(List.of(dataDelete.userId()));
+        privacyBanAll(List.of(dataDelete.getUserId()));
     }
 
     public void syncBans() {

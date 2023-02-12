@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -16,16 +16,13 @@
  */
 package space.npstr.wolfia.domain.privacy
 
-import org.immutables.value.Value
-import space.npstr.wolfia.game.definitions.Actions
 import java.time.Instant
+import space.npstr.wolfia.game.definitions.Actions
 
 /**
  * A representation of a game action as sent to a user requesting their personal data.
  */
-@Value.Immutable
-@Value.Style(stagedBuilder = true, strictBuilder = true)
-interface PrivacyAction {
-	val type: Actions?
-	val submitted: Instant?
-}
+data class PrivacyAction(
+    val type: Actions,
+    val submitted: Instant,
+)

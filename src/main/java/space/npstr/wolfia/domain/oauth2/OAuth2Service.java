@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,12 +17,11 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
-import org.springframework.stereotype.Service;
-import space.npstr.wolfia.db.type.OAuth2Scope;
-
-import javax.annotation.CheckReturnValue;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import javax.annotation.CheckReturnValue;
+import org.springframework.stereotype.Service;
+import space.npstr.wolfia.db.type.OAuth2Scope;
 
 import static java.time.Instant.now;
 
@@ -57,10 +56,10 @@ public class OAuth2Service {
     @CheckReturnValue
     public CompletionStage<OAuth2Data> acceptCode(String code) {
         return this.oAuth2Requester.fetchCodeResponse(code)
-                .thenCompose(codeResponse -> this.oAuth2Requester.identifyUser(codeResponse.accessToken())
+                .thenCompose(codeResponse -> this.oAuth2Requester.identifyUser(codeResponse.getAccessToken())
                         .thenApply(userId -> new OAuth2Data(userId,
-                                codeResponse.accessToken(), codeResponse.expires(),
-                                codeResponse.refreshToken(), codeResponse.scopes()
+                                codeResponse.getAccessToken(), codeResponse.getExpires(),
+                                codeResponse.getRefreshToken(), codeResponse.getScopes()
                         ))
                 )
                 .thenCompose(this.repository::save);

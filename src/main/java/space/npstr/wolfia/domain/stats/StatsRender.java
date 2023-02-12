@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -69,79 +69,79 @@ public class StatsRender {
 
         // stats for all games
         eb.addBlankField(false);
-        final WinStats winStats = botstats.totalWinStats();
-        eb.addField("Total games played", winStats.totalGames() + "", true);
-        eb.addField("∅ player size", String.format("%.2f", botstats.averagePlayerSize().doubleValue()), true);
+        final WinStats winStats = botstats.getTotalWinStats();
+        eb.addField("Total games played", winStats.getTotalGames() + "", true);
+        eb.addField("∅ player size", String.format("%.2f", botstats.getAveragePlayerSize().doubleValue()), true);
 
-        double baddieWinPercentage = divide(winStats.baddieWins(), winStats.totalGames());
-        double goodieWinPercentage = divide(winStats.goodieWins(), winStats.totalGames());
+        double baddieWinPercentage = divide(winStats.getBaddieWins(), winStats.getTotalGames());
+        double goodieWinPercentage = divide(winStats.getGoodieWins(), winStats.getTotalGames());
         eb.addField("Win % for " + Emojis.WOLF, percentFormat(baddieWinPercentage), true);
         eb.addField("Win % for " + Emojis.COWBOY, percentFormat(goodieWinPercentage), true);
 
         // stats by playersize
         eb.addBlankField(false);
         eb.addField("Stats by player size:", "", false);
-        return addStatsPerPlayerSize(eb, botstats.winStatsByPlayerSize());
+        return addStatsPerPlayerSize(eb, botstats.getWinStatsByPlayerSize());
     }
 
     public EmbedBuilder renderGuildStats(Context context, GuildStats stats) {
         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         ShardManager shardManager = context.getJda().getShardManager();
-        final Guild guild = requireNonNull(shardManager).getGuildById(stats.guildId());
+        final Guild guild = requireNonNull(shardManager).getGuildById(stats.getGuildId());
         GuildSettings guildSettings = guild != null
                 ? this.guildSettingsService.set(guild)
-                : this.guildSettingsService.guild(stats.guildId()).getOrDefault();
+                : this.guildSettingsService.guild(stats.getGuildId()).getOrDefault();
         eb.setTitle(guildSettings.getName() + "'s Wolfia stats");
         eb.setThumbnail(guildSettings.getAvatarUrl().orElse(null));
 
-        WinStats winStats = stats.totalWinStats();
-        final long totalGames = winStats.totalGames();
+        WinStats winStats = stats.getTotalWinStats();
+        final long totalGames = winStats.getTotalGames();
         if (totalGames <= 0) {
-            eb.setTitle(String.format("There have no games been played in the guild (id `%s`).", stats.guildId()));
+            eb.setTitle(String.format("There have no games been played in the guild (id `%s`).", stats.getGuildId()));
             return eb;
         }
 
         // stats for all games in this guild
         eb.addBlankField(false);
         eb.addField("Total games played", totalGames + "", true);
-        eb.addField("∅ player size", String.format("%.2f", stats.averagePlayerSize().doubleValue()), true);
+        eb.addField("∅ player size", String.format("%.2f", stats.getAveragePlayerSize().doubleValue()), true);
 
-        double baddieWinPercentage = divide(winStats.baddieWins(), winStats.totalGames());
-        double goodieWinPercentage = divide(winStats.goodieWins(), winStats.totalGames());
+        double baddieWinPercentage = divide(winStats.getBaddieWins(), winStats.getTotalGames());
+        double goodieWinPercentage = divide(winStats.getGoodieWins(), winStats.getTotalGames());
         eb.addField("Win % for " + Emojis.WOLF, percentFormat(baddieWinPercentage), true);
         eb.addField("Win % for " + Emojis.COWBOY, percentFormat(goodieWinPercentage), true);
 
         // stats by playersize in this guild
         eb.addBlankField(false);
         eb.addField("Stats by player size:", "", false);
-        return addStatsPerPlayerSize(eb, stats.winStatsByPlayerSize());
+        return addStatsPerPlayerSize(eb, stats.getWinStatsByPlayerSize());
     }
 
     public EmbedBuilder renderUserStats(UserStats stats) {
         final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        UserCache.Action userAction = this.userCache.user(stats.userId());
+        UserCache.Action userAction = this.userCache.user(stats.getUserId());
         eb.setTitle(userAction.getName() + "'s Wolfia stats");
         userAction.get()
                 .map(User::getAvatarUrl)
                 .ifPresent(eb::setThumbnail);
 
-        if (stats.totalGames() <= 0) {
-            eb.setTitle(String.format("User (id `%s`) hasn't played any games.", stats.userId()));
+        if (stats.getTotalGames() <= 0) {
+            eb.setTitle(String.format("User (id `%s`) hasn't played any games.", stats.getUserId()));
             return eb;
         }
 
-        eb.addField("Total games played", stats.totalGames() + "", true);
-        eb.addField("Total win %", percentFormat(divide(stats.gamesWon(), stats.totalGames())), true);
-        eb.addField("Games as " + Emojis.WOLF, stats.gamesAsBaddie() + "", true);
-        eb.addField("Win % as " + Emojis.WOLF, percentFormat(divide(stats.gamesWonAsBaddie(), stats.gamesAsBaddie())), true);
-        eb.addField("Games as " + Emojis.COWBOY, stats.gamesAsGoodie() + "", true);
-        eb.addField("Win % as " + Emojis.COWBOY, percentFormat(divide(stats.gamesWonAsGoodie(), stats.gamesAsGoodie())), true);
-        eb.addField(Emojis.GUN + " fired", stats.totalShots() + "", true);
-        eb.addField(Emojis.GUN + " accuracy", percentFormat(divide(stats.wolvesShot(), stats.totalShots())), true);
-        eb.addField("Total posts written", stats.totalPosts() + "", true);
-        eb.addField("Total post length", stats.totalPostLength() + "", true);
-        eb.addField("∅ posts per game", ((long) divide(stats.totalPosts(), stats.totalGames())) + "", true);
-        eb.addField("∅ post length", ((long) divide(stats.totalPostLength(), stats.totalPosts())) + "", true);
+        eb.addField("Total games played", stats.getTotalGames() + "", true);
+        eb.addField("Total win %", percentFormat(divide(stats.getGamesWon(), stats.getTotalGames())), true);
+        eb.addField("Games as " + Emojis.WOLF, stats.getGamesAsBaddie() + "", true);
+        eb.addField("Win % as " + Emojis.WOLF, percentFormat(divide(stats.getGamesWonAsBaddie(), stats.getGamesAsBaddie())), true);
+        eb.addField("Games as " + Emojis.COWBOY, stats.getGamesAsGoodie() + "", true);
+        eb.addField("Win % as " + Emojis.COWBOY, percentFormat(divide(stats.getGamesWonAsGoodie(), stats.getGamesAsGoodie())), true);
+        eb.addField(Emojis.GUN + " fired", stats.getTotalShots() + "", true);
+        eb.addField(Emojis.GUN + " accuracy", percentFormat(divide(stats.getWolvesShot(), stats.getTotalShots())), true);
+        eb.addField("Total posts written", stats.getTotalPosts() + "", true);
+        eb.addField("Total post length", stats.getTotalPostLength() + "", true);
+        eb.addField("∅ posts per game", ((long) divide(stats.getTotalPosts(), stats.getTotalGames())) + "", true);
+        eb.addField("∅ post length", ((long) divide(stats.getTotalPostLength(), stats.getTotalPosts())) + "", true);
         return eb;
     }
 
@@ -266,14 +266,14 @@ public class StatsRender {
 
     private static EmbedBuilder addStatsPerPlayerSize(final EmbedBuilder eb, List<WinStats> winStatsList) {
         List<WinStats> sortedWinStats = new ArrayList<>(winStatsList);
-        sortedWinStats.sort(Comparator.comparingInt(WinStats::playerSize));
+        sortedWinStats.sort(Comparator.comparingInt(WinStats::getPlayerSize));
 
         for (WinStats winStats : sortedWinStats) {
-            double baddieWinPercentage = divide(winStats.baddieWins(), winStats.totalGames());
-            double goodieWinPercentage = divide(winStats.goodieWins(), winStats.totalGames());
+            double baddieWinPercentage = divide(winStats.getBaddieWins(), winStats.getTotalGames());
+            double goodieWinPercentage = divide(winStats.getGoodieWins(), winStats.getTotalGames());
             String content = Emojis.WOLF + " win " + percentFormat(baddieWinPercentage);
             content += "\n" + Emojis.COWBOY + " win " + percentFormat(goodieWinPercentage);
-            eb.addField(winStats.totalGames() + " games with " + winStats.playerSize() + " players",
+            eb.addField(winStats.getTotalGames() + " games with " + winStats.getPlayerSize() + " players",
                     content, true);
         }
         return eb;
@@ -306,7 +306,7 @@ public class StatsRender {
 
         List<PlayerStats> allPlayers = gameStats.getStartingTeams().stream()
                 .flatMap(team -> team.getPlayers().stream())
-                .collect(Collectors.toList());
+                .toList();
 
         if (allPlayers.isEmpty()) {
             throw new IllegalArgumentException("Empty list of players for game " + gameStats.getGameId());

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -48,12 +48,7 @@ public class StatsProvider {
 
         long totalGames = baddieWins + goodieWins; // correct for now, may change in the future
 
-        WinStats totalWinStats = ImmutableWinStats.builder()
-                .playerSize(-1)
-                .totalGames(totalGames)
-                .goodieWins(goodieWins)
-                .baddieWins(baddieWins)
-                .build();
+        WinStats totalWinStats = new WinStats(-1, totalGames, goodieWins, baddieWins);
 
         List<WinStats> winStats = new ArrayList<>();
         Set<Integer> playerSizes = this.repository.getDistinctPlayerSizes().toCompletableFuture().join();
@@ -69,20 +64,9 @@ public class StatsProvider {
                     .toCompletableFuture().join();
 
             totalGames = baddieWins + goodieWins;
-            winStats.add(ImmutableWinStats.builder()
-                    .playerSize(playerSize)
-                    .totalGames(totalGames)
-                    .goodieWins(goodieWins)
-                    .baddieWins(baddieWins)
-                    .build()
-            );
+            winStats.add(new WinStats(playerSize, totalGames, goodieWins, baddieWins));
         }
-
-        return ImmutableBotStats.builder()
-                .averagePlayerSize(averagePlayerSize)
-                .totalWinStats(totalWinStats)
-                .addAllWinStatsByPlayerSize(winStats)
-                .build();
+        return new BotStats(averagePlayerSize, totalWinStats, winStats);
     }
 
 
@@ -97,12 +81,7 @@ public class StatsProvider {
 
         long totalGames = baddieWins + goodieWins;
 
-        WinStats totalWinStats = ImmutableWinStats.builder()
-                .playerSize(-1)
-                .totalGames(totalGames)
-                .goodieWins(goodieWins)
-                .baddieWins(baddieWins)
-                .build();
+        WinStats totalWinStats = new WinStats(-1, totalGames, goodieWins, baddieWins);
 
         List<WinStats> winStats = new ArrayList<>();
         Set<Integer> playerSizes = this.repository.getDistinctPlayerSizesInGuild(guildId).toCompletableFuture().join();
@@ -119,21 +98,10 @@ public class StatsProvider {
                     .toCompletableFuture().join();
 
             totalGames = baddieWins + goodieWins;
-            winStats.add(ImmutableWinStats.builder()
-                    .playerSize(playerSize)
-                    .totalGames(totalGames)
-                    .goodieWins(goodieWins)
-                    .baddieWins(baddieWins)
-                    .build()
-            );
+            winStats.add(new WinStats(playerSize, totalGames, goodieWins, baddieWins));
         }
 
-        return ImmutableGuildStats.builder()
-                .guildId(guildId)
-                .averagePlayerSize(averagePlayerSize)
-                .totalWinStats(totalWinStats)
-                .addAllWinStatsByPlayerSize(winStats)
-                .build();
+        return new GuildStats(guildId, averagePlayerSize, totalWinStats, winStats);
     }
 
     //TODO some improvement is possible here by reducing the amount of individual sql queries run as well as the amount
@@ -145,36 +113,36 @@ public class StatsProvider {
         final long totalGamesByUser = games.size();
         final long gamesWon = games.stream().filter(GeneralUserStats::isWinner).count();
         final long gamesAsWolf = games.stream()
-                .filter(stats -> Alignments.valueOf(stats.alignment()) == Alignments.WOLF).count();
+                .filter(stats -> Alignments.valueOf(stats.getAlignment()) == Alignments.WOLF).count();
         final long gamesAsVillage = games.stream()
-                .filter(stats -> Alignments.valueOf(stats.alignment()) == Alignments.VILLAGE).count();
+                .filter(stats -> Alignments.valueOf(stats.getAlignment()) == Alignments.VILLAGE).count();
         final long gamesWonAsWolf = games.stream()
-                .filter(stats -> Alignments.valueOf(stats.alignment()) == Alignments.WOLF)
+                .filter(stats -> Alignments.valueOf(stats.getAlignment()) == Alignments.WOLF)
                 .filter(GeneralUserStats::isWinner)
                 .count();
         final long gamesWonAsVillage = games.stream()
-                .filter(stats -> Alignments.valueOf(stats.alignment()) == Alignments.VILLAGE)
+                .filter(stats -> Alignments.valueOf(stats.getAlignment()) == Alignments.VILLAGE)
                 .filter(GeneralUserStats::isWinner)
                 .count();
-        final long totalPostsWritten = games.stream().mapToLong(GeneralUserStats::posts).sum();
-        final long totalPostsLength = games.stream().mapToLong(GeneralUserStats::postLength).sum();
+        final long totalPostsWritten = games.stream().mapToLong(GeneralUserStats::getPosts).sum();
+        final long totalPostsLength = games.stream().mapToLong(GeneralUserStats::getPostLength).sum();
         final long totalShatsByUser = shots.size();
         final long wolvesShatted = shots.stream()
                 .filter(alignment -> Alignments.valueOf(alignment) == Alignments.WOLF).count();
 
-        return ImmutableUserStats.builder()
-                .userId(userId)
-                .totalGames(totalGamesByUser)
-                .gamesWon(gamesWon)
-                .gamesAsBaddie(gamesAsWolf)
-                .gamesWonAsBaddie(gamesWonAsWolf)
-                .gamesAsGoodie(gamesAsVillage)
-                .gamesWonAsGoodie(gamesWonAsVillage)
-                .totalShots(totalShatsByUser)
-                .wolvesShot(wolvesShatted)
-                .totalPosts(totalPostsWritten)
-                .totalPostLength(totalPostsLength)
-                .build();
+        return new UserStats(
+                userId,
+                totalGamesByUser,
+                gamesWon,
+                gamesAsWolf,
+                gamesWonAsWolf,
+                gamesAsVillage,
+                gamesWonAsVillage,
+                totalShatsByUser,
+                wolvesShatted,
+                totalPostsWritten,
+                totalPostsLength
+        );
     }
 
     public Optional<GameStats> getGameStats(long gameId) {

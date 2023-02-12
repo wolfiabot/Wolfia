@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,29 +17,19 @@
 package space.npstr.wolfia.domain.discord
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
-import org.immutables.value.Value
-import org.springframework.lang.Nullable
 
 /**
  * Guild fetched via OAuth2, see https://discord.com/developers/docs/resources/user#get-current-user-guilds-example-partial-guild
  */
-@Value.Immutable
-@JsonSerialize(`as` = ImmutablePartialGuild::class)
-@JsonDeserialize(`as` = ImmutablePartialGuild::class)
-interface PartialGuild {
-	@JsonSerialize(using = ToStringSerializer::class)
-	fun id(): Long
-	fun name(): String?
-
-	@Nullable
-	fun icon(): String?
-
-	@get:JsonProperty("owner")
-	val isOwner: Boolean
-
-	@JsonSerialize(using = ToStringSerializer::class)
-	fun permissions(): Long
-}
+data class PartialGuild(
+    @JsonSerialize(using = ToStringSerializer::class)
+    val id: Long,
+    val name: String,
+    val icon: String?,
+    @JsonProperty("owner")
+    val isOwner: Boolean,
+    @JsonSerialize(using = ToStringSerializer::class)
+    val permissions: Long,
+)

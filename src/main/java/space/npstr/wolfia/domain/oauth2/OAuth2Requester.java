@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -26,7 +26,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.annotation.CheckReturnValue;
-import org.springframework.lang.NonNull;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Credentials;
@@ -40,6 +39,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.wolfia.config.properties.OAuth2Config;
@@ -164,10 +164,10 @@ public class OAuth2Requester {
                 .thenApply(this::toAccessTokenResponse)
                 .thenApply(accessTokenResponse -> new OAuth2Data(
                                 old.userId(),
-                                accessTokenResponse.accessToken(),
-                                accessTokenResponse.expires(),
-                                accessTokenResponse.refreshToken(),
-                                accessTokenResponse.scopes()
+                                accessTokenResponse.getAccessToken(),
+                                accessTokenResponse.getExpires(),
+                                accessTokenResponse.getRefreshToken(),
+                                accessTokenResponse.getScopes()
                         )
                 );
     }
@@ -195,13 +195,7 @@ public class OAuth2Requester {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-
-        return ImmutableAccessTokenResponse.builder()
-                .accessToken(accessToken)
-                .expires(expires)
-                .refreshToken(refreshToken)
-                .addAllScopes(scopes)
-                .build();
+        return new AccessTokenResponse(accessToken, expires, refreshToken, scopes);
     }
 
     private long extractUserId(Response response) {

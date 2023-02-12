@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -16,13 +16,7 @@
  */
 package space.npstr.wolfia.webapi
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import org.immutables.value.Value
-
-@Value.Immutable
-@Value.Style(stagedBuilder = true, strictBuilder = true)
-@JsonSerialize(`as` = ImmutableShard::class)
-interface Shard {
-	fun id(): Int
-	fun status(): String?
-}
+data class Shard(
+    val id: Int,
+    val status: String,
+)

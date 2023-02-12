@@ -153,7 +153,6 @@ source.
 ### TODO Topics not covered yet:
 - file layout
 - grouping by features
-- immutables.org
 - feature flags
 - sonar
 - testing

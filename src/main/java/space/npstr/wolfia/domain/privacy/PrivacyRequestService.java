@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -69,22 +69,31 @@ public class PrivacyRequestService {
         games = games.stream()
                 .map(game -> {
                     List<PrivacyAction> gameActions = actions.computeIfAbsent(game.getGameId(), __ -> new ArrayList<>());
-                    return ImmutablePrivacyGame.copyOf(game)
-                            .withActions(gameActions);
+                    // Use Kotlins copy() call when migrating
+                    return new PrivacyGame(
+                            game.getGameId(),
+                            game.getStartTime(),
+                            game.getEndTime(),
+                            game.getAlignment(),
+                            game.isWinner(),
+                            game.getNickname(),
+                            game.getTotalPosts(),
+                            game.getTotalPostLength(),
+                            gameActions
+                    );
                 })
                 .collect(Collectors.toList());
-
-        return ImmutablePrivacyResponse.builder()
-                .addAllSessions(sessions)
-                .addAllGames(games)
-                .build();
+        return new PrivacyResponse(
+                sessions,
+                games
+        );
     }
 
     private PrivacySession mapSession(Session session) {
-        return ImmutablePrivacySession.builder()
-                .creationTime(session.getCreationTime())
-                .lastAccessedTime(session.getLastAccessedTime())
-                .isExpired(session.isExpired())
-                .build();
+        return new PrivacySession(
+                session.getCreationTime(),
+                session.getLastAccessedTime(),
+                session.isExpired()
+        );
     }
 }

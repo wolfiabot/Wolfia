@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -37,10 +37,8 @@ public class ShardEndpoint {
     @GetMapping
     public List<Shard> getShards() {
         return this.shardManager.getShards().stream()
-                .map(jda -> ImmutableShard.builder()
-                        .id(jda.getShardInfo().getShardId())
-                        .status(jda.getStatus().name())
-                        .build()
+                .map(jda -> new Shard(jda.getShardInfo().getShardId(),
+                        jda.getStatus().name())
                 )
                 .collect(Collectors.toList());
     }

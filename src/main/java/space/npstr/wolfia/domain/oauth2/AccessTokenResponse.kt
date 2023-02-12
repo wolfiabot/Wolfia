@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -16,15 +16,12 @@
  */
 package space.npstr.wolfia.domain.oauth2
 
-import org.immutables.value.Value
-import space.npstr.wolfia.db.type.OAuth2Scope
 import java.time.Instant
+import space.npstr.wolfia.db.type.OAuth2Scope
 
-@Value.Immutable
-@Value.Style(stagedBuilder = true)
-interface AccessTokenResponse {
-	fun accessToken(): String?
-	fun expires(): Instant?
-	fun refreshToken(): String?
-	fun scopes(): Set<OAuth2Scope?>?
-}
+data class AccessTokenResponse(
+    val accessToken: String,
+    val expires: Instant,
+    val refreshToken: String,
+    val scopes: Set<OAuth2Scope>,
+)

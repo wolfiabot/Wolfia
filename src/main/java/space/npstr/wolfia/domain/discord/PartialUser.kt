@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,26 +17,17 @@
 package space.npstr.wolfia.domain.discord
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
-import org.immutables.value.Value
-import org.springframework.lang.Nullable
 
 /**
  * User fetched via OAuth2, see https://discord.com/developers/docs/resources/user#get-user
  */
-@Value.Immutable
-@Value.Style(stagedBuilder = true, strictBuilder = true)
-@JsonDeserialize(`as` = ImmutablePartialUser::class)
-interface PartialUser {
-	@JsonSerialize(using = ToStringSerializer::class)
-	fun id(): Long
-
-	@JsonProperty("username")
-	fun name(): String?
-	fun discriminator(): String?
-
-	@Nullable
-	fun avatar(): String?
-}
+data class PartialUser(
+    @JsonSerialize(using = ToStringSerializer::class)
+    val id: Long,
+    @JsonProperty("username")
+    val name: String,
+    val discriminator: String,
+    val avatar: String?,
+)

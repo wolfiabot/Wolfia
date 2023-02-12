@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -16,28 +16,21 @@
  */
 package space.npstr.wolfia.domain.stats
 
-import org.immutables.value.Value
-
-@Value.Immutable
-@StatsStyle
-interface GuildStats {
-	/**
-	 * @return id of the guild these stats belong to
-	 */
-	fun guildId(): Long
-
-	/**
-	 * @return average player size for games in this guild
-	 */
-	fun averagePlayerSize(): Number?
-
-	/**
-	 * @return win stats for all games
-	 */
-	fun totalWinStats(): WinStats?
-
-	/**
-	 * @return win stats for games by player size
-	 */
-	fun winStatsByPlayerSize(): List<WinStats?>?
-}
+data class GuildStats(
+    /**
+     * @return id of the guild these stats belong to
+     */
+    val guildId: Long,
+    /**
+     * @return average player size for games in this guild
+     */
+    val averagePlayerSize: Number,
+    /**
+     * @return win stats for all games
+     */
+    val totalWinStats: WinStats,
+    /**
+     * @return win stats for games by player size
+     */
+    val winStatsByPlayerSize: List<WinStats>,
+)

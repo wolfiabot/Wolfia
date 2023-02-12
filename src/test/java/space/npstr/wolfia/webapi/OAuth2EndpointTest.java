@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.webapi;
 
+import java.util.EnumSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +28,6 @@ import space.npstr.wolfia.domain.oauth2.AccessTokenResponse;
 import space.npstr.wolfia.domain.oauth2.AuthState;
 import space.npstr.wolfia.domain.oauth2.AuthStateCache;
 import space.npstr.wolfia.domain.oauth2.DiscordRequestFailedException;
-import space.npstr.wolfia.domain.oauth2.ImmutableAccessTokenResponse;
-import space.npstr.wolfia.domain.oauth2.ImmutableAuthState;
-
-import java.util.EnumSet;
 
 import static java.time.OffsetDateTime.now;
 import static java.util.concurrent.CompletableFuture.completedStage;
@@ -193,18 +190,13 @@ class OAuth2EndpointTest extends ApplicationTest {
 
 
     private AccessTokenResponse accessTokenResponse() {
-        return ImmutableAccessTokenResponse.builder()
-                .accessToken(ACCESS_TOKEN)
-                .expires(now().plusMonths(1).toInstant())
-                .refreshToken(ACCESS_TOKEN)
-                .addAllScopes(EnumSet.allOf(OAuth2Scope.class))
-                .build();
+        return new AccessTokenResponse(
+                ACCESS_TOKEN, now().plusMonths(1).toInstant(),
+                ACCESS_TOKEN, EnumSet.allOf(OAuth2Scope.class)
+        );
     }
 
     private AuthState authState(long userId) {
-        return ImmutableAuthState.builder()
-                .userId(userId)
-                .redirectUrl(REDIRECT_URL)
-                .build();
+        return new AuthState(userId, REDIRECT_URL);
     }
 }

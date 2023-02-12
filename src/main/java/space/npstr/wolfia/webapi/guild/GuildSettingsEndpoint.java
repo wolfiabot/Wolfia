@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,11 +17,11 @@
 
 package space.npstr.wolfia.webapi.guild;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Member;
@@ -29,6 +29,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,7 +79,7 @@ public class GuildSettingsEndpoint extends GuildEndpoint {
         WebContext context = assertGuildAccess(user, guildId);
 
         for (var entry : body) {
-            setGameChannel(context, entry.channelId(), entry.isGameChannel());
+            setGameChannel(context, entry.getChannelId(), entry.isGameChannel());
         }
 
         GuildSettings guildSettings = this.guildSettingsService.guild(context.guild.getIdLong()).getOrDefault();
@@ -137,21 +138,20 @@ public class GuildSettingsEndpoint extends GuildEndpoint {
                             textChannel.getIdLong(),
                             id -> this.channelSettingsService.channel(id).getOrDefault()
                     ).isGameChannel();
-
-                    return ImmutableChannelSettingsVO.builder()
-                            .discordId(textChannel.getIdLong())
-                            .name(textChannel.getName())
-                            .isGameChannel(isGameChannel)
-                            .build();
+                    return new ChannelSettingsVO(
+                            textChannel.getIdLong(),
+                            textChannel.getName(),
+                            isGameChannel
+                    );
                 })
                 .collect(Collectors.toList());
     }
 
     private GuildSettingsVO toValueObject(GuildSettings guildSettings, List<ChannelSettingsVO> channelSettingsList) {
-        return ImmutableGuildSettingsVO.builder()
-                .discordId(guildSettings.getGuildId())
-                .addAllChannelSettings(channelSettingsList)
-                .build();
+        return new GuildSettingsVO(
+                guildSettings.getGuildId(),
+                new HashSet<>(channelSettingsList)
+        );
     }
 
 }

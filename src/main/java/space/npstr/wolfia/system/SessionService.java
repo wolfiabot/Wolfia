@@ -45,7 +45,7 @@ public class SessionService {
 
     @EventListener
     public void onDataDelete(PersonalDataDelete dataDelete) {
-        String principalName = Long.toString(dataDelete.userId());
+        String principalName = Long.toString(dataDelete.getUserId());
         removeAllSessions(principalName);
     }
 

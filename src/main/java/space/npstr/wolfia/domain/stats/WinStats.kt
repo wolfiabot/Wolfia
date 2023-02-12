@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -16,28 +16,21 @@
  */
 package space.npstr.wolfia.domain.stats
 
-import org.immutables.value.Value
-
-@Value.Immutable
-@StatsStyle
-interface WinStats {
-	/**
-	 * @return the player size that these win stats belong to
-	 */
-	fun playerSize(): Int
-
-	/**
-	 * @return total games with this player size
-	 */
-	fun totalGames(): Long
-
-	/**
-	 * @return goodie wins with this player size
-	 */
-	fun goodieWins(): Long
-
-	/**
-	 * @return baddie wins with this player size
-	 */
-	fun baddieWins(): Long
-}
+data class WinStats(
+    /**
+     * @return the player size that these win stats belong to
+     */
+    val playerSize: Int,
+    /**
+     * @return total games with this player size
+     */
+    val totalGames: Long,
+    /**
+     * @return goodie wins with this player size
+     */
+    val goodieWins: Long,
+    /**
+     * @return baddie wins with this player size
+     */
+    val baddieWins: Long,
+)

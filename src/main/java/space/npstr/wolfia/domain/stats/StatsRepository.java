@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -38,8 +38,6 @@ import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.gen.tables.records.StatsActionRecord;
 import space.npstr.wolfia.db.gen.tables.records.StatsPlayerRecord;
 import space.npstr.wolfia.db.gen.tables.records.StatsTeamRecord;
-import space.npstr.wolfia.domain.privacy.ImmutablePrivacyAction;
-import space.npstr.wolfia.domain.privacy.ImmutablePrivacyGame;
 import space.npstr.wolfia.domain.privacy.PrivacyAction;
 import space.npstr.wolfia.domain.privacy.PrivacyGame;
 import space.npstr.wolfia.game.definitions.Actions;
@@ -184,7 +182,7 @@ public class StatsRepository {
                 .from(STATS_PLAYER)
                 .innerJoin(STATS_TEAM).on(STATS_PLAYER.TEAM_ID.eq(STATS_TEAM.TEAM_ID))
                 .where(STATS_PLAYER.USER_ID.eq(userId))
-                .fetchInto(ImmutableGeneralUserStats.class)
+                .fetchInto(GeneralUserStats.class)
         ));
     }
 
@@ -339,16 +337,17 @@ public class StatsRepository {
     }
 
     private RecordMapper<Record8<Long, Long, Long, String, Boolean, String, Integer, Integer>, PrivacyGame> privacyGameMapper() {
-        return record -> ImmutablePrivacyGame.builder()
-                .gameId(record.get(STATS_GAME.GAME_ID))
-                .startTime(Instant.ofEpochMilli(record.get(STATS_GAME.START_TIME)))
-                .endTime(Instant.ofEpochMilli(record.get(STATS_GAME.END_TIME)))
-                .alignment(record.get(STATS_TEAM.ALIGNMENT))
-                .isWinner(record.get(STATS_TEAM.IS_WINNER))
-                .nickname(record.get(STATS_PLAYER.NICKNAME))
-                .totalPosts(record.get(STATS_PLAYER.TOTAL_POSTS))
-                .totalPostLength(record.get(STATS_PLAYER.TOTAL_POSTLENGTH))
-                .build();
+        return record -> new PrivacyGame(
+                record.get(STATS_GAME.GAME_ID),
+                Instant.ofEpochMilli(record.get(STATS_GAME.START_TIME)),
+                Instant.ofEpochMilli(record.get(STATS_GAME.END_TIME)),
+                record.get(STATS_TEAM.ALIGNMENT),
+                record.get(STATS_TEAM.IS_WINNER),
+                record.get(STATS_PLAYER.NICKNAME),
+                record.get(STATS_PLAYER.TOTAL_POSTS),
+                record.get(STATS_PLAYER.TOTAL_POSTLENGTH),
+                List.of()
+        );
     }
 
     @CheckReturnValue
@@ -368,10 +367,10 @@ public class StatsRepository {
     }
 
     private RecordMapper<Record3<Long, String, Long>, PrivacyAction> privacyActionMapper() {
-        return record -> ImmutablePrivacyAction.builder()
-                .type(Actions.valueOf(record.get(STATS_ACTION.ACTION_TYPE)))
-                .submitted(Instant.ofEpochMilli(record.get(STATS_ACTION.SUBMITTED)))
-                .build();
+        return record -> new PrivacyAction(
+                Actions.valueOf(record.get(STATS_ACTION.ACTION_TYPE)),
+                Instant.ofEpochMilli(record.get(STATS_ACTION.SUBMITTED))
+        );
     }
 
     @CheckReturnValue

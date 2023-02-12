@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,16 +17,15 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.db.type.OAuth2Scope;
-
-import java.time.Instant;
-import java.util.EnumSet;
-import java.util.Optional;
-import java.util.Set;
 
 import static java.time.OffsetDateTime.now;
 import static java.util.concurrent.CompletableFuture.completedStage;
@@ -50,12 +49,7 @@ class OAuth2ServiceTest extends ApplicationTest {
         Instant expires = now().plusDays(14).toInstant();
         String refreshToken = "bar";
         Set<OAuth2Scope> scopes = EnumSet.allOf(OAuth2Scope.class);
-        ImmutableAccessTokenResponse codeResponse = ImmutableAccessTokenResponse.builder()
-                .accessToken(accessToken)
-                .expires(expires)
-                .refreshToken(refreshToken)
-                .addAllScopes(scopes)
-                .build();
+        AccessTokenResponse codeResponse = new AccessTokenResponse(accessToken, expires, refreshToken, scopes);
         when(oAuth2Requester.fetchCodeResponse(any())).thenReturn(completedStage(codeResponse));
         when(oAuth2Requester.identifyUser(any())).thenReturn(completedStage(userId));
 

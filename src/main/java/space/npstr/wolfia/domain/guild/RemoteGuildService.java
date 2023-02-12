@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -72,20 +72,20 @@ public class RemoteGuildService {
 
         public Optional<GuildInfo> fetchGuild(long guildId) {
             return fetchAllGuilds().stream()
-                    .filter(guildInfo -> guildInfo.guild().id() == guildId)
+                    .filter(guildInfo -> guildInfo.getGuild().getId() == guildId)
                     .findAny();
         }
 
         public List<GuildInfo> fetchAllGuilds() {
-            return ofNullable(cache.get(this.webUser, user -> discordRequester.fetchAllGuilds(user.accessToken().getTokenValue())))
+            return ofNullable(cache.get(this.webUser, user -> discordRequester.fetchAllGuilds(user.getAccessToken().getTokenValue())))
                     .orElseGet(List::of)
                     .stream()
-                    .map(partialGuild -> toGuildInfo(partialGuild, this.webUser.id()))
+                    .map(partialGuild -> toGuildInfo(partialGuild, this.webUser.getId()))
                     .collect(Collectors.toList());
         }
 
         private GuildInfo toGuildInfo(PartialGuild partialGuild, long userId) {
-            Guild guild = shardManager.getGuildCache().getElementById(partialGuild.id());
+            Guild guild = shardManager.getGuildCache().getElementById(partialGuild.getId());
 
             boolean canEdit = false;
             if (guild != null) {
@@ -94,11 +94,7 @@ public class RemoteGuildService {
                     canEdit = member.hasPermission(EDIT_PERMISSION);
                 }
             }
-            return ImmutableGuildInfo.builder()
-                    .guild(partialGuild)
-                    .botPresent(guild != null)
-                    .canEdit(canEdit)
-                    .build();
+            return new GuildInfo(partialGuild, guild != null, canEdit);
         }
     }
 }

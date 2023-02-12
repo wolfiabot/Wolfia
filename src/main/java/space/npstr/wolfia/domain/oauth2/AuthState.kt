@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -16,19 +16,14 @@
  */
 package space.npstr.wolfia.domain.oauth2
 
-import org.immutables.value.Value
-
-@Value.Immutable
-@Value.Style(stagedBuilder = true)
-interface AuthState {
-	/**
-	 * @return id of the user that we sent an authorization link to
-	 */
-	fun userId(): Long
-
-	/**
-	 * @return url that can be used to redirect the user after a successful/failed flow, for example to get back
-	 * to the channel/message that the flow was started from in discord
-	 */
-	fun redirectUrl(): String?
-}
+data class AuthState(
+    /**
+     * @return id of the user that we sent an authorization link to
+     */
+    val userId: Long,
+    /**
+     * @return url that can be used to redirect the user after a successful/failed flow, for example to get back
+     * to the channel/message that the flow was started from in discord
+     */
+    val redirectUrl: String,
+)

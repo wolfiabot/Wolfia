@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,11 +18,10 @@
 package space.npstr.wolfia.webapi.user;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.lang.Nullable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,25 +50,18 @@ public class UserEndpoint extends BaseEndpoint {
         }
 
         // Explicitly fetching the user ensures that the token still works and is not expired or revoked.
-        PartialUser partialUser = this.discordRequester.fetchUser(user.accessToken().getTokenValue());
-        long userId = partialUser.id();
-        String discriminator = partialUser.discriminator();
-        String avatar = partialUser.avatar();
+        PartialUser partialUser = this.discordRequester.fetchUser(user.getAccessToken().getTokenValue());
+        long userId = partialUser.getId();
+        String discriminator = partialUser.getDiscriminator();
+        String avatar = partialUser.getAvatar();
 
-        OAuth2User principal = user.principal();
+        OAuth2User principal = user.getPrincipal();
         Set<String> roles = filterAndCollectByPrefix(principal.getAuthorities(), "ROLE_");
         Set<String> scopes = filterAndCollectByPrefix(principal.getAuthorities(), "SCOPE_");
 
-        SelfUser selfUser = ImmutableSelfUser.builder()
-                .discordId(userId)
-                .name(partialUser.name())
-                .discriminator(discriminator)
-                .avatarId(Optional.ofNullable(avatar))
-                .addAllRoles(roles)
-                .addAllScopes(scopes)
-                .build();
-
-        return ResponseEntity.ok(selfUser);
+        return ResponseEntity.ok(
+                new SelfUser(userId, partialUser.getName(), discriminator, avatar, roles, scopes)
+        );
     }
 
     private Set<String> filterAndCollectByPrefix(Collection<? extends GrantedAuthority> authorities, String prefix) {

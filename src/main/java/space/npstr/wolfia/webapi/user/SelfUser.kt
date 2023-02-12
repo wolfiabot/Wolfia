@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,17 +18,13 @@ package space.npstr.wolfia.webapi.user
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
-import org.immutables.value.Value
-import java.util.Optional
 
-@Value.Immutable
-@Value.Style(stagedBuilder = true, strictBuilder = true)
-interface SelfUser {
-	@get:JsonSerialize(using = ToStringSerializer::class)
-	val discordId: Long
-	val name: String?
-	val discriminator: String?
-	val avatarId: Optional<String?>?
-	val roles: Set<String?>?
-	val scopes: Set<String?>?
-}
+data class SelfUser(
+    @JsonSerialize(using = ToStringSerializer::class)
+    val discordId: Long,
+    val name: String,
+    val discriminator: String,
+    val avatarId: String?,
+    val roles: Set<String>,
+    val scopes: Set<String>,
+)

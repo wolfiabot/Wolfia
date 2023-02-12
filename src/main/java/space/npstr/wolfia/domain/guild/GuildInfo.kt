@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -16,27 +16,20 @@
  */
 package space.npstr.wolfia.domain.guild
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import org.immutables.value.Value
 import space.npstr.wolfia.domain.discord.PartialGuild
 
-@Value.Immutable
-@Value.Style(stagedBuilder = true, strictBuilder = true)
-@JsonSerialize(`as` = ImmutableGuildInfo::class)
-interface GuildInfo {
-	/**
-	 * The information we get from Discord about a guild.
-	 */
-	fun guild(): PartialGuild?
-
-	/**
-	 * Is our bot present in this guild?
-	 */
-	fun botPresent(): Boolean
-
-	/**
-	 * Can the user edit this guild? This is just a convenience property for the frontend UI.
-	 * There are additional checks in the backend for concrete requests.
-	 */
-	fun canEdit(): Boolean
-}
+data class GuildInfo(
+    /**
+     * The information we get from Discord about a guild.
+     */
+    val guild: PartialGuild,
+    /**
+     * Is our bot present in this guild?
+     */
+    val botPresent: Boolean,
+    /**
+     * Can the user edit this guild? This is just a convenience property for the frontend UI.
+     * There are additional checks in the backend for concrete requests.
+     */
+    val canEdit: Boolean,
+)

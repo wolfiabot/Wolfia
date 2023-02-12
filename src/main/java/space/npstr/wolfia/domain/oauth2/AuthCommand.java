@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -47,11 +47,7 @@ public class AuthCommand implements BaseCommand, PublicCommand {
 
         String jumpUrl = context.getMessage().getJumpUrl();
 
-        AuthState authState = ImmutableAuthState.builder()
-                .userId(context.getInvoker().getIdLong())
-                .redirectUrl(jumpUrl)
-                .build();
-
+        AuthState authState = new AuthState(context.getInvoker().getIdLong(), jumpUrl);
         String state = this.stateCache.generateStateParam(authState);
         String privateMessage = "Click the following link to connect with Wolfia. This will allow me to automatically "
                 + "add you to wolf chat or global games.\n" + this.requester.getAuthorizationUrl(state);

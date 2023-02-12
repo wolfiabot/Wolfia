@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -135,7 +135,7 @@ class StaffProfileConversation implements Conversation {
 
         if (rawContent.toLowerCase().startsWith(OPTION_ENABLE)) {
             StaffMember updated = this.staffService.user(staffMember.getDiscordId()).enable();
-            return showStaffProfileAndOptions(context, updated, "Enabled your staff profile! Check " + TEAM_WEBSITE.toString());
+            return showStaffProfileAndOptions(context, updated, "Enabled your staff profile! Check " + TEAM_WEBSITE);
         }
 
         if (rawContent.toLowerCase().startsWith(OPTION_DISABLE)) {

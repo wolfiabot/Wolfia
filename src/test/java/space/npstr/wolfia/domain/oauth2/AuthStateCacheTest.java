@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,9 +18,8 @@
 package space.npstr.wolfia.domain.oauth2;
 
 import io.prometheus.client.cache.caffeine.CacheMetricsCollector;
-import org.junit.jupiter.api.Test;
-
 import java.util.Optional;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -48,18 +47,15 @@ class AuthStateCacheTest {
     void whenGetExistingAuthState_returnAuthState() {
         long userId = uniqueLong();
         String redirectUrl = "https://example.org";
-        AuthState authState = ImmutableAuthState.builder()
-                .userId(userId)
-                .redirectUrl(redirectUrl)
-                .build();
+        AuthState authState = new AuthState(userId, redirectUrl);
 
         String state = cache.generateStateParam(authState);
 
         Optional<AuthState> opt = cache.getAuthState(state);
 
         assertThat(opt).hasValueSatisfying(actual -> {
-            assertThat(actual.userId()).isEqualTo(actual.userId());
-            assertThat(actual.redirectUrl()).isEqualTo(actual.redirectUrl());
+            assertThat(actual.getUserId()).isEqualTo(actual.getUserId());
+            assertThat(actual.getRedirectUrl()).isEqualTo(actual.getRedirectUrl());
         });
     }
 

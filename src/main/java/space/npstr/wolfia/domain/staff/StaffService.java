@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -42,8 +42,6 @@ import space.npstr.wolfia.db.gen.enums.StaffFunction;
 import space.npstr.wolfia.db.gen.tables.records.StaffMemberRecord;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
-
-import static java.util.Optional.ofNullable;
 
 /**
  * Provides and updates information about the staff behind Wolfia
@@ -211,17 +209,19 @@ public class StaffService {
 
     private Optional<StaffMember> toStaffMember(StaffMemberRecord staffMemberRecord) {
         Optional<User> userOpt = userCache.user(staffMemberRecord.getUserId()).get();
-        return userOpt.map(user -> ImmutableStaffMember.builder()
-                .discordId(user.getIdLong())
-                .name(user.getName())
-                .discriminator(user.getDiscriminator())
-                .function(staffMemberRecord.getFunction())
-                .isEnabled(staffMemberRecord.getEnabled())
-                .isActive(staffMemberRecord.getActive())
-                .avatarId(ofNullable(user.getAvatarId()))
-                .slogan(ofNullable(staffMemberRecord.getSlogan()))
-                .link(ofNullable(staffMemberRecord.getLink()))
-                .build());
+        return userOpt.map(user ->
+                new StaffMember(
+                        user.getIdLong(),
+                        user.getName(),
+                        user.getDiscriminator(),
+                        Optional.ofNullable(user.getAvatarId()),
+                        staffMemberRecord.getFunction(),
+                        Optional.ofNullable(staffMemberRecord.getSlogan()),
+                        Optional.ofNullable(staffMemberRecord.getLink()),
+                        staffMemberRecord.getEnabled(),
+                        staffMemberRecord.getActive()
+                )
+        );
     }
 
 }

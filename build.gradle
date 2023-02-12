@@ -161,7 +161,6 @@ project(':platform') {
             api "club.minnced:discord-webhooks:$discordWebhooksVersion"
             api "io.sentry:sentry-logback:$sentryLogbackVersion"
             api "org.json:json:$orgJsonVersion"
-            api "org.immutables:value:$immutablesVersion"
             api "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
             api "org.glassfish.jaxb:jaxb-core:$jaxbImplVersion"
             api "org.glassfish.jaxb:jaxb-runtime:$jaxbImplVersion"
@@ -454,9 +453,6 @@ dependencies {
     implementation "io.prometheus:simpleclient_common"
     implementation "io.prometheus:simpleclient_caffeine"
     implementation "space.npstr:prometheus_extensions"
-
-    annotationProcessor "org.immutables:value"
-    compileOnly(group: 'org.immutables', name: 'value', classifier: 'annotations')
 
     implementation "net.ttddyy:datasource-proxy"
     implementation "org.flywaydb:flyway-core"

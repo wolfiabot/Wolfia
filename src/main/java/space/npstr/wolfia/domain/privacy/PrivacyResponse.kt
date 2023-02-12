@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -16,14 +16,10 @@
  */
 package space.npstr.wolfia.domain.privacy
 
-import org.immutables.value.Value
-
 /**
  * A reponse to a privacy request containing representations various personal data.
  */
-@Value.Immutable
-@Value.Style(stagedBuilder = true, strictBuilder = true)
-interface PrivacyResponse {
-	val sessions: List<PrivacySession?>?
-	val games: List<PrivacyGame?>?
-}
+data class PrivacyResponse(
+    val sessions: List<PrivacySession>,
+    val games: List<PrivacyGame>,
+)
