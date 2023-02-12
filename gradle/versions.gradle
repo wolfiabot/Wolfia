@@ -19,6 +19,7 @@
 ext {
 
 	javaVersion                 = '17'
+    kotlinVersion               = '1.8.10'
 	springBootVersion			= '3.0.2'
 	flywayVersion				= '9.14.1'
 

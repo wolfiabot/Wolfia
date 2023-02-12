@@ -14,23 +14,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.stats
 
-package space.npstr.wolfia.domain.stats;
+import org.immutables.value.Value
 
-import org.immutables.value.Value;
-
-import static org.immutables.value.Value.Immutable;
-
-@Immutable
+@Value.Immutable
 @Value.Style(create = "new")
-public interface GeneralUserStats {
-
-    long postLength();
-
-    long posts();
-
-    String alignment();
-
-    boolean isWinner();
-
+interface GeneralUserStats {
+	fun postLength(): Long
+	fun posts(): Long
+	fun alignment(): String?
+	val isWinner: Boolean
 }

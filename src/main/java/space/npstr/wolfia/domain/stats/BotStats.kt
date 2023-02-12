@@ -14,34 +14,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.stats
 
-package space.npstr.wolfia.domain.stats;
+import org.immutables.value.Value
 
-import java.util.List;
-
-import static org.immutables.value.Value.Immutable;
-
-@Immutable
+@Value.Immutable
 @StatsStyle
-public interface GuildStats {
+interface BotStats {
+	/**
+	 * @return average player size for all games
+	 */
+	fun averagePlayerSize(): Number?
 
-    /**
-     * @return id of the guild these stats belong to
-     */
-    long guildId();
+	/**
+	 * @return win stats for all games
+	 */
+	fun totalWinStats(): WinStats?
 
-    /**
-     * @return average player size for games in this guild
-     */
-    Number averagePlayerSize();
-
-    /**
-     * @return win stats for all games
-     */
-    WinStats totalWinStats();
-
-    /**
-     * @return win stats for games by player size
-     */
-    List<WinStats> winStatsByPlayerSize();
+	/**
+	 * @return win stats for games by player size
+	 */
+	fun winStatsByPlayerSize(): List<WinStats?>?
 }

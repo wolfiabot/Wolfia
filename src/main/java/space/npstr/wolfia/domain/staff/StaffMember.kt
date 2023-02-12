@@ -14,42 +14,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.staff
 
-package space.npstr.wolfia.domain.staff;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import java.net.URI;
-import java.util.Optional;
-import org.immutables.value.Value;
-import space.npstr.wolfia.db.gen.enums.StaffFunction;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
+import org.immutables.value.Value
+import space.npstr.wolfia.db.gen.enums.StaffFunction
+import java.net.URI
+import java.util.Optional
 
 /**
  * A member of the Wolfia staff.
  */
 @Value.Immutable
-@Value.Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public interface StaffMember {
-
-    @JsonSerialize(using = ToStringSerializer.class)
-    long getDiscordId();
-
-    String getName();
-
-    String getDiscriminator();
-
-    Optional<String> getAvatarId();
-
-    StaffFunction getFunction();
-
-    Optional<String> getSlogan();
-
-    Optional<URI> getLink();
-
-    boolean isEnabled();
-
-    boolean isActive();
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+interface StaffMember {
+	@get:JsonSerialize(using = ToStringSerializer::class)
+	val discordId: Long
+	val name: String?
+	val discriminator: String?
+	val avatarId: Optional<String?>?
+	val function: StaffFunction?
+	val slogan: Optional<String?>?
+	val link: Optional<URI?>?
+	val isEnabled: Boolean
+	val isActive: Boolean
 }

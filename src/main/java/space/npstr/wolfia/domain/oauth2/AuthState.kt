@@ -14,39 +14,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.oauth2
 
-package space.npstr.wolfia.domain.privacy;
+import org.immutables.value.Value
 
-import java.time.Instant;
-import java.util.List;
-import org.immutables.value.Value;
-
-/**
- * A representation of a game as sent to a user requesting their personal data.
- */
 @Value.Immutable
-@Value.Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public interface PrivacyGame {
+@Value.Style(stagedBuilder = true)
+interface AuthState {
+	/**
+	 * @return id of the user that we sent an authorization link to
+	 */
+	fun userId(): Long
 
-    long getGameId();
-
-    Instant getStartTime();
-
-    Instant getEndTime();
-
-    String getAlignment();
-
-    boolean isWinner();
-
-    String getNickname();
-
-    int getTotalPosts();
-
-    int getTotalPostLength();
-
-    List<PrivacyAction> getActions();
-
+	/**
+	 * @return url that can be used to redirect the user after a successful/failed flow, for example to get back
+	 * to the channel/message that the flow was started from in discord
+	 */
+	fun redirectUrl(): String?
 }

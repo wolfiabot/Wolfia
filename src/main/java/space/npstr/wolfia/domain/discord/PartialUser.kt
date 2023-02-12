@@ -14,37 +14,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.discord
 
-package space.npstr.wolfia.domain.discord;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import org.springframework.lang.Nullable;
-
-import static org.immutables.value.Value.Immutable;
-import static org.immutables.value.Value.Style;
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
+import org.immutables.value.Value
+import org.springframework.lang.Nullable
 
 /**
  * User fetched via OAuth2, see https://discord.com/developers/docs/resources/user#get-user
  */
-@Immutable
-@Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-@JsonDeserialize(as = ImmutablePartialUser.class)
-public interface PartialUser {
+@Value.Immutable
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+@JsonDeserialize(`as` = ImmutablePartialUser::class)
+interface PartialUser {
+	@JsonSerialize(using = ToStringSerializer::class)
+	fun id(): Long
 
-    @JsonSerialize(using = ToStringSerializer.class)
-    long id();
+	@JsonProperty("username")
+	fun name(): String?
+	fun discriminator(): String?
 
-    @JsonProperty("username")
-    String name();
-
-    String discriminator();
-
-    @Nullable
-    String avatar();
+	@Nullable
+	fun avatar(): String?
 }

@@ -14,35 +14,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.privacy
 
-package space.npstr.wolfia.webapi.user;
+import org.immutables.value.Value
+import java.time.Instant
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import java.util.Optional;
-import java.util.Set;
-
-import static org.immutables.value.Value.Immutable;
-import static org.immutables.value.Value.Style;
-
-@Immutable
-@Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public interface SelfUser {
-
-    @JsonSerialize(using = ToStringSerializer.class)
-    long getDiscordId();
-
-    String getName();
-
-    String getDiscriminator();
-
-    Optional<String> getAvatarId();
-
-    Set<String> getRoles();
-
-    Set<String> getScopes();
-
+/**
+ * A representation of a session as sent to a user requesting their personal data.
+ */
+@Value.Immutable
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+interface PrivacySession {
+	val creationTime: Instant?
+	val lastAccessedTime: Instant?
+	val isExpired: Boolean
 }

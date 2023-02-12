@@ -14,24 +14,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.oauth2
 
-package space.npstr.wolfia.domain.privacy;
+import org.immutables.value.Value
+import space.npstr.wolfia.db.type.OAuth2Scope
+import java.time.Instant
 
-import java.time.Instant;
-import org.immutables.value.Value;
-import space.npstr.wolfia.game.definitions.Actions;
-
-/**
- * A representation of a game action as sent to a user requesting their personal data.
- */
 @Value.Immutable
-@Value.Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public interface PrivacyAction {
-
-    Actions getType();
-
-    Instant getSubmitted();
+@Value.Style(stagedBuilder = true)
+interface AccessTokenResponse {
+	fun accessToken(): String?
+	fun expires(): Instant?
+	fun refreshToken(): String?
+	fun scopes(): Set<OAuth2Scope?>?
 }

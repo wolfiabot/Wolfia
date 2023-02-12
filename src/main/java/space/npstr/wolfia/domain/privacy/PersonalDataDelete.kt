@@ -14,27 +14,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.privacy
 
-package space.npstr.wolfia.domain.oauth2;
+import org.immutables.value.Value
 
-import space.npstr.wolfia.db.type.OAuth2Scope;
-
-import java.time.Instant;
-import java.util.Set;
-
-import static org.immutables.value.Value.Immutable;
-import static org.immutables.value.Value.Style;
-
-@Immutable
-@Style(stagedBuilder = true)
-public interface AccessTokenResponse {
-
-    String accessToken();
-
-    Instant expires();
-
-    String refreshToken();
-
-    Set<OAuth2Scope> scopes();
-
+@Value.Immutable
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+interface PersonalDataDelete {
+	fun userId(): Long
 }

@@ -14,26 +14,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.guild
 
-package space.npstr.wolfia.webapi.guild;
-
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import org.immutables.value.Value;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import org.immutables.value.Value
+import space.npstr.wolfia.domain.discord.PartialGuild
 
 @Value.Immutable
-@Value.Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-@JsonSerialize(as = ImmutableChannelSettingsVO.class)
-public interface ChannelSettingsVO {
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+@JsonSerialize(`as` = ImmutableGuildInfo::class)
+interface GuildInfo {
+	/**
+	 * The information we get from Discord about a guild.
+	 */
+	fun guild(): PartialGuild?
 
-    @JsonSerialize(using = ToStringSerializer.class)
-    long discordId();
+	/**
+	 * Is our bot present in this guild?
+	 */
+	fun botPresent(): Boolean
 
-    String name();
-
-    boolean isGameChannel();
+	/**
+	 * Can the user edit this guild? This is just a convenience property for the frontend UI.
+	 * There are additional checks in the backend for concrete requests.
+	 */
+	fun canEdit(): Boolean
 }

@@ -14,20 +14,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.stats
 
-package space.npstr.wolfia.domain.privacy;
+import org.immutables.value.Value
 
-import org.immutables.value.Value.Immutable;
+@Value.Immutable
+@StatsStyle
+interface WinStats {
+	/**
+	 * @return the player size that these win stats belong to
+	 */
+	fun playerSize(): Int
 
-import static org.immutables.value.Value.Style;
+	/**
+	 * @return total games with this player size
+	 */
+	fun totalGames(): Long
 
-@Immutable
-@Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public interface PersonalDataDelete {
+	/**
+	 * @return goodie wins with this player size
+	 */
+	fun goodieWins(): Long
 
-    long userId();
-
+	/**
+	 * @return baddie wins with this player size
+	 */
+	fun baddieWins(): Long
 }

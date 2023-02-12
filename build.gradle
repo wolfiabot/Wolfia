@@ -41,6 +41,9 @@ buildscript {
         classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
         classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
         classpath "org.siouan:frontend-gradle-plugin-jdk11:$frontendPluginVersion"
+
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion" //spring
     }
 }
 
@@ -408,6 +411,8 @@ project(':frontend') {
 apply plugin: 'application'
 apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'org.jetbrains.kotlin.plugin.spring'
+apply plugin: 'kotlin'
 apply plugin: 'org.sonarqube'
 
 
@@ -472,6 +477,9 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     compileOnly("org.springframework.boot:spring-boot-devtools")
 
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8"
+
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
@@ -490,6 +498,10 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
     options.incremental = true
     options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation' << '-Xmaxerrs' << '10000' << '-Xdiags:verbose'
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions.jvmTarget = javaVersion
 }
 
 //required by spring boot configuration processor

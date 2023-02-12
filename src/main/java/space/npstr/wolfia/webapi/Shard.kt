@@ -14,23 +14,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.webapi
 
-package space.npstr.wolfia.webapi;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import org.immutables.value.Value
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import static org.immutables.value.Value.Immutable;
-import static org.immutables.value.Value.Style;
-
-@Immutable
-@Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-@JsonSerialize(as = ImmutableShard.class)
-public interface Shard {
-
-    int id();
-
-    String status();
+@Value.Immutable
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+@JsonSerialize(`as` = ImmutableShard::class)
+interface Shard {
+	fun id(): Int
+	fun status(): String?
 }

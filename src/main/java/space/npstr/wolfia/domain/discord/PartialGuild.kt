@@ -14,36 +14,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.discord
 
-package space.npstr.wolfia.domain.discord;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import org.springframework.lang.Nullable;
-
-import static org.immutables.value.Value.Immutable;
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
+import org.immutables.value.Value
+import org.springframework.lang.Nullable
 
 /**
  * Guild fetched via OAuth2, see https://discord.com/developers/docs/resources/user#get-current-user-guilds-example-partial-guild
  */
-@Immutable
-@JsonSerialize(as = ImmutablePartialGuild.class)
-@JsonDeserialize(as = ImmutablePartialGuild.class)
-public interface PartialGuild {
+@Value.Immutable
+@JsonSerialize(`as` = ImmutablePartialGuild::class)
+@JsonDeserialize(`as` = ImmutablePartialGuild::class)
+interface PartialGuild {
+	@JsonSerialize(using = ToStringSerializer::class)
+	fun id(): Long
+	fun name(): String?
 
-    @JsonSerialize(using = ToStringSerializer.class)
-    long id();
+	@Nullable
+	fun icon(): String?
 
-    String name();
+	@get:JsonProperty("owner")
+	val isOwner: Boolean
 
-    @Nullable
-    String icon();
-
-    @JsonProperty("owner")
-    boolean isOwner();
-
-    @JsonSerialize(using = ToStringSerializer.class)
-    long permissions();
+	@JsonSerialize(using = ToStringSerializer::class)
+	fun permissions(): Long
 }

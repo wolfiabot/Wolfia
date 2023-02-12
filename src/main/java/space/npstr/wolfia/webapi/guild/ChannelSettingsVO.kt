@@ -14,24 +14,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.webapi.guild
 
-package space.npstr.wolfia.webapi.guild;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import java.util.Set;
-import org.immutables.value.Value;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
+import org.immutables.value.Value
 
 @Value.Immutable
-@Value.Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-@JsonSerialize(as = ImmutableGuildSettingsVO.class)
-public interface GuildSettingsVO {
-
-    @JsonSerialize(using = ToStringSerializer.class)
-    long discordId();
-
-    Set<ChannelSettingsVO> channelSettings();
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+@JsonSerialize(`as` = ImmutableChannelSettingsVO::class)
+interface ChannelSettingsVO {
+	@JsonSerialize(using = ToStringSerializer::class)
+	fun discordId(): Long
+	fun name(): String?
+	val isGameChannel: Boolean
 }

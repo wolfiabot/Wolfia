@@ -14,29 +14,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.webapi.user
 
-package space.npstr.wolfia.domain.stats;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
+import org.immutables.value.Value
+import java.util.Optional
 
-import java.util.List;
-
-import static org.immutables.value.Value.Immutable;
-
-@Immutable
-@StatsStyle
-public interface BotStats {
-
-    /**
-     * @return average player size for all games
-     */
-    Number averagePlayerSize();
-
-    /**
-     * @return win stats for all games
-     */
-    WinStats totalWinStats();
-
-    /**
-     * @return win stats for games by player size
-     */
-    List<WinStats> winStatsByPlayerSize();
+@Value.Immutable
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+interface SelfUser {
+	@get:JsonSerialize(using = ToStringSerializer::class)
+	val discordId: Long
+	val name: String?
+	val discriminator: String?
+	val avatarId: Optional<String?>?
+	val roles: Set<String?>?
+	val scopes: Set<String?>?
 }

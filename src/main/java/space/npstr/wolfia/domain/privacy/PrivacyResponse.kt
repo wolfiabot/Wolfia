@@ -14,21 +14,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.privacy
 
-package space.npstr.wolfia.webapi.guild;
+import org.immutables.value.Value
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.immutables.value.Value;
-
+/**
+ * A reponse to a privacy request containing representations various personal data.
+ */
 @Value.Immutable
-@Value.Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-@JsonDeserialize(as = ImmutableGameChannelRequest.class)
-public interface GameChannelRequest {
-
-    long channelId();
-
-    boolean isGameChannel();
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+interface PrivacyResponse {
+	val sessions: List<PrivacySession?>?
+	val games: List<PrivacyGame?>?
 }

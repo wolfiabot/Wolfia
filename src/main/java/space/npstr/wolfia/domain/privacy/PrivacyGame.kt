@@ -14,25 +14,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.privacy
 
-package space.npstr.wolfia.domain.privacy;
-
-import java.time.Instant;
-import org.immutables.value.Value;
+import org.immutables.value.Value
+import java.time.Instant
 
 /**
- * A representation of a session as sent to a user requesting their personal data.
+ * A representation of a game as sent to a user requesting their personal data.
  */
 @Value.Immutable
-@Value.Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public interface PrivacySession {
-
-    Instant getCreationTime();
-
-    Instant getLastAccessedTime();
-
-    boolean isExpired();
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+interface PrivacyGame {
+	val gameId: Long
+	val startTime: Instant?
+	val endTime: Instant?
+	val alignment: String?
+	val isWinner: Boolean
+	val nickname: String?
+	val totalPosts: Int
+	val totalPostLength: Int
+	val actions: List<PrivacyAction?>?
 }

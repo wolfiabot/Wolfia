@@ -14,14 +14,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.webapi.guild
 
-package space.npstr.wolfia.domain.stats;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import org.immutables.value.Value
 
-import org.immutables.value.Value;
-
-@Value.Style(
-        stagedBuilder = true,
-        strictBuilder = true
-)
-public @interface StatsStyle {
+@Value.Immutable
+@Value.Style(stagedBuilder = true, strictBuilder = true)
+@JsonDeserialize(`as` = ImmutableGameChannelRequest::class)
+interface GameChannelRequest {
+	fun channelId(): Long
+	val isGameChannel: Boolean
 }
