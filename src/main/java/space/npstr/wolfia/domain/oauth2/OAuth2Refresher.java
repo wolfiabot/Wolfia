@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,16 +17,14 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 import static space.npstr.wolfia.common.Exceptions.logIfFailed;
 
@@ -49,12 +47,12 @@ public class OAuth2Refresher {
     }
 
     private void refresh() {
-        List<OAuth2Data> expiringSoon = this.repository.findAllExpiringIn(TWO_DAYS).toCompletableFuture().join();
+        List<OAuth2Data> expiringSoon = this.repository.findAllExpiringIn(TWO_DAYS);
         log.debug("{} oauth data are expiring soon", expiringSoon.size());
 
         for (OAuth2Data old : expiringSoon) {
             this.oAuth2Requester.refresh(old)
-                    .thenCompose(this.repository::save)
+                    .thenApply(this.repository::save)
                     .handle((__, t) -> {
                         if (t != null) {
                             log.warn("Failed to refresh token for user {}", old.userId(), t);
@@ -63,7 +61,6 @@ public class OAuth2Refresher {
                         }
                         return CompletableFuture.completedStage(0);
                     })
-                    .thenCompose(Function.identity())
                     .whenComplete(logIfFailed());
         }
     }

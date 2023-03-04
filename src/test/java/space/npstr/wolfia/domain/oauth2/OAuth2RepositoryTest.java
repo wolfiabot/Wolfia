@@ -22,7 +22,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
@@ -70,9 +69,9 @@ class OAuth2RepositoryTest extends ApplicationTest {
     void givenNoEntry_whenFind_returnEmpty() {
         long userId = uniqueLong();
 
-        Optional<OAuth2Data> data = this.repository.findOne(userId).toCompletableFuture().join();
+        OAuth2Data data = this.repository.findOne(userId);
 
-        assertThat(data).isEmpty();
+        assertThat(data).isNull();
     }
 
     @Test
@@ -81,10 +80,10 @@ class OAuth2RepositoryTest extends ApplicationTest {
         OAuth2Data data = new OAuth2Data(userId, "foo", now().plusDays(30).toInstant(),
                 "bar", Set.of(OAuth2Scope.IDENTIFY));
 
-        this.repository.save(data).toCompletableFuture().join();
+        this.repository.save(data);
 
-        Optional<OAuth2Data> dataOpt = this.repository.findOne(userId).toCompletableFuture().join();
-        assertThat(dataOpt).hasValueSatisfying(isOAuth2Data(data));
+        OAuth2Data found = this.repository.findOne(userId);
+        assertThat(found).satisfies(isOAuth2Data(data));
     }
 
     @Test
@@ -93,11 +92,11 @@ class OAuth2RepositoryTest extends ApplicationTest {
         OAuth2Data data = new OAuth2Data(userId, "foo", now().plusDays(30).toInstant(),
                 "bar", Set.of(OAuth2Scope.IDENTIFY));
 
-        OAuth2Data saved = this.repository.save(data).toCompletableFuture().join();
+        OAuth2Data saved = this.repository.save(data);
 
-        Optional<OAuth2Data> fetched = this.repository.findOne(userId).toCompletableFuture().join();
+        OAuth2Data fetched = this.repository.findOne(userId);
         assertThat(saved).satisfies(isOAuth2Data(data));
-        assertThat(fetched).hasValueSatisfying(isOAuth2Data(data));
+        assertThat(fetched).satisfies(isOAuth2Data(data));
     }
 
     @Test
@@ -105,23 +104,23 @@ class OAuth2RepositoryTest extends ApplicationTest {
         long userId = uniqueLong();
         OAuth2Data existing = new OAuth2Data(userId, "foo", now().plusDays(30).toInstant(),
                 "bar", Set.of(OAuth2Scope.IDENTIFY));
-        this.repository.save(existing).toCompletableFuture().join();
+        this.repository.save(existing);
         OAuth2Data data = new OAuth2Data(userId, "foo", now().plusDays(14).toInstant(),
                 "baz", Set.of(OAuth2Scope.IDENTIFY, OAuth2Scope.GUILD_JOIN));
 
-        OAuth2Data saved = this.repository.save(data).toCompletableFuture().join();
+        OAuth2Data saved = this.repository.save(data);
 
-        Optional<OAuth2Data> fetched = this.repository.findOne(userId).toCompletableFuture().join();
+        OAuth2Data fetched = this.repository.findOne(userId);
         assertThat(saved).satisfies(isOAuth2Data(data));
-        assertThat(fetched).hasValueSatisfying(isOAuth2Data(data));
+        assertThat(fetched).satisfies(isOAuth2Data(data));
     }
 
     @Test
     void givenSoonExpiringEntry_findExpiringEntry() {
         OAuth2Data expiringSoon = expiringOn(now().plusDays(1).toInstant());
-        this.repository.save(expiringSoon).toCompletableFuture().join();
+        this.repository.save(expiringSoon);
 
-        List<OAuth2Data> expiring = this.repository.findAllExpiringIn(Duration.ofDays(2)).toCompletableFuture().join();
+        List<OAuth2Data> expiring = this.repository.findAllExpiringIn(Duration.ofDays(2));
 
         assertThat(expiring)
                 .singleElement()
@@ -131,11 +130,11 @@ class OAuth2RepositoryTest extends ApplicationTest {
     @Test
     void givenSoonExpiringEntries_findExpiringEntries() {
         OAuth2Data expiringSoonA = expiringOn(now().plusDays(1).toInstant());
-        this.repository.save(expiringSoonA).toCompletableFuture().join();
+        this.repository.save(expiringSoonA);
         OAuth2Data expiringSoonB = expiringOn(now().plusHours(1).toInstant());
-        this.repository.save(expiringSoonB).toCompletableFuture().join();
+        this.repository.save(expiringSoonB);
 
-        List<OAuth2Data> expiring = this.repository.findAllExpiringIn(Duration.ofDays(2)).toCompletableFuture().join();
+        List<OAuth2Data> expiring = this.repository.findAllExpiringIn(Duration.ofDays(2));
 
         assertThat(expiring).hasSize(2);
         assertThat(expiring).filteredOnAssertions(isOAuth2Data(expiringSoonA)).hasSize(1);
@@ -145,15 +144,15 @@ class OAuth2RepositoryTest extends ApplicationTest {
     @Test
     void givenABunchOfExpiringEntries_findOnlyExpiringEntries() {
         OAuth2Data expiringSoonA = expiringOn(now().plusDays(1).toInstant());
-        this.repository.save(expiringSoonA).toCompletableFuture().join();
+        this.repository.save(expiringSoonA);
         OAuth2Data expiringSoonB = expiringOn(now().plusHours(1).toInstant());
-        this.repository.save(expiringSoonB).toCompletableFuture().join();
+        this.repository.save(expiringSoonB);
         OAuth2Data notExpiringSoonA = expiringOn(now().plusWeeks(3).toInstant());
-        this.repository.save(notExpiringSoonA).toCompletableFuture().join();
+        this.repository.save(notExpiringSoonA);
         OAuth2Data notExpiringSoonB = expiringOn(now().plusMonths(1).toInstant());
-        this.repository.save(notExpiringSoonB).toCompletableFuture().join();
+        this.repository.save(notExpiringSoonB);
 
-        List<OAuth2Data> expiring = this.repository.findAllExpiringIn(Duration.ofDays(2)).toCompletableFuture().join();
+        List<OAuth2Data> expiring = this.repository.findAllExpiringIn(Duration.ofDays(2));
 
         assertThat(expiring).hasSize(2);
         assertThat(expiring).filteredOnAssertions(isOAuth2Data(expiringSoonA)).hasSize(1);
@@ -162,7 +161,7 @@ class OAuth2RepositoryTest extends ApplicationTest {
 
     @Test
     void givenNoEntry_whenDelete_noRowsChanged() {
-        int deleted = this.repository.delete(uniqueLong()).toCompletableFuture().join();
+        int deleted = this.repository.delete(uniqueLong());
 
         assertThat(deleted).isZero();
     }
@@ -172,13 +171,13 @@ class OAuth2RepositoryTest extends ApplicationTest {
         long userId = uniqueLong();
         OAuth2Data existing = new OAuth2Data(userId, "foo", now().plusDays(30).toInstant(),
                 "bar", Set.of(OAuth2Scope.IDENTIFY));
-        this.repository.save(existing).toCompletableFuture().join();
+        this.repository.save(existing);
 
-        int deleted = this.repository.delete(userId).toCompletableFuture().join();
+        int deleted = this.repository.delete(userId);
 
-        Optional<OAuth2Data> fetched = this.repository.findOne(userId).toCompletableFuture().join();
+        OAuth2Data fetched = this.repository.findOne(userId);
         assertThat(deleted).isOne();
-        assertThat(fetched).isEmpty();
+        assertThat(fetched).isNull();
     }
 
     private OAuth2Data expiringOn(Instant expiringOn) {

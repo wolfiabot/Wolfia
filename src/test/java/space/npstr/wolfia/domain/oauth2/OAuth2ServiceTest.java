@@ -20,7 +20,6 @@ package space.npstr.wolfia.domain.oauth2;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,21 +54,20 @@ class OAuth2ServiceTest extends ApplicationTest {
 
         this.service.acceptCode("foo").toCompletableFuture().join();
 
-        Optional<OAuth2Data> oAuth2Data = repository.findOne(userId).toCompletableFuture().join();
-        assertThat(oAuth2Data).hasValueSatisfying(actual -> {
-            assertThat(actual.userId()).isEqualTo(userId);
-            assertThat(actual.accessToken()).isEqualTo(accessToken);
-            assertThat(actual.expires()).isCloseTo(expires, within(1, ChronoUnit.MILLIS));
-            assertThat(actual.refreshToken()).isEqualTo(refreshToken);
-            assertThat(actual.scopes()).containsExactlyInAnyOrderElementsOf(scopes);
-        });
+        OAuth2Data oAuth2Data = repository.findOne(userId);
+        assertThat(oAuth2Data).isNotNull();
+        assertThat(oAuth2Data.userId()).isEqualTo(userId);
+        assertThat(oAuth2Data.accessToken()).isEqualTo(accessToken);
+        assertThat(oAuth2Data.expires()).isCloseTo(expires, within(1, ChronoUnit.MILLIS));
+        assertThat(oAuth2Data.refreshToken()).isEqualTo(refreshToken);
+        assertThat(oAuth2Data.scopes()).containsExactlyInAnyOrderElementsOf(scopes);
     }
 
     @Test
     void givenNoAccessToken_whenGetAccessTokenForScope_returnEmpty() {
-        Optional<String> fetched = this.service.getAccessTokenForScope(uniqueLong(), OAuth2Scope.IDENTIFY);
+        String fetched = this.service.getAccessTokenForScope(uniqueLong(), OAuth2Scope.IDENTIFY);
 
-        assertThat(fetched).isEmpty();
+        assertThat(fetched).isNull();
     }
 
     @Test
@@ -78,11 +76,11 @@ class OAuth2ServiceTest extends ApplicationTest {
         String accessToken = "foo";
         OAuth2Data validOAuth2Data = new OAuth2Data(userId, accessToken, now().plusDays(14).toInstant(),
                 "bar", EnumSet.allOf(OAuth2Scope.class));
-        this.repository.save(validOAuth2Data).toCompletableFuture().join();
+        this.repository.save(validOAuth2Data);
 
-        Optional<String> fetched = this.service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY);
+        String fetched = this.service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY);
 
-        assertThat(fetched).hasValue(accessToken);
+        assertThat(fetched).isEqualTo(accessToken);
     }
 
     @Test
@@ -91,11 +89,11 @@ class OAuth2ServiceTest extends ApplicationTest {
         String accessToken = "foo";
         OAuth2Data validOAuth2Data = new OAuth2Data(userId, accessToken, now().plusDays(14).toInstant(),
                 "bar", EnumSet.of(OAuth2Scope.IDENTIFY));
-        this.repository.save(validOAuth2Data).toCompletableFuture().join();
+        this.repository.save(validOAuth2Data);
 
-        Optional<String> fetched = this.service.getAccessTokenForScope(userId, OAuth2Scope.GUILD_JOIN);
+        String fetched = this.service.getAccessTokenForScope(userId, OAuth2Scope.GUILD_JOIN);
 
-        assertThat(fetched).isEmpty();
+        assertThat(fetched).isNull();
     }
 
     @Test
@@ -104,11 +102,11 @@ class OAuth2ServiceTest extends ApplicationTest {
         String accessToken = "foo";
         OAuth2Data validOAuth2Data = new OAuth2Data(userId, accessToken, now().minusDays(1).toInstant(),
                 "bar", EnumSet.allOf(OAuth2Scope.class));
-        this.repository.save(validOAuth2Data).toCompletableFuture().join();
+        this.repository.save(validOAuth2Data);
 
-        Optional<String> fetched = this.service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY);
+        String fetched = this.service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY);
 
-        assertThat(fetched).isEmpty();
+        assertThat(fetched).isNull();
     }
 
 }

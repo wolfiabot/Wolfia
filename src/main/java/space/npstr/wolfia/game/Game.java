@@ -25,14 +25,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -43,6 +41,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.CommandContext;
@@ -730,9 +729,10 @@ public abstract class Game {
     protected void addToBaddieGuild(Player player) {
         OAuth2Service oAuth2Service = Launcher.getBotContext().getoAuth2Service();
 
-        Optional<String> accessTokenOpt = oAuth2Service.getAccessTokenForScope(player.getUserId(), OAuth2Scope.GUILD_JOIN);
-        accessTokenOpt.ifPresent(accessToken ->
-                fetchBaddieChannel().getGuild().addMember(accessToken, player.getUserId()).queue());
+        String accessToken = oAuth2Service.getAccessTokenForScope(player.getUserId(), OAuth2Scope.GUILD_JOIN);
+        if (accessToken != null) {
+            fetchBaddieChannel().getGuild().addMember(accessToken, player.getUserId()).queue();
+        }
         // TODO tell player if they have no valid token
     }
 
