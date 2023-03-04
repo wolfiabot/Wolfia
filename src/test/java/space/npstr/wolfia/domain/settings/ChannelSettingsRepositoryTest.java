@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -39,8 +39,7 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
     void givenEntryDoesNotExist_whenFetchingDefault_expectDefaultValues() {
         long channelId = uniqueLong();
 
-        var settings = this.repository.findOneOrDefault(channelId)
-                .toCompletableFuture().join();
+        var settings = this.repository.findOneOrDefault(channelId);
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
         assertThat(settings.getAccessRoleId()).isEmpty();
@@ -54,13 +53,11 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
     void givenEntryDoesNotExist_whenFetchingDefault_doNotCreateEntry() {
         long channelId = uniqueLong();
 
-        var settings = this.repository.findOneOrDefault(channelId)
-                .toCompletableFuture().join();
+        var settings = this.repository.findOneOrDefault(channelId);
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
-        var created = this.repository.findOne(channelId)
-                .toCompletableFuture().join();
-        assertThat(created.isPresent()).isFalse();
+        var created = this.repository.findOne(channelId);
+        assertThat(created).isNull();
     }
 
     @Test
@@ -68,11 +65,9 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
         long channelId = uniqueLong();
         long tagCooldown = uniqueLong();
 
-        this.repository.setTagCooldown(channelId, tagCooldown)
-                .toCompletableFuture().join();
+        this.repository.setTagCooldown(channelId, tagCooldown);
 
-        var settings = this.repository.findOneOrDefault(channelId)
-                .toCompletableFuture().join();
+        var settings = this.repository.findOneOrDefault(channelId);
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
         assertThat(settings.getTagCooldownMinutes()).isEqualTo(tagCooldown);
@@ -83,26 +78,22 @@ class ChannelSettingsRepositoryTest extends ApplicationTest {
         long channelIdA = uniqueLong();
         long channelIdB = uniqueLong();
 
-        this.repository.setTagCooldown(channelIdA, uniqueLong())
-                .toCompletableFuture().join();
+        this.repository.setTagCooldown(channelIdA, uniqueLong());
 
-        var settingsList = this.repository.findOrDefault(List.of(channelIdA, channelIdB))
-                .toCompletableFuture().join();
+        var settingsList = this.repository.findOrDefault(List.of(channelIdA, channelIdB));
 
         assertThat(settingsList)
                 .hasSize(2)
                 .anySatisfy(channelSettings ->
                         assertThat(channelSettings.getChannelId()).isEqualTo(channelIdA)
                 );
-        assertThat(settingsList).anySatisfy(channelSettings -> {
-            assertThat(channelSettings.getChannelId()).isEqualTo(channelIdB);
-        });
-        var createdA = this.repository.findOne(channelIdA)
-                .toCompletableFuture().join();
-        assertThat(createdA).isPresent();
-        var createdB = this.repository.findOne(channelIdB)
-                .toCompletableFuture().join();
-        assertThat(createdB).isEmpty();
+        assertThat(settingsList).anySatisfy(channelSettings ->
+                assertThat(channelSettings.getChannelId()).isEqualTo(channelIdB)
+        );
+        var createdA = this.repository.findOne(channelIdA);
+        assertThat(createdA).isNotNull();
+        var createdB = this.repository.findOne(channelIdB);
+        assertThat(createdB).isNull();
     }
 
 }

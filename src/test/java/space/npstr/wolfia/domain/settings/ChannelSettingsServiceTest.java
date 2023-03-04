@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -52,7 +52,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).setAccessRoleId(accessRoleId);
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getAccessRoleId()).hasValue(accessRoleId);
     }
 
@@ -62,7 +63,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).enableAutoOut();
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.isAutoOut()).isTrue();
     }
 
@@ -72,7 +74,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).disableAutoOut();
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.isAutoOut()).isFalse();
     }
 
@@ -82,7 +85,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).enableGameChannel();
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.isGameChannel()).isTrue();
     }
 
@@ -92,7 +96,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).disableGameChannel();
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.isGameChannel()).isFalse();
     }
 
@@ -103,7 +108,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).setTagCooldown(tagCooldown);
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTagCooldownMinutes()).isEqualTo(tagCooldown);
     }
 
@@ -116,7 +122,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).tagUsed();
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTagLastUsed()).isEqualTo(time);
 
         verify(clock).millis();
@@ -129,7 +136,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).addTag(tag);
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTags()).contains(tag);
     }
 
@@ -137,11 +145,12 @@ class ChannelSettingsServiceTest extends ApplicationTest {
     void whenExistingTagAdded_tagShouldNotBeDuplicated() {
         long channelId = uniqueLong();
         long tag = uniqueLong();
-        this.repository.addTags(channelId, Set.of(tag)).toCompletableFuture().join();
+        this.repository.addTags(channelId, Set.of(tag));
 
         this.service.channel(channelId).addTag(tag);
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTags()).containsOnlyOnce(tag);
     }
 
@@ -153,7 +162,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).addTags(Set.of(tagA, tagB));
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTags()).contains(tagA, tagB);
     }
 
@@ -162,11 +172,12 @@ class ChannelSettingsServiceTest extends ApplicationTest {
         long channelId = uniqueLong();
         long tagA = uniqueLong();
         long tagB = uniqueLong();
-        this.repository.addTags(channelId, Set.of(tagA)).toCompletableFuture().join();
+        this.repository.addTags(channelId, Set.of(tagA));
 
         this.service.channel(channelId).addTags(Set.of(tagA, tagB));
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTags()).containsOnlyOnce(tagA, tagB);
     }
 
@@ -177,7 +188,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).removeTag(tag);
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTags()).doesNotContain(tag);
     }
 
@@ -185,11 +197,12 @@ class ChannelSettingsServiceTest extends ApplicationTest {
     void whenExistingTagRemoved_tagShouldNotBePresent() {
         long channelId = uniqueLong();
         long tag = uniqueLong();
-        this.repository.addTags(channelId, Set.of(tag)).toCompletableFuture().join();
+        this.repository.addTags(channelId, Set.of(tag));
 
         this.service.channel(channelId).removeTag(tag);
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTags()).doesNotContain(tag);
     }
 
@@ -201,7 +214,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).removeTags(Set.of(tagA, tagB));
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTags()).doesNotContain(tagA, tagB);
     }
 
@@ -210,11 +224,12 @@ class ChannelSettingsServiceTest extends ApplicationTest {
         long channelId = uniqueLong();
         long tagA = uniqueLong();
         long tagB = uniqueLong();
-        this.repository.addTags(channelId, Set.of(tagA)).toCompletableFuture().join();
+        this.repository.addTags(channelId, Set.of(tagA));
 
         this.service.channel(channelId).removeTags(Set.of(tagA, tagB));
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getTags()).doesNotContain(tagA, tagB);
     }
 
@@ -224,8 +239,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).addTags(Set.of());
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join();
-        assertThat(settings).isEmpty();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNull();
     }
 
     @Test
@@ -234,8 +249,8 @@ class ChannelSettingsServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).removeTags(Set.of());
 
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join();
-        assertThat(settings).isEmpty();
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNull();
     }
 
 
@@ -243,13 +258,13 @@ class ChannelSettingsServiceTest extends ApplicationTest {
     void whenDelete_thenDeleteFromDb() {
         long channelId = uniqueLong();
 
-        this.repository.setAccessRoleId(channelId, uniqueLong()).toCompletableFuture().join();
-        var settings = this.repository.findOne(channelId).toCompletableFuture().join();
-        assertThat(settings).isPresent();
+        this.repository.setAccessRoleId(channelId, uniqueLong());
+        var settings = this.repository.findOne(channelId);
+        assertThat(settings).isNotNull();
 
         this.service.channel(channelId).reset();
 
-        settings = this.repository.findOne(channelId).toCompletableFuture().join();
-        assertThat(settings).isEmpty();
+        settings = this.repository.findOne(channelId);
+        assertThat(settings).isNull();
     }
 }
