@@ -182,6 +182,7 @@ project(':platform') {
             api "org.testcontainers:testcontainers:$testcontainersVersion"
             api "org.testcontainers:selenium:$testcontainersVersion"
             api "com.codeborne:selenide:$selenideVersion"
+            api "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
         }
     }
 }
@@ -487,6 +488,7 @@ dependencies {
     testImplementation "org.testcontainers:selenium"
     testImplementation "com.codeborne:selenide"
     testImplementation "org.mockito:mockito-inline" // to mock final classes
+    testImplementation "org.mockito.kotlin:mockito-kotlin"
     testImplementation "org.awaitility:awaitility"
 }
 

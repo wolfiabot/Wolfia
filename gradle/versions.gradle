@@ -52,4 +52,5 @@ ext {
 
 	testcontainersVersion		= '1.17.6'
 	selenideVersion             = '6.11.2'
+    mockitoKotlinVersion        = '4.1.0'
 }
