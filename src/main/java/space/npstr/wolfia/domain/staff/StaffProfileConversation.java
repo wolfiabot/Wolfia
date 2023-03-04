@@ -70,7 +70,7 @@ class StaffProfileConversation implements Conversation {
 
     @Override
     public boolean start(MessageContext context) {
-        Optional<StaffMember> staffMember = this.staffService.user(context.getInvoker().getIdLong()).get();
+        Optional<StaffMember> staffMember = Optional.ofNullable(this.staffService.user(context.getInvoker().getIdLong()).get());
         if (staffMember.isEmpty()) {
             context.replyWithName("I'm sorry, you are not a member of the Wolfia staff, so you cannot invoke this command.");
             return false;
@@ -84,7 +84,7 @@ class StaffProfileConversation implements Conversation {
             }
 
             User target = mentions.get(0);
-            staffMember = this.staffService.user(target.getIdLong()).get();
+            staffMember = Optional.ofNullable(this.staffService.user(target.getIdLong()).get());
             if (staffMember.isEmpty()) {
                 context.replyWithName("I'm sorry, " + target.getAsMention() + " is not a member of the Wolfia staff, they have no staff profile.");
                 return false;

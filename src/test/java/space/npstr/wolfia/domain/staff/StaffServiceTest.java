@@ -128,12 +128,12 @@ class StaffServiceTest extends ApplicationTest {
     void givenGuildAvailable_whenUpdateIfPossible_shouldUpdateStaff() {
         this.staffService.updateIfPossible();
 
-        Optional<StaffMember> developer = this.staffService.user(this.developerUserId).get();
-        assertThat(developer).hasValueSatisfying(isStaffMember(this.developerUserId, StaffFunction.DEVELOPER));
-        Optional<StaffMember> moderator = this.staffService.user(this.moderatorUserId).get();
-        assertThat(moderator).hasValueSatisfying(isStaffMember(this.moderatorUserId, StaffFunction.MODERATOR));
-        Optional<StaffMember> setupManager = this.staffService.user(this.setupManagerUserId).get();
-        assertThat(setupManager).hasValueSatisfying(isStaffMember(this.setupManagerUserId, StaffFunction.SETUP_MANAGER));
+        StaffMember developer = this.staffService.user(this.developerUserId).get();
+        assertThat(developer).satisfies(isStaffMember(this.developerUserId, StaffFunction.DEVELOPER));
+        StaffMember moderator = this.staffService.user(this.moderatorUserId).get();
+        assertThat(moderator).satisfies(isStaffMember(this.moderatorUserId, StaffFunction.MODERATOR));
+        StaffMember setupManager = this.staffService.user(this.setupManagerUserId).get();
+        assertThat(setupManager).satisfies(isStaffMember(this.setupManagerUserId, StaffFunction.SETUP_MANAGER));
     }
 
     @Test
@@ -142,20 +142,20 @@ class StaffServiceTest extends ApplicationTest {
 
         this.staffService.updateIfPossible();
 
-        Optional<StaffMember> developer = this.staffService.user(this.developerUserId).get();
-        assertThat(developer).isEmpty();
-        Optional<StaffMember> moderator = this.staffService.user(this.moderatorUserId).get();
-        assertThat(moderator).isEmpty();
-        Optional<StaffMember> setupManager = this.staffService.user(this.setupManagerUserId).get();
-        assertThat(setupManager).isEmpty();
+        StaffMember developer = this.staffService.user(this.developerUserId).get();
+        assertThat(developer).isNull();
+        StaffMember moderator = this.staffService.user(this.moderatorUserId).get();
+        assertThat(moderator).isNull();
+        StaffMember setupManager = this.staffService.user(this.setupManagerUserId).get();
+        assertThat(setupManager).isNull();
     }
 
     @Test
     void whenUpdateIfPossible_shouldIgnoreBotUsers() {
         this.staffService.updateIfPossible();
 
-        Optional<StaffMember> developer = this.staffService.user(this.botUserId).get();
-        assertThat(developer).isEmpty();
+        StaffMember developer = this.staffService.user(this.botUserId).get();
+        assertThat(developer).isNull();
     }
 
     @Test
@@ -165,7 +165,8 @@ class StaffServiceTest extends ApplicationTest {
 
         this.staffService.updateIfPossible();
 
-        StaffMember developer = this.staffService.user(this.developerUserId).get().orElseThrow();
+        StaffMember developer = this.staffService.user(this.developerUserId).get();
+        assertThat(developer).isNotNull();
         assertThat(developer.isActive()).isFalse();
     }
 
@@ -217,16 +218,17 @@ class StaffServiceTest extends ApplicationTest {
     void givenExistingStaffMember_whenGetStaffMember_shouldReturnStaffMember() {
         this.staffService.updateIfPossible();
 
-        Optional<StaffMember> developer = this.staffService.user(this.developerUserId).get();
-        assertThat(developer).hasValueSatisfying(isStaffMember(this.developerUserId, StaffFunction.DEVELOPER));
-        Optional<StaffMember> moderator = this.staffService.user(this.moderatorUserId).get();
-        assertThat(moderator).hasValueSatisfying(isStaffMember(this.moderatorUserId, StaffFunction.MODERATOR));
-        Optional<StaffMember> setupManager = this.staffService.user(this.setupManagerUserId).get();
-        assertThat(setupManager).hasValueSatisfying(isStaffMember(this.setupManagerUserId, StaffFunction.SETUP_MANAGER));
+        StaffMember developer = this.staffService.user(this.developerUserId).get();
+        assertThat(developer).satisfies(isStaffMember(this.developerUserId, StaffFunction.DEVELOPER));
+        StaffMember moderator = this.staffService.user(this.moderatorUserId).get();
+        assertThat(moderator).satisfies(isStaffMember(this.moderatorUserId, StaffFunction.MODERATOR));
+        StaffMember setupManager = this.staffService.user(this.setupManagerUserId).get();
+        assertThat(setupManager).satisfies(isStaffMember(this.setupManagerUserId, StaffFunction.SETUP_MANAGER));
     }
 
     private Consumer<StaffMember> isStaffMember(long userId, StaffFunction function) {
         return staff -> {
+            assertThat(staff).isNotNull();
             assertThat(staff.getDiscordId()).isEqualTo(userId);
             assertThat(staff.getFunction()).isEqualTo(function);
         };
@@ -236,9 +238,9 @@ class StaffServiceTest extends ApplicationTest {
     void givenNoExistingStaffMember_whenGetStaffMember_shouldReturnEmpty() {
         this.staffService.updateIfPossible();
 
-        Optional<StaffMember> staff = this.staffService.user(uniqueLong()).get();
+        StaffMember staff = this.staffService.user(uniqueLong()).get();
 
-        assertThat(staff).isEmpty();
+        assertThat(staff).isNull();
     }
 
     @Test
@@ -247,7 +249,8 @@ class StaffServiceTest extends ApplicationTest {
 
         StaffMember returned = this.staffService.user(this.developerUserId).enable();
 
-        StaffMember getted = this.staffService.user(this.developerUserId).get().orElseThrow();
+        StaffMember getted = this.staffService.user(this.developerUserId).get();
+        assertThat(getted).isNotNull();
         assertThat(returned.isEnabled()).isTrue();
         assertThat(getted.isEnabled()).isTrue();
     }
@@ -258,7 +261,8 @@ class StaffServiceTest extends ApplicationTest {
 
         StaffMember returned = this.staffService.user(this.developerUserId).disable();
 
-        StaffMember getted = this.staffService.user(this.developerUserId).get().orElseThrow();
+        StaffMember getted = this.staffService.user(this.developerUserId).get();
+        assertThat(getted).isNotNull();
         assertThat(returned.isEnabled()).isFalse();
         assertThat(getted.isEnabled()).isFalse();
     }
@@ -270,7 +274,8 @@ class StaffServiceTest extends ApplicationTest {
 
         StaffMember returned = this.staffService.user(this.developerUserId).setSlogan(slogan);
 
-        StaffMember getted = this.staffService.user(this.developerUserId).get().orElseThrow();
+        StaffMember getted = this.staffService.user(this.developerUserId).get();
+        assertThat(getted).isNotNull();
         assertThat(returned.getSlogan()).hasValue(slogan);
         assertThat(getted.getSlogan()).hasValue(slogan);
     }
@@ -281,7 +286,8 @@ class StaffServiceTest extends ApplicationTest {
 
         StaffMember returned = this.staffService.user(this.developerUserId).removeSlogan();
 
-        StaffMember getted = this.staffService.user(this.developerUserId).get().orElseThrow();
+        StaffMember getted = this.staffService.user(this.developerUserId).get();
+        assertThat(getted).isNotNull();
         assertThat(returned.getSlogan()).isEmpty();
         assertThat(getted.getSlogan()).isEmpty();
     }
@@ -293,7 +299,8 @@ class StaffServiceTest extends ApplicationTest {
 
         StaffMember returned = this.staffService.user(this.developerUserId).setLink(link);
 
-        StaffMember getted = this.staffService.user(this.developerUserId).get().orElseThrow();
+        StaffMember getted = this.staffService.user(this.developerUserId).get();
+        assertThat(getted).isNotNull();
         assertThat(returned.getLink()).hasValue(link);
         assertThat(getted.getLink()).hasValue(link);
     }
@@ -304,7 +311,8 @@ class StaffServiceTest extends ApplicationTest {
 
         StaffMember returned = this.staffService.user(this.developerUserId).removeLink();
 
-        StaffMember getted = this.staffService.user(this.developerUserId).get().orElseThrow();
+        StaffMember getted = this.staffService.user(this.developerUserId).get();
+        assertThat(getted).isNotNull();
         assertThat(returned.getLink()).isEmpty();
         assertThat(getted.getLink()).isEmpty();
     }

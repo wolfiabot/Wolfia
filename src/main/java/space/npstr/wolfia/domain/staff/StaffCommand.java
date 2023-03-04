@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,9 +17,10 @@
 
 package space.npstr.wolfia.domain.staff;
 
+import java.util.Optional;
 import javax.annotation.CheckReturnValue;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -71,7 +72,7 @@ public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
         if (guildCommandContext == null) {
             return false;
         }
-        boolean isStaff = this.staffService.user(context.getInvoker().getIdLong()).get()
+        boolean isStaff = Optional.ofNullable(this.staffService.user(context.getInvoker().getIdLong()).get())
                 .map(StaffMember::isActive).orElse(false);
         if (!isStaff && !context.isOwner()) {
             context.replyWithName("I'm sorry, you are not a member of the Wolfia staff, so you cannot invoke this command.");

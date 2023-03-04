@@ -20,7 +20,6 @@ package space.npstr.wolfia.domain.staff;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
@@ -45,24 +44,20 @@ class StaffRepositoryTest extends ApplicationTest {
     void givenNoRecord_whenGetStaffMember_returnEmpty() {
         long userId = uniqueLong();
 
-        Optional<StaffMemberRecord> staffMember = repo.getStaffMember(userId)
-                .toCompletableFuture().join();
+        StaffMemberRecord staffMember = repo.getStaffMember(userId);
 
-        assertThat(staffMember).isEmpty();
+        assertThat(staffMember).isNull();
     }
 
     @Test
     void givenExistingRecord_whenGetStaffMember_returnExistingRecord() {
         long userId = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
-        Optional<StaffMemberRecord> staffMemberRecord = repo.getStaffMember(userId)
-                .toCompletableFuture().join();
+        StaffMemberRecord staffMemberRecord = repo.getStaffMember(userId);
 
-        assertThat(staffMemberRecord).hasValueSatisfying(
-                staffMember -> assertThat(staffMember.getUserId()).isEqualTo(userId)
-        );
+        assertThat(staffMemberRecord).isNotNull();
+        assertThat(staffMemberRecord.getUserId()).isEqualTo(userId);
     }
 
     @Test
@@ -72,8 +67,7 @@ class StaffRepositoryTest extends ApplicationTest {
                 .execute()
         );
 
-        List<StaffMemberRecord> staffMemberRecords = repo.fetchAllStaffMembers()
-                .toCompletableFuture().join();
+        List<StaffMemberRecord> staffMemberRecords = repo.fetchAllStaffMembers();
 
         assertThat(staffMemberRecords).isEmpty();
     }
@@ -87,16 +81,13 @@ class StaffRepositoryTest extends ApplicationTest {
         );
 
         long userIdA = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userIdA, StaffFunction.SETUP_MANAGER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userIdA, StaffFunction.SETUP_MANAGER);
 
         long userIdB = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userIdB, StaffFunction.MODERATOR)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userIdB, StaffFunction.MODERATOR);
 
 
-        List<StaffMemberRecord> staffMemberRecords = repo.fetchAllStaffMembers()
-                .toCompletableFuture().join();
+        List<StaffMemberRecord> staffMemberRecords = repo.fetchAllStaffMembers();
 
         assertThat(staffMemberRecords).hasSize(2);
         assertThat(staffMemberRecords).anySatisfy(staffMemberRecord -> {
@@ -114,8 +105,7 @@ class StaffRepositoryTest extends ApplicationTest {
     void whenUpdateStaffMemberFunction_shouldReturnRecord() {
         long userId = uniqueLong();
 
-        StaffMemberRecord staffMember = repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        StaffMemberRecord staffMember = repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
         assertThat(staffMember.getUserId()).isEqualTo(userId);
         assertThat(staffMember.getFunction()).isEqualTo(StaffFunction.DEVELOPER);
@@ -125,12 +115,10 @@ class StaffRepositoryTest extends ApplicationTest {
     void givenNoRecord_whenUpdateStaffMemberFunction_shouldCreateNewStaffMember() {
         long userId = uniqueLong();
 
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
-        StaffMemberRecord staffMember = repo.getStaffMember(userId)
-                .toCompletableFuture().join()
-                .orElseThrow();
+        StaffMemberRecord staffMember = repo.getStaffMember(userId);
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getUserId()).isEqualTo(userId);
         assertThat(staffMember.getFunction()).isEqualTo(StaffFunction.DEVELOPER);
     }
@@ -138,19 +126,15 @@ class StaffRepositoryTest extends ApplicationTest {
     @Test
     void givenExistingRecord_whenUpdateStaffMemberFunction_shouldUpdateStaffMember() {
         long userId = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
-        StaffMemberRecord staffMember = repo.getStaffMember(userId)
-                .toCompletableFuture().join()
-                .orElseThrow();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
+        StaffMemberRecord staffMember = repo.getStaffMember(userId);
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getUserId()).isEqualTo(userId);
 
 
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.MODERATOR)
-                .toCompletableFuture().join();
-        staffMember = repo.getStaffMember(userId)
-                .toCompletableFuture().join()
-                .orElseThrow();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.MODERATOR);
+        staffMember = repo.getStaffMember(userId);
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getFunction()).isEqualTo(StaffFunction.MODERATOR);
     }
 
@@ -159,8 +143,7 @@ class StaffRepositoryTest extends ApplicationTest {
     void defaultStaffMemberSlogan_shouldBeNull() {
         long userId = uniqueLong();
 
-        StaffMemberRecord staffMember = repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        StaffMemberRecord staffMember = repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
         assertThat(staffMember.getSlogan()).isNull();
     }
@@ -169,22 +152,20 @@ class StaffRepositoryTest extends ApplicationTest {
     void givenNoExistingRecord_whenUpdateStaffMemberSlogan_shouldReturnEmpty() {
         long userId = uniqueLong();
 
-        Optional<StaffMemberRecord> staffMember = repo.updateSlogan(userId, "foo")
-                .toCompletableFuture().join();
+        StaffMemberRecord staffMember = repo.updateSlogan(userId, "foo");
 
-        assertThat(staffMember).isEmpty();
+        assertThat(staffMember).isNull();
     }
 
     @Test
     void whenUpdateStaffMemberSlogan_shouldReturnRecord() {
         long userId = uniqueLong();
         String slogan = "foo";
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
-        StaffMemberRecord staffMember = repo.updateSlogan(userId, slogan)
-                .toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffMember = repo.updateSlogan(userId, slogan);
 
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getUserId()).isEqualTo(userId);
         assertThat(staffMember.getSlogan()).isEqualTo(slogan);
     }
@@ -192,29 +173,23 @@ class StaffRepositoryTest extends ApplicationTest {
     @Test
     void givenExistingRecord_whenUpdateStaffMemberSlogan_shouldUpdateStaffMember() {
         long userId = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
         String slogan = "foo";
-        repo.updateSlogan(userId, slogan)
-                .toCompletableFuture().join();
-        StaffMemberRecord staffMember = repo.getStaffMember(userId)
-                .toCompletableFuture().join()
-                .orElseThrow();
+        repo.updateSlogan(userId, slogan);
+        StaffMemberRecord staffMember = repo.getStaffMember(userId);
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getSlogan()).isEqualTo(slogan);
     }
 
     @Test
     void whenUpdateStaffMemberSloganWithNull_shouldRemoveSlogan() {
         long userId = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
-        repo.updateSlogan(userId, null)
-                .toCompletableFuture().join();
-        StaffMemberRecord staffMember = repo.getStaffMember(userId)
-                .toCompletableFuture().join()
-                .orElseThrow();
+        repo.updateSlogan(userId, null);
+        StaffMemberRecord staffMember = repo.getStaffMember(userId);
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getSlogan()).isNull();
     }
 
@@ -223,8 +198,7 @@ class StaffRepositoryTest extends ApplicationTest {
     void defaultStaffMemberLink_shouldBeNull() {
         long userId = uniqueLong();
 
-        StaffMemberRecord staffMember = repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        StaffMemberRecord staffMember = repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
         assertThat(staffMember.getLink()).isNull();
     }
@@ -233,22 +207,20 @@ class StaffRepositoryTest extends ApplicationTest {
     void givenNoExistingRecord_whenUpdateStaffMemberLink_shouldReturnEmpty() {
         long userId = uniqueLong();
 
-        Optional<StaffMemberRecord> staffMember = repo.updateLink(userId, URI.create("https://example.org"))
-                .toCompletableFuture().join();
+        StaffMemberRecord staffMember = repo.updateLink(userId, URI.create("https://example.org"));
 
-        assertThat(staffMember).isEmpty();
+        assertThat(staffMember).isNull();
     }
 
     @Test
     void whenUpdateStaffMemberLink_shouldReturnRecord() {
         long userId = uniqueLong();
         URI link = URI.create("https://example.org");
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
-        StaffMemberRecord staffMember = repo.updateLink(userId, link)
-                .toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffMember = repo.updateLink(userId, link);
 
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getUserId()).isEqualTo(userId);
         assertThat(staffMember.getLink()).isEqualTo(link);
     }
@@ -256,29 +228,23 @@ class StaffRepositoryTest extends ApplicationTest {
     @Test
     void givenExistingRecord_whenUpdateStaffMemberLink_shouldUpdateStaffMember() {
         long userId = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
         URI link = URI.create("https://example.org");
-        repo.updateLink(userId, link)
-                .toCompletableFuture().join();
-        StaffMemberRecord staffMember = repo.getStaffMember(userId)
-                .toCompletableFuture().join()
-                .orElseThrow();
+        repo.updateLink(userId, link);
+        StaffMemberRecord staffMember = repo.getStaffMember(userId);
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getLink()).isEqualTo(link);
     }
 
     @Test
     void whenUpdateStaffMemberLinkWithNull_shouldRemoveLink() {
         long userId = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
-        repo.updateLink(userId, null)
-                .toCompletableFuture().join();
-        StaffMemberRecord staffMember = repo.getStaffMember(userId)
-                .toCompletableFuture().join()
-                .orElseThrow();
+        repo.updateLink(userId, null);
+        StaffMemberRecord staffMember = repo.getStaffMember(userId);
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getLink()).isNull();
     }
 
@@ -287,8 +253,7 @@ class StaffRepositoryTest extends ApplicationTest {
     void defaultStaffMemberEnabled_shouldBeFalse() {
         long userId = uniqueLong();
 
-        StaffMemberRecord staffMember = repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        StaffMemberRecord staffMember = repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
         assertThat(staffMember.getEnabled()).isFalse();
     }
@@ -297,21 +262,19 @@ class StaffRepositoryTest extends ApplicationTest {
     void givenNoExistingRecord_whenUpdateStaffMemberEnabled_shouldReturnEmpty() {
         long userId = uniqueLong();
 
-        Optional<StaffMemberRecord> staffMember = repo.updateEnabled(userId, true)
-                .toCompletableFuture().join();
+        StaffMemberRecord staffMember = repo.updateEnabled(userId, true);
 
-        assertThat(staffMember).isEmpty();
+        assertThat(staffMember).isNull();
     }
 
     @Test
     void whenUpdateStaffMemberEnabled_shouldReturnRecord() {
         long userId = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
-        StaffMemberRecord staffMember = repo.updateEnabled(userId, true)
-                .toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffMember = repo.updateEnabled(userId, true);
 
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getUserId()).isEqualTo(userId);
         assertThat(staffMember.getEnabled()).isTrue();
     }
@@ -319,14 +282,11 @@ class StaffRepositoryTest extends ApplicationTest {
     @Test
     void givenExistingRecord_whenUpdateStaffMemberEnabled_shouldUpdateStaffMember() {
         long userId = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER)
-                .toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userId, StaffFunction.DEVELOPER);
 
-        repo.updateEnabled(userId, true)
-                .toCompletableFuture().join();
-        StaffMemberRecord staffMember = repo.getStaffMember(userId)
-                .toCompletableFuture().join()
-                .orElseThrow();
+        repo.updateEnabled(userId, true);
+        StaffMemberRecord staffMember = repo.getStaffMember(userId);
+        assertThat(staffMember).isNotNull();
         assertThat(staffMember.getEnabled()).isTrue();
     }
 
@@ -336,15 +296,17 @@ class StaffRepositoryTest extends ApplicationTest {
         long userA = uniqueLong();
         long userB = uniqueLong();
         long userC = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userA, StaffFunction.MODERATOR).toCompletableFuture().join();
-        repo.updateOrCreateStaffMemberFunction(userB, StaffFunction.SETUP_MANAGER).toCompletableFuture().join();
-        repo.updateOrCreateStaffMemberFunction(userC, StaffFunction.DEVELOPER).toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userA, StaffFunction.MODERATOR);
+        repo.updateOrCreateStaffMemberFunction(userB, StaffFunction.SETUP_MANAGER);
+        repo.updateOrCreateStaffMemberFunction(userC, StaffFunction.DEVELOPER);
 
-        repo.updateAllActive(List.of(userA, userB)).toCompletableFuture().join();
+        repo.updateAllActive(List.of(userA, userB));
 
-        StaffMemberRecord staffA = repo.getStaffMember(userA).toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffA = repo.getStaffMember(userA);
+        assertThat(staffA).isNotNull();
         assertThat(staffA.getActive()).isTrue();
-        StaffMemberRecord staffB = repo.getStaffMember(userB).toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffB = repo.getStaffMember(userB);
+        assertThat(staffB).isNotNull();
         assertThat(staffB.getActive()).isTrue();
     }
 
@@ -353,13 +315,14 @@ class StaffRepositoryTest extends ApplicationTest {
         long userA = uniqueLong();
         long userB = uniqueLong();
         long userC = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userA, StaffFunction.MODERATOR).toCompletableFuture().join();
-        repo.updateOrCreateStaffMemberFunction(userB, StaffFunction.SETUP_MANAGER).toCompletableFuture().join();
-        repo.updateOrCreateStaffMemberFunction(userC, StaffFunction.DEVELOPER).toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userA, StaffFunction.MODERATOR);
+        repo.updateOrCreateStaffMemberFunction(userB, StaffFunction.SETUP_MANAGER);
+        repo.updateOrCreateStaffMemberFunction(userC, StaffFunction.DEVELOPER);
 
-        repo.updateAllActive(List.of(userA, userB)).toCompletableFuture().join();
+        repo.updateAllActive(List.of(userA, userB));
 
-        StaffMemberRecord staffC = repo.getStaffMember(userC).toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffC = repo.getStaffMember(userC);
+        assertThat(staffC).isNotNull();
         assertThat(staffC.getActive()).isFalse();
     }
 
@@ -368,17 +331,20 @@ class StaffRepositoryTest extends ApplicationTest {
         long userA = uniqueLong();
         long userB = uniqueLong();
         long userC = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userA, StaffFunction.MODERATOR).toCompletableFuture().join();
-        repo.updateOrCreateStaffMemberFunction(userB, StaffFunction.SETUP_MANAGER).toCompletableFuture().join();
-        repo.updateOrCreateStaffMemberFunction(userC, StaffFunction.DEVELOPER).toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userA, StaffFunction.MODERATOR);
+        repo.updateOrCreateStaffMemberFunction(userB, StaffFunction.SETUP_MANAGER);
+        repo.updateOrCreateStaffMemberFunction(userC, StaffFunction.DEVELOPER);
 
-        repo.updateAllActive(Collections.emptyList()).toCompletableFuture().join();
+        repo.updateAllActive(Collections.emptyList());
 
-        StaffMemberRecord staffA = repo.getStaffMember(userA).toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffA = repo.getStaffMember(userA);
+        assertThat(staffA).isNotNull();
         assertThat(staffA.getActive()).isFalse();
-        StaffMemberRecord staffB = repo.getStaffMember(userB).toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffB = repo.getStaffMember(userB);
+        assertThat(staffB).isNotNull();
         assertThat(staffB.getActive()).isFalse();
-        StaffMemberRecord staffC = repo.getStaffMember(userC).toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffC = repo.getStaffMember(userC);
+        assertThat(staffC).isNotNull();
         assertThat(staffC.getActive()).isFalse();
     }
 
@@ -387,17 +353,20 @@ class StaffRepositoryTest extends ApplicationTest {
         long userA = uniqueLong();
         long userB = uniqueLong();
         long userC = uniqueLong();
-        repo.updateOrCreateStaffMemberFunction(userA, StaffFunction.MODERATOR).toCompletableFuture().join();
-        repo.updateOrCreateStaffMemberFunction(userB, StaffFunction.SETUP_MANAGER).toCompletableFuture().join();
-        repo.updateOrCreateStaffMemberFunction(userC, StaffFunction.DEVELOPER).toCompletableFuture().join();
+        repo.updateOrCreateStaffMemberFunction(userA, StaffFunction.MODERATOR);
+        repo.updateOrCreateStaffMemberFunction(userB, StaffFunction.SETUP_MANAGER);
+        repo.updateOrCreateStaffMemberFunction(userC, StaffFunction.DEVELOPER);
 
-        repo.updateAllActive(List.of(userB, userC, uniqueLong(), uniqueLong())).toCompletableFuture().join();
+        repo.updateAllActive(List.of(userB, userC, uniqueLong(), uniqueLong()));
 
-        StaffMemberRecord staffA = repo.getStaffMember(userA).toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffA = repo.getStaffMember(userA);
+        assertThat(staffA).isNotNull();
         assertThat(staffA.getActive()).isFalse();
-        StaffMemberRecord staffB = repo.getStaffMember(userB).toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffB = repo.getStaffMember(userB);
+        assertThat(staffB).isNotNull();
         assertThat(staffB.getActive()).isTrue();
-        StaffMemberRecord staffC = repo.getStaffMember(userC).toCompletableFuture().join().orElseThrow();
+        StaffMemberRecord staffC = repo.getStaffMember(userC);
+        assertThat(staffC).isNotNull();
         assertThat(staffC.getActive()).isTrue();
     }
 }
