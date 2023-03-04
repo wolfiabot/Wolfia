@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -120,7 +120,7 @@ public class Launcher implements ApplicationRunner {
     @Override
     public void run(final ApplicationArguments args) throws Exception {
         this.poolMetrics.addPool("restActions", (ScheduledThreadPoolExecutor) RestActions.restService);
-        this.botStatusLogger.log(Emojis.ROCKET, "Starting...");
+        this.botStatusLogger.fireAndForget(Emojis.ROCKET, "Starting...");
         if (this.wolfiaConfig.isDebug())
             log.info("Running DEBUG configuration");
         else
@@ -129,7 +129,7 @@ public class Launcher implements ApplicationRunner {
         while (!allShardsUp()) {
             Thread.sleep(100);
         }
-        this.botStatusLogger.log(Emojis.ONE_HUNDRED, "All shards connected!");
+        this.botStatusLogger.fireAndForget(Emojis.ONE_HUNDRED, "All shards connected!");
     }
 
     private boolean allShardsUp() {

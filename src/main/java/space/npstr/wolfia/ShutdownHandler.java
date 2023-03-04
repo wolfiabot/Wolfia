@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -37,6 +37,8 @@ import space.npstr.wolfia.system.redis.Redis;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
+
+import static kotlinx.coroutines.future.FutureKt.asCompletableFuture;
 
 @Component
 public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> {
@@ -76,7 +78,7 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
         this.shuttingDown = true;
         String shutdownStart = String.format("Shutdown hook triggered! %d games still ongoing.", gameRegistry.getRunningGamesCount());
         log.info(shutdownStart);
-        this.botStatusLogger.log(Emojis.SLEEP, shutdownStart);
+        this.botStatusLogger.fireAndForget(Emojis.SLEEP, shutdownStart);
         Future<?> waitForGamesToEnd = executor.submit(() -> {
             while (gameRegistry.getRunningGamesCount() > 0) {
                 log.info("Waiting on {} games to finish.", gameRegistry.getRunningGamesCount());
@@ -104,7 +106,7 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
         try {
             // This is the last bot status message sent.
             // Await its completion, otherwise we risk that the scheduler gets closed before it is done sending.
-            this.botStatusLogger.log(Emojis.STOP, gamesStopped).toCompletableFuture().get(10, TimeUnit.SECONDS);
+            asCompletableFuture(this.botStatusLogger.fire(Emojis.STOP, gamesStopped)).get(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.warn("Interrupted while awaiting last bot status message to be sent", e);
             Thread.currentThread().interrupt();

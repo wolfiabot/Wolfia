@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -43,9 +43,9 @@ public class StatusLoggingStateRepo implements StateRepository {
     public void setFeatureState(FeatureState featureState) {
         if (featureState.getFeature() == FeatureFlag.MAINTENANCE) {
             if (featureState.isEnabled()) {
-                this.botStatusLogger.log(Emojis.TOOLS, "Maintenance started");
+                this.botStatusLogger.fireAndForget(Emojis.TOOLS, "Maintenance started");
             } else {
-                this.botStatusLogger.log(Emojis.CHECKERED_FLAG, "Maintenance finished");
+                this.botStatusLogger.fireAndForget(Emojis.CHECKERED_FLAG, "Maintenance finished");
             }
         }
     }
