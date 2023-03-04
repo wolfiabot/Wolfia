@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,23 +14,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.webapi
 
-package space.npstr.wolfia.webapi;
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.springframework.http.HttpStatus
+import space.npstr.wolfia.ApplicationTest
 
-import org.junit.jupiter.api.Test;
-import space.npstr.wolfia.ApplicationTest;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-
-class MetricsEndpointTest extends ApplicationTest {
+internal class MetricsEndpointTest : ApplicationTest() {
 
     //NOTE: we are handling auth of this endpoint in the reverse proxy
     @Test
-    void whenGetMetrics_thenReturnMetrics() throws Exception {
-        mockMvc.perform(get("/metrics"))
-                .andExpect(status().is2xxSuccessful());
-    }
+    fun whenGetMetrics_thenReturnMetrics() {
+        val response = restTemplate.getForEntity("/metrics", String::class.java)
 
+        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+    }
 }

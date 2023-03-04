@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,8 +18,6 @@
 package space.npstr.wolfia.webapi;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +31,7 @@ public abstract class BaseEndpoint {
 
     protected static final ResponseEntity<String> NOT_FOUND = ResponseEntity.notFound().build();
 
-    protected CompletionStage<ResponseEntity<String>> logAndCatchAll(HttpServletRequest request) {
+    protected ResponseEntity<String> logAndCatchAll(HttpServletRequest request) {
         String method = request.getMethod();
         String path = request.getServletPath();
         Iterable<String> acceptHeaders = () -> request.getHeaders(HttpHeaders.ACCEPT).asIterator();
@@ -42,7 +40,7 @@ public abstract class BaseEndpoint {
 
         log.info("Catch all triggered: {} {} {}: {} {}: {}",
                 method, path, HttpHeaders.ACCEPT, acceptableMediaTypes, HttpHeaders.CONTENT_TYPE, contentType);
-        return CompletableFuture.completedStage(NOT_FOUND);
+        return NOT_FOUND;
     }
 
     protected <T> ResponseEntity<T> unauthorized() {
