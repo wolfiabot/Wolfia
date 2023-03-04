@@ -41,27 +41,25 @@ public class StatsProvider {
 
     //this should be rather similar to getGuildStats
     public BotStats getBotStats() {
-        BigDecimal averagePlayerSize = this.repository.getAveragePlayerSize().toCompletableFuture().join();
+        BigDecimal averagePlayerSize = this.repository.getAveragePlayerSize();
 
-        long baddieWins = this.repository.countAlignmentWins(Alignments.WOLF).toCompletableFuture().join();
-        long goodieWins = this.repository.countAlignmentWins(Alignments.VILLAGE).toCompletableFuture().join();
+        long baddieWins = this.repository.countAlignmentWins(Alignments.WOLF);
+        long goodieWins = this.repository.countAlignmentWins(Alignments.VILLAGE);
 
         long totalGames = baddieWins + goodieWins; // correct for now, may change in the future
 
         WinStats totalWinStats = new WinStats(-1, totalGames, goodieWins, baddieWins);
 
         List<WinStats> winStats = new ArrayList<>();
-        Set<Integer> playerSizes = this.repository.getDistinctPlayerSizes().toCompletableFuture().join();
+        Set<Integer> playerSizes = this.repository.getDistinctPlayerSizes();
         for (int playerSize : playerSizes) {
             if (playerSize < 1) {
                 //skip and log about weird player sizes in the db
                 log.error("Found unexpected player size {} in the database", playerSize);
                 continue;
             }
-            baddieWins = this.repository.countAlignmentWinsForPlayerSize(Alignments.WOLF, playerSize)
-                    .toCompletableFuture().join();
-            goodieWins = this.repository.countAlignmentWinsForPlayerSize(Alignments.VILLAGE, playerSize)
-                    .toCompletableFuture().join();
+            baddieWins = this.repository.countAlignmentWinsForPlayerSize(Alignments.WOLF, playerSize);
+            goodieWins = this.repository.countAlignmentWinsForPlayerSize(Alignments.VILLAGE, playerSize);
 
             totalGames = baddieWins + goodieWins;
             winStats.add(new WinStats(playerSize, totalGames, goodieWins, baddieWins));
@@ -72,19 +70,17 @@ public class StatsProvider {
 
     public GuildStats getGuildStats(final long guildId) {
 
-        BigDecimal averagePlayerSize = this.repository.getAveragePlayerSizeInGuild(guildId).toCompletableFuture().join();
+        BigDecimal averagePlayerSize = this.repository.getAveragePlayerSizeInGuild(guildId);
 
-        long baddieWins = this.repository.countAlignmentWinsInGuild(Alignments.WOLF, guildId)
-                .toCompletableFuture().join();
-        long goodieWins = this.repository.countAlignmentWinsInGuild(Alignments.VILLAGE, guildId)
-                .toCompletableFuture().join();
+        long baddieWins = this.repository.countAlignmentWinsInGuild(Alignments.WOLF, guildId);
+        long goodieWins = this.repository.countAlignmentWinsInGuild(Alignments.VILLAGE, guildId);
 
         long totalGames = baddieWins + goodieWins;
 
         WinStats totalWinStats = new WinStats(-1, totalGames, goodieWins, baddieWins);
 
         List<WinStats> winStats = new ArrayList<>();
-        Set<Integer> playerSizes = this.repository.getDistinctPlayerSizesInGuild(guildId).toCompletableFuture().join();
+        Set<Integer> playerSizes = this.repository.getDistinctPlayerSizesInGuild(guildId);
         for (int playerSize : playerSizes) {
             if (playerSize < 1) {
                 //skip and log about weird player sizes in the db
@@ -92,10 +88,8 @@ public class StatsProvider {
                 continue;
             }
 
-            baddieWins = this.repository.countAlignmentWinsForPlayerSizeInGuild(Alignments.WOLF, playerSize, guildId)
-                    .toCompletableFuture().join();
-            goodieWins = this.repository.countAlignmentWinsForPlayerSizeInGuild(Alignments.VILLAGE, playerSize, guildId)
-                    .toCompletableFuture().join();
+            baddieWins = this.repository.countAlignmentWinsForPlayerSizeInGuild(Alignments.WOLF, playerSize, guildId);
+            goodieWins = this.repository.countAlignmentWinsForPlayerSizeInGuild(Alignments.VILLAGE, playerSize, guildId);
 
             totalGames = baddieWins + goodieWins;
             winStats.add(new WinStats(playerSize, totalGames, goodieWins, baddieWins));
@@ -107,8 +101,8 @@ public class StatsProvider {
     //TODO some improvement is possible here by reducing the amount of individual sql queries run as well as the amount
     // of data fetched
     public UserStats getUserStats(final long userId) {
-        List<GeneralUserStats> games = this.repository.getGeneralUserStats(userId).toCompletableFuture().join();
-        List<String> shots = this.repository.getUserShots(userId).toCompletableFuture().join();
+        List<GeneralUserStats> games = this.repository.getGeneralUserStats(userId);
+        List<String> shots = this.repository.getUserShots(userId);
 
         final long totalGamesByUser = games.size();
         final long gamesWon = games.stream().filter(GeneralUserStats::isWinner).count();
@@ -146,7 +140,6 @@ public class StatsProvider {
     }
 
     public Optional<GameStats> getGameStats(long gameId) {
-        return this.repository.findGameStats(gameId)
-                .toCompletableFuture().join();
+        return Optional.ofNullable(this.repository.findGameStats(gameId));
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.domain.stats;
 
+import java.util.Set;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
@@ -26,9 +28,6 @@ import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Phase;
 import space.npstr.wolfia.game.definitions.Roles;
-
-import java.util.Set;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -81,11 +80,11 @@ class StatsRepositoryTest extends ApplicationTest {
         assertThat(villagerB.getPlayerId()).isEmpty();
         assertThat(shot.getActionId()).isEmpty();
 
-        long gameId = this.repository.insertGameStats(gameStats)
-                .toCompletableFuture().join().getGameId().orElseThrow();
+        long gameId = this.repository.insertGameStats(gameStats).getGameId().orElseThrow();
 
-        GameStats fetched = this.repository.findGameStats(gameId).toCompletableFuture().join().orElseThrow();
+        GameStats fetched = this.repository.findGameStats(gameId);
 
+        assertThat(fetched).isNotNull();
         assertThat(fetched.getGameId()).hasValue(gameId);
         assertThat(fetched.getGuildId()).isEqualTo(guildId);
         assertThat(fetched.getGuildName()).isEqualTo(guildName);
