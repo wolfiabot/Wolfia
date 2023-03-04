@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,28 +14,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.webapi
 
-package space.npstr.wolfia.webapi;
-
-import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import space.npstr.wolfia.domain.staff.StaffMember;
-import space.npstr.wolfia.domain.staff.StaffService;
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import space.npstr.wolfia.domain.staff.StaffMember
+import space.npstr.wolfia.domain.staff.StaffService
 
 @RestController
 @RequestMapping("/public/staff")
-public class StaffEndpoint {
+class StaffEndpoint(
+	private val staffService: StaffService,
+) {
 
-    private final StaffService staffService;
-
-    public StaffEndpoint(StaffService staffService) {
-        this.staffService = staffService;
-    }
-
-    @GetMapping
-    public List<StaffMember> getStaff() {
-        return this.staffService.getEnabledActiveStaffMembers();
-    }
+	@GetMapping
+	fun staff(): List<StaffMember> {
+		return staffService.enabledActiveStaffMembers()
+	}
 }

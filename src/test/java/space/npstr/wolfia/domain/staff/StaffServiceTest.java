@@ -177,7 +177,7 @@ class StaffServiceTest extends ApplicationTest {
         this.staffService.user(this.moderatorUserId).enable();
         this.staffService.user(this.setupManagerUserId).enable();
 
-        List<StaffMember> staffMembers = this.staffService.getEnabledActiveStaffMembers();
+        List<StaffMember> staffMembers = this.staffService.enabledActiveStaffMembers();
 
         assertThat(staffMembers).anySatisfy(isStaffMember(this.developerUserId, StaffFunction.DEVELOPER));
         assertThat(staffMembers).anySatisfy(isStaffMember(this.moderatorUserId, StaffFunction.MODERATOR));
@@ -193,7 +193,7 @@ class StaffServiceTest extends ApplicationTest {
         this.staffService.user(this.moderatorUserId).enable();
         this.staffService.user(this.setupManagerUserId).enable();
 
-        List<StaffMember> staffMembers = this.staffService.getEnabledActiveStaffMembers();
+        List<StaffMember> staffMembers = this.staffService.enabledActiveStaffMembers();
 
         assertThat(staffMembers)
                 .allMatch(StaffMember::isActive)
@@ -207,7 +207,7 @@ class StaffServiceTest extends ApplicationTest {
         this.staffService.user(this.moderatorUserId).enable();
         this.staffService.user(this.setupManagerUserId).enable();
 
-        List<StaffMember> staffMembers = this.staffService.getEnabledActiveStaffMembers();
+        List<StaffMember> staffMembers = this.staffService.enabledActiveStaffMembers();
 
         assertThat(staffMembers)
                 .allMatch(StaffMember::isEnabled)

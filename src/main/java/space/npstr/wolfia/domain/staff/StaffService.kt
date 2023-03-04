@@ -50,7 +50,7 @@ class StaffService internal constructor(
 	/**
 	 * @return a list of all enabled and active staff members
 	 */
-	fun getEnabledActiveStaffMembers(): List<StaffMember> {
+	fun enabledActiveStaffMembers(): List<StaffMember> {
 		return staffRepository.fetchAllStaffMembers()
 			.filter { it.active && isEnabled(it) }
 			.mapNotNull { toStaffMember(it) }

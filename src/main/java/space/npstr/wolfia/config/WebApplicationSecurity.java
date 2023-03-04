@@ -196,7 +196,7 @@ public class WebApplicationSecurity {
                         String id = (String) userAttributes.get("id");
                         long userId = Long.parseLong(id);
                         if (this.appInfoProvider.isOwner(userId)) {
-                            mappedAuthorities.add(Authorization.OWNER);
+                            mappedAuthorities.add(Authorization.INSTANCE.getOWNER());
                         }
                     } catch (Exception e) {
                         log.warn("Failed to check for owner id", e);

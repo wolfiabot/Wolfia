@@ -50,6 +50,6 @@ public class TogglzConfiguration {
 
     @Bean
     public UserProvider userProvider() {
-        return new SpringSecurityUserProvider(Authorization.OWNER.getAuthority());
+        return new SpringSecurityUserProvider(Authorization.INSTANCE.getOWNER().getAuthority());
     }
 }

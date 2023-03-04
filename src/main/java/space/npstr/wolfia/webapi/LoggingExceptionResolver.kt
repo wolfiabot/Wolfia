@@ -14,10 +14,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.webapi
 
-@NonNullApi
-@NonNullFields
-package space.npstr.wolfia.webapi;
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import org.springframework.stereotype.Component
+import org.springframework.web.servlet.HandlerExceptionResolver
+import org.springframework.web.servlet.ModelAndView
+import space.npstr.wolfia.system.logger
 
-import org.springframework.lang.NonNullApi;
-import org.springframework.lang.NonNullFields;
+@Component
+class LoggingExceptionResolver : HandlerExceptionResolver {
+
+	override fun resolveException(request: HttpServletRequest, response: HttpServletResponse, handler: Any?, ex: Exception): ModelAndView? {
+		logger().warn("Exception in controller", ex)
+		return null
+	}
+}

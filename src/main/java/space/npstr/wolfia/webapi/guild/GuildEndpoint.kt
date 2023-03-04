@@ -23,13 +23,12 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 import space.npstr.wolfia.db.type.OAuth2Scope
 import space.npstr.wolfia.domain.guild.RemoteGuildService
-import space.npstr.wolfia.webapi.BaseEndpoint
 import space.npstr.wolfia.webapi.WebUser
 
 abstract class GuildEndpoint(
 	private val remoteGuildService: RemoteGuildService,
 	private val shardManager: ShardManager,
-) : BaseEndpoint() {
+) {
 
 	protected fun assertGuildAccess(user: WebUser?, guildId: Long): WebContext {
 		if (user == null) {

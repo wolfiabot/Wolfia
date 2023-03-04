@@ -21,7 +21,6 @@ import io.prometheus.client.CollectorRegistry;
 import java.time.Clock;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,18 +30,12 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.oauth2.OAuth2Requester;
 import space.npstr.wolfia.domain.privacy.PrivacyBanService;
 import space.npstr.wolfia.domain.privacy.PrivacyCommand;
 import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.domain.stats.StatsService;
-
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
  * Extend this class from tests that require a Spring Application Context
@@ -80,20 +73,8 @@ public abstract class ApplicationTest extends PostgresAndRedisContainers {
     @Autowired // is actually a mock, see DiscordApiConfig
     protected ShardManager shardManager;
 
-    @Deprecated(forRemoval = true) // use TestRestTemplate instead
-    @Autowired
-    protected MockMvc mockMvc;
-
     @Autowired
     protected TestRestTemplate restTemplate;
-
-    @BeforeEach
-    void setup(WebApplicationContext webApplicationContext) {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext)
-                .alwaysDo(print())
-                .apply(springSecurity())
-                .build();
-    }
 
     /**
      * Some static metrics are giving trouble when the application context is restarted between tests.
