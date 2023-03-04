@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -36,11 +36,11 @@ class HstoreRepositoryTest extends ApplicationTest {
         String keyB = "keyB";
         String valueB = "valueB";
 
-        this.repository.set(name, keyA, valueA).toCompletableFuture().join();
-        this.repository.set(name, keyB, valueB).toCompletableFuture().join();
+        this.repository.set(name, keyA, valueA);
+        this.repository.set(name, keyB, valueB);
 
-        String fetchedA = this.repository.get(name, keyA, "failedA").toCompletableFuture().join();
-        String fetchedB = this.repository.get(name, keyB, "failedB").toCompletableFuture().join();
+        String fetchedA = this.repository.get(name, keyA, "failedA");
+        String fetchedB = this.repository.get(name, keyB, "failedB");
 
         assertThat(fetchedA).isEqualTo(valueA);
         assertThat(fetchedB).isEqualTo(valueB);
