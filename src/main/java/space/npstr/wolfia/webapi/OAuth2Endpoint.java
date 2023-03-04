@@ -18,8 +18,6 @@
 package space.npstr.wolfia.webapi;
 
 import java.net.URI;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,15 +29,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import space.npstr.wolfia.common.Exceptions;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.oauth2.AuthCommand;
 import space.npstr.wolfia.domain.oauth2.AuthState;
 import space.npstr.wolfia.domain.oauth2.AuthStateCache;
 import space.npstr.wolfia.domain.oauth2.DiscordRequestFailedException;
+import space.npstr.wolfia.domain.oauth2.OAuth2Data;
 import space.npstr.wolfia.domain.oauth2.OAuth2Service;
-
-import static space.npstr.wolfia.common.Exceptions.logIfFailed;
 
 @RestController
 @RequestMapping("/" + OAuth2Endpoint.CODE_GRANT_PATH)
@@ -65,40 +61,40 @@ public class OAuth2Endpoint extends BaseEndpoint {
     }
 
     @GetMapping
-    public CompletionStage<ResponseEntity<String>> codeGrant(@RequestParam("code") String code,
-                                                             @RequestParam(name = "state", required = false) @Nullable String state) {
+    public ResponseEntity<String> codeGrant(@RequestParam("code") String code, @RequestParam(name = "state", required = false) @Nullable String state) {
 
         var authStateOpt = this.stateCache.getAuthState(state);
         if (authStateOpt.isEmpty()) {
-            return CompletableFuture.completedStage(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GENERIC_ERROR_RESPONSE));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GENERIC_ERROR_RESPONSE);
         }
 
         AuthState authState = authStateOpt.get();
 
-        return this.service.acceptCode(code)
-                .thenApply(data -> {
-                    if (data.userId() != authState.getUserId()) {
-                        log.info("Flow initiated by user {} was finished by user {}", authState.getUserId(), data.userId());
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(WRONG_ACCOUNT_RESPONSE);
-                    }
+        OAuth2Data data;
+        try {
+            data = service.acceptCodeBlocking(code);
+        } catch (Exception e) {
+            log.error("Uncaught exception", e);
+            if (e instanceof DiscordRequestFailedException) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(DISCORD_ISSUES);
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GENERIC_ERROR_RESPONSE);
+        }
 
-                    String scopes = data.scopes().stream()
-                            .map(Enum::name)
-                            .collect(Collectors.joining(", "));
-                    log.info("User {} authorized with scopes {}", data.userId(), scopes);
+        if (data.userId() != authState.getUserId()) {
+            log.info("Flow initiated by user {} was finished by user {}", authState.getUserId(), data.userId());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(WRONG_ACCOUNT_RESPONSE);
+        }
 
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.setLocation(URI.create(authState.getRedirectUrl()));
-                    return new ResponseEntity<>("", headers, HttpStatus.TEMPORARY_REDIRECT);
-                })
-                .whenComplete(logIfFailed())
-                .exceptionally(t -> {
-                    Throwable realCause = Exceptions.unwrap(t);
-                    if (realCause instanceof DiscordRequestFailedException) {
-                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(DISCORD_ISSUES);
-                    }
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GENERIC_ERROR_RESPONSE);
-                });
+        String scopes = data.scopes().stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(", "));
+        log.info("User {} authorized with scopes {}", data.userId(), scopes);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setLocation(URI.create(authState.getRedirectUrl()));
+        return new ResponseEntity<>("", headers, HttpStatus.TEMPORARY_REDIRECT);
+
     }
 
 }

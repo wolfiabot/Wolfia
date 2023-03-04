@@ -19,14 +19,11 @@ package space.npstr.wolfia.domain.oauth2;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
-
-import static space.npstr.wolfia.common.Exceptions.logIfFailed;
 
 @Component
 public class OAuth2Refresher {
@@ -51,17 +48,13 @@ public class OAuth2Refresher {
         log.debug("{} oauth data are expiring soon", expiringSoon.size());
 
         for (OAuth2Data old : expiringSoon) {
-            this.oAuth2Requester.refresh(old)
-                    .thenApply(this.repository::save)
-                    .handle((__, t) -> {
-                        if (t != null) {
-                            log.warn("Failed to refresh token for user {}", old.userId(), t);
-                            // TODO DM user about it?
-                            return this.repository.delete(old.userId());
-                        }
-                        return CompletableFuture.completedStage(0);
-                    })
-                    .whenComplete(logIfFailed());
+            try {
+                this.repository.save(oAuth2Requester.refreshBlocking(old));
+            } catch (Exception e) {
+                log.warn("Failed to refresh token for user {}", old.userId(), e);
+                // TODO DM user about it?
+                this.repository.delete(old.userId());
+            }
         }
     }
 }

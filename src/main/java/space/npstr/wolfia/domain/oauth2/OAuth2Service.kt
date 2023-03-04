@@ -17,8 +17,7 @@
 package space.npstr.wolfia.domain.oauth2
 
 import java.time.Instant
-import java.util.concurrent.CompletionStage
-import javax.annotation.CheckReturnValue
+import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Service
 import space.npstr.wolfia.db.type.OAuth2Scope
 
@@ -49,15 +48,13 @@ class OAuth2Service internal constructor(
 	 *
 	 * @param code code that we receive from Discord once a user visits our OAuth2 authorization url and authorizes us.
 	 */
-	@CheckReturnValue
-	fun acceptCode(code: String): CompletionStage<OAuth2Data> {
-		return oAuth2Requester.fetchCodeResponse(code)
-			.thenCompose { (accessToken, expires, refreshToken, scopes): AccessTokenResponse ->
-				oAuth2Requester.identifyUser(accessToken)
-					.thenApply { userId ->
-						OAuth2Data(userId, accessToken, expires, refreshToken, scopes)
-					}
-			}
-			.thenApply { repository.save(it) }
+	suspend fun acceptCode(code: String): OAuth2Data {
+		val (accessToken, expires, refreshToken, scopes) = oAuth2Requester.fetchCodeResponse(code)
+		val userId = oAuth2Requester.identifyUser(accessToken)
+		return repository.save(OAuth2Data(userId, accessToken, expires, refreshToken, scopes))
+	}
+
+	fun acceptCodeBlocking(code: String): OAuth2Data {
+		return runBlocking { acceptCode(code) }
 	}
 }

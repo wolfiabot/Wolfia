@@ -16,14 +16,14 @@
  */
 package space.npstr.wolfia.domain.oauth2
 
-import java.time.Duration
-import java.time.Instant
 import org.springframework.stereotype.Repository
 import space.npstr.wolfia.db.Database
 import space.npstr.wolfia.db.gen.Tables
+import java.time.Duration
+import java.time.Instant
 
 @Repository
-internal class OAuth2Repository(
+class OAuth2Repository(
 	private val database: Database,
 ) {
 

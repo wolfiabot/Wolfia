@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -27,6 +27,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
@@ -79,8 +80,12 @@ public abstract class ApplicationTest extends PostgresAndRedisContainers {
     @Autowired // is actually a mock, see DiscordApiConfig
     protected ShardManager shardManager;
 
+    @Deprecated(forRemoval = true) // use TestRestTemplate instead
     @Autowired
     protected MockMvc mockMvc;
+
+    @Autowired
+    protected TestRestTemplate restTemplate;
 
     @BeforeEach
     void setup(WebApplicationContext webApplicationContext) {

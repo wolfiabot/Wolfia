@@ -50,7 +50,7 @@ public class AuthCommand implements BaseCommand, PublicCommand {
         AuthState authState = new AuthState(context.getInvoker().getIdLong(), jumpUrl);
         String state = this.stateCache.generateStateParam(authState);
         String privateMessage = "Click the following link to connect with Wolfia. This will allow me to automatically "
-                + "add you to wolf chat or global games.\n" + this.requester.getAuthorizationUrl(state);
+                + "add you to wolf chat or global games.\n" + this.requester.authorizationUrl(state);
 
         context.replyPrivate(privateMessage, __ -> context.replyWithMention("check your direct messages!"),
                 t -> context.replyWithMention("I cannot send you a private message, please unblock me and/or adjust your discord privacy settings."));
