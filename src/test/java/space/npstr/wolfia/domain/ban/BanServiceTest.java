@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -20,12 +20,11 @@ package space.npstr.wolfia.domain.ban;
 
 import java.util.List;
 import java.util.function.Consumer;
-import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.AsyncDbWrapper;
+import space.npstr.wolfia.db.Database;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -37,15 +36,15 @@ class BanServiceTest extends ApplicationTest {
     private BanService banService;
 
     @Autowired
-    private AsyncDbWrapper wrapper;
+    private Database database;
 
 
     @BeforeEach
     void setup() {
-        this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        this.database.jooq().transactionResult(config -> config.dsl()
                 .deleteFrom(DISCORD_USER)
                 .execute()
-        )).toCompletableFuture().join();
+        );
     }
 
 

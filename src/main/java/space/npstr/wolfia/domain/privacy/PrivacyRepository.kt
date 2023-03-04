@@ -16,7 +16,6 @@
  */
 package space.npstr.wolfia.domain.privacy
 
-import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import space.npstr.wolfia.db.Database
 import space.npstr.wolfia.db.gen.Tables
@@ -27,15 +26,15 @@ internal class PrivacyRepository(
 ) {
 
 	fun findOne(userId: Long): Privacy? {
-		return database.jooq
+		return database.jooq()
 			.selectFrom(Tables.DISCORD_USER)
 			.where(Tables.DISCORD_USER.USER_ID.eq(userId))
 			.fetchOneInto(Privacy::class.java)
 	}
 
 	fun setProcessData(userId: Long, processData: Boolean): Privacy {
-		return database.jooq.transactionResult { config ->
-			DSL.using(config)
+		return database.jooq().transactionResult { config ->
+			config.dsl()
 				.insertInto(Tables.DISCORD_USER)
 				.columns(Tables.DISCORD_USER.USER_ID, Tables.DISCORD_USER.PROCESS_DATA)
 				.values(userId, processData)
@@ -47,7 +46,7 @@ internal class PrivacyRepository(
 	}
 
 	fun findAllDeniedProcessData(): List<Privacy> {
-		return database.jooq
+		return database.jooq()
 			.selectFrom(Tables.DISCORD_USER)
 			.where(Tables.DISCORD_USER.PROCESS_DATA.eq(false))
 			.fetchInto(Privacy::class.java)

@@ -17,7 +17,6 @@
 package space.npstr.wolfia.domain.settings
 
 import org.jooq.Field
-import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import space.npstr.wolfia.db.Database
 import space.npstr.wolfia.db.ExtendedPostgresDSL
@@ -34,7 +33,7 @@ class ChannelSettingsRepository(
 ) {
 
 	fun findOne(channelId: Long): ChannelSettings? {
-		return database.jooq
+		return database.jooq()
 			.selectFrom(Tables.CHANNEL_SETTINGS)
 			.where(Tables.CHANNEL_SETTINGS.CHANNEL_ID.eq(channelId))
 			.fetchOneInto(ChannelSettings::class.java)
@@ -42,7 +41,7 @@ class ChannelSettingsRepository(
 
 	//this works since we dont commit the transaction
 	fun findOneOrDefault(channelId: Long): ChannelSettings {
-		return database.jooq
+		return database.jooq()
 			.insertInto(Tables.CHANNEL_SETTINGS)
 			.columns(Tables.CHANNEL_SETTINGS.CHANNEL_ID)
 			.values(channelId)
@@ -57,7 +56,8 @@ class ChannelSettingsRepository(
 		return if (channelIds.isEmpty()) {
 			listOf()
 		} else {
-			var insert = database.jooq.insertInto(Tables.CHANNEL_SETTINGS)
+			var insert = database.jooq()
+				.insertInto(Tables.CHANNEL_SETTINGS)
 				.columns(Tables.CHANNEL_SETTINGS.CHANNEL_ID)
 			for (channelId in channelIds) {
 				insert = insert.values(channelId)
@@ -95,8 +95,8 @@ class ChannelSettingsRepository(
 
 	fun addTags(channelId: Long, tags: Collection<Long>): ChannelSettings {
 		val tagArray = tags.toTypedArray()
-		return database.jooq.transactionResult { config ->
-			DSL.using(config)
+		return database.jooq().transactionResult { config ->
+			config.dsl()
 				.insertInto(Tables.CHANNEL_SETTINGS)
 				.columns(Tables.CHANNEL_SETTINGS.CHANNEL_ID, Tables.CHANNEL_SETTINGS.TAGS)
 				.values(channelId, tagArray)
@@ -109,8 +109,8 @@ class ChannelSettingsRepository(
 
 	fun removeTags(channelId: Long, tags: Collection<Long>): ChannelSettings {
 		val tagArray = tags.toTypedArray()
-		return database.jooq.transactionResult { config ->
-			DSL.using(config)
+		return database.jooq().transactionResult { config ->
+			config.dsl()
 				.insertInto(Tables.CHANNEL_SETTINGS)
 				.columns(Tables.CHANNEL_SETTINGS.CHANNEL_ID, Tables.CHANNEL_SETTINGS.TAGS)
 				.values(channelId, arrayOf())
@@ -122,8 +122,8 @@ class ChannelSettingsRepository(
 	}
 
 	fun delete(channelId: Long): Int {
-		return database.jooq.transactionResult { config ->
-			DSL.using(config)
+		return database.jooq().transactionResult { config ->
+			config.dsl()
 				.deleteFrom(Tables.CHANNEL_SETTINGS)
 				.where(Tables.CHANNEL_SETTINGS.CHANNEL_ID.eq(channelId))
 				.execute()
@@ -131,8 +131,8 @@ class ChannelSettingsRepository(
 	}
 
 	private operator fun <F> set(channelId: Long, field: Field<F>, value: F): ChannelSettings {
-		return database.jooq.transactionResult { config ->
-			DSL.using(config)
+		return database.jooq().transactionResult { config ->
+			config.dsl()
 				.insertInto(Tables.CHANNEL_SETTINGS)
 				.columns(Tables.CHANNEL_SETTINGS.CHANNEL_ID, field)
 				.values(channelId, value)

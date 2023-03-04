@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,15 +17,13 @@
 
 package space.npstr.wolfia.domain.room;
 
-import org.jooq.impl.DSL;
-import org.springframework.stereotype.Repository;
-import space.npstr.wolfia.db.AsyncDbWrapper;
-
-import javax.annotation.CheckReturnValue;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import javax.annotation.CheckReturnValue;
+import org.springframework.stereotype.Repository;
+import space.npstr.wolfia.db.AsyncDbWrapper;
 
 import static java.lang.Boolean.TRUE;
 import static org.jooq.impl.DSL.value;
@@ -63,7 +61,7 @@ public class PrivateRoomRepository {
     @CheckReturnValue
     public CompletionStage<Optional<PrivateRoom>> insert(long guildId) {
         return getFirstFreeNumber().thenCompose(firstFreeNumber ->
-                this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+                this.wrapper.jooq(dsl -> dsl.transactionResult(config -> config.dsl()
                         .insertInto(PRIVATE_ROOM)
                         .columns(PRIVATE_ROOM.GUILD_ID, PRIVATE_ROOM.NR)
                         .values(guildId, firstFreeNumber)

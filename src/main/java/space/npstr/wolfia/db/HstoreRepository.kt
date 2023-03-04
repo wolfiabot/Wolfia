@@ -31,7 +31,7 @@ class HstoreRepository(
 	 * @return the default value if either the hstore or the key inside the hstore doesnt exist.
 	 */
 	fun get(name: String, key: String, defaultValue: String): String {
-		return database.jooq
+		return database.jooq()
 			.select(Tables.HSTOREX.HSTOREX_)
 			.from(Tables.HSTOREX)
 			.where(Tables.HSTOREX.NAME.eq(name))
@@ -47,8 +47,8 @@ class HstoreRepository(
 
 	fun set(name: String, toAppend: Map<String, String>): HstorexRecord {
 		val map = HashMap(toAppend)
-		return database.jooq.transactionResult { config ->
-			DSL.using(config)
+		return database.jooq().transactionResult { config ->
+			config.dsl()
 				.insertInto(Tables.HSTOREX)
 				.columns(Tables.HSTOREX.NAME, Tables.HSTOREX.HSTOREX_)
 				.values(name, map)

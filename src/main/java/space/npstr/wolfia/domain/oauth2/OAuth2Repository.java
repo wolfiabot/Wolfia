@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,16 +17,14 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
-import org.jooq.impl.DSL;
-import org.springframework.stereotype.Repository;
-import space.npstr.wolfia.db.AsyncDbWrapper;
-import space.npstr.wolfia.db.type.OAuth2Scope;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import org.springframework.stereotype.Repository;
+import space.npstr.wolfia.db.AsyncDbWrapper;
+import space.npstr.wolfia.db.type.OAuth2Scope;
 
 import static space.npstr.wolfia.db.gen.Tables.OAUTH2;
 
@@ -57,7 +55,7 @@ public class OAuth2Repository {
     }
 
     public CompletionStage<Integer> delete(long userId) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> config.dsl()
                 .deleteFrom(OAUTH2)
                 .where(OAUTH2.USER_ID.eq(userId))
                 .execute()
@@ -66,7 +64,7 @@ public class OAuth2Repository {
 
     public CompletionStage<OAuth2Data> save(OAuth2Data data) {
         OAuth2Scope[] scopes = data.scopes().toArray(new OAuth2Scope[]{});
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> config.dsl()
                 .insertInto(OAUTH2)
                 .columns(OAUTH2.USER_ID, OAUTH2.ACCESS_TOKEN, OAUTH2.EXPIRES, OAUTH2.REFRESH_TOKEN, OAUTH2.SCOPES)
                 .values(data.userId(), data.accessToken(), data.expires(), data.refreshToken(), scopes)

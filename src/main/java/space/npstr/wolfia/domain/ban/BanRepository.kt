@@ -16,7 +16,6 @@
  */
 package space.npstr.wolfia.domain.ban
 
-import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
 import space.npstr.wolfia.db.Database
 import space.npstr.wolfia.db.gen.Tables
@@ -28,15 +27,15 @@ internal class BanRepository(
 ) {
 
 	fun findOne(userId: Long, scope: Scope): Ban? {
-		return database.jooq
+		return database.jooq()
 			.selectFrom(Tables.DISCORD_USER)
 			.where(Tables.DISCORD_USER.USER_ID.eq(userId).and(Tables.DISCORD_USER.BAN.eq(scope.name)))
 			.fetchOneInto(Ban::class.java)
 	}
 
 	fun setScope(userId: Long, scope: Scope): Ban {
-		return database.jooq.transactionResult { config ->
-			DSL.using(config)
+		return database.jooq().transactionResult { config ->
+			config.dsl()
 				.insertInto(Tables.DISCORD_USER)
 				.columns(Tables.DISCORD_USER.USER_ID, Tables.DISCORD_USER.BAN)
 				.values(userId, scope.name)
@@ -48,7 +47,7 @@ internal class BanRepository(
 	}
 
 	fun findByScope(scope: Scope): List<Ban> {
-		return database.jooq
+		return database.jooq()
 			.selectFrom(Tables.DISCORD_USER)
 			.where(Tables.DISCORD_USER.BAN.eq(scope.name))
 			.fetchInto(Ban::class.java)

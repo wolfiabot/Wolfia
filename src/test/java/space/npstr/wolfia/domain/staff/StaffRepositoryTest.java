@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -21,11 +21,10 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.jooq.impl.DSL;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.AsyncDbWrapper;
+import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.gen.enums.StaffFunction;
 import space.npstr.wolfia.db.gen.tables.records.StaffMemberRecord;
 
@@ -39,7 +38,7 @@ class StaffRepositoryTest extends ApplicationTest {
     private StaffRepository repo;
 
     @Autowired
-    private AsyncDbWrapper wrapper;
+    private Database database;
 
 
     @Test
@@ -68,10 +67,10 @@ class StaffRepositoryTest extends ApplicationTest {
 
     @Test
     void givenNoRecords_whenFetchAllStaffMembers_shouldBeEmpty() {
-        wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        database.jooq().transactionResult(config -> config.dsl()
                 .deleteFrom(STAFF_MEMBER)
                 .execute()
-        )).toCompletableFuture().join();
+        );
 
         List<StaffMemberRecord> staffMemberRecords = repo.fetchAllStaffMembers()
                 .toCompletableFuture().join();
@@ -82,10 +81,10 @@ class StaffRepositoryTest extends ApplicationTest {
 
     @Test
     void givenSomeRecords_whenFetchAllStaffMembers_shoulContainRecords() {
-        wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        database.jooq().transactionResult(config -> config.dsl()
                 .deleteFrom(STAFF_MEMBER)
                 .execute()
-        )).toCompletableFuture().join();
+        );
 
         long userIdA = uniqueLong();
         repo.updateOrCreateStaffMemberFunction(userIdA, StaffFunction.SETUP_MANAGER)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,7 +18,6 @@
 package space.npstr.wolfia.domain.room;
 
 import java.util.Optional;
-import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,7 +40,7 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
     @BeforeEach
     @AfterEach
     void cleanDbTable() {
-        this.database.getJooq().transactionResult(config -> DSL.using(config)
+        this.database.jooq().transactionResult(config -> config.dsl()
                 .deleteFrom(PRIVATE_ROOM)
                 .execute()
         );
@@ -160,7 +159,7 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
     private long preparePrivateRoom(int number) {
         long guildId = uniqueLong();
 
-        this.database.getJooq().transactionResult(config -> DSL.using(config)
+        this.database.jooq().transactionResult(config -> config.dsl()
                 .insertInto(PRIVATE_ROOM)
                 .columns(PRIVATE_ROOM.GUILD_ID, PRIVATE_ROOM.NR)
                 .values(guildId, number)

@@ -26,13 +26,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.jooq.impl.DSL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.AsyncDbWrapper;
+import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.gen.enums.StaffFunction;
 import space.npstr.wolfia.domain.UserCache;
 
@@ -47,7 +46,7 @@ import static space.npstr.wolfia.db.gen.Tables.STAFF_MEMBER;
 class StaffServiceTest extends ApplicationTest {
 
     @Autowired
-    private AsyncDbWrapper wrapper;
+    private Database database;
 
     @Autowired
     private StaffService staffService;
@@ -64,10 +63,10 @@ class StaffServiceTest extends ApplicationTest {
 
     @BeforeEach
     void setup() {
-        this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        this.database.jooq().transactionResult(config -> config.dsl()
                 .deleteFrom(STAFF_MEMBER)
                 .execute()
-        )).toCompletableFuture().join();
+        );
         guild = mock(Guild.class);
         developerRole = mock(Role.class);
         Role moderatorRole = mock(Role.class);
@@ -87,22 +86,18 @@ class StaffServiceTest extends ApplicationTest {
 
         UserCache.Action getDeveloperAction = mock(UserCache.Action.class);
         doReturn(Optional.of(developer.getUser())).when(getDeveloperAction).get();
-        //noinspection ResultOfMethodCallIgnored
         doReturn(getDeveloperAction).when(this.userCache).user(eq(this.developerUserId));
 
         UserCache.Action getModeratorAction = mock(UserCache.Action.class);
         doReturn(Optional.of(moderator.getUser())).when(getModeratorAction).get();
-        //noinspection ResultOfMethodCallIgnored
         doReturn(getModeratorAction).when(this.userCache).user(eq(this.moderatorUserId));
 
         UserCache.Action getSetupManagerAction = mock(UserCache.Action.class);
         doReturn(Optional.of(setupManager.getUser())).when(getSetupManagerAction).get();
-        //noinspection ResultOfMethodCallIgnored
         doReturn(getSetupManagerAction).when(this.userCache).user(eq(this.setupManagerUserId));
 
         UserCache.Action getBotAction = mock(UserCache.Action.class);
         doReturn(Optional.of(bot.getUser())).when(getBotAction).get();
-        //noinspection ResultOfMethodCallIgnored
         doReturn(getBotAction).when(this.userCache).user(eq(this.botUserId));
 
         doReturn(guild).when(this.shardManager).getGuildById(eq(App.WOLFIA_LOUNGE_ID));

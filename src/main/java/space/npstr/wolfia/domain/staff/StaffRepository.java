@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.annotation.CheckReturnValue;
 import org.springframework.lang.Nullable;
-import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.gen.enums.StaffFunction;
@@ -64,7 +63,7 @@ public class StaffRepository {
 
     @CheckReturnValue
     public CompletionStage<StaffMemberRecord> updateOrCreateStaffMemberFunction(long userId, StaffFunction staffFunction) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> config.dsl()
                 .insertInto(STAFF_MEMBER)
                 .columns(STAFF_MEMBER.USER_ID, STAFF_MEMBER.FUNCTION)
                 .values(userId, staffFunction)
@@ -77,7 +76,7 @@ public class StaffRepository {
 
     @CheckReturnValue
     public CompletionStage<Optional<StaffMemberRecord>> updateSlogan(long userId, @Nullable String slogan) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> config.dsl()
                 .update(STAFF_MEMBER)
                 .set(STAFF_MEMBER.SLOGAN, slogan)
                 .where(STAFF_MEMBER.USER_ID.eq(userId))
@@ -88,7 +87,7 @@ public class StaffRepository {
 
     @CheckReturnValue
     public CompletionStage<Optional<StaffMemberRecord>> updateLink(long userId, @Nullable URI link) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> config.dsl()
                 .update(STAFF_MEMBER)
                 .set(STAFF_MEMBER.LINK, link)
                 .where(STAFF_MEMBER.USER_ID.eq(userId))
@@ -99,7 +98,7 @@ public class StaffRepository {
 
     @CheckReturnValue
     public CompletionStage<Optional<StaffMemberRecord>> updateEnabled(long userId, boolean enabled) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> config.dsl()
                 .update(STAFF_MEMBER)
                 .set(STAFF_MEMBER.ENABLED, enabled)
                 .where(STAFF_MEMBER.USER_ID.eq(userId))
@@ -110,12 +109,12 @@ public class StaffRepository {
 
     @CheckReturnValue
     public CompletionStage<Void> updateAllActive(Collection<Long> activeStaff) {
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> config.dsl()
                 .update(STAFF_MEMBER)
                 .set(STAFF_MEMBER.ACTIVE, true)
                 .where(STAFF_MEMBER.USER_ID.in(activeStaff))
                 .execute()
-        )).thenCompose(__ -> this.wrapper.jooq(dsl -> dsl.transactionResult(config -> DSL.using(config)
+        )).thenCompose(__ -> this.wrapper.jooq(dsl -> dsl.transactionResult(config -> config.dsl()
                 .update(STAFF_MEMBER)
                 .set(STAFF_MEMBER.ACTIVE, false)
                 .where(not(STAFF_MEMBER.USER_ID.in(activeStaff)))

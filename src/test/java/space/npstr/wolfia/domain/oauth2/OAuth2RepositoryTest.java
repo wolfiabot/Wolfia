@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,8 +17,14 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import org.jooq.impl.DSL;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,14 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.type.OAuth2Scope;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
 
 import static java.time.OffsetDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +60,7 @@ class OAuth2RepositoryTest extends ApplicationTest {
     @BeforeEach
     @AfterEach
     void cleanDbTable() {
-        this.database.getJooq().transactionResult(config -> DSL.using(config)
+        this.database.jooq().transactionResult(config -> config.dsl()
                 .deleteFrom(OAUTH2)
                 .execute()
         );

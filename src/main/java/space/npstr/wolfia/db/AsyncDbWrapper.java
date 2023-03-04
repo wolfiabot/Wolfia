@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,19 +17,18 @@
 
 package space.npstr.wolfia.db;
 
-import org.jooq.DSLContext;
-import org.springframework.stereotype.Component;
-import space.npstr.prometheus_extensions.ThreadPoolCollector;
-import space.npstr.wolfia.common.Exceptions;
-import space.npstr.wolfia.config.properties.DatabaseConfig;
-
-import javax.annotation.CheckReturnValue;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import javax.annotation.CheckReturnValue;
+import org.jooq.DSLContext;
+import org.springframework.stereotype.Component;
+import space.npstr.prometheus_extensions.ThreadPoolCollector;
+import space.npstr.wolfia.common.Exceptions;
+import space.npstr.wolfia.config.properties.DatabaseConfig;
 
 /**
  * JDBC is blocking at its core. This class wraps calls to it into a thread pool.
@@ -57,7 +56,7 @@ public class AsyncDbWrapper {
     @CheckReturnValue
     public <E> CompletionStage<E> jooq(Function<DSLContext, E> databaseOperation) {
         return CompletableFuture.supplyAsync(
-                () -> databaseOperation.apply(this.database.getJooq()),
+                () -> databaseOperation.apply(this.database.jooq()),
                 this.executor
         );
     }

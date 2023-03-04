@@ -32,7 +32,6 @@ import org.jooq.Record1;
 import org.jooq.Record3;
 import org.jooq.Record8;
 import org.jooq.RecordMapper;
-import org.jooq.impl.DSL;
 import org.springframework.stereotype.Repository;
 import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.gen.tables.records.StatsActionRecord;
@@ -257,7 +256,7 @@ public class StatsRepository {
     public CompletionStage<GameStats> insertGameStats(GameStats gameStats) {
         Summary.Child timer = MetricsRegistry.queryTime.labels("insertGameStats");
         return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> timer.time(() -> {
-                    DSLContext context = DSL.using(config);
+                    DSLContext context = config.dsl();
 
                     long gameId = context
                             .insertInto(STATS_GAME)
@@ -376,7 +375,7 @@ public class StatsRepository {
     @CheckReturnValue
     public CompletionStage<Integer> nullAllPlayerNicknamesofUser(long userId) {
         Summary.Child timer = MetricsRegistry.queryTime.labels("nullAllPlayerNicknamesofUser");
-        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> timer.time((() -> DSL.using(config)
+        return this.wrapper.jooq(dsl -> dsl.transactionResult(config -> timer.time((() -> config.dsl()
                 .update(STATS_PLAYER)
                 .set(STATS_PLAYER.NICKNAME, val(null, STATS_PLAYER.NICKNAME))
                 .where(STATS_PLAYER.USER_ID.eq(userId))
