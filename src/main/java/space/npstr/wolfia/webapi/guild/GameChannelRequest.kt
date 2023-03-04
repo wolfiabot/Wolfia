@@ -17,6 +17,6 @@
 package space.npstr.wolfia.webapi.guild
 
 data class GameChannelRequest(
-    val channelId: Long,
-    val isGameChannel: Boolean,
+	val channelId: Long,
+	val isGameChannel: Boolean,
 )

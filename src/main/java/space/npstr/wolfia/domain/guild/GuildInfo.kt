@@ -19,17 +19,17 @@ package space.npstr.wolfia.domain.guild
 import space.npstr.wolfia.domain.discord.PartialGuild
 
 data class GuildInfo(
-    /**
-     * The information we get from Discord about a guild.
-     */
-    val guild: PartialGuild,
-    /**
-     * Is our bot present in this guild?
-     */
-    val botPresent: Boolean,
-    /**
-     * Can the user edit this guild? This is just a convenience property for the frontend UI.
-     * There are additional checks in the backend for concrete requests.
-     */
-    val canEdit: Boolean,
+	/**
+	 * The information we get from Discord about a guild.
+	 */
+	val guild: PartialGuild,
+	/**
+	 * Is our bot present in this guild?
+	 */
+	val botPresent: Boolean,
+	/**
+	 * Can the user edit this guild? This is just a convenience property for the frontend UI.
+	 * There are additional checks in the backend for concrete requests.
+	 */
+	val canEdit: Boolean,
 )

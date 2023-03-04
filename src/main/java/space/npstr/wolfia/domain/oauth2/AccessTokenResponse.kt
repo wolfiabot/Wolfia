@@ -20,8 +20,8 @@ import java.time.Instant
 import space.npstr.wolfia.db.type.OAuth2Scope
 
 data class AccessTokenResponse(
-    val accessToken: String,
-    val expires: Instant,
-    val refreshToken: String,
-    val scopes: Set<OAuth2Scope>,
+	val accessToken: String,
+	val expires: Instant,
+	val refreshToken: String,
+	val scopes: Set<OAuth2Scope>,
 )

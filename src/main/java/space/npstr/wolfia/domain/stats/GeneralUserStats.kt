@@ -17,8 +17,8 @@
 package space.npstr.wolfia.domain.stats
 
 data class GeneralUserStats(
-    val postLength: Long,
-    val posts: Long,
-    val alignment: String,
-    val isWinner: Boolean,
+	val postLength: Long,
+	val posts: Long,
+	val alignment: String,
+	val isWinner: Boolean,
 )

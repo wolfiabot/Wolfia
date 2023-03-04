@@ -24,25 +24,25 @@ import space.npstr.wolfia.db.type.OAuth2Scope
  * User that is doing the web request
  */
 data class WebUser(
-    /**
-     * discord id of the user
-     */
-    val id: Long,
-    /**
-     * Principal user object with further
-     */
-    val principal: OAuth2User,
-    /**
-     * Oauth2 access token
-     */
-    val accessToken: OAuth2AccessToken,
+	/**
+	 * discord id of the user
+	 */
+	val id: Long,
+	/**
+	 * Principal user object with further
+	 */
+	val principal: OAuth2User,
+	/**
+	 * Oauth2 access token
+	 */
+	val accessToken: OAuth2AccessToken,
 ) {
 
-    /**
-     * @return true if this web user has access to the requested scope
-     */
-    fun hasScope(scope: OAuth2Scope): Boolean {
-        return accessToken.scopes.contains(scope.discordName())
-    }
+	/**
+	 * @return true if this web user has access to the requested scope
+	 */
+	fun hasScope(scope: OAuth2Scope): Boolean {
+		return accessToken.scopes.contains(scope.discordName())
+	}
 
 }

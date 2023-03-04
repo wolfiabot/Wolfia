@@ -17,20 +17,20 @@
 package space.npstr.wolfia.domain.stats
 
 data class GuildStats(
-    /**
-     * @return id of the guild these stats belong to
-     */
-    val guildId: Long,
-    /**
-     * @return average player size for games in this guild
-     */
-    val averagePlayerSize: Number,
-    /**
-     * @return win stats for all games
-     */
-    val totalWinStats: WinStats,
-    /**
-     * @return win stats for games by player size
-     */
-    val winStatsByPlayerSize: List<WinStats>,
+	/**
+	 * @return id of the guild these stats belong to
+	 */
+	val guildId: Long,
+	/**
+	 * @return average player size for games in this guild
+	 */
+	val averagePlayerSize: Number,
+	/**
+	 * @return win stats for all games
+	 */
+	val totalWinStats: WinStats,
+	/**
+	 * @return win stats for games by player size
+	 */
+	val winStatsByPlayerSize: List<WinStats>,
 )

@@ -26,14 +26,14 @@ import space.npstr.wolfia.db.gen.enums.StaffFunction
  * A member of the Wolfia staff.
  */
 data class StaffMember(
-    @JsonSerialize(using = ToStringSerializer::class)
-    val discordId: Long,
-    val name: String,
-    val discriminator: String,
-    val avatarId: Optional<String>,
-    val function: StaffFunction,
-    val slogan: Optional<String>,
-    val link: Optional<URI>,
-    val isEnabled: Boolean,
-    val isActive: Boolean,
+	@JsonSerialize(using = ToStringSerializer::class)
+	val discordId: Long,
+	val name: String,
+	val discriminator: String,
+	val avatarId: Optional<String>,
+	val function: StaffFunction,
+	val slogan: Optional<String>,
+	val link: Optional<URI>,
+	val isEnabled: Boolean,
+	val isActive: Boolean,
 )

@@ -20,6 +20,6 @@ package space.npstr.wolfia.domain.privacy
  * A reponse to a privacy request containing representations various personal data.
  */
 data class PrivacyResponse(
-    val sessions: List<PrivacySession>,
-    val games: List<PrivacyGame>,
+	val sessions: List<PrivacySession>,
+	val games: List<PrivacyGame>,
 )

@@ -24,10 +24,10 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
  * User fetched via OAuth2, see https://discord.com/developers/docs/resources/user#get-user
  */
 data class PartialUser(
-    @JsonSerialize(using = ToStringSerializer::class)
-    val id: Long,
-    @JsonProperty("username")
-    val name: String,
-    val discriminator: String,
-    val avatar: String?,
+	@JsonSerialize(using = ToStringSerializer::class)
+	val id: Long,
+	@JsonProperty("username")
+	val name: String,
+	val discriminator: String,
+	val avatar: String?,
 )

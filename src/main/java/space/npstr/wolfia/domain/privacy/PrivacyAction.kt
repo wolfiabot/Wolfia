@@ -23,6 +23,6 @@ import space.npstr.wolfia.game.definitions.Actions
  * A representation of a game action as sent to a user requesting their personal data.
  */
 data class PrivacyAction(
-    val type: Actions,
-    val submitted: Instant,
+	val type: Actions,
+	val submitted: Instant,
 )

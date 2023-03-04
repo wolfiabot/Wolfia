@@ -20,8 +20,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
 
 data class ChannelSettingsVO(
-    @JsonSerialize(using = ToStringSerializer::class)
-    val discordId: Long,
-    val name: String,
-    val isGameChannel: Boolean,
+	@JsonSerialize(using = ToStringSerializer::class)
+	val discordId: Long,
+	val name: String,
+	val isGameChannel: Boolean,
 )

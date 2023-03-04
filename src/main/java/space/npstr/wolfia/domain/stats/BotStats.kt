@@ -17,16 +17,16 @@
 package space.npstr.wolfia.domain.stats
 
 data class BotStats(
-    /**
-     * @return average player size for all games
-     */
-    val averagePlayerSize: Number,
-    /**
-     * @return win stats for all games
-     */
-    val totalWinStats: WinStats,
-    /**
-     * @return win stats for games by player size
-     */
-    val winStatsByPlayerSize: List<WinStats>,
+	/**
+	 * @return average player size for all games
+	 */
+	val averagePlayerSize: Number,
+	/**
+	 * @return win stats for all games
+	 */
+	val totalWinStats: WinStats,
+	/**
+	 * @return win stats for games by player size
+	 */
+	val winStatsByPlayerSize: List<WinStats>,
 )

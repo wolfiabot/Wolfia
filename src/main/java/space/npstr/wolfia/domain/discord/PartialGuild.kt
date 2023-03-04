@@ -24,12 +24,12 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
  * Guild fetched via OAuth2, see https://discord.com/developers/docs/resources/user#get-current-user-guilds-example-partial-guild
  */
 data class PartialGuild(
-    @JsonSerialize(using = ToStringSerializer::class)
-    val id: Long,
-    val name: String,
-    val icon: String?,
-    @JsonProperty("owner")
-    val isOwner: Boolean,
-    @JsonSerialize(using = ToStringSerializer::class)
-    val permissions: Long,
+	@JsonSerialize(using = ToStringSerializer::class)
+	val id: Long,
+	val name: String,
+	val icon: String?,
+	@JsonProperty("owner")
+	val isOwner: Boolean,
+	@JsonSerialize(using = ToStringSerializer::class)
+	val permissions: Long,
 )

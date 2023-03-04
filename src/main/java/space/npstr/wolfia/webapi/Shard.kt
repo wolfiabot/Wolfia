@@ -17,6 +17,6 @@
 package space.npstr.wolfia.webapi
 
 data class Shard(
-    val id: Int,
-    val status: String,
+	val id: Int,
+	val status: String,
 )

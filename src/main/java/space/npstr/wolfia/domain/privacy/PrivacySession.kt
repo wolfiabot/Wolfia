@@ -22,7 +22,7 @@ import java.time.Instant
  * A representation of a session as sent to a user requesting their personal data.
  */
 data class PrivacySession(
-    val creationTime: Instant,
-    val lastAccessedTime: Instant,
-    val isExpired: Boolean,
+	val creationTime: Instant,
+	val lastAccessedTime: Instant,
+	val isExpired: Boolean,
 )

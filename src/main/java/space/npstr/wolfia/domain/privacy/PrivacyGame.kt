@@ -22,13 +22,13 @@ import java.time.Instant
  * A representation of a game as sent to a user requesting their personal data.
  */
 data class PrivacyGame(
-    val gameId: Long,
-    val startTime: Instant,
-    val endTime: Instant,
-    val alignment: String,
-    val isWinner: Boolean,
-    val nickname: String?,
-    val totalPosts: Int,
-    val totalPostLength: Int,
-    val actions: List<PrivacyAction>,
+	val gameId: Long,
+	val startTime: Instant,
+	val endTime: Instant,
+	val alignment: String,
+	val isWinner: Boolean,
+	val nickname: String?,
+	val totalPosts: Int,
+	val totalPostLength: Int,
+	val actions: List<PrivacyAction>,
 )

@@ -17,20 +17,20 @@
 package space.npstr.wolfia.domain.stats
 
 data class WinStats(
-    /**
-     * @return the player size that these win stats belong to
-     */
-    val playerSize: Int,
-    /**
-     * @return total games with this player size
-     */
-    val totalGames: Long,
-    /**
-     * @return goodie wins with this player size
-     */
-    val goodieWins: Long,
-    /**
-     * @return baddie wins with this player size
-     */
-    val baddieWins: Long,
+	/**
+	 * @return the player size that these win stats belong to
+	 */
+	val playerSize: Int,
+	/**
+	 * @return total games with this player size
+	 */
+	val totalGames: Long,
+	/**
+	 * @return goodie wins with this player size
+	 */
+	val goodieWins: Long,
+	/**
+	 * @return baddie wins with this player size
+	 */
+	val baddieWins: Long,
 )

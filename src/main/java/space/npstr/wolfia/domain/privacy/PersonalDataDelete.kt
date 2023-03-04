@@ -17,5 +17,5 @@
 package space.npstr.wolfia.domain.privacy
 
 data class PersonalDataDelete(
-    val userId: Long,
+	val userId: Long,
 )

@@ -17,13 +17,13 @@
 package space.npstr.wolfia.domain.oauth2
 
 data class AuthState(
-    /**
-     * @return id of the user that we sent an authorization link to
-     */
-    val userId: Long,
-    /**
-     * @return url that can be used to redirect the user after a successful/failed flow, for example to get back
-     * to the channel/message that the flow was started from in discord
-     */
-    val redirectUrl: String,
+	/**
+	 * @return id of the user that we sent an authorization link to
+	 */
+	val userId: Long,
+	/**
+	 * @return url that can be used to redirect the user after a successful/failed flow, for example to get back
+	 * to the channel/message that the flow was started from in discord
+	 */
+	val redirectUrl: String,
 )
