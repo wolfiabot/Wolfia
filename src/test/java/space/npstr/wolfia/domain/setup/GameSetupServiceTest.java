@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,14 +17,13 @@
 
 package space.npstr.wolfia.domain.setup;
 
+import java.time.Duration;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
-
-import java.time.Duration;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -55,7 +54,8 @@ class GameSetupServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).setGame(game);
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getGame()).isEqualTo(game);
     }
 
@@ -64,8 +64,8 @@ class GameSetupServiceTest extends ApplicationTest {
         long channelId = uniqueLong();
         Games game = Games.POPCORN;
         GameInfo.GameMode mode = GameInfo.GameMode.WILD;
-        this.repository.setGame(channelId, game).toCompletableFuture().join();
-        this.repository.setMode(channelId, mode).toCompletableFuture().join();
+        this.repository.setGame(channelId, game);
+        this.repository.setMode(channelId, mode);
         Games incompatibleGame = Games.MAFIA;
         GameInfo incompatibleGameInfo = Games.getInfo(incompatibleGame);
         //make sure this test stays relevant despite possible future changes to which modes are supported by mafia
@@ -73,7 +73,8 @@ class GameSetupServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).setGame(incompatibleGame);
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getMode()).isEqualTo(incompatibleGameInfo.getDefaultMode());
     }
 
@@ -82,11 +83,12 @@ class GameSetupServiceTest extends ApplicationTest {
         long channelId = uniqueLong();
         GameInfo.GameMode mode = GameInfo.GameMode.CLASSIC;
         //ensure that the mdoe is compatible with the game
-        this.repository.setGame(channelId, Games.POPCORN).toCompletableFuture().join();
+        this.repository.setGame(channelId, Games.POPCORN);
 
         this.service.channel(channelId).setMode(mode);
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getMode()).isEqualTo(mode);
     }
 
@@ -98,11 +100,12 @@ class GameSetupServiceTest extends ApplicationTest {
         GameInfo.GameMode defaultMode = Games.getInfo(game).getDefaultMode();
         //make sure this test stays relevant despite possible future changes to defaults
         assertThat(incompatibleMode).isNotEqualTo(defaultMode);
-        this.repository.setGame(channelId, game).toCompletableFuture().join();
+        this.repository.setGame(channelId, game);
 
         this.service.channel(channelId).setMode(incompatibleMode); //there is no xmas popcorn
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getMode()).isEqualTo(defaultMode);
     }
 
@@ -113,7 +116,8 @@ class GameSetupServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).setDayLength(dayLenth);
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getDayLength()).isEqualTo(dayLenth);
     }
 
@@ -125,7 +129,8 @@ class GameSetupServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).inUser(userId);
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getInnedUsers()).contains(userId);
     }
 
@@ -133,11 +138,12 @@ class GameSetupServiceTest extends ApplicationTest {
     void givenUserIsIn_whenUserInned_userShouldNotBeDuplicated() {
         long channelId = uniqueLong();
         long userId = uniqueLong();
-        this.repository.inUsers(channelId, Set.of(userId)).toCompletableFuture().join();
+        this.repository.inUsers(channelId, Set.of(userId));
 
         this.service.channel(channelId).inUser(userId);
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getInnedUsers()).containsOnlyOnce(userId);
     }
 
@@ -149,7 +155,8 @@ class GameSetupServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).inUsers(Set.of(userA, userB));
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getInnedUsers()).contains(userA, userB);
     }
 
@@ -158,11 +165,12 @@ class GameSetupServiceTest extends ApplicationTest {
         long channelId = uniqueLong();
         long userA = uniqueLong();
         long userB = uniqueLong();
-        this.repository.inUsers(channelId, Set.of(userA)).toCompletableFuture().join();
+        this.repository.inUsers(channelId, Set.of(userA));
 
         this.service.channel(channelId).inUsers(Set.of(userA, userB));
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getInnedUsers()).containsOnlyOnce(userA, userB);
     }
 
@@ -173,7 +181,8 @@ class GameSetupServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).outUser(userId);
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getInnedUsers()).doesNotContain(userId);
     }
 
@@ -181,11 +190,12 @@ class GameSetupServiceTest extends ApplicationTest {
     void givenUserIn_whenUserOuted_userShouldNotBeIn() {
         long channelId = uniqueLong();
         long userId = uniqueLong();
-        this.repository.inUsers(channelId, Set.of(userId)).toCompletableFuture().join();
+        this.repository.inUsers(channelId, Set.of(userId));
 
         this.service.channel(channelId).outUser(userId);
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getInnedUsers()).doesNotContain(userId);
     }
 
@@ -197,7 +207,8 @@ class GameSetupServiceTest extends ApplicationTest {
 
         this.service.channel(channelId).outUsers(Set.of(userA, userB));
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getInnedUsers()).doesNotContain(userA, userB);
     }
 
@@ -206,11 +217,12 @@ class GameSetupServiceTest extends ApplicationTest {
         long channelId = uniqueLong();
         long userA = uniqueLong();
         long userB = uniqueLong();
-        this.repository.inUsers(channelId, Set.of(userA)).toCompletableFuture().join();
+        this.repository.inUsers(channelId, Set.of(userA));
 
         this.service.channel(channelId).outUsers(Set.of(userA, userB));
 
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join().orElseThrow();
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
         assertThat(setup.getInnedUsers()).doesNotContain(userA, userB);
     }
 
@@ -219,14 +231,14 @@ class GameSetupServiceTest extends ApplicationTest {
     void whenDelete_thenDeleteFromDb() {
         long channelId = uniqueLong();
 
-        this.repository.setDayLength(channelId, Duration.ofSeconds(42)).toCompletableFuture().join();
-        var setup = this.repository.findOne(channelId).toCompletableFuture().join();
-        assertThat(setup).isPresent();
+        this.repository.setDayLength(channelId, Duration.ofSeconds(42));
+        var setup = this.repository.findOne(channelId);
+        assertThat(setup).isNotNull();
 
         this.service.channel(channelId).reset();
 
-        setup = this.repository.findOne(channelId).toCompletableFuture().join();
-        assertThat(setup).isEmpty();
+        setup = this.repository.findOne(channelId);
+        assertThat(setup).isNull();
     }
 
 }

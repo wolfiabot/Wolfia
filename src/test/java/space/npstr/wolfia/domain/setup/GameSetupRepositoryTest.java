@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,17 +17,16 @@
 
 package space.npstr.wolfia.domain.setup;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -48,8 +47,7 @@ class GameSetupRepositoryTest extends ApplicationTest {
     void givenEntryDoesNotExist_whenFetchingDefault_expectDefaultValues() {
         long channelId = uniqueLong();
 
-        var setup = this.repository.findOneOrDefault(channelId)
-                .toCompletableFuture().join();
+        var setup = this.repository.findOneOrDefault(channelId);
 
         assertThat(setup.getChannelId()).isEqualTo(channelId);
         assertThat(setup.getInnedUsers()).isEmpty();
@@ -62,13 +60,11 @@ class GameSetupRepositoryTest extends ApplicationTest {
     void givenEntryDoesNotExist_whenFetchingDefault_doNotCreateEntry() {
         long channelId = uniqueLong();
 
-        var setup = this.repository.findOneOrDefault(channelId)
-                .toCompletableFuture().join();
+        var setup = this.repository.findOneOrDefault(channelId);
 
         assertThat(setup.getChannelId()).isEqualTo(channelId);
-        var created = this.repository.findOne(channelId)
-                .toCompletableFuture().join();
-        assertThat(created.isPresent()).isFalse();
+        var created = this.repository.findOne(channelId);
+        assertThat(created).isNull();
     }
 
     @Test
@@ -77,11 +73,9 @@ class GameSetupRepositoryTest extends ApplicationTest {
         Games game = Games.MAFIA;
         // ensure this test stays viable when defaults are changed
         assertThat(game).isNotEqualTo(DEFAULT_GAME);
-        this.repository.setGame(channelId, game)
-                .toCompletableFuture().join();
+        this.repository.setGame(channelId, game);
 
-        var settings = this.repository.findOneOrDefault(channelId)
-                .toCompletableFuture().join();
+        var settings = this.repository.findOneOrDefault(channelId);
 
         assertThat(settings.getChannelId()).isEqualTo(channelId);
         assertThat(settings.getInnedUsers()).isEmpty();
@@ -94,11 +88,9 @@ class GameSetupRepositoryTest extends ApplicationTest {
         long channelId = uniqueLong();
         long userId = uniqueLong();
         this.channelSettingsService.channel(channelId).enableAutoOut();
-        this.repository.inUsers(channelId, Set.of(userId))
-                .toCompletableFuture().join();
+        this.repository.inUsers(channelId, Set.of(userId));
 
-        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId)
-                .toCompletableFuture().join();
+        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId);
 
         assertThat(setups)
                 .singleElement()
@@ -112,13 +104,10 @@ class GameSetupRepositoryTest extends ApplicationTest {
         long userId = uniqueLong();
         this.channelSettingsService.channel(channelIdA).enableAutoOut();
         this.channelSettingsService.channel(channelIdB).enableAutoOut();
-        this.repository.inUsers(channelIdA, Set.of(userId))
-                .toCompletableFuture().join();
-        this.repository.inUsers(channelIdB, Set.of(userId))
-                .toCompletableFuture().join();
+        this.repository.inUsers(channelIdA, Set.of(userId));
+        this.repository.inUsers(channelIdB, Set.of(userId));
 
-        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId)
-                .toCompletableFuture().join();
+        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId);
 
         assertThat(setups).hasSize(2);
         assertThat(setups).filteredOnAssertions(isSetupInChannel(channelIdA)).hasSize(1);
@@ -132,13 +121,10 @@ class GameSetupRepositoryTest extends ApplicationTest {
         long userId = uniqueLong();
         this.channelSettingsService.channel(channelIdAutoOut).enableAutoOut();
         this.channelSettingsService.channel(channelIdNoAutoOut).disableAutoOut();
-        this.repository.inUsers(channelIdAutoOut, Set.of(userId))
-                .toCompletableFuture().join();
-        this.repository.inUsers(channelIdNoAutoOut, Set.of(userId))
-                .toCompletableFuture().join();
+        this.repository.inUsers(channelIdAutoOut, Set.of(userId));
+        this.repository.inUsers(channelIdNoAutoOut, Set.of(userId));
 
-        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId)
-                .toCompletableFuture().join();
+        List<GameSetup> setups = this.repository.findAutoOutSetupsWhereUserIsInned(userId);
 
         assertThat(setups).hasSize(1);
         assertThat(setups).filteredOnAssertions(isSetupInChannel(channelIdAutoOut)).hasSize(1);
