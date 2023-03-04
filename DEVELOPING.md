@@ -23,12 +23,13 @@ Use [sdkman](https://sdkman.io/) to install and manage it.
 
 #### Node/NPM
 NodeJS/NPM a prerequisite for using Yarn.
-The currently used version can be found in the [versions.gradle](gradle/versions.gradle) file.
+The currently used version can be found in the [versions.gradle](gradle.properties) file.
 [Get it from the official website](https://nodejs.org/en/).
 
 #### Yarn
+
 Yarn is used to develop the web frontend / dashboard.
-The currently used version can be found in the [versions.gradle](gradle/versions.gradle) file.
+The currently used version can be found in the [versions.gradle](gradle.properties) file.
 [Get it from the official website](https://classic.yarnpkg.com/en/docs/install).
 
 #### Docker & Docker Compose

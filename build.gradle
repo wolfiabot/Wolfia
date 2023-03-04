@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2022 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+//file:noinspection UnnecessaryQualifiedReference
 
 
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
@@ -24,7 +25,6 @@ import org.sonarqube.gradle.SonarTask
 import space.npstr.gradle.docker.DockerWaitHealthyContainer
 
 buildscript {
-    apply from: 'gradle/versions.gradle'
     repositories {
         gradlePluginPortal()
     }
@@ -216,11 +216,11 @@ project(':database-codegen') {
         jooqGenerator "org.postgresql:postgresql"
     }
 
-    task pullCodegenDbContainer(type: DockerPullImage) {
+    tasks.register('pullCodegenDbContainer', DockerPullImage) {
         image.set(codegenDbImageName)
     }
 
-    task createCodegenDbContainer(type: DockerCreateContainer) {
+    tasks.register('createCodegenDbContainer', DockerCreateContainer) {
         dependsOn pullCodegenDbContainer
         targetImageId(codegenDbImageName)
         containerName.set(codegenDbContainerName)
@@ -233,22 +233,22 @@ project(':database-codegen') {
         withEnvVar('EXTENSIONS', 'hstore')
     }
 
-    task stopCodegenDbContainerPre(type: StopCodegenDbContainer) {
+    tasks.register('stopCodegenDbContainerPre', StopCodegenDbContainer) {
         targetContainerId codegenDbContainerName
     }
 
-    task stopCodegenDbContainerPost(type: StopCodegenDbContainer) {
+    tasks.register('stopCodegenDbContainerPost', StopCodegenDbContainer) {
         targetContainerId codegenDbContainerName
     }
 
 
-    task startCodegenDbContainer(type: DockerStartContainer) {
+    tasks.register('startCodegenDbContainer', DockerStartContainer) {
         createCodegenDbContainer.mustRunAfter stopCodegenDbContainerPre
         dependsOn(stopCodegenDbContainerPre, createCodegenDbContainer)
         targetContainerId codegenDbContainerName
     }
 
-    task awaitCodegenDbContainer(type: DockerWaitHealthyContainer) {
+    tasks.register('awaitCodegenDbContainer', DockerWaitHealthyContainer) {
         dependsOn startCodegenDbContainer
         targetContainerId codegenDbContainerName
         awaitStatusTimeout.set(40)
@@ -258,7 +258,7 @@ project(':database-codegen') {
     def migrationsOutput = fileTree('build/classes/generated/java/space/npstr/wolfia/db/gen')
 
     flyway {
-        tasks.withType(org.flywaydb.gradle.task.AbstractFlywayTask) {
+        tasks.withType(org.flywaydb.gradle.task.AbstractFlywayTask).configureEach {
             inputs.files(migrationsInput)
                     .withPropertyName("flywayMigrationsInput")
                     .withPathSensitivity(PathSensitivity.RELATIVE)
@@ -404,7 +404,7 @@ project(':frontend') {
 
     tasks.register('setVersion', org.siouan.frontendgradleplugin.infrastructure.gradle.RunYarn) {
         dependsOn tasks.named('installNode')
-        script = "version --no-git-tag-version --new-version ${rootProject.version}"
+        script.set("version --no-git-tag-version --new-version ${rootProject.version}")
     }
 }
 
@@ -492,7 +492,7 @@ dependencies {
     testImplementation "org.awaitility:awaitility"
 }
 
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.incremental = true
     options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation' << '-Xmaxerrs' << '10000' << '-Xdiags:verbose'
@@ -513,7 +513,7 @@ processResources {
     }
 }
 
-tasks.withType(SonarTask) {
+tasks.withType(SonarTask).configureEach {
     dependsOn jacocoTestReport
 }
 
