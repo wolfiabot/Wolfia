@@ -51,11 +51,11 @@ class PrivateRoomQueueTest extends ApplicationTest {
         PrivateRoomService service = mock(PrivateRoomService.class);
         PrivateRoom privateRoom1 = new PrivateRoom(uniqueLong(), 1);
         PrivateRoom privateRoom2 = new PrivateRoom(uniqueLong(), 1);
-        when(service.getAll()).thenReturn(List.of(privateRoom1, privateRoom2));
+        when(service.findAll()).thenReturn(List.of(privateRoom1, privateRoom2));
 
         var queue = new PrivateRoomQueue(service);
 
-        verify(service).getAll();
+        verify(service).findAll();
         List<ManagedPrivateRoom> rooms = queue.getAllManagedRooms();
         assertThat(rooms.size()).isEqualTo(2);
         assertThat(rooms).filteredOnAssertions(isRoom(privateRoom1)).hasSize(1);

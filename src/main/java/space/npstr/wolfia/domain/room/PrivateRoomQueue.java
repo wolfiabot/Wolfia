@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -39,7 +39,7 @@ public class PrivateRoomQueue {
     private final LinkedBlockingQueue<ManagedPrivateRoom> availablePrivateRoomQueue = new LinkedBlockingQueue<>();
 
     public PrivateRoomQueue(PrivateRoomService privateRoomService) {
-        List<ManagedPrivateRoom> privateRooms = privateRoomService.getAll().stream()
+        List<ManagedPrivateRoom> privateRooms = privateRoomService.findAll().stream()
                 .map(pr -> new ManagedPrivateRoom(pr, this))
                 .collect(Collectors.toList());
         log.info("{} private rooms loaded", privateRooms.size());

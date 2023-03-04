@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.domain.room;
 
-import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,22 +49,20 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
     void givenNoPrivateRooms_whenPrivateRoomInserted_createPrivateRoomWithNumber1() {
         long guildId = uniqueLong();
 
-        Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
+        PrivateRoom inserted = this.repository.insert(guildId);
 
-        assertThat(inserted).hasValueSatisfying(pr -> {
-                    assertThat(pr.getGuildId()).isEqualTo(guildId);
-                    assertThat(pr.getNumber()).isEqualTo(1);
-                }
-        );
+        assertThat(inserted).isNotNull();
+        assertThat(inserted.getGuildId()).isEqualTo(guildId);
+        assertThat(inserted.getNumber()).isEqualTo(1);
     }
 
     @Test
     void givenExistingPrivateRoom_whenPrivateRoomWithSameGuildIdInserted_returnEmpty() {
         long guildId = preparePrivateRoom(1);
 
-        Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
+        PrivateRoom inserted = this.repository.insert(guildId);
 
-        assertThat(inserted).isEmpty();
+        assertThat(inserted).isNull();
     }
 
     @Test
@@ -73,13 +70,11 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
         preparePrivateRoom(1);
         long guildId = uniqueLong();
 
-        Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
+        PrivateRoom inserted = this.repository.insert(guildId);
 
-        assertThat(inserted).hasValueSatisfying(pr -> {
-                    assertThat(pr.getGuildId()).isEqualTo(guildId);
-                    assertThat(pr.getNumber()).isEqualTo(2);
-                }
-        );
+        assertThat(inserted).isNotNull();
+        assertThat(inserted.getGuildId()).isEqualTo(guildId);
+        assertThat(inserted.getNumber()).isEqualTo(2);
     }
 
     @Test
@@ -88,13 +83,11 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
         preparePrivateRoom(2);
         long guildId = uniqueLong();
 
-        Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
+        PrivateRoom inserted = this.repository.insert(guildId);
 
-        assertThat(inserted).hasValueSatisfying(pr -> {
-                    assertThat(pr.getGuildId()).isEqualTo(guildId);
-                    assertThat(pr.getNumber()).isEqualTo(3);
-                }
-        );
+        assertThat(inserted).isNotNull();
+        assertThat(inserted.getGuildId()).isEqualTo(guildId);
+        assertThat(inserted.getNumber()).isEqualTo(3);
     }
 
     @Test
@@ -103,13 +96,11 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
         preparePrivateRoom(3);
         long guildId = uniqueLong();
 
-        Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
+        PrivateRoom inserted = this.repository.insert(guildId);
 
-        assertThat(inserted).hasValueSatisfying(pr -> {
-                    assertThat(pr.getGuildId()).isEqualTo(guildId);
-                    assertThat(pr.getNumber()).isEqualTo(2);
-                }
-        );
+        assertThat(inserted).isNotNull();
+        assertThat(inserted.getGuildId()).isEqualTo(guildId);
+        assertThat(inserted.getNumber()).isEqualTo(2);
     }
 
     @Test
@@ -118,13 +109,11 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
         preparePrivateRoom(3);
         long guildId = uniqueLong();
 
-        Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
+        PrivateRoom inserted = this.repository.insert(guildId);
 
-        assertThat(inserted).hasValueSatisfying(pr -> {
-                    assertThat(pr.getGuildId()).isEqualTo(guildId);
-                    assertThat(pr.getNumber()).isEqualTo(1);
-                }
-        );
+        assertThat(inserted).isNotNull();
+        assertThat(inserted.getGuildId()).isEqualTo(guildId);
+        assertThat(inserted.getNumber()).isEqualTo(1);
     }
 
     @Test
@@ -147,13 +136,11 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
     private void insertAndVerify(int expectedNumber) {
         long guildId = uniqueLong();
 
-        Optional<PrivateRoom> inserted = this.repository.insert(guildId).toCompletableFuture().join();
+        PrivateRoom inserted = this.repository.insert(guildId);
 
-        assertThat(inserted).hasValueSatisfying(pr -> {
-                    assertThat(pr.getGuildId()).isEqualTo(guildId);
-                    assertThat(pr.getNumber()).isEqualTo(expectedNumber);
-                }
-        );
+        assertThat(inserted).isNotNull();
+        assertThat(inserted.getGuildId()).isEqualTo(guildId);
+        assertThat(inserted.getNumber()).isEqualTo(expectedNumber);
     }
 
     private long preparePrivateRoom(int number) {

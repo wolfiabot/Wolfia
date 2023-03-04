@@ -53,7 +53,7 @@ class PrivateRoomServiceTest extends ApplicationTest {
 
     @Test
     void givenNoPrivateRooms_returnNoRooms() {
-        List<PrivateRoom> rooms = this.service.getAll();
+        List<PrivateRoom> rooms = this.service.findAll();
 
         assertThat(rooms).isEmpty();
     }
@@ -62,10 +62,10 @@ class PrivateRoomServiceTest extends ApplicationTest {
     void givenPrivateRooms_returnRooms() {
         long guildIdA = uniqueLong();
         long guildIdB = uniqueLong();
-        this.repository.insert(guildIdA).toCompletableFuture().join();
-        this.repository.insert(guildIdB).toCompletableFuture().join();
+        this.repository.insert(guildIdA);
+        this.repository.insert(guildIdB);
 
-        List<PrivateRoom> rooms = this.service.getAll();
+        List<PrivateRoom> rooms = this.service.findAll();
 
         assertThat(rooms).hasSize(2);
         assertThat(rooms).filteredOnAssertions(isGuild(guildIdA)).hasSize(1);
@@ -84,7 +84,7 @@ class PrivateRoomServiceTest extends ApplicationTest {
     @Test
     void givenGuildIsAPrivateRoom_returnIsPrivateRoomTrue() {
         long guildId = uniqueLong();
-        this.repository.insert(guildId).toCompletableFuture().join();
+        this.repository.insert(guildId);
 
         boolean isPrivateRoom = this.service.guild(guildId).isPrivateRoom();
 
@@ -103,7 +103,7 @@ class PrivateRoomServiceTest extends ApplicationTest {
     @Test
     void whenRegisterGuildThatIsAPrivateRoom_registerReturnsEmpty() {
         long guildId = uniqueLong();
-        this.repository.insert(guildId).toCompletableFuture().join();
+        this.repository.insert(guildId);
 
         Optional<PrivateRoom> registered = this.service.guild(guildId).register();
 
