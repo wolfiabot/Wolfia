@@ -21,11 +21,11 @@ ext {
 	javaVersion                 = '17'
     kotlinVersion               = '1.8.10'
 	springBootVersion			= '3.0.2'
-	flywayVersion				= '9.14.1'
+	flywayVersion				= '9.15.0'
 
 	gradleGitVersion			= '2.2.4'
 	grGitVersion				= '5.0.0'
-	sonarVersion				= '3.5.0.2730'
+	sonarVersion				= '4.0.0.2929'
 	jooqPluginVersion			= '8.1'
 	versionsPluginVersion		= '0.45.0'
 	dockerPluginVersion			= '8.1.0'
@@ -37,16 +37,16 @@ ext {
 
 	jdaVersion					= '4.4.0_352'
 	discordWebhooksVersion      = '0.8.2'
-	sentryLogbackVersion		= '6.13.0'
+	sentryLogbackVersion		= '6.14.0'
 	orgJsonVersion				= '20220924'
-	jaxbImplVersion				= '4.0.1'
+	jaxbImplVersion				= '4.0.2'
     nashornVersion				= '15.4'
 
 	prometheusVersion			= '0.16.0'
 	promExtVersion				= '1.5.14'
 
 	dsProxyVersion				= '1.8.1'
-	jooqVersion					= '3.17.7'
+	jooqVersion					= '3.17.8'
 
 	togglzVersion				= '3.3.3'
 
