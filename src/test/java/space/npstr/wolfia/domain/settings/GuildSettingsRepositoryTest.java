@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -35,8 +35,7 @@ class GuildSettingsRepositoryTest extends ApplicationTest {
     void givenEntryDoesNotExist_whenFetchingDefault_expectDefaultValues() {
         long guildId = uniqueLong();
 
-        var settings = this.repository.findOneOrDefault(guildId)
-                .toCompletableFuture().join();
+        var settings = this.repository.findOneOrDefault(guildId);
 
         assertThat(settings.getGuildId()).isEqualTo(guildId);
         assertThat(settings.getName()).isEqualTo(DEFAULT_NAME);
@@ -47,13 +46,11 @@ class GuildSettingsRepositoryTest extends ApplicationTest {
     void givenEntryDoesNotExist_whenFetchingDefault_doNotCreateEntry() {
         long guildId = uniqueLong();
 
-        var settings = this.repository.findOneOrDefault(guildId)
-                .toCompletableFuture().join();
+        var settings = this.repository.findOneOrDefault(guildId);
 
         assertThat(settings.getGuildId()).isEqualTo(guildId);
-        var created = this.repository.findOne(guildId)
-                .toCompletableFuture().join();
-        assertThat(created.isPresent()).isFalse();
+        var created = this.repository.findOne(guildId);
+        assertThat(created).isNull();
     }
 
     @Test
@@ -61,11 +58,9 @@ class GuildSettingsRepositoryTest extends ApplicationTest {
         long guildId = uniqueLong();
         String name = "Wolfia Lounge";
 
-        this.repository.set(guildId, name, null)
-                .toCompletableFuture().join();
+        this.repository.set(guildId, name, null);
 
-        var settings = this.repository.findOneOrDefault(guildId)
-                .toCompletableFuture().join();
+        var settings = this.repository.findOneOrDefault(guildId);
         assertThat(settings.getGuildId()).isEqualTo(guildId);
         assertThat(settings.getName()).isEqualTo(name);
         assertThat(settings.getIconId()).isEmpty();

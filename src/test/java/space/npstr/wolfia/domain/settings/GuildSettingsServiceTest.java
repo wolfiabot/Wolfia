@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -55,7 +55,8 @@ class GuildSettingsServiceTest extends ApplicationTest {
 
         this.service.set(guild);
 
-        var settings = this.repository.findOne(guildId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(guildId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getName()).isEqualTo(name);
     }
 
@@ -72,7 +73,8 @@ class GuildSettingsServiceTest extends ApplicationTest {
 
         this.service.set(guild);
 
-        var settings = this.repository.findOne(guildId).toCompletableFuture().join().orElseThrow();
+        var settings = this.repository.findOne(guildId);
+        assertThat(settings).isNotNull();
         assertThat(settings.getIconId()).hasValue(iconId);
     }
 
