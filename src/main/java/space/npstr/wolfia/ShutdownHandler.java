@@ -29,7 +29,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.config.ShardManagerFactory;
-import space.npstr.wolfia.db.AsyncDbWrapper;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.events.BotStatusLogger;
@@ -49,7 +48,6 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
     private final BotStatusLogger botStatusLogger;
     private final ExceptionLoggingExecutor executor;
     private final Database database;
-    private final AsyncDbWrapper dbWrapper;
     private final ShardManagerFactory shardManagerFactory;
     private final GameRegistry gameRegistry;
     private final Redis redis;
@@ -58,12 +56,11 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
     private boolean shuttingDown = false;
 
     public ShutdownHandler(BotStatusLogger botStatusLogger, ExceptionLoggingExecutor executor, Database database,
-                           AsyncDbWrapper dbWrapper, ShardManagerFactory shardManagerFactory, GameRegistry gameRegistry,
+                           ShardManagerFactory shardManagerFactory, GameRegistry gameRegistry,
                            Redis redis, @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool) {
         this.botStatusLogger = botStatusLogger;
         this.executor = executor;
         this.database = database;
-        this.dbWrapper = dbWrapper;
         this.shardManagerFactory = shardManagerFactory;
         this.gameRegistry = gameRegistry;
         this.redis = redis;
@@ -137,10 +134,6 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
         log.info("Shutting down jda thread pool");
         final List<Runnable> jdaThreadPoolRunnables = jdaThreadPool.shutdownNow();
         log.info("{} jda thread pool runnables cancelled", jdaThreadPoolRunnables.size());
-
-        log.info("Shutting down async database executor");
-        final List<Runnable> dbWrapperRunnables = dbWrapper.shutdownNow();
-        log.info("{} async database executor runnable cancelled", dbWrapperRunnables.size());
 
         try {
             executor.awaitTermination(30, TimeUnit.SECONDS);
