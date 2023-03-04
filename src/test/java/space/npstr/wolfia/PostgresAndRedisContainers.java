@@ -50,7 +50,7 @@ public abstract class PostgresAndRedisContainers {
     }
 
 
-    private static final GenericContainer<?> REDIS = new GenericContainer<>("redis:5-alpine")
+    private static final GenericContainer<?> REDIS = new GenericContainer<>("redis:7-alpine")
             .withLogConsumer(new Slf4jLogConsumer(containerLogger("Redis")))
             .withExposedPorts(6379);
 

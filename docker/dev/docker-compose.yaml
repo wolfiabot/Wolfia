@@ -16,7 +16,7 @@ services:
       - EXTENSIONS=hstore
 
   dev-redis:
-    image: redis:5-alpine
+    image: redis:7-alpine
     restart: always
     entrypoint:
       - redis-server
