@@ -45,6 +45,9 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion" //spring
     }
+    configurations.classpath {
+        resolutionStrategy.activateDependencyLocking()
+    }
 }
 
 ext {
@@ -81,18 +84,44 @@ apply plugin: 'com.github.ben-manes.versions'
 dependencyUpdates {
     checkConstraints = true
     resolutionStrategy {
-        componentSelection { rules ->
-            rules.all { ComponentSelection selection ->
-                boolean rejected = ['alpha', 'beta', 'rc', 'm1', 'm2', 'm3', 'm4', 'm5', 'preview', 'pr1', 'pr2', 'pr3',
-                                    'b180830.0438', 'b180830.0359', 'b180725.0644', 'b180725.0427', 'b01', // jaxb bullshit
-                ].any {
-                    q -> selection.candidate.version.toLowerCase().contains(q)
-                }
-                if (rejected) {
-                    selection.reject('Alpha or beta version')
-                }
+        componentSelection properReleasesOnlyOrUpdateNonStable()
+    }
+}
+
+static def isNonStable(String version) {
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { it -> version.toUpperCase().contains(it) }
+    def regex = /^[0-9,.v-]+(-r)?(_[0-9]+)?$/
+    return !stableKeyword && !(version ==~ regex)
+}
+
+static def properReleasesOnlyOrUpdateNonStable() {
+    return { rules ->
+        rules.all { ComponentSelection selection ->
+            if (isNonStable(selection.candidate.version) && (selection.hasProperty("currentVersion") && !isNonStable(selection.currentVersion))) {
+                selection.reject('Release candidate')
             }
         }
+    }
+}
+
+dependencyLocking {
+    lockAllConfigurations()
+}
+
+// ./gradlew resolveAndLockAll --write-locks
+tasks.register('resolveAndLockAll') {
+    doFirst {
+        assert gradle.startParameter.writeDependencyLocks
+    }
+    doLast {
+        configurations.configureEach {
+            resolutionStrategy {
+                componentSelection properReleasesOnlyOrUpdateNonStable()
+            }
+        }
+        configurations
+                .findAll { it.canBeResolved }
+                .each { it.resolve() }
     }
 }
 
