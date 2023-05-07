@@ -17,10 +17,10 @@
 
 package space.npstr.wolfia.utils;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import space.npstr.wolfia.Launcher;
 
 public class PeriodicTimer {
     private final Consumer<Void> updateCallback;
@@ -33,14 +33,14 @@ public class PeriodicTimer {
      * @param updateMillis         interval for updates happening
      * @param updateCallback       called on update
      */
-    public PeriodicTimer(long updateMillis, Consumer<Void> updateCallback,
+    public PeriodicTimer(ScheduledExecutorService executor, long updateMillis, Consumer<Void> updateCallback,
                          long selfDestructMillis, Consumer<Void> selfDestructCallback) {
 
         this.updateCallback = updateCallback;
-        this.updates = Launcher.getBotContext().getExecutor().scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
+        this.updates = executor.scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
 
         this.selfDestructCallback = selfDestructCallback;
-        Launcher.getBotContext().getExecutor().schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
+        executor.schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
     }
 
     private void update() {

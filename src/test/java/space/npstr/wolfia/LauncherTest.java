@@ -30,6 +30,7 @@ import space.npstr.wolfia.config.SentryConfiguration;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.oauth2.OAuth2Refresher;
 import space.npstr.wolfia.domain.setup.lastactive.AutoOuter;
+import space.npstr.wolfia.game.GameResources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -56,7 +57,7 @@ abstract class LauncherTest extends ApplicationTest {
         assertThatContainsBean("commandHandler", CommandHandler.class);
         assertThatContainsBean("commRegistry", CommRegistry.class);
         assertThatContainsBean("shardManager", ShardManager.class);
-        assertThatContainsBean("botContext", BotContext.class);
+        assertThatContainsBean("gameResources", GameResources.class);
         assertThatContainsBean("database", Database.class);
         assertThatContainsBean("shutdownHandler", ShutdownHandler.class);
         assertThatContainsBean("sentryConfiguration", SentryConfiguration.class);

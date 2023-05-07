@@ -22,6 +22,7 @@ import space.npstr.prometheus_extensions.jda.JdaMetrics;
 import space.npstr.wolfia.config.SentryConfiguration;
 import space.npstr.wolfia.domain.oauth2.OAuth2Refresher;
 import space.npstr.wolfia.domain.setup.lastactive.AutoOuter;
+import space.npstr.wolfia.game.GameResources;
 
 /**
  * Stuff that is required in the context but gets missed by Spring's lazy loading.
@@ -35,14 +36,16 @@ public class EagerLoader {
     private final JdaMetrics jdaMetrics;
     private final OAuth2Refresher oAuth2Refresher;
     private final AutoOuter autoOuter;
+    private final GameResources gameResources;
 
     public EagerLoader(ShutdownHandler shutdownHandler, SentryConfiguration sentryConfiguration, JdaMetrics jdaMetrics,
-                       OAuth2Refresher oAuth2Refresher, AutoOuter autoOuter) {
+                       OAuth2Refresher oAuth2Refresher, AutoOuter autoOuter, GameResources gameResources) {
 
         this.shutdownHandler = shutdownHandler;
         this.sentryConfiguration = sentryConfiguration;
         this.jdaMetrics = jdaMetrics;
         this.oAuth2Refresher = oAuth2Refresher;
         this.autoOuter = autoOuter;
+        this.gameResources = gameResources;
     }
 }

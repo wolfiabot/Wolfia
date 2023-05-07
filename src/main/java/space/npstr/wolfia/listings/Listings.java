@@ -26,11 +26,14 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.OkHttpClient;
 import org.springframework.context.event.EventListener;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
+import space.npstr.wolfia.config.properties.ListingsConfig;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 /**
@@ -45,14 +48,15 @@ public class Listings {
     private final Map<Listing, Future<?>> tasks = new HashMap<>();
     private final ExceptionLoggingExecutor executor;
 
-    public Listings(OkHttpClient.Builder httpClientBuilder, ExceptionLoggingExecutor executor) {
+    public Listings(OkHttpClient.Builder httpClientBuilder, ExceptionLoggingExecutor executor,
+                    WolfiaConfig wolfiaConfig, ListingsConfig listingsConfig, ShardManager shardManager) {
         this.executor = executor;
         OkHttpClient httpClient = httpClientBuilder
                 .eventListener(new OkHttpEventCounter("listings"))
                 .build();
-        this.tasks.put(new DiscordBotsPw(httpClient), null);
-        this.tasks.put(new DiscordBotsOrg(httpClient), null);
-        this.tasks.put(new Carbonitex(httpClient), null);
+        this.tasks.put(new DiscordBotsPw(httpClient, wolfiaConfig, listingsConfig), null);
+        this.tasks.put(new DiscordBotsOrg(httpClient, wolfiaConfig, listingsConfig), null);
+        this.tasks.put(new Carbonitex(httpClient, wolfiaConfig, listingsConfig, shardManager), null);
     }
 
     private static boolean isTaskRunning(@Nullable Future<?> task) {

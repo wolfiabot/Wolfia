@@ -22,10 +22,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 
@@ -40,11 +39,11 @@ import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 class PrivateRoomQueueTest extends ApplicationTest {
 
-    private static final Logger log = LoggerFactory.getLogger(PrivateRoomQueueTest.class);
-
     @Autowired
     private PrivateRoomQueue privateRoomQueue;
 
+    @Autowired
+    private ShardManager shardManager;
 
     @Test
     void queueShouldInitializeFromService() {
@@ -53,7 +52,7 @@ class PrivateRoomQueueTest extends ApplicationTest {
         PrivateRoom privateRoom2 = new PrivateRoom(uniqueLong(), 1);
         when(service.findAll()).thenReturn(List.of(privateRoom1, privateRoom2));
 
-        var queue = new PrivateRoomQueue(service);
+        var queue = new PrivateRoomQueue(shardManager, service);
 
         verify(service).findAll();
         List<ManagedPrivateRoom> rooms = queue.getAllManagedRooms();

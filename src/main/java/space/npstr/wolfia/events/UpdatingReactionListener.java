@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.events;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -24,7 +25,7 @@ import java.util.function.Predicate;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
-import space.npstr.wolfia.Launcher;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 /**
  * This reaction listener will call for updates
@@ -43,13 +44,14 @@ public class UpdatingReactionListener extends ReactionListener {
      * @param updateMillis         interval for updates happening
      * @param updateCallback       called on update
      */
-    public UpdatingReactionListener(Message message, Predicate<Member> filter, Consumer<GenericMessageReactionEvent> reactionCallback,
+    public UpdatingReactionListener(ShardManager shardManager, ScheduledExecutorService executor, Message message,
+                                    Predicate<Member> filter, Consumer<GenericMessageReactionEvent> reactionCallback,
                                     long selfDestructMillis, Consumer<Void> selfDestructCallback,
                                     long updateMillis, Consumer<Void> updateCallback) {
-        super(message, filter, reactionCallback, selfDestructMillis, selfDestructCallback);
+        super(shardManager, executor, message, filter, reactionCallback, selfDestructMillis, selfDestructCallback);
 
         this.updateCallback = updateCallback;
-        this.updates = Launcher.getBotContext().getExecutor().scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
+        this.updates = executor.scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);
     }
 
     private void update() {

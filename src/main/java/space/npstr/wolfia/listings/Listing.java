@@ -24,7 +24,8 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import space.npstr.wolfia.Launcher;
+import space.npstr.wolfia.config.properties.ListingsConfig;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 import static java.util.Objects.requireNonNull;
 
@@ -38,13 +39,17 @@ public abstract class Listing {
     protected static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     protected final String name;
-    private final OkHttpClient httpClient;
+    protected final OkHttpClient httpClient;
+    protected final WolfiaConfig wolfiaConfig;
+    protected final ListingsConfig listingsConfig;
 
     private String lastPayload;
 
-    public Listing(String name, OkHttpClient httpClient) {
+    public Listing(String name, OkHttpClient httpClient, WolfiaConfig wolfiaConfig, ListingsConfig listingsConfig) {
         this.name = name;
         this.httpClient = httpClient;
+        this.wolfiaConfig = wolfiaConfig;
+        this.listingsConfig = listingsConfig;
     }
 
     protected abstract String createPayload(JDA jda);
@@ -61,7 +66,7 @@ public abstract class Listing {
             return;
         }
 
-        if (Launcher.getBotContext().getWolfiaConfig().isDebug()) {
+        if (this.wolfiaConfig.isDebug()) {
             log.info("Skipping posting stats to {} due to running in debug mode", this.name);
             return;
         }

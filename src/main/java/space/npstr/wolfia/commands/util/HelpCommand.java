@@ -23,7 +23,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandContext;
@@ -38,9 +37,11 @@ public class HelpCommand implements BaseCommand, PublicCommand {
     public static final String TRIGGER = "help";
 
     private final CommRegistry commRegistry;
+    private final WolfiaConfig wolfiaConfig;
 
-    public HelpCommand(CommRegistry commRegistry) {
+    public HelpCommand(CommRegistry commRegistry, WolfiaConfig wolfiaConfig) {
         this.commRegistry = commRegistry;
+        this.wolfiaConfig = wolfiaConfig;
     }
 
     @Override
@@ -58,7 +59,7 @@ public class HelpCommand implements BaseCommand, PublicCommand {
 
     @Override
     public boolean execute(CommandContext context) {
-        if (Launcher.getBotContext().getWolfiaConfig().isDebug() && !context.isOwner()) {
+        if (this.wolfiaConfig.isDebug() && !context.isOwner()) {
             return true;//dont answer the help command in debug mode unless it's the owner
         }
 

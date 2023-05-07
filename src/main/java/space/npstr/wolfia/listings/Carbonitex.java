@@ -18,26 +18,31 @@
 package space.npstr.wolfia.listings;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Launcher;
+import space.npstr.wolfia.config.properties.ListingsConfig;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 public class Carbonitex extends Listing {
 
+    private final ShardManager shardManager;
+
     //https://www.carbonitex.net/
     //api docs: https://www.carbonitex.net/discord/data/botdata.php?key=MAH_KEY
-    public Carbonitex(OkHttpClient httpClient) {
-        super("carbonitex.net", httpClient);
+    public Carbonitex(OkHttpClient httpClient, WolfiaConfig wolfiaConfig, ListingsConfig listingsConfig, ShardManager shardManager) {
+        super("carbonitex.net", httpClient, wolfiaConfig, listingsConfig);
+        this.shardManager = shardManager;
     }
 
     @Override
     protected String createPayload(JDA jda) {
         return new JSONObject()
-                .put("key", Launcher.getBotContext().getListingsConfig().getCarbonitexKey())
-                .put("servercount", Launcher.getBotContext().getShardManager().getGuildCache().size())
+                .put("key", listingsConfig.getCarbonitexKey())
+                .put("servercount", shardManager.getGuildCache().size())
                 .toString();
     }
 
@@ -52,7 +57,7 @@ public class Carbonitex extends Listing {
 
     @Override
     protected boolean isConfigured() {
-        String carbonitexKey = Launcher.getBotContext().getListingsConfig().getCarbonitexKey();
+        String carbonitexKey = listingsConfig.getCarbonitexKey();
         return carbonitexKey != null && !carbonitexKey.isEmpty();
     }
 }

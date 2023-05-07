@@ -15,13 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia;
+package space.npstr.wolfia.game;
 
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.config.properties.ListingsConfig;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.domain.oauth2.OAuth2Service;
@@ -31,17 +29,12 @@ import space.npstr.wolfia.domain.stats.StatsService;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 /**
- * Temporary uber class that allows resources that were previously accessed statically to continue to be accessed
- * that way through {@link Launcher#getBotContext()}, until the whole project is refactored into non-static components.
- * <p>
- * todo resolve this temporary file
+ * Bundle a bunch of injected dependencies for games.
  */
 @Component
-public class BotContext {
+public class GameResources {
 
-    private final Database database;
     private final WolfiaConfig wolfiaConfig;
-    private final ListingsConfig listingsConfig;
     private final PrivateRoomQueue privateRoomQueue;
     private final ExceptionLoggingExecutor executor;
     private final ShardManager shardManager;
@@ -51,14 +44,11 @@ public class BotContext {
     private final GameRegistry gameRegistry;
     private final OAuth2Service oAuth2Service;
 
-    public BotContext(Database database, WolfiaConfig wolfiaConfig, ListingsConfig listingsConfig,
-                      PrivateRoomQueue privateRoomQueue, ExceptionLoggingExecutor executor,
-                      ShardManager shardManager, ChannelSettingsService channelSettingsService, UserCache userCache,
-                      StatsService statsService, GameRegistry gameRegistry, OAuth2Service oAuth2Service) {
+    public GameResources(WolfiaConfig wolfiaConfig, PrivateRoomQueue privateRoomQueue, ExceptionLoggingExecutor executor,
+                         ShardManager shardManager, ChannelSettingsService channelSettingsService, UserCache userCache,
+                         StatsService statsService, GameRegistry gameRegistry, OAuth2Service oAuth2Service) {
 
-        this.database = database;
         this.wolfiaConfig = wolfiaConfig;
-        this.listingsConfig = listingsConfig;
         this.privateRoomQueue = privateRoomQueue;
         this.executor = executor;
         this.shardManager = shardManager;
@@ -69,16 +59,8 @@ public class BotContext {
         this.oAuth2Service = oAuth2Service;
     }
 
-    public Database getDatabase() {
-        return this.database;
-    }
-
     public WolfiaConfig getWolfiaConfig() {
         return this.wolfiaConfig;
-    }
-
-    public ListingsConfig getListingsConfig() {
-        return this.listingsConfig;
     }
 
     public PrivateRoomQueue getPrivateRoomQueue() {

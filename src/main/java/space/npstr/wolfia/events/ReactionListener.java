@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.events;
 
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -24,13 +25,14 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import space.npstr.wolfia.Launcher;
+import net.dv8tion.jda.api.sharding.ShardManager;
 
 /**
  * A self destructing listener for reactions to a single message
  */
 public class ReactionListener extends ListenerAdapter {
 
+    private final ShardManager shardManager;
     private final long messageId;
     private final Predicate<Member> filter;
     private final Consumer<GenericMessageReactionEvent> callback;
@@ -43,19 +45,21 @@ public class ReactionListener extends ListenerAdapter {
      * @param selfDestructMillis   milliseconds after which this listener is removed and the message deleted
      * @param selfDestructCallback called on self destruct
      */
-    public ReactionListener(Message message, Predicate<Member> filter, Consumer<GenericMessageReactionEvent> callback,
+    public ReactionListener(ShardManager shardManager, ScheduledExecutorService executor, Message message, Predicate<Member> filter, Consumer<GenericMessageReactionEvent> callback,
                             long selfDestructMillis, Consumer<Void> selfDestructCallback) {
+
+        this.shardManager = shardManager;
         this.messageId = message.getIdLong();
         this.filter = filter;
         this.callback = callback;
         this.selfDestructCallback = selfDestructCallback;
 
-        Launcher.getBotContext().getExecutor().schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
+        executor.schedule(this::destruct, selfDestructMillis, TimeUnit.MILLISECONDS);
     }
 
     protected void destruct() {
         //remove the listener
-        Launcher.getBotContext().getShardManager().removeEventListener(this);
+        this.shardManager.removeEventListener(this);
         this.selfDestructCallback.accept(null);
     }
 

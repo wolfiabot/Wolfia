@@ -23,14 +23,15 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Launcher;
+import space.npstr.wolfia.config.properties.ListingsConfig;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 public class DiscordBotsOrg extends Listing {
 
     //https://top.gg/
     //api docs: https://top.gg/api/docs
-    public DiscordBotsOrg(OkHttpClient httpClient) {
-        super("top.gg", httpClient);
+    public DiscordBotsOrg(OkHttpClient httpClient, WolfiaConfig wolfiaConfig, ListingsConfig listingsConfig) {
+        super("top.gg", httpClient, wolfiaConfig, listingsConfig);
     }
 
     @Override
@@ -48,13 +49,13 @@ public class DiscordBotsOrg extends Listing {
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
                 .url(String.format("https://top.gg/api/bots/%s/stats", botId))
-                .addHeader("Authorization", Launcher.getBotContext().getListingsConfig().getDblToken())
+                .addHeader("Authorization", listingsConfig.getDblToken())
                 .post(body);
     }
 
     @Override
     protected boolean isConfigured() {
-        String dblToken = Launcher.getBotContext().getListingsConfig().getDblToken();
+        String dblToken = listingsConfig.getDblToken();
         return dblToken != null && !dblToken.isEmpty();
     }
 }

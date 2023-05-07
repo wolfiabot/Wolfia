@@ -22,7 +22,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Launcher;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
 
@@ -44,10 +44,16 @@ public class WolfiaGuildListener {
             + "for our scheduled games: you can give yourself the roles for the games you want to be notified about! "
             + "Don't forget to enjoy and have fun! " + Emojis.WINK;
 
+    private final WolfiaConfig wolfiaConfig;
+
+    public WolfiaGuildListener(WolfiaConfig wolfiaConfig) {
+        this.wolfiaConfig = wolfiaConfig;
+    }
+
     @EventListener
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         if (event.getGuild().getIdLong() != App.WOLFIA_LOUNGE_ID
-                || Launcher.getBotContext().getWolfiaConfig().isDebug()) {
+                || this.wolfiaConfig.isDebug()) {
             return;
         }
 

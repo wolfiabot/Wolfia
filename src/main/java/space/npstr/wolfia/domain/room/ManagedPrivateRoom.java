@@ -33,7 +33,6 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -55,6 +54,7 @@ public class ManagedPrivateRoom {
     //using a static scope for the lock since entities, while representing the same data, may be distinct objects
     private static final Object usageLock = new Object();
 
+    private final ShardManager shardManager;
     private final PrivateRoom privateRoom;
     private final PrivateRoomQueue privateRoomQueue;
 
@@ -62,7 +62,8 @@ public class ManagedPrivateRoom {
     private final Set<Long> allowedUsers = new HashSet<>();
     private long currentChannelId = -1;
 
-    public ManagedPrivateRoom(PrivateRoom privateRoom, PrivateRoomQueue privateRoomQueue) {
+    public ManagedPrivateRoom(ShardManager shardManager, PrivateRoom privateRoom, PrivateRoomQueue privateRoomQueue) {
+        this.shardManager = shardManager;
         this.privateRoom = privateRoom;
         this.privateRoomQueue = privateRoomQueue;
     }
@@ -173,7 +174,7 @@ public class ManagedPrivateRoom {
                     List<Invite> invites = channel.retrieveInvites().complete();
                     invites.forEach(i -> i.delete().complete());
                 }
-                TextChannel tc = Launcher.getBotContext().getShardManager().getTextChannelById(this.currentChannelId);
+                TextChannel tc = shardManager.getTextChannelById(this.currentChannelId);
                 if (tc != null) {
                     tc.delete().reason("Cleaning up private guild after game ended").complete();
                 } else {
@@ -205,7 +206,6 @@ public class ManagedPrivateRoom {
     // it is an attempt to improve the occasional inconsistency of discord which makes looking up entities a gamble
     // the main feature being the non-null return contract, over the @Nullable contract of looking the entity up in JDA
     private Guild fetchThisGuild() {
-        ShardManager shardManager = Launcher.getBotContext().getShardManager();
         Guild guild = shardManager.getGuildById(this.privateRoom.getGuildId());
         int attempts = 0;
         while (guild == null) {

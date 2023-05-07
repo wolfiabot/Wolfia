@@ -61,19 +61,12 @@ public class Launcher implements ApplicationRunner {
         CollectorRegistry.defaultRegistry.clear();
     }
 
-    @SuppressWarnings("NotNullFieldNotInitialized")
-    private static BotContext botContext;
-
     private final ThreadPoolCollector poolMetrics;
     private final WolfiaConfig wolfiaConfig;
     @SuppressWarnings({"FieldCanBeLocal", "unused", "squid:S1068"}) //see EagerLoader
     private final EagerLoader eagerLoader;
     private final BotStatusLogger botStatusLogger;
     private final ShardManager shardManager;
-
-    public static BotContext getBotContext() {
-        return botContext;
-    }
 
     @SuppressWarnings("squid:S106") // printing to sout is fine here
     public static void main(String[] args) {
@@ -105,9 +98,8 @@ public class Launcher implements ApplicationRunner {
         app.run(args);
     }
 
-    public Launcher(BotContext botContext, ThreadPoolCollector poolMetrics, WolfiaConfig wolfiaConfig,
+    public Launcher(ThreadPoolCollector poolMetrics, WolfiaConfig wolfiaConfig,
                     EagerLoader eagerLoader, BotStatusLogger botStatusLogger, ShardManager shardManager) {
-        Launcher.botContext = botContext;
         this.poolMetrics = poolMetrics;
         this.wolfiaConfig = wolfiaConfig;
         this.eagerLoader = eagerLoader;

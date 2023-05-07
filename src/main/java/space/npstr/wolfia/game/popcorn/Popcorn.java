@@ -31,7 +31,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import space.npstr.wolfia.Launcher;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
@@ -42,6 +42,7 @@ import space.npstr.wolfia.domain.stats.PlayerStats;
 import space.npstr.wolfia.domain.stats.TeamStats;
 import space.npstr.wolfia.events.ReactionListener;
 import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.GameResources;
 import space.npstr.wolfia.game.GameUtils;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Actions;
@@ -77,6 +78,10 @@ public class Popcorn extends Game {
     private long dayLengthMillis = TimeUnit.MINUTES.toMillis(10); //10 minutes default
     private long dayStarted = -1;
     private long gunBearer = -1;
+
+    protected Popcorn(GameResources gameResources) {
+        super(gameResources);
+    }
 
     @Override
     public void setDayLength(Duration dayLength) {
@@ -264,7 +269,7 @@ public class Popcorn extends Game {
         this.day++;
         this.dayStarted = System.currentTimeMillis();
         this.gameStats.addAction(simpleAction(this.selfUserId, Actions.DAYSTART, -1));
-        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
+        TextChannel channel = resources.getShardManager().getTextChannelById(this.channelId);
         if (channel != null) { //todo handle properly
             RestActions.sendMessage(channel, getStatus().build());
             RestActions.sendMessage(channel, String.format("Day %s started! %s, you have %s minutes to shoot someone.",
@@ -347,7 +352,7 @@ public class Popcorn extends Game {
     // can be called for debugging
     @SuppressWarnings("unused")
     public void evalShoot(String shooterId, String targetId) throws IllegalGameStateException {
-        if (!Launcher.getBotContext().getWolfiaConfig().isDebug()) {
+        if (!resources.getWolfiaConfig().isDebug()) {
             log.error("Cant eval shoot outside of DEBUG mode");
             return;
         }
@@ -482,7 +487,11 @@ public class Popcorn extends Game {
                             prepareGunDistributionEmbed(options, new HashMap<>(this.votes)).build(),
                             m -> {
                                 options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, RestActions.defaultOnFail()));
-                                requireNonNull(m.getJDA().getShardManager()).addEventListener(new ReactionListener(m,
+                                ShardManager shardManager = requireNonNull(m.getJDA().getShardManager());
+                                shardManager.addEventListener(new ReactionListener(
+                                        shardManager,
+                                        resources.getExecutor(),
+                                        m,
                                         //filter: only living wolves may vote
                                         Popcorn.this::isLivingWolf,
                                         //on reaction

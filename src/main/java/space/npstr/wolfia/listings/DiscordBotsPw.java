@@ -23,14 +23,15 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import org.json.JSONObject;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Launcher;
+import space.npstr.wolfia.config.properties.ListingsConfig;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 public class DiscordBotsPw extends Listing {
 
     //https://bots.discord.pw
     //api docs: https://bots.discord.pw/api
-    public DiscordBotsPw(OkHttpClient httpClient) {
-        super("bots.discord.pw", httpClient);
+    public DiscordBotsPw(OkHttpClient httpClient, WolfiaConfig wolfiaConfig, ListingsConfig listingsConfig) {
+        super("bots.discord.pw", httpClient, wolfiaConfig, listingsConfig);
     }
 
     @Override
@@ -48,13 +49,13 @@ public class DiscordBotsPw extends Listing {
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
                 .url(String.format("https://bots.discord.pw/api/bots/%s/stats", botId))
-                .addHeader("Authorization", Launcher.getBotContext().getListingsConfig().getBotsPwToken())
+                .addHeader("Authorization", listingsConfig.getBotsPwToken())
                 .post(body);
     }
 
     @Override
     protected boolean isConfigured() {
-        String botsPwToken = Launcher.getBotContext().getListingsConfig().getBotsPwToken();
+        String botsPwToken = listingsConfig.getBotsPwToken();
         return botsPwToken != null && !botsPwToken.isEmpty();
     }
 }

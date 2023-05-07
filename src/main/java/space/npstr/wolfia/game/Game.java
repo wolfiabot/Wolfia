@@ -42,7 +42,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.App;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.util.InviteCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
@@ -87,6 +86,8 @@ public abstract class Game {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Game.class);
 
+    protected final GameResources resources;
+
     //to be used to execute tasks for each game
     //each task scheduled on it needs to check of the game is still running once it continues execution to avoid race
     //conditions in games ending outside of main loop (shots, bombs, forced destroy by bot admin, etc)
@@ -109,8 +110,9 @@ public abstract class Game {
     protected final Map<Long, PlayerStats> playersStats = new HashMap<>();
     protected final AtomicInteger actionOrder = new AtomicInteger();
 
-    protected Game() {
-        this.selfUserId = Launcher.getBotContext().getShardManager().getShards().stream().findAny()
+    protected Game(GameResources gameResources) {
+        this.resources = gameResources;
+        this.selfUserId = resources.getShardManager().getShards().stream().findAny()
                 .map(shard -> shard.getSelfUser().getIdLong())
                 .orElseThrow();
     }
@@ -341,7 +343,7 @@ public abstract class Game {
         if (this.running) {
             throw new IllegalStateException("Cannot start a game that is running already");
         }
-        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
+        TextChannel channel = resources.getShardManager().getTextChannelById(channelId);
         if (channelId <= 0 || channel == null) {
             throw new IllegalArgumentException(String.format(
                     "Cannot start a game with invalid/no channel (channelId: %s) set.", channelId)
@@ -397,7 +399,7 @@ public abstract class Game {
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
-                this.accessRoleId = Launcher.getBotContext().getChannelSettingsService()
+                this.accessRoleId = resources.getChannelSettingsService()
                         .channel(this.channelId).getOrDefault().getAccessRoleId().orElse(0L);
                 Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
@@ -465,13 +467,13 @@ public abstract class Game {
         int i = 0;
         for (Charakter c : charakterSetup.getRandedCharakters()) {
             long randedUserId = rand.get(i);
-            this.players.add(new Player(randedUserId, this.channelId, this.guildId, c.alignment, c.role, i + 1));
+            this.players.add(new Player(resources, randedUserId, this.channelId, this.guildId, c.alignment, c.role, i + 1));
             i++;
         }
     }
 
     protected ManagedPrivateRoom allocatePrivateRoom() {
-        PrivateRoomQueue privateRoomQueue = Launcher.getBotContext().getPrivateRoomQueue();
+        PrivateRoomQueue privateRoomQueue = resources.getPrivateRoomQueue();
         return privateRoomQueue.poll()
                 .orElseGet(() -> {
                     RestActions.sendMessage(fetchGameChannel(),
@@ -517,7 +519,7 @@ public abstract class Game {
     //revert whatever prepareChannel() did in reverse order
     public void resetRolesAndPermissions(boolean... complete) {
 
-        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
+        TextChannel channel = resources.getShardManager().getTextChannelById(this.channelId);
         if (channel == null) {
             //we probably left the guild
             log.warn("Could not find channel {} to reset roles and permissions in there", this.channelId);
@@ -597,8 +599,8 @@ public abstract class Game {
             log.error(logMessage, reason);
         }
         cleanUp();
-        Launcher.getBotContext().getGameRegistry().remove(this);
-        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
+        resources.getGameRegistry().remove(this);
+        TextChannel channel = resources.getShardManager().getTextChannelById(this.channelId);
         if (channel != null) {
             RestActions.sendMessage(channel,
                     String.format("Game has been stopped due to:"
@@ -667,7 +669,7 @@ public abstract class Game {
                     .labels(this.gameStats.getGameType().name(), this.gameStats.getGameMode().name())
                     .inc();
             try {
-                this.gameStats = Launcher.getBotContext().getStatsService().recordGameStats(this.gameStats);
+                this.gameStats = resources.getStatsService().recordGameStats(this.gameStats);
 
                 long gameId = this.gameStats.getGameId().orElseThrow();
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
@@ -686,10 +688,10 @@ public abstract class Game {
             // removing the game from the registry has to be the very last statement, since if a restart is queued, it
             // waits for an empty games registry
             RestActions.sendMessage(fetchGameChannel(), out,
-                    ignoredMessage -> Launcher.getBotContext().getGameRegistry().remove(this),
+                    ignoredMessage -> resources.getGameRegistry().remove(this),
                     throwable -> {
                         log.error("Failed to send last message of game #{}", gameId, throwable);
-                        Launcher.getBotContext().getGameRegistry().remove(this);
+                        resources.getGameRegistry().remove(this);
                     });
             return true;
         }
@@ -716,7 +718,7 @@ public abstract class Game {
     }
 
     protected void addToBaddieGuild(Player player) {
-        OAuth2Service oAuth2Service = Launcher.getBotContext().getoAuth2Service();
+        OAuth2Service oAuth2Service = resources.getoAuth2Service();
 
         String accessToken = oAuth2Service.getAccessTokenForScope(player.getUserId(), OAuth2Scope.GUILD_JOIN);
         if (accessToken != null) {
@@ -785,8 +787,8 @@ public abstract class Game {
     //this method assumes that the id itself is legit and not a mistake
     // it is an attempt to improve the occasional inconsistency of discord which makes looking up entities a gamble
     // the main feature being the non-null return contract, over the @Nullable contract of looking the entity up in JDA
-    private static TextChannel fetchTextChannel(long channelId) {
-        ShardManager shardManager = Launcher.getBotContext().getShardManager();
+    private TextChannel fetchTextChannel(long channelId) {
+        ShardManager shardManager = resources.getShardManager();
         TextChannel tc = shardManager.getTextChannelById(channelId);
         int attempts = 0;
         while (tc == null) {

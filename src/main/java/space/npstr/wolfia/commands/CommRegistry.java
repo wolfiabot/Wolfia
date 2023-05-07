@@ -22,6 +22,7 @@ import java.util.List;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.util.HelpCommand;
+import space.npstr.wolfia.config.properties.WolfiaConfig;
 
 @Component
 public class CommRegistry {
@@ -30,9 +31,9 @@ public class CommRegistry {
 
     private final List<BaseCommand> commands = new ArrayList<>();
 
-    public CommRegistry(List<BaseCommand> comms) {
+    public CommRegistry(List<BaseCommand> comms, WolfiaConfig wolfiaConfig) {
         comms.forEach(this::registerCommand);
-        registerCommand(new HelpCommand(this));
+        registerCommand(new HelpCommand(this, wolfiaConfig));
     }
 
     @Nullable

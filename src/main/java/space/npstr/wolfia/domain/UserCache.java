@@ -24,7 +24,6 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.common.Exceptions;
 
 /**
@@ -35,25 +34,33 @@ public class UserCache {
 
     private static final String UNKNOWN_USER_NAME = "Unknown User";
 
+    private final ShardManager shardManager;
+
+    public UserCache(ShardManager shardManager) {
+        this.shardManager = shardManager;
+    }
+
     public Action user(long userId) {
-        return new Action(userId);
+        return new Action(userId, shardManager);
     }
 
     public static class Action {
 
         private final long userId;
+        private final ShardManager shardManager;
 
-        private Action(long userId) {
+        private Action(long userId, ShardManager shardManager) {
             this.userId = userId;
+            this.shardManager = shardManager;
         }
 
         public Optional<User> get() {
-            User user = getShardManager().getUserById(this.userId);
+            User user = shardManager.getUserById(this.userId);
             if (user != null) {
                 return Optional.of(user);
             }
 
-            return getShardManager().retrieveUserById(this.userId).submit()
+            return shardManager.retrieveUserById(this.userId).submit()
                     .handle((u, throwable) -> {
                         if (throwable != null) {
                             Throwable realCause = Exceptions.unwrap(throwable);
@@ -78,7 +85,7 @@ public class UserCache {
         }
 
         public String getEffectiveName(long guildId) {
-            Guild guild = getShardManager().getGuildById(guildId);
+            Guild guild = shardManager.getGuildById(guildId);
             if (guild != null) {
                 Member member = guild.getMemberById(this.userId);
                 if (member != null) {
@@ -90,7 +97,7 @@ public class UserCache {
         }
 
         public Optional<String> getNick(long guildId) {
-            Guild guild = getShardManager().getGuildById(guildId);
+            Guild guild = shardManager.getGuildById(guildId);
             if (guild != null) {
                 Member member = guild.getMemberById(this.userId);
                 if (member != null) {
@@ -101,9 +108,5 @@ public class UserCache {
             return Optional.empty();
         }
 
-        // avoid circular bean dependency for now
-        private ShardManager getShardManager() {
-            return Launcher.getBotContext().getShardManager();
-        }
     }
 }

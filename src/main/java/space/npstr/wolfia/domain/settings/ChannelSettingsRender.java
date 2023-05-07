@@ -22,17 +22,23 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.MessageContext;
 
 @Component
 public class ChannelSettingsRender {
 
+    private final ShardManager shardManager;
+
+    public ChannelSettingsRender(ShardManager shardManager) {
+        this.shardManager = shardManager;
+    }
+
     public MessageEmbed render(ChannelSettings settings) {
-         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
+        EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         long channelId = settings.getChannelId();
-        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
+        TextChannel channel = shardManager.getTextChannelById(channelId);
         if (channel == null) {
             eb.addField("Could not find channel with id " + channelId, "", false);
             return eb.build();

@@ -24,8 +24,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import org.springframework.lang.Nullable;
-import space.npstr.wolfia.Launcher;
-import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Item;
 import space.npstr.wolfia.game.definitions.Roles;
@@ -44,6 +42,7 @@ public class Player {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Player.class);
 
+    private final GameResources resources;
     public final long userId;
     public final long channelId;
     public final long guildId; //guild where the game is running in
@@ -56,8 +55,9 @@ public class Player {
     private String rolePm = "This player has no role pm.";
     private boolean isAlive = true;
 
-    public Player(long userId, long channelId, long guildId, Alignments alignment,
+    public Player(GameResources resources, long userId, long channelId, long guildId, Alignments alignment,
                   Roles role, int number) {
+        this.resources = resources;
         this.userId = userId;
         this.channelId = channelId;
         this.guildId = guildId;
@@ -104,7 +104,7 @@ public class Player {
      */
     public String getName() {
         try {
-            return Launcher.getBotContext().getUserCache().user(this.userId).getName();
+            return resources.getUserCache().user(this.userId).getName();
         } catch (Exception e) {
             log.warn("Failed to fetch user {} name", this.userId, e);
             return UNKNOWN_NAME;
@@ -117,7 +117,7 @@ public class Player {
      */
     public String getNick() {
         try {
-            return Launcher.getBotContext().getUserCache().user(this.userId).getEffectiveName(this.guildId);
+            return resources.getUserCache().user(this.userId).getEffectiveName(this.guildId);
         } catch (Exception e) {
             log.warn("Failed to fetch user {} nick", this.userId, e);
             return UNKNOWN_NAME;
@@ -133,9 +133,8 @@ public class Player {
         String name = UNKNOWN_NAME;
         String nick = UNKNOWN_NAME;
         try {
-            UserCache userCache = Launcher.getBotContext().getUserCache();
-            name = userCache.user(this.userId).getName();
-            nick = userCache.user(this.userId).getNick(this.guildId).orElse(null);
+            name = resources.getUserCache().user(this.userId).getName();
+            nick = resources.getUserCache().user(this.userId).getNick(this.guildId).orElse(null);
         } catch (Exception e) {
             log.warn("Failed to fetch user {} name and nick", this.userId, e);
         }
@@ -200,8 +199,7 @@ public class Player {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Player)) return false;
-        Player other = (Player) obj;
+        if (!(obj instanceof Player other)) return false;
         return this.userId == other.userId && this.channelId == other.channelId;
     }
 
@@ -218,7 +216,7 @@ public class Player {
      * if the user is not present in the bot
      */
     public void sendMessage(Message message, Consumer<Throwable> onFail) {
-        User user = Launcher.getBotContext().getShardManager().getUserById(this.userId);
+        User user = resources.getShardManager().getUserById(this.userId);
         if (user != null) {
             RestActions.sendPrivateMessage(user, message, null, onFail);
         } else {

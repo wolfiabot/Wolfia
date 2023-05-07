@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Collectors;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -35,13 +35,16 @@ public class PrivateRoomQueue {
 
     private static final Logger log = LoggerFactory.getLogger(PrivateRoomQueue.class);
 
+    private final ShardManager shardManager;
+
     private final List<ManagedPrivateRoom> allManagedRooms = new ArrayList<>();
     private final LinkedBlockingQueue<ManagedPrivateRoom> availablePrivateRoomQueue = new LinkedBlockingQueue<>();
 
-    public PrivateRoomQueue(PrivateRoomService privateRoomService) {
+    public PrivateRoomQueue(ShardManager shardManager, PrivateRoomService privateRoomService) {
+        this.shardManager = shardManager;
         List<ManagedPrivateRoom> privateRooms = privateRoomService.findAll().stream()
-                .map(pr -> new ManagedPrivateRoom(pr, this))
-                .collect(Collectors.toList());
+                .map(pr -> new ManagedPrivateRoom(shardManager, pr, this))
+                .toList();
         log.info("{} private rooms loaded", privateRooms.size());
         this.allManagedRooms.addAll(privateRooms);
         this.availablePrivateRoomQueue.addAll(privateRooms);
@@ -96,7 +99,7 @@ public class PrivateRoomQueue {
     }
 
     public ManagedPrivateRoom add(PrivateRoom privateRoom) {
-        ManagedPrivateRoom managedPrivateRoom = new ManagedPrivateRoom(privateRoom, this);
+        ManagedPrivateRoom managedPrivateRoom = new ManagedPrivateRoom(shardManager, privateRoom, this);
         this.allManagedRooms.add(managedPrivateRoom);
         this.availablePrivateRoomQueue.add(managedPrivateRoom);
         MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());

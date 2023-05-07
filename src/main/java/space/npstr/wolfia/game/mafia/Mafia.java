@@ -57,6 +57,7 @@ import space.npstr.wolfia.domain.stats.TeamStats;
 import space.npstr.wolfia.events.UpdatingReactionListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
+import space.npstr.wolfia.game.GameResources;
 import space.npstr.wolfia.game.GameUtils;
 import space.npstr.wolfia.game.Player;
 import space.npstr.wolfia.game.definitions.Actions;
@@ -113,6 +114,10 @@ public class Mafia extends Game {
             .header("Night ends in **%timeleft**.")
             .notes(String.format("**Use `%s` to cast a vote on a player.**"
                     + "%nOnly your last vote will be counted.", WolfiaConfig.DEFAULT_PREFIX + NightkillCommand.TRIGGER));
+
+    protected Mafia(GameResources gameResources) {
+        super(gameResources);
+    }
 
     @Override
     public void setDayLength(Duration dayLength) {
@@ -723,6 +728,7 @@ public class Mafia extends Game {
         String basic = "Night falls...\n";
         RestActions.sendMessage(fetchGameChannel(), basic + nightTimeLeft(),
                 m -> new PeriodicTimer(
+                        resources.getExecutor(),
                         TimeUnit.SECONDS.toMillis(5),
                         onUpdate -> RestActions.editMessage(m, basic + nightTimeLeft()),
                         this.phaseStarted + this.nightLengthMillis - System.currentTimeMillis(),
@@ -757,7 +763,10 @@ public class Mafia extends Game {
         RestActions.sendMessage(wolfchatChannel, "Nightkill voting!\n" + String.join(", ", getLivingWolvesMentions()),
                 m -> RestActions.sendMessage(wolfchatChannel, this.nightKillVotingBuilder.getEmbed(this.nightkillVotes).build(), message -> {
                     ShardManager shardManager = requireNonNull(message.getJDA().getShardManager());
-                    shardManager.addEventListener(new UpdatingReactionListener(message,
+                    shardManager.addEventListener(new UpdatingReactionListener(
+                            shardManager,
+                            resources.getExecutor(),
+                            message,
                             this::isLivingWolf,
                             __ -> {
                             },//todo move away from using a reaction listener
