@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,18 +17,17 @@
 
 package space.npstr.wolfia.system.togglz;
 
-import org.togglz.core.Feature;
-import org.togglz.core.repository.FeatureState;
-import org.togglz.core.repository.StateRepository;
-import org.togglz.core.repository.cache.CachingStateRepository;
-
-import org.springframework.lang.Nullable;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import org.springframework.lang.Nullable;
+import org.togglz.core.Feature;
+import org.togglz.core.repository.FeatureState;
+import org.togglz.core.repository.StateRepository;
+import org.togglz.core.repository.cache.CachingStateRepository;
 
 /**
  * Copy pasta of {@link CachingStateRepository} with a more tolerant approach

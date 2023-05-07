@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,14 +17,13 @@
 
 package space.npstr.wolfia.system.togglz;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import javax.sql.DataSource;
 import org.postgresql.PGConnection;
 import org.postgresql.jdbc.AutoSave;
 import org.togglz.core.repository.jdbc.JDBCStateRepository;
 import space.npstr.wolfia.common.Exceptions;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Make the {@link JDBCStateRepository} work with Postgres which might be anal about a query failing

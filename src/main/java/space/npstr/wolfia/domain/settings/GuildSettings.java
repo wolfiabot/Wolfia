@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 the original author or authors
+ * Copyright (C) 2016-2023 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,9 +17,9 @@
 
 package space.npstr.wolfia.domain.settings;
 
-import org.springframework.lang.Nullable;
 import java.beans.ConstructorProperties;
 import java.util.Optional;
+import org.springframework.lang.Nullable;
 
 public class GuildSettings {
 
