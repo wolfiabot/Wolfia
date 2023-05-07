@@ -196,8 +196,7 @@ public class CommandHandler {
             context.reply("There was a problem executing your command:\n" + e.getMessage());
         } catch (IllegalGameStateException e) {
             context.reply(e.getMessage());
-        } catch (
-                DataAccessException e) { //currently unreachable since db access is async, so a CompletionException would be thrown instead
+        } catch (DataAccessException e) {
             log.error("Db blew up while handling command", e);
             context.reply("The database is not available currently. Please try again later. Sorry for the inconvenience!");
         } catch (Exception e) {

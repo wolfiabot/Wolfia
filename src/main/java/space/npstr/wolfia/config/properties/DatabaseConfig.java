@@ -25,7 +25,6 @@ import org.springframework.stereotype.Component;
 public class DatabaseConfig {
 
     private String jdbcUrl = "";
-    private int asyncPoolSize = Runtime.getRuntime().availableProcessors() * 4;
 
     public String getJdbcUrl() {
         return jdbcUrl;
@@ -35,11 +34,4 @@ public class DatabaseConfig {
         this.jdbcUrl = jdbcUrl;
     }
 
-    public int getAsyncPoolSize() {
-        return asyncPoolSize;
-    }
-
-    public void setAsyncPoolSize(int asyncPoolSize) {
-        this.asyncPoolSize = asyncPoolSize;
-    }
 }

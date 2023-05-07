@@ -26,10 +26,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 
-/**
- * Possible improvement: Running the database writes async, as during reloads of shards there can be quite a few
- * ready events happening.
- */
 @Component
 public class GuildCacheListener {
 
