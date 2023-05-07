@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongConsumer;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -80,7 +79,7 @@ public class Popcorn extends Game {
     private long gunBearer = -1;
 
     @Override
-    public void setDayLength(final Duration dayLength) {
+    public void setDayLength(Duration dayLength) {
         if (this.running) {
             throw new IllegalStateException("Cannot change day length externally while the game is running");
         }
@@ -90,28 +89,28 @@ public class Popcorn extends Game {
 
     @Override
     public EmbedBuilder getStatus() {
-        final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
+        NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
         neb.addField("Game", Games.POPCORN.textRep + " " + this.mode.textRep, true);
         if (!this.running) {
             neb.addField("", "**Game is not running**", false);
             return neb;
         }
         neb.addField("Day", Integer.toString(this.day), true);
-        final long timeLeft = this.dayStarted + this.dayLengthMillis - System.currentTimeMillis();
+        long timeLeft = this.dayStarted + this.dayLengthMillis - System.currentTimeMillis();
         neb.addField("Time left", TextchatUtils.formatMillis(timeLeft), true);
 
-        final NiceEmbedBuilder.ChunkingField living = new NiceEmbedBuilder.ChunkingField("Living Players", true);
+        NiceEmbedBuilder.ChunkingField living = new NiceEmbedBuilder.ChunkingField("Living Players", true);
         getLivingPlayers().forEach(p -> living.add(p.numberAsEmojis() + " " + p.bothNamesFormatted(), true));
         neb.addField(living);
 
-        final StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         getLivingWolves().forEach(w -> sb.append(Emojis.WOLF));
         neb.addField("Living wolves", sb.toString(), true);
 
         String gunHolder = "Unknown " + Emojis.WOLFTHINK;
         try {
             gunHolder = getPlayer(this.gunBearer).bothNamesFormatted();
-        } catch (final IllegalGameStateException ignored) {
+        } catch (IllegalGameStateException ignored) {
             // ignored
         }
         neb.addField(Emojis.GUN + " holder", gunHolder, true);
@@ -133,10 +132,10 @@ public class Popcorn extends Game {
     }
 
     @Override
-    public synchronized void start(final long channelId, final GameMode mode, final Set<Long> innedPlayers) {
+    public synchronized void start(long channelId, GameMode mode, Set<Long> innedPlayers) {
         try {//wrap into our own exceptions
             doArgumentChecksAndSet(channelId, mode, innedPlayers);
-        } catch (final IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new UserFriendlyException(e.getMessage(), e);
         }
 
@@ -154,20 +153,20 @@ public class Popcorn extends Game {
             this.wolfChat.beginUsage(getWolvesIds());
         }
 
-        final TextChannel gameChannel = fetchGameChannel();
+        TextChannel gameChannel = fetchGameChannel();
         //inform each player about his role
-        final String inviteLink = TextchatUtils.getOrCreateInviteLinkForChannel(gameChannel);
-        final String wolfchatInvite = this.wolfChat != null ? "Wolfchat: " + this.wolfChat.getInvite() + "\n" : "";
-        final StringBuilder wolfteamNames = new StringBuilder("Your team is:\n");
-        final String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s%n", //invite that may be empty
+        String inviteLink = TextchatUtils.getOrCreateInviteLinkForChannel(gameChannel);
+        String wolfchatInvite = this.wolfChat != null ? "Wolfchat: " + this.wolfChat.getInvite() + "\n" : "";
+        StringBuilder wolfteamNames = new StringBuilder("Your team is:\n");
+        String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s%n", //invite that may be empty
                 gameChannel.getGuild().getName(), gameChannel.getName(), inviteLink);
 
-        for (final Player player : this.getWolves()) {
+        for (Player player : this.getWolves()) {
             wolfteamNames.append(player.bothNamesFormatted()).append("\n");
         }
 
-        for (final Player player : this.players) {
-            final StringBuilder rolePm = new StringBuilder()
+        for (Player player : this.players) {
+            StringBuilder rolePm = new StringBuilder()
                     .append("Hi ").append(player.getName()).append("!\n")
                     .append(player.alignment.rolePmBlockWW).append("\n");
             if (player.isGoodie()) {
@@ -192,22 +191,22 @@ public class Popcorn extends Game {
             );
         }
 
-        final Guild g = gameChannel.getGuild();
+        Guild g = gameChannel.getGuild();
         //set up stats objects
         this.gameStats = new GameStats(g.getIdLong(), g.getName(), this.channelId, gameChannel.getName(),
                 Games.POPCORN, this.mode, this.players.size());
-        final Map<Alignments, TeamStats> teams = new EnumMap<>(Alignments.class);
-        for (final Player player : this.players) {
-            final Alignments alignment = player.alignment;
-            final TeamStats team = teams.getOrDefault(alignment,
+        Map<Alignments, TeamStats> teams = new EnumMap<>(Alignments.class);
+        for (Player player : this.players) {
+            Alignments alignment = player.alignment;
+            TeamStats team = teams.getOrDefault(alignment,
                     new TeamStats(this.gameStats, alignment, alignment.textRepWW, -1));
-            final PlayerStats ps = new PlayerStats(team, player.userId,
+            PlayerStats ps = new PlayerStats(team, player.userId,
                     player.getNick(), alignment, player.role);
             this.playersStats.put(player.userId, ps);
             team.addPlayer(ps);
             teams.put(alignment, team);
         }
-        for (final TeamStats team : teams.values()) {
+        for (TeamStats team : teams.values()) {
             team.setTeamSize(team.getPlayers().size());
             this.gameStats.addTeam(team);
         }
@@ -226,11 +225,11 @@ public class Popcorn extends Game {
     }
 
     @Override
-    public boolean issueCommand(@NonNull final CommandContext context)
+    public boolean issueCommand(CommandContext context)
             throws IllegalGameStateException {
         if (context.command instanceof ShootCommand) {
-            final long shooter = context.invoker.getIdLong();
-            final Player target = GameUtils.identifyPlayer(this.players, context);
+            long shooter = context.invoker.getIdLong();
+            Player target = GameUtils.identifyPlayer(this.players, context);
             if (target == null) return false;
             return shoot(shooter, target.userId);
         } else {
@@ -240,12 +239,12 @@ public class Popcorn extends Game {
     }
 
     private void distributeGun() {
-        final TextChannel gameChannel = fetchGameChannel();
+        TextChannel gameChannel = fetchGameChannel();
         if (this.mode == GameMode.WILD) { //essentially a rand
             RestActions.sendMessage(gameChannel, "Randing the " + Emojis.GUN);
             giveGun(GameUtils.rand(getLivingVillage()).userId);
         } else { //lets wolves do it
-            for (final Player player : getLivingPlayers()) {
+            for (Player player : getLivingPlayers()) {
                 RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(player.userId),
                         Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue(null, RestActions.defaultOnFail());
             }
@@ -253,7 +252,7 @@ public class Popcorn extends Game {
         }
     }
 
-    private void giveGun(final long userId) {
+    private void giveGun(long userId) {
         this.gunBearer = userId;
         this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GIVEGUN, userId));
         RestActions.sendMessage(fetchGameChannel(), String.format("%s has received the %s !",
@@ -265,28 +264,28 @@ public class Popcorn extends Game {
         this.day++;
         this.dayStarted = System.currentTimeMillis();
         this.gameStats.addAction(simpleAction(this.selfUserId, Actions.DAYSTART, -1));
-        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
+        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
         if (channel != null) { //todo handle properly
             RestActions.sendMessage(channel, getStatus().build());
             RestActions.sendMessage(channel, String.format("Day %s started! %s, you have %s minutes to shoot someone.",
                     this.day, TextchatUtils.userAsMention(this.gunBearer), this.dayLengthMillis / 60000));
 
             if (this.mode != GameMode.WILD) {
-                for (final Player player : getLivingPlayers()) {
+                for (Player player : getLivingPlayers()) {
                     RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
                             Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
                 }
             }
         }
 
-        final Thread t = new Thread(new PopcornTimer(this.day, this),
+        Thread t = new Thread(new PopcornTimer(this.day, this),
                 "timer-popcorngame-" + this.day + "-" + this.channelId);
         this.timers.add(t);
         t.start();
     }
 
-    private void endDay(final DayEndReason reason, final long toBeKilled, final long survivor,
-                        final Operation doIfLegal) throws DayEndedAlreadyException {
+    private void endDay(DayEndReason reason, long toBeKilled, long survivor,
+                        Operation doIfLegal) throws DayEndedAlreadyException {
         synchronized (this.hasDayEnded) {
             //check if this is a valid call
             if (this.hasDayEnded.contains(this.day)) {
@@ -297,24 +296,24 @@ public class Popcorn extends Game {
         //an operation that shall only be run if the call to endDay() does not cause an DayEndedAlreadyException
         doIfLegal.execute();
 
-        final Player killed;
+        Player killed;
         try {
             killed = getPlayer(toBeKilled);
             killed.kill();
-        } catch (final IllegalGameStateException e) {
+        } catch (IllegalGameStateException e) {
             //should not happen, but if it does, kill the game
             this.destroy(e);
             return;
         }
         this.gameStats.addAction(simpleAction(survivor, Actions.DEATH, toBeKilled));
-        final TextChannel gameChannel = fetchGameChannel();
-        final Guild g = gameChannel.getGuild();
+        TextChannel gameChannel = fetchGameChannel();
+        Guild g = gameChannel.getGuild();
 
         this.gameStats.addAction(simpleAction(this.selfUserId, Actions.DAYEND, -1));
         RestActions.sendMessage(gameChannel, String.format("Day %s has ended!", this.day));
 
         //an operation that shall be run if the game isn't over; doing this so we can ge the output from he below if construct sent
-        final LongConsumer doIfGameIsntOver;
+        LongConsumer doIfGameIsntOver;
         if (reason == DayEndReason.TIMER) {
             RestActions.sendMessage(gameChannel, String.format(
                     "%s took too long to decide who to shoot! They died and the %s will be redistributed.",
@@ -347,7 +346,7 @@ public class Popcorn extends Game {
 
     // can be called for debugging
     @SuppressWarnings("unused")
-    public void evalShoot(final String shooterId, final String targetId) throws IllegalGameStateException {
+    public void evalShoot(String shooterId, String targetId) throws IllegalGameStateException {
         if (!Launcher.getBotContext().getWolfiaConfig().isDebug()) {
             log.error("Cant eval shoot outside of DEBUG mode");
             return;
@@ -355,8 +354,8 @@ public class Popcorn extends Game {
         shoot(Long.parseLong(shooterId), Long.parseLong(targetId));
     }
 
-    private boolean shoot(final long shooterId, final long targetId) throws IllegalGameStateException {
-        final TextChannel gameChannel = fetchGameChannel();
+    private boolean shoot(long shooterId, long targetId) throws IllegalGameStateException {
+        TextChannel gameChannel = fetchGameChannel();
         //check various conditions for the shot being legal
         if (targetId == this.selfUserId) {
             RestActions.sendMessage(gameChannel, String.format("%s lol can't %s me.",
@@ -388,17 +387,17 @@ public class Popcorn extends Game {
 
 
         //itshappening.gif
-        final Player target = getPlayer(targetId);
+        Player target = getPlayer(targetId);
 
         try {
-            final Operation doIfLegal = () -> this.gameStats.addAction(simpleAction(shooterId, Actions.SHOOT, targetId));
+            Operation doIfLegal = () -> this.gameStats.addAction(simpleAction(shooterId, Actions.SHOOT, targetId));
             if (target.isBaddie()) {
                 endDay(DayEndReason.SHAT, targetId, shooterId, doIfLegal);
             } else {
                 endDay(DayEndReason.SHAT, shooterId, targetId, doIfLegal);
             }
             return true;
-        } catch (final DayEndedAlreadyException e) {
+        } catch (DayEndedAlreadyException e) {
             RestActions.sendMessage(gameChannel, "Too late! Time has run out.");
             return false;
         }
@@ -406,8 +405,8 @@ public class Popcorn extends Game {
 
     //simplifies the giant constructor of an action by providing it with game/mode specific defaults
     @Override
-    protected ActionStats simpleAction(final long actor, final Actions action, final long target) {
-        final long now = System.currentTimeMillis();
+    protected ActionStats simpleAction(long actor, Actions action, long target) {
+        long now = System.currentTimeMillis();
         return new ActionStats(this.gameStats, this.actionOrder.incrementAndGet(),
                 now, now, this.day, Phase.DAY, actor, action, target, null);
     }
@@ -418,7 +417,7 @@ public class Popcorn extends Game {
         protected final int day;
         protected final Popcorn game;
 
-        public PopcornTimer(final int day, final Popcorn game) {
+        public PopcornTimer(int day, Popcorn game) {
             this.day = day;
             this.game = game;
         }
@@ -427,7 +426,7 @@ public class Popcorn extends Game {
         public void run() {
             try {
                 //if the day is longer than one minute, remind the gunholder about the time running out with 1 minute left
-                final long oneMinute = TimeUnit.MINUTES.toMillis(1);
+                long oneMinute = TimeUnit.MINUTES.toMillis(1);
                 if (this.game.dayLengthMillis > oneMinute) {
                     Thread.sleep(this.game.dayLengthMillis - oneMinute);
                     if (this.day != this.game.day) return;
@@ -445,15 +444,15 @@ public class Popcorn extends Game {
                 // because it may result in this PopcornTimer getting canceled in case it ends the game
                 Popcorn.this.executor.execute(() -> {
                             try {
-                                final Operation ifLegal = () -> Popcorn.this.gameStats.addAction(simpleAction(
+                                Operation ifLegal = () -> Popcorn.this.gameStats.addAction(simpleAction(
                                         Popcorn.this.selfUserId, Actions.MODKILL, this.game.gunBearer));
                                 this.game.endDay(DayEndReason.TIMER, this.game.gunBearer, -1, ifLegal);
-                            } catch (final DayEndedAlreadyException ignored) {
+                            } catch (DayEndedAlreadyException ignored) {
                                 // ignored
                             }
                         }
                 );
-            } catch (final InterruptedException e) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
@@ -475,8 +474,8 @@ public class Popcorn extends Game {
                     "Wolves are distributing the %s! Please stand by, this may take up to %s",
                     Emojis.GUN, TextchatUtils.formatMillis(TIME_TO_DISTRIBUTE_GUN_MILLIS)));
             this.done = false;
-            final TextChannel wolfchatChannel = Popcorn.this.fetchBaddieChannel();
-            final Map<String, Player> options = GameUtils.mapToStrings(getLivingVillage(), Emojis.LETTERS);
+            TextChannel wolfchatChannel = Popcorn.this.fetchBaddieChannel();
+            Map<String, Player> options = GameUtils.mapToStrings(getLivingVillage(), Emojis.LETTERS);
 
             RestActions.sendMessage(wolfchatChannel, "Gun distribution!\n" + String.join(", ", getLivingWolvesMentions()),
                     __ -> RestActions.sendMessage(wolfchatChannel,
@@ -488,7 +487,7 @@ public class Popcorn extends Game {
                                         Popcorn.this::isLivingWolf,
                                         //on reaction
                                         reactionEvent -> {
-                                            final Player p = options.get(reactionEvent.getReaction().getReactionEmote().getName());
+                                            Player p = options.get(reactionEvent.getReaction().getReactionEmote().getName());
                                             if (p == null) return;
                                             voted(reactionEvent.getUser().getIdLong(), p.userId);
                                             RestActions.editMessage(m, prepareGunDistributionEmbed(options,
@@ -503,7 +502,7 @@ public class Popcorn extends Game {
         }
 
         //synchronized because it modifies the votes map
-        private synchronized void voted(final long voter, final long candidate) {
+        private synchronized void voted(long voter, long candidate) {
             log.info("PrivateGuild #{}: user {} voted for user {}",
                     Popcorn.this.wolfChat.getNumber(), voter, candidate);
             this.votes.remove(voter);//remove first so there is an order by earliest vote (reinserting would not put the new vote to the end)
@@ -515,8 +514,8 @@ public class Popcorn extends Game {
         }
 
         //synchronized because there is only one distribution allowed to happen
-        private synchronized void endDistribution(final Map<Long, Long> votesCopy,
-                                                  final GunDistributionEndReason reason) {
+        private synchronized void endDistribution(Map<Long, Long> votesCopy,
+                                                  GunDistributionEndReason reason) {
             if (this.done) {
                 //ignore
                 return;
@@ -527,7 +526,7 @@ public class Popcorn extends Game {
             votesCopy.forEach((voter, candidate) ->
                     Popcorn.this.gameStats.addAction(simpleAction(voter, Actions.VOTEGUN, candidate)));
 
-            final long getsGun = GameUtils.rand(GameUtils.mostVoted(votesCopy, getLivingVillageIds()));
+            long getsGun = GameUtils.rand(GameUtils.mostVoted(votesCopy, getLivingVillageIds()));
             String out = "";
             if (reason == GunDistributionEndReason.TIMER) {
                 out = "Time ran out!";
@@ -537,7 +536,7 @@ public class Popcorn extends Game {
             String playerName = "Player Not Found";
             try {
                 playerName = getPlayer(getsGun).bothNamesFormatted();
-            } catch (final IllegalGameStateException ignored) {
+            } catch (IllegalGameStateException ignored) {
                 // ignored
             }
             RestActions.sendMessage(fetchBaddieChannel(), //provided invite link may be empty
@@ -548,19 +547,19 @@ public class Popcorn extends Game {
             Popcorn.this.scheduleIfGameStillRuns(() -> giveGun(getsGun), Duration.ofSeconds(10));
         }
 
-        private EmbedBuilder prepareGunDistributionEmbed(final Map<String, Player> livingVillage,
-                                                         final Map<Long, Long> votesCopy) {
-            final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
-            final long timeLeft = TIME_TO_DISTRIBUTE_GUN_MILLIS - (System.currentTimeMillis() - this.startedMillis);
+        private EmbedBuilder prepareGunDistributionEmbed(Map<String, Player> livingVillage,
+                                                         Map<Long, Long> votesCopy) {
+            NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
+            long timeLeft = TIME_TO_DISTRIBUTE_GUN_MILLIS - (System.currentTimeMillis() - this.startedMillis);
             neb.addField("", "You have " + TextchatUtils.formatMillis(timeLeft)
                     + " to distribute the gun.", false);
-            final NiceEmbedBuilder.ChunkingField villagersField = new NiceEmbedBuilder.ChunkingField("", false);
+            NiceEmbedBuilder.ChunkingField villagersField = new NiceEmbedBuilder.ChunkingField("", false);
             livingVillage.forEach((emoji, player) -> {
                 //who is voting for this player to receive the gun?
-                final List<String> voters = new ArrayList<>();
-                for (final Map.Entry<Long, Long> entry : votesCopy.entrySet()) {
-                    final long voter = entry.getKey();
-                    final Long vote = entry.getValue();
+                List<String> voters = new ArrayList<>();
+                for (Map.Entry<Long, Long> entry : votesCopy.entrySet()) {
+                    long voter = entry.getKey();
+                    Long vote = entry.getValue();
                     if (vote.equals(player.userId)) {
                         voters.add(TextchatUtils.userAsMention(voter));
                     }
@@ -569,7 +568,7 @@ public class Popcorn extends Game {
                         "\nVoted by: " + String.join(", ", voters) + "\n");
             });
             neb.addField(villagersField);
-            final String info = "**Click the reactions below to decide who to give the gun. Dead wolves voting will be ignored.**";
+            String info = "**Click the reactions below to decide who to give the gun. Dead wolves voting will be ignored.**";
             neb.addField("", info, false);
             return neb;
         }

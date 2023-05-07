@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.game.GameRegistry;
@@ -42,7 +41,6 @@ public class VoteCountCommand extends GameCommand {
         return List.of("vc");
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + "\n#Post the current votecount.";

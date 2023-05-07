@@ -20,7 +20,6 @@ package space.npstr.wolfia.domain.settings;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -64,7 +63,6 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
         return List.of("cs");
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " [key value]"
@@ -76,8 +74,8 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) {
-        final GuildCommandContext context = commandContext.requireGuild();
+    public boolean execute(CommandContext commandContext) {
+        GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
         }
@@ -110,15 +108,15 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        final String option = context.args[0];
+        String option = context.args[0];
         switch (option.toLowerCase()) {
             case "accessrole":
-                final Role accessRole;
+                Role accessRole;
                 if (!context.msg.getMentionedRoles().isEmpty()) {
                     accessRole = context.msg.getMentionedRoles().get(0);
                 } else {
-                    final String roleName = String.join(" ", Arrays.copyOfRange(context.args, 1, context.args.length)).trim();
-                    final List<Role> rolesByName = context.guild.getRolesByName(roleName, true);
+                    String roleName = String.join(" ", Arrays.copyOfRange(context.args, 1, context.args.length)).trim();
+                    List<Role> rolesByName = context.guild.getRolesByName(roleName, true);
                     if ("everyone".equals(roleName)) {
                         accessRole = context.guild.getPublicRole();
                     } else if (rolesByName.isEmpty()) {
@@ -136,9 +134,9 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
                 break;
             case "tagcooldown":
                 try {
-                    final long tagCooldown = Math.max(0L, Long.parseLong(context.args[1]));
+                    long tagCooldown = Math.max(0L, Long.parseLong(context.args[1]));
                     channelSettings = channelAction.setTagCooldown(tagCooldown);
-                } catch (final NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     context.replyWithMention("please use a number of minutes to set the tags cooldown.");
                     return false;
                 }

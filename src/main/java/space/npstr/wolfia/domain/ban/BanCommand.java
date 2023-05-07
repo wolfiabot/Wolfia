@@ -18,7 +18,6 @@
 package space.npstr.wolfia.domain.ban;
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -45,14 +44,13 @@ public class BanCommand implements BaseCommand {
         return "ban";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Globally ban mentioned user from signing up for games.";
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
 
         //is the user allowed to do that?
         if (!context.isOwner()) {
@@ -88,7 +86,7 @@ public class BanCommand implements BaseCommand {
         }
 
         if (action == null) {
-            final String answer = String.format("you didn't provide a ban action. Use `%s` or `%s`.",
+            String answer = String.format("you didn't provide a ban action. Use `%s` or `%s`.",
                     TextchatUtils.TRUE_TEXT.get(0), TextchatUtils.FALSE_TEXT.get(0));
             context.replyWithMention(answer);
             return false;
@@ -102,8 +100,8 @@ public class BanCommand implements BaseCommand {
         long userId;
         try {
             userId = Long.parseUnsignedLong(context.args[1]);
-        } catch (final NumberFormatException ignored) {
-            final List<User> mentionedUsers = context.msg.getMentionedUsers();
+        } catch (NumberFormatException ignored) {
+            List<User> mentionedUsers = context.msg.getMentionedUsers();
             if (mentionedUsers.isEmpty()) {
                 context.reply("Please mention at least one user or use an id.");
                 return false;

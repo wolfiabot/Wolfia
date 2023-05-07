@@ -77,9 +77,9 @@ public class ShardManagerFactory {
     private volatile boolean created = false;
 
 
-    public ShardManagerFactory(final WolfiaConfig wolfiaConfig, DiscordEventListenerPublisher discordEventListenerPublisher,
-                               final OkHttpClient.Builder httpClientBuilder,
-                               @Qualifier("jdaThreadPool") final ScheduledExecutorService jdaThreadPool) {
+    public ShardManagerFactory(WolfiaConfig wolfiaConfig, DiscordEventListenerPublisher discordEventListenerPublisher,
+                               OkHttpClient.Builder httpClientBuilder,
+                               @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool) {
 
         this.wolfiaConfig = wolfiaConfig;
         this.discordEventListenerPublisher = discordEventListenerPublisher;

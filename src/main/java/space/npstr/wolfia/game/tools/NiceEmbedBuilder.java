@@ -20,7 +20,6 @@ package space.npstr.wolfia.game.tools;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import space.npstr.wolfia.commands.MessageContext;
@@ -33,15 +32,14 @@ public class NiceEmbedBuilder extends EmbedBuilder {
     /**
      * @return a general purpose preformatted nice builder for embeds
      */
-    @NonNull
     public static NiceEmbedBuilder defaultBuilder() {
-        final NiceEmbedBuilder neb = new NiceEmbedBuilder();
+        NiceEmbedBuilder neb = new NiceEmbedBuilder();
         neb.setColor(MessageContext.BLACKIA);
         return neb;
     }
 
     //default trim is true
-    public NiceEmbedBuilder addField(final ChunkingField field, final boolean... trim) {
+    public NiceEmbedBuilder addField(ChunkingField field, boolean... trim) {
 
         boolean tr = true;
         if (trim.length > 0 && !trim[0]) tr = false;
@@ -69,7 +67,7 @@ public class NiceEmbedBuilder extends EmbedBuilder {
         private final List<StringBuilder> content = new ArrayList<>();
         private StringBuilder current;
 
-        public ChunkingField(final String name, final boolean inline) {
+        public ChunkingField(String name, boolean inline) {
             this.name = name;
             this.inline = inline;
             this.current = new StringBuilder();
@@ -78,7 +76,7 @@ public class NiceEmbedBuilder extends EmbedBuilder {
 
         //will add the str to the field, if the field would go over the allowed limit, it will create a new field
         //newLine adds a new line at the end of the string, default is false
-        public ChunkingField add(final String str, final boolean... newLine) {
+        public ChunkingField add(String str, boolean... newLine) {
 
             String toBeAdded = str;
             if (newLine.length > 0 && newLine[0]) toBeAdded += "\n";
@@ -93,8 +91,8 @@ public class NiceEmbedBuilder extends EmbedBuilder {
             return this;
         }
 
-        public ChunkingField addAll(final Collection<String> strings, final boolean... newLine) {
-            for (final String str : strings) {
+        public ChunkingField addAll(Collection<String> strings, boolean... newLine) {
+            for (String str : strings) {
                 add(str, newLine);
             }
             return this;

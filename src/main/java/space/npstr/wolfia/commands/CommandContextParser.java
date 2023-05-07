@@ -31,12 +31,12 @@ public class CommandContextParser {
      * @param event the event to be parsed
      * @return The full context for the triggered command, or null if it's not a command that we know.
      */
-    public CommandContext parse(final CommRegistry commRegistry, final MessageReceivedEvent event) {
+    public CommandContext parse(CommRegistry commRegistry, MessageReceivedEvent event) {
 
-        final String raw = event.getMessage().getContentRaw();
+        String raw = event.getMessage().getContentRaw();
         String input;
 
-        final String prefix = WolfiaConfig.DEFAULT_PREFIX;
+        String prefix = WolfiaConfig.DEFAULT_PREFIX;
         if (raw.toLowerCase().startsWith(prefix.toLowerCase())) {
             input = raw.substring(prefix.length());
         } else {
@@ -50,13 +50,13 @@ public class CommandContextParser {
 
         //split by any length of white space characters
         // the \p{javaSpaceChar} instead of the better known \s is used because it actually includes unicode whitespaces
-        final String[] args = input.split("\\p{javaSpaceChar}+");
+        String[] args = input.split("\\p{javaSpaceChar}+");
         if (args.length < 1) {
             return null; //while this shouldn't technically be possible due to the preprocessing of the input, better be safe than throw exceptions
         }
 
-        final String commandTrigger = args[0];
-        final BaseCommand command = commRegistry.getCommand(commandTrigger.toLowerCase());
+        String commandTrigger = args[0];
+        BaseCommand command = commRegistry.getCommand(commandTrigger.toLowerCase());
 
         if (command == null) {
             return null;

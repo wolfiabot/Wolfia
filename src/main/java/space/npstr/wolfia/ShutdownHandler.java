@@ -125,16 +125,16 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
 
         //shutdown executors
         log.info("Shutting down main executor");
-        final List<Runnable> executorRunnables = executor.shutdownNow();
+        List<Runnable> executorRunnables = executor.shutdownNow();
         log.info("{} main executor runnables cancelled", executorRunnables.size());
 
         log.info("Shutting down rest actions executor");
-        final ScheduledExecutorService restService = RestActions.restService;
-        final List<Runnable> restActionsRunnables = restService.shutdownNow();
+        ScheduledExecutorService restService = RestActions.restService;
+        List<Runnable> restActionsRunnables = restService.shutdownNow();
         log.info("{} rest actions runnables cancelled", restActionsRunnables.size());
 
         log.info("Shutting down jda thread pool");
-        final List<Runnable> jdaThreadPoolRunnables = jdaThreadPool.shutdownNow();
+        List<Runnable> jdaThreadPoolRunnables = jdaThreadPool.shutdownNow();
         log.info("{} jda thread pool runnables cancelled", jdaThreadPoolRunnables.size());
 
         try {
@@ -144,7 +144,7 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
             log.info("Rest service terminated");
             jdaThreadPool.awaitTermination(30, TimeUnit.SECONDS);
             log.info("Jda thread pool terminated");
-        } catch (final InterruptedException e) {
+        } catch (InterruptedException e) {
             log.warn("Interrupted while awaiting executors termination", e);
             Thread.currentThread().interrupt();
         }
@@ -161,7 +161,7 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
         CollectorRegistry.defaultRegistry.clear();
     }
 
-    public void shutdown(final int code) {
+    public void shutdown(int code) {
         log.info("Exiting with code {}", code);
         System.exit(code);
     }

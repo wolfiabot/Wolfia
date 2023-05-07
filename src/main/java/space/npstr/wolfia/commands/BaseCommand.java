@@ -21,7 +21,6 @@ package space.npstr.wolfia.commands;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
@@ -44,12 +43,11 @@ public interface BaseCommand {
     /**
      * Execute the command
      */
-    boolean execute(@NonNull CommandContext context) throws IllegalGameStateException;
+    boolean execute(CommandContext context) throws IllegalGameStateException;
 
     /**
      * @return a help string that should explain the usage of this command
      */
-    @NonNull
     String help();
 
     /**
@@ -57,7 +55,7 @@ public interface BaseCommand {
      */
     default String getHelp() {
         if (!getAliases().isEmpty()) {
-            final List<String> prefixedAliases = getAliases().stream()
+            List<String> prefixedAliases = getAliases().stream()
                     .map(alias -> WolfiaConfig.DEFAULT_PREFIX + alias)
                     .collect(Collectors.toList());
             return help() + "\nAlias: " + String.join(", ", prefixedAliases);
@@ -69,7 +67,7 @@ public interface BaseCommand {
     /**
      * @return a better formatted representation of a commands help
      */
-    default String formatHelp(final User invoker) {
+    default String formatHelp(User invoker) {
         return String.format("%s, I did not understand that input. Here's some help:%n%s",
                 invoker.getAsMention(), TextchatUtils.asMarkdown(getHelp()));
     }
@@ -77,7 +75,6 @@ public interface BaseCommand {
     /**
      * @return how to invoke this command with its main trigger
      */
-    @NonNull
     default String invocation() {
         return WolfiaConfig.DEFAULT_PREFIX + getTrigger();
     }

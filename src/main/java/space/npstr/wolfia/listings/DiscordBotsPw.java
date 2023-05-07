@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.listings;
 
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.JDA;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -30,13 +29,12 @@ public class DiscordBotsPw extends Listing {
 
     //https://bots.discord.pw
     //api docs: https://bots.discord.pw/api
-    public DiscordBotsPw(@NonNull final OkHttpClient httpClient) {
+    public DiscordBotsPw(OkHttpClient httpClient) {
         super("bots.discord.pw", httpClient);
     }
 
-    @NonNull
     @Override
-    protected String createPayload(@NonNull final JDA jda) {
+    protected String createPayload(JDA jda) {
         return new JSONObject()
                 .put("shard_id", jda.getShardInfo().getShardId())
                 .put("shard_count", jda.getShardInfo().getShardTotal())
@@ -44,10 +42,9 @@ public class DiscordBotsPw extends Listing {
                 .toString();
     }
 
-    @NonNull
     @Override
-    protected Request.Builder createRequest(final long botId, @NonNull final String payload) {
-        final RequestBody body = RequestBody.create(payload, JSON);
+    protected Request.Builder createRequest(long botId, String payload) {
+        RequestBody body = RequestBody.create(payload, JSON);
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
                 .url(String.format("https://bots.discord.pw/api/bots/%s/stats", botId))
@@ -57,7 +54,7 @@ public class DiscordBotsPw extends Listing {
 
     @Override
     protected boolean isConfigured() {
-        final String botsPwToken = Launcher.getBotContext().getListingsConfig().getBotsPwToken();
+        String botsPwToken = Launcher.getBotContext().getListingsConfig().getBotsPwToken();
         return botsPwToken != null && !botsPwToken.isEmpty();
     }
 }

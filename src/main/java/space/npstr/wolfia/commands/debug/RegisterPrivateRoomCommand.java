@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands.debug;
 
 import java.io.IOException;
 import java.util.Optional;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -54,16 +53,15 @@ public class RegisterPrivateRoomCommand implements BaseCommand {
         return "register";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Register a guild as a private room.";
     }
 
     @Override
-    public synchronized boolean execute(@NonNull final CommandContext commandContext) {
+    public synchronized boolean execute(CommandContext commandContext) {
 
-        final GuildCommandContext context = commandContext.requireGuild();
+        GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
         }
@@ -80,7 +78,7 @@ public class RegisterPrivateRoomCommand implements BaseCommand {
         //- give the server a logo
         try {
             context.guild.getManager().setIcon(Icon.from(getClass().getResourceAsStream("/img/popcorn_mafia_guy.png"))).queue(null, RestActions.defaultOnFail());
-        } catch (final IOException e) {
+        } catch (IOException e) {
             log.error("Could not set icon for guild {}", context.guild.getIdLong(), e);
             return false;
         }
@@ -90,7 +88,7 @@ public class RegisterPrivateRoomCommand implements BaseCommand {
         //- deny reading messages
         context.guild.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue(null, RestActions.defaultOnFail());
         //- delete #general
-        for (final TextChannel tc : context.guild.getTextChannels()) {
+        for (TextChannel tc : context.guild.getTextChannels()) {
             tc.delete().reason("Preparing private guild for usage").complete();
         }
 

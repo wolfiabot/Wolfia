@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.ISnowflake;
@@ -63,7 +62,6 @@ public class TagCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " add/remove/[your message]"
@@ -74,9 +72,9 @@ public class TagCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) {
+    public boolean execute(CommandContext commandContext) {
 
-        final GuildCommandContext context = commandContext.requireGuild(false);
+        GuildCommandContext context = commandContext.requireGuild(false);
         if (context == null) {
             commandContext.reply("This is a private channel, there is noone in here to tag but us two ( ͡° ͜ʖ ͡°)");
             return false;
@@ -85,7 +83,7 @@ public class TagCommand implements BaseCommand, PublicCommand {
         long channelId = context.textChannel.getIdLong();
         ChannelSettingsService.Action channelAction = this.channelSettingsService.channel(channelId);
         ChannelSettings channelSettings = channelAction.getOrDefault();
-        final Set<Long> tags = channelSettings.getTags();
+        Set<Long> tags = channelSettings.getTags();
 
         String option = "";
         if (context.hasArguments()) {
@@ -109,7 +107,7 @@ public class TagCommand implements BaseCommand, PublicCommand {
             long tagCooldownMinutes = channelSettings.getTagCooldownMinutes();
             if (System.currentTimeMillis() - channelSettings.getTagLastUsed()
                     < TimeUnit.MINUTES.toMillis(tagCooldownMinutes)) {
-                final String answer = String.format("you need to wait at least %s minutes between calling the tag list.",
+                String answer = String.format("you need to wait at least %s minutes between calling the tag list.",
                         tagCooldownMinutes);
                 context.replyWithMention(answer);
                 return false;
@@ -123,22 +121,22 @@ public class TagCommand implements BaseCommand, PublicCommand {
                 return false;
             }
 
-            final List<StringBuilder> outs = new ArrayList<>();
-            final String message = context.member.getAsMention() + " called the tag list.\n"
+            List<StringBuilder> outs = new ArrayList<>();
+            String message = context.member.getAsMention() + " called the tag list.\n"
                     + TextchatUtils.defuseMentions(context.rawArgs).trim() + "\n";
             StringBuilder out = new StringBuilder(message);
             outs.add(out);
 
-            final Set<Long> cleanUp = new HashSet<>();
-            for (final long id : tags) {
+            Set<Long> cleanUp = new HashSet<>();
+            for (long id : tags) {
                 //is it a mentionable role?
                 String toAdd = "";
-                final Role role = context.guild.getRoleById(id);
+                Role role = context.guild.getRoleById(id);
                 if (role != null && role.isMentionable()) {
                     toAdd = role.getAsMention() + " ";
                 }
                 //is it a member of the guild?
-                final Member member = context.guild.getMemberById(id);
+                Member member = context.guild.getMemberById(id);
                 if (member != null) {
                     toAdd = member.getAsMention() + " ";
                 }
@@ -154,7 +152,7 @@ public class TagCommand implements BaseCommand, PublicCommand {
             }
 
             channelAction.removeTags(cleanUp);
-            for (final StringBuilder sb : outs) {
+            for (StringBuilder sb : outs) {
                 context.reply(sb.toString());
             }
             channelAction.tagUsed();
@@ -163,8 +161,8 @@ public class TagCommand implements BaseCommand, PublicCommand {
         }
 
 
-        final List<User> mentionedUsers = context.msg.getMentionedUsers();
-        final List<Role> mentionedRoles = context.msg.getMentionedRoles();
+        List<User> mentionedUsers = context.msg.getMentionedUsers();
+        List<Role> mentionedRoles = context.msg.getMentionedRoles();
 
         //user signing up / removing themselves
         if (mentionedUsers.isEmpty() && mentionedRoles.isEmpty()) {
@@ -196,13 +194,13 @@ public class TagCommand implements BaseCommand, PublicCommand {
                         + "**" + Permission.MESSAGE_MANAGE.getName() + "**");
                 return false;
             }
-            final List<String> mentions = Stream.concat(
+            List<String> mentions = Stream.concat(
                     mentionedUsers.stream().map(IMentionable::getAsMention),
                     mentionedRoles.stream().map(IMentionable::getAsMention)
             ).collect(Collectors.toList());
-            final String joined = String.join("**, **", mentions);
+            String joined = String.join("**, **", mentions);
 
-            final List<Long> ids = Stream.concat(
+            List<Long> ids = Stream.concat(
                     mentionedUsers.stream().map(ISnowflake::getIdLong),
                     mentionedRoles.stream().map(ISnowflake::getIdLong)
             ).collect(Collectors.toList());

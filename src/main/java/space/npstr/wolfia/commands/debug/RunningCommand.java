@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.debug;
 
 import java.util.Map;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -49,27 +48,26 @@ public class RunningCommand implements BaseCommand {
         return "running";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "List all running games";
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
 
-        final Map<Long, Game> games = this.gameRegistry.getAll();
-        for (final Game game : games.values()) {
-            final EmbedBuilder eb = game.getStatus();
+        Map<Long, Game> games = this.gameRegistry.getAll();
+        for (Game game : games.values()) {
+            EmbedBuilder eb = game.getStatus();
             eb.addBlankField(false);
 
             ShardManager shardManager = context.getJda().getShardManager();
-            final TextChannel channel = requireNonNull(shardManager).getTextChannelById(game.getChannelId());
+            TextChannel channel = requireNonNull(shardManager).getTextChannelById(game.getChannelId());
             String guildName = "Guild not found";
             String channelName = "Channel not found";
             if (channel != null) {
                 channelName = "#" + channel.getName();
-                final Guild guild = channel.getGuild();
+                Guild guild = channel.getGuild();
                 guildName = guild.getName();
             }
             eb.addField("Guild & Channel", guildName + "\n" + channelName + "\n" + game.getChannelId(), true);

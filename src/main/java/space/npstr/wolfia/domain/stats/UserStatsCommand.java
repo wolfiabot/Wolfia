@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.domain.stats;
 
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -45,7 +44,6 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " [@user or user ID]"
@@ -56,14 +54,14 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
         if (context.msg.getMentionedUsers().isEmpty()) {
             long userId = context.invoker.getIdLong();
             //noinspection Duplicates
             if (context.hasArguments()) {
                 try {
                     userId = Long.parseLong(context.args[0]);
-                } catch (final NumberFormatException e) {
+                } catch (NumberFormatException e) {
                     context.help();
                     return false;
                 }
@@ -74,7 +72,7 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
             return true;
         }
 
-        for (final User user : context.msg.getMentionedUsers()) {
+        for (User user : context.msg.getMentionedUsers()) {
             UserStats userStats = this.statsProvider.getUserStats(user.getIdLong());
             context.reply(this.render.renderUserStats(userStats).build());
         }

@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.game.definitions;
 
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.ingame.CheckCommand;
 import space.npstr.wolfia.commands.ingame.OpenPresentCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
@@ -34,7 +33,7 @@ public class Item {
     public final long sourceId;
     public final ItemType itemType;
 
-    public Item(final long sourceId, @NonNull final ItemType itemType) {
+    public Item(long sourceId, ItemType itemType) {
         this.sourceId = sourceId;
         this.itemType = itemType;
     }
@@ -65,13 +64,11 @@ public class Item {
         //
         ;
 
-        @NonNull
         public final String emoji;
 
-        @NonNull
         public final String explanation;
 
-        ItemType(@NonNull final String emoji, @NonNull final String explanation) {
+        ItemType(String emoji, String explanation) {
             this.emoji = emoji;
             this.explanation = explanation;
         }

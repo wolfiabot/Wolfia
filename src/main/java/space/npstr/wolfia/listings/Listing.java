@@ -18,7 +18,6 @@
 package space.npstr.wolfia.listings;
 
 import java.io.IOException;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.MediaType;
@@ -43,22 +42,20 @@ public abstract class Listing {
 
     private String lastPayload;
 
-    public Listing(@NonNull final String name, @NonNull final OkHttpClient httpClient) {
+    public Listing(String name, OkHttpClient httpClient) {
         this.name = name;
         this.httpClient = httpClient;
     }
 
-    @NonNull
-    protected abstract String createPayload(@NonNull JDA jda);
+    protected abstract String createPayload(JDA jda);
 
-    @NonNull
-    protected abstract Request.Builder createRequest(long botId, @NonNull String payload);
+    protected abstract Request.Builder createRequest(long botId, String payload);
 
     //return false if there is no token configured, or whatever is needed to post to the site
     protected abstract boolean isConfigured();
 
     //retries with growing delay until it is successful
-    public void postStats(@NonNull final JDA jda) throws InterruptedException {
+    public void postStats(JDA jda) throws InterruptedException {
         if (!isConfigured()) {
             log.debug("Skipping posting stats to {} due to not being configured", this.name);
             return;
@@ -74,20 +71,20 @@ public abstract class Listing {
             return;
         }
 
-        final String payload = createPayload(jda);
+        String payload = createPayload(jda);
 
         if (payload.equals(this.lastPayload)) {
             log.info("Skipping sending stats to {} since the payload has not changed", this.name);
             return;
         }
 
-        final Request req = createRequest(jda.getSelfUser().getIdLong(), payload).build();
+        Request req = createRequest(jda.getSelfUser().getIdLong(), payload).build();
 
         int attempt = 0;
         boolean success = false;
         while (!success) {
             attempt++;
-            try (final Response response = this.httpClient.newCall(req).execute()) {
+            try (Response response = this.httpClient.newCall(req).execute()) {
                 if (response.isSuccessful()) {
                     log.info("Successfully posted bot stats to {} on attempt {}, code {}", this.name, attempt, response.code());
                     this.lastPayload = payload;
@@ -98,7 +95,7 @@ public abstract class Listing {
                     log.info("Failed to post stats to {} on attempt {}: code {}, body:\n{}",
                             this.name, attempt, response.code(), body);
                 }
-            } catch (final IOException e) {
+            } catch (IOException e) {
                 log.info("Failed to post stats to {} on attempt {}", this.name, attempt, e);
             }
 
@@ -114,7 +111,7 @@ public abstract class Listing {
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(Object obj) {
         return obj instanceof Listing && this.name.equals(((Listing) obj).name);
     }
 
@@ -127,7 +124,7 @@ public abstract class Listing {
         if (shardManager.getShards().size() < shardManager.getShardsTotal()) {
             return false;
         }
-        for (final JDA jda : shardManager.getShards()) {
+        for (JDA jda : shardManager.getShards()) {
             if (jda.getStatus() != JDA.Status.CONNECTED) {
                 return false;
             }

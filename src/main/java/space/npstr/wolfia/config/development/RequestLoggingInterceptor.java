@@ -34,8 +34,8 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
     public static final String UNKNOWN_REQUEST_ID = "Unknown request id";
 
     @Override
-    public boolean preHandle(final HttpServletRequest request, final @NonNull HttpServletResponse response,
-                             final @NonNull Object handler) {
+    public boolean preHandle(HttpServletRequest request, @NonNull HttpServletResponse response,
+                             @NonNull Object handler) {
 
         long requestId = REQUEST_ID.getAndIncrement();
         request.setAttribute(REQUEST_ID_ATTRIBUTE, requestId);
@@ -49,8 +49,8 @@ public class RequestLoggingInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(final HttpServletRequest request, final @NonNull HttpServletResponse response,
-                                final @NonNull Object handler, final Exception ex) {
+    public void afterCompletion(HttpServletRequest request, @NonNull HttpServletResponse response,
+                                @NonNull Object handler, Exception ex) {
         Object requestId = request.getAttribute(REQUEST_ID_ATTRIBUTE);
         if (requestId == null) requestId = UNKNOWN_REQUEST_ID;
         log.debug("<<< {} {} {}",

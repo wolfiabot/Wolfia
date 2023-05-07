@@ -33,7 +33,6 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
-import org.springframework.lang.NonNull;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.events.BotStatusLogger;
@@ -62,7 +61,7 @@ public class Launcher implements ApplicationRunner {
         CollectorRegistry.defaultRegistry.clear();
     }
 
-    @SuppressWarnings("NullableProblems")
+    @SuppressWarnings("NotNullFieldNotInitialized")
     private static BotContext botContext;
 
     private final ThreadPoolCollector poolMetrics;
@@ -98,8 +97,7 @@ public class Launcher implements ApplicationRunner {
             if (event instanceof ApplicationEnvironmentPreparedEvent) {
                 log.info(getVersionInfo());
             }
-            if (event instanceof ApplicationFailedEvent) {
-                final ApplicationFailedEvent failed = (ApplicationFailedEvent) event;
+            if (event instanceof ApplicationFailedEvent failed) {
                 log.error("Application failed", failed.getException());
                 System.exit(ShutdownHandler.EXIT_CODE_RESTART);
             }
@@ -118,7 +116,7 @@ public class Launcher implements ApplicationRunner {
     }
 
     @Override
-    public void run(final ApplicationArguments args) throws Exception {
+    public void run(ApplicationArguments args) throws Exception {
         this.poolMetrics.addPool("restActions", (ScheduledThreadPoolExecutor) RestActions.restService);
         this.botStatusLogger.fireAndForget(Emojis.ROCKET, "Starting...");
         if (this.wolfiaConfig.isDebug())
@@ -140,7 +138,6 @@ public class Launcher implements ApplicationRunner {
         return this.shardManager.getShardCache().stream().allMatch(shard -> shard.getStatus() == JDA.Status.CONNECTED);
     }
 
-    @NonNull
     private static String getVersionInfo() {
         return ART
                 + "\n"

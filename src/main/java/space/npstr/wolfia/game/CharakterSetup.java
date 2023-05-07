@@ -36,7 +36,7 @@ public class CharakterSetup {
         return Collections.unmodifiableList(this.charakters);
     }
 
-    public CharakterSetup addRoleAndAlignment(final Alignments alignment, final Roles role, final int... amount) {
+    public CharakterSetup addRoleAndAlignment(Alignments alignment, Roles role, int... amount) {
         if (amount.length > 0) { //add a few times
             for (int i = 0; i < amount[0]; i++) {
                 this.charakters.add(new Charakter(alignment, role));
@@ -53,8 +53,8 @@ public class CharakterSetup {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        for (final Charakter c : this.charakters) {
+        StringBuilder sb = new StringBuilder();
+        for (Charakter c : this.charakters) {
             sb.append(c.alignment.textRepMaf).append(" ").append(c.role.textRep).append("\n");
         }
         return sb.toString();

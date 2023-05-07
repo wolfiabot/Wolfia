@@ -20,7 +20,6 @@ package space.npstr.wolfia.domain.setup;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -58,7 +57,6 @@ public class SetupCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " [key value]"
@@ -70,15 +68,15 @@ public class SetupCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) {
-        final GuildCommandContext context = commandContext.requireGuild();
+    public boolean execute(CommandContext commandContext) {
+        GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
         }
 
         long channelId = context.textChannel.getIdLong();
         GameSetupService.Action setupAction = this.gameSetupService.channel(channelId);
-        final AtomicBoolean blewUp = new AtomicBoolean(false);
+        AtomicBoolean blewUp = new AtomicBoolean(false);
 
         if (context.args.length >= 1 && "reset".equalsIgnoreCase(context.args[0])) {
             if (allowedToEditSetup(context)) {
@@ -115,13 +113,13 @@ public class SetupCommand implements BaseCommand, PublicCommand {
                 return false;
             }
 
-            final String option = context.args[0];
+            String option = context.args[0];
             switch (option.toLowerCase()) {
                 case "game":
                     try {
                         Games game = Games.valueOf(context.args[1].toUpperCase());
                         setupAction.setGame(game);
-                    } catch (final IllegalArgumentException ex) {
+                    } catch (IllegalArgumentException ex) {
                         context.replyWithMention("no such game is supported by this bot: " + TextchatUtils.defuseMentions(context.args[1]));
                         blewUp.set(true);
                     }
@@ -135,14 +133,14 @@ public class SetupCommand implements BaseCommand, PublicCommand {
                         } else {
                             context.replyWithMention("no such mode is supported by this game: " + TextchatUtils.defuseMentions(context.args[1]));
                         }
-                    } catch (final IllegalArgumentException ex) {
+                    } catch (IllegalArgumentException ex) {
                         context.replyWithMention("no such mode is supported by this game: " + TextchatUtils.defuseMentions(context.args[1]));
                         blewUp.set(true);
                     }
                     break;
                 case "daylength":
                     try {
-                        final long minutes = Long.parseLong(context.args[1]);
+                        long minutes = Long.parseLong(context.args[1]);
                         if (minutes > 10) {
                             context.replyWithMention("day lengths of more than 10 minutes are not supported currently.");
                             return false;
@@ -151,7 +149,7 @@ public class SetupCommand implements BaseCommand, PublicCommand {
                             return false;
                         }
                         setupAction.setDayLength(Duration.ofMinutes(minutes));
-                    } catch (final NumberFormatException ex) {
+                    } catch (NumberFormatException ex) {
                         context.replyWithMention("use a number to set the day length!");
                         return false;
                     }

@@ -19,7 +19,7 @@ package space.npstr.wolfia.utils;
 
 public class UserNotPresentException extends RuntimeException {
 
-    public UserNotPresentException(final long id) {
+    public UserNotPresentException(long id) {
         super("User with id " + id + " not present in the bot.");
     }
 }

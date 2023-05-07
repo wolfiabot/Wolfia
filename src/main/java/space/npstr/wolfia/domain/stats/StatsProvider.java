@@ -68,7 +68,7 @@ public class StatsProvider {
     }
 
 
-    public GuildStats getGuildStats(final long guildId) {
+    public GuildStats getGuildStats(long guildId) {
 
         BigDecimal averagePlayerSize = this.repository.getAveragePlayerSizeInGuild(guildId);
 
@@ -100,28 +100,28 @@ public class StatsProvider {
 
     //TODO some improvement is possible here by reducing the amount of individual sql queries run as well as the amount
     // of data fetched
-    public UserStats getUserStats(final long userId) {
+    public UserStats getUserStats(long userId) {
         List<GeneralUserStats> games = this.repository.getGeneralUserStats(userId);
         List<String> shots = this.repository.getUserShots(userId);
 
-        final long totalGamesByUser = games.size();
-        final long gamesWon = games.stream().filter(GeneralUserStats::isWinner).count();
-        final long gamesAsWolf = games.stream()
+        long totalGamesByUser = games.size();
+        long gamesWon = games.stream().filter(GeneralUserStats::isWinner).count();
+        long gamesAsWolf = games.stream()
                 .filter(stats -> Alignments.valueOf(stats.getAlignment()) == Alignments.WOLF).count();
-        final long gamesAsVillage = games.stream()
+        long gamesAsVillage = games.stream()
                 .filter(stats -> Alignments.valueOf(stats.getAlignment()) == Alignments.VILLAGE).count();
-        final long gamesWonAsWolf = games.stream()
+        long gamesWonAsWolf = games.stream()
                 .filter(stats -> Alignments.valueOf(stats.getAlignment()) == Alignments.WOLF)
                 .filter(GeneralUserStats::isWinner)
                 .count();
-        final long gamesWonAsVillage = games.stream()
+        long gamesWonAsVillage = games.stream()
                 .filter(stats -> Alignments.valueOf(stats.getAlignment()) == Alignments.VILLAGE)
                 .filter(GeneralUserStats::isWinner)
                 .count();
-        final long totalPostsWritten = games.stream().mapToLong(GeneralUserStats::getPosts).sum();
-        final long totalPostsLength = games.stream().mapToLong(GeneralUserStats::getPostLength).sum();
-        final long totalShatsByUser = shots.size();
-        final long wolvesShatted = shots.stream()
+        long totalPostsWritten = games.stream().mapToLong(GeneralUserStats::getPosts).sum();
+        long totalPostsLength = games.stream().mapToLong(GeneralUserStats::getPostLength).sum();
+        long totalShatsByUser = shots.size();
+        long wolvesShatted = shots.stream()
                 .filter(alignment -> Alignments.valueOf(alignment) == Alignments.WOLF).count();
 
         return new UserStats(

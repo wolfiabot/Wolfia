@@ -21,9 +21,6 @@ import io.prometheus.client.Collector;
 import java.awt.Color;
 import java.util.Optional;
 import java.util.function.Consumer;
-import javax.annotation.CheckReturnValue;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -34,6 +31,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.springframework.lang.Nullable;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.system.metrics.MetricsRegistry;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -48,17 +46,15 @@ public class MessageContext implements Context {
     // #001830
     public static final Color BLACKIA = new Color(0, 24, 48);
 
-    //@formatter:off
-    @NonNull public final MessageChannel channel;
-    @NonNull public final User invoker;
-    @NonNull public final Message msg;
-    @NonNull public final MessageReceivedEvent event;
-    @NonNull public final JDA jda;
-    //@formatter:on
+    public final MessageChannel channel;
+    public final User invoker;
+    public final Message msg;
+    public final MessageReceivedEvent event;
+    public final JDA jda;
 
     private final ApplicationInfoProvider appInfoProvider;
 
-    public MessageContext(@NonNull final MessageReceivedEvent event) {
+    public MessageContext(MessageReceivedEvent event) {
         this.channel = event.getChannel();
         this.invoker = event.getAuthor();
         this.msg = event.getMessage();
@@ -69,48 +65,36 @@ public class MessageContext implements Context {
 
 
     @Override
-    @NonNull
-    @CheckReturnValue
     public MessageChannel getChannel() {
         return this.channel;
     }
 
     @Override
-    @NonNull
-    @CheckReturnValue
     public User getInvoker() {
         return this.invoker;
     }
 
     @Override
-    @NonNull
-    @CheckReturnValue
     public Message getMessage() {
         return this.msg;
     }
 
     @Override
-    @NonNull
-    @CheckReturnValue
     public MessageReceivedEvent getEvent() {
         return this.event;
     }
 
     @Override
-    @NonNull
-    @CheckReturnValue
     public JDA getJda() {
         return this.jda;
     }
 
     @Override
-    @CheckReturnValue
     public Optional<Guild> getGuild() {
         return this.event.isFromGuild() ? Optional.of(this.event.getGuild()) : Optional.empty();
     }
 
     @Override
-    @CheckReturnValue
     public Optional<Member> getMember() {
         return Optional.ofNullable(this.event.getMember());
     }
@@ -129,28 +113,28 @@ public class MessageContext implements Context {
     // NOTE: they all try to end up in the reply0 method for consistent behaviour
 
 
-    public void reply(@NonNull final MessageEmbed embed) {
+    public void reply(MessageEmbed embed) {
         reply0(RestActions.from(embed), null);
     }
 
-    public void reply(@NonNull final EmbedBuilder eb) {
+    public void reply(EmbedBuilder eb) {
         reply(eb.build());
     }
 
-    public void reply(@NonNull final Message message, @Nullable final Consumer<Message> onSuccess) {
+    public void reply(Message message, @Nullable Consumer<Message> onSuccess) {
         reply0(message, onSuccess);
     }
 
-    public void reply(@NonNull final Message message) {
+    public void reply(Message message) {
         reply0(message, null);
     }
 
-    public void reply(@NonNull final String message) {
+    public void reply(String message) {
         reply(new MessageBuilder().append(message).build(), null);
     }
 
-    public void replyWithName(@NonNull final String message, @Nullable final Consumer<Message> onSuccess) {
-        final Optional<Member> member = getMember();
+    public void replyWithName(String message, @Nullable Consumer<Message> onSuccess) {
+        Optional<Member> member = getMember();
         if (member.isPresent()) {
             reply(TextchatUtils.prefaceWithName(member.get(), message, true), onSuccess);
         } else {
@@ -158,20 +142,20 @@ public class MessageContext implements Context {
         }
     }
 
-    public void replyWithName(@NonNull final String message) {
+    public void replyWithName(String message) {
         replyWithName(message, null);
     }
 
-    public void replyWithMention(@NonNull final String message, @Nullable final Consumer<Message> onSuccess) {
+    public void replyWithMention(String message, @Nullable Consumer<Message> onSuccess) {
         reply(TextchatUtils.prefaceWithMention(invoker, message), onSuccess);
     }
 
-    public void replyWithMention(@NonNull final String message) {
+    public void replyWithMention(String message) {
         replyWithMention(message, null);
     }
 
 
-    public void replyPrivate(@NonNull final String message, @Nullable final Consumer<Message> onSuccess, @NonNull final Consumer<Throwable> onFail) {
+    public void replyPrivate(String message, @Nullable Consumer<Message> onSuccess, Consumer<Throwable> onFail) {
         RestActions.sendPrivateMessage(invoker, message, onSuccess, onFail);
     }
 
@@ -182,7 +166,6 @@ public class MessageContext implements Context {
     /**
      * @return a general purpose preformatted builder for embeds
      */
-    @NonNull
     public static EmbedBuilder getDefaultEmbedBuilder() {
         return new EmbedBuilder()
                 .setColor(BLACKIA);
@@ -193,7 +176,7 @@ public class MessageContext implements Context {
     //                         Internal context stuff
     // ********************************************************************************
 
-    private void reply0(@NonNull final Message message, @Nullable final Consumer<Message> onSuccess) {
+    private void reply0(Message message, @Nullable Consumer<Message> onSuccess) {
         long started = System.nanoTime();
 
         Consumer<Message> successWrapper = m -> {

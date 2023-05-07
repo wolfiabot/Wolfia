@@ -41,7 +41,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.CommandContext;
@@ -139,30 +138,27 @@ public abstract class Game {
     /**
      * @return the role pm of a user
      */
-    @NonNull
-    public String getRolePm(@NonNull final Member member) throws IllegalGameStateException {
+    public String getRolePm(Member member) throws IllegalGameStateException {
         return getPlayer(member.getUser().getIdLong()).getRolePm();
     }
 
     /**
      * @return true if the user is playing in this game (dead or alive), false if not
      */
-    public boolean isUserPlaying(@NonNull final User user) {
+    public boolean isUserPlaying(User user) {
         long userId = user.getIdLong();
         return this.players.stream().anyMatch(p -> p.userId == userId);
     }
 
-    public boolean isUserPlaying(@NonNull final Member member) {
+    public boolean isUserPlaying(Member member) {
         return isUserPlaying(member.getUser());
     }
 
     /**
-     * @param signedUpCount
-     *         amount of players that have signed up
-     *
+     * @param signedUpCount amount of players that have signed up
      * @return true if a game can be started with the provided amount of players
      */
-    public boolean isAcceptablePlayerCount(final int signedUpCount, final GameInfo.GameMode mode) {
+    public boolean isAcceptablePlayerCount(int signedUpCount, GameInfo.GameMode mode) {
         return Games.getInfo(this.getClass()).isAcceptablePlayerCount(signedUpCount, mode);
     }
 
@@ -177,11 +173,11 @@ public abstract class Game {
     /**
      * this is used to keep stats, call this whenever a listener sees the user post something during an ongoing game
      */
-    public void userPosted(final Message message) {
+    public void userPosted(Message message) {
         if (!this.running) return;
 
-        final long userId = message.getAuthor().getIdLong();
-        final PlayerStats ps = this.playersStats.get(userId);
+        long userId = message.getAuthor().getIdLong();
+        PlayerStats ps = this.playersStats.get(userId);
         if (ps != null) {
             ps.bumpPosts(message.getContentRaw().length());
         }
@@ -190,7 +186,6 @@ public abstract class Game {
     /**
      * @return the main game channel
      */
-    @NonNull
     protected TextChannel fetchGameChannel() {
         return fetchTextChannel(this.channelId);
     }
@@ -199,17 +194,16 @@ public abstract class Game {
      * @return the baddie game channel
      * Might throw an exception if called in the wrong game mode or never return
      */
-    @NonNull
     protected TextChannel fetchBaddieChannel() {
         return fetchTextChannel(this.wolfChat.getChannelId());
     }
 
-    public boolean isLiving(final User user) {
+    public boolean isLiving(User user) {
         return isLiving(user.getIdLong());
     }
 
-    public boolean isLiving(final long userId) {
-        for (final Player p : this.players) {
+    public boolean isLiving(long userId) {
+        for (Player p : this.players) {
             if (p.userId == userId && p.isAlive()) {
                 return true;
             }
@@ -217,9 +211,8 @@ public abstract class Game {
         return false;
     }
 
-    @NonNull
-    protected Player getPlayer(final long userId) throws IllegalGameStateException {
-        for (final Player p : this.players) {
+    protected Player getPlayer(long userId) throws IllegalGameStateException {
+        for (Player p : this.players) {
             if (p.userId == userId) {
                 return p;
             }
@@ -227,8 +220,7 @@ public abstract class Game {
         throw new IllegalGameStateException("Requested player " + userId + " is not in the player list");
     }
 
-    @NonNull
-    public Player getPlayer(@NonNull final User user) throws IllegalGameStateException {
+    public Player getPlayer(User user) throws IllegalGameStateException {
         return getPlayer(user.getIdLong());
     }
 
@@ -301,17 +293,17 @@ public abstract class Game {
                 .collect(Collectors.toList());
     }
 
-    public boolean isLivingWolf(final Member m) {
+    public boolean isLivingWolf(Member m) {
         return getLivingWolves().stream().anyMatch(player -> player.userId == m.getUser().getIdLong());
     }
 
     //do not post this before the game is over
     //set wwFlair to true to have werewolf flaor, otherwise mafia flair will be used
-    protected String listTeams(final boolean... wwFlair) {
+    protected String listTeams(boolean... wwFlair) {
         if (this.running) {
             log.warn("listTeams() called in a running game");
         }
-        final StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         sb.append("Village: ");
         getVillagers().forEach(p -> sb.append(TextchatUtils.userAsMention(p.userId)).append(" "));
         if (wwFlair.length > 0 && wwFlair[0]) {
@@ -324,8 +316,8 @@ public abstract class Game {
     }
 
     protected String listLivingPlayers() {
-        final List<Player> living = getLivingPlayers();
-        final StringBuilder sb = new StringBuilder("Living players (**").append(living.size()).append("**) :");
+        List<Player> living = getLivingPlayers();
+        StringBuilder sb = new StringBuilder("Living players (**").append(living.size()).append("**) :");
         living.forEach(p -> sb.append(TextchatUtils.userAsMention(p.userId)).append(" "));
         return sb.toString();
     }
@@ -345,11 +337,11 @@ public abstract class Game {
      * @throws IllegalArgumentException
      *         if any of the provided arguments fail the checks
      */
-    protected void doArgumentChecksAndSet(final long channelId, final GameInfo.GameMode mode, final Set<Long> innedPlayers) {
+    protected void doArgumentChecksAndSet(long channelId, GameInfo.GameMode mode, Set<Long> innedPlayers) {
         if (this.running) {
             throw new IllegalStateException("Cannot start a game that is running already");
         }
-        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
+        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
         if (channelId <= 0 || channel == null) {
             throw new IllegalArgumentException(String.format(
                     "Cannot start a game with invalid/no channel (channelId: %s) set.", channelId)
@@ -383,12 +375,12 @@ public abstract class Game {
      * @throws UserFriendlyException
      *         if the bot is missing permissions to run the game in the channel
      */
-    protected void doPermissionCheckAndPrepareChannel(final boolean moderated) {
-        final TextChannel gameChannel = fetchGameChannel();
-        final Guild g = gameChannel.getGuild();
+    protected void doPermissionCheckAndPrepareChannel(boolean moderated) {
+        TextChannel gameChannel = fetchGameChannel();
+        Guild g = gameChannel.getGuild();
 
         //check permissions
-        final Set<Permission> toAcquireInChannelScope = new HashSet<>();
+        Set<Permission> toAcquireInChannelScope = new HashSet<>();
         Games.getInfo(this).getRequiredPermissions(this.mode).forEach((permission, scope) -> {
 
             if (scope == Scope.CHANNEL) {
@@ -400,14 +392,14 @@ public abstract class Game {
 
         if (moderated) {
             //is this a non-public channel, and if yes, has an existing access role been set?
-            final boolean isChannelPublic = g.getPublicRole()
+            boolean isChannelPublic = g.getPublicRole()
                     .hasPermission(gameChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ);
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
                 this.accessRoleId = Launcher.getBotContext().getChannelSettingsService()
                         .channel(this.channelId).getOrDefault().getAccessRoleId().orElse(0L);
-                final Role accessRole = g.getRoleById(this.accessRoleId);
+                Role accessRole = g.getRoleById(this.accessRoleId);
                 if (accessRole == null) {
                     throw new UserFriendlyException(String.format(
                             "Non-public channel has been detected (`@everyone` is missing `%s` and/or `%s` permissions)." +
@@ -440,7 +432,7 @@ public abstract class Game {
 
             try {
                 prepareChannel();
-            } catch (final PermissionException e) {
+            } catch (PermissionException e) {
                 log.error("Could not prepare channel {}, id: {}, due to missing permission: {}", gameChannel.getName(),
                         gameChannel.getId(), e.getPermission().getName(), e);
                 throw new UserFriendlyException(String.format(
@@ -454,13 +446,12 @@ public abstract class Game {
     /**
      * Obtains a character setup and rands the roles and alignments between the inned players
      *
-     * @param innedPlayers
-     *         players that have inned
+     * @param innedPlayers players that have inned
      */
-    protected void randCharacters(final Set<Long> innedPlayers) {
+    protected void randCharacters(Set<Long> innedPlayers) {
         // - rand the characters
-        final CharakterSetup charakterSetup = Games.getInfo(this).getCharacterSetup(this.mode, innedPlayers.size());
-        final List<Long> rand = new ArrayList<>(innedPlayers);
+        CharakterSetup charakterSetup = Games.getInfo(this).getCharacterSetup(this.mode, innedPlayers.size());
+        List<Long> rand = new ArrayList<>(innedPlayers);
         Collections.shuffle(rand);
 
         if (charakterSetup.size() != innedPlayers.size()) {
@@ -472,8 +463,8 @@ public abstract class Game {
 
         this.players.clear();
         int i = 0;
-        for (final Charakter c : charakterSetup.getRandedCharakters()) {
-            final long randedUserId = rand.get(i);
+        for (Charakter c : charakterSetup.getRandedCharakters()) {
+            long randedUserId = rand.get(i);
             this.players.add(new Player(randedUserId, this.channelId, this.guildId, c.alignment, c.role, i + 1));
             i++;
         }
@@ -488,7 +479,7 @@ public abstract class Game {
                     log.error("Ran out of free private guilds. Please add moar.");
                     try { //oh yeah...we are waiting till infinity if necessary
                         return privateRoomQueue.take();
-                    } catch (final InterruptedException e) {
+                    } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         log.error("Interrupted while waiting for a private server.");
                         throw new UserFriendlyException("Could not allocate a private server.");
@@ -503,8 +494,8 @@ public abstract class Game {
      *         if the bot is missing permissions to edit permission overrides for members and roles
      */
     protected void prepareChannel() {
-        final TextChannel gameChannel = fetchGameChannel();
-        final Guild g = gameChannel.getGuild();
+        TextChannel gameChannel = fetchGameChannel();
+        Guild g = gameChannel.getGuild();
 
         // - ensure write access for the bot in the game channel
         // this can be done with complete() as most of the time (after the first game) it will already be in place
@@ -521,40 +512,39 @@ public abstract class Game {
      * most likely this includes deleting all discord roles used in the game and resetting player's and the access
      * role's permission overrides for the game channel
      *
-     * @param complete
-     *         optionally set to true to complete these operations before returning
+     * @param complete optionally set to true to complete these operations before returning
      */
     //revert whatever prepareChannel() did in reverse order
-    public void resetRolesAndPermissions(final boolean... complete) {
+    public void resetRolesAndPermissions(boolean... complete) {
 
-        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
+        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
         if (channel == null) {
             //we probably left the guild
             log.warn("Could not find channel {} to reset roles and permissions in there", this.channelId);
             return;
         }
-        final Guild g = channel.getGuild();
-        final List<Permission> missingPermissions = new ArrayList<>();
-        final List<Future<?>> toComplete = new ArrayList<>();
+        Guild g = channel.getGuild();
+        List<Permission> missingPermissions = new ArrayList<>();
+        List<Future<?>> toComplete = new ArrayList<>();
 
         //reset permission override for the players
         try {
-            for (final Player player : this.players) {
+            for (Player player : this.players) {
                 toComplete.add(RoleAndPermissionUtils.clear(channel, g.getMemberById(player.userId),
                         Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).submit());
             }
-        } catch (final PermissionException e) {
+        } catch (PermissionException e) {
             missingPermissions.add(e.getPermission());
         }
 
         //reset permission override for the access role in the game channel
         try {
-            final Role accessRole = g.getRoleById(this.accessRoleId);
+            Role accessRole = g.getRoleById(this.accessRoleId);
             if (accessRole != null) {
                 //todo don't grant MESSAGE_ADD_REACTION if it wasn't granted. we need both things happening in a single RestAction to work properly
                 toComplete.add(RoleAndPermissionUtils.grant(channel, accessRole, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).submit());
             }
-        } catch (final PermissionException e) {
+        } catch (PermissionException e) {
             missingPermissions.add(e.getPermission());
         }
 
@@ -568,12 +558,12 @@ public abstract class Game {
         }
 
         if (complete.length > 0 && complete[0]) {
-            for (final Future<?> f : toComplete) {
+            for (Future<?> f : toComplete) {
                 try {
                     f.get();
-                } catch (final InterruptedException ignored) {
+                } catch (InterruptedException ignored) {
                     Thread.currentThread().interrupt();
-                } catch (final ExecutionException ignored) {
+                } catch (ExecutionException ignored) {
                     // ignored
                 }
             }
@@ -588,7 +578,7 @@ public abstract class Game {
         if (this.wolfChat != null) {
             try {
                 this.wolfChat.endUsage();
-            } catch (final IllegalStateException ignored) {
+            } catch (IllegalStateException ignored) {
                 //dont really care about this one, its fine if usage has been stopped already
             }
         }
@@ -597,10 +587,10 @@ public abstract class Game {
     }
 
     //public for eval usage
-    public void destroy(final Throwable reason) {
+    public void destroy(Throwable reason) {
         String reasonMessage = "No reason provided";
         if (reason != null) reasonMessage = reason.getMessage();
-        final String logMessage = String.format("Game in channel %s destroyed due to %s", this.channelId, reasonMessage);
+        String logMessage = String.format("Game in channel %s destroyed due to %s", this.channelId, reasonMessage);
         if (reason instanceof UserFriendlyException) {
             log.info(logMessage, reason);
         } else {
@@ -608,7 +598,7 @@ public abstract class Game {
         }
         cleanUp();
         Launcher.getBotContext().getGameRegistry().remove(this);
-        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
+        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(this.channelId);
         if (channel != null) {
             RestActions.sendMessage(channel,
                     String.format("Game has been stopped due to:"
@@ -633,7 +623,7 @@ public abstract class Game {
     /**
      * Checks whether any win conditions have been met, and reveals the game if yes
      */
-    protected boolean isGameOver(final boolean... wwFlair) {
+    protected boolean isGameOver(boolean... wwFlair) {
         boolean gameEnding = false;
         boolean villageWins = true;
         String out = "";
@@ -682,12 +672,12 @@ public abstract class Game {
                 long gameId = this.gameStats.getGameId().orElseThrow();
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
                         gameId, WolfiaConfig.DEFAULT_PREFIX + ReplayCommand.TRIGGER, gameId);
-            } catch (final Exception e) {
+            } catch (Exception e) {
                 log.error("Db blew up saving game stats", e);
                 out += "The database it not available currently, a replay of this game will not be available.";
             }
             cleanUp();
-            final TextChannel gameChannel = fetchGameChannel();
+            TextChannel gameChannel = fetchGameChannel();
             String info = Games.getInfo(this).textRep();
             long gameId = this.gameStats.getGameId().orElseThrow();
             log.info("Game #{} ended in guild {} {}, channel #{} {}, {} {} {} players",
@@ -707,17 +697,16 @@ public abstract class Game {
         return false;
     }
 
-
-    protected EmbedBuilder listLivingPlayersWithNumbers(final Player... except) {
-        final NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
-        final TextChannel gameChannel = fetchGameChannel();
-        final Guild g = gameChannel.getGuild();
+    protected EmbedBuilder listLivingPlayersWithNumbers(Player... except) {
+        NiceEmbedBuilder neb = NiceEmbedBuilder.defaultBuilder();
+        TextChannel gameChannel = fetchGameChannel();
+        Guild g = gameChannel.getGuild();
         neb.setTitle("Living players");
         neb.setDescription("Game: " + Games.getInfo(this).textRep() + " " + this.mode.textRep + " on " + g.getName() + " in #" + gameChannel.getName());
 
-        final NiceEmbedBuilder.ChunkingField list = new NiceEmbedBuilder.ChunkingField("", true);
-        final Set<Player> dontAdd = new HashSet<>(Arrays.asList(except));
-        for (final Player p : getLivingPlayers()) {
+        NiceEmbedBuilder.ChunkingField list = new NiceEmbedBuilder.ChunkingField("", true);
+        Set<Player> dontAdd = new HashSet<>(Arrays.asList(except));
+        for (Player p : getLivingPlayers()) {
             if (!dontAdd.contains(p)) {
                 list.add(p.numberAsEmojis() + " " + p.bothNamesFormatted(), true);
             }
@@ -745,7 +734,7 @@ public abstract class Game {
     }
 
     //an way to create ActionStats object with a bunch of default/automatically generated values, like time stamps
-    protected abstract ActionStats simpleAction(final long actor, final Actions action, final long target);
+    protected abstract ActionStats simpleAction(long actor, Actions action, long target);
 
     /**
      * Sets the day length
@@ -789,15 +778,14 @@ public abstract class Game {
      * @throws IllegalGameStateException
      *         if the command entered led to an illegal game state
      */
-    public abstract boolean issueCommand(@NonNull CommandContext context)
+    public abstract boolean issueCommand(CommandContext context)
             throws IllegalGameStateException;
 
 
     //this method assumes that the id itself is legit and not a mistake
     // it is an attempt to improve the occasional inconsistency of discord which makes looking up entities a gamble
-    // the main feature being the @NonNull return contract, over the @Nullable contract of looking the entity up in JDA
-    @NonNull
-    private static TextChannel fetchTextChannel(final long channelId) {
+    // the main feature being the non-null return contract, over the @Nullable contract of looking the entity up in JDA
+    private static TextChannel fetchTextChannel(long channelId) {
         ShardManager shardManager = Launcher.getBotContext().getShardManager();
         TextChannel tc = shardManager.getTextChannelById(channelId);
         int attempts = 0;
@@ -809,7 +797,7 @@ public abstract class Game {
             log.error("Could not find channel {}, retrying in a moment", channelId, new LogTheStackException());
             try {
                 Thread.sleep(5000);
-            } catch (final InterruptedException e) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
             tc = shardManager.getTextChannelById(channelId);

@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.util;
 
 
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.Role;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -46,8 +45,8 @@ public class RankCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) {
-        final GuildCommandContext context = commandContext.requireGuild();
+    public boolean execute(CommandContext commandContext) {
+        GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
         }
@@ -63,7 +62,7 @@ public class RankCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        final Role role;
+        Role role;
         if (TextchatUtils.isSimilarLower("AlphaWolves", context.rawArgs)) {
             role = context.guild.getRoleById(WolfiaGuildListener.ALPHAWOLVES_ROLE_ID);
             if (role == null) {
@@ -85,7 +84,6 @@ public class RankCommand implements BaseCommand, PublicCommand {
         return true;
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " AlphaWolves"

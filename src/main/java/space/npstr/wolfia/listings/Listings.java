@@ -22,14 +22,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import okhttp3.OkHttpClient;
 import org.springframework.context.event.EventListener;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.OkHttpEventCounter;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
@@ -56,20 +55,20 @@ public class Listings {
         this.tasks.put(new Carbonitex(httpClient), null);
     }
 
-    private static boolean isTaskRunning(@Nullable final Future<?> task) {
+    private static boolean isTaskRunning(@Nullable Future<?> task) {
         return task != null && !task.isDone() && !task.isCancelled();
     }
 
     //according to discordbotspw and discordbotsorg docs: post stats on guild join, guild leave, and ready events
-    private void postAllStats(@NonNull final JDA jda) {
-        final Set<Listing> listings = new HashSet<>(this.tasks.keySet());
-        for (final Listing listing : listings) {
+    private void postAllStats(JDA jda) {
+        Set<Listing> listings = new HashSet<>(this.tasks.keySet());
+        for (Listing listing : listings) {
             postStats(listing, jda);
         }
     }
 
-    private synchronized void postStats(@NonNull final Listing listing, @NonNull final JDA jda) {
-        final Future<?> task = this.tasks.get(listing);
+    private synchronized void postStats(Listing listing, JDA jda) {
+        Future<?> task = this.tasks.get(listing);
         if (isTaskRunning(task)) {
             log.info("Skipping posting stats to {} since there is a task to do that running already.", listing.name);
             return;
@@ -78,7 +77,7 @@ public class Listings {
         this.tasks.put(listing, this.executor.submit(() -> {
             try {
                 listing.postStats(jda);
-            } catch (final InterruptedException e) {
+            } catch (InterruptedException e) {
                 log.error("Task to send stats to {} interrupted", listing.name, e);
                 Thread.currentThread().interrupt();
             }
@@ -87,17 +86,17 @@ public class Listings {
 
 
     @EventListener
-    public void onGuildJoin(final GuildJoinEvent event) {
+    public void onGuildJoin(GuildJoinEvent event) {
         postAllStats(event.getJDA());
     }
 
     @EventListener
-    public void onGuildLeave(final GuildLeaveEvent event) {
+    public void onGuildLeave(GuildLeaveEvent event) {
         postAllStats(event.getJDA());
     }
 
     @EventListener
-    public void onReady(final ReadyEvent event) {
+    public void onReady(ReadyEvent event) {
         postAllStats(event.getJDA());
     }
 }

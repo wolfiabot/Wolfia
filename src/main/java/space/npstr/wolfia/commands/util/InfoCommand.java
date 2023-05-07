@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.util;
 
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDAInfo;
@@ -51,7 +50,6 @@ public class InfoCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation()
@@ -59,7 +57,7 @@ public class InfoCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
         ShardManager shardManager = context.getJda().getShardManager();
         requireNonNull(shardManager).retrieveApplicationInfo().submit()
                 .thenApply(ApplicationInfo::getDescription)
@@ -67,10 +65,10 @@ public class InfoCommand implements BaseCommand, PublicCommand {
         return true;
     }
 
-    private void execute(@NonNull final CommandContext context, String description) {
+    private void execute(CommandContext context, String description) {
         ShardManager shardManager = requireNonNull(context.getJda().getShardManager());
         var appInfoProvider = new ApplicationInfoProvider(context.getJda().getShardManager());
-        final User owner = appInfoProvider.getOwner();
+        User owner = appInfoProvider.getOwner();
         String maStats = "```\n";
         maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
         maStats += "-> Of which is used:    " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000 + "MB\n";
@@ -90,8 +88,8 @@ public class InfoCommand implements BaseCommand, PublicCommand {
         botInfo += "Bot owner:              " + owner.getName() + "#" + owner.getDiscriminator() + "\n";
         botInfo += "```";
 
-        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
-        final User self = context.event.getJDA().getSelfUser();
+        EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
+        User self = context.event.getJDA().getSelfUser();
         eb.setThumbnail(self.getEffectiveAvatarUrl());
         eb.setAuthor(self.getName(), App.SITE_LINK, self.getEffectiveAvatarUrl());
         eb.setTitle(self.getName() + " General Stats", App.SITE_LINK);

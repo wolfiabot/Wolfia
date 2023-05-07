@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -37,30 +36,29 @@ public class ReviveCommand implements BaseCommand {
         return "revive";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Revive a shard by id.";
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
         if (!context.hasArguments()) {
             context.reply("No shard id provided! Say `" + WolfiaConfig.DEFAULT_PREFIX + "revive 0` for example.");
             return false;
         }
 
-        final String input = context.args[0];
-        final int shardId;
+        String input = context.args[0];
+        int shardId;
         try {
             shardId = Integer.parseUnsignedInt(input);
-        } catch (final NumberFormatException e) {
+        } catch (NumberFormatException e) {
             context.reply("Your provided input `" + input + "` is no positive integer.");
             return false;
         }
 
         ShardManager shardManager = context.getJda().getShardManager();
-        final JDA jda = requireNonNull(shardManager).getShardById(shardId);
+        JDA jda = requireNonNull(shardManager).getShardById(shardId);
         if (jda == null) {
             context.reply("No shard with id " + shardId + " found.");
             return false;

@@ -43,8 +43,8 @@ public class ReactionListener extends ListenerAdapter {
      * @param selfDestructMillis   milliseconds after which this listener is removed and the message deleted
      * @param selfDestructCallback called on self destruct
      */
-    public ReactionListener(final Message message, final Predicate<Member> filter, final Consumer<GenericMessageReactionEvent> callback,
-                            final long selfDestructMillis, final Consumer<Void> selfDestructCallback) {
+    public ReactionListener(Message message, Predicate<Member> filter, Consumer<GenericMessageReactionEvent> callback,
+                            long selfDestructMillis, Consumer<Void> selfDestructCallback) {
         this.messageId = message.getIdLong();
         this.filter = filter;
         this.callback = callback;
@@ -60,7 +60,7 @@ public class ReactionListener extends ListenerAdapter {
     }
 
     @Override
-    public void onGenericMessageReaction(final GenericMessageReactionEvent event) {
+    public void onGenericMessageReaction(GenericMessageReactionEvent event) {
         if (this.messageId != event.getMessageIdLong()) {
             return;
         }

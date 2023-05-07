@@ -17,14 +17,13 @@
 
 package space.npstr.wolfia.commands;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.springframework.lang.Nullable;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 /**
@@ -37,15 +36,15 @@ public class CommandContext extends MessageContext {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommandContext.class);
 
     //@formatter:off
-    @NonNull public final String trigger;                        // the command trigger, e.g. "play", or "p", or "pLaY", whatever the user typed
-    @NonNull public final String[] args ;                        // the arguments split by whitespace, excluding prefix and trigger
-    @NonNull public final String rawArgs;                        // raw arguments excluding prefix and trigger, trimmed
-    @NonNull public final BaseCommand command;
-//    @NonNull private final Histogram.Timer received;             // time when we received this command
+     public final String trigger;                        // the command trigger, e.g. "play", or "p", or "pLaY", whatever the user typed
+     public final String[] args ;                        // the arguments split by whitespace, excluding prefix and trigger
+     public final String rawArgs;                        // raw arguments excluding prefix and trigger, trimmed
+     public final BaseCommand command;
+//     private final Histogram.Timer received;             // time when we received this command
     //@formatter:on
 
-    CommandContext(@NonNull final MessageReceivedEvent event, @NonNull final String trigger,
-                   @NonNull final String[] args, @NonNull final String rawArgs, @NonNull final BaseCommand command) {
+    CommandContext(MessageReceivedEvent event, String trigger,
+                   String[] args, String rawArgs, BaseCommand command) {
 
         super(event);
         this.trigger = trigger;
@@ -64,7 +63,7 @@ public class CommandContext extends MessageContext {
      */
     public void deleteMessage() {
         if (this.msg.isFromType(ChannelType.TEXT)) {
-            final TextChannel tc = this.msg.getTextChannel();
+            TextChannel tc = this.msg.getTextChannel();
             if (tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_MANAGE)) {
                 RestActions.deleteMessage(this.msg);
             }
@@ -84,11 +83,11 @@ public class CommandContext extends MessageContext {
      * @return a GuildCommandContext if this command was issued in a guild, null otherwise
      */
     @Nullable
-    public GuildCommandContext requireGuild(@NonNull final boolean... answerUser) {
+    public GuildCommandContext requireGuild(boolean... answerUser) {
         if (this.channel.getType() == ChannelType.TEXT) {
-            final TextChannel tc = (TextChannel) this.channel;
-            final Guild g = tc.getGuild();
-            final Member m = this.event.getMember();
+            TextChannel tc = (TextChannel) this.channel;
+            Guild g = tc.getGuild();
+            Member m = this.event.getMember();
             if (m != null) {
                 return new GuildCommandContext(this, g, m, tc);
             } else {

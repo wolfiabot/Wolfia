@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.ChannelType;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
@@ -45,7 +44,6 @@ public class ItemsCommand extends GameCommand {
         return TRIGGER;
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + "\n#Show your items.";
@@ -53,7 +51,7 @@ public class ItemsCommand extends GameCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@NonNull final CommandContext context) throws IllegalGameStateException {
+    public boolean execute(CommandContext context) throws IllegalGameStateException {
         //this command is expected to be called by a player in a private channel
 
         if (context.channel.getType() != ChannelType.PRIVATE) {
@@ -63,13 +61,13 @@ public class ItemsCommand extends GameCommand {
 
         //todo handle a player being part of multiple games properly
         boolean issued = false;
-        for (final Game g : this.gameRegistry.getAll().values()) {
+        for (Game g : this.gameRegistry.getAll().values()) {
             if (g.isUserPlaying(context.invoker) && g.isLiving(context.invoker)) {
-                final Player p = g.getPlayer(context.invoker);
+                Player p = g.getPlayer(context.invoker);
                 if (p.items.isEmpty()) {
                     context.reply("You don't possess any items.");
                 } else {
-                    final List<String> itemsList = p.items.stream().map(i -> i.itemType.emoji + ": " + i.itemType.explanation).collect(Collectors.toList());
+                    List<String> itemsList = p.items.stream().map(i -> i.itemType.emoji + ": " + i.itemType.explanation).collect(Collectors.toList());
                     context.reply("You have the following items:\n" + String.join("\n", itemsList));
                 }
                 issued = true;

@@ -27,7 +27,7 @@ public class Charakter {
     public final Alignments alignment;
     public final Roles role;
 
-    public Charakter(final Alignments alignment, final Roles role) {
+    public Charakter(Alignments alignment, Roles role) {
         this.alignment = alignment;
         this.role = role;
     }

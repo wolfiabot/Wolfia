@@ -32,7 +32,7 @@ import space.npstr.wolfia.common.Exceptions;
 public class DiscordApiConfiguration {
 
     @Bean(destroyMethod = "", name = "jdaThreadPool")
-    public ScheduledExecutorService jdaThreadPool(final ThreadPoolCollector threadPoolCollector) {
+    public ScheduledExecutorService jdaThreadPool(ThreadPoolCollector threadPoolCollector) {
         AtomicInteger threadNumber = new AtomicInteger(0);
         ScheduledThreadPoolExecutor jdaThreadPool = new ScheduledThreadPoolExecutor(50, r -> {
             Thread thread = new Thread(r, "jda-pool-t" + threadNumber.getAndIncrement());

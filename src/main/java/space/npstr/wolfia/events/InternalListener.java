@@ -45,28 +45,28 @@ public class InternalListener {
     }
 
     @EventListener
-    public void onReady(final ReadyEvent event) {
+    public void onReady(ReadyEvent event) {
         log.info("{} Ready! Version: {} Logged in as: {}", Emojis.ROCKET, App.VERSION, event.getJDA().getSelfUser().getName());
     }
 
     @EventListener
-    public void onGuildJoin(final GuildJoinEvent event) {
-        final Guild guild = event.getGuild();
+    public void onGuildJoin(GuildJoinEvent event) {
+        Guild guild = event.getGuild();
         log.info("Joined guild {} with {} users.", guild.getName(), guild.getMembers().size());
     }
 
     @EventListener
-    public void onGuildLeave(final GuildLeaveEvent event) {
-        final Guild guild = event.getGuild();
+    public void onGuildLeave(GuildLeaveEvent event) {
+        Guild guild = event.getGuild();
 
         int gamesDestroyed = 0;
         //destroy games running in the server that was left
-        for (final Game game : this.gameRegistry.getAll().values()) {
+        for (Game game : this.gameRegistry.getAll().values()) {
             if (game.getGuildId() == guild.getIdLong()) {
                 try {
                     game.destroy(new UserFriendlyException("Bot was kicked from the server " + guild.getName() + " " + guild.getIdLong()));
                     gamesDestroyed++;
-                } catch (final Exception e) {
+                } catch (Exception e) {
                     log.error("Exception when destroying a game in channel `{}` after leaving guild `{}`",
                             game.getChannelId(), guild.getIdLong(), e);
                 }
@@ -78,9 +78,9 @@ public class InternalListener {
     }
 
     @EventListener
-    public void onTextChannelDelete(final TextChannelDeleteEvent event) {
-        final long channelId = event.getChannel().getIdLong();
-        final long guildId = event.getGuild().getIdLong();
+    public void onTextChannelDelete(TextChannelDeleteEvent event) {
+        long channelId = event.getChannel().getIdLong();
+        long guildId = event.getGuild().getIdLong();
 
         Game game = this.gameRegistry.get(channelId);
         if (game != null) {

@@ -17,15 +17,13 @@
 
 package space.npstr.wolfia.domain.game;
 
-import net.dv8tion.jda.api.entities.TextChannel;
-import org.springframework.stereotype.Component;
-import space.npstr.wolfia.game.Game;
-
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import net.dv8tion.jda.api.entities.TextChannel;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
+import space.npstr.wolfia.game.Game;
 
 /**
  * Keep track of ongoing games
@@ -43,29 +41,29 @@ public class GameRegistry {
      * @return game that is running in the specified channel; may return null
      */
     @Nullable
-    public Game get(final long channelId) {
+    public Game get(long channelId) {
         return this.games.get(channelId);
     }
 
     @Nullable
-    public Game get(@NonNull final TextChannel channel) {
+    public Game get(TextChannel channel) {
         return get(channel.getIdLong());
     }
 
     //useful for evaling
-    public Game get(final String channelId) {
+    public Game get(String channelId) {
         return this.games.get(Long.valueOf(channelId));
     }
 
-    public void remove(final Game game) {
+    public void remove(Game game) {
         remove(game.getChannelId());
     }
 
-    public void remove(final long channelId) {
+    public void remove(long channelId) {
         this.games.remove(channelId);
     }
 
-    public void set(final Game game) {
+    public void set(Game game) {
         this.games.put(game.getChannelId(), game);
     }
 

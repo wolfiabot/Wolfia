@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.game.CharakterSetup;
 import space.npstr.wolfia.game.GameInfo;
@@ -37,7 +36,7 @@ public class MafiaInfo implements GameInfo {
 
     @Override
     public List<GameMode> getSupportedModes() {
-        final List<GameMode> supportedModes = new ArrayList<>();
+        List<GameMode> supportedModes = new ArrayList<>();
         supportedModes.add(GameMode.LITE); //village vs wolfs, there is a seer in the game
 //        supportedModes.add(GameMode.PURE); //no power roles, just wolfs vs villagers
         supportedModes.add(GameMode.XMAS); // seasonal mode with more mafs and santa clauses instead of villagers
@@ -50,8 +49,8 @@ public class MafiaInfo implements GameInfo {
     }
 
     @Override
-    public Map<Permission, Scope> getRequiredPermissions(final GameMode mode) {
-        final Map<Permission, Scope> requiredPermissions = new LinkedHashMap<>();
+    public Map<Permission, Scope> getRequiredPermissions(GameMode mode) {
+        Map<Permission, Scope> requiredPermissions = new LinkedHashMap<>();
         requiredPermissions.put(Permission.MESSAGE_EMBED_LINKS, Scope.CHANNEL);
         requiredPermissions.put(Permission.MESSAGE_EXT_EMOJI, Scope.CHANNEL);
         requiredPermissions.put(Permission.MESSAGE_ADD_REACTION, Scope.CHANNEL);
@@ -69,7 +68,7 @@ public class MafiaInfo implements GameInfo {
     }
 
     @Override
-    public String getAcceptablePlayerNumbers(final GameMode mode) {
+    public String getAcceptablePlayerNumbers(GameMode mode) {
         if (mode == GameMode.XMAS) {
             return "7+";
         }
@@ -77,16 +76,15 @@ public class MafiaInfo implements GameInfo {
     }
 
     @Override
-    public boolean isAcceptablePlayerCount(final int playerCount, final GameMode mode) {
+    public boolean isAcceptablePlayerCount(int playerCount, GameMode mode) {
         return ((mode == GameMode.LITE && 9 <= playerCount) || (mode == GameMode.XMAS && 7 <= playerCount));
     }
 
     /**
      * @return a character setup for the provided mode and player count, never null
      */
-    @NonNull
     @Override
-    public CharakterSetup getCharacterSetup(@NonNull final GameMode mode, final int playerCount) {
+    public CharakterSetup getCharacterSetup(GameMode mode, int playerCount) {
         if (!isAcceptablePlayerCount(playerCount, mode)) {
             throw new IllegalArgumentException(String.format(
                     "There is no possible character setup for the provided player count %s in this game %s mode %s",
@@ -96,9 +94,9 @@ public class MafiaInfo implements GameInfo {
         if (mode == GameMode.LITE) {
             //source: https://weebs.are-la.me/be281b.png
             //https://docs.google.com/spreadsheets/d/1IYcGg4GK9na9JGk-mqlJ7Zfbsah0BJKxiN3pKPJpCPU/edit#gid=0
-            final int cops = Math.max(1, (int) Math.floor(playerCount / 10.0));
-            final int mafias = (int) Math.floor((playerCount - cops) / 4.0);
-            final int towns = playerCount - (cops + mafias);
+            int cops = Math.max(1, (int) Math.floor(playerCount / 10.0));
+            int mafias = (int) Math.floor((playerCount - cops) / 4.0);
+            int towns = playerCount - (cops + mafias);
 
             return new CharakterSetup()
                     .addRoleAndAlignment(Alignments.VILLAGE, Roles.COP, cops)
@@ -111,8 +109,8 @@ public class MafiaInfo implements GameInfo {
                 cops = Math.max(1, (int) Math.floor(playerCount / 10.0));
             }
             //a bit more mafs, 33%, cause lolbalance
-            final int mafias = (int) Math.floor((playerCount - 1) / 3.0);
-            final int santas = playerCount - (cops + mafias);
+            int mafias = (int) Math.floor((playerCount - 1) / 3.0);
+            int santas = playerCount - (cops + mafias);
             return new CharakterSetup()
                     .addRoleAndAlignment(Alignments.VILLAGE, Roles.COP, cops)
                     .addRoleAndAlignment(Alignments.WOLF, Roles.VANILLA, mafias)

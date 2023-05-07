@@ -20,11 +20,10 @@ package space.npstr.wolfia.game;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import org.springframework.lang.Nullable;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.game.definitions.Alignments;
@@ -48,20 +47,17 @@ public class Player {
     public final long userId;
     public final long channelId;
     public final long guildId; //guild where the game is running in
-    @NonNull
     public final Alignments alignment;
-    @NonNull
     public final Roles role;
     public final int number;
 
     public final List<Item> items = new CopyOnWriteArrayList<>();
 
-    @NonNull
     private String rolePm = "This player has no role pm.";
     private boolean isAlive = true;
 
-    public Player(final long userId, final long channelId, final long guildId, @NonNull final Alignments alignment,
-                  @NonNull final Roles role, final int number) {
+    public Player(long userId, long channelId, long guildId, Alignments alignment,
+                  Roles role, int number) {
         this.userId = userId;
         this.channelId = channelId;
         this.guildId = guildId;
@@ -82,12 +78,11 @@ public class Player {
         return !this.isAlive;
     }
 
-    @NonNull
     public String getRolePm() {
         return this.rolePm;
     }
 
-    public void setRolePm(@NonNull final String rolePm) {
+    public void setRolePm(String rolePm) {
         this.rolePm = rolePm;
     }
 
@@ -99,7 +94,7 @@ public class Player {
         return this.alignment == Alignments.VILLAGE;
     }
 
-    public boolean hasItemOfType(@NonNull final Item.ItemType item) {
+    public boolean hasItemOfType(Item.ItemType item) {
         return this.items.stream().anyMatch(i -> i.itemType.equals(item));
     }
 
@@ -107,11 +102,10 @@ public class Player {
      * @return the discord user (global) name of this player.
      * May return a placeholder for unknown users in weird edge cases
      */
-    @NonNull
     public String getName() {
         try {
             return Launcher.getBotContext().getUserCache().user(this.userId).getName();
-        } catch (final Exception e) {
+        } catch (Exception e) {
             log.warn("Failed to fetch user {} name", this.userId, e);
             return UNKNOWN_NAME;
         }
@@ -121,11 +115,10 @@ public class Player {
      * @return the discord user nick name of this player in the guild of where the game is happening.
      * May return a placeholder for unknown users in weird edge cases
      */
-    @NonNull
     public String getNick() {
         try {
             return Launcher.getBotContext().getUserCache().user(this.userId).getEffectiveName(this.guildId);
-        } catch (final Exception e) {
+        } catch (Exception e) {
             log.warn("Failed to fetch user {} nick", this.userId, e);
             return UNKNOWN_NAME;
         }
@@ -136,7 +129,6 @@ public class Player {
      * users global name and the nick is the optional nick in the guild of the main game channel
      * May return a placeholder for unknown users in weird edge cases
      */
-    @NonNull
     public String bothNamesFormatted() {
         String name = UNKNOWN_NAME;
         String nick = UNKNOWN_NAME;
@@ -144,14 +136,13 @@ public class Player {
             UserCache userCache = Launcher.getBotContext().getUserCache();
             name = userCache.user(this.userId).getName();
             nick = userCache.user(this.userId).getNick(this.guildId).orElse(null);
-        } catch (final Exception e) {
+        } catch (Exception e) {
             log.warn("Failed to fetch user {} name and nick", this.userId, e);
         }
         return formatNameAndNick(name, nick);
     }
 
-    @NonNull
-    private String formatNameAndNick(@NonNull final String name, @Nullable final String nick) {
+    private String formatNameAndNick(String name, @Nullable String nick) {
         if (name.equals(nick) || nick == null) {
             return "**" + TextchatUtils.escapeMarkdown(name) + "**";
         } else {
@@ -159,7 +150,6 @@ public class Player {
         }
     }
 
-    @NonNull
     public String asMention() {
         return TextchatUtils.userAsMention(this.userId);
     }
@@ -182,10 +172,10 @@ public class Player {
     }
 
     public String numberAsEmojis() {
-        final String numberStr = Integer.toString(this.number);
-        final StringBuilder result = new StringBuilder();
-        for (final char c : numberStr.toCharArray()) {
-            final int i = Integer.parseInt(c + "");
+        String numberStr = Integer.toString(this.number);
+        StringBuilder result = new StringBuilder();
+        for (char c : numberStr.toCharArray()) {
+            int i = Integer.parseInt(c + "");
             result.append(Emojis.NUMBERS.get(i));
         }
         return result.toString();
@@ -200,7 +190,7 @@ public class Player {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = 1;
         result = prime * result + (int) (this.userId ^ (this.userId >>> 32));
         result = prime * result + (int) (this.channelId ^ (this.channelId >>> 32));
@@ -209,18 +199,17 @@ public class Player {
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(Object obj) {
         if (!(obj instanceof Player)) return false;
-        final Player other = (Player) obj;
+        Player other = (Player) obj;
         return this.userId == other.userId && this.channelId == other.channelId;
     }
 
-    public void sendMessage(@NonNull final String content, @NonNull final Consumer<Throwable> onFail) {
+    public void sendMessage(String content, Consumer<Throwable> onFail) {
         sendMessage(RestActions.from(content), onFail);
     }
 
-
-    public void sendMessage(@NonNull final MessageEmbed embed, @NonNull final Consumer<Throwable> onFail) {
+    public void sendMessage(MessageEmbed embed, Consumer<Throwable> onFail) {
         sendMessage(RestActions.from(embed), onFail);
     }
 
@@ -228,8 +217,8 @@ public class Player {
      * Send a private message to the user behind this player. May supply the failure handler with a UserNotPresentException
      * if the user is not present in the bot
      */
-    public void sendMessage(@NonNull final Message message, @NonNull final Consumer<Throwable> onFail) {
-        final User user = Launcher.getBotContext().getShardManager().getUserById(this.userId);
+    public void sendMessage(Message message, Consumer<Throwable> onFail) {
+        User user = Launcher.getBotContext().getShardManager().getUserById(this.userId);
         if (user != null) {
             RestActions.sendPrivateMessage(user, message, null, onFail);
         } else {

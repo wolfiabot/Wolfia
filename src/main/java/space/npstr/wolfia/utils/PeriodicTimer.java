@@ -33,8 +33,8 @@ public class PeriodicTimer {
      * @param updateMillis         interval for updates happening
      * @param updateCallback       called on update
      */
-    public PeriodicTimer(final long updateMillis, final Consumer<Void> updateCallback,
-                         final long selfDestructMillis, final Consumer<Void> selfDestructCallback) {
+    public PeriodicTimer(long updateMillis, Consumer<Void> updateCallback,
+                         long selfDestructMillis, Consumer<Void> selfDestructCallback) {
 
         this.updateCallback = updateCallback;
         this.updates = Launcher.getBotContext().getExecutor().scheduleAtFixedRate(this::update, updateMillis - 1000, updateMillis, TimeUnit.MILLISECONDS);

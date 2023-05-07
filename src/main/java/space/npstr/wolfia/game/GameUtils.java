@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
@@ -44,14 +43,14 @@ public class GameUtils {
      * @param <E>   class of the provided items and the desired returned one
      * @return a random item of the provided ones
      */
-    public static <E> E rand(final Collection<E> items) {
+    public static <E> E rand(Collection<E> items) {
         if (items.isEmpty()) {
             throw new IllegalArgumentException("Can't pick an item from zero items.");
         }
-        final int rand = ThreadLocalRandom.current().nextInt(items.size());
+        int rand = ThreadLocalRandom.current().nextInt(items.size());
         int i = 0;
         E result = null;
-        for (final E item : items) {
+        for (E item : items) {
             if (i == rand) {
                 result = item;
                 break;
@@ -71,22 +70,22 @@ public class GameUtils {
      *
      * @return the candidates C with the most votes
      */
-    public static <C> List<C> mostVoted(final Map<?, C> votes, final Collection<C> allCandidates) {
+    public static <C> List<C> mostVoted(Map<?, C> votes, Collection<C> allCandidates) {
         long mostVotes = 0;
-        final Map<C, Long> votesAmountToCandidate = new HashMap<>(allCandidates.size());
-        for (final C candidate : new HashSet<>(allCandidates)) {
-            final long votesAmount = votes.values().stream().filter(candidate::equals).count();
+        Map<C, Long> votesAmountToCandidate = new HashMap<>(allCandidates.size());
+        for (C candidate : new HashSet<>(allCandidates)) {
+            long votesAmount = votes.values().stream().filter(candidate::equals).count();
             votesAmountToCandidate.put(candidate, votesAmount);
             if (votesAmount > mostVotes) {
                 mostVotes = votesAmount;
             }
         }
 
-        final long most = mostVotes;
-        final List<C> result = new ArrayList<>();
-        for (final Map.Entry<C, Long> entry : votesAmountToCandidate.entrySet()) {
-            final C candidate = entry.getKey();
-            final long votesAmount = entry.getValue();
+        long most = mostVotes;
+        List<C> result = new ArrayList<>();
+        for (Map.Entry<C, Long> entry : votesAmountToCandidate.entrySet()) {
+            C candidate = entry.getKey();
+            long votesAmount = entry.getValue();
             if (votesAmount == most) result.add(candidate);
         }
 
@@ -96,10 +95,10 @@ public class GameUtils {
     /**
      * @return highest amount of votes in any single candidate
      */
-    public static <C> long mostVotes(final Map<?, C> votes) {
+    public static <C> long mostVotes(Map<?, C> votes) {
         long mostVotes = 0;
-        for (final C candidate : new HashSet<>(votes.values())) {
-            final long votesAmount = votes.values().stream().filter(candidate::equals).count();
+        for (C candidate : new HashSet<>(votes.values())) {
+            long votesAmount = votes.values().stream().filter(candidate::equals).count();
             if (votesAmount > mostVotes) {
                 mostVotes = votesAmount;
             }
@@ -108,13 +107,13 @@ public class GameUtils {
     }
 
 
-    public static <O> Map<String, O> mapToStrings(final Collection<O> objects, final List<String> strings) {
+    public static <O> Map<String, O> mapToStrings(Collection<O> objects, List<String> strings) {
         if (objects.size() >= strings.size()) {
             throw new IllegalArgumentException("Too many objects to map them to emojis.");
         }
-        final Map<String, O> mapped = new LinkedHashMap<>();//linked to preserve the order
+        Map<String, O> mapped = new LinkedHashMap<>();//linked to preserve the order
         int i = 0;
-        for (final O object : objects) {
+        for (O object : objects) {
             mapped.put(strings.get(i), object);
             i++;
         }
@@ -124,10 +123,10 @@ public class GameUtils {
     /**
      * @return the exact player found, or null and post a message
      */
-    public static Player identifyPlayer(final Collection<Player> players, @NonNull final CommandContext context) {
-        final List<Player> found = findPlayer(players, context);
+    public static Player identifyPlayer(Collection<Player> players, CommandContext context) {
+        List<Player> found = findPlayer(players, context);
 
-        final String explanation = String.format("Please use a mention or the player number which you can find with " +
+        String explanation = String.format("Please use a mention or the player number which you can find with " +
                 "`%s` so that I can clearly know who you are targeting.", WolfiaConfig.DEFAULT_PREFIX + StatusCommand.TRIGGER);
         if (found.isEmpty()) {
             context.replyWithMention("could not identify a player in your command! " + explanation);
@@ -147,62 +146,62 @@ public class GameUtils {
      * Will return an empty list if no match was found, a list with a single play if there was one match, or a list with
      * more than one of player in case of more than one hit. It is up to the caller to handle the cases.
      */
-    public static List<Player> findPlayer(final Collection<Player> players, @NonNull final CommandContext context, final int... levenshteinThreshold) {
+    public static List<Player> findPlayer(Collection<Player> players, CommandContext context, int... levenshteinThreshold) {
 
         //by mention
-        for (final User u : context.msg.getMentionedUsers()) {
-            final Optional<Player> maybe = players.stream().filter(player -> player.userId == u.getIdLong()).findAny();
+        for (User u : context.msg.getMentionedUsers()) {
+            Optional<Player> maybe = players.stream().filter(player -> player.userId == u.getIdLong()).findAny();
             if (maybe.isPresent()) {
                 return Collections.singletonList(maybe.get());
             }
         }
 
-        final String input = context.rawArgs;
+        String input = context.rawArgs;
         //by number
         try {
-            final int number = Integer.parseInt(input);
-            final Optional<Player> maybe = players.stream().filter(player -> player.number == number).findAny();
+            int number = Integer.parseInt(input);
+            Optional<Player> maybe = players.stream().filter(player -> player.number == number).findAny();
             if (maybe.isPresent()) {
                 return Collections.singletonList(maybe.get());
             }
-        } catch (final NumberFormatException ignored) {
+        } catch (NumberFormatException ignored) {
             // ignored
         }
 
         //by userid
         try {
-            final long userId = Long.parseLong(input);
-            final Optional<Player> maybe = players.stream().filter(player -> player.userId == userId).findAny();
+            long userId = Long.parseLong(input);
+            Optional<Player> maybe = players.stream().filter(player -> player.userId == userId).findAny();
             if (maybe.isPresent()) {
                 return Collections.singletonList(maybe.get());
             }
-        } catch (final NumberFormatException ignored) {
+        } catch (NumberFormatException ignored) {
             // ignored
         }
 
 
         //levenshtein test of name and nicks of the players
-        final Map<Player, Integer> distances = new HashMap<>();
-        for (final Player p : players) {
-            final int distanceName = TextchatUtils.levenshteinDist(p.getName(), input);
-            final int distanceNick = TextchatUtils.levenshteinDist(p.getNick(), input);
+        Map<Player, Integer> distances = new HashMap<>();
+        for (Player p : players) {
+            int distanceName = TextchatUtils.levenshteinDist(p.getName(), input);
+            int distanceNick = TextchatUtils.levenshteinDist(p.getNick(), input);
             distances.put(p, Math.min(distanceName, distanceNick));
         }
         int smallestDistance = Integer.MAX_VALUE;
-        for (final Map.Entry<Player, Integer> entry : distances.entrySet()) {
-            final int distance = entry.getValue();
+        for (Map.Entry<Player, Integer> entry : distances.entrySet()) {
+            int distance = entry.getValue();
             if (distance < smallestDistance) {
                 smallestDistance = distance;
             }
         }
-        final int threshold = levenshteinThreshold.length > 0 ? levenshteinThreshold[0] : 2;
+        int threshold = levenshteinThreshold.length > 0 ? levenshteinThreshold[0] : 2;
         if (smallestDistance > threshold) {
             return Collections.emptyList(); //no player found
         } else {
-            final List<Player> result = new ArrayList<>();
-            for (final Map.Entry<Player, Integer> entry : distances.entrySet()) {
-                final Player p = entry.getKey();
-                final int distance = entry.getValue();
+            List<Player> result = new ArrayList<>();
+            for (Map.Entry<Player, Integer> entry : distances.entrySet()) {
+                Player p = entry.getKey();
+                int distance = entry.getValue();
                 if (distance == smallestDistance) result.add(p);
             }
             return result;

@@ -34,7 +34,7 @@ public enum Roles {
     //role related building block of character pms
     public final String rolePmBlock;
 
-    Roles(final String textRepresentation, final String rolePmBlock) {
+    Roles(String textRepresentation, String rolePmBlock) {
         this.textRep = textRepresentation;
         this.rolePmBlock = rolePmBlock;
     }

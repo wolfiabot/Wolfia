@@ -51,7 +51,7 @@ public class Database {
     private final AtomicReference<DatabaseConnection> dbConnection = new AtomicReference<>();
     private final AtomicReference<DSLContext> jooq = new AtomicReference<>();
 
-    public Database(final DatabaseConfig databaseConfig, final WolfiaConfig wolfiaConfig,
+    public Database(DatabaseConfig databaseConfig, WolfiaConfig wolfiaConfig,
                     QueryCountStrategy queryCountStrategy) {
 
         this.databaseConfig = databaseConfig;
@@ -67,7 +67,7 @@ public class Database {
                 if (singleton == null) {
                     //try connecting to the database in a reasonable timeframe
                     boolean dbConnected = false;
-                    final long dbConnectStarted = System.currentTimeMillis();
+                    long dbConnectStarted = System.currentTimeMillis();
                     do {
                         try {
                             singleton = initDbConn();
@@ -141,7 +141,7 @@ public class Database {
     }
 
     private HikariConfig getHikariConfig() {
-        final HikariConfig hikariConfig = new HikariConfig();
+        HikariConfig hikariConfig = new HikariConfig();
 
         //more database connections don't help with performance, so use a default value based on available cores
         //http://www.dailymotion.com/video/x2s8uec_oltp-performance-concurrent-mid-tier-connections_tech
@@ -161,7 +161,7 @@ public class Database {
     }
 
     private Properties getDataSourceProps() {
-        final Properties dataSourceProps = new Properties();
+        Properties dataSourceProps = new Properties();
 
         // allow postgres to cast strings (varchars) more freely to actual column types
         // source https://jdbc.postgresql.org/documentation/head/connect.html

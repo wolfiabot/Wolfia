@@ -39,8 +39,8 @@ public class MetricsRegistry {
     public MetricsRegistry(InstrumentedAppender prometheusAppender, ThreadPoolCollector poolMetrics,
                            QueryCountCollector queryMetrics) {
         //log metrics
-        final LoggerContext factory = (LoggerContext) LoggerFactory.getILoggerFactory();
-        final ch.qos.logback.classic.Logger root = factory.getLogger(Logger.ROOT_LOGGER_NAME);
+        LoggerContext factory = (LoggerContext) LoggerFactory.getILoggerFactory();
+        ch.qos.logback.classic.Logger root = factory.getLogger(Logger.ROOT_LOGGER_NAME);
         prometheusAppender.setContext(root.getLoggerContext());
         prometheusAppender.start();
         root.addAppender(prometheusAppender);

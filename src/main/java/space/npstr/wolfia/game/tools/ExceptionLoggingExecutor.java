@@ -23,7 +23,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import org.springframework.lang.NonNull;
 
 /**
  * This executor logs exceptions of its tasks.
@@ -32,84 +31,77 @@ public class ExceptionLoggingExecutor extends ScheduledThreadPoolExecutor {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ExceptionLoggingExecutor.class);
 
-    public ExceptionLoggingExecutor(final int threads, final String threadName) {
+    public ExceptionLoggingExecutor(int threads, String threadName) {
         this(threads, r -> new Thread(r, threadName));
     }
 
-    public ExceptionLoggingExecutor(final int threads, final ThreadFactory threadFactory) {
+    public ExceptionLoggingExecutor(int threads, ThreadFactory threadFactory) {
         super(threads, threadFactory);
     }
 
     @Override
-    public void execute(final Runnable command) {
+    public void execute(Runnable command) {
         super.execute(wrapRunnableExceptionSafe(command));
     }
 
-    @NonNull
     @Override
-    public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit timeUnit) {
+    public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit timeUnit) {
         return super.schedule(wrapRunnableExceptionSafe(command), delay, timeUnit);
     }
 
-    @NonNull
     @Override
-    public <V> ScheduledFuture<V> schedule(final Callable<V> callable, final long delay, final TimeUnit unit) {
+    public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
         return super.schedule(wrapExceptionSafe(callable), delay, unit);
     }
 
-    @NonNull
     @Override
-    public ScheduledFuture<?> scheduleAtFixedRate(final Runnable command, final long initialDelay, final long period, final TimeUnit unit) {
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
         return super.scheduleAtFixedRate(wrapRunnableExceptionSafe(command), initialDelay, period, unit);
     }
 
-    @NonNull
     @Override
-    public ScheduledFuture<?> scheduleWithFixedDelay(final Runnable command, final long initialDelay, final long delay, final TimeUnit unit) {
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
         return super.scheduleWithFixedDelay(wrapRunnableExceptionSafe(command), initialDelay, delay, unit);
     }
 
-    @NonNull
     @Override
-    public Future<?> submit(final Runnable task) {
+    public Future<?> submit(Runnable task) {
         return super.submit(wrapRunnableExceptionSafe(task));
     }
 
-    @NonNull
     @Override
-    public <T> Future<T> submit(final Runnable task, final T result) {
+    public <T> Future<T> submit(Runnable task, T result) {
         return super.submit(wrapRunnableExceptionSafe(task), result);
     }
 
-    @NonNull
     @Override
-    public <T> Future<T> submit(final Callable<T> task) {
+    public <T> Future<T> submit(Callable<T> task) {
         return super.submit(wrapExceptionSafe(task));
     }
 
-    public static Runnable wrapRunnableExceptionSafe(final Runnable runnable) {
+    public static Runnable wrapRunnableExceptionSafe(Runnable runnable) {
         return wrapExceptionSafe(new ExceptionalTask(runnable));
     }
 
-    public static Runnable wrapExceptionSafe(final ExceptionalRunnable runnable) {
+    public static Runnable wrapExceptionSafe(ExceptionalRunnable runnable) {
         // scheduled executor services are sneaky bastards and will silently cancel tasks that throw an uncaught exception
         // related: http://code.nomad-labs.com/2011/12/09/mother-fk-the-scheduledexecutorservice
         // we don't really want our tasks to stop getting executed, and we want them to log any exceptions they encounter
         return () -> {
             try {
                 runnable.run();
-            } catch (final Exception e) {
+            } catch (Exception e) {
                 log.error("Runnable encountered an exception: {}", e.getMessage(), e);
             }
         };
     }
 
     //returns null instead of throwing an exception and possibly canceling the task
-    public static <V> Callable<V> wrapExceptionSafe(final Callable<V> callable) {
+    public static <V> Callable<V> wrapExceptionSafe(Callable<V> callable) {
         return () -> {
             try {
                 return callable.call();
-            } catch (final Exception e) {
+            } catch (Exception e) {
                 log.error("Callable encountered an exception: {}", e.getMessage(), e);
                 return null;
             }
@@ -125,7 +117,7 @@ public class ExceptionLoggingExecutor extends ScheduledThreadPoolExecutor {
     public static class ExceptionalTask implements ExceptionalRunnable {
         private final Runnable task;
 
-        public ExceptionalTask(final Runnable task) {
+        public ExceptionalTask(Runnable task) {
             this.task = task;
         }
 

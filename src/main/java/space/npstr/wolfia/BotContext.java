@@ -51,7 +51,7 @@ public class BotContext {
     private final GameRegistry gameRegistry;
     private final OAuth2Service oAuth2Service;
 
-    public BotContext(final Database database, final WolfiaConfig wolfiaConfig, final ListingsConfig listingsConfig,
+    public BotContext(Database database, WolfiaConfig wolfiaConfig, ListingsConfig listingsConfig,
                       PrivateRoomQueue privateRoomQueue, ExceptionLoggingExecutor executor,
                       ShardManager shardManager, ChannelSettingsService channelSettingsService, UserCache userCache,
                       StatsService statsService, GameRegistry gameRegistry, OAuth2Service oAuth2Service) {

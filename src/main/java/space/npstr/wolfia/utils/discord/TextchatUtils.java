@@ -24,8 +24,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -34,6 +32,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import org.springframework.lang.Nullable;
 import space.npstr.wolfia.utils.Operation;
 
 /**
@@ -52,19 +51,19 @@ public class TextchatUtils {
     public static final List<String> FALSE_TEXT = List.of("false", "no", "disable", "n", "off", "0", "negative", "-",
             "remove", "stop", "leave", "nein");
 
-    public static boolean isTrue(final String input) {
+    public static boolean isTrue(String input) {
         return TRUE_TEXT.contains(input);
     }
 
-    public static boolean isFalse(final String input) {
+    public static boolean isFalse(String input) {
         return FALSE_TEXT.contains(input);
     }
 
-    public static String userAsMention(final long userId) {
+    public static String userAsMention(long userId) {
         return "<@" + userId + ">";
     }
 
-    public static String formatMillis(final long millis) {
+    public static String formatMillis(long millis) {
         return String.format("%02d:%02d:%02d",
                 TimeUnit.MILLISECONDS.toHours(millis),
                 TimeUnit.MILLISECONDS.toMinutes(millis) -
@@ -75,16 +74,16 @@ public class TextchatUtils {
 
     //this will not always create a new invite, discord/JDA reuses previously created one
     //so no worries about spammed invites in a channel
-    public static String getOrCreateInviteLinkForChannel(final TextChannel channel, final Operation... onFail) {
+    public static String getOrCreateInviteLinkForChannel(TextChannel channel, Operation... onFail) {
         try {
             return channel.createInvite().complete().getUrl();
-        } catch (final PermissionException ignored) {
+        } catch (PermissionException ignored) {
             // ignored
         }
         try {
-            final List<Invite> invites = channel.retrieveInvites().complete();
+            List<Invite> invites = channel.retrieveInvites().complete();
             if (!invites.isEmpty()) return invites.get(0).getUrl();
-        } catch (final PermissionException ignored) {
+        } catch (PermissionException ignored) {
             // ignored
         }
 
@@ -97,15 +96,15 @@ public class TextchatUtils {
 
     //a more aggressive variant of getOrCreateInviteLinkForChannel() which will try to create an invite anywhere into
     // a guild
-    public static String getOrCreateInviteLinkForGuild(@NonNull final Guild guild, @Nullable final TextChannel preferred,
-                                                       final Operation... onFail) {
+    public static String getOrCreateInviteLinkForGuild(Guild guild, @Nullable TextChannel preferred,
+                                                       Operation... onFail) {
         if (preferred != null) {
-            final String preferredInvite = getOrCreateInviteLinkForChannel(preferred);
+            String preferredInvite = getOrCreateInviteLinkForChannel(preferred);
             if (!preferredInvite.isEmpty()) return preferredInvite;
         }
 
-        for (final TextChannel tc : guild.getTextChannels()) {
-            final String invite = getOrCreateInviteLinkForChannel(tc);
+        for (TextChannel tc : guild.getTextChannels()) {
+            String invite = getOrCreateInviteLinkForChannel(tc);
             if (!invite.isEmpty()) return invite;
         }
 
@@ -116,8 +115,8 @@ public class TextchatUtils {
         return "";
     }
 
-    public static String percentFormat(final double value) {
-        final NumberFormat nf = NumberFormat.getPercentInstance();
+    public static String percentFormat(double value) {
+        NumberFormat nf = NumberFormat.getPercentInstance();
         nf.setMaximumFractionDigits(2);
         return nf.format(value);
     }
@@ -125,7 +124,7 @@ public class TextchatUtils {
     /**
      * @return performs a division; returns 0 if the divisor is 0
      */
-    public static double divide(final long dividend, final long divisor) {
+    public static double divide(long dividend, long divisor) {
         if (divisor == 0) return 0;
         return 1.0 * dividend / divisor;
     }
@@ -137,17 +136,17 @@ public class TextchatUtils {
      * <p>
      * expected complexity: O(b + a*b)  (a and b = lengths of a and b)
      */
-    public static int levenshteinDist(@NonNull final String x, @NonNull final String y) {
-        final String a = x.toLowerCase();
-        final String b = y.toLowerCase();
-        final int[] costs = new int[b.length() + 1];
+    public static int levenshteinDist(String x, String y) {
+        String a = x.toLowerCase();
+        String b = y.toLowerCase();
+        int[] costs = new int[b.length() + 1];
         for (int j = 0; j < costs.length; j++)
             costs[j] = j;
         for (int i = 1; i <= a.length(); i++) {
             costs[0] = i;
             int nw = i - 1;
             for (int j = 1; j <= b.length(); j++) {
-                final int cj = Math.min(1 + Math.min(costs[j], costs[j - 1]), a.charAt(i - 1) == b.charAt(j - 1) ? nw : nw + 1);
+                int cj = Math.min(1 + Math.min(costs[j], costs[j - 1]), a.charAt(i - 1) == b.charAt(j - 1) ? nw : nw + 1);
                 nw = costs[j];
                 costs[j] = cj;
             }
@@ -160,48 +159,48 @@ public class TextchatUtils {
      *
      * @return returns true if the distance is equal or smaller than maxDist, false otherwise
      */
-    public static boolean isSimilar(@NonNull final String x, @NonNull final String y, final int maxDistance) {
+    public static boolean isSimilar(String x, String y, int maxDistance) {
         return levenshteinDist(x, y) <= maxDistance;
     }
 
     /**
      * Same as {@link TextchatUtils#isSimilar(String, String, int)}, just with a default maxDistance of 3
      */
-    public static boolean isSimilar(@NonNull final String x, @NonNull final String y) {
+    public static boolean isSimilar(String x, String y) {
         return isSimilar(x, y, 3);
     }
 
     /**
      * Same as {@link TextchatUtils#isSimilar(String, String)}, but forces string to be lower case before comparing them
      */
-    public static boolean isSimilarLower(@NonNull final String x, @NonNull final String y) {
+    public static boolean isSimilarLower(String x, String y) {
         return isSimilar(x.toLowerCase(), y.toLowerCase());
     }
 
     //just kept around to eval-test the above levenshtein code
     public static String levenshteinTest() {
-        final String[] data = {"kitten", "sitting", "saturday", "sunday", "rosettacode", "raisethysword"};
-        final StringBuilder out = new StringBuilder();
+        String[] data = {"kitten", "sitting", "saturday", "sunday", "rosettacode", "raisethysword"};
+        StringBuilder out = new StringBuilder();
         for (int i = 0; i < data.length; i += 2)
             out.append("\nlevenshteinDist(").append(data[i]).append(", ").append(data[i + 1]).append(") = ")
                     .append(levenshteinDist(data[i], data[i + 1]));
         return out.toString();
     }
 
-    public static String asMarkdown(final String str) {
+    public static String asMarkdown(String str) {
         return "```md\n" + str + "```";
     }
 
-    public static String toUtcTime(final long epochMillis) {
-        final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss z").withZone(ZoneId.of("UTC"));
+    public static String toUtcTime(long epochMillis) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss z").withZone(ZoneId.of("UTC"));
         return dtf.format(Instant.ofEpochMilli(epochMillis));
     }
 
-    public static String toBerlinTime(final long epochMillis) {
+    public static String toBerlinTime(long epochMillis) {
         return TIME_IN_BERLIN.format(Instant.ofEpochMilli(epochMillis));
     }
 
-    public static String defuseMentions(final String input) {
+    public static String defuseMentions(String input) {
         return input.replace("@", "@" + ZERO_WIDTH_SPACE);
     }
 
@@ -209,10 +208,9 @@ public class TextchatUtils {
     private static final List<Character> MARKDOWN_CHARS = Arrays.asList('*', '`', '~', '_');
 
     //thanks fredboat
-    @NonNull
-    public static String escapeMarkdown(@NonNull final String str) {
-        final StringBuilder revisedString = new StringBuilder(str.length());
-        for (final Character n : str.toCharArray()) {
+    public static String escapeMarkdown(String str) {
+        StringBuilder revisedString = new StringBuilder(str.length());
+        for (Character n : str.toCharArray()) {
             if (MARKDOWN_CHARS.contains(n)) {
                 revisedString.append("\\");
             }
@@ -221,8 +219,7 @@ public class TextchatUtils {
         return revisedString.toString();
     }
 
-    @NonNull
-    public static Message prefaceWithName(@NonNull final User user, @NonNull final String msg, final boolean escape) {
+    public static Message prefaceWithName(User user, String msg, boolean escape) {
         String name = user.getName();
         if (escape) {
             name = escapeMarkdown(name);
@@ -230,8 +227,7 @@ public class TextchatUtils {
         return prefaceWithString(name, msg);
     }
 
-    @NonNull
-    public static Message prefaceWithName(@NonNull final Member member, @NonNull final String msg, final boolean escape) {
+    public static Message prefaceWithName(Member member, String msg, boolean escape) {
         String name = member.getEffectiveName();
         if (escape) {
             name = escapeMarkdown(name);
@@ -239,15 +235,13 @@ public class TextchatUtils {
         return prefaceWithString(name, msg);
     }
 
-    @NonNull
-    public static Message prefaceWithMention(@NonNull final User user, @NonNull final String msg) {
+    public static Message prefaceWithMention(User user, String msg) {
         return prefaceWithString(user.getAsMention(), msg);
     }
 
     //thanks fredboat
-    @NonNull
-    private static Message prefaceWithString(@NonNull final String preface, @NonNull final String msg) {
-        final String message = ensureSpace(msg);
+    private static Message prefaceWithString(String preface, String msg) {
+        String message = ensureSpace(msg);
         return new MessageBuilder()
                 .append(preface)
                 .append(",")
@@ -256,8 +250,7 @@ public class TextchatUtils {
     }
 
     //thanks fredboat
-    @NonNull
-    private static String ensureSpace(@NonNull final String msg) {
+    private static String ensureSpace(String msg) {
         return msg.charAt(0) == ' ' ? msg : " " + msg;
     }
 

@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.IMentionable;
@@ -84,7 +83,7 @@ public class CommandHandler {
     }
 
     @EventListener
-    public void onMessageReceived(@NonNull final MessageReceivedEvent event) {
+    public void onMessageReceived(MessageReceivedEvent event) {
         Timer received = MetricsRegistry.commandRetentionTime.startTimer();
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {
@@ -98,11 +97,11 @@ public class CommandHandler {
         }
 
         //update user stats
-        final Game g = this.gameRegistry.get(event.getChannel().getIdLong());
+        Game g = this.gameRegistry.get(event.getChannel().getIdLong());
         if (g != null) g.userPosted(event.getMessage());
 
 
-        final CommandContext context = this.commandContextParser.parse(this.commRegistry, event);
+        CommandContext context = this.commandContextParser.parse(this.commRegistry, event);
 
         if (context == null) {
             return;
@@ -137,9 +136,9 @@ public class CommandHandler {
 
 
         //filter for _special_ ppl in the Wolfia guild
-        final GuildCommandContext guildContext = context.requireGuild(false);
+        GuildCommandContext guildContext = context.requireGuild(false);
         if (guildContext != null && guildContext.guild.getIdLong() == App.WOLFIA_LOUNGE_ID) {
-            final Category parent = guildContext.getTextChannel().getParent();
+            Category parent = guildContext.getTextChannel().getParent();
             var appInfoProvider = new ApplicationInfoProvider(event.getJDA().getShardManager());
             //noinspection StatementWithEmptyBody
             if (guildContext.getTextChannel().getIdLong() == WolfiaGuildListener.SPAM_CHANNEL_ID //spam channel is k
@@ -177,7 +176,7 @@ public class CommandHandler {
     /**
      * @param context the parsed input of a user
      */
-    private void handleCommand(@NonNull final CommandContext context, Timer received) {
+    private void handleCommand(CommandContext context, Timer received) {
         try {
             boolean canCallCommand = context.command instanceof PublicCommand || context.isOwner();
             if (!canCallCommand) {
@@ -193,16 +192,17 @@ public class CommandHandler {
             try (Summary.Timer ignored = MetricsRegistry.commandProcessTime.labels(context.command.getClass().getSimpleName()).startTimer()) {
                 context.command.execute(context);
             }
-        } catch (final UserFriendlyException e) {
+        } catch (UserFriendlyException e) {
             context.reply("There was a problem executing your command:\n" + e.getMessage());
-        } catch (final IllegalGameStateException e) {
+        } catch (IllegalGameStateException e) {
             context.reply(e.getMessage());
-        } catch (final DataAccessException e) { //currently unreachable since db access is async, so a CompletionException would be thrown instead
+        } catch (
+                DataAccessException e) { //currently unreachable since db access is async, so a CompletionException would be thrown instead
             log.error("Db blew up while handling command", e);
             context.reply("The database is not available currently. Please try again later. Sorry for the inconvenience!");
-        } catch (final Exception e) {
+        } catch (Exception e) {
             try {
-                final MessageReceivedEvent ev = context.event;
+                MessageReceivedEvent ev = context.event;
                 Throwable t = e;
                 while (t != null) {
                     String inviteLink = "";
@@ -213,7 +213,7 @@ public class CommandHandler {
                         } else {
                             inviteLink = "PRIVATE";
                         }
-                    } catch (final Exception ex) {
+                    } catch (Exception ex) {
                         log.error("Exception during exception handling of command creating an invite", ex);
                     }
                     String guild = ev.isFromGuild() ? ev.getGuild().toString() : "not a guild";
@@ -229,7 +229,7 @@ public class CommandHandler {
                                         + "\nIf you want to help solve this as fast as possible, please join our support guild."
                                         + "\nSay `%s` to receive an invite.",
                                 ev.getAuthor().getAsMention(), context.msg.getContentRaw(), WolfiaConfig.DEFAULT_PREFIX + InviteCommand.TRIGGER));
-            } catch (final Exception ex) {
+            } catch (Exception ex) {
                 log.error("Exception during exception handling of command", ex);
                 log.error("Original exception", e);
             }

@@ -36,7 +36,7 @@ public enum Games {
     public final Class<? extends Game> clazz;
     public final String textRep;
 
-    Games(final Class<? extends Game> clazz, final String textRepresentation) {
+    Games(Class<? extends Game> clazz, String textRepresentation) {
         this.clazz = clazz;
         this.textRep = textRepresentation;
     }
@@ -48,15 +48,15 @@ public enum Games {
         GAME_INFOS.put(MAFIA.clazz, new MafiaInfo());
     }
 
-    public static GameInfo getInfo(final Games game) {
+    public static GameInfo getInfo(Games game) {
         return GAME_INFOS.get(game.clazz);
     }
 
-    public static GameInfo getInfo(final Class<? extends Game> gameClass) {
+    public static GameInfo getInfo(Class<? extends Game> gameClass) {
         return GAME_INFOS.get(gameClass);
     }
 
-    public static GameInfo getInfo(final Game game) {
+    public static GameInfo getInfo(Game game) {
         return GAME_INFOS.get(game.getClass());
     }
 

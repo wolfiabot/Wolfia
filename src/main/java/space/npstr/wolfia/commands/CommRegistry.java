@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.commands.util.HelpCommand;
@@ -37,18 +36,18 @@ public class CommRegistry {
     }
 
     @Nullable
-    public BaseCommand getCommand(@NonNull final String input) {
+    public BaseCommand getCommand(String input) {
         return this.commands.stream()
                 .filter(command -> input.equalsIgnoreCase(command.getTrigger()) || command.getAliases().contains(input.toLowerCase()))
                 .findFirst()
                 .orElse(null);
     }
 
-    private void registerCommand(final BaseCommand command) {
+    private void registerCommand(BaseCommand command) {
         List<String> allTriggers = new ArrayList<>();
         allTriggers.add(command.getTrigger());
         allTriggers.addAll(command.getAliases());
-        for (final String trigger : allTriggers) {
+        for (String trigger : allTriggers) {
             if (getCommand(trigger) != null) {
                 log.error("Duplicate command trigger: {}", trigger);
             }

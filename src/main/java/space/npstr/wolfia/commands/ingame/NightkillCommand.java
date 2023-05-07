@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -46,7 +45,6 @@ public class NightkillCommand extends GameCommand {
         return List.of("nk");
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " name or number"
@@ -54,8 +52,8 @@ public class NightkillCommand extends GameCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
-        final GuildCommandContext context = commandContext.requireGuild();
+    public boolean execute(CommandContext commandContext) throws IllegalGameStateException {
+        GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
         }
@@ -63,7 +61,7 @@ public class NightkillCommand extends GameCommand {
         //the nightkill command is expected to be called from a private guild, and only one game is allowed to run in
         //a private guild at the time
         Game game = null;
-        for (final Game g : this.gameRegistry.getAll().values()) {
+        for (Game g : this.gameRegistry.getAll().values()) {
             if (context.guild.getIdLong() == g.getPrivateRoomGuildId()) {
                 game = g;
                 break;

@@ -18,9 +18,7 @@
 package space.npstr.wolfia.domain.staff;
 
 import java.util.Optional;
-import javax.annotation.CheckReturnValue;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -55,7 +53,6 @@ public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
         return "staff";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Do staff things.";
@@ -67,7 +64,7 @@ public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull CommandContext context) {
+    public boolean execute(CommandContext context) {
         GuildCommandContext guildCommandContext = context.requireGuild(false);
         if (guildCommandContext == null) {
             return false;
@@ -87,7 +84,6 @@ public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
         return showConversationOptions(context);
     }
 
-    @CheckReturnValue
     private boolean showConversationOptions(MessageContext context) {
         String options = "Welcome to staff commands! What do you want to do? Say "
                 + "\n- **" + OPTION_PROFILE + "** to edit your staff profile"
@@ -97,7 +93,6 @@ public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
         return replyAndWaitForAnswer(context, options, this::optionSelected);
     }
 
-    @CheckReturnValue
     private boolean optionSelected(MessageReceivedEvent event) {
         MessageContext context = new MessageContext(event);
         String rawContent = context.getMessage().getContentRaw();

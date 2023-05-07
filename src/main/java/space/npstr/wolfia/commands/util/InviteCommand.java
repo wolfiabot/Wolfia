@@ -19,7 +19,6 @@ package space.npstr.wolfia.commands.util;
 
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -41,7 +40,6 @@ public class InviteCommand implements BaseCommand, PublicCommand {
         return List.of("inv");
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation()
@@ -49,7 +47,7 @@ public class InviteCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
         context.reply(String.format("**Wolfia Bot Invite**:%n<%s>%n**Wolfia Lounge**:%n%s",
                 App.INVITE_LINK, App.WOLFIA_LOUNGE_INVITE));
         return true;

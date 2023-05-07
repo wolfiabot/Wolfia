@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.util.HelpCommand;
@@ -49,7 +48,6 @@ public class OpenPresentCommand extends GameCommand {
         return List.of("open", ALIAS);
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + "\n#Open a present.";
@@ -57,13 +55,13 @@ public class OpenPresentCommand extends GameCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
+    public boolean execute(CommandContext commandContext) throws IllegalGameStateException {
         //this command is expected to be called by a player in a private channel
 
         //todo handle a player being part of multiple games properly
         boolean issued = false;
         boolean success = false;
-        for (final Game g : this.gameRegistry.getAll().values()) {
+        for (Game g : this.gameRegistry.getAll().values()) {
             if (g.isUserPlaying(commandContext.invoker)) {
                 if (g.issueCommand(commandContext)) {
                     success = true;

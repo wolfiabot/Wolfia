@@ -26,8 +26,6 @@ import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
-import org.springframework.lang.NonNull;
-
 @Command
 public class CheckCommand extends GameCommand {
 
@@ -42,7 +40,6 @@ public class CheckCommand extends GameCommand {
         return TRIGGER;
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " name or number"
@@ -51,13 +48,13 @@ public class CheckCommand extends GameCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
+    public boolean execute(CommandContext commandContext) throws IllegalGameStateException {
         //this command is expected to be called by a player in a private channel
 
         //todo handle a player being part of multiple games properly
         boolean issued = false;
         boolean success = false;
-        for (final Game g : this.gameRegistry.getAll().values()) {
+        for (Game g : this.gameRegistry.getAll().values()) {
             if (g.isUserPlaying(commandContext.invoker)) {
                 if (g.issueCommand(commandContext)) {
                     success = true;

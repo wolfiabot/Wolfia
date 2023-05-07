@@ -121,11 +121,11 @@ public class Emojis {
     //displayed in the Discord client as expected
     @SuppressWarnings("unused")
     public static String test() {
-        final StringBuilder result = new StringBuilder();
+         StringBuilder result = new StringBuilder();
         Arrays.stream(Emojis.class.getFields()).filter(field -> field.getType().equals(String.class)).forEach(field -> {
             try {
                 result.append(field.get(null));
-            } catch (final IllegalAccessException e) {
+            } catch (IllegalAccessException e) {
                 result.append("exception");
                 log.error("something something unexpected error while using reflection", e);
             }

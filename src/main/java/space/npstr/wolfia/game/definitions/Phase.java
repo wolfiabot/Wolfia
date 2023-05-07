@@ -27,7 +27,7 @@ public enum Phase {
 
     public final String textRep;
 
-    Phase(final String textRepresentation) {
+    Phase(String textRepresentation) {
         this.textRep = textRepresentation;
     }
 }

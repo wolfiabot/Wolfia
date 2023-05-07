@@ -75,7 +75,7 @@ public class GameStarter {
     public synchronized boolean startGame(Context context) throws IllegalGameStateException {
 
         long commandCallerId = context.getInvoker().getIdLong();
-        final MessageChannel channel = context.getChannel();
+        MessageChannel channel = context.getChannel();
 
         if (this.maintenanceService.getMaintenanceFlag() || this.shutdownHandler.isShuttingDown()) {
             RestActions.sendMessage(channel, "The bot is under maintenance. Please try starting a game later.");
@@ -97,10 +97,11 @@ public class GameStarter {
             return false;
         }
 
-        final Game game;
+        Game game;
         try {
             game = setup.getGame().clazz.getConstructor().newInstance();
-        } catch (final IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException |
+                 InvocationTargetException e) {
             throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
         }
 
@@ -115,7 +116,7 @@ public class GameStarter {
             }
         }
         setup = setupAction.cleanUpInnedPlayers(shardManager);
-        final Set<Long> inned = new HashSet<>(setup.getInnedUsers());
+        Set<Long> inned = new HashSet<>(setup.getInnedUsers());
         if (!game.isAcceptablePlayerCount(inned.size(), setup.getMode())) {
             RestActions.sendMessage(channel, String.format(
                     "There aren't enough (or too many) players signed up! Please use `%s` for more information",
@@ -128,12 +129,12 @@ public class GameStarter {
         try {
             game.start(setup.getChannelId(), setup.getMode(), inned);
             this.gameRegistry.set(game);
-        } catch (final UserFriendlyException e) {
+        } catch (UserFriendlyException e) {
             log.info("Game start aborted due to user friendly exception");
             this.gameRegistry.remove(game);
             game.cleanUp();
             throw e;
-        } catch (final Exception e) {
+        } catch (Exception e) {
             //start failed with a fucked up exception
             this.gameRegistry.remove(game);
             game.cleanUp();

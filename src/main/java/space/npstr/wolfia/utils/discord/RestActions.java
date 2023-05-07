@@ -21,8 +21,6 @@ import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
@@ -33,6 +31,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import org.springframework.lang.Nullable;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
 /**
@@ -51,13 +50,11 @@ public class RestActions {
 
 
     //May not be an empty string, as MessageBuilder#build() will throw an exception
-    @NonNull
-    public static Message from(final String string) {
+    public static Message from(String string) {
         return new MessageBuilder().append(string).build();
     }
 
-    @NonNull
-    public static Message from(final MessageEmbed embed) {
+    public static Message from(MessageEmbed embed) {
         return new MessageBuilder().setEmbeds(embed).build();
     }
 
@@ -72,8 +69,8 @@ public class RestActions {
      * @param onSuccess Optional success handler
      * @param onFail    Optional exception handler
      */
-    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final Message message,
-                                   @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
+    public static void sendMessage(MessageChannel channel, Message message,
+                                   @Nullable Consumer<Message> onSuccess, @Nullable Consumer<Throwable> onFail) {
         sendMessage0(
                 channel,
                 message,
@@ -83,8 +80,8 @@ public class RestActions {
     }
 
     // Message
-    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final Message message,
-                                   @Nullable final Consumer<Message> onSuccess) {
+    public static void sendMessage(MessageChannel channel, Message message,
+                                   @Nullable Consumer<Message> onSuccess) {
         sendMessage0(
                 channel,
                 message,
@@ -94,8 +91,8 @@ public class RestActions {
     }
 
     // Embed
-    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final MessageEmbed embed,
-                                   @Nullable final Consumer<Message> onSuccess) {
+    public static void sendMessage(MessageChannel channel, MessageEmbed embed,
+                                   @Nullable Consumer<Message> onSuccess) {
         sendMessage0(
                 channel,
                 from(embed),
@@ -105,7 +102,7 @@ public class RestActions {
     }
 
     // Embed
-    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final MessageEmbed embed) {
+    public static void sendMessage(MessageChannel channel, MessageEmbed embed) {
         sendMessage0(
                 channel,
                 from(embed),
@@ -115,8 +112,8 @@ public class RestActions {
     }
 
     // String
-    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final String content,
-                                   @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
+    public static void sendMessage(MessageChannel channel, String content,
+                                   @Nullable Consumer<Message> onSuccess, @Nullable Consumer<Throwable> onFail) {
         sendMessage0(
                 channel,
                 from(content),
@@ -126,8 +123,8 @@ public class RestActions {
     }
 
     // String
-    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final String content,
-                                   @Nullable final Consumer<Message> onSuccess) {
+    public static void sendMessage(MessageChannel channel, String content,
+                                   @Nullable Consumer<Message> onSuccess) {
         sendMessage0(
                 channel,
                 from(content),
@@ -137,7 +134,7 @@ public class RestActions {
     }
 
     // String
-    public static void sendMessage(@NonNull final MessageChannel channel, @NonNull final String content) {
+    public static void sendMessage(MessageChannel channel, String content) {
         sendMessage0(
                 channel,
                 from(content),
@@ -147,16 +144,16 @@ public class RestActions {
     }
 
     // private
-    public static void sendPrivateMessage(@NonNull final User user, @NonNull final String content,
-                                          @Nullable final Consumer<Message> onSuccess, @NonNull final Consumer<Throwable> onFail) {
+    public static void sendPrivateMessage(User user, String content,
+                                          @Nullable Consumer<Message> onSuccess, Consumer<Throwable> onFail) {
         sendPrivateMessage(user, from(content), onSuccess, onFail);
     }
 
     // private
     // in Wolfia, it is very important that messages reach their destination, that's why private messages require a failure
     // handler, so that each time a private message is coded a conscious decision is made how a failure should be handled
-    public static void sendPrivateMessage(@NonNull final User user, @NonNull final Message message,
-                                          @Nullable final Consumer<Message> onSuccess, @NonNull final Consumer<Throwable> onFail) {
+    public static void sendPrivateMessage(User user, Message message,
+                                          @Nullable Consumer<Message> onSuccess, Consumer<Throwable> onFail) {
         user.openPrivateChannel().queue(
                 privateChannel -> sendMessage(privateChannel, message, onSuccess, onFail),
                 onFail
@@ -167,7 +164,7 @@ public class RestActions {
     //                            Message editing methods
     // ********************************************************************************
 
-    public static void editMessage(@NonNull final Message oldMessage, @NonNull final String newContent) {
+    public static void editMessage(Message oldMessage, String newContent) {
         editMessage0(
                 oldMessage.getChannel(),
                 oldMessage.getIdLong(),
@@ -175,7 +172,7 @@ public class RestActions {
         );
     }
 
-    public static void editMessage(@NonNull final Message oldMessage, @NonNull final MessageEmbed newEmbed) {
+    public static void editMessage(Message oldMessage, MessageEmbed newEmbed) {
         editMessage0(
                 oldMessage.getChannel(),
                 oldMessage.getIdLong(),
@@ -187,28 +184,28 @@ public class RestActions {
     //                   Miscellaneous messaging related methods
     // ********************************************************************************
 
-    public static void sendTyping(@NonNull final MessageChannel channel) {
+    public static void sendTyping(MessageChannel channel) {
         try {
             channel.sendTyping().queue(
                     null,
                     getJdaRestActionFailureHandler("Could not send typing event in channel " + channel.getId())
             );
-        } catch (final InsufficientPermissionException e) {
+        } catch (InsufficientPermissionException e) {
             handleInsufficientPermissionsException(channel, e);
         }
     }
 
     //make sure that the message passed in here is actually existing in Discord
     // e.g. dont pass messages in here that were created with a MessageBuilder in our code
-    public static void deleteMessage(@NonNull final Message message) {
+    public static void deleteMessage(Message message) {
         try {
             message.delete().queue(
                     null,
                     getJdaRestActionFailureHandler(String.format("Could not delete message %s in channel %s with content%n%s",
-                            message.getId(), message.getChannel().getId(), message.getContentRaw()),
+                                    message.getId(), message.getChannel().getId(), message.getContentRaw()),
                             ErrorResponse.UNKNOWN_MESSAGE) //user deleted their message, dun care
             );
-        } catch (final InsufficientPermissionException e) {
+        } catch (InsufficientPermissionException e) {
             handleInsufficientPermissionsException(message.getChannel(), e);
         }
     }
@@ -218,18 +215,18 @@ public class RestActions {
     // ********************************************************************************
 
     //class internal message sending method
-    private static void sendMessage0(@NonNull final MessageChannel channel, @NonNull final Message message,
-                                     @Nullable final Consumer<Message> onSuccess, @Nullable final Consumer<Throwable> onFail) {
-        final Consumer<Message> successWrapper = m -> {
+    private static void sendMessage0(MessageChannel channel, Message message,
+                                     @Nullable Consumer<Message> onSuccess, @Nullable Consumer<Throwable> onFail) {
+        Consumer<Message> successWrapper = m -> {
             if (onSuccess != null) {
                 onSuccess.accept(m);
             }
         };
-        final Consumer<Throwable> failureWrapper = t -> {
+        Consumer<Throwable> failureWrapper = t -> {
             if (onFail != null) {
                 onFail.accept(t);
             } else {
-                final String info = String.format("Could not sent message%n%s%nwith %s embeds to channel %s in guild %s",
+                String info = String.format("Could not sent message%n%s%nwith %s embeds to channel %s in guild %s",
                         message.getContentRaw(), message.getEmbeds().size(), channel.getId(),
                         (channel instanceof TextChannel) ? ((TextChannel) channel).getGuild().getIdLong() : "private");
                 getJdaRestActionFailureHandler(info).accept(t);
@@ -238,7 +235,7 @@ public class RestActions {
 
         try {
             channel.sendMessage(message).queue(successWrapper, failureWrapper);
-        } catch (final InsufficientPermissionException e) {
+        } catch (InsufficientPermissionException e) {
             if (onFail != null) {
                 onFail.accept(e);
             }
@@ -253,11 +250,11 @@ public class RestActions {
     }
 
     //class internal editing method
-    private static void editMessage0(@NonNull final MessageChannel channel, final long oldMessageId,
-                                     @NonNull final Message newMessage) {
+    private static void editMessage0(MessageChannel channel, long oldMessageId,
+                                     Message newMessage) {
 
-        final Consumer<Throwable> failureWrapper = t -> {
-            final String info = String.format("Could not edit message %s in channel %s in guild %s with new content %s and %s embeds",
+        Consumer<Throwable> failureWrapper = t -> {
+            String info = String.format("Could not edit message %s in channel %s in guild %s with new content %s and %s embeds",
                     oldMessageId, channel.getId(),
                     (channel instanceof TextChannel) ? ((TextChannel) channel).getGuild().getIdLong() : "null",
                     newMessage.getContentRaw(), newMessage.getEmbeds().size());
@@ -266,13 +263,13 @@ public class RestActions {
 
         try {
             channel.editMessageById(oldMessageId, newMessage).queue(null, failureWrapper);
-        } catch (final InsufficientPermissionException e) {
+        } catch (InsufficientPermissionException e) {
             handleInsufficientPermissionsException(channel, e);
         }
     }
 
-    private static void handleInsufficientPermissionsException(@NonNull final MessageChannel channel,
-                                                               @NonNull final InsufficientPermissionException e) {
+    private static void handleInsufficientPermissionsException(MessageChannel channel,
+                                                               InsufficientPermissionException e) {
         //only ever try sending a simple string from here so we don't end up handling a loop of insufficient permissions
         sendMessage(channel, "Please give me the permission to " + " **" + e.getPermission().getName() + "!**");
     }
@@ -286,15 +283,15 @@ public class RestActions {
     //handles failed JDA rest actions by logging them with an informational string and optionally ignoring some error response codes
     // will print a proper stack trace for exceptions happening in queue(), showing the code leading up to the call of
     // the queue() that failed
-    public static Consumer<Throwable> getJdaRestActionFailureHandler(final String info, final ErrorResponse... ignored) {
-        final LogTheStackException ex = new LogTheStackException();
+    public static Consumer<Throwable> getJdaRestActionFailureHandler(String info, ErrorResponse... ignored) {
+        LogTheStackException ex = new LogTheStackException();
         return t -> {
             ex.initCause(t);
             if (t instanceof ErrorResponseException) {
-                final ErrorResponseException e = (ErrorResponseException) t;
+                ErrorResponseException e = (ErrorResponseException) t;
                 if (Arrays.asList(ignored).contains(e.getErrorResponse())
                         || e.getErrorCode() == -1 //socket timeout, fuck those
-                        ) {
+                ) {
                     return;
                 }
             }

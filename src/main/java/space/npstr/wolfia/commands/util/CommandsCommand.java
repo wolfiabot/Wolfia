@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.util;
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.EmbedBuilder;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -67,7 +66,6 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
         return List.of("comms");
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation()
@@ -75,9 +73,9 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
         //@formatter:off
-        final String gameCommands = ""
+        String gameCommands = ""
                 + WolfiaConfig.DEFAULT_PREFIX + InCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + OutCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + SetupCommand.TRIGGER + "\n"
@@ -86,7 +84,7 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
                 + WolfiaConfig.DEFAULT_PREFIX + StatusCommand.TRIGGER + "\n"
                 ;
 
-        final String ingameCommands = ""
+        String ingameCommands = ""
                 + WolfiaConfig.DEFAULT_PREFIX + ShootCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + VoteCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + UnvoteCommand.TRIGGER + "\n"
@@ -98,17 +96,17 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
                 + WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.TRIGGER + XMAS_MODE_ONLY + "\n"
                 ;
 
-        final String settingsCommands =
+        String settingsCommands =
                   WolfiaConfig.DEFAULT_PREFIX + ChannelSettingsCommand.TRIGGER
                 ;
 
-        final String statsCommands = ""
+        String statsCommands = ""
                 + WolfiaConfig.DEFAULT_PREFIX + UserStatsCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + GuildStatsCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + BotStatsCommand.TRIGGER + "\n"
                 ;
 
-        final String otherCommands = ""
+        String otherCommands = ""
                 + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + CommandsCommand.TRIGGER + "\n"
                 + WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER + "\n"
@@ -122,8 +120,8 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
         //@formatter:on
 
 
-        final String link = App.DOCS_LINK + "#commands";
-        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder()
+        String link = App.DOCS_LINK + "#commands";
+        EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder()
                 .setTitle("Wolfia commands", link)
                 .addField("Starting a game", gameCommands, true)
                 .addField("Game actions", ingameCommands, true)

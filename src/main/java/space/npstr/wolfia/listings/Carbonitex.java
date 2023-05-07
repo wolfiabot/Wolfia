@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.listings;
 
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.JDA;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -30,23 +29,21 @@ public class Carbonitex extends Listing {
 
     //https://www.carbonitex.net/
     //api docs: https://www.carbonitex.net/discord/data/botdata.php?key=MAH_KEY
-    public Carbonitex(@NonNull final OkHttpClient httpClient) {
+    public Carbonitex(OkHttpClient httpClient) {
         super("carbonitex.net", httpClient);
     }
 
-    @NonNull
     @Override
-    protected String createPayload(@NonNull final JDA jda) {
+    protected String createPayload(JDA jda) {
         return new JSONObject()
                 .put("key", Launcher.getBotContext().getListingsConfig().getCarbonitexKey())
                 .put("servercount", Launcher.getBotContext().getShardManager().getGuildCache().size())
                 .toString();
     }
 
-    @NonNull
     @Override
-    protected Request.Builder createRequest(final long botId, @NonNull final String payload) {
-        final RequestBody body = RequestBody.create(payload, JSON);
+    protected Request.Builder createRequest(long botId, String payload) {
+        RequestBody body = RequestBody.create(payload, JSON);
         return new Request.Builder()
                 .addHeader("user-agent", "Wolfia DiscordBot (" + App.GITHUB_LINK + ", " + App.VERSION + ")")
                 .url("https://www.carbonitex.net/discord/data/botdata.php")
@@ -55,7 +52,7 @@ public class Carbonitex extends Listing {
 
     @Override
     protected boolean isConfigured() {
-        final String carbonitexKey = Launcher.getBotContext().getListingsConfig().getCarbonitexKey();
+        String carbonitexKey = Launcher.getBotContext().getListingsConfig().getCarbonitexKey();
         return carbonitexKey != null && !carbonitexKey.isEmpty();
     }
 }

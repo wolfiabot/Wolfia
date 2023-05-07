@@ -17,16 +17,13 @@
 
 package space.npstr.wolfia.commands.debug;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import net.dv8tion.jda.api.JDA;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
-
-import javax.annotation.CheckReturnValue;
-import org.springframework.lang.NonNull;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
@@ -40,14 +37,12 @@ public class ShardsCommand implements BaseCommand {
         return "shards";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Show status of all shards.";
     }
 
     @Override
-    @CheckReturnValue
     public boolean execute(CommandContext context) {
         StringBuilder sb = new StringBuilder("```diff\n");
         List<String> messages = new ArrayList<>();

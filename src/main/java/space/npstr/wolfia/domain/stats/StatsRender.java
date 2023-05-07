@@ -60,7 +60,7 @@ public class StatsRender {
     }
 
     public EmbedBuilder renderBotStats(Context context, BotStats botstats) {
-        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
+        EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         eb.setTitle("Wolfia stats:");
         ShardManager shardManager = context.getJda().getShardManager();
         requireNonNull(shardManager).getShardCache().stream().findAny()
@@ -69,7 +69,7 @@ public class StatsRender {
 
         // stats for all games
         eb.addBlankField(false);
-        final WinStats winStats = botstats.getTotalWinStats();
+        WinStats winStats = botstats.getTotalWinStats();
         eb.addField("Total games played", winStats.getTotalGames() + "", true);
         eb.addField("∅ player size", String.format("%.2f", botstats.getAveragePlayerSize().doubleValue()), true);
 
@@ -87,7 +87,7 @@ public class StatsRender {
     public EmbedBuilder renderGuildStats(Context context, GuildStats stats) {
         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         ShardManager shardManager = context.getJda().getShardManager();
-        final Guild guild = requireNonNull(shardManager).getGuildById(stats.getGuildId());
+        Guild guild = requireNonNull(shardManager).getGuildById(stats.getGuildId());
         GuildSettings guildSettings = guild != null
                 ? this.guildSettingsService.set(guild)
                 : this.guildSettingsService.guild(stats.getGuildId()).getOrDefault();
@@ -95,7 +95,7 @@ public class StatsRender {
         eb.setThumbnail(guildSettings.getAvatarUrl().orElse(null));
 
         WinStats winStats = stats.getTotalWinStats();
-        final long totalGames = winStats.getTotalGames();
+        long totalGames = winStats.getTotalGames();
         if (totalGames <= 0) {
             eb.setTitle(String.format("There have no games been played in the guild (id `%s`).", stats.getGuildId()));
             return eb;
@@ -118,7 +118,7 @@ public class StatsRender {
     }
 
     public EmbedBuilder renderUserStats(UserStats stats) {
-        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
+        EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         UserCache.Action userAction = this.userCache.user(stats.getUserId());
         eb.setTitle(userAction.getName() + "'s Wolfia stats");
         userAction.get()
@@ -147,7 +147,7 @@ public class StatsRender {
 
 
     public EmbedBuilder renderGameStats(GameStats stats) {
-        final NiceEmbedBuilder eb = NiceEmbedBuilder.defaultBuilder();
+        NiceEmbedBuilder eb = NiceEmbedBuilder.defaultBuilder();
 
         long gameId = stats.getGameId().orElseThrow();
 
@@ -165,12 +165,12 @@ public class StatsRender {
         );
 
         //2. post the actions
-        final List<ActionStats> sortedActions = new ArrayList<>(stats.getActions());
+        List<ActionStats> sortedActions = new ArrayList<>(stats.getActions());
         sortedActions.sort(Comparator.comparingLong(ActionStats::getTimeStampSubmitted));
-        final String fieldTitle = "Actions";
-        final NiceEmbedBuilder.ChunkingField actionsField = new NiceEmbedBuilder.ChunkingField(fieldTitle, false);
-        for (final ActionStats action : sortedActions) {
-            final String actionStr = renderActionStats(action);
+        String fieldTitle = "Actions";
+        NiceEmbedBuilder.ChunkingField actionsField = new NiceEmbedBuilder.ChunkingField(fieldTitle, false);
+        for (ActionStats action : sortedActions) {
+            String actionStr = renderActionStats(action);
             actionsField.add(actionStr, true);
         }
         eb.addField(actionsField);
@@ -179,14 +179,14 @@ public class StatsRender {
         eb.addField("Game ended", TextchatUtils.toUtcTime(stats.getEndTime()), true);
         eb.addField("Game length", TextchatUtils.formatMillis(stats.getEndTime() - stats.getStartTime()), true);
 
-        final String winText;
-        final Optional<TeamStats> winners = stats.getStartingTeams().stream().filter(TeamStats::isWinner).findFirst();
+        String winText;
+        Optional<TeamStats> winners = stats.getStartingTeams().stream().filter(TeamStats::isWinner).findFirst();
         if (winners.isEmpty()) {
             //shouldn't happen lol
             log.error("Game #{} has no winning team in the data", gameId);
             winText = "Game has no winning team " + Emojis.WOLFTHINK + "\nReplay must be borked. Error has been reported.";
         } else {
-            final TeamStats winningTeam = winners.get();
+            TeamStats winningTeam = winners.get();
             String flavouredTeamName = winningTeam.getAlignment().textRepMaf;
             if (stats.getGameType() == Games.POPCORN) flavouredTeamName = winningTeam.getAlignment().textRepWW;
             winText = "**Team " + flavouredTeamName + " wins the game!**";
@@ -264,7 +264,7 @@ public class StatsRender {
         return result;
     }
 
-    private static EmbedBuilder addStatsPerPlayerSize(final EmbedBuilder eb, List<WinStats> winStatsList) {
+    private static EmbedBuilder addStatsPerPlayerSize(EmbedBuilder eb, List<WinStats> winStatsList) {
         List<WinStats> sortedWinStats = new ArrayList<>(winStatsList);
         sortedWinStats.sort(Comparator.comparingInt(WinStats::getPlayerSize));
 
@@ -280,20 +280,20 @@ public class StatsRender {
     }
 
 
-    private String getFormattedNickFromStats(GameStats gameStats, final long userId) {
+    private String getFormattedNickFromStats(GameStats gameStats, long userId) {
         String baddieEmoji = gameStats.getGameType() == Games.POPCORN
                 ? Emojis.WOLF
                 : Emojis.SPY;
 
-        for (final TeamStats team : gameStats.getStartingTeams()) {
-            for (final PlayerStats player : team.getPlayers()) {
+        for (TeamStats team : gameStats.getStartingTeams()) {
+            for (PlayerStats player : team.getPlayers()) {
                 if (player.getUserId() == userId) {
                     String nickname = determineNickname(player, gameStats);
                     return "`" + nickname + "` " + (player.getAlignment() == Alignments.VILLAGE ? Emojis.COWBOY : baddieEmoji);
                 }
             }
         }
-        final String message = String.format("No such player %s in this game %s", userId, gameStats.getGameId().orElseThrow());
+        String message = String.format("No such player %s in this game %s", userId, gameStats.getGameId().orElseThrow());
         log.error(message, new IllegalArgumentException(message));
         return UNKNOWN_NAME;
     }

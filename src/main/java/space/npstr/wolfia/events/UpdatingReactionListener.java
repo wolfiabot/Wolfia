@@ -43,9 +43,9 @@ public class UpdatingReactionListener extends ReactionListener {
      * @param updateMillis         interval for updates happening
      * @param updateCallback       called on update
      */
-    public UpdatingReactionListener(final Message message, final Predicate<Member> filter, final Consumer<GenericMessageReactionEvent> reactionCallback,
-                                    final long selfDestructMillis, final Consumer<Void> selfDestructCallback,
-                                    final long updateMillis, final Consumer<Void> updateCallback) {
+    public UpdatingReactionListener(Message message, Predicate<Member> filter, Consumer<GenericMessageReactionEvent> reactionCallback,
+                                    long selfDestructMillis, Consumer<Void> selfDestructCallback,
+                                    long updateMillis, Consumer<Void> updateCallback) {
         super(message, filter, reactionCallback, selfDestructMillis, selfDestructCallback);
 
         this.updateCallback = updateCallback;

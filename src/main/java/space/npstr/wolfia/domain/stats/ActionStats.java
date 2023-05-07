@@ -92,7 +92,7 @@ public class ActionStats {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        int prime = 31;
         int result = this.game.hashCode();
         result = prime * result + this.order;
         result = prime * result + (int) (this.timeStampSubmitted ^ (this.timeStampSubmitted >>> 32));
@@ -104,11 +104,11 @@ public class ActionStats {
     }
 
     @Override
-    public boolean equals(final Object obj) {
+    public boolean equals(Object obj) {
         if (!(obj instanceof ActionStats)) {
             return false;
         }
-        final ActionStats a = (ActionStats) obj;
+        ActionStats a = (ActionStats) obj;
         return this.game.equals(a.game)
                 && this.order == a.order
                 && this.timeStampSubmitted == a.timeStampSubmitted
@@ -142,7 +142,7 @@ public class ActionStats {
         return this.timeStampHappened;
     }
 
-    public void setTimeStampHappened(final long timeStampHappened) {
+    public void setTimeStampHappened(long timeStampHappened) {
         this.timeStampHappened = timeStampHappened;
     }
 
@@ -174,7 +174,7 @@ public class ActionStats {
     /**
      * @return itself for chaining
      */
-    public ActionStats setAdditionalInfo(@Nullable final String additionalInfo) {
+    public ActionStats setAdditionalInfo(@Nullable String additionalInfo) {
         this.additionalInfo = additionalInfo;
         return this;
     }

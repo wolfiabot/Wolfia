@@ -29,11 +29,11 @@ public class IllegalGameStateException extends Exception {
 
     }
 
-    public IllegalGameStateException(final String message) {
+    public IllegalGameStateException(String message) {
         super(message);
     }
 
-    public IllegalGameStateException(final String message, final Throwable t) {
+    public IllegalGameStateException(String message, Throwable t) {
         super(message, t);
     }
 }

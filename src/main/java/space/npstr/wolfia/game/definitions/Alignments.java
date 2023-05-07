@@ -41,7 +41,7 @@ public enum Alignments {
     //alignment related building block of character pms
     public final String rolePmBlockMaf;
 
-    Alignments(final String textRepWW, final String rolePmBlockWW, final String textRepMaf, final String rolePmBlockMaf) {
+    Alignments(String textRepWW, String rolePmBlockWW, String textRepMaf, String rolePmBlockMaf) {
         this.textRepWW = textRepWW;
         this.rolePmBlockWW = rolePmBlockWW;
 

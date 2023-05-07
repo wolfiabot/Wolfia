@@ -23,7 +23,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.CheckReturnValue;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -93,7 +92,6 @@ class StaffProfileConversation implements Conversation {
         return showStaffProfileAndOptions(context, staffMember.get(), "");
     }
 
-    @CheckReturnValue
     private boolean showStaffProfileAndOptions(MessageContext context, StaffMember staffMember, String plainMessage) {
         String options = "How do you want to edit your staff profile? Say "
                 + "\n- **" + OPTION_ENABLE + "** to enable your staff profile"
@@ -109,7 +107,6 @@ class StaffProfileConversation implements Conversation {
     }
 
     //plainMessage can be empty
-    @CheckReturnValue
     private boolean show(MessageContext context, StaffMember staffMember, String plainMessage) {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Staff Profile")
@@ -128,7 +125,6 @@ class StaffProfileConversation implements Conversation {
         return true;
     }
 
-    @CheckReturnValue
     private boolean optionSelected(MessageReceivedEvent event, StaffMember staffMember) {
         MessageContext context = new MessageContext(event);
         String rawContent = context.getMessage().getContentRaw();
@@ -177,7 +173,6 @@ class StaffProfileConversation implements Conversation {
         return showStaffProfileAndOptions(context, staffMember, "Sorry, I didn't get that.");
     }
 
-    @CheckReturnValue
     private boolean setSlogan(MessageReceivedEvent event, StaffMember staffMember) {
         MessageContext context = new MessageContext(event);
         String slogan = context.getMessage().getContentRaw();
@@ -185,7 +180,6 @@ class StaffProfileConversation implements Conversation {
         return setSlogan(context, slogan, staffMember);
     }
 
-    @CheckReturnValue
     private boolean setSlogan(MessageContext context, String slogan, StaffMember staffMember) {
         if (slogan.length() > MAX_SLOGAN_LENGTH) {
             return showStaffProfileAndOptions(context, staffMember, Emojis.X + ": Please keep your slogan to a maximum length of " + MAX_SLOGAN_LENGTH + ".");
@@ -195,7 +189,6 @@ class StaffProfileConversation implements Conversation {
         return showStaffProfileAndOptions(context, updated, "Set your slogan:");
     }
 
-    @CheckReturnValue
     private boolean setLink(MessageReceivedEvent event, StaffMember staffMember) {
         MessageContext context = new MessageContext(event);
         String link = context.getMessage().getContentRaw();
@@ -203,7 +196,6 @@ class StaffProfileConversation implements Conversation {
         return setLink(context, link, staffMember);
     }
 
-    @CheckReturnValue
     private boolean setLink(MessageContext context, String link, StaffMember staffMember) {
         try {
             URI uri = new URL(link).toURI();

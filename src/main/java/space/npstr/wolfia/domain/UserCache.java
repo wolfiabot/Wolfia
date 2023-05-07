@@ -18,7 +18,6 @@
 package space.npstr.wolfia.domain;
 
 import java.util.Optional;
-import javax.annotation.CheckReturnValue;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
@@ -36,7 +35,6 @@ public class UserCache {
 
     private static final String UNKNOWN_USER_NAME = "Unknown User";
 
-    @CheckReturnValue
     public Action user(long userId) {
         return new Action(userId);
     }
@@ -68,12 +66,10 @@ public class UserCache {
                     .toCompletableFuture().join();
         }
 
-        @CheckReturnValue
         public String getName() {
             return get().map(User::getName).orElse(UNKNOWN_USER_NAME);
         }
 
-        @CheckReturnValue
         public String getEffectiveName(Optional<Guild> guild) {
             if (guild.isEmpty()) {
                 return getName();
@@ -81,7 +77,6 @@ public class UserCache {
             return getEffectiveName(guild.get().getIdLong());
         }
 
-        @CheckReturnValue
         public String getEffectiveName(long guildId) {
             Guild guild = getShardManager().getGuildById(guildId);
             if (guild != null) {
@@ -94,7 +89,6 @@ public class UserCache {
             return getName();
         }
 
-        @CheckReturnValue
         public Optional<String> getNick(long guildId) {
             Guild guild = getShardManager().getGuildById(guildId);
             if (guild != null) {

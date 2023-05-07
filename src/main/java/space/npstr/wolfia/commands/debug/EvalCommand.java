@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.springframework.lang.NonNull;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -65,13 +64,13 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
                     + ",java.util"
                     + ");");
 
-        } catch (final ScriptException ex) {
+        } catch (ScriptException ex) {
             log.error("Failed to init eval command", ex);
         }
     }
 
     @Override
-    public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
+    public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
@@ -80,7 +79,6 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
         return "eval";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Run js code with the Nashorn engine. By default no timeout is set for the task, set a timeout by "
@@ -89,8 +87,8 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
-        final long started = System.currentTimeMillis();
+    public boolean execute(CommandContext context) {
+        long started = System.currentTimeMillis();
 
         String source = context.rawArgs;
 
@@ -110,14 +108,14 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
 
         context.sendTyping();
 
-        final int timeOut;
+        int timeOut;
         if (context.args.length > 1 && (context.args[0].equals("-t") || context.args[0].equals("timeout"))) {
             timeOut = Integer.parseInt(context.args[1]);
             source = source.replaceFirst(context.args[0], "");
             source = source.replaceFirst(context.args[1], "");
         } else timeOut = -1;
 
-        final String finalSource = source.trim();
+        String finalSource = source.trim();
 
         this.engine.put("context", context);
         this.engine.put("jda", context.invoker.getJDA());
@@ -133,16 +131,15 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
         this.engine.put("db", Launcher.getBotContext().getDatabase());
         this.engine.put("app", this.applicationContext);
 
-        final Future<?> future = this.executor.submit(() -> {
-
-            final Object out;
+        Future<?> future = this.executor.submit(() -> {
+            Object out;
             try {
                 out = this.engine.eval(
                         "(function() {"
                                 + "with (imports) {\n" + finalSource + "\n}"
                                 + "})();");
 
-            } catch (final Exception ex) {
+            } catch (Exception ex) {
                 context.msg.addReaction(Emojis.X).queue(null, RestActions.defaultOnFail());
                 context.reply(String.format("`%s`%n%n`%sms`",
                         ex.getMessage(), System.currentTimeMillis() - started));
@@ -150,7 +147,7 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
                 return;
             }
 
-            final String output;
+            String output;
             if (out == null) {
                 output = "";
             } else if (out.toString().contains("\n")) {
@@ -165,17 +162,17 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
         });
         this.lastTask = future;
 
-        final Thread script = new Thread("EvalCommand") {
+        Thread script = new Thread("EvalCommand") {
             @Override
             public void run() {
                 try {
                     if (timeOut > -1) {
                         future.get(timeOut, TimeUnit.SECONDS);
                     }
-                } catch (final TimeoutException ex) {
+                } catch (TimeoutException ex) {
                     future.cancel(true);
                     context.reply("Task exceeded time limit of " + timeOut + " seconds.");
-                } catch (final Exception ex) {
+                } catch (Exception ex) {
                     if (ex instanceof InterruptedException) {
                         Thread.currentThread().interrupt();
                     }

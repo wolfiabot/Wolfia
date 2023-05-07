@@ -52,7 +52,7 @@ public class PrivateRoomQueue {
     }
 
     @EventListener
-    public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         getAllManagedRooms().forEach(room -> room.onGuildMemberJoin(event));
     }
 

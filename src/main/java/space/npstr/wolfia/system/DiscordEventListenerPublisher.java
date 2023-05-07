@@ -22,8 +22,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import org.springframework.lang.NonNull;
-
 @Component
 public class DiscordEventListenerPublisher extends ListenerAdapter {
 
@@ -34,7 +32,7 @@ public class DiscordEventListenerPublisher extends ListenerAdapter {
     }
 
     @Override
-    public void onGenericEvent(@NonNull GenericEvent event) {
+    public void onGenericEvent(GenericEvent event) {
         this.eventPublisher.publishEvent(event);
     }
 }

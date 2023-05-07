@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
@@ -90,23 +89,23 @@ public class ManagedPrivateRoom {
     }
 
     @SuppressWarnings("unchecked")
-    public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         if (event.getGuild().getIdLong() != this.privateRoom.getGuildId()) {
             return;
         }
 
-        final Member joined = event.getMember();
+        Member joined = event.getMember();
         //kick the joined user if they aren't on the allowed list
         if (!this.allowedUsers.contains(joined.getUser().getIdLong())) {
-            final Consumer whenDone = __ -> event.getGuild().kick(joined).queue(null, RestActions.defaultOnFail());
-            final String message = String.format("You are not allowed to join private guild #%s currently.", this.privateRoom.getNumber());
+            Consumer whenDone = __ -> event.getGuild().kick(joined).queue(null, RestActions.defaultOnFail());
+            String message = String.format("You are not allowed to join private guild #%s currently.", this.privateRoom.getNumber());
             String users = this.allowedUsers.stream().map(Number::toString).collect(Collectors.joining(", "));
             log.debug("Denied user {}, allowed users are {}", joined.getUser().getId(), users);
             RestActions.sendPrivateMessage(joined.getUser(), message, whenDone, whenDone);
             return;
         }
 
-        final Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME).complete();
+        Role wolf = RoleAndPermissionUtils.getOrCreateRole(event.getGuild(), WOLF_ROLE_NAME).complete();
         event.getGuild().addRoleToMember(event.getMember(), wolf).queue(
                 aVoid -> {
                     ShardManager shardManager = requireNonNull(event.getJDA().getShardManager());
@@ -118,7 +117,7 @@ public class ManagedPrivateRoom {
         );
     }
 
-    public void beginUsage(final Collection<Long> wolfUserIds) {
+    public void beginUsage(Collection<Long> wolfUserIds) {
         synchronized (usageLock) {
             if (this.inUse) {
                 throw new IllegalStateException("Can't begin the usage of a private guild #" + this.privateRoom.getNumber() + " that is being used already");
@@ -129,10 +128,10 @@ public class ManagedPrivateRoom {
         try {
             cleanUpMembers();
             this.allowedUsers.addAll(wolfUserIds);
-            final Guild g = fetchThisGuild();
+            Guild g = fetchThisGuild();
 
             //set up a fresh channel
-            final TextChannel wolfChannel = g.createTextChannel("wolfchat")
+            TextChannel wolfChannel = g.createTextChannel("wolfchat")
                     .reason("Preparing private guild for a game").complete();
             this.currentChannelId = wolfChannel.getIdLong();
 
@@ -142,7 +141,7 @@ public class ManagedPrivateRoom {
             //give the wolfrole access to it
             RoleAndPermissionUtils.grant(wolfChannel, RoleAndPermissionUtils.getOrCreateRole(g, WOLF_ROLE_NAME).complete(),
                     Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue(null, RestActions.defaultOnFail());
-        } catch (final Exception e) {
+        } catch (Exception e) {
             endUsage();
             throw new RuntimeException("Could not begin the usage of private guild #" + this.privateRoom.getNumber(), e);
         }
@@ -151,7 +150,7 @@ public class ManagedPrivateRoom {
     //kick everyone, except guild owner and bots
     private void cleanUpMembers() {
         this.allowedUsers.clear();
-        final Guild g = fetchThisGuild();
+        Guild g = fetchThisGuild();
         g.getMembers().stream()
                 .filter(member -> !member.isOwner())
                 .filter(member -> !member.getUser().isBot())
@@ -170,18 +169,18 @@ public class ManagedPrivateRoom {
             cleanUpMembers();
             try {//complete() in here to catch errors
                 //revoke all invites
-                for (final TextChannel channel : fetchThisGuild().getTextChannels()) {
-                    final List<Invite> invites = channel.retrieveInvites().complete();
+                for (TextChannel channel : fetchThisGuild().getTextChannels()) {
+                    List<Invite> invites = channel.retrieveInvites().complete();
                     invites.forEach(i -> i.delete().complete());
                 }
-                final TextChannel tc = Launcher.getBotContext().getShardManager().getTextChannelById(this.currentChannelId);
+                TextChannel tc = Launcher.getBotContext().getShardManager().getTextChannelById(this.currentChannelId);
                 if (tc != null) {
                     tc.delete().reason("Cleaning up private guild after game ended").complete();
                 } else {
                     log.error("Did not find channel {} in private guild #{} to delete it.",
                             this.currentChannelId, this.privateRoom.getNumber());
                 }
-            } catch (final Exception e) {
+            } catch (Exception e) {
                 log.error("Exception while deleting channel {} in private guild #{} {}", this.currentChannelId,
                         this.privateRoom.getNumber(), this.privateRoom.getGuildId(), e);
                 return;//leave the private guild in a "broken state", this can be later fixed manually through eval
@@ -192,8 +191,8 @@ public class ManagedPrivateRoom {
     }
 
     public String getInvite() {
-        final Guild g = fetchThisGuild();
-        final TextChannel channel = g.getTextChannelById(this.currentChannelId);
+        Guild g = fetchThisGuild();
+        TextChannel channel = g.getTextChannelById(this.currentChannelId);
         return TextchatUtils.getOrCreateInviteLinkForGuild(g, channel,
                 () -> log.error("Could not create invite to private guild #{}, id {}", this.privateRoom.getNumber(), this.privateRoom.getGuildId()));
     }
@@ -204,8 +203,7 @@ public class ManagedPrivateRoom {
 
     //this method assumes that the id itself is legit and not a mistake and we are member of this private guild
     // it is an attempt to improve the occasional inconsistency of discord which makes looking up entities a gamble
-    // the main feature being the @NonNull return contract, over the @Nullable contract of looking the entity up in JDA
-    @NonNull
+    // the main feature being the non-null return contract, over the @Nullable contract of looking the entity up in JDA
     private Guild fetchThisGuild() {
         ShardManager shardManager = Launcher.getBotContext().getShardManager();
         Guild guild = shardManager.getGuildById(this.privateRoom.getGuildId());
@@ -219,7 +217,7 @@ public class ManagedPrivateRoom {
                     this.privateRoom.getNumber(), this.privateRoom.getGuildId(), new LogTheStackException());
             try {
                 Thread.sleep(5000);
-            } catch (final InterruptedException e) {
+            } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
             guild = shardManager.getGuildById(this.privateRoom.getGuildId());

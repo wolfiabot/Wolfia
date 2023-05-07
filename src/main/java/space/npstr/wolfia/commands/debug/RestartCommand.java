@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.debug;
 
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -43,14 +42,13 @@ public class RestartCommand implements BaseCommand {
         return "restart";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Restart the bot.";
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
 
         if (this.shutdownHandler.isShuttingDown()) {
             context.replyWithName(String.format("restart has been queued already! **%s** games still running.",
@@ -69,7 +67,7 @@ public class RestartCommand implements BaseCommand {
             return false;
         }
 
-        final String message = String.format("**%s** games are still running. Will restart as soon as they are over.",
+        String message = String.format("**%s** games are still running. Will restart as soon as they are over.",
                 this.gameRegistry.getRunningGamesCount());
         Runnable restart = () -> this.shutdownHandler.shutdown(ShutdownHandler.EXIT_CODE_RESTART);
         context.replyWithMention(message, __ -> new Thread(restart, "shutdown-thread").start());

@@ -20,7 +20,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
@@ -36,31 +35,26 @@ public class EmptyRestAction<T> implements AuditableRestAction<T> {
         this.returnObj = returnObj;
     }
 
-    @NonNull
     @Override
     public JDA getJDA() {
         return api;
     }
 
-    @NonNull
     @Override
     public AuditableRestAction<T> reason(String reason) {
         return this;
     }
 
-    @NonNull
     @Override
     public AuditableRestAction<T> setCheck(BooleanSupplier checks) {
         return this;
     }
 
-    @NonNull
     @Override
-    public AuditableRestAction<T> timeout(long timeout, @NonNull TimeUnit unit) {
+    public AuditableRestAction<T> timeout(long timeout, TimeUnit unit) {
         return this; //Noop, this cannot timeout as it does not request in the first place.
     }
 
-    @NonNull
     @Override
     public AuditableRestAction<T> deadline(long timestamp) {
         return this; //Noop, this cannot timeout as it does not request in the first place.
@@ -72,7 +66,6 @@ public class EmptyRestAction<T> implements AuditableRestAction<T> {
             success.accept(returnObj);
     }
 
-    @NonNull
     @Override
     public CompletableFuture<T> submit(boolean shouldQueue) {
         return CompletableFuture.completedFuture(returnObj);

@@ -47,19 +47,19 @@ public class GitRepoState {
     public final long commitTime; //epoch seconds
 
     @SuppressWarnings("ConstantConditions")
-    public GitRepoState(final String propsName) {
+    public GitRepoState(String propsName) {
 
-        final Properties properties = new Properties();
+        Properties properties = new Properties();
         try {
             properties.load(GitRepoState.class.getClassLoader().getResourceAsStream(propsName));
-        } catch (final NullPointerException | IOException e) {
+        } catch (NullPointerException | IOException e) {
             log.info("Failed to load git repo information", e); //need to build with build tool to get them
         }
 
         this.branch = String.valueOf(properties.getOrDefault("git.branch", ""));
         this.commitId = String.valueOf(properties.getOrDefault("git.commit.id", ""));
         this.commitIdAbbrev = String.valueOf(properties.getOrDefault("git.commit.id.abbrev", ""));
-        final String time = String.valueOf(properties.get("git.commit.time"));
+        String time = String.valueOf(properties.get("git.commit.time"));
         if (time == null) {
             this.commitTime = 0;
         } else {

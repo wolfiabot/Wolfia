@@ -17,6 +17,7 @@
 
 package space.npstr.wolfia.domain.settings;
 
+import java.util.Optional;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -25,15 +26,13 @@ import org.springframework.stereotype.Component;
 import space.npstr.wolfia.Launcher;
 import space.npstr.wolfia.commands.MessageContext;
 
-import java.util.Optional;
-
 @Component
 public class ChannelSettingsRender {
 
     public MessageEmbed render(ChannelSettings settings) {
-        final EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
+         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();
         long channelId = settings.getChannelId();
-        final TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
+        TextChannel channel = Launcher.getBotContext().getShardManager().getTextChannelById(channelId);
         if (channel == null) {
             eb.addField("Could not find channel with id " + channelId, "", false);
             return eb.build();
@@ -43,7 +42,7 @@ public class ChannelSettingsRender {
         String roleName = "[Not set up]";
         Optional<Long> accessRoleId = settings.getAccessRoleId();
         if (accessRoleId.isPresent()) {
-            final Role accessRole = channel.getGuild().getRoleById(accessRoleId.get());
+            Role accessRole = channel.getGuild().getRoleById(accessRoleId.get());
             if (accessRole == null) {
                 roleName = "[Deleted]";
             } else {

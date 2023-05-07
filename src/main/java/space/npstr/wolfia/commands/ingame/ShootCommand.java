@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -51,7 +50,6 @@ public class ShootCommand extends GameCommand {
         return List.of("s", "blast");
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " @player"
@@ -60,15 +58,15 @@ public class ShootCommand extends GameCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
+    public boolean execute(CommandContext commandContext) throws IllegalGameStateException {
         //this command may be called in a guild for popcorn and a private channel for mafia
 
-        final GuildCommandContext context = commandContext.requireGuild(false);
+        GuildCommandContext context = commandContext.requireGuild(false);
         if (context != null) { // find game through guild / textchannel
             Game game = this.gameRegistry.get(context.textChannel);
             if (game == null) {
                 //private guild?
-                for (final Game g : this.gameRegistry.getAll().values()) {
+                for (Game g : this.gameRegistry.getAll().values()) {
                     if (context.guild.getIdLong() == g.getPrivateRoomGuildId()) {
                         game = g;
                         break;
@@ -87,7 +85,7 @@ public class ShootCommand extends GameCommand {
             //todo handle a player being part of multiple games properly
             boolean issued = false;
             boolean success = false;
-            for (final Game g : this.gameRegistry.getAll().values()) {
+            for (Game g : this.gameRegistry.getAll().values()) {
                 if (g.isUserPlaying(commandContext.invoker)) {
                     if (g.issueCommand(commandContext)) {
                         success = true;

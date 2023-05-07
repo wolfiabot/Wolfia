@@ -20,7 +20,6 @@ package space.npstr.wolfia.domain;
 import java.time.Duration;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import javax.annotation.CheckReturnValue;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.system.EventWaiter;
@@ -57,7 +56,6 @@ public interface Conversation {
         return Duration.ofMinutes(1);
     }
 
-    @CheckReturnValue
     default boolean replyAndWaitForAnswer(MessageContext context, String sendMessage, Consumer<MessageReceivedEvent> action) {
         context.reply(sendMessage);
         getEventWaiter().waitForEvent(
@@ -70,7 +68,6 @@ public interface Conversation {
         return true;
     }
 
-    @CheckReturnValue
     default Predicate<MessageReceivedEvent> waitForInvokerInChannel(MessageContext context) {
         return messageReceived -> messageReceived.getAuthor().equals(context.getInvoker())
                 && messageReceived.getChannel().equals(context.getChannel());

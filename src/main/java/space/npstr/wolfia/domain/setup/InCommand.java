@@ -20,7 +20,6 @@ package space.npstr.wolfia.domain.setup;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -63,16 +62,16 @@ public class InCommand implements BaseCommand, PublicCommand {
         return List.of("join");
     }
 
-    @NonNull
+
     @Override
     public String help() {
         return invocation() + "\n#Add you to the signup list for this channel. You will play in the next starting game.";
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) {
+    public boolean execute(CommandContext commandContext) {
 
-        final GuildCommandContext context = commandContext.requireGuild();
+        GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
         }

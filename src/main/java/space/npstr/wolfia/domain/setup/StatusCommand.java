@@ -18,7 +18,6 @@
 package space.npstr.wolfia.domain.setup;
 
 import java.util.List;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -62,7 +61,6 @@ public class StatusCommand implements BaseCommand, PublicCommand {
         return List.of("st");
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + "\n#Post the current game status or sign up list.";
@@ -70,15 +68,15 @@ public class StatusCommand implements BaseCommand, PublicCommand {
 
     @SuppressWarnings("Duplicates")
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) {
+    public boolean execute(CommandContext commandContext) {
         //this command may be called from any channel. if its a private channel, look for ongoing games of the invoker
 
-        final GuildCommandContext context = commandContext.requireGuild(false);
+        GuildCommandContext context = commandContext.requireGuild(false);
         if (context != null) { // find game through guild / textchannel
             Game game = this.gameRegistry.get(context.textChannel);
             if (game == null) {
                 //private guild?
-                for (final Game g : this.gameRegistry.getAll().values()) {
+                for (Game g : this.gameRegistry.getAll().values()) {
                     if (context.guild.getIdLong() == g.getPrivateRoomGuildId()) {
                         game = g;
                         break;
@@ -98,7 +96,7 @@ public class StatusCommand implements BaseCommand, PublicCommand {
         } else {//handle it being issued in a private channel
             //todo handle a player being part of multiple games properly
             boolean issued = false;
-            for (final Game g : this.gameRegistry.getAll().values()) {
+            for (Game g : this.gameRegistry.getAll().values()) {
                 if (g.isUserPlaying(commandContext.invoker)) {
                     commandContext.reply(g.getStatus().build());
                     issued = true;

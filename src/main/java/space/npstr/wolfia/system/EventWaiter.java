@@ -118,8 +118,8 @@ public class EventWaiter {
     }
 
     public class WaitingEvent<T extends GenericEvent> {
-        final Predicate<T> condition;
-        final Consumer<T> action;
+        Predicate<T> condition;
+        Consumer<T> action;
 
         WaitingEvent(Predicate<T> condition, Consumer<T> action) {
             this.condition = condition;

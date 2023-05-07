@@ -45,14 +45,14 @@ public class WolfiaGuildListener {
             + "Don't forget to enjoy and have fun! " + Emojis.WINK;
 
     @EventListener
-    public void onGuildMemberJoin(final GuildMemberJoinEvent event) {
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         if (event.getGuild().getIdLong() != App.WOLFIA_LOUNGE_ID
                 || Launcher.getBotContext().getWolfiaConfig().isDebug()) {
             return;
         }
 
         //send greetings to spam channel
-        final TextChannel spam = event.getGuild().getTextChannelById(SPAM_CHANNEL_ID);
+        TextChannel spam = event.getGuild().getTextChannelById(SPAM_CHANNEL_ID);
         if (spam != null) {
             RestActions.sendMessage(spam, String.format(WELCOME_PATTERN, event.getMember().getAsMention()));
         } else {

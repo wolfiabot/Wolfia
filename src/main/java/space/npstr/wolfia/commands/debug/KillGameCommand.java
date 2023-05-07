@@ -18,7 +18,6 @@
 package space.npstr.wolfia.commands.debug;
 
 import java.util.Arrays;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
@@ -40,29 +39,28 @@ public class KillGameCommand implements BaseCommand {
         return "killgame";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Stop and destroy an ongoing game.";
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
 
         if (!context.hasArguments()) {
             context.reply("Please provide the channelId of the game you want to kill.");
             return false;
         }
 
-        final long channelId;
+        long channelId;
         try {
             channelId = Long.parseLong(context.args[0]);
-        } catch (final NumberFormatException e) {
+        } catch (NumberFormatException e) {
             context.reply("Invalid channelId provided (not a long)");
             return false;
         }
 
-        final Game game = this.gameRegistry.get(channelId);
+        Game game = this.gameRegistry.get(channelId);
         if (game == null) {
             context.reply("There is no game registered for channel " + channelId);
             return false;

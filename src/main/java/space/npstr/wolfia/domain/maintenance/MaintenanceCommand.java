@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.domain.maintenance;
 
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
@@ -39,14 +38,13 @@ public class MaintenanceCommand implements BaseCommand {
         return "maint";
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Flip the maintenance flag";
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
         this.service.flipMaintenanceFlag();
         context.replyWithMention("set the maintenance flag to **" + this.service.getMaintenanceFlag() + "**");
         return true;

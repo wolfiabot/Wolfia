@@ -20,7 +20,6 @@ package space.npstr.wolfia.domain.setup;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -62,7 +61,6 @@ public class OutCommand implements BaseCommand, PublicCommand {
         return List.of("leave");
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " [@user]"
@@ -70,9 +68,8 @@ public class OutCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) {
-
-        final GuildCommandContext context = commandContext.requireGuild();
+    public boolean execute(CommandContext commandContext) {
+        GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
         }

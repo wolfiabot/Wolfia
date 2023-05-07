@@ -19,8 +19,6 @@ package space.npstr.wolfia.commands;
 
 
 import java.util.Optional;
-import javax.annotation.CheckReturnValue;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -36,33 +34,21 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 @SuppressWarnings("unused")
 public interface Context {
 
-    @NonNull
-    @CheckReturnValue
     MessageChannel getChannel();
 
-    @NonNull
-    @CheckReturnValue
     User getInvoker();
 
     //message that triggered this context
-    @NonNull
-    @CheckReturnValue
     Message getMessage();
 
-    @NonNull
-    @CheckReturnValue
     MessageReceivedEvent getEvent();
 
-    @NonNull
-    @CheckReturnValue
     JDA getJda();
 
-    @CheckReturnValue
     Optional<Guild> getGuild();
 
     /**
      * @return Member entity of the invoker
      */
-    @CheckReturnValue
     Optional<Member> getMember();
 }

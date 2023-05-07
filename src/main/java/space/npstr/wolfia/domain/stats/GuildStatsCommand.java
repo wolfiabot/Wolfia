@@ -18,7 +18,6 @@
 package space.npstr.wolfia.domain.stats;
 
 import java.util.Optional;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.entities.Guild;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -46,7 +45,6 @@ public class GuildStatsCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation() + " [guild ID]"
@@ -56,12 +54,12 @@ public class GuildStatsCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext context) {
+    public boolean execute(CommandContext context) {
         Optional<Long> guildId = Optional.empty();
         if (context.hasArguments()) {
             try {
                 guildId = Optional.of(Long.parseLong(context.args[0]));
-            } catch (final NumberFormatException e) {
+            } catch (NumberFormatException e) {
                 context.help();
                 return false;
             }

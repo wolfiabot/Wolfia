@@ -34,9 +34,9 @@ public class DatabaseConnection {
     /**
      * @throws DataAccessException if the connection could not be created due to [reasons]
      */
-    public DatabaseConnection(final HikariConfig hikariConfig,
-                              final ProxyDataSourceBuilder proxyDataSourceBuilder,
-                              final FluentConfiguration flywayConfig) {
+    public DatabaseConnection(HikariConfig hikariConfig,
+                              ProxyDataSourceBuilder proxyDataSourceBuilder,
+                              FluentConfiguration flywayConfig) {
 
         try {
             this.hikariDataSource = new HikariDataSource(hikariConfig);
@@ -48,7 +48,7 @@ public class DatabaseConnection {
             this.proxiedDataSource = proxyDataSourceBuilder
                     .dataSource(this.hikariDataSource)
                     .build();
-        } catch (final Exception e) {
+        } catch (Exception e) {
             throw new DataAccessException("Failed to create database connection", e);
         }
     }

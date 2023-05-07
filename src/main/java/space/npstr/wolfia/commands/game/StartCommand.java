@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands.game;
 
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -52,7 +51,6 @@ public class StartCommand implements BaseCommand, PublicCommand {
         return TRIGGER;
     }
 
-    @NonNull
     @Override
     public String help() {
         return invocation()
@@ -60,9 +58,8 @@ public class StartCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
-
-        final GuildCommandContext context = commandContext.requireGuild();
+    public boolean execute(CommandContext commandContext) throws IllegalGameStateException {
+        GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
         }

@@ -17,9 +17,7 @@
 
 package space.npstr.wolfia.domain.privacy;
 
-import javax.annotation.CheckReturnValue;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
@@ -59,11 +57,10 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
     }
 
     @Override
-    public boolean execute(@NonNull CommandContext context) {
+    public boolean execute(CommandContext context) {
         return start(context);
     }
 
-    @NonNull
     @Override
     public String help() {
         return "Show Wolfia's Privacy Policy options.";
@@ -74,7 +71,6 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
         return showConversationOptions(context);
     }
 
-    @CheckReturnValue
     private boolean showConversationOptions(MessageContext context) {
         String options = "Welcome to Wolfia privacy policy options! Say "
                 + "\n- **" + OPTION_READ + "** to read our privacy policy"
@@ -85,7 +81,6 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
         return replyAndWaitForAnswer(context, options, this::optionSelected);
     }
 
-    @CheckReturnValue
     private boolean optionSelected(MessageReceivedEvent event) {
         MessageContext context = new MessageContext(event);
         String rawContent = context.getMessage().getContentRaw();
@@ -128,7 +123,6 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
             return showConversationOptions(context);
         }
 
-        @CheckReturnValue
         private boolean showConversationOptions(MessageContext context) {
             String options = Emojis.WARN + " **ATTENTION, READ CAREFULLY**"
                     + "\nWe understand your request to delete your personal data"
@@ -147,7 +141,6 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
             return replyAndWaitForAnswer(context, options, this::optionSelected);
         }
 
-        @CheckReturnValue
         private boolean optionSelected(MessageReceivedEvent event) {
             MessageContext context = new MessageContext(event);
             String rawContent = context.getMessage().getContentRaw();

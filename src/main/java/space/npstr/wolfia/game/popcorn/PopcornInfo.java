@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.lang.NonNull;
 import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.game.CharakterSetup;
 import space.npstr.wolfia.game.GameInfo;
@@ -37,7 +36,7 @@ public class PopcornInfo implements GameInfo {
 
     @Override
     public List<GameMode> getSupportedModes() {
-        final List<GameMode> supportedModes = new ArrayList<>();
+        List<GameMode> supportedModes = new ArrayList<>();
         supportedModes.add(GameMode.WILD);
         supportedModes.add(GameMode.CLASSIC);
         return supportedModes;
@@ -49,8 +48,8 @@ public class PopcornInfo implements GameInfo {
     }
 
     @Override
-    public Map<Permission, Scope> getRequiredPermissions(final GameMode mode) {
-        final Map<Permission, Scope> requiredPermissions = new LinkedHashMap<>();
+    public Map<Permission, Scope> getRequiredPermissions(GameMode mode) {
+        Map<Permission, Scope> requiredPermissions = new LinkedHashMap<>();
         requiredPermissions.put(Permission.MESSAGE_EMBED_LINKS, Scope.CHANNEL);
         requiredPermissions.put(Permission.MESSAGE_EXT_EMOJI, Scope.CHANNEL);
         switch (mode) {
@@ -68,7 +67,7 @@ public class PopcornInfo implements GameInfo {
      * @return a string representation of the allowed player count for this game and mode
      */
     @Override
-    public String getAcceptablePlayerNumbers(final GameMode mode) {
+    public String getAcceptablePlayerNumbers(GameMode mode) {
         if (mode == GameMode.WILD) {
             return "3+";
         } else if (mode == GameMode.CLASSIC) {
@@ -80,7 +79,7 @@ public class PopcornInfo implements GameInfo {
 
     //the only reason Classic is capepd at 26 is the emoji limit to allow wolves giving a gun
     @Override
-    public boolean isAcceptablePlayerCount(final int playerCount, final GameMode mode) {
+    public boolean isAcceptablePlayerCount(int playerCount, GameMode mode) {
         if (mode == GameMode.WILD) {
             return playerCount > 2;
         } else if (mode == GameMode.CLASSIC) {
@@ -94,9 +93,8 @@ public class PopcornInfo implements GameInfo {
     //https://weebs.are-la.me/e1613c.png
     //https://i.npstr.space/iyF.png
     //https://i.npstr.space/hsi.png
-    @NonNull
     @Override
-    public CharakterSetup getCharacterSetup(@NonNull final GameMode mode, final int playerCount) {
+    public CharakterSetup getCharacterSetup(GameMode mode, int playerCount) {
 
         if (!isAcceptablePlayerCount(playerCount, mode)) {
             throw new IllegalArgumentException(String.format(
@@ -108,7 +106,7 @@ public class PopcornInfo implements GameInfo {
         int wolves = (int) Math.ceil(playerCount / 3.0);
         //there is one special case for four players where this formula doesnt work out
         if (playerCount == 4) wolves = 1;
-        final int villagers = playerCount - wolves;
+        int villagers = playerCount - wolves;
 
         return new CharakterSetup()
                 .addRoleAndAlignment(Alignments.VILLAGE, Roles.VANILLA, villagers)

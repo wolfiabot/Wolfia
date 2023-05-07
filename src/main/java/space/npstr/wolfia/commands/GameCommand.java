@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.commands;
 
-import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.game.GameRegistry;
@@ -36,8 +35,8 @@ public abstract class GameCommand implements BaseCommand, PublicCommand {
     }
 
     @Override
-    public boolean execute(@NonNull final CommandContext commandContext) throws IllegalGameStateException {
-        final GuildCommandContext context = commandContext.requireGuild();
+    public boolean execute(CommandContext commandContext) throws IllegalGameStateException {
+        GuildCommandContext context = commandContext.requireGuild();
         if (context == null) {
             return false;
         }
@@ -45,7 +44,7 @@ public abstract class GameCommand implements BaseCommand, PublicCommand {
         Game game = this.gameRegistry.get(context.textChannel);
         if (game == null) {
             //private guild?
-            for (final Game g : this.gameRegistry.getAll().values()) {
+            for (Game g : this.gameRegistry.getAll().values()) {
                 if (context.guild.getIdLong() == g.getPrivateRoomGuildId()) {
                     game = g;
                     break;

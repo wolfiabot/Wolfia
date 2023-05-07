@@ -30,11 +30,11 @@ public class Memoizer<U> {
 
     private Memoizer() {}
 
-    private Supplier<U> doMemoize(final Supplier<U> supplier) {
+    private Supplier<U> doMemoize(Supplier<U> supplier) {
         return () -> cache.computeIfAbsent("memo", __ -> supplier.get());
     }
 
-    public static <U> Supplier<U> memoize(final Supplier<U> supplier) {
+    public static <U> Supplier<U> memoize(Supplier<U> supplier) {
         return new Memoizer<U>().doMemoize(supplier);
     }
 }
