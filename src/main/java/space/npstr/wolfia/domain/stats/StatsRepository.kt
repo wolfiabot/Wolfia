@@ -204,8 +204,8 @@ internal class StatsRepository(
 				gameRecord.guildName,
 				gameRecord.startTime,
 				gameRecord.playerSize,
-				teams,
-				actions,
+				teams.toSet(),
+				actions.toSet(),
 			)
 		}
 	}
@@ -296,7 +296,7 @@ internal class StatsRepository(
 					gameId, insertGameStats.channelId, insertGameStats.channelName,
 					insertGameStats.endTime, insertGameStats.gameMode, insertGameStats.gameType,
 					insertGameStats.guildId, insertGameStats.guildName, insertGameStats.startTime,
-					insertGameStats.playerSize, teams, actions,
+					insertGameStats.playerSize, teams.toSet(), actions.toSet(),
 				)
 			}
 
