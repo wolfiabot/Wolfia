@@ -36,6 +36,7 @@ import space.npstr.wolfia.game.definitions.Actions
 import space.npstr.wolfia.game.definitions.Alignments
 import space.npstr.wolfia.game.definitions.Games
 import space.npstr.wolfia.game.definitions.Phase
+import space.npstr.wolfia.game.definitions.Roles
 import space.npstr.wolfia.system.metrics.MetricsRegistry
 
 @Repository
@@ -220,7 +221,7 @@ internal class StatsRepository(
 	private fun playerMapper(): RecordMapper<StatsPlayerRecord, PlayerStats> {
 		return RecordMapper { record: StatsPlayerRecord ->
 			PlayerStats(
-				record.playerId, record.nickname, record.role,
+				record.playerId, record.nickname, Roles.valueOf(record.role),
 				record.totalPostlength, record.totalPosts, record.userId, Alignments.valueOf(record.alignment),
 			)
 		}
