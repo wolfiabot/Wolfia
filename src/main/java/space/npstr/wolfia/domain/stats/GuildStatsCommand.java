@@ -74,7 +74,7 @@ public class GuildStatsCommand implements BaseCommand, PublicCommand {
             guildId = guild.map(Guild::getIdLong);
         }
 
-        GuildStats guildStats = this.statsProvider.getGuildStats(guildId.get());
+        GuildStats guildStats = this.statsProvider.calculateGuildStats(guildId.get());
         context.reply(this.render.renderGuildStats(context, guildStats).build());
         return true;
     }

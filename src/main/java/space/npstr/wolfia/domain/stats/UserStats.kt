@@ -24,41 +24,41 @@ data class UserStats(
 	/**
 	 * @return total amount of games this user participated in
 	 */
-	val totalGames: Long,
+	val totalGames: Int,
 	/**
 	 * @return amount of games this user won
 	 */
-	val gamesWon: Long,
+	val gamesWon: Int,
 	/**
 	 * @return amount of games this user played as a baddie
 	 */
-	val gamesAsBaddie: Long,
+	val gamesAsBaddie: Int,
 	/**
 	 * @return amount of games this user played as a baddie and won
 	 */
-	val gamesWonAsBaddie: Long,
+	val gamesWonAsBaddie: Int,
 	/**
 	 * @return amount of games this user played as a goodie
 	 */
-	val gamesAsGoodie: Long,
+	val gamesAsGoodie: Int,
 	/**
 	 * @return amount of games this user played as a goodie and won
 	 */
-	val gamesWonAsGoodie: Long,
+	val gamesWonAsGoodie: Int,
 	/**
 	 * @return total shots by this player
 	 */
-	val totalShots: Long,
+	val totalShots: Int,
 	/**
 	 * @return amount of wolves shot by this user
 	 */
-	val wolvesShot: Long,
+	val wolvesShot: Int,
 	/**
 	 * @return total posts written by this user
 	 */
-	val totalPosts: Long,
+	val totalPosts: Int,
 	/**
 	 * @return total length of posts written by this user
 	 */
-	val totalPostLength: Long,
+	val totalPostLength: Int,
 )

@@ -40,11 +40,11 @@ import space.npstr.wolfia.game.definitions.Roles
 import space.npstr.wolfia.system.metrics.MetricsRegistry
 
 @Repository
-internal class StatsRepository(
+class StatsRepository internal constructor(
 	private val database: Database,
 ) {
 
-	fun getAveragePlayerSize(): BigDecimal {
+	fun fetchAveragePlayerSize(): BigDecimal {
 		return MetricsRegistry.queryTime.labels("getAveragePlayerSize").startTimer().use {
 			database.jooq()
 				.select(DSL.avg(Tables.STATS_GAME.PLAYER_SIZE))
@@ -53,7 +53,7 @@ internal class StatsRepository(
 		}
 	}
 
-	fun getAveragePlayerSizeInGuild(guildId: Long): BigDecimal {
+	fun fetchAveragePlayerSizeInGuild(guildId: Long): BigDecimal {
 		return MetricsRegistry.queryTime.labels("getAveragePlayerSizeInGuild").startTimer().use {
 			database.jooq()
 				.select(DSL.avg(Tables.STATS_GAME.PLAYER_SIZE))
@@ -63,7 +63,7 @@ internal class StatsRepository(
 		}
 	}
 
-	fun getDistinctPlayerSizes(): Set<Int> {
+	fun fetchDistinctPlayerSizes(): Set<Int> {
 		return MetricsRegistry.queryTime.labels("getDistinctPlayerSizes").startTimer().use {
 			database.jooq()
 				.selectDistinct(Tables.STATS_GAME.PLAYER_SIZE)
@@ -73,7 +73,7 @@ internal class StatsRepository(
 		}
 	}
 
-	fun getDistinctPlayerSizesInGuild(guildId: Long): Set<Int> {
+	fun fetchDistinctPlayerSizesInGuild(guildId: Long): Set<Int> {
 		return MetricsRegistry.queryTime.labels("getDistinctPlayerSizesInGuild").startTimer().use {
 			database.jooq()
 				.selectDistinct(Tables.STATS_GAME.PLAYER_SIZE)
@@ -145,18 +145,31 @@ internal class StatsRepository(
 		}
 	}
 
-	fun getGeneralUserStats(userId: Long): List<GeneralUserStats> {
+	fun fetchGeneralUserStats(userId: Long): List<GeneralUserStats> {
 		return MetricsRegistry.queryTime.labels("getGeneralUserStats").startTimer().use {
 			database.jooq()
-				.select(Tables.STATS_PLAYER.TOTAL_POSTLENGTH, Tables.STATS_PLAYER.TOTAL_POSTS, Tables.STATS_PLAYER.ALIGNMENT, Tables.STATS_TEAM.IS_WINNER)
+				.select(
+					Tables.STATS_PLAYER.TOTAL_POSTLENGTH,
+					Tables.STATS_PLAYER.TOTAL_POSTS,
+					Tables.STATS_PLAYER.ALIGNMENT,
+					Tables.STATS_TEAM.IS_WINNER,
+				)
 				.from(Tables.STATS_PLAYER)
 				.innerJoin(Tables.STATS_TEAM).on(Tables.STATS_PLAYER.TEAM_ID.eq(Tables.STATS_TEAM.TEAM_ID))
 				.where(Tables.STATS_PLAYER.USER_ID.eq(userId))
-				.fetchInto(GeneralUserStats::class.java)
+				.fetch()
+				.map {
+					GeneralUserStats(
+						it.get(Tables.STATS_PLAYER.TOTAL_POSTLENGTH),
+						it.get(Tables.STATS_PLAYER.TOTAL_POSTS),
+						Alignments.valueOf(it.get(Tables.STATS_PLAYER.ALIGNMENT)),
+						it.get(Tables.STATS_TEAM.IS_WINNER),
+					)
+				}
 		}
 	}
 
-	fun getUserShots(userId: Long): List<String> {
+	fun fetchUserShots(userId: Long): List<Alignments> {
 		return MetricsRegistry.queryTime.labels("getUserShots").startTimer().use {
 			database.jooq()
 				.select(Tables.STATS_PLAYER.ALIGNMENT)
@@ -164,11 +177,15 @@ internal class StatsRepository(
 				.innerJoin(Tables.STATS_PLAYER).on(Tables.STATS_PLAYER.USER_ID.eq(Tables.STATS_ACTION.TARGET))
 				.innerJoin(Tables.STATS_TEAM).on(Tables.STATS_TEAM.TEAM_ID.eq(Tables.STATS_PLAYER.TEAM_ID))
 				.innerJoin(Tables.STATS_GAME)
-				.on(Tables.STATS_ACTION.GAME_ID.eq(Tables.STATS_GAME.GAME_ID).and(Tables.STATS_TEAM.GAME_ID.eq(Tables.STATS_GAME.GAME_ID)))
+				.on(
+					Tables.STATS_ACTION.GAME_ID.eq(Tables.STATS_GAME.GAME_ID)
+						.and(Tables.STATS_TEAM.GAME_ID.eq(Tables.STATS_GAME.GAME_ID)),
+				)
 				.where(Tables.STATS_ACTION.ACTION_TYPE.eq("SHOOT").and(Tables.STATS_ACTION.ACTOR.eq(userId)))
 				.fetch()
 				.intoArray(Tables.STATS_PLAYER.ALIGNMENT)
 				.toList()
+				.map { Alignments.valueOf(it) }
 		}
 	}
 
@@ -304,7 +321,7 @@ internal class StatsRepository(
 		}
 	}
 
-	fun getAllGameStatsOfUser(userId: Long): List<PrivacyGame> {
+	fun fetchAllGameStatsOfUser(userId: Long): List<PrivacyGame> {
 		return MetricsRegistry.queryTime.labels("getAllGameStatsOfUser").startTimer().use {
 			database.jooq()
 				.select(
@@ -340,7 +357,7 @@ internal class StatsRepository(
 		}
 	}
 
-	fun getAllActionStatsOfUser(userId: Long): Map<Long, List<PrivacyAction>> {
+	fun fetchAllActionStatsOfUser(userId: Long): Map<Long, List<PrivacyAction>> {
 		return MetricsRegistry.queryTime.labels("getAllActionStatsOfUser").startTimer().use {
 			database.jooq()
 				.select(
@@ -359,7 +376,7 @@ internal class StatsRepository(
 		return RecordMapper { record ->
 			PrivacyAction(
 				Actions.valueOf(record.get(Tables.STATS_ACTION.ACTION_TYPE)),
-				Instant.ofEpochMilli(record.get(Tables.STATS_ACTION.SUBMITTED))
+				Instant.ofEpochMilli(record.get(Tables.STATS_ACTION.SUBMITTED)),
 			)
 		}
 	}

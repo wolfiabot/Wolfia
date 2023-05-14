@@ -16,9 +16,11 @@
  */
 package space.npstr.wolfia.domain.stats
 
+import space.npstr.wolfia.game.definitions.Alignments
+
 data class GeneralUserStats(
-	val postLength: Long,
-	val posts: Long,
-	val alignment: String,
+	val postLength: Int,
+	val posts: Int,
+	val alignment: Alignments,
 	val isWinner: Boolean,
 )

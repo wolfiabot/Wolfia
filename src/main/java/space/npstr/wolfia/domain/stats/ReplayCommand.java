@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.domain.stats;
 
-import java.util.Optional;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
@@ -68,14 +67,14 @@ public class ReplayCommand implements BaseCommand, PublicCommand {
             return false;
         }
 
-        Optional<GameStats> gameStatsOpt = this.statsProvider.getGameStats(gameId);
+        GameStats gameStats = this.statsProvider.calculateGameStats(gameId);
 
-        if (gameStatsOpt.isEmpty()) {
+        if (gameStats == null) {
             context.replyWithMention("there is no such game in the database.");
             return false;
         }
 
-        context.reply(this.render.renderGameStats(gameStatsOpt.get()));
+        context.reply(this.render.renderGameStats(gameStats));
         return true;
     }
 }

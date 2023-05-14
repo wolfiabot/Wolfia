@@ -140,8 +140,8 @@ public class StatsRender {
         eb.addField(Emojis.GUN + " accuracy", percentFormat(divide(stats.getWolvesShot(), stats.getTotalShots())), true);
         eb.addField("Total posts written", stats.getTotalPosts() + "", true);
         eb.addField("Total post length", stats.getTotalPostLength() + "", true);
-        eb.addField("∅ posts per game", ((long) divide(stats.getTotalPosts(), stats.getTotalGames())) + "", true);
-        eb.addField("∅ post length", ((long) divide(stats.getTotalPostLength(), stats.getTotalPosts())) + "", true);
+        eb.addField("∅ posts per game", ((int) divide(stats.getTotalPosts(), stats.getTotalGames())) + "", true);
+        eb.addField("∅ post length", ((int) divide(stats.getTotalPostLength(), stats.getTotalPosts())) + "", true);
         return eb;
     }
 
