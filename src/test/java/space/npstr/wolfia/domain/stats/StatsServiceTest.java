@@ -37,21 +37,21 @@ class StatsServiceTest extends ApplicationTest {
 
     @Test
     void whenAnonymize_playerNameIsAnonymized() {
-        GameStats gameStats = new GameStats(uniqueLong(), "Foo", uniqueLong(), "Bar", Games.POPCORN, GameInfo.GameMode.WILD, 1);
-        TeamStats village = new TeamStats(gameStats, Alignments.VILLAGE, "Village", 1);
+        var gameStats = new InsertGameStats(uniqueLong(), "Foo", uniqueLong(), "Bar", Games.POPCORN, GameInfo.GameMode.WILD, 1);
+        var village = new InsertTeamStats(Alignments.VILLAGE, "Village", 1);
         village.setWinner(true);
-        PlayerStats playerStats = new PlayerStats(village, uniqueLong(), "Player McPlayerface", Alignments.VILLAGE, Roles.COP);
+        var playerStats = new InsertPlayerStats(uniqueLong(), "Player McPlayerface", Alignments.VILLAGE, Roles.COP);
         village.addPlayer(playerStats);
         gameStats.setTeams(List.of(village));
-        gameStats = statsService.recordGameStats(gameStats);
+        var recorded = statsService.recordGameStats(gameStats);
 
-        PlayerStats player = gameStats.getStartingTeams().stream().findAny().orElseThrow()
+        PlayerStats player = recorded.getStartingTeams().stream().findAny().orElseThrow()
                 .getPlayers().stream().findAny().orElseThrow();
         assertThat(player.getNickname()).isEqualTo("Player McPlayerface");
 
         statsService.anonymize(player.getUserId());
 
-        player = requireNonNull(statsRepository.findGameStats(gameStats.getGameId().orElseThrow()))
+        player = requireNonNull(statsRepository.findGameStats(recorded.getGameId()))
                 .getStartingTeams().stream().findAny().orElseThrow()
                 .getPlayers().stream().findAny().orElseThrow();
         assertThat(player.getNickname()).isNull();

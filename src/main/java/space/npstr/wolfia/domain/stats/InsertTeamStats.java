@@ -18,50 +18,55 @@
 package space.npstr.wolfia.domain.stats;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import space.npstr.wolfia.game.definitions.Alignments;
 
-/**
- * Model of a team in a game.
- */
-public class TeamStats {
+public class InsertTeamStats {
 
-    private final long teamId;
+    private final Set<InsertPlayerStats> players = new HashSet<>();
     private final Alignments alignment;
+    // teams of the same alignment (example: wolves) should have unique names
     private final String name;
-    private final boolean isWinner;
-    private final int teamSize;
-    private final Set<PlayerStats> players;
+    private boolean isWinner = false;
+    private int teamSize;
 
-    TeamStats(long teamId, Alignments alignment, boolean isWinner, String name, int teamSize, Collection<PlayerStats> players) {
-        this.teamId = teamId;
+
+    public InsertTeamStats(Alignments alignment, String name, int teamSize) {
         this.alignment = alignment;
-        this.isWinner = isWinner;
         this.name = name;
         this.teamSize = teamSize;
-        this.players = Set.copyOf(players);
     }
+
+    public void addPlayer(InsertPlayerStats player) {
+        this.players.add(player);
+    }
+
+    public void setPlayers(Collection<InsertPlayerStats> players) {
+        this.players.clear();
+        this.players.addAll(players);
+    }
+
 
     @Override
     public int hashCode() {
-        return Long.hashCode(this.teamId);
+        int prime = 31;
+        int result = this.alignment.hashCode();
+        result = prime * result + this.name.hashCode();
+        return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof TeamStats t)) {
+        if (!(obj instanceof InsertTeamStats t)) {
             return false;
         }
-        return this.teamId == t.teamId;
+        return this.alignment.equals(t.alignment) && this.name.equals(t.name);
     }
 
-
-    public long getTeamId() {
-        return this.teamId;
-    }
-
-    public Set<PlayerStats> getPlayers() {
-        return this.players;
+    public Set<InsertPlayerStats> getPlayers() {
+        return Collections.unmodifiableSet(this.players);
     }
 
     public Alignments getAlignment() {
@@ -76,7 +81,15 @@ public class TeamStats {
         return this.isWinner;
     }
 
+    public void setWinner(boolean winner) {
+        this.isWinner = winner;
+    }
+
     public int getTeamSize() {
         return this.teamSize;
+    }
+
+    public void setTeamSize(int teamSize) {
+        this.teamSize = teamSize;
     }
 }

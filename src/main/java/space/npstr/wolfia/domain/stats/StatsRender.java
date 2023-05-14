@@ -149,7 +149,7 @@ public class StatsRender {
     public EmbedBuilder renderGameStats(GameStats stats) {
         NiceEmbedBuilder eb = NiceEmbedBuilder.defaultBuilder();
 
-        long gameId = stats.getGameId().orElseThrow();
+        long gameId = stats.getGameId();
 
         //1. post summary like game, mode, players, roles
         eb.setTitle("**Game #" + gameId + "**");
@@ -170,7 +170,7 @@ public class StatsRender {
         String fieldTitle = "Actions";
         NiceEmbedBuilder.ChunkingField actionsField = new NiceEmbedBuilder.ChunkingField(fieldTitle, false);
         for (ActionStats action : sortedActions) {
-            String actionStr = renderActionStats(action);
+            String actionStr = renderActionStats(action, stats);
             actionsField.add(actionStr, true);
         }
         eb.addField(actionsField);
@@ -195,10 +195,9 @@ public class StatsRender {
         return eb;
     }
 
-    public String renderActionStats(ActionStats actionStats) {
+    public String renderActionStats(ActionStats actionStats, GameStats game) {
 
-        GameStats game = actionStats.getGame();
-        long gameId = game.getGameId().orElseThrow();
+        long gameId = game.getGameId();
         //how much time since game started
         String result = "`" + (TextchatUtils.formatMillis(actionStats.getTimeStampHappened() - game.getStartTime())) + "` ";
         switch (actionStats.getActionType()) {
@@ -293,7 +292,7 @@ public class StatsRender {
                 }
             }
         }
-        String message = String.format("No such player %s in this game %s", userId, gameStats.getGameId().orElseThrow());
+        String message = String.format("No such player %s in this game %s", userId, gameStats.getGameId());
         log.error(message, new IllegalArgumentException(message));
         return UNKNOWN_NAME;
     }
@@ -315,8 +314,10 @@ public class StatsRender {
             throw new IllegalArgumentException("Player list of game #" + gameStats.getGameId() + " does not contain user " + player.getUserId());
         }
 
+        // false positive by IntelliJ
+        //noinspection RedundantStreamOptionalCall
         long left = allPlayers.stream()
-                .sorted(Comparator.comparingLong(p -> p.getPlayerId().orElseThrow()))
+                .sorted(Comparator.comparingLong(PlayerStats::getPlayerId))
                 .dropWhile(playerStats -> playerStats.getPlayerId() != player.getPlayerId())
                 .count();
         long playerNumber = allPlayers.size() - left + 1;

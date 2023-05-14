@@ -24,9 +24,8 @@ import space.npstr.wolfia.game.definitions.Phase;
 /**
  * Describe an action that happened during a game
  */
-public class ActionStats {
+public class InsertActionStats {
 
-    private final long actionId;
     //chronological order of the actions
     //order is a reserved keyword in postgres, so we use 'sequence' in the table instead
     private final int order;
@@ -34,7 +33,7 @@ public class ActionStats {
     // happens (example: nk gets submitted during the night, but actually "happens" when the day starts and results are
     // announced). these two timestamps try to capture that data as accurately as possible
     private final long timeStampSubmitted;
-    private final long timeStampHappened;
+    private long timeStampHappened;
     //n0, d1 + n1, d2 + n2 etc
     private final int cycle;
     private final Phase phase;
@@ -45,38 +44,45 @@ public class ActionStats {
     private final long target;
     //save any additional info of an action in here
     @Nullable
-    private final String additionalInfo;
+    private String additionalInfo;
 
-    ActionStats(long actionId, String actionType, long actor, int cycle, int order, long target, long happened,
-                long submitted, String phase, @Nullable String additionalInfo) {
+    public InsertActionStats(int order, long timeStampSubmitted, long timeStampHappened, int cycle,
+                             Phase phase, long actor, Actions action, long target, @Nullable String additionalInfo) {
 
-        this.actionId = actionId;
-        this.actionType = Actions.valueOf(actionType);
-        this.actor = actor;
-        this.cycle = cycle;
         this.order = order;
+        this.timeStampSubmitted = timeStampSubmitted;
+        this.timeStampHappened = timeStampHappened;
+        this.cycle = cycle;
+        this.phase = phase;
+        this.actor = actor;
+        this.actionType = action;
         this.target = target;
-        this.timeStampHappened = happened;
-        this.timeStampSubmitted = submitted;
-        this.phase = Phase.valueOf(phase);
         this.additionalInfo = additionalInfo;
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(actionId);
+        int prime = 31;
+        int result = this.order;
+        result = prime * result + (int) (this.timeStampSubmitted ^ (this.timeStampSubmitted >>> 32));
+        result = prime * result + (int) (this.timeStampHappened ^ (this.timeStampHappened >>> 32));
+        result = prime * result + (int) (this.actor ^ (this.actor >>> 32));
+        result = prime * result + this.actionType.hashCode();
+        result = prime * result + (int) (this.target ^ (this.target >>> 32));
+        return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof ActionStats a)) {
+        if (!(obj instanceof InsertActionStats a)) {
             return false;
         }
-        return this.actionId == a.actionId;
-    }
-
-    public long getActionId() {
-        return this.actionId;
+        return this.order == a.order
+                && this.timeStampSubmitted == a.timeStampSubmitted
+                && this.timeStampHappened == a.timeStampHappened
+                && this.actor == a.actor
+                && this.actionType.equals(a.actionType)
+                && this.target == a.target;
     }
 
     public int getOrder() {
@@ -89,6 +95,10 @@ public class ActionStats {
 
     public long getTimeStampHappened() {
         return this.timeStampHappened;
+    }
+
+    public void setTimeStampHappened(long timeStampHappened) {
+        this.timeStampHappened = timeStampHappened;
     }
 
     public int getCycle() {
@@ -116,4 +126,11 @@ public class ActionStats {
         return this.additionalInfo;
     }
 
+    /**
+     * @return itself for chaining
+     */
+    public InsertActionStats setAdditionalInfo(@Nullable String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+        return this;
+    }
 }

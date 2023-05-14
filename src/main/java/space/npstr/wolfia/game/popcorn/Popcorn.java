@@ -36,10 +36,10 @@ import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.game.RolePmCommand;
 import space.npstr.wolfia.commands.ingame.ShootCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.domain.stats.ActionStats;
-import space.npstr.wolfia.domain.stats.GameStats;
-import space.npstr.wolfia.domain.stats.PlayerStats;
-import space.npstr.wolfia.domain.stats.TeamStats;
+import space.npstr.wolfia.domain.stats.InsertActionStats;
+import space.npstr.wolfia.domain.stats.InsertGameStats;
+import space.npstr.wolfia.domain.stats.InsertPlayerStats;
+import space.npstr.wolfia.domain.stats.InsertTeamStats;
 import space.npstr.wolfia.events.ReactionListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameResources;
@@ -198,22 +198,21 @@ public class Popcorn extends Game {
 
         Guild g = gameChannel.getGuild();
         //set up stats objects
-        this.gameStats = new GameStats(g.getIdLong(), g.getName(), this.channelId, gameChannel.getName(),
+        this.insertGameStats = new InsertGameStats(g.getIdLong(), g.getName(), this.channelId, gameChannel.getName(),
                 Games.POPCORN, this.mode, this.players.size());
-        Map<Alignments, TeamStats> teams = new EnumMap<>(Alignments.class);
+        Map<Alignments, InsertTeamStats> teams = new EnumMap<>(Alignments.class);
         for (Player player : this.players) {
             Alignments alignment = player.alignment;
-            TeamStats team = teams.getOrDefault(alignment,
-                    new TeamStats(this.gameStats, alignment, alignment.textRepWW, -1));
-            PlayerStats ps = new PlayerStats(team, player.userId,
-                    player.getNick(), alignment, player.role);
+            InsertTeamStats team = teams.getOrDefault(alignment,
+                    new InsertTeamStats(alignment, alignment.textRepWW, -1));
+            InsertPlayerStats ps = new InsertPlayerStats(player.userId, player.getNick(), alignment, player.role);
             this.playersStats.put(player.userId, ps);
             team.addPlayer(ps);
             teams.put(alignment, team);
         }
-        for (TeamStats team : teams.values()) {
+        for (InsertTeamStats team : teams.values()) {
             team.setTeamSize(team.getPlayers().size());
-            this.gameStats.addTeam(team);
+            this.insertGameStats.addTeam(team);
         }
 
         // - start the game
@@ -222,7 +221,7 @@ public class Popcorn extends Game {
                 g.getName(), g.getIdLong(), gameChannel.getName(), gameChannel.getIdLong(),
                 info, mode.textRep, this.players.size());
         this.running = true;
-        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GAMESTART, -1));
+        this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.GAMESTART, -1));
         //mention the players in the thread
         RestActions.sendMessage(gameChannel, String.format("Game has started!%n%s%n**%s** wolves are alive!",
                 listLivingPlayers(), getLivingWolves().size()));
@@ -259,7 +258,7 @@ public class Popcorn extends Game {
 
     private void giveGun(long userId) {
         this.gunBearer = userId;
-        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GIVEGUN, userId));
+        this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.GIVEGUN, userId));
         RestActions.sendMessage(fetchGameChannel(), String.format("%s has received the %s !",
                 TextchatUtils.userAsMention(userId), Emojis.GUN));
         startDay();
@@ -268,7 +267,7 @@ public class Popcorn extends Game {
     private void startDay() {
         this.day++;
         this.dayStarted = System.currentTimeMillis();
-        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.DAYSTART, -1));
+        this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.DAYSTART, -1));
         TextChannel channel = resources.getShardManager().getTextChannelById(this.channelId);
         if (channel != null) { //todo handle properly
             RestActions.sendMessage(channel, getStatus().build());
@@ -310,11 +309,11 @@ public class Popcorn extends Game {
             this.destroy(e);
             return;
         }
-        this.gameStats.addAction(simpleAction(survivor, Actions.DEATH, toBeKilled));
+        this.insertGameStats.addAction(simpleAction(survivor, Actions.DEATH, toBeKilled));
         TextChannel gameChannel = fetchGameChannel();
         Guild g = gameChannel.getGuild();
 
-        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.DAYEND, -1));
+        this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.DAYEND, -1));
         RestActions.sendMessage(gameChannel, String.format("Day %s has ended!", this.day));
 
         //an operation that shall be run if the game isn't over; doing this so we can ge the output from he below if construct sent
@@ -395,7 +394,7 @@ public class Popcorn extends Game {
         Player target = getPlayer(targetId);
 
         try {
-            Operation doIfLegal = () -> this.gameStats.addAction(simpleAction(shooterId, Actions.SHOOT, targetId));
+            Operation doIfLegal = () -> this.insertGameStats.addAction(simpleAction(shooterId, Actions.SHOOT, targetId));
             if (target.isBaddie()) {
                 endDay(DayEndReason.SHAT, targetId, shooterId, doIfLegal);
             } else {
@@ -410,9 +409,9 @@ public class Popcorn extends Game {
 
     //simplifies the giant constructor of an action by providing it with game/mode specific defaults
     @Override
-    protected ActionStats simpleAction(long actor, Actions action, long target) {
+    protected InsertActionStats simpleAction(long actor, Actions action, long target) {
         long now = System.currentTimeMillis();
-        return new ActionStats(this.gameStats, this.actionOrder.incrementAndGet(),
+        return new InsertActionStats(this.actionOrder.incrementAndGet(),
                 now, now, this.day, Phase.DAY, actor, action, target, null);
     }
 
@@ -449,7 +448,7 @@ public class Popcorn extends Game {
                 // because it may result in this PopcornTimer getting canceled in case it ends the game
                 Popcorn.this.executor.execute(() -> {
                             try {
-                                Operation ifLegal = () -> Popcorn.this.gameStats.addAction(simpleAction(
+                                Operation ifLegal = () -> Popcorn.this.insertGameStats.addAction(simpleAction(
                                         Popcorn.this.selfUserId, Actions.MODKILL, this.game.gunBearer));
                                 this.game.endDay(DayEndReason.TIMER, this.game.gunBearer, -1, ifLegal);
                             } catch (DayEndedAlreadyException ignored) {
@@ -533,7 +532,7 @@ public class Popcorn extends Game {
 
             //log votes
             votesCopy.forEach((voter, candidate) ->
-                    Popcorn.this.gameStats.addAction(simpleAction(voter, Actions.VOTEGUN, candidate)));
+                    Popcorn.this.insertGameStats.addAction(simpleAction(voter, Actions.VOTEGUN, candidate)));
 
             long getsGun = GameUtils.rand(GameUtils.mostVoted(votesCopy, getLivingVillageIds()));
             String out = "";

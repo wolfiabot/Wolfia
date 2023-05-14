@@ -308,6 +308,7 @@ ij_editorconfig_spaces_around_assignment_operators = true
 
 [{*.gradle.kts, *.kt, *.kts, *.main.kts}]
 max_line_length = 200
+indent_style = tab
 ij_continuation_indent_size = 4
 ij_visual_guides = 120
 ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
