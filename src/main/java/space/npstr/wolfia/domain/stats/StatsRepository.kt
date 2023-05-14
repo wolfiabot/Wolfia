@@ -35,6 +35,7 @@ import space.npstr.wolfia.game.GameInfo
 import space.npstr.wolfia.game.definitions.Actions
 import space.npstr.wolfia.game.definitions.Alignments
 import space.npstr.wolfia.game.definitions.Games
+import space.npstr.wolfia.game.definitions.Phase
 import space.npstr.wolfia.system.metrics.MetricsRegistry
 
 @Repository
@@ -228,9 +229,9 @@ internal class StatsRepository(
 	private fun actionMapper(): RecordMapper<StatsActionRecord, ActionStats> {
 		return RecordMapper { record: StatsActionRecord ->
 			ActionStats(
-				record.actionId, record.actionType, record.actor,
+				record.actionId, Actions.valueOf(record.actionType), record.actor,
 				record.cycle, record.sequence, record.target, record.happened,
-				record.submitted, record.phase, record.additionalInfo,
+				record.submitted, Phase.valueOf(record.phase), record.additionalInfo,
 			)
 		}
 	}

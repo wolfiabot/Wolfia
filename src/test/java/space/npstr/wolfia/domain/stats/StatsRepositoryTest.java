@@ -107,7 +107,7 @@ class StatsRepositoryTest extends ApplicationTest {
 
         Set<ActionStats> actions = fetched.getActions();
         assertThat(actions).hasSize(1);
-        assertThat(actions).filteredOnAssertions(equalsAction(shot, gameId)).hasSize(1);
+        assertThat(actions).filteredOnAssertions(equalsAction(shot)).hasSize(1);
     }
 
     private Consumer<TeamStats> equalsTeam(InsertTeamStats teamStats) {
@@ -130,7 +130,7 @@ class StatsRepositoryTest extends ApplicationTest {
         };
     }
 
-    private Consumer<ActionStats> equalsAction(InsertActionStats actionStats, long gameId) {
+    private Consumer<ActionStats> equalsAction(InsertActionStats actionStats) {
         return actual -> {
             assertThat(actual.getOrder()).isEqualTo(actionStats.getOrder());
             assertThat(actual.getTimeStampSubmitted()).isEqualTo(actionStats.getTimeStampSubmitted());
