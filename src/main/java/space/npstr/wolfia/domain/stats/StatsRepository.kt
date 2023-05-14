@@ -214,7 +214,7 @@ internal class StatsRepository(
 	private fun mapTeam(teamRecord: StatsTeamRecord, players: Collection<PlayerStats>): TeamStats {
 		return TeamStats(
 			teamRecord.teamId, Alignments.valueOf(teamRecord.alignment), teamRecord.isWinner,
-			teamRecord.name, teamRecord.teamSize, players,
+			teamRecord.name, teamRecord.teamSize, players.toSet(),
 		)
 	}
 
