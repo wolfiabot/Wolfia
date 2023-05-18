@@ -24,13 +24,13 @@ data class WinStats(
 	/**
 	 * @return total games with this player size
 	 */
-	val totalGames: Long,
+	val totalGames: Int,
 	/**
 	 * @return goodie wins with this player size
 	 */
-	val goodieWins: Long,
+	val goodieWins: Int,
 	/**
 	 * @return baddie wins with this player size
 	 */
-	val baddieWins: Long,
+	val baddieWins: Int,
 )

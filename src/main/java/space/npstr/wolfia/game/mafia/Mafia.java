@@ -50,10 +50,10 @@ import space.npstr.wolfia.commands.ingame.UnvoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCommand;
 import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-import space.npstr.wolfia.domain.stats.ActionStats;
-import space.npstr.wolfia.domain.stats.GameStats;
-import space.npstr.wolfia.domain.stats.PlayerStats;
-import space.npstr.wolfia.domain.stats.TeamStats;
+import space.npstr.wolfia.domain.stats.InsertActionStats;
+import space.npstr.wolfia.domain.stats.InsertGameStats;
+import space.npstr.wolfia.domain.stats.InsertPlayerStats;
+import space.npstr.wolfia.domain.stats.InsertTeamStats;
 import space.npstr.wolfia.events.UpdatingReactionListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
@@ -94,11 +94,11 @@ public class Mafia extends Game {
     private long phaseStarted = -1;
 
     private final Map<Player, Player> votes = new LinkedHashMap<>();//using linked to keep first votes at the top
-    private final Map<Player, ActionStats> voteActions = new HashMap<>();
+    private final Map<Player, InsertActionStats> voteActions = new HashMap<>();
 
     private final Map<Player, Player> nightkillVotes = new LinkedHashMap<>();//using linked to keep first votes at the top
-    private final Map<Player, ActionStats> nightKillVoteActions = new HashMap<>();
-    private final Map<Player, ActionStats> nightActions = new HashMap<>();
+    private final Map<Player, InsertActionStats> nightKillVoteActions = new HashMap<>();
+    private final Map<Player, InsertActionStats> nightActions = new HashMap<>();
 
     private Future<?> phaseEndTimer;
     private Future<?> phaseEndReminder;
@@ -207,22 +207,20 @@ public class Mafia extends Game {
 
         Guild g = gameChannel.getGuild();
         //set up stats objects
-        this.gameStats = new GameStats(g.getIdLong(), g.getName(), this.channelId, gameChannel.getName(),
+        this.insertGameStats = new InsertGameStats(g.getIdLong(), g.getName(), this.channelId, gameChannel.getName(),
                 Games.MAFIA, this.mode, this.players.size());
-        Map<Alignments, TeamStats> teams = new EnumMap<>(Alignments.class);
+        Map<Alignments, InsertTeamStats> teams = new EnumMap<>(Alignments.class);
         for (Player player : this.players) {
             Alignments alignment = player.alignment;
-            TeamStats team = teams.getOrDefault(alignment,
-                    new TeamStats(this.gameStats, alignment, alignment.textRepMaf, -1));
-            PlayerStats ps = new PlayerStats(team, player.userId,
-                    player.getNick(), alignment, player.role);
+            InsertTeamStats team = teams.getOrDefault(alignment, new InsertTeamStats(alignment, alignment.textRepMaf, -1));
+            InsertPlayerStats ps = new InsertPlayerStats(player.userId, player.getNick(), alignment, player.role);
             this.playersStats.put(player.userId, ps);
             team.addPlayer(ps);
             teams.put(alignment, team);
         }
-        for (TeamStats team : teams.values()) {
+        for (InsertTeamStats team : teams.values()) {
             team.setTeamSize(team.getPlayers().size());
-            this.gameStats.addTeam(team);
+            this.insertGameStats.addTeam(team);
         }
 
         // - start the game
@@ -231,7 +229,7 @@ public class Mafia extends Game {
                 g.getName(), g.getIdLong(), gameChannel.getName(), gameChannel.getIdLong(),
                 info, mode.textRep, this.players.size());
         this.running = true;
-        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GAMESTART, -1));
+        this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.GAMESTART, -1));
         //mention the players in the thread
         RestActions.sendMessage(gameChannel, "Game has started!\n" + listLivingPlayers());
 
@@ -488,7 +486,9 @@ public class Mafia extends Game {
 
         Item.ItemType openedPresent = GameUtils.rand(Arrays.asList(Item.ItemType.GUN, Item.ItemType.MAGNIFIER, Item.ItemType.BOMB, Item.ItemType.ANGEL));
         invoker.items.add(new Item(hasPresent.sourceId, openedPresent));
-        this.gameStats.addAction(simpleAction(invoker.userId, Actions.OPEN_PRESENT, invoker.userId).setAdditionalInfo(openedPresent.name()));
+        InsertActionStats openPresentAction = simpleAction(invoker.userId, Actions.OPEN_PRESENT, invoker.userId);
+        openPresentAction.setAdditionalInfo(openedPresent.name());
+        this.insertGameStats.addAction(openPresentAction);
 
         context.reply("You received a " + openedPresent.emoji + "! This has the following effect:\n" + openedPresent.explanation);
 
@@ -513,7 +513,7 @@ public class Mafia extends Game {
                 //lets ignore this for now and just log it
                 log.error("Dead player got a bomb from present", e);
             }
-            this.gameStats.addAction(simpleAction(hasPresent.sourceId, Actions.DEATH, dying.userId));
+            this.insertGameStats.addAction(simpleAction(hasPresent.sourceId, Actions.DEATH, dying.userId));
 
             //remove votes of dead player and ppl voting the dead player
             clearVotesForPlayer(dying, context);
@@ -548,7 +548,7 @@ public class Mafia extends Game {
 
         Player dying = target;
 
-        this.gameStats.addAction(simpleAction(invoker.userId, Actions.SHOOT, dying.userId));
+        this.insertGameStats.addAction(simpleAction(invoker.userId, Actions.SHOOT, dying.userId));
 
         //use up a gun if the invoker has one
         Optional<Item> gun = invoker.items.stream().filter(i -> i.itemType == Item.ItemType.GUN).findAny();
@@ -574,7 +574,7 @@ public class Mafia extends Game {
             //lets ignore this for now and just log it
             log.error("Dead player got a bomb from present", e);
         }
-        this.gameStats.addAction(simpleAction(invoker.userId, Actions.DEATH, dying.userId));
+        this.insertGameStats.addAction(simpleAction(invoker.userId, Actions.DEATH, dying.userId));
 
 
         //remove votes of dead player and ppl voting the dead player
@@ -627,9 +627,9 @@ public class Mafia extends Game {
 
     //simplifies the giant constructor of an action by providing it with game/mode specific defaults
     @Override
-    protected ActionStats simpleAction(long actor, Actions action, long target) {
+    protected InsertActionStats simpleAction(long actor, Actions action, long target) {
         long now = System.currentTimeMillis();
-        return new ActionStats(this.gameStats, this.actionOrder.incrementAndGet(),
+        return new InsertActionStats(this.actionOrder.incrementAndGet(),
                 now, now, this.cycle, this.phase, actor, action, target, null);
     }
 
@@ -637,7 +637,7 @@ public class Mafia extends Game {
         this.cycle++;
         this.phase = Phase.DAY;
         this.phaseStarted = System.currentTimeMillis();
-        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.DAYSTART, -1));
+        this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.DAYSTART, -1));
 
         this.votes.clear();
         this.voteActions.clear();
@@ -690,7 +690,7 @@ public class Mafia extends Game {
                     Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
         }
 
-        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.DAYEND, -1));
+        this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.DAYEND, -1));
         synchronized (this.votes) {
             RestActions.sendMessage(gameChannel, this.votingBuilder.getFinalEmbed(this.votes, this.phase, this.cycle).build());
             List<Player> lynchCandidates = GameUtils.mostVoted(this.votes, livingPlayers);
@@ -705,7 +705,7 @@ public class Mafia extends Game {
 
             try {
                 lynchCandidate.kill();
-                this.gameStats.addAction(simpleAction(-3, Actions.LYNCH, lynchCandidate.userId));
+                this.insertGameStats.addAction(simpleAction(-3, Actions.LYNCH, lynchCandidate.userId));
             } catch (IllegalGameStateException | NullPointerException e) {
                 //should not happen, but if it does, kill the game
                 this.destroy(e);
@@ -716,7 +716,7 @@ public class Mafia extends Game {
             RestActions.sendMessage(gameChannel, String.format("%s has been lynched%s with %s votes on them!%nThey were **%s %s** %s",
                     lynchCandidate.asMention(), randedLynch ? " at random due to a tie" : "", votesAmount,
                     lynchCandidate.alignment.textRepMaf, lynchCandidate.role.textRep, lynchCandidate.getCharakterEmoji()));
-            this.gameStats.addActions(this.voteActions.values());
+            this.insertGameStats.addActions(this.voteActions.values());
         }
 
         if (!isGameOver()) {
@@ -743,7 +743,7 @@ public class Mafia extends Game {
     private void startNight() {
         this.phase = Phase.NIGHT;
         this.phaseStarted = System.currentTimeMillis();
-        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.NIGHTSTART, -1));
+        this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.NIGHTSTART, -1));
 
         this.nightActions.clear();
 
@@ -787,7 +787,7 @@ public class Mafia extends Game {
                                     RestActions.sendMessage(wolfchatChannel, String.format(
                                             "%n@here, %s will be killed! Game about to start/continue, get back to the main chat.%n%s",
                                             nightKillCandidate.bothNamesFormatted(), invite));
-                                    this.gameStats.addActions(this.nightKillVoteActions.values());
+                                    this.insertGameStats.addActions(this.nightKillVoteActions.values());
 
                                     endNight(nightKillCandidate);
                                 }
@@ -892,9 +892,9 @@ public class Mafia extends Game {
     @SuppressWarnings("unchecked")
     private void endNight(Player nightKillCandidate) {
 
-        this.gameStats.addAction(simpleAction(this.selfUserId, Actions.NIGHTEND, -1));
+        this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.NIGHTEND, -1));
 
-        for (ActionStats nightAction : this.nightActions.values()) {
+        for (InsertActionStats nightAction : this.nightActions.values()) {
             if (nightAction.getActionType() == Actions.CHECK) {
                 try {
                     Player checker = getPlayer(nightAction.getActor());
@@ -903,7 +903,7 @@ public class Mafia extends Game {
                             checker.asMention(), checked.bothNamesFormatted(), this.cycle,
                             checked.alignment.textRepMaf), RestActions.defaultOnFail());
                     nightAction.setTimeStampHappened(System.currentTimeMillis());
-                    this.gameStats.addAction(nightAction);
+                    this.insertGameStats.addAction(nightAction);
 
                     //use up a mag if this player has one
                     Optional<Item> mag = checker.items.stream().filter(i -> i.itemType == Item.ItemType.MAGNIFIER).findAny();
@@ -922,7 +922,7 @@ public class Mafia extends Game {
                             Item.ItemType.PRESENT.emoji, WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.TRIGGER);
                     receiver.sendMessage(message, RestActions.defaultOnFail());
                     receiver.items.add(new Item(nightAction.getActor(), Item.ItemType.PRESENT));
-                    this.gameStats.addAction(nightAction);
+                    this.insertGameStats.addAction(nightAction);
                 } catch (IllegalGameStateException e) {
                     log.error("Player {} getting a present not a player of the ongoing game in {}.", nightAction.getTarget(), this.channelId);
                 }
@@ -942,7 +942,7 @@ public class Mafia extends Game {
         } else {
             try {
                 nightKillCandidate.kill();
-                this.gameStats.addAction(simpleAction(-2, Actions.DEATH, nightKillCandidate.userId));
+                this.insertGameStats.addAction(simpleAction(-2, Actions.DEATH, nightKillCandidate.userId));
             } catch (IllegalGameStateException e) {
                 //should not happen, but if it does, kill the game
                 this.destroy(e);

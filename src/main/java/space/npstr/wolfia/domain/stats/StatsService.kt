@@ -25,8 +25,8 @@ class StatsService internal constructor(
 	private val statsRepository: StatsRepository
 ) {
 
-	fun recordGameStats(gameStats: GameStats): GameStats {
-		return statsRepository.insertGameStats(gameStats)
+	fun recordGameStats(insertGameStats: InsertGameStats): GameStats {
+		return statsRepository.insertGameStats(insertGameStats)
 	}
 
 	@EventListener

@@ -51,7 +51,7 @@ public class BotStatsCommand implements BaseCommand, PublicCommand {
 
     @Override
     public boolean execute(CommandContext context) {
-        BotStats botStats = this.statsProvider.getBotStats();
+        BotStats botStats = this.statsProvider.calculateBotStats();
         context.reply(this.render.renderBotStats(context, botStats).build());
         return true;
     }

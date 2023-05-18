@@ -17,10 +17,36 @@
 package space.npstr.wolfia.domain.stats
 
 import space.npstr.wolfia.game.definitions.Alignments
+import space.npstr.wolfia.game.definitions.Roles
 
-data class GeneralUserStats(
-	val postLength: Int,
-	val posts: Int,
+/**
+ * Describe a participant of a game
+ */
+data class InsertPlayerStats(
+	val userId: Long,
+	val nickname: String?,
 	val alignment: Alignments,
-	val isWinner: Boolean,
-)
+	val role: Roles,
+) {
+
+	var totalPosts = 0
+		private set
+
+	var totalPostLength = 0
+		private set
+
+	fun bumpPosts(length: Int) {
+		synchronized(this) {
+			totalPosts++
+			totalPostLength += length
+		}
+	}
+
+	override fun hashCode(): Int {
+		return userId.hashCode()
+	}
+
+	override fun equals(other: Any?): Boolean {
+		return other is InsertPlayerStats && other.userId == this.userId
+	}
+}

@@ -18,9 +18,22 @@ package space.npstr.wolfia.domain.stats
 
 import space.npstr.wolfia.game.definitions.Alignments
 
-data class GeneralUserStats(
-	val postLength: Int,
-	val posts: Int,
+/**
+ * Model of a team in a game.
+ */
+data class TeamStats(
+	val teamId: Long,
 	val alignment: Alignments,
 	val isWinner: Boolean,
-)
+	val name: String,
+	val teamSize: Int,
+	val players: Set<PlayerStats>,
+) {
+	override fun hashCode(): Int {
+		return teamId.hashCode()
+	}
+
+	override fun equals(other: Any?): Boolean {
+		return other is TeamStats && other.teamId == this.teamId
+	}
+}

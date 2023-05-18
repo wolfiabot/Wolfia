@@ -63,8 +63,8 @@ public class PrivacyRequestService {
                 .map(this::mapSession)
                 .collect(Collectors.toList());
 
-        List<PrivacyGame> games = this.statsRepository.getAllGameStatsOfUser(userId);
-        Map<Long, List<PrivacyAction>> actions = this.statsRepository.getAllActionStatsOfUser(userId);
+        List<PrivacyGame> games = this.statsRepository.fetchAllGameStatsOfUser(userId);
+        Map<Long, List<PrivacyAction>> actions = this.statsRepository.fetchAllActionStatsOfUser(userId);
 
         games = games.stream()
                 .map(game -> {

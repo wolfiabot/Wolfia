@@ -16,11 +16,40 @@
  */
 package space.npstr.wolfia.domain.stats
 
+import java.util.*
 import space.npstr.wolfia.game.definitions.Alignments
 
-data class GeneralUserStats(
-	val postLength: Int,
-	val posts: Int,
+data class InsertTeamStats(
 	val alignment: Alignments,
-	val isWinner: Boolean,
-)
+	// teams of the same alignment (example: wolves) should have unique names
+	val name: String,
+	var teamSize: Int,
+) {
+
+	private val players = mutableSetOf<InsertPlayerStats>()
+
+	var isWinner = false
+
+	fun addPlayer(player: InsertPlayerStats) {
+		players.add(player)
+	}
+
+	fun setPlayers(players: Collection<InsertPlayerStats>) {
+		this.players.clear()
+		this.players.addAll(players)
+	}
+
+	override fun hashCode(): Int {
+		return Objects.hash(alignment, name)
+	}
+
+	override fun equals(other: Any?): Boolean {
+		return other is InsertTeamStats
+			&& other.alignment == this.alignment
+			&& other.name == this.name
+	}
+
+	fun getPlayers(): Set<InsertPlayerStats> {
+		return Collections.unmodifiableSet(players)
+	}
+}

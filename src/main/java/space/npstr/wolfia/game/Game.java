@@ -51,9 +51,10 @@ import space.npstr.wolfia.domain.room.ManagedPrivateRoom;
 import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.settings.ChannelSettingsCommand;
 import space.npstr.wolfia.domain.setup.StatusCommand;
-import space.npstr.wolfia.domain.stats.ActionStats;
 import space.npstr.wolfia.domain.stats.GameStats;
-import space.npstr.wolfia.domain.stats.PlayerStats;
+import space.npstr.wolfia.domain.stats.InsertActionStats;
+import space.npstr.wolfia.domain.stats.InsertGameStats;
+import space.npstr.wolfia.domain.stats.InsertPlayerStats;
 import space.npstr.wolfia.domain.stats.ReplayCommand;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
@@ -106,8 +107,9 @@ public abstract class Game {
     protected final Set<Integer> hasDayEnded = new HashSet<>();
 
     //stats keeping fields
+    protected InsertGameStats insertGameStats = null;
     protected GameStats gameStats = null;
-    protected final Map<Long, PlayerStats> playersStats = new HashMap<>();
+    protected final Map<Long, InsertPlayerStats> playersStats = new HashMap<>();
     protected final AtomicInteger actionOrder = new AtomicInteger();
 
     protected Game(GameResources gameResources) {
@@ -168,7 +170,7 @@ public abstract class Game {
      * @return time when the game started
      */
     public long getStartTime() {
-        if (this.gameStats != null) return this.gameStats.getStartTime();
+        if (this.insertGameStats != null) return this.insertGameStats.getStartTime();
         else return -1;
     }
 
@@ -179,7 +181,7 @@ public abstract class Game {
         if (!this.running) return;
 
         long userId = message.getAuthor().getIdLong();
-        PlayerStats ps = this.playersStats.get(userId);
+        InsertPlayerStats ps = this.playersStats.get(userId);
         if (ps != null) {
             ps.bumpPosts(message.getContentRaw().length());
         }
@@ -650,28 +652,28 @@ public abstract class Game {
         }
 
         if (gameEnding) {
-            this.gameStats.addAction(simpleAction(this.selfUserId, Actions.GAMEEND, -1));
-            this.gameStats.setEndTime(System.currentTimeMillis());
+            this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.GAMEEND, -1));
+            this.insertGameStats.setEndTime(System.currentTimeMillis());
 
             if (villageWins) {
-                this.gameStats.getStartingTeams().stream()
+                this.insertGameStats.getStartingTeams().stream()
                         .filter(t -> t.getAlignment() == Alignments.VILLAGE)
                         .findFirst()
                         .ifPresent(t -> t.setWinner(true));
             } else {
                 //woofs win
-                this.gameStats.getStartingTeams().stream()
+                this.insertGameStats.getStartingTeams().stream()
                         .filter(t -> t.getAlignment() == Alignments.WOLF)
                         .findFirst()
                         .ifPresent(t -> t.setWinner(true));
             }
             MetricsRegistry.gamesPlayed
-                    .labels(this.gameStats.getGameType().name(), this.gameStats.getGameMode().name())
+                    .labels(this.insertGameStats.getGameType().name(), this.insertGameStats.getGameMode().name())
                     .inc();
             try {
-                this.gameStats = resources.getStatsService().recordGameStats(this.gameStats);
+                this.gameStats = resources.getStatsService().recordGameStats(this.insertGameStats);
 
-                long gameId = this.gameStats.getGameId().orElseThrow();
+                long gameId = this.gameStats.getGameId();
                 out += String.format("%nThis game's id is **%s**, you can watch its replay with `%s %s`",
                         gameId, WolfiaConfig.DEFAULT_PREFIX + ReplayCommand.TRIGGER, gameId);
             } catch (Exception e) {
@@ -681,7 +683,7 @@ public abstract class Game {
             cleanUp();
             TextChannel gameChannel = fetchGameChannel();
             String info = Games.getInfo(this).textRep();
-            long gameId = this.gameStats.getGameId().orElseThrow();
+            long gameId = this.gameStats.getGameId();
             log.info("Game #{} ended in guild {} {}, channel #{} {}, {} {} {} players",
                     gameId, gameChannel.getGuild().getName(), gameChannel.getGuild().getIdLong(),
                     gameChannel.getName(), gameChannel.getIdLong(), info, this.mode.textRep, this.players.size());
@@ -736,7 +738,7 @@ public abstract class Game {
     }
 
     //an way to create ActionStats object with a bunch of default/automatically generated values, like time stamps
-    protected abstract ActionStats simpleAction(long actor, Actions action, long target);
+    protected abstract InsertActionStats simpleAction(long actor, Actions action, long target);
 
     /**
      * Sets the day length

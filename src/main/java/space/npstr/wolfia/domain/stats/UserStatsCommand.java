@@ -67,13 +67,13 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
                 }
             }
 
-            UserStats userStats = this.statsProvider.getUserStats(userId);
+            UserStats userStats = this.statsProvider.calculateUserStats(userId);
             context.reply(this.render.renderUserStats(userStats).build());
             return true;
         }
 
         for (User user : context.msg.getMentionedUsers()) {
-            UserStats userStats = this.statsProvider.getUserStats(user.getIdLong());
+            UserStats userStats = this.statsProvider.calculateUserStats(user.getIdLong());
             context.reply(this.render.renderUserStats(userStats).build());
         }
         return true;

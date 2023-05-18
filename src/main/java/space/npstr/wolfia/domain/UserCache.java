@@ -54,7 +54,7 @@ public class UserCache {
             this.shardManager = shardManager;
         }
 
-        public Optional<User> get() {
+        public Optional<User> fetch() {
             User user = shardManager.getUserById(this.userId);
             if (user != null) {
                 return Optional.of(user);
@@ -74,7 +74,7 @@ public class UserCache {
         }
 
         public String getName() {
-            return get().map(User::getName).orElse(UNKNOWN_USER_NAME);
+            return fetch().map(User::getName).orElse(UNKNOWN_USER_NAME);
         }
 
         public String getEffectiveName(Optional<Guild> guild) {

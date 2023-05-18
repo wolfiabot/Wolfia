@@ -85,19 +85,19 @@ class StaffServiceTest extends ApplicationTest {
         when(guild.getMembersWithRoles(eq(setupManagerRole))).thenReturn(List.of(setupManager));
 
         UserCache.Action getDeveloperAction = mock(UserCache.Action.class);
-        doReturn(Optional.of(developer.getUser())).when(getDeveloperAction).get();
+        doReturn(Optional.of(developer.getUser())).when(getDeveloperAction).fetch();
         doReturn(getDeveloperAction).when(this.userCache).user(eq(this.developerUserId));
 
         UserCache.Action getModeratorAction = mock(UserCache.Action.class);
-        doReturn(Optional.of(moderator.getUser())).when(getModeratorAction).get();
+        doReturn(Optional.of(moderator.getUser())).when(getModeratorAction).fetch();
         doReturn(getModeratorAction).when(this.userCache).user(eq(this.moderatorUserId));
 
         UserCache.Action getSetupManagerAction = mock(UserCache.Action.class);
-        doReturn(Optional.of(setupManager.getUser())).when(getSetupManagerAction).get();
+        doReturn(Optional.of(setupManager.getUser())).when(getSetupManagerAction).fetch();
         doReturn(getSetupManagerAction).when(this.userCache).user(eq(this.setupManagerUserId));
 
         UserCache.Action getBotAction = mock(UserCache.Action.class);
-        doReturn(Optional.of(bot.getUser())).when(getBotAction).get();
+        doReturn(Optional.of(bot.getUser())).when(getBotAction).fetch();
         doReturn(getBotAction).when(this.userCache).user(eq(this.botUserId));
 
         doReturn(guild).when(this.shardManager).getGuildById(eq(App.WOLFIA_LOUNGE_ID));

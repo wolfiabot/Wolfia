@@ -49,43 +49,35 @@ class StatsRepositoryTest extends ApplicationTest {
         int playerSize = 3;
         long endTime = System.currentTimeMillis();
 
-        GameStats gameStats = new GameStats(guildId, guildName, channelId, channelName,
+        var gameStats = new InsertGameStats(guildId, guildName, channelId, channelName,
                 gameType, mode, playerSize);
         gameStats.setEndTime(endTime);
 
-        TeamStats wolves = new TeamStats(gameStats, Alignments.WOLF, "Wolves", 1);
+        var wolves = new InsertTeamStats(Alignments.WOLF, "Wolves", 1);
         wolves.setWinner(false);
-        TeamStats village = new TeamStats(gameStats, Alignments.VILLAGE, "Village", 2);
+        var village = new InsertTeamStats(Alignments.VILLAGE, "Village", 2);
         village.setWinner(true);
         gameStats.setTeams(Set.of(wolves, village));
 
-        PlayerStats wolf = new PlayerStats(wolves, uniqueLong(), "Wolfie", Alignments.WOLF, Roles.VANILLA);
+        var wolf = new InsertPlayerStats(uniqueLong(), "Wolfie", Alignments.WOLF, Roles.VANILLA);
         wolves.setPlayers(Set.of(wolf));
 
-        PlayerStats villagerA = new PlayerStats(village, uniqueLong(), "Villagy McVillageface", Alignments.VILLAGE, Roles.VANILLA);
-        PlayerStats villagerB = new PlayerStats(village, uniqueLong(), null, Alignments.VILLAGE, Roles.VANILLA);
+        var villagerA = new InsertPlayerStats(uniqueLong(), "Villagy McVillageface", Alignments.VILLAGE, Roles.VANILLA);
+        var villagerB = new InsertPlayerStats(uniqueLong(), null, Alignments.VILLAGE, Roles.VANILLA);
         village.setPlayers(Set.of(villagerA, villagerB));
 
         //TODO test more actions
-        ActionStats shot = new ActionStats(gameStats, 1, System.currentTimeMillis() - 5000, System.currentTimeMillis() - 4000,
+        var shot = new InsertActionStats(1, System.currentTimeMillis() - 5000, System.currentTimeMillis() - 4000,
                 1, Phase.DAY, villagerA.getUserId(), Actions.SHOOT, wolf.getUserId(), null);
 
         gameStats.addAction(shot);
 
-        assertThat(gameStats.getGameId()).isEmpty();
-        assertThat(wolves.getTeamId()).isEmpty();
-        assertThat(village.getTeamId()).isEmpty();
-        assertThat(wolf.getPlayerId()).isEmpty();
-        assertThat(villagerA.getPlayerId()).isEmpty();
-        assertThat(villagerB.getPlayerId()).isEmpty();
-        assertThat(shot.getActionId()).isEmpty();
-
-        long gameId = this.repository.insertGameStats(gameStats).getGameId().orElseThrow();
+        long gameId = this.repository.insertGameStats(gameStats).getGameId();
 
         GameStats fetched = this.repository.findGameStats(gameId);
 
         assertThat(fetched).isNotNull();
-        assertThat(fetched.getGameId()).hasValue(gameId);
+        assertThat(fetched.getGameId()).isEqualTo(gameId);
         assertThat(fetched.getGuildId()).isEqualTo(guildId);
         assertThat(fetched.getGuildName()).isEqualTo(guildName);
         assertThat(fetched.getChannelId()).isEqualTo(channelId);
@@ -98,30 +90,28 @@ class StatsRepositoryTest extends ApplicationTest {
 
         Set<TeamStats> teams = fetched.getStartingTeams();
         assertThat(teams).hasSize(2);
-        assertThat(teams).filteredOnAssertions(isTeam(wolves, gameId)).hasSize(1);
-        assertThat(teams).filteredOnAssertions(isTeam(village, gameId)).hasSize(1);
+        assertThat(teams).filteredOnAssertions(equalsTeam(wolves)).hasSize(1);
+        assertThat(teams).filteredOnAssertions(equalsTeam(village)).hasSize(1);
 
         TeamStats wolfTeam = teams.stream().filter(t -> t.getAlignment() == Alignments.WOLF).findAny().orElseThrow();
         assertThat(wolfTeam.getPlayers()).hasSize(1);
-        assertThat(wolfTeam.getPlayers()).filteredOnAssertions(isPlayer(wolf, wolfTeam.getTeamId().orElseThrow()))
+        assertThat(wolfTeam.getPlayers()).filteredOnAssertions(equalsPlayer(wolf))
                 .hasSize(1);
 
         TeamStats villageTeam = teams.stream().filter(t -> t.getAlignment() == Alignments.VILLAGE).findAny().orElseThrow();
         assertThat(villageTeam.getPlayers()).hasSize(2);
-        assertThat(villageTeam.getPlayers()).filteredOnAssertions(isPlayer(villagerA, villageTeam.getTeamId().orElseThrow()))
+        assertThat(villageTeam.getPlayers()).filteredOnAssertions(equalsPlayer(villagerA))
                 .hasSize(1);
-        assertThat(villageTeam.getPlayers()).filteredOnAssertions(isPlayer(villagerB, villageTeam.getTeamId().orElseThrow()))
+        assertThat(villageTeam.getPlayers()).filteredOnAssertions(equalsPlayer(villagerB))
                 .hasSize(1);
 
         Set<ActionStats> actions = fetched.getActions();
         assertThat(actions).hasSize(1);
-        assertThat(actions).filteredOnAssertions(isAction(shot, gameId)).hasSize(1);
+        assertThat(actions).filteredOnAssertions(equalsAction(shot)).hasSize(1);
     }
 
-    private Consumer<TeamStats> isTeam(TeamStats teamStats, long gameId) {
+    private Consumer<TeamStats> equalsTeam(InsertTeamStats teamStats) {
         return actual -> {
-            assertThat(actual.getTeamId()).isPresent();
-            assertThat(actual.getGame().getGameId()).hasValue(gameId);
             assertThat(actual.getAlignment()).isEqualTo(teamStats.getAlignment());
             assertThat(actual.getName()).isEqualTo(teamStats.getName());
             assertThat(actual.isWinner()).isEqualTo(teamStats.isWinner());
@@ -129,10 +119,8 @@ class StatsRepositoryTest extends ApplicationTest {
         };
     }
 
-    private Consumer<PlayerStats> isPlayer(PlayerStats playerStats, long teamId) {
+    private Consumer<PlayerStats> equalsPlayer(InsertPlayerStats playerStats) {
         return actual -> {
-            assertThat(actual.getPlayerId()).isPresent();
-            assertThat(actual.getTeam().getTeamId()).hasValue(teamId);
             assertThat(actual.getUserId()).isEqualTo(playerStats.getUserId());
             assertThat(actual.getNickname()).isEqualTo(playerStats.getNickname());
             assertThat(actual.getAlignment()).isEqualTo(playerStats.getAlignment());
@@ -142,10 +130,8 @@ class StatsRepositoryTest extends ApplicationTest {
         };
     }
 
-    private Consumer<ActionStats> isAction(ActionStats actionStats, long gameId) {
+    private Consumer<ActionStats> equalsAction(InsertActionStats actionStats) {
         return actual -> {
-            assertThat(actual.getActionId()).isPresent();
-            assertThat(actual.getGame().getGameId()).hasValue(gameId);
             assertThat(actual.getOrder()).isEqualTo(actionStats.getOrder());
             assertThat(actual.getTimeStampSubmitted()).isEqualTo(actionStats.getTimeStampSubmitted());
             assertThat(actual.getTimeStampHappened()).isEqualTo(actionStats.getTimeStampHappened());

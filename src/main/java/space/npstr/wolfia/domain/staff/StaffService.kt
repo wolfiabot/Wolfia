@@ -146,7 +146,7 @@ class StaffService internal constructor(
 	}
 
 	private fun toStaffMember(staffMemberRecord: StaffMemberRecord): StaffMember? {
-		val user = userCache.user(staffMemberRecord.userId).get().getOrNull() ?: return null
+		val user = userCache.user(staffMemberRecord.userId).fetch().getOrNull() ?: return null
 
 		return StaffMember(
 			user.idLong,
