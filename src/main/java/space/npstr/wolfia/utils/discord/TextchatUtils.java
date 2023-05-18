@@ -130,6 +130,14 @@ public class TextchatUtils {
     }
 
     /**
+     * @return performs a division; returns 0 if the divisor is 0
+     */
+    public static double divide(int dividend, int divisor) {
+        return divide((long) dividend, divisor);
+    }
+
+
+    /**
      * Case insensitive
      * Useful for fuzzy matching of two strings
      * Source: https://rosettacode.org/wiki/Levenshtein_distance#Java
