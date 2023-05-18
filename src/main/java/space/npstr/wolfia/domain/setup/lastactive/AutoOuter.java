@@ -64,7 +64,7 @@ public class AutoOuter extends RedisPubSubAdapter<String, String> {
     }
 
     private void expired(String key) {
-        Optional<Long> parsed = redisKeyParser.fromKey(key);
+        Optional<Long> parsed = Optional.ofNullable(redisKeyParser.fromKey(key));
         if (parsed.isEmpty()) {
             return;
         }

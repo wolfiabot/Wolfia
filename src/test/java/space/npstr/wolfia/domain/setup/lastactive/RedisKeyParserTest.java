@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.domain.setup.lastactive;
 
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,27 +31,27 @@ class RedisKeyParserTest {
         long userId = uniqueLong();
         String redisKey = this.redisKeyParser.toKey(userId);
 
-        Optional<Long> parsed = this.redisKeyParser.fromKey(redisKey);
+        Long parsed = this.redisKeyParser.fromKey(redisKey);
 
-        assertThat(parsed).hasValue(userId);
+        assertThat(parsed).isEqualTo(userId);
     }
 
     @Test
     void whenFromGibberishKey_returnEmpty() {
         String gibberish = "foo";
 
-        Optional<Long> parsed = this.redisKeyParser.fromKey(gibberish);
+        Long parsed = this.redisKeyParser.fromKey(gibberish);
 
-        assertThat(parsed).isEmpty();
+        assertThat(parsed).isNull();
     }
 
     @Test
     void whenFromNonNumericKey_returnEmpty() {
         String nonNumeric = "user:Rick:last_active";
 
-        Optional<Long> parsed = this.redisKeyParser.fromKey(nonNumeric);
+        Long parsed = this.redisKeyParser.fromKey(nonNumeric);
 
-        assertThat(parsed).isEmpty();
+        assertThat(parsed).isNull();
     }
 
 }
