@@ -271,7 +271,7 @@ class StatsRepository internal constructor(
 					.component1()
 
 
-				val teams = insertGameStats.startingTeams.map mapTeam@{ teamStats ->
+				val teams = insertGameStats.getStartingTeams().map mapTeam@{ teamStats ->
 					val teamRecord = context
 						.insertInto(Tables.STATS_TEAM)
 						.values(
@@ -280,7 +280,7 @@ class StatsRepository internal constructor(
 						)
 						.returning()
 						.fetchSingle()
-					val players = teamStats.players.map mapPlayer@{ playerStats ->
+					val players = teamStats.getPlayers().map mapPlayer@{ playerStats ->
 						return@mapPlayer context
 							.insertInto(Tables.STATS_PLAYER)
 							.values(
@@ -296,7 +296,7 @@ class StatsRepository internal constructor(
 					return@mapTeam mapTeam(teamRecord, players)
 				}
 
-				val actions = insertGameStats.actions.map { actionStats ->
+				val actions = insertGameStats.getActions().map { actionStats ->
 					return@map context
 						.insertInto(Tables.STATS_ACTION)
 						.values(

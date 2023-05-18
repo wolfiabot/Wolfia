@@ -486,7 +486,9 @@ public class Mafia extends Game {
 
         Item.ItemType openedPresent = GameUtils.rand(Arrays.asList(Item.ItemType.GUN, Item.ItemType.MAGNIFIER, Item.ItemType.BOMB, Item.ItemType.ANGEL));
         invoker.items.add(new Item(hasPresent.sourceId, openedPresent));
-        this.insertGameStats.addAction(simpleAction(invoker.userId, Actions.OPEN_PRESENT, invoker.userId).setAdditionalInfo(openedPresent.name()));
+        InsertActionStats openPresentAction = simpleAction(invoker.userId, Actions.OPEN_PRESENT, invoker.userId);
+        openPresentAction.setAdditionalInfo(openedPresent.name());
+        this.insertGameStats.addAction(openPresentAction);
 
         context.reply("You received a " + openedPresent.emoji + "! This has the following effect:\n" + openedPresent.explanation);
 
