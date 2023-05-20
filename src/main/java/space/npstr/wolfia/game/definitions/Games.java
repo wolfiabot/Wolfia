@@ -19,8 +19,10 @@ package space.npstr.wolfia.game.definitions;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameInfo;
+import space.npstr.wolfia.game.GameResources;
 import space.npstr.wolfia.game.mafia.Mafia;
 import space.npstr.wolfia.game.mafia.MafiaInfo;
 import space.npstr.wolfia.game.popcorn.Popcorn;
@@ -30,14 +32,16 @@ import space.npstr.wolfia.game.popcorn.PopcornInfo;
  * All games supported by the bot
  */
 public enum Games {
-    POPCORN(Popcorn.class, "Popcorn"),
-    MAFIA(Mafia.class, "Mafia");
+    POPCORN(Popcorn.class, Popcorn::new, "Popcorn"),
+    MAFIA(Mafia.class, Mafia::new, "Mafia");
 
     public final Class<? extends Game> clazz;
+    public final Function<GameResources, ? extends Game> constructor;
     public final String textRep;
 
-    Games(Class<? extends Game> clazz, String textRepresentation) {
+    Games(Class<? extends Game> clazz, Function<GameResources, ? extends Game> constructor, String textRepresentation) {
         this.clazz = clazz;
+        this.constructor = constructor;
         this.textRep = textRepresentation;
     }
 
@@ -49,15 +53,15 @@ public enum Games {
     }
 
     public static GameInfo getInfo(Games game) {
-        return GAME_INFOS.get(game.clazz);
+        return getInfo(game.clazz);
+    }
+
+    public static GameInfo getInfo(Game game) {
+        return getInfo(game.getClass());
     }
 
     public static GameInfo getInfo(Class<? extends Game> gameClass) {
         return GAME_INFOS.get(gameClass);
-    }
-
-    public static GameInfo getInfo(Game game) {
-        return GAME_INFOS.get(game.getClass());
     }
 
 }

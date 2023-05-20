@@ -79,7 +79,7 @@ public class Popcorn extends Game {
     private long dayStarted = -1;
     private long gunBearer = -1;
 
-    protected Popcorn(GameResources gameResources) {
+    public Popcorn(GameResources gameResources) {
         super(gameResources);
     }
 

@@ -115,7 +115,7 @@ public class Mafia extends Game {
             .notes(String.format("**Use `%s` to cast a vote on a player.**"
                     + "%nOnly your last vote will be counted.", WolfiaConfig.DEFAULT_PREFIX + NightkillCommand.TRIGGER));
 
-    protected Mafia(GameResources gameResources) {
+    public Mafia(GameResources gameResources) {
         super(gameResources);
     }
 

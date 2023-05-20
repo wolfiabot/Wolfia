@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.domain;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -37,6 +36,7 @@ import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.StatusCommand;
 import space.npstr.wolfia.domain.setup.lastactive.ActivityService;
 import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.game.GameResources;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -58,10 +58,12 @@ public class GameStarter {
     private final ActivityService activityService;
     private final ChannelSettingsService channelSettingsService;
     private final ShutdownHandler shutdownHandler;
+    private final GameResources gameResources;
 
     public GameStarter(GameSetupService gameSetupService, MaintenanceService maintenanceService,
                        GameRegistry gameRegistry, ActivityService activityService,
-                       ChannelSettingsService channelSettingsService, ShutdownHandler shutdownHandler) {
+                       ChannelSettingsService channelSettingsService, ShutdownHandler shutdownHandler,
+                       GameResources gameResources) {
 
         this.gameSetupService = gameSetupService;
         this.maintenanceService = maintenanceService;
@@ -69,6 +71,7 @@ public class GameStarter {
         this.activityService = activityService;
         this.channelSettingsService = channelSettingsService;
         this.shutdownHandler = shutdownHandler;
+        this.gameResources = gameResources;
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
@@ -99,9 +102,9 @@ public class GameStarter {
 
         Game game;
         try {
-            game = setup.getGame().clazz.getConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException |
-                 InvocationTargetException e) {
+            game = setup.getGame().constructor.apply(gameResources);
+        } catch (Exception e) {
+            log.error("Failed to invoke game constructor of {}", setup.getGame(), e);
             throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
         }
 
