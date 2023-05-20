@@ -20,9 +20,9 @@ package space.npstr.wolfia.game;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.lang.Nullable;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Item;
@@ -204,18 +204,18 @@ public class Player {
     }
 
     public void sendMessage(String content, Consumer<Throwable> onFail) {
-        sendMessage(RestActions.from(content), onFail);
+        sendMessage(RestActions.createFrom(content), onFail);
     }
 
     public void sendMessage(MessageEmbed embed, Consumer<Throwable> onFail) {
-        sendMessage(RestActions.from(embed), onFail);
+        sendMessage(RestActions.createFrom(embed), onFail);
     }
 
     /**
      * Send a private message to the user behind this player. May supply the failure handler with a UserNotPresentException
      * if the user is not present in the bot
      */
-    public void sendMessage(Message message, Consumer<Throwable> onFail) {
+    public void sendMessage(MessageCreateData message, Consumer<Throwable> onFail) {
         User user = resources.getShardManager().getUserById(this.userId);
         if (user != null) {
             RestActions.sendPrivateMessage(user, message, null, onFail);

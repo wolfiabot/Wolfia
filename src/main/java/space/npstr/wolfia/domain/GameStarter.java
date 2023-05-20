@@ -19,7 +19,7 @@ package space.npstr.wolfia.domain;
 
 import java.util.HashSet;
 import java.util.Set;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

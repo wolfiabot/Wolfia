@@ -17,6 +17,7 @@
 package space.npstr.wolfia.domain.privacy
 
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeUnit.SECONDS
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import net.dv8tion.jda.api.sharding.ShardManager
@@ -24,6 +25,7 @@ import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import space.npstr.wolfia.App
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor
+import space.npstr.wolfia.system.discord.asUserSnowflake
 import space.npstr.wolfia.system.logger
 
 @Service
@@ -62,7 +64,9 @@ class PrivacyBanService private constructor(
 				continue   // nothing to do here
 			}
 			try {
-				homeGuild.ban(userId.toString(), 0, "Privacy: Data Processing Denied").submit().await()
+				homeGuild.ban(userId.asUserSnowflake(), 0, SECONDS)
+					.reason("Privacy: Data Processing Denied")
+					.submit().await()
 			} catch (e: Exception) {
 				logger().error("Failed to ban user {}", userId, e)
 			}

@@ -112,8 +112,8 @@ public class ChannelSettingsCommand implements BaseCommand, PublicCommand {
         switch (option.toLowerCase()) {
             case "accessrole":
                 Role accessRole;
-                if (!context.msg.getMentionedRoles().isEmpty()) {
-                    accessRole = context.msg.getMentionedRoles().get(0);
+                if (!context.msg.getMentions().getRoles().isEmpty()) {
+                    accessRole = context.msg.getMentions().getRoles().get(0);
                 } else {
                     String roleName = String.join(" ", Arrays.copyOfRange(context.args, 1, context.args.length)).trim();
                     List<Role> rolesByName = context.guild.getRolesByName(roleName, true);

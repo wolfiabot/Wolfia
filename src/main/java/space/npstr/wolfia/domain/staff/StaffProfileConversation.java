@@ -24,10 +24,10 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.domain.Conversation;
 import space.npstr.wolfia.system.EventWaiter;
@@ -75,7 +75,7 @@ class StaffProfileConversation implements Conversation {
             return false;
         }
 
-        List<User> mentions = context.getMessage().getMentionedUsers();
+        List<User> mentions = context.getMessage().getMentions().getUsers();
         if (!mentions.isEmpty()) {
             if (!context.isOwner()) {
                 context.replyWithName("You cannot edit the staff profile of another staff member if you are not the owner.");
@@ -117,7 +117,8 @@ class StaffProfileConversation implements Conversation {
                 .addField("Link", staffMember.getLink().map(URI::toString).orElse(""), true);
 
 
-        Message message = new MessageBuilder(plainMessage)
+        MessageCreateData message = new MessageCreateBuilder()
+                .addContent(plainMessage)
                 .setEmbeds(embedBuilder.build())
                 .build();
 

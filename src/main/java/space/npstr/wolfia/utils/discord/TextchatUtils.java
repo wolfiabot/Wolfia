@@ -24,14 +24,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.lang.Nullable;
 import space.npstr.wolfia.utils.Operation;
 
@@ -227,7 +227,7 @@ public class TextchatUtils {
         return revisedString.toString();
     }
 
-    public static Message prefaceWithName(User user, String msg, boolean escape) {
+    public static MessageCreateData prefaceWithName(User user, String msg, boolean escape) {
         String name = user.getName();
         if (escape) {
             name = escapeMarkdown(name);
@@ -235,7 +235,7 @@ public class TextchatUtils {
         return prefaceWithString(name, msg);
     }
 
-    public static Message prefaceWithName(Member member, String msg, boolean escape) {
+    public static MessageCreateData prefaceWithName(Member member, String msg, boolean escape) {
         String name = member.getEffectiveName();
         if (escape) {
             name = escapeMarkdown(name);
@@ -243,17 +243,17 @@ public class TextchatUtils {
         return prefaceWithString(name, msg);
     }
 
-    public static Message prefaceWithMention(User user, String msg) {
+    public static MessageCreateData prefaceWithMention(User user, String msg) {
         return prefaceWithString(user.getAsMention(), msg);
     }
 
     //thanks fredboat
-    private static Message prefaceWithString(String preface, String msg) {
+    private static MessageCreateData prefaceWithString(String preface, String msg) {
         String message = ensureSpace(msg);
-        return new MessageBuilder()
-                .append(preface)
-                .append(",")
-                .append(message)
+        return new MessageCreateBuilder()
+                .addContent(preface)
+                .addContent(",")
+                .addContent(message)
                 .build();
     }
 

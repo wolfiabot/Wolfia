@@ -88,7 +88,7 @@ public class OutCommand implements BaseCommand, PublicCommand {
         long channelId = context.textChannel.getIdLong();
         GameSetupService.Action setupAction = this.gameSetupService.channel(channelId);
         //is this a forced out of a player by an moderator or the bot owner?
-        List<User> mentionedUsers = context.getMessage().getMentionedUsers();
+        List<User> mentionedUsers = context.getMessage().getMentions().getUsers();
         if (!mentionedUsers.isEmpty()) {
             if (!context.member.hasPermission(context.textChannel, Permission.MESSAGE_MANAGE) && !context.isOwner()) {
                 context.replyWithMention("you need to have the following permission in this channel to be able to out players: "

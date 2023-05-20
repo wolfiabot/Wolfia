@@ -18,8 +18,8 @@ package space.npstr.wolfia.domain.privacy
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
@@ -77,7 +77,7 @@ internal class PrivacyServiceTest<T : Session> : ApplicationTest() {
 		val message = mock<Message>()
 		whenever(message.contentRaw).thenReturn("w.privacy")
 		whenever(messageReceived.message).thenReturn(message)
-		val channel = mock<MessageChannel>()
+		val channel = mock<MessageChannelUnion>()
 		whenever(message.idLong).thenReturn(TestUtil.uniqueLong())
 		whenever(messageReceived.channel).thenReturn(channel)
 		val jda = mock<JDA>()

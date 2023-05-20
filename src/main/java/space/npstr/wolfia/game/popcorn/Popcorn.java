@@ -30,7 +30,8 @@ import java.util.function.LongConsumer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.game.RolePmCommand;
@@ -250,7 +251,7 @@ public class Popcorn extends Game {
         } else { //lets wolves do it
             for (Player player : getLivingPlayers()) {
                 RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(player.userId),
-                        Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue(null, RestActions.defaultOnFail());
+                        Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION).queue(null, RestActions.defaultOnFail());
             }
             new GunDistribution();
         }
@@ -277,7 +278,7 @@ public class Popcorn extends Game {
             if (this.mode != GameMode.WILD) {
                 for (Player player : getLivingPlayers()) {
                     RoleAndPermissionUtils.grant(channel, channel.getGuild().getMemberById(player.userId),
-                            Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
+                            Permission.MESSAGE_SEND).queue(null, RestActions.defaultOnFail());
                 }
             }
         }
@@ -343,7 +344,7 @@ public class Popcorn extends Game {
             return; //we're done here
         }
         if (this.mode != GameMode.WILD) {
-            RoleAndPermissionUtils.deny(gameChannel, g.getMemberById(toBeKilled), Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
+            RoleAndPermissionUtils.deny(gameChannel, g.getMemberById(toBeKilled), Permission.MESSAGE_SEND).queue(null, RestActions.defaultOnFail());
         }
         doIfGameIsntOver.accept(survivor);
     }
@@ -485,7 +486,7 @@ public class Popcorn extends Game {
                     __ -> RestActions.sendMessage(wolfchatChannel,
                             prepareGunDistributionEmbed(options, new HashMap<>(this.votes)).build(),
                             m -> {
-                                options.keySet().forEach(emoji -> m.addReaction(emoji).queue(null, RestActions.defaultOnFail()));
+                                options.keySet().forEach(emoji -> m.addReaction(Emoji.fromUnicode(emoji)).queue(null, RestActions.defaultOnFail()));
                                 ShardManager shardManager = requireNonNull(m.getJDA().getShardManager());
                                 shardManager.addEventListener(new ReactionListener(
                                         shardManager,
@@ -495,7 +496,7 @@ public class Popcorn extends Game {
                                         Popcorn.this::isLivingWolf,
                                         //on reaction
                                         reactionEvent -> {
-                                            Player p = options.get(reactionEvent.getReaction().getReactionEmote().getName());
+                                            Player p = options.get(reactionEvent.getReaction().getEmoji().getName());
                                             if (p == null) return;
                                             voted(reactionEvent.getUser().getIdLong(), p.userId);
                                             RestActions.editMessage(m, prepareGunDistributionEmbed(options,

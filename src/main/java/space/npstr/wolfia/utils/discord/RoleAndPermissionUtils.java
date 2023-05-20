@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Optional;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.IPermissionHolder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
@@ -152,7 +152,7 @@ public class RoleAndPermissionUtils {
             return new EmptyRestAction<>(channel.getJDA(), null);
         }
 
-        PermissionOverride po = channel.getPermissionOverride(memberOrRole);
+        PermissionOverride po = channel.getPermissionContainer().getPermissionOverride(memberOrRole);
         RestAction<?> ra;
         if (po != null) {
             switch (action) {
@@ -189,13 +189,13 @@ public class RoleAndPermissionUtils {
                     throw new IllegalArgumentException("Unknown PermissionAction passed: " + action.name());
             }
         } else {
-            PermissionOverrideAction poa = channel.createPermissionOverride(memberOrRole);
+            PermissionOverrideAction poa = channel.getPermissionContainer().upsertPermissionOverride(memberOrRole);
             switch (action) {
                 case GRANT:
-                    ra = poa.setAllow(permissions);
+                    ra = poa.setAllowed(permissions);
                     break;
                 case DENY:
-                    ra = poa.setDeny(permissions);
+                    ra = poa.setDenied(permissions);
                     break;
                 case CLEAR:
                     //do nothing if we are trying to clear a nonexisting permission override

@@ -21,16 +21,19 @@ import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageEditData;
 import org.springframework.lang.Nullable;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
@@ -50,12 +53,20 @@ public class RestActions {
 
 
     //May not be an empty string, as MessageBuilder#build() will throw an exception
-    public static Message from(String string) {
-        return new MessageBuilder().append(string).build();
+    public static MessageCreateData createFrom(String string) {
+        return new MessageCreateBuilder().addContent(string).build();
     }
 
-    public static Message from(MessageEmbed embed) {
-        return new MessageBuilder().setEmbeds(embed).build();
+    public static MessageCreateData createFrom(MessageEmbed embed) {
+        return new MessageCreateBuilder().setEmbeds(embed).build();
+    }
+
+    public static MessageEditData editFrom(String string) {
+        return new MessageEditBuilder().setContent(string).build();
+    }
+
+    public static MessageEditData editFrom(MessageEmbed embed) {
+        return new MessageEditBuilder().setEmbeds(embed).build();
     }
 
 
@@ -69,7 +80,7 @@ public class RestActions {
      * @param onSuccess Optional success handler
      * @param onFail    Optional exception handler
      */
-    public static void sendMessage(MessageChannel channel, Message message,
+    public static void sendMessage(MessageChannel channel, MessageCreateData message,
                                    @Nullable Consumer<Message> onSuccess, @Nullable Consumer<Throwable> onFail) {
         sendMessage0(
                 channel,
@@ -80,7 +91,7 @@ public class RestActions {
     }
 
     // Message
-    public static void sendMessage(MessageChannel channel, Message message,
+    public static void sendMessage(MessageChannel channel, MessageCreateData message,
                                    @Nullable Consumer<Message> onSuccess) {
         sendMessage0(
                 channel,
@@ -95,7 +106,7 @@ public class RestActions {
                                    @Nullable Consumer<Message> onSuccess) {
         sendMessage0(
                 channel,
-                from(embed),
+                createFrom(embed),
                 onSuccess,
                 null
         );
@@ -105,7 +116,7 @@ public class RestActions {
     public static void sendMessage(MessageChannel channel, MessageEmbed embed) {
         sendMessage0(
                 channel,
-                from(embed),
+                createFrom(embed),
                 null,
                 null
         );
@@ -116,7 +127,7 @@ public class RestActions {
                                    @Nullable Consumer<Message> onSuccess, @Nullable Consumer<Throwable> onFail) {
         sendMessage0(
                 channel,
-                from(content),
+                createFrom(content),
                 onSuccess,
                 onFail
         );
@@ -127,7 +138,7 @@ public class RestActions {
                                    @Nullable Consumer<Message> onSuccess) {
         sendMessage0(
                 channel,
-                from(content),
+                createFrom(content),
                 onSuccess,
                 null
         );
@@ -137,7 +148,7 @@ public class RestActions {
     public static void sendMessage(MessageChannel channel, String content) {
         sendMessage0(
                 channel,
-                from(content),
+                createFrom(content),
                 null,
                 null
         );
@@ -146,13 +157,13 @@ public class RestActions {
     // private
     public static void sendPrivateMessage(User user, String content,
                                           @Nullable Consumer<Message> onSuccess, Consumer<Throwable> onFail) {
-        sendPrivateMessage(user, from(content), onSuccess, onFail);
+        sendPrivateMessage(user, createFrom(content), onSuccess, onFail);
     }
 
     // private
     // in Wolfia, it is very important that messages reach their destination, that's why private messages require a failure
     // handler, so that each time a private message is coded a conscious decision is made how a failure should be handled
-    public static void sendPrivateMessage(User user, Message message,
+    public static void sendPrivateMessage(User user, MessageCreateData message,
                                           @Nullable Consumer<Message> onSuccess, Consumer<Throwable> onFail) {
         user.openPrivateChannel().queue(
                 privateChannel -> sendMessage(privateChannel, message, onSuccess, onFail),
@@ -168,7 +179,7 @@ public class RestActions {
         editMessage0(
                 oldMessage.getChannel(),
                 oldMessage.getIdLong(),
-                from(newContent)
+                editFrom(newContent)
         );
     }
 
@@ -176,7 +187,7 @@ public class RestActions {
         editMessage0(
                 oldMessage.getChannel(),
                 oldMessage.getIdLong(),
-                from(newEmbed)
+                editFrom(newEmbed)
         );
     }
 
@@ -215,7 +226,7 @@ public class RestActions {
     // ********************************************************************************
 
     //class internal message sending method
-    private static void sendMessage0(MessageChannel channel, Message message,
+    private static void sendMessage0(MessageChannel channel, MessageCreateData message,
                                      @Nullable Consumer<Message> onSuccess, @Nullable Consumer<Throwable> onFail) {
         Consumer<Message> successWrapper = m -> {
             if (onSuccess != null) {
@@ -227,7 +238,7 @@ public class RestActions {
                 onFail.accept(t);
             } else {
                 String info = String.format("Could not sent message%n%s%nwith %s embeds to channel %s in guild %s",
-                        message.getContentRaw(), message.getEmbeds().size(), channel.getId(),
+                        message.getContent(), message.getEmbeds().size(), channel.getId(),
                         (channel instanceof TextChannel) ? ((TextChannel) channel).getGuild().getIdLong() : "private");
                 getJdaRestActionFailureHandler(info).accept(t);
             }
@@ -244,20 +255,20 @@ public class RestActions {
             } else {
                 //do not call RestActions#handleInsufficientPermissionsException() from here as that will result in a loop
                 log.warn("Could not send message with content {} and {} embeds to channel {} due to missing permission {}",
-                        message.getContentRaw(), message.getEmbeds().size(), channel.getIdLong(), e.getPermission().getName(), e);
+                        message.getContent(), message.getEmbeds().size(), channel.getIdLong(), e.getPermission().getName(), e);
             }
         }
     }
 
     //class internal editing method
     private static void editMessage0(MessageChannel channel, long oldMessageId,
-                                     Message newMessage) {
+                                     MessageEditData newMessage) {
 
         Consumer<Throwable> failureWrapper = t -> {
             String info = String.format("Could not edit message %s in channel %s in guild %s with new content %s and %s embeds",
                     oldMessageId, channel.getId(),
                     (channel instanceof TextChannel) ? ((TextChannel) channel).getGuild().getIdLong() : "null",
-                    newMessage.getContentRaw(), newMessage.getEmbeds().size());
+                    newMessage.getContent(), newMessage.getEmbeds().size());
             getJdaRestActionFailureHandler(info).accept(t);
         };
 

@@ -20,7 +20,7 @@ package space.npstr.wolfia.domain.game;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.game.Game;

@@ -20,7 +20,7 @@ package space.npstr.wolfia.commands;
 import java.util.Optional;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 /**
  * Provides non-null methods for accessing guild entities after an elegant transformation from a CommandContext

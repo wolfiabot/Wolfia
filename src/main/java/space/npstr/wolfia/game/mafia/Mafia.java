@@ -33,9 +33,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.MessageContext;
@@ -522,7 +522,7 @@ public class Mafia extends Game {
             //remove writing permissions
             TextChannel gameChannel = fetchGameChannel();
             RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(dying.userId),
-                    Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
+                    Permission.MESSAGE_SEND).queue(null, RestActions.defaultOnFail());
 
             //send info
             String message = String.format("%s %s opened a %s and found a lit %s inside, killing them immediately.%n%s",
@@ -584,7 +584,7 @@ public class Mafia extends Game {
         //remove writing permissions
         TextChannel gameChannel = fetchGameChannel();
         RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(dying.userId),
-                Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
+                Permission.MESSAGE_SEND).queue(null, RestActions.defaultOnFail());
 
         //send info
         String message = String.format("%s has been shot! They die immediately.%n%s",
@@ -655,7 +655,7 @@ public class Mafia extends Game {
                 WolfiaConfig.DEFAULT_PREFIX + VoteCountCommand.TRIGGER));
         for (Player player : living) {
             RoleAndPermissionUtils.grant(gameChannel, gameChannel.getGuild().getMemberById(player.userId),
-                    Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
+                    Permission.MESSAGE_SEND).queue(null, RestActions.defaultOnFail());
         }
 
         //set a timer that calls endDay()
@@ -687,7 +687,7 @@ public class Mafia extends Game {
         //close channel
         for (Player livingPlayer : livingPlayers) {
             RoleAndPermissionUtils.deny(gameChannel, gameChannel.getGuild().getMemberById(livingPlayer.userId),
-                    Permission.MESSAGE_WRITE).queue(null, RestActions.defaultOnFail());
+                    Permission.MESSAGE_SEND).queue(null, RestActions.defaultOnFail());
         }
 
         this.insertGameStats.addAction(simpleAction(this.selfUserId, Actions.DAYEND, -1));

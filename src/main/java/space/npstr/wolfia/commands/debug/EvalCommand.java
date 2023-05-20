@@ -25,6 +25,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import space.npstr.wolfia.commands.BaseCommand;
@@ -142,7 +143,7 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
                                 + "})();");
 
             } catch (Exception ex) {
-                context.msg.addReaction(Emojis.X).queue(null, RestActions.defaultOnFail());
+                context.msg.addReaction(Emoji.fromUnicode(Emojis.X)).queue(null, RestActions.defaultOnFail());
                 context.reply(String.format("`%s`%n%n`%sms`",
                         ex.getMessage(), System.currentTimeMillis() - started));
                 log.info("Error occurred in eval", ex);
@@ -157,7 +158,7 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
             } else {
                 output = "EvalCommand: `" + out.toString() + "`";
             }
-            context.msg.addReaction(Emojis.OK_HAND).queue(null, RestActions.defaultOnFail());
+            context.msg.addReaction(Emoji.fromUnicode(Emojis.OK_HAND)).queue(null, RestActions.defaultOnFail());
             context.reply(String.format("```java%n%s```%n%s%n`%sms`",
                     finalSource, output, System.currentTimeMillis() - started));
 

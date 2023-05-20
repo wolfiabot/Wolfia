@@ -101,7 +101,7 @@ public class BanCommand implements BaseCommand {
         try {
             userId = Long.parseUnsignedLong(context.args[1]);
         } catch (NumberFormatException ignored) {
-            List<User> mentionedUsers = context.msg.getMentionedUsers();
+            List<User> mentionedUsers = context.msg.getMentions().getUsers();
             if (mentionedUsers.isEmpty()) {
                 context.reply("Please mention at least one user or use an id.");
                 return false;

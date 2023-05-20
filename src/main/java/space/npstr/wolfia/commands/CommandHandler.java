@@ -24,11 +24,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jooq.exception.DataAccessException;
 import org.springframework.context.event.EventListener;
@@ -91,7 +91,7 @@ public class CommandHandler {
         }
 
         //ignore channels where we don't have sending permissions, with a special exception for the help command
-        if (event.isFromType(ChannelType.TEXT) && !event.getTextChannel().canTalk()
+        if (event.isFromType(ChannelType.TEXT) && !event.getChannel().canTalk()
                 && !event.getMessage().getContentRaw().toLowerCase().startsWith((WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER).toLowerCase())) {
             return;
         }
@@ -138,7 +138,7 @@ public class CommandHandler {
         //filter for _special_ ppl in the Wolfia guild
         GuildCommandContext guildContext = context.requireGuild(false);
         if (guildContext != null && guildContext.guild.getIdLong() == App.WOLFIA_LOUNGE_ID) {
-            Category parent = guildContext.getTextChannel().getParent();
+            Category parent = guildContext.getTextChannel().getParentCategory();
             var appInfoProvider = new ApplicationInfoProvider(event.getJDA().getShardManager());
             //noinspection StatementWithEmptyBody
             if (guildContext.getTextChannel().getIdLong() == WolfiaGuildListener.SPAM_CHANNEL_ID //spam channel is k
@@ -207,7 +207,7 @@ public class CommandHandler {
                     String inviteLink = "";
                     try {
                         if (ev.isFromType(ChannelType.TEXT)) {
-                            TextChannel tc = ev.getTextChannel();
+                            TextChannel tc = ev.getChannel().asTextChannel();
                             inviteLink = TextchatUtils.getOrCreateInviteLinkForGuild(tc.getGuild(), tc);
                         } else {
                             inviteLink = "PRIVATE";
