@@ -509,7 +509,6 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers"
     testImplementation "org.testcontainers:selenium"
     testImplementation "com.codeborne:selenide"
-    testImplementation "org.mockito:mockito-inline" // to mock final classes
     testImplementation "org.mockito.kotlin:mockito-kotlin"
     testImplementation "org.awaitility:awaitility"
 }

@@ -112,22 +112,31 @@ public class WebApplicationSecurity {
         );
 
         return http
-                .csrf().ignoringRequestMatchers(MACHINE_ENDPOINTS)
-                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .and().authorizeHttpRequests()
-                .requestMatchers(SECURED_ENDPOINTS).authenticated()
-                .requestMatchers(noAuthEndpoints).permitAll()
-                .anyRequest().permitAll()
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(MACHINE_ENDPOINTS)
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                )
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(SECURED_ENDPOINTS).authenticated()
+                        .requestMatchers(noAuthEndpoints).permitAll()
+                        .anyRequest().permitAll()
+                )
                 // To avoid redirects to the spring internal login page when unauthorized requests happen to machine endpoints
-                .and().exceptionHandling().defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), new AntPathRequestMatcher("/api/**"))
-                .and().oauth2Login()
-                .successHandler(loginRedirectHandler)
-                .failureHandler(loginRedirectHandler)
-                .tokenEndpoint().accessTokenResponseClient(accessTokenResponseClient())
-                .and().userInfoEndpoint().userService(userService()).userAuthoritiesMapper(authoritiesMapper())
-                .and().and()
-                .headers().addHeaderWriter(allowTogglzIFrame())
-                .and().build();
+                .exceptionHandling(ex -> ex
+                        .defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), new AntPathRequestMatcher("/api/**"))
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(loginRedirectHandler)
+                        .failureHandler(loginRedirectHandler)
+                        .tokenEndpoint(it -> it
+                                .accessTokenResponseClient(accessTokenResponseClient())
+                        )
+                        .userInfoEndpoint(it -> it
+                                .userService(userService()).userAuthoritiesMapper(authoritiesMapper())
+                        )
+                )
+                .headers(headers -> headers.addHeaderWriter(allowTogglzIFrame()))
+                .build();
     }
 
     private HeaderWriter allowTogglzIFrame() {
@@ -188,8 +197,7 @@ public class WebApplicationSecurity {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>(authorities);
 
             authorities.forEach(authority -> {
-                if (authority instanceof OAuth2UserAuthority) {
-                    OAuth2UserAuthority oauth2UserAuthority = (OAuth2UserAuthority) authority;
+                if (authority instanceof OAuth2UserAuthority oauth2UserAuthority) {
                     Map<String, Object> userAttributes = oauth2UserAuthority.getAttributes();
 
                     try {
@@ -225,8 +233,7 @@ public class WebApplicationSecurity {
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                             Authentication authentication) throws IOException {
 
-            if (authentication != null && (authentication.getPrincipal() instanceof OAuth2User)) {
-                OAuth2User principal = (OAuth2User) authentication.getPrincipal();
+            if (authentication != null && (authentication.getPrincipal() instanceof OAuth2User principal)) {
                 String name = principal.getName();
                 try {
                     long userId = Long.parseLong(name);
