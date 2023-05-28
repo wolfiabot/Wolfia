@@ -24,6 +24,8 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -107,6 +109,8 @@ public class ShardManagerFactory {
                 .setHttpClientBuilder(this.httpClientBuilder
                         .eventListener(new OkHttpEventCounter("jda")))
                 .disableCache(ACTIVITY, VOICE_STATE, EMOJI, CLIENT_STATUS)
+                .setChunkingFilter(ChunkingFilter.ALL)
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(MEMBER_OVERRIDES)
                 .setEnableShutdownHook(false)
                 .setRateLimitPool(this.jdaThreadPool, false)
