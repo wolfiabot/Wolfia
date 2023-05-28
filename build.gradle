@@ -393,12 +393,6 @@ project(':database-codegen') {
     }
 }
 
-project(':common') {
-    dependencies {
-        api "org.slf4j:slf4j-api"
-    }
-}
-
 project(':frontend') {
     apply plugin: 'org.siouan.frontend-jdk11'
 
@@ -458,7 +452,6 @@ configurations {
 }
 
 dependencies {
-    implementation project(':common')
     implementation project(':database-codegen')
 
     implementation "net.dv8tion:JDA"

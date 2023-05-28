@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.SpringProfiles;
-import space.npstr.wolfia.common.Exceptions;
+import space.npstr.wolfia.system.Exceptions;
 
 @Configuration
 public class DiscordApiConfiguration {

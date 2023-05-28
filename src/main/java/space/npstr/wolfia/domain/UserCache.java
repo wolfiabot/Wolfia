@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.common.Exceptions;
+import space.npstr.wolfia.system.Exceptions;
 
 /**
  * Not a real cache but that's fine.

@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 import org.postgresql.PGConnection;
 import org.postgresql.jdbc.AutoSave;
 import org.togglz.core.repository.jdbc.JDBCStateRepository;
-import space.npstr.wolfia.common.Exceptions;
+import space.npstr.wolfia.system.Exceptions;
 
 /**
  * Make the {@link JDBCStateRepository} work with Postgres which might be anal about a query failing

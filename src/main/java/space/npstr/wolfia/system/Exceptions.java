@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.common;
+package space.npstr.wolfia.system;
 
 import java.util.concurrent.CompletionException;
 import java.util.function.BiConsumer;

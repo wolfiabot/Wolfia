@@ -17,7 +17,6 @@
 
 rootProject.name = 'wolfia'
 
-include 'common'
 include 'database-codegen'
 include 'frontend'
 include 'platform'
