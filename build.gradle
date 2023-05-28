@@ -208,8 +208,6 @@ project(':platform') {
             api "org.togglz:togglz-console:$togglzVersion"
             api "org.togglz:togglz-spring-security:$togglzVersion"
 
-            api "org.testcontainers:testcontainers:$testcontainersVersion"
-            api "org.testcontainers:selenium:$testcontainersVersion"
             api "com.codeborne:selenide:$selenideVersion"
             api "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
         }
