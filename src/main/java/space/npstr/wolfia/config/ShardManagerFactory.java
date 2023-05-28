@@ -26,6 +26,7 @@ import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -112,6 +113,7 @@ public class ShardManagerFactory {
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .enableCache(MEMBER_OVERRIDES)
+                .disableCache(CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS)
                 .setEnableShutdownHook(false)
                 .setRateLimitPool(this.jdaThreadPool, false)
                 .setCallbackPool(this.jdaThreadPool, false)
