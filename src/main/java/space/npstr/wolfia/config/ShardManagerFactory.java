@@ -41,6 +41,7 @@ import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_REACTIONS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_TYPING;
+import static net.dv8tion.jda.api.requests.GatewayIntent.MESSAGE_CONTENT;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.ACTIVITY;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.CLIENT_STATUS;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.EMOJI;
@@ -64,6 +65,7 @@ public class ShardManagerFactory {
             DIRECT_MESSAGE_REACTIONS, // some in-game roles may also get reaction based selections in their DMs
             GUILD_MESSAGE_TYPING, DIRECT_MESSAGE_TYPING, // we use these to determine inactive users and remove them from our game queues
             // priviledged
+            MESSAGE_CONTENT, // We dont have interactions but rely on message content
             GUILD_MEMBERS // Required for our management of the wolfchat guilds
     );
 
