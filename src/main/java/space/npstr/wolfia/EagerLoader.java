@@ -19,6 +19,7 @@ package space.npstr.wolfia;
 
 import org.springframework.stereotype.Component;
 import space.npstr.prometheus_extensions.jda.JdaMetrics;
+import space.npstr.wolfia.commands.CommandHandler;
 import space.npstr.wolfia.config.SentryConfiguration;
 import space.npstr.wolfia.domain.oauth2.OAuth2Refresher;
 import space.npstr.wolfia.domain.setup.lastactive.AutoOuter;
@@ -37,9 +38,11 @@ public class EagerLoader {
     private final OAuth2Refresher oAuth2Refresher;
     private final AutoOuter autoOuter;
     private final GameResources gameResources;
+    private final CommandHandler commandHandler;
 
     public EagerLoader(ShutdownHandler shutdownHandler, SentryConfiguration sentryConfiguration, JdaMetrics jdaMetrics,
-                       OAuth2Refresher oAuth2Refresher, AutoOuter autoOuter, GameResources gameResources) {
+                       OAuth2Refresher oAuth2Refresher, AutoOuter autoOuter, GameResources gameResources,
+                       CommandHandler commandHandler) {
 
         this.shutdownHandler = shutdownHandler;
         this.sentryConfiguration = sentryConfiguration;
@@ -47,5 +50,6 @@ public class EagerLoader {
         this.oAuth2Refresher = oAuth2Refresher;
         this.autoOuter = autoOuter;
         this.gameResources = gameResources;
+        this.commandHandler = commandHandler;
     }
 }

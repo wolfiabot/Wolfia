@@ -18,10 +18,9 @@
 package space.npstr.wolfia.commands.util;
 
 import java.util.function.Consumer;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommRegistry;
@@ -64,7 +63,7 @@ public class HelpCommand implements BaseCommand, PublicCommand {
         }
 
         MessageChannel channel = context.channel;
-        if (context.hasArguments() && channel.getType() == ChannelType.TEXT && ((TextChannel) channel).canTalk()) {
+        if (context.hasArguments() && channel.getType() == ChannelType.TEXT && channel.canTalk()) {
             BaseCommand command = this.commRegistry.getCommand(context.args[0]);
             String answer;
             if (!(command instanceof PublicCommand)) {
@@ -86,7 +85,7 @@ public class HelpCommand implements BaseCommand, PublicCommand {
                 App.WOLFIA_LOUNGE_INVITE, App.GITHUB_LINK, "https://npstr.space");
 
         Consumer<Message> onSuccess = m -> {
-            if (channel.getType() == ChannelType.TEXT && !((TextChannel) channel).canTalk()) {
+            if (channel.getType() == ChannelType.TEXT && !channel.canTalk()) {
                 return;
             }
             String answer = String.format("sent you a PM with the help!"
@@ -99,7 +98,7 @@ public class HelpCommand implements BaseCommand, PublicCommand {
             context.replyWithMention(answer);
         };
         Consumer<Throwable> onFail = t -> {
-            if (channel.getType() == ChannelType.TEXT && ((TextChannel) channel).canTalk())
+            if (channel.getType() == ChannelType.TEXT && channel.canTalk())
                 context.replyWithMention("can't send you a private message with the help."
                         + " Please unblock me or change your privacy settings.");
         };

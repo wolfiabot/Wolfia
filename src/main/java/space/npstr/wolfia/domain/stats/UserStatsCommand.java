@@ -55,7 +55,7 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
 
     @Override
     public boolean execute(CommandContext context) {
-        if (context.msg.getMentionedUsers().isEmpty()) {
+        if (context.msg.getMentions().getUsers().isEmpty()) {
             long userId = context.invoker.getIdLong();
             //noinspection Duplicates
             if (context.hasArguments()) {
@@ -72,7 +72,7 @@ public class UserStatsCommand implements BaseCommand, PublicCommand {
             return true;
         }
 
-        for (User user : context.msg.getMentionedUsers()) {
+        for (User user : context.msg.getMentions().getUsers()) {
             UserStats userStats = this.statsProvider.calculateUserStats(user.getIdLong());
             context.reply(this.render.renderUserStats(userStats).build());
         }

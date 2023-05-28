@@ -18,10 +18,10 @@
 package space.npstr.wolfia.commands;
 
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.lang.Nullable;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -63,7 +63,7 @@ public class CommandContext extends MessageContext {
      */
     public void deleteMessage() {
         if (this.msg.isFromType(ChannelType.TEXT)) {
-            TextChannel tc = this.msg.getTextChannel();
+            TextChannel tc = this.msg.getChannel().asTextChannel();
             if (tc.getGuild().getSelfMember().hasPermission(tc, Permission.MESSAGE_MANAGE)) {
                 RestActions.deleteMessage(this.msg);
             }

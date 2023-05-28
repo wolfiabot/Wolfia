@@ -20,7 +20,6 @@ package space.npstr.wolfia.config;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Supplier;
-import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
@@ -37,14 +36,15 @@ import space.npstr.wolfia.utils.Memoizer;
 import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGE_REACTIONS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGE_TYPING;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS_AND_STICKERS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_REACTIONS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_TYPING;
+import static net.dv8tion.jda.api.requests.GatewayIntent.MESSAGE_CONTENT;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.ACTIVITY;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.CLIENT_STATUS;
-import static net.dv8tion.jda.api.utils.cache.CacheFlag.EMOTE;
+import static net.dv8tion.jda.api.utils.cache.CacheFlag.EMOJI;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.MEMBER_OVERRIDES;
 import static net.dv8tion.jda.api.utils.cache.CacheFlag.VOICE_STATE;
 
@@ -58,13 +58,14 @@ public class ShardManagerFactory {
 
     private static final List<GatewayIntent> GATEWAY_INTENTS = List.of(
             //GUILDS, not supported to be turned off by JDA, listed for documentation.
-            GUILD_EMOJIS, // we use some custom ones, and usage will likely grow bigger in the future, so its a good idea to stay up to date with these
+            GUILD_EMOJIS_AND_STICKERS, // we use some custom ones, and usage will likely grow bigger in the future, so its a good idea to stay up to date with these
             GUILD_MESSAGES, // process messages in guilds
             DIRECT_MESSAGES, // we have some in-game roles that send their commands in DMs
             GUILD_MESSAGE_REACTIONS, // some reactions are used, for example when voting in the wolf chat
             DIRECT_MESSAGE_REACTIONS, // some in-game roles may also get reaction based selections in their DMs
             GUILD_MESSAGE_TYPING, DIRECT_MESSAGE_TYPING, // we use these to determine inactive users and remove them from our game queues
             // priviledged
+            MESSAGE_CONTENT, // We dont have interactions but rely on message content
             GUILD_MEMBERS // Required for our management of the wolfchat guilds
     );
 
@@ -105,7 +106,7 @@ public class ShardManagerFactory {
                 .addEventListeners(this.discordEventListenerPublisher)
                 .setHttpClientBuilder(this.httpClientBuilder
                         .eventListener(new OkHttpEventCounter("jda")))
-                .disableCache(ACTIVITY, VOICE_STATE, EMOTE, CLIENT_STATUS)
+                .disableCache(ACTIVITY, VOICE_STATE, EMOJI, CLIENT_STATUS)
                 .enableCache(MEMBER_OVERRIDES)
                 .setEnableShutdownHook(false)
                 .setRateLimitPool(this.jdaThreadPool, false)
@@ -113,13 +114,7 @@ public class ShardManagerFactory {
                 .setAudioPool(this.jdaThreadPool, false)
                 .setGatewayPool(this.jdaThreadPool, false);
 
-        ShardManager shardManager;
-        try {
-            shardManager = builder.build();
-        } catch (LoginException e) {
-            throw new RuntimeException(e);
-        }
-
+        ShardManager shardManager = builder.build();
         this.created = true;
         return shardManager;
     }

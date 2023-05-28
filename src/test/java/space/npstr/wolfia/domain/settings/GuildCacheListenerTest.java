@@ -18,7 +18,6 @@
 package space.npstr.wolfia.domain.settings;
 
 import java.util.function.Consumer;
-import net.dv8tion.jda.api.AccountType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
@@ -67,7 +66,6 @@ class GuildCacheListenerTest {
         when(eventMock.getGuild()).thenReturn(guild);
         var jda = mock(JDA.class);
         when(eventMock.getJDA()).thenReturn(jda);
-        when(jda.getAccountType()).thenReturn(AccountType.BOT);
 
         onEvent.accept(eventMock);
 

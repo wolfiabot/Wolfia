@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Invite;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
@@ -141,7 +141,7 @@ public class ManagedPrivateRoom {
 
             //give the wolfrole access to it
             RoleAndPermissionUtils.grant(wolfChannel, RoleAndPermissionUtils.getOrCreateRole(g, WOLF_ROLE_NAME).complete(),
-                    Permission.MESSAGE_WRITE, Permission.MESSAGE_READ).queue(null, RestActions.defaultOnFail());
+                    Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL).queue(null, RestActions.defaultOnFail());
         } catch (Exception e) {
             endUsage();
             throw new RuntimeException("Could not begin the usage of private guild #" + this.privateRoom.getNumber(), e);

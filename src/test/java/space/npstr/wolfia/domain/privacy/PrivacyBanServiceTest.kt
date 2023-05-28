@@ -16,9 +16,12 @@
  */
 package space.npstr.wolfia.domain.privacy
 
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit.SECONDS
 import kotlinx.coroutines.runBlocking
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction
+import net.dv8tion.jda.api.requests.restaction.pagination.BanPaginationAction
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.eq
@@ -28,23 +31,28 @@ import org.mockito.kotlin.whenever
 import space.npstr.wolfia.App
 import space.npstr.wolfia.ApplicationTest
 import space.npstr.wolfia.TestUtil
-import space.npstr.wolfia.utils.discord.EmptyRestAction
+import space.npstr.wolfia.system.discord.asUserSnowflake
 
 internal class PrivacyBanServiceTest : ApplicationTest() {
 
 	@Test
 	fun whenBanAll_getsBanned() {
-		val userId = TestUtil.uniqueLong()
-		val userIdStr = userId.toString()
+		val userId = TestUtil.uniqueLong().asUserSnowflake()
 		val restAction = mock<AuditableRestAction<Void>>()
+
+		val paginationAction = mock<BanPaginationAction> {
+			on { submit() } doReturn CompletableFuture.completedFuture(listOf())
+		}
+
 		val wolfiaLounge = mock<Guild> {
-			on { ban(eq(userIdStr), eq(0), eq("Privacy: Data Processing Denied")) } doReturn restAction
-			on { retrieveBanList() } doReturn EmptyRestAction(null, listOf())
+			on { ban(eq(userId), eq(0), eq(SECONDS)) } doReturn restAction
+			on { retrieveBanList() } doReturn paginationAction
 		}
 		whenever(shardManager.getGuildById(eq(App.WOLFIA_LOUNGE_ID))).thenReturn(wolfiaLounge)
 
-		runBlocking { privacyBanService.privacyBanAll(listOf(userId)) }
-		verify(wolfiaLounge).ban(eq(userIdStr), eq(0), eq("Privacy: Data Processing Denied"))
+		runBlocking { privacyBanService.privacyBanAll(listOf(userId.idLong)) }
+		verify(restAction).reason(eq("Privacy: Data Processing Denied"))
+		verify(wolfiaLounge).ban(eq(userId), eq(0), eq(SECONDS))
 		Unit
 	}
 }

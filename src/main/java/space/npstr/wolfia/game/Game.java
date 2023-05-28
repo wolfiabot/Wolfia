@@ -37,8 +37,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.UserSnowflake;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import space.npstr.wolfia.App;
@@ -397,7 +398,7 @@ public abstract class Game {
         if (moderated) {
             //is this a non-public channel, and if yes, has an existing access role been set?
             boolean isChannelPublic = g.getPublicRole()
-                    .hasPermission(gameChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ);
+                    .hasPermission(gameChannel, Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL);
             if (isChannelPublic) {
                 this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
             } else {
@@ -410,17 +411,17 @@ public abstract class Game {
                                     " The chosen game and mode requires the channel to be either public, or have an access role set up." +
                                     " Talk to an Admin/Moderator of your server to fix this or set the access role up with `%s`." +
                                     " Please refer to the documentation under %s",
-                            Permission.MESSAGE_WRITE.getName(), Permission.MESSAGE_READ.getName(),
+                            Permission.MESSAGE_SEND.getName(), Permission.VIEW_CHANNEL.getName(),
                             WolfiaConfig.DEFAULT_PREFIX + ChannelSettingsCommand.TRIGGER, App.DOCS_LINK
                     ));
                 }
-                if (!accessRole.hasPermission(gameChannel, Permission.MESSAGE_WRITE, Permission.MESSAGE_READ)) {
+                if (!accessRole.hasPermission(gameChannel, Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)) {
                     throw new UserFriendlyException(String.format(
                             "The configured access role `%s` is missing `%s` and/or `%s` permissions in this channel." +
                                     " Talk to an admin of your server to fix this." +
                                     " Please refer to the documentation under %s",
-                            accessRole.getName(), Permission.MESSAGE_WRITE.getName(),
-                            Permission.MESSAGE_READ.getName(), App.DOCS_LINK
+                            accessRole.getName(), Permission.MESSAGE_SEND.getName(),
+                            Permission.VIEW_CHANNEL.getName(), App.DOCS_LINK
                     ));
                 }
             }
@@ -504,11 +505,11 @@ public abstract class Game {
         // - ensure write access for the bot in the game channel
         // this can be done with complete() as most of the time (after the first game) it will already be in place
         // and will prevent messages getting lost due to queue() sometimes taking a while
-        RoleAndPermissionUtils.grant(gameChannel, g.getSelfMember(), Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).complete();
+        RoleAndPermissionUtils.grant(gameChannel, g.getSelfMember(), Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION).complete();
 
         // - no writing access and reaction adding for @everyone/access role in the game channel during the game
         RoleAndPermissionUtils.deny(gameChannel, g.getRoleById(this.accessRoleId),
-                Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).queue(null, RestActions.defaultOnFail());
+                Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION).queue(null, RestActions.defaultOnFail());
     }
 
     /**
@@ -535,7 +536,7 @@ public abstract class Game {
         try {
             for (Player player : this.players) {
                 toComplete.add(RoleAndPermissionUtils.clear(channel, g.getMemberById(player.userId),
-                        Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).submit());
+                        Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION).submit());
             }
         } catch (PermissionException e) {
             missingPermissions.add(e.getPermission());
@@ -546,7 +547,7 @@ public abstract class Game {
             Role accessRole = g.getRoleById(this.accessRoleId);
             if (accessRole != null) {
                 //todo don't grant MESSAGE_ADD_REACTION if it wasn't granted. we need both things happening in a single RestAction to work properly
-                toComplete.add(RoleAndPermissionUtils.grant(channel, accessRole, Permission.MESSAGE_WRITE, Permission.MESSAGE_ADD_REACTION).submit());
+                toComplete.add(RoleAndPermissionUtils.grant(channel, accessRole, Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION).submit());
             }
         } catch (PermissionException e) {
             missingPermissions.add(e.getPermission());
@@ -724,7 +725,7 @@ public abstract class Game {
 
         String accessToken = oAuth2Service.getAccessTokenForScope(player.getUserId(), OAuth2Scope.GUILD_JOIN);
         if (accessToken != null) {
-            fetchBaddieChannel().getGuild().addMember(accessToken, player.getUserId()).queue();
+            fetchBaddieChannel().getGuild().addMember(accessToken, UserSnowflake.fromId(player.getUserId())).queue();
         }
         // TODO tell player if they have no valid token
     }

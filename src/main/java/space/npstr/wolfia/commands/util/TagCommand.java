@@ -161,8 +161,8 @@ public class TagCommand implements BaseCommand, PublicCommand {
         }
 
 
-        List<User> mentionedUsers = context.msg.getMentionedUsers();
-        List<Role> mentionedRoles = context.msg.getMentionedRoles();
+        List<User> mentionedUsers = context.msg.getMentions().getUsers();
+        List<Role> mentionedRoles = context.msg.getMentions().getRoles();
 
         //user signing up / removing themselves
         if (mentionedUsers.isEmpty() && mentionedRoles.isEmpty()) {

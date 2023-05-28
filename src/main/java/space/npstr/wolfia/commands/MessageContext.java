@@ -23,14 +23,15 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.lang.Nullable;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.system.metrics.MetricsRegistry;
@@ -114,23 +115,23 @@ public class MessageContext implements Context {
 
 
     public void reply(MessageEmbed embed) {
-        reply0(RestActions.from(embed), null);
+        reply0(RestActions.createFrom(embed), null);
     }
 
     public void reply(EmbedBuilder eb) {
         reply(eb.build());
     }
 
-    public void reply(Message message, @Nullable Consumer<Message> onSuccess) {
+    public void reply(MessageCreateData message, @Nullable Consumer<Message> onSuccess) {
         reply0(message, onSuccess);
     }
 
-    public void reply(Message message) {
+    public void reply(MessageCreateData message) {
         reply0(message, null);
     }
 
     public void reply(String message) {
-        reply(new MessageBuilder().append(message).build(), null);
+        reply(new MessageCreateBuilder().addContent(message).build(), null);
     }
 
     public void replyWithName(String message, @Nullable Consumer<Message> onSuccess) {
@@ -176,7 +177,7 @@ public class MessageContext implements Context {
     //                         Internal context stuff
     // ********************************************************************************
 
-    private void reply0(Message message, @Nullable Consumer<Message> onSuccess) {
+    private void reply0(MessageCreateData message, @Nullable Consumer<Message> onSuccess) {
         long started = System.nanoTime();
 
         Consumer<Message> successWrapper = m -> {

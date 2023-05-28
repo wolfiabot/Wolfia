@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.Optional;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Icon;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -86,7 +86,7 @@ public class RegisterPrivateRoomCommand implements BaseCommand {
         //set up rights:
         //- deny creating invites
         //- deny reading messages
-        context.guild.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_READ).queue(null, RestActions.defaultOnFail());
+        context.guild.getPublicRole().getManager().revokePermissions(Permission.CREATE_INSTANT_INVITE, Permission.MESSAGE_SEND).queue(null, RestActions.defaultOnFail());
         //- delete #general
         for (TextChannel tc : context.guild.getTextChannels()) {
             tc.delete().reason("Preparing private guild for usage").complete();

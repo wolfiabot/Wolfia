@@ -90,7 +90,7 @@ public class InCommand implements BaseCommand, PublicCommand {
 
         GameSetupService.Action setupAction = this.gameSetupService.channel(context.textChannel.getIdLong());
         //force in by bot owner ( ͡° ͜ʖ ͡°)
-        List<User> mentionedUsers = context.getMessage().getMentionedUsers();
+        List<User> mentionedUsers = context.getMessage().getMentions().getUsers();
         if (!mentionedUsers.isEmpty() && context.isOwner()) {
             Set<Long> userIds = mentionedUsers.stream()
                     .map(User::getIdLong)

@@ -149,7 +149,7 @@ public class GameUtils {
     public static List<Player> findPlayer(Collection<Player> players, CommandContext context, int... levenshteinThreshold) {
 
         //by mention
-        for (User u : context.msg.getMentionedUsers()) {
+        for (User u : context.msg.getMentions().getUsers()) {
             Optional<Player> maybe = players.stream().filter(player -> player.userId == u.getIdLong()).findAny();
             if (maybe.isPresent()) {
                 return Collections.singletonList(maybe.get());

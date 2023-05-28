@@ -18,7 +18,7 @@
 package space.npstr.wolfia.domain.setup.lastactive;
 
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.user.UserTypingEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
@@ -42,7 +42,7 @@ public class DiscordActivityListener {
 
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+    public void onMessageReceived(MessageReceivedEvent event) {
         active(event.getAuthor());
     }
 

@@ -18,10 +18,10 @@
 package space.npstr.wolfia.events;
 
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.api.events.channel.ChannelDeleteEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.App;
@@ -78,12 +78,12 @@ public class InternalListener {
     }
 
     @EventListener
-    public void onTextChannelDelete(TextChannelDeleteEvent event) {
+    public void onTextChannelDelete(ChannelDeleteEvent event) {
         long channelId = event.getChannel().getIdLong();
-        long guildId = event.getGuild().getIdLong();
 
         Game game = this.gameRegistry.get(channelId);
         if (game != null) {
+            long guildId = event.getGuild().getIdLong();
             log.info("Destroying game due to deleted channel {} {} in guild {} {}.",
                     event.getChannel().getName(), channelId, event.getGuild().getName(), guildId);
 
