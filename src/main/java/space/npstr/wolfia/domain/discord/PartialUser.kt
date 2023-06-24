@@ -28,6 +28,5 @@ data class PartialUser(
 	val id: Long,
 	@JsonProperty("username")
 	val name: String,
-	val discriminator: String,
 	val avatar: String?,
 )

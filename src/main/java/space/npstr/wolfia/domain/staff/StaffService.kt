@@ -16,10 +16,6 @@
  */
 package space.npstr.wolfia.domain.staff
 
-import java.net.URI
-import java.util.Optional.*
-import java.util.concurrent.TimeUnit
-import kotlin.jvm.optionals.getOrNull
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.sharding.ShardManager
@@ -31,6 +27,10 @@ import space.npstr.wolfia.db.gen.tables.records.StaffMemberRecord
 import space.npstr.wolfia.domain.UserCache
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor
 import space.npstr.wolfia.system.logger
+import java.net.URI
+import java.util.Optional.ofNullable
+import java.util.concurrent.TimeUnit
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * Provides and updates information about the staff behind Wolfia
@@ -151,7 +151,6 @@ class StaffService internal constructor(
 		return StaffMember(
 			user.idLong,
 			user.name,
-			user.discriminator,
 			ofNullable(user.avatarId),
 			staffMemberRecord.function,
 			ofNullable(staffMemberRecord.slogan),

@@ -85,7 +85,7 @@ public class InfoCommand implements BaseCommand, PublicCommand {
         botInfo += "Version:                " + App.VERSION + "\n";
         botInfo += "JDA responses total:    " + shardManager.getShards().stream().mapToLong(JDA::getResponseTotal).sum() + "\n";
         botInfo += "JDA version:            " + JDAInfo.VERSION + "\n";
-        botInfo += "Bot owner:              " + owner.getName() + "#" + owner.getDiscriminator() + "\n";
+        botInfo += "Bot owner:              " + owner.getName() + "\n";
         botInfo += "```";
 
         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder();

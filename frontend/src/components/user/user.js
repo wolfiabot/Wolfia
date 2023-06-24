@@ -19,17 +19,16 @@
  * Represents a single Discord User.
  */
 export class User {
-	constructor(discordId, name, avatarId, discriminator, roles) {
+	constructor(discordId, name, avatarId, roles) {
 		this.discordId = discordId;
 		this.name = name;
 		this.avatarId = avatarId;
-		this.discriminator = discriminator;
 		this.roles = roles;
 	}
 
 	avatarUrl() {
 		if (this.avatarId === null || this.avatarId === "") {
-			let number = this.discriminator % 5;
+			let number = (this.discordId >> 22) % 6;
 			return `https://cdn.discordapp.com/embed/avatars/${number}.png`;
 		}
 		const ext = this.avatarId.startsWith("a_") ? "gif" : "png";

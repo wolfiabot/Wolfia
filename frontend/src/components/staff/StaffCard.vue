@@ -22,8 +22,7 @@
 		</figure>
 		<div class="card-content has-text-left">
 			<div class="username">
-				<strong class="is-size-4">{{ member.user.name }}</strong
-				>#{{ member.user.discriminator }}
+				<strong class="is-size-4">{{ member.user.name }}</strong>
 			</div>
 			<div :class="staffBadgeClass">{{ member.renderStaffFunction() }}</div>
 			<div v-if="member.slogan !== null" class="is-italic slogan">{{ member.slogan }}</div>

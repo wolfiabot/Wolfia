@@ -67,7 +67,7 @@ export const userStore = {
 			if (user) {
 				context.commit(
 					LOAD_USER,
-					new User(user.discordId, user.name, user.avatarId, user.discriminator, user.roles)
+					new User(user.discordId, user.name, user.avatarId, user.roles)
 				);
 			} else {
 				context.commit(LOAD_FAILED);

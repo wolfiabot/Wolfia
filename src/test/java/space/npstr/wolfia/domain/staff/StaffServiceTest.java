@@ -115,7 +115,6 @@ class StaffServiceTest extends ApplicationTest {
         User user = mock(User.class);
         when(user.getIdLong()).thenReturn(userId);
         when(user.getName()).thenReturn("Foo");
-        when(user.getDiscriminator()).thenReturn("0001");
         when(user.isBot()).thenReturn(isBot);
 
         Member member = mock(Member.class);

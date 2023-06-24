@@ -18,9 +18,9 @@ package space.npstr.wolfia.domain.staff
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
-import java.net.URI
-import java.util.Optional
 import space.npstr.wolfia.db.gen.enums.StaffFunction
+import java.net.URI
+import java.util.*
 
 /**
  * A member of the Wolfia staff.
@@ -29,7 +29,6 @@ data class StaffMember(
 	@JsonSerialize(using = ToStringSerializer::class)
 	val discordId: Long,
 	val name: String,
-	val discriminator: String,
 	val avatarId: Optional<String>,
 	val function: StaffFunction,
 	val slogan: Optional<String>,

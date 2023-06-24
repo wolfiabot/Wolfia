@@ -23,7 +23,6 @@ data class SelfUser(
 	@JsonSerialize(using = ToStringSerializer::class)
 	val discordId: Long,
 	val name: String,
-	val discriminator: String,
 	val avatarId: String?,
 	val roles: Set<String>,
 	val scopes: Set<String>,

@@ -60,7 +60,7 @@ export const staffStore = {
 			}
 
 			let mappedStaff = staff.map((member) => {
-				const user = new User(member.discordId, member.name, member.avatarId, member.discriminator);
+				const user = new User(member.discordId, member.name, member.avatarId);
 				return new StaffMember(user, member.function, member.slogan, member.link);
 			});
 			context.commit(LOAD_STAFF, mappedStaff);

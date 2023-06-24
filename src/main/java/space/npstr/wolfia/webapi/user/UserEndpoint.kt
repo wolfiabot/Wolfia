@@ -39,12 +39,12 @@ class UserEndpoint(
 		}
 
 		// Explicitly fetching the user ensures that the token still works and is not expired or revoked.
-		val (userId, name, discriminator, avatar) = discordRequester.fetchUser(user.accessToken.tokenValue)
+		val (userId, name, avatar) = discordRequester.fetchUser(user.accessToken.tokenValue)
 		val principal = user.principal
 		val roles = filterAndCollectByPrefix(principal.authorities, "ROLE_")
 		val scopes = filterAndCollectByPrefix(principal.authorities, "SCOPE_")
 		return ResponseEntity.ok(
-			SelfUser(userId, name, discriminator, avatar, roles, scopes),
+			SelfUser(userId, name, avatar, roles, scopes),
 		)
 	}
 

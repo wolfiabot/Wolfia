@@ -110,7 +110,7 @@ class StaffProfileConversation implements Conversation {
     private boolean show(MessageContext context, StaffMember staffMember, String plainMessage) {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Staff Profile")
-                .addField("Name", staffMember.getName() + "#" + staffMember.getDiscriminator(), true)
+                .addField("Name", staffMember.getName(), true)
                 .addField("Staff Function", staffMember.getFunction().name(), true)
                 .addField("Enabled", staffMember.isEnabled() ? Emojis.CHECK : Emojis.X, true)
                 .addField("Slogan", staffMember.getSlogan().orElse(""), true)
