@@ -62,7 +62,9 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import space.npstr.wolfia.config.properties.OAuth2Config;
 import space.npstr.wolfia.domain.privacy.PrivacyService;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
@@ -101,10 +103,24 @@ public class WebApplicationSecurity {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        String[] noAuthEndpoints = Stream.concat(Arrays.stream(MACHINE_ENDPOINTS), Arrays.stream(PUBLIC_ENDPOINTS))
+    public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+        // https://github.com/spring-projects/spring-security/issues/13568
+        MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+        MvcRequestMatcher[] noAuthEndpoints = Stream.concat(Arrays.stream(MACHINE_ENDPOINTS), Arrays.stream(PUBLIC_ENDPOINTS))
+                .map(mvcMatcherBuilder::pattern)
                 .collect(Collectors.toSet())
-                .toArray(new String[]{});
+                .toArray(new MvcRequestMatcher[]{});
+
+        MvcRequestMatcher[] machineEndpoints = Arrays.stream(MACHINE_ENDPOINTS)
+                .map(mvcMatcherBuilder::pattern)
+                .collect(Collectors.toSet())
+                .toArray(new MvcRequestMatcher[]{});
+
+        MvcRequestMatcher[] securedEndpoints = Arrays.stream(SECURED_ENDPOINTS)
+                .map(mvcMatcherBuilder::pattern)
+                .collect(Collectors.toSet())
+                .toArray(new MvcRequestMatcher[]{});
+
 
         LoginRedirectHandler loginRedirectHandler = new LoginRedirectHandler(
                 this.oAuth2Config.getBaseRedirectUrl(),
@@ -113,11 +129,11 @@ public class WebApplicationSecurity {
 
         return http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers(MACHINE_ENDPOINTS)
+                        .ignoringRequestMatchers(machineEndpoints)
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(SECURED_ENDPOINTS).authenticated()
+                        .requestMatchers(securedEndpoints).authenticated()
                         .requestMatchers(noAuthEndpoints).permitAll()
                         .anyRequest().permitAll()
                 )
