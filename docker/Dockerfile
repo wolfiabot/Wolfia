@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:21-jdk
 MAINTAINER napster@npstr.space
 
 RUN groupadd -g 420 wolfia && \

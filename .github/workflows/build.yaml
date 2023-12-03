@@ -49,7 +49,7 @@ jobs:
         uses: actions/setup-java@1df8dbefe2a8cbc99770194893dd902763bee34b # v3.9.0
         with:
           distribution: "temurin"
-          java-version: 17
+          java-version: 21
           cache: "gradle"
 
       - name: Print JDK info
