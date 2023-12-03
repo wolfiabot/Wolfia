@@ -52,13 +52,9 @@ class OAuth2Requester(
 	httpClientBuilder: OkHttpClient.Builder,
 ) {
 
-	private val httpClient: OkHttpClient
-
-	init {
-		httpClient = httpClientBuilder
-			.eventListener(OkHttpEventCounter("oauth2"))
-			.build()
-	}
+	private final val httpClient: OkHttpClient = httpClientBuilder
+		.eventListener(OkHttpEventCounter("oauth2"))
+		.build()
 
 	companion object {
 		const val SCOPE_DELIMITER = " "

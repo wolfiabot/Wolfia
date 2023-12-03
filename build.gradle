@@ -138,6 +138,9 @@ allprojects {
             languageVersion = JavaLanguageVersion.of(javaVersion)
             vendor = JvmVendorSpec.ADOPTIUM
         }
+        consistentResolution {
+            useCompileClasspathVersions()
+        }
     }
 
     repositories {
@@ -435,9 +438,6 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'org.jetbrains.kotlin.plugin.spring'
 apply plugin: 'kotlin'
 apply plugin: 'org.sonarqube'
-
-
-mainClassName = 'space.npstr.wolfia.Launcher'
 
 configurations {
     // fucks with spring boot jar, we dont need it anyways

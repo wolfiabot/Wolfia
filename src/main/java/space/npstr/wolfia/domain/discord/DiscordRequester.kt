@@ -18,7 +18,6 @@ package space.npstr.wolfia.domain.discord
 
 import java.util.Objects
 import java.util.function.Supplier
-import okhttp3.OkHttpClient
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
@@ -26,7 +25,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.http.client.OkHttp3ClientHttpRequestFactory
+import org.springframework.http.client.JdkClientHttpRequestFactory
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException.Unauthorized
@@ -34,7 +33,6 @@ import org.springframework.web.client.RestTemplate
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.server.ResponseStatusException
-import space.npstr.prometheus_extensions.OkHttpEventCounter
 
 /**
  * Run our own requests against the Discord Api on behalf of users using their access tokens (OAuth2).
@@ -42,25 +40,16 @@ import space.npstr.prometheus_extensions.OkHttpEventCounter
  * TODO we need a proper ratelimiter implementation for discord requests
  */
 @Component
-class DiscordRequester(
-	httpClientBuilder: OkHttpClient.Builder,
-) {
+class DiscordRequester {
 
 	companion object {
 		private const val DISCORD_API_URL = "https://discord.com/api/v6"
 	}
 
-	private val restTemplate: RestTemplate
-
-	init {
-		val httpClient: OkHttpClient = httpClientBuilder
-			.eventListener(OkHttpEventCounter("oauth2"))
-			.build()
-		restTemplate = RestTemplateBuilder()
-			.requestFactory(Supplier { OkHttp3ClientHttpRequestFactory(httpClient) })
-			.rootUri(DISCORD_API_URL)
-			.build()
-	}
+	private final val restTemplate: RestTemplate = RestTemplateBuilder()
+		.requestFactory(Supplier { JdkClientHttpRequestFactory() })
+		.rootUri(DISCORD_API_URL)
+		.build()
 
 	fun fetchUser(accessToken: String): PartialUser {
 		val headers = HttpHeaders()

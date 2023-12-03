@@ -115,7 +115,8 @@ public class ShardManagerFactory {
                 .enableCache(MEMBER_OVERRIDES)
                 .disableCache(CacheFlag.ONLINE_STATUS, CacheFlag.SCHEDULED_EVENTS)
                 .setEnableShutdownHook(false)
-                .setRateLimitPool(this.jdaThreadPool, false)
+                .setRateLimitScheduler(this.jdaThreadPool, false)
+                .setRateLimitElastic(this.jdaThreadPool, false)
                 .setCallbackPool(this.jdaThreadPool, false)
                 .setAudioPool(this.jdaThreadPool, false)
                 .setGatewayPool(this.jdaThreadPool, false);
