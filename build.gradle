@@ -67,7 +67,7 @@ configure(allprojects.findAll { it.name != 'platform' }) {
         module {
             sourceDirs += sourceSets.main.output.generatedSourcesDirs
             generatedSourceDirs += sourceSets.main.output.generatedSourcesDirs
-            testSourceDirs += sourceSets.test.output.generatedSourcesDirs
+            testSources.from(sourceSets.test.output.generatedSourcesDirs)
             generatedSourceDirs += sourceSets.test.output.generatedSourcesDirs
         }
     }
@@ -420,7 +420,7 @@ project(':frontend') {
     tasks.named('assembleFrontend') {
         dependsOn 'setVersion'
         configure frontendBuildCacheConfig
-        outputs.dir("$buildDir/dist")
+        outputs.dir(layout.buildDirectory.dir('dist'))
                 .withPropertyName('frontendOutput')
         outputs.cacheIf { true }
     }
@@ -527,7 +527,7 @@ compileJava.dependsOn(processResources)
 processResources {
     dependsOn ':frontend:assembleFrontend'
 
-    from("${project(':frontend').buildDir}/dist") {
+    from(project(':frontend').layout.buildDirectory.dir('dist')) {
         into 'static'
     }
 }
