@@ -17,13 +17,12 @@
 package space.npstr.wolfia.webapi
 
 import java.util.Base64
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -41,63 +40,47 @@ import space.npstr.wolfia.ApplicationTest
  */
 internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 
-    companion object {
-        private const val TOGGLZ_PATH = "/api/togglz/index"
-    }
-
-    private lateinit var httpClient: OkHttpClient
-
-    @Autowired
-    private lateinit var httpClientBuilder: OkHttpClient.Builder
+	private final val togglzConsolePath = "/api/togglz/index"
 
     @Autowired
     @Suppress("SpringJavaInjectionPointsAutowiringInspection")
     private lateinit var sessionRepository: SessionRepository<T>
 
-    @BeforeEach
-    fun setup() {
-        httpClient = httpClientBuilder
-            .followRedirects(false)
-            .build()
-    }
-
     @Test
     fun whenGet_withoutAuthentication_returnUnauthorized() {
-        val request = togglzConsole().build()
+		val response = restTemplate.getForEntity("/$togglzConsolePath", Void::class.java)
 
-        val response = httpClient.newCall(request).execute()
-
-        assertThat(response.code).isEqualTo(HttpStatus.FORBIDDEN.value())
+		assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
     }
 
     @Test
     fun whenGet_withUserAuthority_returnUnauthorized() {
-        val session = generateHttpSession(Authorization.ROLE_USER)
-        val request = togglzConsole()
-            .header(HttpHeaders.COOKIE, sessionCookie(session))
-            .build()
+		val headers = HttpHeaders()
+		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.ROLE_USER)))
 
-        val response = httpClient.newCall(request).execute()
+		val response = restTemplate.exchange(
+			"/$togglzConsolePath",
+			HttpMethod.GET,
+			HttpEntity<Void>(headers),
+			Void::class.java
+		)
 
-        assertThat(response.code).isEqualTo(HttpStatus.FORBIDDEN.value())
+		assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
     }
 
     @Test
     fun whenGet_withOwnerAuthority_returnOk() {
-        val session = generateHttpSession(Authorization.ROLE_OWNER)
-        val request = togglzConsole()
-            .header(HttpHeaders.COOKIE, sessionCookie(session))
-            .build()
+		val headers = HttpHeaders()
+		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.ROLE_OWNER)))
 
-        val response = httpClient.newCall(request).execute()
+		val response = restTemplate.exchange(
+			"/$togglzConsolePath",
+			HttpMethod.GET,
+			HttpEntity<Void>(headers),
+			Void::class.java
+		)
 
-        assertThat(response.code).isEqualTo(HttpStatus.OK.value())
-    }
-
-    private fun togglzConsole(): Request.Builder {
-        return Request.Builder()
-            .get()
-            .url("http://localhost:$port$TOGGLZ_PATH")
+		assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
     }
 
     private fun sessionCookie(session: Session): String {
