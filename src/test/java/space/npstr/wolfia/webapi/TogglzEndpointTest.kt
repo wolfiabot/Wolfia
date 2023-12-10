@@ -16,11 +16,11 @@
  */
 package space.npstr.wolfia.webapi
 
+import java.util.Base64
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -35,7 +35,6 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.session.Session
 import org.springframework.session.SessionRepository
 import space.npstr.wolfia.ApplicationTest
-import java.util.Base64
 
 /**
  * The Togglz Console is served by a Servlet, so we can't use MockMvc.
@@ -72,7 +71,6 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
     }
 
     @Test
-    @Disabled("Wait for https://github.com/togglz/togglz/pull/917 release")
     fun whenGet_withUserAuthority_returnUnauthorized() {
         val session = generateHttpSession(Authorization.ROLE_USER)
         val request = togglzConsole()
@@ -85,7 +83,6 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
     }
 
     @Test
-    @Disabled("Wait for https://github.com/togglz/togglz/pull/917 release")
     fun whenGet_withOwnerAuthority_returnOk() {
         val session = generateHttpSession(Authorization.ROLE_OWNER)
         val request = togglzConsole()
