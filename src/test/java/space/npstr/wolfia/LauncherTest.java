@@ -26,7 +26,6 @@ import org.springframework.context.support.AbstractApplicationContext;
 import space.npstr.prometheus_extensions.jda.JdaMetrics;
 import space.npstr.wolfia.commands.CommRegistry;
 import space.npstr.wolfia.commands.CommandHandler;
-import space.npstr.wolfia.config.SentryConfiguration;
 import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.oauth2.OAuth2Refresher;
 import space.npstr.wolfia.domain.setup.lastactive.AutoOuter;
@@ -60,7 +59,6 @@ abstract class LauncherTest extends ApplicationTest {
         assertThatContainsBean("gameResources", GameResources.class);
         assertThatContainsBean("database", Database.class);
         assertThatContainsBean("shutdownHandler", ShutdownHandler.class);
-        assertThatContainsBean("sentryConfiguration", SentryConfiguration.class);
         assertThatContainsBean("jdaMetrics", JdaMetrics.class);
         assertThatContainsBean("OAuth2Refresher", OAuth2Refresher.class);
         assertThatContainsBean("autoOuter", AutoOuter.class);

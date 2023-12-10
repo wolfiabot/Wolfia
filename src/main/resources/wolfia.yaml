@@ -74,3 +74,12 @@ logging:
     root: INFO
     space.npstr: DEBUG
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
+sentry:
+  dsn: ""
+  logging.enabled: false
+  in-app-includes:
+    - "space.npstr"
+    - "dev.capybaralabs"
+  logging:
+    minimum-event-level: warn

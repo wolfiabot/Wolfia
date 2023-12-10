@@ -188,10 +188,10 @@ project(':platform') {
     dependencies {
         api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
         api platform("io.prometheus:simpleclient_bom:$prometheusVersion")
+        api platform("io.sentry:sentry-bom:$sentryVersion")
         constraints {
             api "net.dv8tion:JDA:$jdaVersion"
             api "club.minnced:discord-webhooks:$discordWebhooksVersion"
-            api "io.sentry:sentry-logback:$sentryLogbackVersion"
             api "org.json:json:$orgJsonVersion"
             api "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
             api "org.glassfish.jaxb:jaxb-core:$jaxbImplVersion"
@@ -457,6 +457,8 @@ dependencies {
 
     implementation "ch.qos.logback:logback-classic"
     implementation "io.sentry:sentry-logback"
+    implementation "io.sentry:sentry-spring-boot-starter-jakarta"
+    implementation "io.sentry:sentry-kotlin-extensions"
 
     implementation "org.yaml:snakeyaml"
     implementation "com.squareup.okhttp3:okhttp"
