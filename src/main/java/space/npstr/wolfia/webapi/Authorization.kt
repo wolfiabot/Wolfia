@@ -20,8 +20,6 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 object Authorization {
-	const val ROLE_USER = "ROLE_USER"
-	const val ROLE_OWNER = "ROLE_OWNER"
-	val USER: GrantedAuthority = SimpleGrantedAuthority(ROLE_USER)
-	val OWNER: GrantedAuthority = SimpleGrantedAuthority(ROLE_OWNER)
+	val USER: GrantedAuthority = SimpleGrantedAuthority("ROLE_USER")
+	val OWNER: GrantedAuthority = SimpleGrantedAuthority("ROLE_OWNER")
 }

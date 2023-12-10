@@ -26,7 +26,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.security.core.userdetails.User
@@ -56,7 +56,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 	@Test
 	fun whenGet_withUserAuthority_returnUnauthorized() {
 		val headers = HttpHeaders()
-		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.ROLE_USER)))
+		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.USER)))
 
 		val response = restTemplate.exchange(
 			"/$togglzConsolePath",
@@ -71,7 +71,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 	@Test
 	fun whenGet_withOwnerAuthority_returnOk() {
 		val headers = HttpHeaders()
-		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.ROLE_OWNER)))
+		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.OWNER)))
 
 		val response = restTemplate.exchange(
 			"/$togglzConsolePath",
@@ -87,11 +87,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 		return "SESSION=" + Base64.getEncoder().encodeToString(session.id.toByteArray())
 	}
 
-	private fun generateHttpSession(vararg requestedAuthorities: String): T {
-		val authorities = requestedAuthorities
-			.map { SimpleGrantedAuthority(it) }
-			.toSet()
-
+	private fun generateHttpSession(vararg requestedAuthorities: GrantedAuthority): T {
 		val userDetails: UserDetails = User(
 			"foo",
 			"bar",
@@ -99,7 +95,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 			true,
 			true,
 			true,
-			authorities
+			requestedAuthorities.toSet()
 		)
 		val authentication: Authentication = UsernamePasswordAuthenticationToken(
 			userDetails, userDetails.password, userDetails.authorities
