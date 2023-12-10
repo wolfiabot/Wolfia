@@ -42,19 +42,19 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 
 	private final val togglzConsolePath = "/api/togglz/index"
 
-    @Autowired
-    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-    private lateinit var sessionRepository: SessionRepository<T>
+	@Autowired
+	@Suppress("SpringJavaInjectionPointsAutowiringInspection")
+	private lateinit var sessionRepository: SessionRepository<T>
 
-    @Test
-    fun whenGet_withoutAuthentication_returnUnauthorized() {
+	@Test
+	fun whenGet_withoutAuthentication_returnUnauthorized() {
 		val response = restTemplate.getForEntity("/$togglzConsolePath", Void::class.java)
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
-    }
+	}
 
-    @Test
-    fun whenGet_withUserAuthority_returnUnauthorized() {
+	@Test
+	fun whenGet_withUserAuthority_returnUnauthorized() {
 		val headers = HttpHeaders()
 		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.ROLE_USER)))
 
@@ -66,10 +66,10 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 		)
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
-    }
+	}
 
-    @Test
-    fun whenGet_withOwnerAuthority_returnOk() {
+	@Test
+	fun whenGet_withOwnerAuthority_returnOk() {
 		val headers = HttpHeaders()
 		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.ROLE_OWNER)))
 
@@ -81,38 +81,38 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 		)
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    }
+	}
 
-    private fun sessionCookie(session: Session): String {
-        return "SESSION=" + Base64.getEncoder().encodeToString(session.id.toByteArray())
-    }
+	private fun sessionCookie(session: Session): String {
+		return "SESSION=" + Base64.getEncoder().encodeToString(session.id.toByteArray())
+	}
 
-    private fun generateHttpSession(vararg requestedAuthorities: String): T {
-        val authorities = requestedAuthorities
-            .map { SimpleGrantedAuthority(it) }
-            .toSet()
+	private fun generateHttpSession(vararg requestedAuthorities: String): T {
+		val authorities = requestedAuthorities
+			.map { SimpleGrantedAuthority(it) }
+			.toSet()
 
-        val userDetails: UserDetails = User(
-            "foo",
-            "bar",
-            true,
-            true,
-            true,
-            true,
-            authorities
-        )
-        val authentication: Authentication = UsernamePasswordAuthenticationToken(
-            userDetails, userDetails.password, userDetails.authorities
-        )
-        val authenticationToken = UsernamePasswordAuthenticationToken(
-            userDetails, authentication.credentials, userDetails.authorities
-        )
-        authenticationToken.details = authentication.details
-        val securityContext: SecurityContext = SecurityContextImpl(authentication)
-        val session = sessionRepository.createSession()!!
-        session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext)
-        session.setAttribute("sessionId", session.id)
-        sessionRepository.save(session)
-        return session
-    }
+		val userDetails: UserDetails = User(
+			"foo",
+			"bar",
+			true,
+			true,
+			true,
+			true,
+			authorities
+		)
+		val authentication: Authentication = UsernamePasswordAuthenticationToken(
+			userDetails, userDetails.password, userDetails.authorities
+		)
+		val authenticationToken = UsernamePasswordAuthenticationToken(
+			userDetails, authentication.credentials, userDetails.authorities
+		)
+		authenticationToken.details = authentication.details
+		val securityContext: SecurityContext = SecurityContextImpl(authentication)
+		val session = sessionRepository.createSession()!!
+		session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext)
+		session.setAttribute("sessionId", session.id)
+		sessionRepository.save(session)
+		return session
+	}
 }
