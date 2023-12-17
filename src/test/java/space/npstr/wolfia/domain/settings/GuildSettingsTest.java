@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.domain.settings;
 
-import java.net.URL;
+import java.net.URI;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +48,7 @@ class GuildSettingsTest {
         var settings = new GuildSettings(guilId, "Wolfia Lounge", "424242");
 
         String avatarUrl = settings.getAvatarUrl().orElseThrow();
-        assertThatCode(() -> new URL(avatarUrl).toURI()).doesNotThrowAnyException();
+        assertThatCode(() -> URI.create(avatarUrl)).doesNotThrowAnyException();
     }
 
 }

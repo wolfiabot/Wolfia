@@ -17,10 +17,7 @@
 
 package space.npstr.wolfia.domain.staff;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -82,7 +79,7 @@ class StaffProfileConversation implements Conversation {
                 return false;
             }
 
-            User target = mentions.get(0);
+            User target = mentions.getFirst();
             staffMember = Optional.ofNullable(this.staffService.user(target.getIdLong()).get());
             if (staffMember.isEmpty()) {
                 context.replyWithName("I'm sorry, " + target.getAsMention() + " is not a member of the Wolfia staff, they have no staff profile.");
@@ -199,12 +196,11 @@ class StaffProfileConversation implements Conversation {
 
     private boolean setLink(MessageContext context, String link, StaffMember staffMember) {
         try {
-            URI uri = new URL(link).toURI();
-            StaffMember updated = this.staffService.user(staffMember.getDiscordId())
-                    .setLink(uri);
+            URI uri = URI.create(link);
+            StaffMember updated = this.staffService.user(staffMember.getDiscordId()).setLink(uri);
             return showStaffProfileAndOptions(context, updated, "Set your link:");
-        } catch (MalformedURLException | URISyntaxException e) {
-            return showStaffProfileAndOptions(context, staffMember, Emojis.X + ": Failed to parsed your link. Please double check it's a real link.");
+        } catch (Exception e) {
+            return showStaffProfileAndOptions(context, staffMember, Emojis.X + ": Failed to parse your link. Please double check it's a real link.");
         }
 
     }
