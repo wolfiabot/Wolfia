@@ -58,8 +58,12 @@ public class Oauth2Config implements BeanClassLoaderAware {
     private ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModules(SecurityJackson2Modules.getModules(this.loader));
+        // https://github.com/spring-projects/spring-security/issues/12294#issuecomment-1401987517
+        mapper.addMixIn(Long.class, LongMixin.class);
         return mapper;
     }
+
+    public abstract static class LongMixin {}
 
     /**
      * Copypasta from {@link org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration.OAuth2ClientWebMvcSecurityConfiguration}
