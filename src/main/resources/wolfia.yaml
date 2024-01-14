@@ -17,6 +17,8 @@ server:
     application-display-name: Wolfia
 
 spring:
+  # Avoid warning at startup
+  thymeleaf.check-template-location: false
   main:
     lazy-initialization: true
   output:
