@@ -60,6 +60,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
@@ -126,11 +127,16 @@ public class WebApplicationSecurity {
                 this.oAuth2Config.getBaseRedirectUrl(),
                 this.privacyService
         );
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        // Force CSRF Token creation with Spring Security v6
+        // See https://docs.spring.io/spring-security/reference/5.8/migration/servlet/exploits.html#servlet-defer-loading-csrf-token-opt-out
+        requestHandler.setCsrfRequestAttributeName(null);
 
         return http
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers(machineEndpoints)
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .csrfTokenRequestHandler(requestHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(securedEndpoints).authenticated()
