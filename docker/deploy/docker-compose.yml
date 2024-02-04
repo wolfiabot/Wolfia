@@ -63,7 +63,7 @@ services:
       - CF_API_KEY=${CF_KEY}
 
   db:
-    image: napstr/poggres:15
+    image: napstr/poggres:16
     restart: always
     ports:
       - 127.0.0.1:5432:5432
