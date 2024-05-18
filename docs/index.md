@@ -29,7 +29,7 @@ layout: default
     <div class="flex-child">
         <p class="logo-image right">
             <a href="https://discord.gg/nvcfX3q">
-                <img src="https://i.imgur.com/7Ie8tB3.png" alt="Wolfia logo">
+                <img src="https://i.imgur.com/kAFbbuE.png" alt="Wolfia logo">
             </a>
         </p>
     </div>

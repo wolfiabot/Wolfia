@@ -1,4 +1,4 @@
-<img align="right" src="https://i.imgur.com/7Ie8tB3.png" height="200" width="200">
+<img align="right" src="https://i.imgur.com/kAFbbuE.png" height="200" width="200">
 
 [![Build Status](https://img.shields.io/github/workflow/status/wolfiabot/Wolfia/Build?style=flat-square)](https://github.com/wolfiabot/Wolfia/actions/workflows/build.yaml)
 [![License](https://img.shields.io/github/license/wolfiabot/wolfia.svg?style=flat-square)]()
