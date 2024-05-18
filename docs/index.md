@@ -220,7 +220,7 @@ Uptime over last 7 days:
 * * *
 
 {: .center}
-Coded with lots of ![](assets/img/coffee.svg" width="15"} by [Napster](https://npstr.space/)
+Coded with lots of ![][coffee]{:height="15" width="15"} by [Napster](https://npstr.space/)
 
 
 [w]:assets/img/wolf.svg
@@ -230,3 +230,4 @@ Coded with lots of ![](assets/img/coffee.svg" width="15"} by [Napster](https://n
 [gun]:assets/img/gun.svg
 [cop]:assets/img/cop.svg
 [santa]:assets/img/santa.svg
+[coffee]:assets/img/coffee.svg
