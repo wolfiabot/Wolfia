@@ -8,6 +8,8 @@ services:
     restart: always
     ports:
       - 127.0.0.1:5442:5432
+    volumes:
+      - ./postgres-data/16/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=wolfia
       - ROLE=wolfia

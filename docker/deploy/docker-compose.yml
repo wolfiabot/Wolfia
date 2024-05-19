@@ -68,7 +68,7 @@ services:
     ports:
       - 127.0.0.1:5432:5432
     volumes:
-      - ./postgres-data/15/data:/var/lib/postgresql/data
+      - ./postgres-data/16/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=${PG_PASS}
       # See https://github.com/napstr/poggres#env-vars
