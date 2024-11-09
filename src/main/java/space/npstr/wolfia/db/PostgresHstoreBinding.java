@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 the original author or authors
+ * Copyright (C) 2016-2024 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,6 +17,11 @@
 
 package space.npstr.wolfia.db;
 
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Types;
+import java.util.HashMap;
+import java.util.Objects;
 import org.jooq.Binding;
 import org.jooq.BindingGetResultSetContext;
 import org.jooq.BindingGetSQLInputContext;
@@ -29,12 +34,6 @@ import org.jooq.Converter;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
 import org.postgresql.util.HStoreConverter;
-
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.sql.Types;
-import java.util.HashMap;
-import java.util.Objects;
 
 /**
  * We're binding <T> = Object (unknown JDBC type), and <U> = Map<String, String> (user type)

@@ -16,6 +16,9 @@
  */
 package space.npstr.wolfia.domain.oauth2
 
+import java.time.OffsetDateTime
+import java.time.temporal.ChronoUnit
+import java.util.EnumSet
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
@@ -27,9 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import space.npstr.wolfia.ApplicationTest
 import space.npstr.wolfia.TestUtil
 import space.npstr.wolfia.db.type.OAuth2Scope
-import java.time.OffsetDateTime
-import java.time.temporal.ChronoUnit
-import java.util.EnumSet
 
 internal class OAuth2ServiceTest : ApplicationTest() {
 

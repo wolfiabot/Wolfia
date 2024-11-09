@@ -217,183 +217,6 @@ project(':platform') {
     }
 }
 
-project(':database-codegen') {
-    apply plugin: 'org.flywaydb.flyway'
-    apply plugin: 'nu.studer.jooq'
-    apply plugin: 'com.bmuschko.docker-remote-api'
-
-    configurations {
-        flywayMigration
-    }
-
-    ext {
-        codegenDbImageRepo = 'napstr/poggres'
-        codegenDbImageTag = "$postgresVersion"
-        codegenDbImageName = codegenDbImageRepo + ':' + codegenDbImageTag
-        codegenDbContainerName = 'wolfia-codegen-postgres'
-        codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5435/codegen?user=codegen"
-    }
-
-    dependencies {
-        flywayMigration platform(project(':platform'))
-        jooqGenerator platform(project(':platform'))
-
-        api "org.jooq:jooq"
-        implementation "org.jooq:jooq-meta"
-        implementation "org.jooq:jooq-codegen"
-        api "org.postgresql:postgresql"
-        flywayMigration "org.postgresql:postgresql"
-        jooqGenerator "org.postgresql:postgresql"
-    }
-
-    tasks.register('pullCodegenDbContainer', DockerPullImage) {
-        image.set(codegenDbImageName)
-    }
-
-    tasks.register('createCodegenDbContainer', DockerCreateContainer) {
-        dependsOn pullCodegenDbContainer
-        targetImageId(codegenDbImageName)
-        containerName.set(codegenDbContainerName)
-        hostConfig.autoRemove.set(true)
-        hostConfig.portBindings.set(['127.0.0.1:5435:5432'])
-        healthCheck.interval.set(1000 * 1_000_000L) // nanoseconds.....
-        withEnvVar('POSTGRES_HOST_AUTH_METHOD', 'trust')
-        withEnvVar('ROLE', 'codegen')
-        withEnvVar('DB', 'codegen')
-        withEnvVar('EXTENSIONS', 'hstore')
-    }
-
-    tasks.register('stopCodegenDbContainerPre', StopCodegenDbContainer) {
-        targetContainerId codegenDbContainerName
-    }
-
-    tasks.register('stopCodegenDbContainerPost', StopCodegenDbContainer) {
-        targetContainerId codegenDbContainerName
-    }
-
-
-    tasks.register('startCodegenDbContainer', DockerStartContainer) {
-        createCodegenDbContainer.mustRunAfter stopCodegenDbContainerPre
-        dependsOn(stopCodegenDbContainerPre, createCodegenDbContainer)
-        targetContainerId codegenDbContainerName
-    }
-
-    tasks.register('awaitCodegenDbContainer', DockerWaitHealthyContainer) {
-        dependsOn startCodegenDbContainer
-        targetContainerId codegenDbContainerName
-        awaitStatusTimeout.set(40)
-    }
-
-    def migrationsInput = fileTree('src/main/resources/db/migrations')
-    def migrationsOutput = fileTree('build/classes/generated/java/space/npstr/wolfia/db/gen')
-
-    flyway {
-        tasks.withType(org.flywaydb.gradle.task.AbstractFlywayTask).configureEach {
-            inputs.files(migrationsInput)
-                    .withPropertyName("flywayMigrationsInput")
-                    .withPathSensitivity(PathSensitivity.RELATIVE)
-            outputs.files(migrationsOutput)
-                    .withPropertyName("flywayMigrationsOutput")
-        }
-        flywayMigrate {
-            doFirst {
-                // running these manually in a doFirst closure ensures that they are not executed all the time
-                // currently there is no better way of running tasks optionally that another task depends on
-                pullCodegenDbContainer.start()
-                stopCodegenDbContainerPre.start()
-                createCodegenDbContainer.start()
-                startCodegenDbContainer.start()
-                awaitCodegenDbContainer.start()
-            }
-        }
-
-        url = "$codegenJdbcUrl"
-        locations = ['filesystem:src/main/resources/db/migrations']
-        configurations = ['flywayMigration']
-    }
-
-    jooq {
-        version = jooqVersion
-        edition = nu.studer.gradle.jooq.JooqEdition.OSS
-        configurations {
-            main {
-                generationTool {
-                    logging = org.jooq.meta.jaxb.Logging.WARN
-                    jdbc {
-                        driver = 'org.postgresql.Driver'
-                        url = "$codegenJdbcUrl"
-                    }
-                    generator {
-                        name = 'org.jooq.codegen.DefaultGenerator'
-                        strategy {
-                            name = 'org.jooq.codegen.DefaultGeneratorStrategy'
-                        }
-                        database {
-                            name = 'org.jooq.meta.postgres.PostgresDatabase'
-                            inputSchema = 'public'
-                            forcedTypes {
-                                forcedType {
-                                    userType = 'space.npstr.wolfia.db.type.OAuth2Scope[]'
-                                    converter = 'space.npstr.wolfia.db.converter.OAuth2ScopeEnumArrayConverter'
-                                    includeExpression = '.*'
-                                    includeTypes = '_OAuth2Scope'
-                                }
-                                forcedType {
-                                    userType = 'java.util.HashMap<java.lang.String, java.lang.String>'
-                                    binding = 'space.npstr.wolfia.db.PostgresHstoreBinding'
-                                    includeExpression = '.*'
-                                    includeTypes = 'hstore'
-                                }
-                                forcedType {
-                                    userType = 'java.time.Instant'
-                                    converter = '''
-                                org.jooq.Converter.ofNullable(
-                                java.time.OffsetDateTime.class,
-                                java.time.Instant.class,
-                                o -> o.toInstant(),
-                                i -> i.atOffset(java.time.ZoneOffset.UTC))
-                             '''
-                                    includeTypes = 'timestamp\\ with\\ time\\ zone'
-                                }
-                                forcedType {
-                                    userType = 'java.net.URI'
-                                    converter = 'space.npstr.wolfia.db.converter.UriConverter'
-                                    includeExpression = '.*link'
-                                    includeTypes = 'text'
-                                }
-                            }
-                        }
-                        target {
-                            packageName = 'space.npstr.wolfia.db.gen'
-                            directory = 'build/classes/generated/java'
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    generateJooq {
-        allInputsDeclared.set(true)
-        inputs.files(migrationsInput)
-                .withPropertyName('jooqMigrationsInput')
-                .withPathSensitivity(PathSensitivity.RELATIVE)
-        outputs.files(migrationsOutput)
-                .withPropertyName('jooqMigrationsOutput')
-        dependsOn(flywayMigrate)
-        doLast {
-            stopCodegenDbContainerPost.start()
-        }
-    }
-
-    test {
-        dependsOn(flywayMigrate)
-        doLast {
-            stopCodegenDbContainerPost.start()
-        }
-    }
-}
-
 project(':frontend') {
     apply plugin: 'org.siouan.frontend-jdk11'
 
@@ -438,8 +261,15 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'org.jetbrains.kotlin.plugin.spring'
 apply plugin: 'kotlin'
 apply plugin: 'org.sonarqube'
+// db / codegen plugins
+apply plugin: 'org.flywaydb.flyway'
+apply plugin: 'nu.studer.jooq'
+apply plugin: 'com.bmuschko.docker-remote-api'
+
 
 configurations {
+    flywayMigration
+
     // fucks with spring boot jar, we dont need it anyways
     // be VERY careful and test the produced jar if ever reenabled
     compile.exclude module: 'opus-java'
@@ -449,8 +279,17 @@ configurations {
     implementation.exclude module: 'spring-boot-starter-tomcat'
 }
 
+ext {
+    codegenDbImageRepo = 'napstr/poggres'
+    codegenDbImageTag = "$postgresVersion"
+    codegenDbImageName = codegenDbImageRepo + ':' + codegenDbImageTag
+    codegenDbContainerName = 'wolfia-codegen-postgres'
+    codegenJdbcUrl = "jdbc:postgresql://127.0.0.1:5435/codegen?user=codegen"
+}
+
 dependencies {
-    implementation project(':database-codegen')
+    flywayMigration platform(project(':platform'))
+    jooqGenerator platform(project(':platform'))
 
     implementation "net.dv8tion:JDA"
     implementation "club.minnced:discord-webhooks"
@@ -477,8 +316,16 @@ dependencies {
     implementation "io.prometheus:simpleclient_caffeine"
     implementation "space.npstr:prometheus_extensions"
 
-    implementation "net.ttddyy:datasource-proxy"
+    implementation "org.postgresql:postgresql"
+    implementation "com.zaxxer:HikariCP"
     implementation "org.flywaydb:flyway-core"
+    implementation "net.ttddyy:datasource-proxy"
+
+    implementation "org.jooq:jooq"
+    implementation "org.jooq:jooq-codegen"
+    implementation "org.jooq:jooq-meta"
+    flywayMigration "org.postgresql:postgresql"
+    jooqGenerator "org.postgresql:postgresql"
 
     implementation "org.togglz:togglz-core"
     implementation "org.togglz:togglz-spring-boot-starter"
@@ -563,6 +410,44 @@ bootJar {
     archiveFileName = "wolfia.jar"
 }
 
+tasks.register('pullCodegenDbContainer', DockerPullImage) {
+    image.set(codegenDbImageName)
+}
+
+tasks.register('createCodegenDbContainer', DockerCreateContainer) {
+    dependsOn pullCodegenDbContainer
+    targetImageId(codegenDbImageName)
+    containerName.set(codegenDbContainerName)
+    hostConfig.autoRemove.set(true)
+    hostConfig.portBindings.set(['127.0.0.1:5435:5432'])
+    healthCheck.interval.set(1000 * 1_000_000L) // nanoseconds.....
+    withEnvVar('POSTGRES_HOST_AUTH_METHOD', 'trust')
+    withEnvVar('ROLE', 'codegen')
+    withEnvVar('DB', 'codegen')
+    withEnvVar('EXTENSIONS', 'hstore')
+}
+
+tasks.register('stopCodegenDbContainerPre', StopCodegenDbContainer) {
+    targetContainerId codegenDbContainerName
+}
+
+tasks.register('stopCodegenDbContainerPost', StopCodegenDbContainer) {
+    targetContainerId codegenDbContainerName
+}
+
+
+tasks.register('startCodegenDbContainer', DockerStartContainer) {
+    createCodegenDbContainer.mustRunAfter stopCodegenDbContainerPre
+    dependsOn(stopCodegenDbContainerPre, createCodegenDbContainer)
+    targetContainerId codegenDbContainerName
+}
+
+tasks.register('awaitCodegenDbContainer', DockerWaitHealthyContainer) {
+    dependsOn startCodegenDbContainer
+    targetContainerId codegenDbContainerName
+    awaitStatusTimeout.set(40)
+}
+
 //need two of these tasks, otherwise gradle complains about circular dependencies
 class StopCodegenDbContainer extends DockerStopContainer {
     StopCodegenDbContainer() {
@@ -572,6 +457,115 @@ class StopCodegenDbContainer extends DockerStopContainer {
                     && !exception.message.contains('No such container'))
                 throw exception
         }
+    }
+}
+
+def migrationsInput = fileTree('src/main/resources/db/migrations')
+def migrationsOutput = fileTree('build/classes/generated/java/space/npstr/wolfia/db/gen')
+
+flyway {
+    tasks.withType(org.flywaydb.gradle.task.AbstractFlywayTask).configureEach {
+        inputs.files(migrationsInput)
+                .withPropertyName("flywayMigrationsInput")
+                .withPathSensitivity(PathSensitivity.RELATIVE)
+        outputs.files(migrationsOutput)
+                .withPropertyName("flywayMigrationsOutput")
+    }
+    flywayMigrate {
+        doFirst {
+            // running these manually in a doFirst closure ensures that they are not executed all the time
+            // currently there is no better way of running tasks optionally that another task depends on
+            pullCodegenDbContainer.start()
+            stopCodegenDbContainerPre.start()
+            createCodegenDbContainer.start()
+            startCodegenDbContainer.start()
+            awaitCodegenDbContainer.start()
+        }
+    }
+
+    url = "$codegenJdbcUrl"
+    locations = ['filesystem:src/main/resources/db/migrations']
+    configurations = ['flywayMigration']
+}
+
+jooq {
+    version = jooqVersion
+    edition = nu.studer.gradle.jooq.JooqEdition.OSS
+    configurations {
+        main {
+            generationTool {
+                logging = org.jooq.meta.jaxb.Logging.WARN
+                jdbc {
+                    driver = 'org.postgresql.Driver'
+                    url = "$codegenJdbcUrl"
+                }
+                generator {
+                    name = 'org.jooq.codegen.DefaultGenerator'
+                    strategy {
+                        name = 'org.jooq.codegen.DefaultGeneratorStrategy'
+                    }
+                    database {
+                        name = 'org.jooq.meta.postgres.PostgresDatabase'
+                        inputSchema = 'public'
+                        forcedTypes {
+                            forcedType {
+                                userType = 'space.npstr.wolfia.db.type.OAuth2Scope[]'
+                                converter = 'space.npstr.wolfia.db.converter.OAuth2ScopeEnumArrayConverter'
+                                includeExpression = '.*'
+                                includeTypes = '_OAuth2Scope'
+                            }
+                            forcedType {
+                                userType = 'java.util.HashMap<java.lang.String, java.lang.String>'
+                                binding = 'space.npstr.wolfia.db.PostgresHstoreBinding'
+                                includeExpression = '.*'
+                                includeTypes = 'hstore'
+                            }
+                            forcedType {
+                                userType = 'java.time.Instant'
+                                converter = '''
+                                org.jooq.Converter.ofNullable(
+                                java.time.OffsetDateTime.class,
+                                java.time.Instant.class,
+                                o -> o.toInstant(),
+                                i -> i.atOffset(java.time.ZoneOffset.UTC))
+                             '''
+                                includeTypes = 'timestamp\\ with\\ time\\ zone'
+                            }
+                            forcedType {
+                                userType = 'java.net.URI'
+                                converter = 'space.npstr.wolfia.db.converter.UriConverter'
+                                includeExpression = '.*link'
+                                includeTypes = 'text'
+                            }
+                        }
+                    }
+                    target {
+                        packageName = 'space.npstr.wolfia.db.gen'
+                        directory = 'build/classes/generated/java'
+                    }
+                }
+            }
+        }
+    }
+}
+
+generateJooq {
+    allInputsDeclared.set(true)
+    inputs.files(migrationsInput)
+            .withPropertyName('jooqMigrationsInput')
+            .withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.files(migrationsOutput)
+            .withPropertyName('jooqMigrationsOutput')
+    dependsOn(flywayMigrate)
+    doLast {
+        stopCodegenDbContainerPost.start()
+    }
+}
+
+test {
+    dependsOn(flywayMigrate)
+    doLast {
+        stopCodegenDbContainerPost.start()
     }
 }
 

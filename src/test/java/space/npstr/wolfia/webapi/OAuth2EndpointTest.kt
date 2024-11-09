@@ -16,6 +16,9 @@
  */
 package space.npstr.wolfia.webapi
 
+import java.net.URI
+import java.time.OffsetDateTime
+import java.util.EnumSet
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,9 +36,6 @@ import space.npstr.wolfia.domain.oauth2.AccessTokenResponse
 import space.npstr.wolfia.domain.oauth2.AuthState
 import space.npstr.wolfia.domain.oauth2.AuthStateCache
 import space.npstr.wolfia.domain.oauth2.DiscordRequestFailedException
-import java.net.URI
-import java.time.OffsetDateTime
-import java.util.EnumSet
 
 internal class OAuth2EndpointTest : ApplicationTest() {
 

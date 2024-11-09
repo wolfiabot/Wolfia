@@ -98,7 +98,7 @@ We deploy a customized [Docker image](docker/database/Dockerfile) that contains 
 extensions as well as backup scripts to back up the data to [Backblaze B2](https://www.backblaze.com/b2).
 
 ##### Flyway & jOOQ
-[Database schema migrations](database-codegen/src/main/resources/db/migrations) are handled by [Flyway](https://flywaydb.org/).
+[Database schema migrations](src/main/resources/db/migrations) are handled by [Flyway](https://flywaydb.org/).
 
 [jOOQ](https://www.jooq.org/) is used for database querying.
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2023 the original author or authors
+ * Copyright (C) 2016-2024 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,12 +17,11 @@
 
 package space.npstr.wolfia.db.converter;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.jooq.Converter;
 import space.npstr.wolfia.db.gen.enums.Oauth2scope;
 import space.npstr.wolfia.db.type.OAuth2Scope;
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 public class OAuth2ScopeEnumArrayConverter implements Converter<Oauth2scope[], OAuth2Scope[]> {
 
