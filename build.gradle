@@ -55,7 +55,7 @@ ext {
     isProd = project.hasProperty('prod')
 }
 
-configure(allprojects.findAll { it.name != 'platform' }) {
+configure(allprojects) {
     apply plugin: 'java-library'
     apply plugin: 'idea'
 
@@ -70,12 +70,6 @@ configure(allprojects.findAll { it.name != 'platform' }) {
             testSources.from(sourceSets.test.output.generatedSourcesDirs)
             generatedSourceDirs += sourceSets.test.output.generatedSourcesDirs
         }
-    }
-
-    dependencies {
-        api platform(project(':platform'))
-        annotationProcessor platform(project(':platform'))
-        compileOnly platform(project(':platform'))
     }
 }
 
@@ -178,42 +172,28 @@ allprojects {
     }
 
     defaultTasks 'build'
-}
 
-project(':platform') {
-    apply plugin: 'java-platform'
-    javaPlatform {
-        allowDependencies()
-    }
-    dependencies {
-        api platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
-        api platform("io.prometheus:simpleclient_bom:$prometheusVersion")
-        api platform("io.sentry:sentry-bom:$sentryVersion")
-        constraints {
-            api "net.dv8tion:JDA:$jdaVersion"
-            api "club.minnced:discord-webhooks:$discordWebhooksVersion"
-            api "org.json:json:$orgJsonVersion"
-            api "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
-            api "org.glassfish.jaxb:jaxb-core:$jaxbImplVersion"
-            api "org.glassfish.jaxb:jaxb-runtime:$jaxbImplVersion"
-            api "org.openjdk.nashorn:nashorn-core:$nashornVersion"
-
-            api "space.npstr:prometheus_extensions:$promExtVersion"
-
-            api "net.ttddyy:datasource-proxy:$dsProxyVersion"
-            api "org.flywaydb:flyway-core:$flywayVersion"
-            api "org.jooq:jooq:$jooqVersion"
-            api "org.jooq:jooq-meta:$jooqVersion"
-            api "org.jooq:jooq-codegen:$jooqVersion"
-
-            api "org.togglz:togglz-core:$togglzVersion"
-            api "org.togglz:togglz-spring-boot-starter:$togglzVersion"
-            api "org.togglz:togglz-console:$togglzVersion"
-            api "org.togglz:togglz-spring-security:$togglzVersion"
-
-            api "com.codeborne:selenide:$selenideVersion"
-            api "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
+    configurations {
+        globalPlatforms {
+            canBeResolved = false
+            canBeConsumed = false
         }
+
+        //we want to go with undertow which supports both webflux and servlets (togglz console is a servlet)
+        implementation.exclude module: "spring-boot-starter-reactor-netty"
+        implementation.exclude module: "spring-boot-starter-tomcat"
+    }
+
+    configurations.configureEach {
+        if (canBeResolved) {
+            extendsFrom(configurations.globalPlatforms)
+        }
+    }
+
+    dependencies {
+        globalPlatforms platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
+        globalPlatforms platform("io.prometheus:simpleclient_bom:$prometheusVersion")
+        globalPlatforms platform("io.sentry:sentry-bom:$sentryVersion")
     }
 }
 
@@ -288,11 +268,8 @@ ext {
 }
 
 dependencies {
-    flywayMigration platform(project(':platform'))
-    jooqGenerator platform(project(':platform'))
-
-    implementation "net.dv8tion:JDA"
-    implementation "club.minnced:discord-webhooks"
+    implementation "net.dv8tion:JDA:$jdaVersion"
+    implementation "club.minnced:discord-webhooks:$discordWebhooksVersion"
 
     implementation "ch.qos.logback:logback-classic"
     implementation "io.sentry:sentry-logback"
@@ -302,8 +279,8 @@ dependencies {
     implementation "org.yaml:snakeyaml"
     implementation "com.squareup.okhttp3:okhttp"
     implementation "com.github.ben-manes.caffeine:caffeine"
-    implementation "org.json:json"
-    implementation "org.openjdk.nashorn:nashorn-core"
+    implementation "org.json:json:$orgJsonVersion"
+    implementation "org.openjdk.nashorn:nashorn-core:$nashornVersion"
 
     implementation "io.lettuce:lettuce-core"
     implementation(group: "io.netty", name: "netty-transport-native-epoll", classifier: "linux-x86_64")
@@ -314,23 +291,26 @@ dependencies {
     implementation "io.prometheus:simpleclient_logback"
     implementation "io.prometheus:simpleclient_common"
     implementation "io.prometheus:simpleclient_caffeine"
-    implementation "space.npstr:prometheus_extensions"
+    implementation "space.npstr:prometheus_extensions:$promExtVersion"
 
     implementation "org.postgresql:postgresql"
     implementation "com.zaxxer:HikariCP"
-    implementation "org.flywaydb:flyway-core"
-    implementation "net.ttddyy:datasource-proxy"
+    implementation "org.flywaydb:flyway-core:$flywayVersion"
+    implementation "net.ttddyy:datasource-proxy:$dsProxyVersion"
 
-    implementation "org.jooq:jooq"
-    implementation "org.jooq:jooq-codegen"
-    implementation "org.jooq:jooq-meta"
+    implementation "org.jooq:jooq:$jooqVersion"
+    implementation "org.jooq:jooq-codegen:$jooqVersion"
+    implementation "org.jooq:jooq-meta:$jooqVersion"
     flywayMigration "org.postgresql:postgresql"
+    jooqGenerator "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
+    jooqGenerator "org.glassfish.jaxb:jaxb-core:$jaxbImplVersion"
+    jooqGenerator "org.glassfish.jaxb:jaxb-runtime:$jaxbImplVersion"
     jooqGenerator "org.postgresql:postgresql"
 
-    implementation "org.togglz:togglz-core"
-    implementation "org.togglz:togglz-spring-boot-starter"
-    implementation "org.togglz:togglz-console"
-    implementation "org.togglz:togglz-spring-security"
+    implementation "org.togglz:togglz-core:$togglzVersion"
+    implementation "org.togglz:togglz-spring-boot-starter:$togglzVersion"
+    implementation "org.togglz:togglz-console:$togglzVersion"
+    implementation "org.togglz:togglz-spring-security:$togglzVersion"
 
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-undertow"
@@ -355,8 +335,8 @@ dependencies {
     testImplementation "org.springframework.security:spring-security-test"
     testImplementation "org.testcontainers:testcontainers"
     testImplementation "org.testcontainers:selenium"
-    testImplementation "com.codeborne:selenide"
-    testImplementation "org.mockito.kotlin:mockito-kotlin"
+    testImplementation "com.codeborne:selenide:$selenideVersion"
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
     testImplementation "org.awaitility:awaitility"
 }
 
