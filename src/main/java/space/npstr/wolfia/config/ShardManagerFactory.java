@@ -39,7 +39,7 @@ import space.npstr.wolfia.utils.Memoizer;
 import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGE_REACTIONS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.DIRECT_MESSAGE_TYPING;
-import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EMOJIS_AND_STICKERS;
+import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_EXPRESSIONS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MEMBERS;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGES;
 import static net.dv8tion.jda.api.requests.GatewayIntent.GUILD_MESSAGE_REACTIONS;
@@ -61,7 +61,7 @@ public class ShardManagerFactory {
 
     private static final List<GatewayIntent> GATEWAY_INTENTS = List.of(
             //GUILDS, not supported to be turned off by JDA, listed for documentation.
-            GUILD_EMOJIS_AND_STICKERS, // we use some custom ones, and usage will likely grow bigger in the future, so its a good idea to stay up to date with these
+            GUILD_EXPRESSIONS, // we use some custom emojis, and usage will likely grow bigger in the future, so its a good idea to stay up to date with these
             GUILD_MESSAGES, // process messages in guilds
             DIRECT_MESSAGES, // we have some in-game roles that send their commands in DMs
             GUILD_MESSAGE_REACTIONS, // some reactions are used, for example when voting in the wolf chat
