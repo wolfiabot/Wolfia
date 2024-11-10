@@ -20,12 +20,12 @@ package space.npstr.wolfia.domain.room;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.Database;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -40,12 +40,12 @@ class PrivateRoomServiceTest extends ApplicationTest {
     private PrivateRoomRepository repository;
 
     @Autowired
-    private Database database;
+    private DSLContext jooq;
 
     @BeforeEach
     @AfterEach
     void cleanDbTable() {
-        this.database.jooq().transactionResult(config -> config.dsl()
+        this.jooq.transactionResult(config -> config.dsl()
                 .deleteFrom(PRIVATE_ROOM)
                 .execute()
         );

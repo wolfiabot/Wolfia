@@ -20,11 +20,11 @@ package space.npstr.wolfia.domain.ban;
 
 import java.util.List;
 import java.util.function.Consumer;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.Database;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -36,12 +36,12 @@ class BanServiceTest extends ApplicationTest {
     private BanService banService;
 
     @Autowired
-    private Database database;
+    private DSLContext jooq;
 
 
     @BeforeEach
     void setup() {
-        this.database.jooq().transactionResult(config -> config.dsl()
+        this.jooq.transactionResult(config -> config.dsl()
                 .deleteFrom(DISCORD_USER)
                 .execute()
         );

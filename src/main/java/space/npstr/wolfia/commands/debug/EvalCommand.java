@@ -30,7 +30,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
-import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
@@ -47,7 +46,6 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
 
     private final ExceptionLoggingExecutor executor;
     private final GameRegistry gameRegistry;
-    private final Database database;
     private ApplicationContext applicationContext;
 
     private Future<?> lastTask;
@@ -55,10 +53,9 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
     //Thanks Fred & Dinos!
     private final ScriptEngine engine;
 
-    public EvalCommand(ExceptionLoggingExecutor executor, GameRegistry gameRegistry, Database database) {
+    public EvalCommand(ExceptionLoggingExecutor executor, GameRegistry gameRegistry) {
         this.executor = executor;
         this.gameRegistry = gameRegistry;
-        this.database = database;
         this.engine = new ScriptEngineManager().getEngineByName("nashorn");
         try {
             this.engine.eval("var imports = new JavaImporter("
@@ -131,7 +128,6 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
         this.engine.put("guild", guild.orElse(null));
         this.engine.put("game", this.gameRegistry.get(context.channel.getIdLong()));
         this.engine.put("games", this.gameRegistry);
-        this.engine.put("db", this.database);
         this.engine.put("app", this.applicationContext);
 
         Future<?> future = this.executor.submit(() -> {

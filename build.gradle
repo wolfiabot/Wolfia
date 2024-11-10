@@ -314,6 +314,7 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "org.springframework.boot:spring-boot-starter-jdbc"
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
@@ -440,7 +441,7 @@ class StopCodegenDbContainer extends DockerStopContainer {
     }
 }
 
-def migrationsInput = fileTree('src/main/resources/db/migrations')
+def migrationsInput = fileTree('src/main/resources/db/migration')
 def migrationsOutput = fileTree('build/classes/generated/java/space/npstr/wolfia/db/gen')
 
 flyway {
@@ -464,7 +465,7 @@ flyway {
     }
 
     url = "$codegenJdbcUrl"
-    locations = ['filesystem:src/main/resources/db/migrations']
+    locations = ['filesystem:src/main/resources/db/migration']
     configurations = ['flywayMigration']
 }
 

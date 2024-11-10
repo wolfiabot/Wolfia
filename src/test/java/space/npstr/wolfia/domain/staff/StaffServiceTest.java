@@ -26,12 +26,12 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.gen.enums.StaffFunction;
 import space.npstr.wolfia.domain.UserCache;
 
@@ -46,7 +46,7 @@ import static space.npstr.wolfia.db.gen.Tables.STAFF_MEMBER;
 class StaffServiceTest extends ApplicationTest {
 
     @Autowired
-    private Database database;
+    private DSLContext jooq;
 
     @Autowired
     private StaffService staffService;
@@ -63,7 +63,7 @@ class StaffServiceTest extends ApplicationTest {
 
     @BeforeEach
     void setup() {
-        this.database.jooq().transactionResult(config -> config.dsl()
+        this.jooq.transactionResult(config -> config.dsl()
                 .deleteFrom(STAFF_MEMBER)
                 .execute()
         );

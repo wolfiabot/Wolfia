@@ -20,10 +20,10 @@ package space.npstr.wolfia.domain.staff;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.gen.enums.StaffFunction;
 import space.npstr.wolfia.db.gen.tables.records.StaffMemberRecord;
 
@@ -37,7 +37,7 @@ class StaffRepositoryTest extends ApplicationTest {
     private StaffRepository repo;
 
     @Autowired
-    private Database database;
+    private DSLContext jooq;
 
 
     @Test
@@ -62,7 +62,7 @@ class StaffRepositoryTest extends ApplicationTest {
 
     @Test
     void givenNoRecords_whenFetchAllStaffMembers_shouldBeEmpty() {
-        database.jooq().transactionResult(config -> config.dsl()
+        jooq.transactionResult(config -> config.dsl()
                 .deleteFrom(STAFF_MEMBER)
                 .execute()
         );
@@ -75,7 +75,7 @@ class StaffRepositoryTest extends ApplicationTest {
 
     @Test
     void givenSomeRecords_whenFetchAllStaffMembers_shoulContainRecords() {
-        database.jooq().transactionResult(config -> config.dsl()
+        jooq.transactionResult(config -> config.dsl()
                 .deleteFrom(STAFF_MEMBER)
                 .execute()
         );

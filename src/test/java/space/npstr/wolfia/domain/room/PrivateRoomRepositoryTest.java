@@ -17,12 +17,12 @@
 
 package space.npstr.wolfia.domain.room;
 
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.Database;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
@@ -34,12 +34,12 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
     private PrivateRoomRepository repository;
 
     @Autowired
-    private Database database;
+    private DSLContext jooq;
 
     @BeforeEach
     @AfterEach
     void cleanDbTable() {
-        this.database.jooq().transactionResult(config -> config.dsl()
+        this.jooq.transactionResult(config -> config.dsl()
                 .deleteFrom(PRIVATE_ROOM)
                 .execute()
         );
@@ -146,7 +146,7 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
     private long preparePrivateRoom(int number) {
         long guildId = uniqueLong();
 
-        this.database.jooq().transactionResult(config -> config.dsl()
+        this.jooq.transactionResult(config -> config.dsl()
                 .insertInto(PRIVATE_ROOM)
                 .columns(PRIVATE_ROOM.GUILD_ID, PRIVATE_ROOM.NR)
                 .values(guildId, number)

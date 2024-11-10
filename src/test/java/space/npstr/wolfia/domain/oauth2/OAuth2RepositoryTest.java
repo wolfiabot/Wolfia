@@ -24,12 +24,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import org.jooq.DSLContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
-import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.db.type.OAuth2Scope;
 
 import static java.time.OffsetDateTime.now;
@@ -54,12 +54,12 @@ class OAuth2RepositoryTest extends ApplicationTest {
     private OAuth2Repository repository;
 
     @Autowired
-    private Database database;
+    private DSLContext jooq;
 
     @BeforeEach
     @AfterEach
     void cleanDbTable() {
-        this.database.jooq().transactionResult(config -> config.dsl()
+        this.jooq.transactionResult(config -> config.dsl()
                 .deleteFrom(OAUTH2)
                 .execute()
         );

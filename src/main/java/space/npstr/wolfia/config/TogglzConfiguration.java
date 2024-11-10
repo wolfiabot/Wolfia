@@ -19,6 +19,7 @@ package space.npstr.wolfia.config;
 
 import java.time.Clock;
 import java.time.Duration;
+import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.togglz.core.logging.LoggingStateRepository;
@@ -26,7 +27,6 @@ import org.togglz.core.repository.StateRepository;
 import org.togglz.core.repository.composite.CompositeStateRepository;
 import org.togglz.core.user.UserProvider;
 import org.togglz.spring.security.SpringSecurityUserProvider;
-import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.system.togglz.ExceptionTolerantCachingStateRepo;
 import space.npstr.wolfia.system.togglz.PostgresJdbcStateRepo;
 import space.npstr.wolfia.system.togglz.StatusLoggingStateRepo;
@@ -36,8 +36,8 @@ import space.npstr.wolfia.webapi.Authorization;
 public class TogglzConfiguration {
 
     @Bean
-    public StateRepository stateRepository(Database database, Clock clock, StatusLoggingStateRepo statusLoggingStateRepo) {
-        var jdbcStateRepository = new PostgresJdbcStateRepo(database.getConnection().getDataSource());
+    public StateRepository stateRepository(DataSource dataSource, Clock clock, StatusLoggingStateRepo statusLoggingStateRepo) {
+        var jdbcStateRepository = new PostgresJdbcStateRepo(dataSource);
         Duration ttl = Duration.ofMinutes(1);
         Duration stalePeriod = Duration.ofMinutes(1);
         var cachingJdbcStateRepo = new ExceptionTolerantCachingStateRepo(jdbcStateRepository,

@@ -16,25 +16,25 @@
  */
 package space.npstr.wolfia.domain.room
 
+import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
-import space.npstr.wolfia.db.Database
 import space.npstr.wolfia.db.gen.Tables
 
 @Repository
 internal class PrivateRoomRepository(
-	private val database: Database,
+	private val jooq: DSLContext,
 ) {
 
 	fun findOneByGuildId(guildId: Long): PrivateRoom? {
-		return database.jooq()
+		return jooq
 			.selectFrom(Tables.PRIVATE_ROOM)
 			.where(Tables.PRIVATE_ROOM.GUILD_ID.eq(guildId))
 			.fetchOneInto(PrivateRoom::class.java)
 	}
 
 	fun findAll(): List<PrivateRoom> {
-		return database.jooq()
+		return jooq
 			.selectFrom(Tables.PRIVATE_ROOM)
 			.orderBy(Tables.PRIVATE_ROOM.NR.asc())
 			.fetchInto(PrivateRoom::class.java)
@@ -44,7 +44,7 @@ internal class PrivateRoomRepository(
 	// this can probably be written in a single query but why bother, race conditions are not expected for registering
 	fun insert(guildId: Long): PrivateRoom? {
 		val firstFreeNumber = getFirstFreeNumber()
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.PRIVATE_ROOM)
 				.columns(Tables.PRIVATE_ROOM.GUILD_ID, Tables.PRIVATE_ROOM.NR)
@@ -63,7 +63,6 @@ internal class PrivateRoomRepository(
 
 		val a = Tables.PRIVATE_ROOM.`as`("a")
 		val b = Tables.PRIVATE_ROOM.`as`("b")
-		val jooq = database.jooq()
 		return jooq
 			.select(a.NR.add(1))
 			.from(a)
@@ -79,7 +78,7 @@ internal class PrivateRoomRepository(
 	}
 
 	private fun numberOneExists(): Boolean {
-		return database.jooq()
+		return jooq
 			.select(DSL.value(1))
 			.from(Tables.PRIVATE_ROOM)
 			.where(Tables.PRIVATE_ROOM.NR.eq(1))

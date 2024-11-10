@@ -29,7 +29,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.config.ShardManagerFactory;
-import space.npstr.wolfia.db.Database;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.events.BotStatusLogger;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
@@ -49,7 +48,6 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
     private static final Thread DUMMY_HOOK = new Thread("dummy-hook");
     private final BotStatusLogger botStatusLogger;
     private final ExceptionLoggingExecutor executor;
-    private final Database database;
     private final ShardManagerFactory shardManagerFactory;
     private final GameRegistry gameRegistry;
     private final Redis redis;
@@ -57,12 +55,11 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
 
     private boolean shuttingDown = false;
 
-    public ShutdownHandler(BotStatusLogger botStatusLogger, ExceptionLoggingExecutor executor, Database database,
+    public ShutdownHandler(BotStatusLogger botStatusLogger, ExceptionLoggingExecutor executor,
                            ShardManagerFactory shardManagerFactory, GameRegistry gameRegistry,
                            Redis redis, @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool) {
         this.botStatusLogger = botStatusLogger;
         this.executor = executor;
-        this.database = database;
         this.shardManagerFactory = shardManagerFactory;
         this.gameRegistry = gameRegistry;
         this.redis = redis;
@@ -148,10 +145,6 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
             log.warn("Interrupted while awaiting executors termination", e);
             Thread.currentThread().interrupt();
         }
-
-        //shutdown DB connection
-        log.info("Shutting down database connection");
-        database.shutdown();
 
         //shutdown Redis connection
         log.info("Shutting down redis connection");

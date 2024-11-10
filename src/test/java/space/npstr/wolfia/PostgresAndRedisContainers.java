@@ -46,7 +46,7 @@ public abstract class PostgresAndRedisContainers {
         String host = DB.getHost();
         int port = DB.getMappedPort(5432);
         String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/wolfia_test?user=wolfia_test";
-        System.setProperty("database.jdbcUrl", jdbcUrl);
+        System.setProperty("spring.datasource.url", jdbcUrl);
     }
 
 

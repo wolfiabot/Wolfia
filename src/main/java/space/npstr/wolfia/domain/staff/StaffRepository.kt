@@ -17,9 +17,9 @@
 package space.npstr.wolfia.domain.staff
 
 import java.net.URI
+import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
-import space.npstr.wolfia.db.Database
 import space.npstr.wolfia.db.gen.Tables
 import space.npstr.wolfia.db.gen.enums.StaffFunction
 import space.npstr.wolfia.db.gen.tables.records.StaffMemberRecord
@@ -29,24 +29,24 @@ import space.npstr.wolfia.db.gen.tables.records.StaffMemberRecord
  */
 @Repository
 internal class StaffRepository(
-	private val database: Database,
+	private val jooq: DSLContext,
 ) {
 
 	fun getStaffMember(userId: Long): StaffMemberRecord? {
-		return database.jooq()
+		return jooq
 			.selectFrom(Tables.STAFF_MEMBER)
 			.where(Tables.STAFF_MEMBER.USER_ID.eq(userId))
 			.fetchOne()
 	}
 
 	fun fetchAllStaffMembers(): List<StaffMemberRecord> {
-		return database.jooq()
+		return jooq
 			.selectFrom(Tables.STAFF_MEMBER)
 			.fetch()
 	}
 
 	fun updateOrCreateStaffMemberFunction(userId: Long, staffFunction: StaffFunction): StaffMemberRecord {
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.STAFF_MEMBER)
 				.columns(Tables.STAFF_MEMBER.USER_ID, Tables.STAFF_MEMBER.FUNCTION)
@@ -59,7 +59,7 @@ internal class StaffRepository(
 	}
 
 	fun updateSlogan(userId: Long, slogan: String?): StaffMemberRecord? {
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.update(Tables.STAFF_MEMBER)
 				.set(Tables.STAFF_MEMBER.SLOGAN, slogan)
@@ -70,7 +70,7 @@ internal class StaffRepository(
 	}
 
 	fun updateLink(userId: Long, link: URI?): StaffMemberRecord? {
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.update(Tables.STAFF_MEMBER)
 				.set(Tables.STAFF_MEMBER.LINK, link)
@@ -81,7 +81,7 @@ internal class StaffRepository(
 	}
 
 	fun updateEnabled(userId: Long, enabled: Boolean): StaffMemberRecord? {
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.update(Tables.STAFF_MEMBER)
 				.set(Tables.STAFF_MEMBER.ENABLED, enabled)
@@ -92,7 +92,7 @@ internal class StaffRepository(
 	}
 
 	fun updateAllActive(activeStaff: Collection<Long>) {
-		database.jooq().transaction { config ->
+		jooq.transaction { config ->
 			config.dsl()
 				.update(Tables.STAFF_MEMBER)
 				.set(Tables.STAFF_MEMBER.ACTIVE, true)
