@@ -19,13 +19,12 @@ package space.npstr.wolfia.domain.oauth2;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector;
-import org.springframework.stereotype.Component;
-
-import org.springframework.lang.Nullable;
+import io.prometheus.metrics.instrumentation.caffeine.CacheMetricsCollector;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Component;
 
 /**
  * This component serves two purposes: It secures the OAuth2 flow (see https://discord.com/developers/docs/topics/oauth2#state-and-security)

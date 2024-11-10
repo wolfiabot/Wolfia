@@ -193,7 +193,6 @@ allprojects {
 
     dependencies {
         globalPlatforms platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
-        globalPlatforms platform("io.prometheus:simpleclient_bom:$prometheusVersion")
         globalPlatforms platform("io.sentry:sentry-bom:$sentryVersion")
     }
 }
@@ -287,13 +286,11 @@ dependencies {
     implementation(group: "io.netty", name: "netty-transport-native-epoll", classifier: "linux-x86_64")
     implementation(group: "io.netty", name: "netty-transport-native-kqueue", classifier: "osx-x86_64")
 
-    implementation "io.prometheus:simpleclient"
-    implementation "io.prometheus:simpleclient_hotspot"
-    implementation "io.prometheus:simpleclient_logback"
-    implementation "io.prometheus:simpleclient_common"
-    implementation "io.prometheus:simpleclient_caffeine"
-    implementation "space.npstr:prometheus_extensions:$promExtVersion"
-    implementation "io.micrometer:micrometer-registry-prometheus-simpleclient"
+    // not part of v1.3.2 BOM for some reason
+    implementation "io.prometheus:prometheus-metrics-instrumentation-caffeine:$prometheusClientVersion"
+    implementation "io.prometheus:prometheus-metrics-instrumentation-jvm"
+    implementation "space.npstr:prometheus_extensions:$prometheusExtensionsVersion"
+    implementation "io.micrometer:micrometer-registry-prometheus"
 
     implementation "org.postgresql:postgresql"
     implementation "com.zaxxer:HikariCP"

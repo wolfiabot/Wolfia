@@ -67,7 +67,7 @@ public class PrivateRoomQueue {
 
     public ManagedPrivateRoom take() throws InterruptedException {
         ManagedPrivateRoom room = this.availablePrivateRoomQueue.take();
-        metricsService.availablePrivateRooms.set(this.availableRoomsAmount());
+        metricsService.availablePrivateRooms().set(this.availableRoomsAmount());
         if (room.isInUse()) {
             log.warn("Got a room that is still in use: {}", room);
         }
@@ -80,7 +80,7 @@ public class PrivateRoomQueue {
             if (room.isInUse()) {
                 log.warn("Got a room that is still in use: {}", room);
             }
-            metricsService.availablePrivateRooms.set(this.availableRoomsAmount());
+            metricsService.availablePrivateRooms().set(this.availableRoomsAmount());
         }
         return Optional.ofNullable(room);
     }
@@ -97,14 +97,14 @@ public class PrivateRoomQueue {
         }
 
         this.availablePrivateRoomQueue.add(room);
-        metricsService.availablePrivateRooms.set(this.availableRoomsAmount());
+        metricsService.availablePrivateRooms().set(this.availableRoomsAmount());
     }
 
     public ManagedPrivateRoom add(PrivateRoom privateRoom) {
         ManagedPrivateRoom managedPrivateRoom = new ManagedPrivateRoom(shardManager, privateRoom, this);
         this.allManagedRooms.add(managedPrivateRoom);
         this.availablePrivateRoomQueue.add(managedPrivateRoom);
-        metricsService.availablePrivateRooms.set(this.availableRoomsAmount());
+        metricsService.availablePrivateRooms().set(this.availableRoomsAmount());
         return managedPrivateRoom;
     }
 }

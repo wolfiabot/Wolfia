@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia;
 
-import io.prometheus.client.CollectorRegistry;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -149,9 +148,6 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
         //shutdown Redis connection
         log.info("Shutting down redis connection");
         redis.shutdown();
-
-        //avoid trouble with spring dev tools, see https://github.com/prometheus/client_java/issues/279#issuecomment-335817904
-        CollectorRegistry.defaultRegistry.clear();
     }
 
     public void shutdown(int code) {

@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
-import io.prometheus.client.Summary;
+import io.micrometer.core.instrument.Timer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,8 +53,6 @@ import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
-import static io.prometheus.client.Summary.Timer;
-
 /**
  * Some architectural notes:
  * Issued commands will always go through here. It is their own job to find out for which game they have been issued,
@@ -86,7 +84,7 @@ public class CommandHandler {
 
     @EventListener
     public void onMessageReceived(MessageReceivedEvent event) {
-        Timer received = metricsService.commandRetentionTime.startTimer();
+        Timer.Sample received = Timer.start();
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {
             return;
@@ -178,7 +176,7 @@ public class CommandHandler {
     /**
      * @param context the parsed input of a user
      */
-    private void handleCommand(CommandContext context, Timer received) {
+    private void handleCommand(CommandContext context, Timer.Sample received) {
         try {
             boolean canCallCommand = context.command instanceof PublicCommand || context.isOwner();
             if (!canCallCommand) {
@@ -190,9 +188,12 @@ public class CommandHandler {
             log.info("user {}, channel {}, command {} about to be executed",
                     context.invoker, context.channel, context.msg.getContentRaw());
 
-            received.observeDuration();//retention
-            try (Summary.Timer ignored = metricsService.commandProcessTime.labels(context.command.getClass().getSimpleName()).startTimer()) {
+            received.stop(metricsService.commandRetentionTime()); //retention
+            Timer.Sample sample = Timer.start();
+            try {
                 context.command.execute(context);
+            } finally {
+                sample.stop(metricsService.commandProcessTime(context.command.getClass().getSimpleName()));
             }
         } catch (UserFriendlyException e) {
             context.reply("There was a problem executing your command:\n" + e.getMessage());

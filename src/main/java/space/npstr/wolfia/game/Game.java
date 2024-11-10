@@ -667,9 +667,11 @@ public abstract class Game {
                         .findFirst()
                         .ifPresent(t -> t.setWinner(true));
             }
-            resources.getMetricsService().gamesPlayed
-                    .labels(this.insertGameStats.getGameType().name(), this.insertGameStats.getGameMode().name())
-                    .inc();
+            resources.getMetricsService().gamesPlayed(
+                            this.insertGameStats.getGameType(),
+                            this.insertGameStats.getGameMode()
+                    )
+                    .increment();
             try {
                 this.gameStats = resources.getStatsService().recordGameStats(this.insertGameStats);
 

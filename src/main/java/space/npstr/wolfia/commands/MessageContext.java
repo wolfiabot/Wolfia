@@ -17,8 +17,10 @@
 
 package space.npstr.wolfia.commands;
 
-import io.prometheus.client.Collector;
+import io.micrometer.core.instrument.Timer;
 import java.awt.Color;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Consumer;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -180,13 +182,13 @@ public class MessageContext implements Context {
     // ********************************************************************************
 
     private void reply0(MessageCreateData message, @Nullable Consumer<Message> onSuccess) {
-        long started = System.nanoTime();
+        Timer.Sample sample = Timer.start();
 
         Consumer<Message> successWrapper = m -> {
-            metricsService.commandResponseTime.observe((System.nanoTime() - started) / Collector.NANOSECONDS_PER_SECOND);
-            long in = getMessage().getTimeCreated().toInstant().toEpochMilli();
-            long out = m.getTimeCreated().toInstant().toEpochMilli();
-            metricsService.commandTotalTime.observe((out - in) / Collector.MILLISECONDS_PER_SECOND);
+            sample.stop(metricsService.commandResponseTime());
+            Instant in = getMessage().getTimeCreated().toInstant();
+            Instant out = m.getTimeCreated().toInstant();
+            metricsService.commandTotalTime().record(Duration.between(in, out));
             if (onSuccess != null) {
                 onSuccess.accept(m);
             }

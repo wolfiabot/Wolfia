@@ -19,7 +19,7 @@ package space.npstr.wolfia.domain.privacy;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector;
+import io.prometheus.metrics.instrumentation.caffeine.CacheMetricsCollector;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
