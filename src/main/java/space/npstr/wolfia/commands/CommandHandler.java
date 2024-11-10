@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.commands;
 
-import io.prometheus.client.Summary;
+import io.micrometer.core.instrument.Timer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,12 +48,10 @@ import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
-import space.npstr.wolfia.system.metrics.MetricsRegistry;
+import space.npstr.wolfia.system.metrics.MetricsService;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
-
-import static io.prometheus.client.Summary.Timer;
 
 /**
  * Some architectural notes:
@@ -70,21 +68,23 @@ public class CommandHandler {
     private final CommRegistry commRegistry;
     private final ChannelSettingsService channelSettingsService;
     private final PrivacyService privacyService;
+    private final MetricsService metricsService;
 
     public CommandHandler(GameRegistry gameRegistry, CommandContextParser commandContextParser,
                           CommRegistry commRegistry, ChannelSettingsService channelSettingsService,
-                          PrivacyService privacyService) {
+                          PrivacyService privacyService, MetricsService metricsService) {
 
         this.gameRegistry = gameRegistry;
         this.commandContextParser = commandContextParser;
         this.commRegistry = commRegistry;
         this.channelSettingsService = channelSettingsService;
         this.privacyService = privacyService;
+        this.metricsService = metricsService;
     }
 
     @EventListener
     public void onMessageReceived(MessageReceivedEvent event) {
-        Timer received = MetricsRegistry.commandRetentionTime.startTimer();
+        Timer.Sample received = Timer.start();
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {
             return;
@@ -176,7 +176,7 @@ public class CommandHandler {
     /**
      * @param context the parsed input of a user
      */
-    private void handleCommand(CommandContext context, Timer received) {
+    private void handleCommand(CommandContext context, Timer.Sample received) {
         try {
             boolean canCallCommand = context.command instanceof PublicCommand || context.isOwner();
             if (!canCallCommand) {
@@ -188,9 +188,12 @@ public class CommandHandler {
             log.info("user {}, channel {}, command {} about to be executed",
                     context.invoker, context.channel, context.msg.getContentRaw());
 
-            received.observeDuration();//retention
-            try (Summary.Timer ignored = MetricsRegistry.commandProcessTime.labels(context.command.getClass().getSimpleName()).startTimer()) {
+            received.stop(metricsService.commandRetentionTime()); //retention
+            Timer.Sample sample = Timer.start();
+            try {
                 context.command.execute(context);
+            } finally {
+                sample.stop(metricsService.commandProcessTime(context.command.getClass().getSimpleName()));
             }
         } catch (UserFriendlyException e) {
             context.reply("There was a problem executing your command:\n" + e.getMessage());

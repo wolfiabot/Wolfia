@@ -16,19 +16,19 @@
  */
 package space.npstr.wolfia.domain.oauth2
 
-import org.springframework.stereotype.Repository
-import space.npstr.wolfia.db.Database
-import space.npstr.wolfia.db.gen.Tables
 import java.time.Duration
 import java.time.Instant
+import org.jooq.DSLContext
+import org.springframework.stereotype.Repository
+import space.npstr.wolfia.db.gen.Tables
 
 @Repository
 class OAuth2Repository(
-	private val database: Database,
+	private val jooq: DSLContext,
 ) {
 
 	fun findOne(userId: Long): OAuth2Data? {
-		return database.jooq()
+		return jooq
 			.selectFrom(Tables.OAUTH2)
 			.where(Tables.OAUTH2.USER_ID.eq(userId))
 			.fetchOneInto(OAuth2Data::class.java)
@@ -36,14 +36,14 @@ class OAuth2Repository(
 
 	fun findAllExpiringIn(duration: Duration): List<OAuth2Data> {
 		val expiresOn = Instant.now().plusSeconds(duration.toSeconds())
-		return database.jooq()
+		return jooq
 			.selectFrom(Tables.OAUTH2)
 			.where(Tables.OAUTH2.EXPIRES.lessThan(expiresOn))
 			.fetchInto(OAuth2Data::class.java)
 	}
 
 	fun delete(userId: Long): Int {
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.deleteFrom(Tables.OAUTH2)
 				.where(Tables.OAUTH2.USER_ID.eq(userId))
@@ -53,7 +53,7 @@ class OAuth2Repository(
 
 	fun save(data: OAuth2Data): OAuth2Data {
 		val scopes = data.scopes().toTypedArray()
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.OAUTH2)
 				.columns(Tables.OAUTH2.USER_ID, Tables.OAUTH2.ACCESS_TOKEN, Tables.OAUTH2.EXPIRES, Tables.OAUTH2.REFRESH_TOKEN, Tables.OAUTH2.SCOPES)

@@ -31,6 +31,7 @@ buildscript {
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
         classpath "gradle.plugin.org.flywaydb:gradle-plugin-publishing:$flywayVersion"
+        classpath "org.flywaydb:flyway-database-postgresql:$flywayVersion"
 
         classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:$gradleGitVersion"
         classpath "org.ajoberstar.grgit:grgit-gradle:$grGitVersion"
@@ -192,7 +193,6 @@ allprojects {
 
     dependencies {
         globalPlatforms platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
-        globalPlatforms platform("io.prometheus:simpleclient_bom:$prometheusVersion")
         globalPlatforms platform("io.sentry:sentry-bom:$sentryVersion")
     }
 }
@@ -286,16 +286,16 @@ dependencies {
     implementation(group: "io.netty", name: "netty-transport-native-epoll", classifier: "linux-x86_64")
     implementation(group: "io.netty", name: "netty-transport-native-kqueue", classifier: "osx-x86_64")
 
-    implementation "io.prometheus:simpleclient"
-    implementation "io.prometheus:simpleclient_hotspot"
-    implementation "io.prometheus:simpleclient_logback"
-    implementation "io.prometheus:simpleclient_common"
-    implementation "io.prometheus:simpleclient_caffeine"
-    implementation "space.npstr:prometheus_extensions:$promExtVersion"
+    // not part of v1.3.2 BOM for some reason
+    implementation "io.prometheus:prometheus-metrics-instrumentation-caffeine:$prometheusClientVersion"
+    implementation "io.prometheus:prometheus-metrics-instrumentation-jvm"
+    implementation "space.npstr:prometheus_extensions:$prometheusExtensionsVersion"
+    implementation "io.micrometer:micrometer-registry-prometheus"
 
     implementation "org.postgresql:postgresql"
     implementation "com.zaxxer:HikariCP"
     implementation "org.flywaydb:flyway-core:$flywayVersion"
+    implementation "org.flywaydb:flyway-database-postgresql:$flywayVersion"
     implementation "net.ttddyy:datasource-proxy:$dsProxyVersion"
 
     implementation "org.jooq:jooq:$jooqVersion"
@@ -314,9 +314,11 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "org.springframework.boot:spring-boot-starter-jdbc"
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.session:spring-session-data-redis"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
@@ -440,7 +442,7 @@ class StopCodegenDbContainer extends DockerStopContainer {
     }
 }
 
-def migrationsInput = fileTree('src/main/resources/db/migrations')
+def migrationsInput = fileTree('src/main/resources/db/migration')
 def migrationsOutput = fileTree('build/classes/generated/java/space/npstr/wolfia/db/gen')
 
 flyway {
@@ -464,7 +466,7 @@ flyway {
     }
 
     url = "$codegenJdbcUrl"
-    locations = ['filesystem:src/main/resources/db/migrations']
+    locations = ['filesystem:src/main/resources/db/migration']
     configurations = ['flywayMigration']
 }
 

@@ -80,6 +80,7 @@ public class WebApplicationSecurity {
 
     private static final String[] MACHINE_ENDPOINTS = {
             "/metrics",
+            "/health",
     };
     private static final String[] PUBLIC_ENDPOINTS = {
             "/public/**",

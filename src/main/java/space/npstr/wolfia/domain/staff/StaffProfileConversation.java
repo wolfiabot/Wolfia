@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.domain.Conversation;
 import space.npstr.wolfia.system.EventWaiter;
+import space.npstr.wolfia.system.metrics.MetricsService;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 /**
@@ -48,10 +49,12 @@ class StaffProfileConversation implements Conversation {
 
     private final StaffService staffService;
     private final EventWaiter eventWaiter;
+    private final MetricsService metricsService;
 
-    StaffProfileConversation(StaffService staffService, EventWaiter eventWaiter) {
+    StaffProfileConversation(StaffService staffService, EventWaiter eventWaiter, MetricsService metricsService) {
         this.staffService = staffService;
         this.eventWaiter = eventWaiter;
+        this.metricsService = metricsService;
     }
 
     @Override
@@ -124,7 +127,7 @@ class StaffProfileConversation implements Conversation {
     }
 
     private boolean optionSelected(MessageReceivedEvent event, StaffMember staffMember) {
-        MessageContext context = new MessageContext(event);
+        MessageContext context = new MessageContext(event, metricsService);
         String rawContent = context.getMessage().getContentRaw();
 
         if (rawContent.toLowerCase().startsWith(OPTION_ENABLE)) {
@@ -172,7 +175,7 @@ class StaffProfileConversation implements Conversation {
     }
 
     private boolean setSlogan(MessageReceivedEvent event, StaffMember staffMember) {
-        MessageContext context = new MessageContext(event);
+        MessageContext context = new MessageContext(event, metricsService);
         String slogan = context.getMessage().getContentRaw();
 
         return setSlogan(context, slogan, staffMember);
@@ -188,7 +191,7 @@ class StaffProfileConversation implements Conversation {
     }
 
     private boolean setLink(MessageReceivedEvent event, StaffMember staffMember) {
-        MessageContext context = new MessageContext(event);
+        MessageContext context = new MessageContext(event, metricsService);
         String link = context.getMessage().getContentRaw();
 
         return setLink(context, link, staffMember);

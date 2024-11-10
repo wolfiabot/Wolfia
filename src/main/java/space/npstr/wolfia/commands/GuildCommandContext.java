@@ -21,6 +21,7 @@ import java.util.Optional;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import space.npstr.wolfia.system.metrics.MetricsService;
 
 /**
  * Provides non-null methods for accessing guild entities after an elegant transformation from a CommandContext
@@ -48,9 +49,9 @@ public class GuildCommandContext extends CommandContext {
         return this.textChannel;
     }
 
-    public GuildCommandContext(CommandContext context, Guild guild,
+    public GuildCommandContext(CommandContext context, MetricsService metricsService, Guild guild,
                                Member member, TextChannel textChannel) {
-        super(context.event, context.trigger, context.args, context.rawArgs, context.command);
+        super(context.event, metricsService, context.trigger, context.args, context.rawArgs, context.command);
         this.guild = guild;
         this.member = member;
         this.textChannel = textChannel;

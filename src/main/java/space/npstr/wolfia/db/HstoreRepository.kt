@@ -16,6 +16,7 @@
  */
 package space.npstr.wolfia.db
 
+import org.jooq.DSLContext
 import org.jooq.Field
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
@@ -24,14 +25,14 @@ import space.npstr.wolfia.db.gen.tables.records.HstorexRecord
 
 @Repository
 class HstoreRepository(
-	private val database: Database,
+	private val jooq: DSLContext,
 ) {
 
 	/**
 	 * @return the default value if either the hstore or the key inside the hstore doesnt exist.
 	 */
 	fun get(name: String, key: String, defaultValue: String): String {
-		return database.jooq()
+		return jooq
 			.select(Tables.HSTOREX.HSTOREX_)
 			.from(Tables.HSTOREX)
 			.where(Tables.HSTOREX.NAME.eq(name))
@@ -47,7 +48,7 @@ class HstoreRepository(
 
 	fun set(name: String, toAppend: Map<String, String>): HstorexRecord {
 		val map = HashMap(toAppend)
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.HSTOREX)
 				.columns(Tables.HSTOREX.NAME, Tables.HSTOREX.HSTOREX_)

@@ -18,13 +18,12 @@ package space.npstr.wolfia.domain.stats
 
 import java.math.BigDecimal
 import java.time.Instant
-import okio.use
+import org.jooq.DSLContext
 import org.jooq.Record3
 import org.jooq.Record8
 import org.jooq.RecordMapper
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Repository
-import space.npstr.wolfia.db.Database
 import space.npstr.wolfia.db.gen.Tables
 import space.npstr.wolfia.db.gen.tables.records.StatsActionRecord
 import space.npstr.wolfia.db.gen.tables.records.StatsPlayerRecord
@@ -37,16 +36,18 @@ import space.npstr.wolfia.game.definitions.Alignments
 import space.npstr.wolfia.game.definitions.Games
 import space.npstr.wolfia.game.definitions.Phase
 import space.npstr.wolfia.game.definitions.Roles
-import space.npstr.wolfia.system.metrics.MetricsRegistry
+import space.npstr.wolfia.system.metrics.MetricsService
+import space.npstr.wolfia.system.metrics.time
 
 @Repository
 class StatsRepository internal constructor(
-	private val database: Database,
+	private val jooq: DSLContext,
+	private val metricsService: MetricsService,
 ) {
 
 	fun fetchAveragePlayerSize(): BigDecimal {
-		return MetricsRegistry.queryTime.labels("getAveragePlayerSize").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("getAveragePlayerSize").time {
+			jooq
 				.select(DSL.avg(Tables.STATS_GAME.PLAYER_SIZE))
 				.from(Tables.STATS_GAME)
 				.fetchOne()?.component1() ?: BigDecimal.ZERO // SQL AVG may return null for empty sets
@@ -54,8 +55,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchAveragePlayerSizeInGuild(guildId: Long): BigDecimal {
-		return MetricsRegistry.queryTime.labels("getAveragePlayerSizeInGuild").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("getAveragePlayerSizeInGuild").time {
+			jooq
 				.select(DSL.avg(Tables.STATS_GAME.PLAYER_SIZE))
 				.from(Tables.STATS_GAME)
 				.where(Tables.STATS_GAME.GUILD_ID.eq(guildId))
@@ -64,8 +65,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchDistinctPlayerSizes(): Set<Int> {
-		return MetricsRegistry.queryTime.labels("getDistinctPlayerSizes").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("getDistinctPlayerSizes").time {
+			jooq
 				.selectDistinct(Tables.STATS_GAME.PLAYER_SIZE)
 				.from(Tables.STATS_GAME)
 				.fetch()
@@ -74,8 +75,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchDistinctPlayerSizesInGuild(guildId: Long): Set<Int> {
-		return MetricsRegistry.queryTime.labels("getDistinctPlayerSizesInGuild").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("getDistinctPlayerSizesInGuild").time {
+			jooq
 				.selectDistinct(Tables.STATS_GAME.PLAYER_SIZE)
 				.from(Tables.STATS_GAME)
 				.where(Tables.STATS_GAME.GUILD_ID.eq(guildId))
@@ -85,8 +86,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun countAlignmentWins(alignment: Alignments): Int {
-		return MetricsRegistry.queryTime.labels("countAlignmentWins").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("countAlignmentWins").time {
+			jooq
 				.select(DSL.count())
 				.from(Tables.STATS_GAME)
 				.innerJoin(Tables.STATS_TEAM)
@@ -100,8 +101,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun countAlignmentWinsInGuild(alignment: Alignments, guildId: Long): Int {
-		return MetricsRegistry.queryTime.labels("countAlignmentWinsInGuild").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("countAlignmentWinsInGuild").time {
+			jooq
 				.select(DSL.count())
 				.from(Tables.STATS_GAME)
 				.innerJoin(Tables.STATS_TEAM)
@@ -115,8 +116,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun countAlignmentWinsForPlayerSize(alignment: Alignments, playerSize: Int): Int {
-		return MetricsRegistry.queryTime.labels("countAlignmentWinsForPlayerSize").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("countAlignmentWinsForPlayerSize").time {
+			jooq
 				.select(DSL.count())
 				.from(Tables.STATS_GAME)
 				.innerJoin(Tables.STATS_TEAM)
@@ -130,8 +131,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun countAlignmentWinsForPlayerSizeInGuild(alignment: Alignments, playerSize: Int, guildId: Long): Int {
-		return MetricsRegistry.queryTime.labels("countAlignmentWinsForPlayerSizeInGuild").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("countAlignmentWinsForPlayerSizeInGuild").time {
+			jooq
 				.select(DSL.count())
 				.from(Tables.STATS_GAME)
 				.innerJoin(Tables.STATS_TEAM)
@@ -146,8 +147,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchGeneralUserStats(userId: Long): List<GeneralUserStats> {
-		return MetricsRegistry.queryTime.labels("getGeneralUserStats").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("getGeneralUserStats").time {
+			jooq
 				.select(
 					Tables.STATS_PLAYER.TOTAL_POSTLENGTH,
 					Tables.STATS_PLAYER.TOTAL_POSTS,
@@ -170,8 +171,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchUserShots(userId: Long): List<Alignments> {
-		return MetricsRegistry.queryTime.labels("getUserShots").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("getUserShots").time {
+			jooq
 				.select(Tables.STATS_PLAYER.ALIGNMENT)
 				.from(Tables.STATS_ACTION)
 				.innerJoin(Tables.STATS_PLAYER).on(Tables.STATS_PLAYER.USER_ID.eq(Tables.STATS_ACTION.TARGET))
@@ -190,12 +191,12 @@ class StatsRepository internal constructor(
 	}
 
 	fun findGameStats(gameId: Long): GameStats? {
-		return MetricsRegistry.queryTime.labels("findGameStats").startTimer().use {
-			val dsl = database.jooq()
+		return metricsService.queryTime("findGameStats").time {
+			val dsl = jooq
 			val gameRecord = dsl.selectFrom(Tables.STATS_GAME)
 				.where(Tables.STATS_GAME.GAME_ID.eq(gameId))
 				.fetchOne()
-				?: return@use null
+				?: return@time null
 
 			val teams = dsl.selectFrom(Tables.STATS_TEAM)
 				.where(Tables.STATS_TEAM.GAME_ID.eq(gameId))
@@ -211,7 +212,7 @@ class StatsRepository internal constructor(
 				.where(Tables.STATS_ACTION.GAME_ID.eq(gameId))
 				.fetch(actionMapper())
 
-			return@use GameStats(
+			return@time GameStats(
 				gameRecord.gameId,
 				gameRecord.channelId,
 				gameRecord.channelName,
@@ -255,8 +256,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun insertGameStats(insertGameStats: InsertGameStats): GameStats {
-		return MetricsRegistry.queryTime.labels("insertGameStats").startTimer().use {
-			database.jooq().transactionResult { config ->
+		return metricsService.queryTime("insertGameStats").time {
+			jooq.transactionResult { config ->
 				val context = config.dsl()
 				val gameId = context
 					.insertInto(Tables.STATS_GAME)
@@ -322,8 +323,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchAllGameStatsOfUser(userId: Long): List<PrivacyGame> {
-		return MetricsRegistry.queryTime.labels("getAllGameStatsOfUser").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("getAllGameStatsOfUser").time {
+			jooq
 				.select(
 					Tables.STATS_GAME.GAME_ID,
 					Tables.STATS_GAME.START_TIME,
@@ -358,8 +359,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchAllActionStatsOfUser(userId: Long): Map<Long, List<PrivacyAction>> {
-		return MetricsRegistry.queryTime.labels("getAllActionStatsOfUser").startTimer().use {
-			database.jooq()
+		return metricsService.queryTime("getAllActionStatsOfUser").time {
+			jooq
 				.select(
 					Tables.STATS_GAME.GAME_ID,
 					Tables.STATS_ACTION.ACTION_TYPE,
@@ -382,8 +383,8 @@ class StatsRepository internal constructor(
 	}
 
 	fun nullAllPlayerNicknamesofUser(userId: Long): Int {
-		return MetricsRegistry.queryTime.labels("nullAllPlayerNicknamesofUser").startTimer().use {
-			database.jooq().transactionResult { config ->
+		return metricsService.queryTime("nullAllPlayerNicknamesofUser").time {
+			jooq.transactionResult { config ->
 				config.dsl()
 					.update(Tables.STATS_PLAYER)
 					.set(Tables.STATS_PLAYER.NICKNAME, DSL.`val`(null, Tables.STATS_PLAYER.NICKNAME))

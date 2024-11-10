@@ -17,9 +17,9 @@
 package space.npstr.wolfia.domain.setup
 
 import java.time.Duration
+import org.jooq.DSLContext
 import org.jooq.Field
 import org.springframework.stereotype.Repository
-import space.npstr.wolfia.db.Database
 import space.npstr.wolfia.db.ExtendedPostgresDSL
 import space.npstr.wolfia.db.gen.Tables
 import space.npstr.wolfia.game.GameInfo.GameMode
@@ -27,11 +27,11 @@ import space.npstr.wolfia.game.definitions.Games
 
 @Repository
 internal class GameSetupRepository(
-	private val database: Database,
+	private val jooq: DSLContext,
 ) {
 
 	fun findOne(channelId: Long): GameSetup? {
-		return database.jooq()
+		return jooq
 			.selectFrom(Tables.GAME_SETUP)
 			.where(Tables.GAME_SETUP.CHANNEL_ID.eq(channelId))
 			.fetchOneInto(GameSetup::class.java)
@@ -39,7 +39,7 @@ internal class GameSetupRepository(
 
 	//this works since we dont commit the transaction
 	fun findOneOrDefault(channelId: Long): GameSetup {
-		return database.jooq()
+		return jooq
 			.insertInto(Tables.GAME_SETUP)
 			.columns(Tables.GAME_SETUP.CHANNEL_ID)
 			.values(channelId)
@@ -50,7 +50,7 @@ internal class GameSetupRepository(
 	}
 
 	fun findAutoOutSetupsWhereUserIsInned(userId: Long): List<GameSetup> {
-		return database.jooq()
+		return jooq
 			.select(
 				Tables.GAME_SETUP.CHANNEL_ID,
 				Tables.GAME_SETUP.INNED_USERS,
@@ -79,7 +79,7 @@ internal class GameSetupRepository(
 
 	fun inUsers(channelId: Long, userIds: Collection<Long>): GameSetup {
 		val userIdsArray = userIds.toTypedArray()
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.GAME_SETUP)
 				.columns(Tables.GAME_SETUP.CHANNEL_ID, Tables.GAME_SETUP.INNED_USERS)
@@ -93,7 +93,7 @@ internal class GameSetupRepository(
 
 	fun outUsers(channelId: Long, userIds: Collection<Long>): GameSetup {
 		val userIdsArray = userIds.toTypedArray()
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.GAME_SETUP)
 				.columns(Tables.GAME_SETUP.CHANNEL_ID, Tables.GAME_SETUP.INNED_USERS)
@@ -106,7 +106,7 @@ internal class GameSetupRepository(
 	}
 
 	fun delete(channelId: Long): Int {
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.deleteFrom(Tables.GAME_SETUP)
 				.where(Tables.GAME_SETUP.CHANNEL_ID.eq(channelId))
@@ -115,7 +115,7 @@ internal class GameSetupRepository(
 	}
 
 	private fun <F> set(channelId: Long, field: Field<F>, value: F): GameSetup {
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.GAME_SETUP)
 				.columns(Tables.GAME_SETUP.CHANNEL_ID, field)

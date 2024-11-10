@@ -5,9 +5,6 @@
 wolfia:
   debug: true   # Some things are different. Set to false to properly run the bot.
 
-database:
-  jdbc-url: "jdbc:postgresql://localhost:5442/wolfia?user=wolfia&password=wolfia"   # From the docker/dev/docker-compose file
-
 oauth2:
   base-redirect-url: "/"    # URL that should be redirected to after a successful authentication (usually the root).
 
@@ -53,6 +50,20 @@ spring:
   data:
     redis:
       url: "redis://localhost:6389/0"
+  datasource:
+    # From the docker/dev/docker-compose file
+    url: "jdbc:postgresql://localhost:5442/wolfia?user=wolfia&password=wolfia"
+    hikari:
+      maximum-pool-size: 8
+      validation-timeout: 3000
+      # 30 seconds, sometimes we time out after 10 on the new machine, but its not a leak.
+      connection-timeout: 30_000
+      auto-commit: false
+      pool-name: "postgres-DefaultPool"
+      data-source-properties:
+        # allow postgres to cast strings (varchars) more freely to actual column types
+        # source https://jdbc.postgresql.org/documentation/head/connect.html
+        stringtype: "unspecified"
 
 togglz:
   enabled: true
@@ -85,3 +96,25 @@ sentry:
     - "dev.capybaralabs"
   logging:
     minimum-event-level: warn
+
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoint:
+    health:
+      enabled: true
+      show-details: always
+    prometheus:
+      enabled: true
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include:
+          - health
+          - prometheus
+      base-path: /
+      path-mapping:
+        prometheus: metrics

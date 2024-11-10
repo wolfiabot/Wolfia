@@ -17,10 +17,8 @@
 
 package space.npstr.wolfia;
 
-import io.prometheus.client.CollectorRegistry;
 import java.time.Clock;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.junit.jupiter.api.AfterAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -75,13 +73,4 @@ public abstract class ApplicationTest extends PostgresAndRedisContainers {
 
     @Autowired
     protected TestRestTemplate restTemplate;
-
-    /**
-     * Some static metrics are giving trouble when the application context is restarted between tests.
-     */
-    @AfterAll
-    static void clearCollectorRegistry() {
-        CollectorRegistry.defaultRegistry.clear();
-    }
-
 }

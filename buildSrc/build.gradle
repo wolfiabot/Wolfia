@@ -3,4 +3,7 @@ repositories {
 }
 dependencies {
 	implementation "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
+
+    // https://stackoverflow.com/questions/78638699/bootjar-task-fails-with-gradle-8-5-and-spring-boot-3-3-0-caused-by-spring-boot
+    implementation("org.apache.commons:commons-compress:$apacheCompressVersion")
 }

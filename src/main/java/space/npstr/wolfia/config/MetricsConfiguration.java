@@ -17,8 +17,8 @@
 
 package space.npstr.wolfia.config;
 
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector;
-import io.prometheus.client.logback.InstrumentedAppender;
+import io.prometheus.metrics.instrumentation.caffeine.CacheMetricsCollector;
+import io.prometheus.metrics.model.registry.PrometheusRegistry;
 import java.util.concurrent.ScheduledExecutorService;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.ttddyy.dsproxy.listener.SingleQueryCountHolder;
@@ -28,20 +28,16 @@ import org.springframework.context.annotation.Configuration;
 import space.npstr.prometheus_extensions.QueryCountCollector;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.prometheus_extensions.jda.JdaMetrics;
-import space.npstr.wolfia.system.metrics.MetricsRegistry;
 
 @Configuration
 public class MetricsConfiguration {
 
     //caffeine cache metrics
     @Bean
-    public CacheMetricsCollector cacheMetrics() {
-        return new CacheMetricsCollector().register();
-    }
-
-    @Bean
-    public InstrumentedAppender instrumentedAppender() {
-        return new InstrumentedAppender();
+    public CacheMetricsCollector cacheMetrics(PrometheusRegistry registry) {
+        CacheMetricsCollector cacheMetricsCollector = new CacheMetricsCollector();
+        registry.register(cacheMetricsCollector);
+        return cacheMetricsCollector;
     }
 
     @Bean
@@ -50,19 +46,22 @@ public class MetricsConfiguration {
     }
 
     @Bean
-    public QueryCountCollector queryCountCollector(SingleQueryCountHolder queryCountHolder) {
-        return new QueryCountCollector(queryCountHolder);
+    public QueryCountCollector queryCountCollector(SingleQueryCountHolder queryCountHolder, PrometheusRegistry registry) {
+        return new QueryCountCollector(queryCountHolder, registry);
     }
 
     @Bean
-    public ThreadPoolCollector threadPoolCollector() {
-        return new ThreadPoolCollector();
+    public ThreadPoolCollector threadPoolCollector(PrometheusRegistry registry) {
+        return new ThreadPoolCollector(registry);
     }
 
     @Bean
-    public JdaMetrics jdaMetrics(ShardManager shardManager, @Qualifier("jdaThreadPool") ScheduledExecutorService scheduler,
-                                 MetricsRegistry metricsRegistry) {
+    public JdaMetrics jdaMetrics(
+            ShardManager shardManager,
+            @Qualifier("jdaThreadPool") ScheduledExecutorService scheduler,
+            PrometheusRegistry registry
+    ) {
 
-        return new JdaMetrics(shardManager, scheduler, metricsRegistry.getRegistry());
+        return new JdaMetrics(shardManager, scheduler, registry);
     }
 }

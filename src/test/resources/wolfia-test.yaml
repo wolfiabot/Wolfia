@@ -1,4 +1,8 @@
 spring:
+  flyway:
+    # Togglz creates its repos before Flyway has had a chance to run
+    baseline-on-migrate: true
+    baseline-version: 0
   security:
     oauth2:
       client:

@@ -17,7 +17,7 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
-import io.prometheus.client.cache.caffeine.CacheMetricsCollector;
+import io.prometheus.metrics.instrumentation.caffeine.CacheMetricsCollector;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

@@ -16,24 +16,24 @@
  */
 package space.npstr.wolfia.domain.settings
 
+import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
-import space.npstr.wolfia.db.Database
 import space.npstr.wolfia.db.gen.Tables
 
 @Repository
 internal class GuildSettingsRepository(
-	private val database: Database,
+	private val jooq: DSLContext,
 ) {
 
 	fun findOne(guildId: Long): GuildSettings? {
-		return database.jooq()
+		return jooq
 			.selectFrom(Tables.GUILD_SETTINGS)
 			.where(Tables.GUILD_SETTINGS.GUILD_ID.eq(guildId))
 			.fetchOneInto(GuildSettings::class.java)
 	}
 
 	fun findOneOrDefault(guildId: Long): GuildSettings {
-		return database.jooq()
+		return jooq
 			.insertInto(Tables.GUILD_SETTINGS)
 			.columns(Tables.GUILD_SETTINGS.GUILD_ID)
 			.values(guildId)
@@ -44,7 +44,7 @@ internal class GuildSettingsRepository(
 	}
 
 	fun set(guildId: Long, name: String, iconId: String?): GuildSettings {
-		return database.jooq().transactionResult { config ->
+		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.GUILD_SETTINGS)
 				.columns(Tables.GUILD_SETTINGS.GUILD_ID, Tables.GUILD_SETTINGS.NAME, Tables.GUILD_SETTINGS.ICON_ID)
