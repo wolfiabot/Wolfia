@@ -31,6 +31,7 @@ buildscript {
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
         classpath "gradle.plugin.org.flywaydb:gradle-plugin-publishing:$flywayVersion"
+        classpath "org.flywaydb:flyway-database-postgresql:$flywayVersion"
 
         classpath "gradle.plugin.com.gorylenko.gradle-git-properties:gradle-git-properties:$gradleGitVersion"
         classpath "org.ajoberstar.grgit:grgit-gradle:$grGitVersion"
@@ -292,11 +293,12 @@ dependencies {
     implementation "io.prometheus:simpleclient_common"
     implementation "io.prometheus:simpleclient_caffeine"
     implementation "space.npstr:prometheus_extensions:$promExtVersion"
-    implementation "io.micrometer:micrometer-registry-prometheus"
+    implementation "io.micrometer:micrometer-registry-prometheus-simpleclient"
 
     implementation "org.postgresql:postgresql"
     implementation "com.zaxxer:HikariCP"
     implementation "org.flywaydb:flyway-core:$flywayVersion"
+    implementation "org.flywaydb:flyway-database-postgresql:$flywayVersion"
     implementation "net.ttddyy:datasource-proxy:$dsProxyVersion"
 
     implementation "org.jooq:jooq:$jooqVersion"
