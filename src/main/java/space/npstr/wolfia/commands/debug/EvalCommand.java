@@ -28,6 +28,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.lang.NonNull;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.domain.Command;
@@ -70,7 +71,7 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
+    public void setApplicationContext(@NonNull ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
@@ -150,9 +151,9 @@ public class EvalCommand implements BaseCommand, ApplicationContextAware {
             if (out == null) {
                 output = "";
             } else if (out.toString().contains("\n")) {
-                output = "EvalCommand: ```\n" + out.toString() + "```";
+                output = "EvalCommand: ```\n" + out + "```";
             } else {
-                output = "EvalCommand: `" + out.toString() + "`";
+                output = "EvalCommand: `" + out + "`";
             }
             context.msg.addReaction(Emoji.fromUnicode(Emojis.OK_HAND)).queue(null, RestActions.defaultOnFail());
             context.reply(String.format("```java%n%s```%n%s%n`%sms`",
