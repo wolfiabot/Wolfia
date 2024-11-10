@@ -41,7 +41,7 @@ development.
 
 #### PostgreSQL
 This project uses the [PostgreSQL](https://www.postgresql.org/) relational database to store and query important data.
-The currently used version can be found in the [databases' Dockerfile](docker/database/Dockerfile).
+The currently used version can be found in the [poggres repo](https://github.com/CapybaraLabs/poggres).
 Installing it is optional, running the development `docker-compose` is recommended instead:
 ```shell script
 docker-compose -f docker/dev/docker-compose.yaml up -d
@@ -94,7 +94,7 @@ We also use the [Bulma](https://bulma.io/) CSS framework, together with a [Bulma
 
 ##### PostgreSQL
 [PostgreSQL](https://www.postgresql.org/) is the main database.
-We deploy a customized [Docker image](docker/database/Dockerfile) that contains init scripts to set up required database
+We deploy a customized [Docker image](https://github.com/CapybaraLabs/poggres) that contains init scripts to set up required database
 extensions as well as backup scripts to back up the data to [Backblaze B2](https://www.backblaze.com/b2).
 
 ##### Flyway & jOOQ
