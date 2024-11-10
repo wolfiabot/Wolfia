@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.lang.Nullable;
+import space.npstr.wolfia.system.metrics.MetricsService;
 import space.npstr.wolfia.utils.discord.RestActions;
 
 /**
@@ -35,6 +36,7 @@ public class CommandContext extends MessageContext {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommandContext.class);
 
+    private final MetricsService metricsService;
     //@formatter:off
      public final String trigger;                        // the command trigger, e.g. "play", or "p", or "pLaY", whatever the user typed
      public final String[] args ;                        // the arguments split by whitespace, excluding prefix and trigger
@@ -43,10 +45,11 @@ public class CommandContext extends MessageContext {
 //     private final Histogram.Timer received;             // time when we received this command
     //@formatter:on
 
-    CommandContext(MessageReceivedEvent event, String trigger,
+    CommandContext(MessageReceivedEvent event, MetricsService metricsService, String trigger,
                    String[] args, String rawArgs, BaseCommand command) {
 
-        super(event);
+        super(event, metricsService);
+        this.metricsService = metricsService;
         this.trigger = trigger;
         this.args = args;
         this.rawArgs = rawArgs;
@@ -89,7 +92,7 @@ public class CommandContext extends MessageContext {
             Guild g = tc.getGuild();
             Member m = this.event.getMember();
             if (m != null) {
-                return new GuildCommandContext(this, g, m, tc);
+                return new GuildCommandContext(this, metricsService, g, m, tc);
             } else {
                 log.warn("Uh oh member is unexpectedly null when transforming CommandContext to GuildCommandContext");
             }

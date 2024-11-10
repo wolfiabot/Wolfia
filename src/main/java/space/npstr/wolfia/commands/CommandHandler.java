@@ -48,7 +48,7 @@ import space.npstr.wolfia.events.WolfiaGuildListener;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
-import space.npstr.wolfia.system.metrics.MetricsRegistry;
+import space.npstr.wolfia.system.metrics.MetricsService;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -70,21 +70,23 @@ public class CommandHandler {
     private final CommRegistry commRegistry;
     private final ChannelSettingsService channelSettingsService;
     private final PrivacyService privacyService;
+    private final MetricsService metricsService;
 
     public CommandHandler(GameRegistry gameRegistry, CommandContextParser commandContextParser,
                           CommRegistry commRegistry, ChannelSettingsService channelSettingsService,
-                          PrivacyService privacyService) {
+                          PrivacyService privacyService, MetricsService metricsService) {
 
         this.gameRegistry = gameRegistry;
         this.commandContextParser = commandContextParser;
         this.commRegistry = commRegistry;
         this.channelSettingsService = channelSettingsService;
         this.privacyService = privacyService;
+        this.metricsService = metricsService;
     }
 
     @EventListener
     public void onMessageReceived(MessageReceivedEvent event) {
-        Timer received = MetricsRegistry.commandRetentionTime.startTimer();
+        Timer received = metricsService.commandRetentionTime.startTimer();
         //ignore bot accounts generally
         if (event.getAuthor().isBot()) {
             return;
@@ -189,7 +191,7 @@ public class CommandHandler {
                     context.invoker, context.channel, context.msg.getContentRaw());
 
             received.observeDuration();//retention
-            try (Summary.Timer ignored = MetricsRegistry.commandProcessTime.labels(context.command.getClass().getSimpleName()).startTimer()) {
+            try (Summary.Timer ignored = metricsService.commandProcessTime.labels(context.command.getClass().getSimpleName()).startTimer()) {
                 context.command.execute(context);
             }
         } catch (UserFriendlyException e) {

@@ -26,6 +26,7 @@ import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.Conversation;
 import space.npstr.wolfia.system.EventWaiter;
+import space.npstr.wolfia.system.metrics.MetricsService;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 @Command
@@ -40,10 +41,12 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
 
     private final EventWaiter eventWaiter;
     private final PrivacyService privacyService;
+    private final MetricsService metricsService;
 
-    public PrivacyCommand(EventWaiter eventWaiter, PrivacyService privacyService) {
+    public PrivacyCommand(EventWaiter eventWaiter, PrivacyService privacyService, MetricsService metricsService) {
         this.eventWaiter = eventWaiter;
         this.privacyService = privacyService;
+        this.metricsService = metricsService;
     }
 
     @Override
@@ -82,7 +85,7 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
     }
 
     private boolean optionSelected(MessageReceivedEvent event) {
-        MessageContext context = new MessageContext(event);
+        MessageContext context = new MessageContext(event, metricsService);
         String rawContent = context.getMessage().getContentRaw();
 
         if (rawContent.toLowerCase().startsWith(OPTION_READ)) {
@@ -142,7 +145,7 @@ public class PrivacyCommand implements BaseCommand, PublicCommand, Conversation 
         }
 
         private boolean optionSelected(MessageReceivedEvent event) {
-            MessageContext context = new MessageContext(event);
+            MessageContext context = new MessageContext(event, metricsService);
             String rawContent = context.getMessage().getContentRaw();
 
             if (rawContent.toLowerCase().startsWith(OPTION_CONFIRM)) {

@@ -96,3 +96,25 @@ sentry:
     - "dev.capybaralabs"
   logging:
     minimum-event-level: warn
+
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoint:
+    health:
+      enabled: true
+      show-details: always
+    prometheus:
+      enabled: true
+  endpoints:
+    enabled-by-default: false
+    web:
+      exposure:
+        include:
+          - health
+          - prometheus
+      base-path: /
+      path-mapping:
+        prometheus: metrics

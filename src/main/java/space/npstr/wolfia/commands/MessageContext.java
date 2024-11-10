@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.lang.Nullable;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
-import space.npstr.wolfia.system.metrics.MetricsRegistry;
+import space.npstr.wolfia.system.metrics.MetricsService;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
 
@@ -52,16 +52,18 @@ public class MessageContext implements Context {
     public final Message msg;
     public final MessageReceivedEvent event;
     public final JDA jda;
+    private final MetricsService metricsService;
 
     private final ApplicationInfoProvider appInfoProvider;
 
-    public MessageContext(MessageReceivedEvent event) {
+    public MessageContext(MessageReceivedEvent event, MetricsService metricsService) {
         this.channel = event.getChannel();
         this.invoker = event.getAuthor();
         this.msg = event.getMessage();
         this.event = event;
         this.jda = event.getJDA();
         this.appInfoProvider = new ApplicationInfoProvider(event.getJDA().getShardManager());
+        this.metricsService = metricsService;
     }
 
 
@@ -181,10 +183,10 @@ public class MessageContext implements Context {
         long started = System.nanoTime();
 
         Consumer<Message> successWrapper = m -> {
-            MetricsRegistry.commandResponseTime.observe((System.nanoTime() - started) / Collector.NANOSECONDS_PER_SECOND);
+            metricsService.commandResponseTime.observe((System.nanoTime() - started) / Collector.NANOSECONDS_PER_SECOND);
             long in = getMessage().getTimeCreated().toInstant().toEpochMilli();
             long out = m.getTimeCreated().toInstant().toEpochMilli();
-            MetricsRegistry.commandTotalTime.observe((out - in) / Collector.MILLISECONDS_PER_SECOND);
+            metricsService.commandTotalTime.observe((out - in) / Collector.MILLISECONDS_PER_SECOND);
             if (onSuccess != null) {
                 onSuccess.accept(m);
             }

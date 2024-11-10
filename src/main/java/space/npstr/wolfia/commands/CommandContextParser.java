@@ -17,15 +17,21 @@
 
 package space.npstr.wolfia.commands;
 
+import java.util.Arrays;
+import java.util.regex.Pattern;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
-
-import java.util.Arrays;
-import java.util.regex.Pattern;
+import space.npstr.wolfia.system.metrics.MetricsService;
 
 @Component
 public class CommandContextParser {
+
+    private final MetricsService metricsService;
+
+    public CommandContextParser(MetricsService metricsService) {
+        this.metricsService = metricsService;
+    }
 
     /**
      * @param event the event to be parsed
@@ -61,7 +67,7 @@ public class CommandContextParser {
         if (command == null) {
             return null;
         } else {
-            return new CommandContext(event, commandTrigger,
+            return new CommandContext(event, metricsService, commandTrigger,
                     Arrays.copyOfRange(args, 1, args.length),//exclude args[0] that contains the command trigger
                     input.replaceFirst(Pattern.quote(commandTrigger), "").trim(),
                     command

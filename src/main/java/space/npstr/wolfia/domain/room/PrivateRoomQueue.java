@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import space.npstr.wolfia.system.metrics.MetricsRegistry;
+import space.npstr.wolfia.system.metrics.MetricsService;
 
 @Component
 public class PrivateRoomQueue {
@@ -36,12 +36,14 @@ public class PrivateRoomQueue {
     private static final Logger log = LoggerFactory.getLogger(PrivateRoomQueue.class);
 
     private final ShardManager shardManager;
+    private final MetricsService metricsService;
 
     private final List<ManagedPrivateRoom> allManagedRooms = new ArrayList<>();
     private final LinkedBlockingQueue<ManagedPrivateRoom> availablePrivateRoomQueue = new LinkedBlockingQueue<>();
 
-    public PrivateRoomQueue(ShardManager shardManager, PrivateRoomService privateRoomService) {
+    public PrivateRoomQueue(ShardManager shardManager, MetricsService metricsService, PrivateRoomService privateRoomService) {
         this.shardManager = shardManager;
+        this.metricsService = metricsService;
         List<ManagedPrivateRoom> privateRooms = privateRoomService.findAll().stream()
                 .map(pr -> new ManagedPrivateRoom(shardManager, pr, this))
                 .toList();
@@ -65,7 +67,7 @@ public class PrivateRoomQueue {
 
     public ManagedPrivateRoom take() throws InterruptedException {
         ManagedPrivateRoom room = this.availablePrivateRoomQueue.take();
-        MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
+        metricsService.availablePrivateRooms.set(this.availableRoomsAmount());
         if (room.isInUse()) {
             log.warn("Got a room that is still in use: {}", room);
         }
@@ -78,7 +80,7 @@ public class PrivateRoomQueue {
             if (room.isInUse()) {
                 log.warn("Got a room that is still in use: {}", room);
             }
-            MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
+            metricsService.availablePrivateRooms.set(this.availableRoomsAmount());
         }
         return Optional.ofNullable(room);
     }
@@ -95,14 +97,14 @@ public class PrivateRoomQueue {
         }
 
         this.availablePrivateRoomQueue.add(room);
-        MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
+        metricsService.availablePrivateRooms.set(this.availableRoomsAmount());
     }
 
     public ManagedPrivateRoom add(PrivateRoom privateRoom) {
         ManagedPrivateRoom managedPrivateRoom = new ManagedPrivateRoom(shardManager, privateRoom, this);
         this.allManagedRooms.add(managedPrivateRoom);
         this.availablePrivateRoomQueue.add(managedPrivateRoom);
-        MetricsRegistry.availablePrivateRooms.set(this.availableRoomsAmount());
+        metricsService.availablePrivateRooms.set(this.availableRoomsAmount());
         return managedPrivateRoom;
     }
 }

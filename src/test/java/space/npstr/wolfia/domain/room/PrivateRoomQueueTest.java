@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
+import space.npstr.wolfia.system.metrics.MetricsService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
@@ -45,6 +46,9 @@ class PrivateRoomQueueTest extends ApplicationTest {
     @Autowired
     private ShardManager shardManager;
 
+    @Autowired
+    private MetricsService metricsService;
+
     @Test
     void queueShouldInitializeFromService() {
         PrivateRoomService service = mock(PrivateRoomService.class);
@@ -52,7 +56,7 @@ class PrivateRoomQueueTest extends ApplicationTest {
         PrivateRoom privateRoom2 = new PrivateRoom(uniqueLong(), 1);
         when(service.findAll()).thenReturn(List.of(privateRoom1, privateRoom2));
 
-        var queue = new PrivateRoomQueue(shardManager, service);
+        var queue = new PrivateRoomQueue(shardManager, metricsService, service);
 
         verify(service).findAll();
         List<ManagedPrivateRoom> rooms = queue.getAllManagedRooms();

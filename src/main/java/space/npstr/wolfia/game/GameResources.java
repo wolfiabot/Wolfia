@@ -27,6 +27,7 @@ import space.npstr.wolfia.domain.room.PrivateRoomQueue;
 import space.npstr.wolfia.domain.settings.ChannelSettingsService;
 import space.npstr.wolfia.domain.stats.StatsService;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
+import space.npstr.wolfia.system.metrics.MetricsService;
 
 /**
  * Bundle a bunch of injected dependencies for games.
@@ -43,10 +44,12 @@ public class GameResources {
     private final StatsService statsService;
     private final GameRegistry gameRegistry;
     private final OAuth2Service oAuth2Service;
+    private final MetricsService metricsService;
 
     public GameResources(WolfiaConfig wolfiaConfig, PrivateRoomQueue privateRoomQueue, ExceptionLoggingExecutor executor,
                          ShardManager shardManager, ChannelSettingsService channelSettingsService, UserCache userCache,
-                         StatsService statsService, GameRegistry gameRegistry, OAuth2Service oAuth2Service) {
+                         StatsService statsService, GameRegistry gameRegistry, OAuth2Service oAuth2Service,
+                         MetricsService metricsService) {
 
         this.wolfiaConfig = wolfiaConfig;
         this.privateRoomQueue = privateRoomQueue;
@@ -57,6 +60,7 @@ public class GameResources {
         this.statsService = statsService;
         this.gameRegistry = gameRegistry;
         this.oAuth2Service = oAuth2Service;
+        this.metricsService = metricsService;
     }
 
     public WolfiaConfig getWolfiaConfig() {
@@ -93,5 +97,9 @@ public class GameResources {
 
     public OAuth2Service getoAuth2Service() {
         return this.oAuth2Service;
+    }
+
+    public MetricsService getMetricsService() {
+        return metricsService;
     }
 }

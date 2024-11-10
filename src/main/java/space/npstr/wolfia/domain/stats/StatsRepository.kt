@@ -37,15 +37,16 @@ import space.npstr.wolfia.game.definitions.Alignments
 import space.npstr.wolfia.game.definitions.Games
 import space.npstr.wolfia.game.definitions.Phase
 import space.npstr.wolfia.game.definitions.Roles
-import space.npstr.wolfia.system.metrics.MetricsRegistry
+import space.npstr.wolfia.system.metrics.MetricsService
 
 @Repository
 class StatsRepository internal constructor(
 	private val jooq: DSLContext,
+	private val metricsService: MetricsService,
 ) {
 
 	fun fetchAveragePlayerSize(): BigDecimal {
-		return MetricsRegistry.queryTime.labels("getAveragePlayerSize").startTimer().use {
+		return metricsService.queryTime.labels("getAveragePlayerSize").startTimer().use {
 			jooq
 				.select(DSL.avg(Tables.STATS_GAME.PLAYER_SIZE))
 				.from(Tables.STATS_GAME)
@@ -54,7 +55,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchAveragePlayerSizeInGuild(guildId: Long): BigDecimal {
-		return MetricsRegistry.queryTime.labels("getAveragePlayerSizeInGuild").startTimer().use {
+		return metricsService.queryTime.labels("getAveragePlayerSizeInGuild").startTimer().use {
 			jooq
 				.select(DSL.avg(Tables.STATS_GAME.PLAYER_SIZE))
 				.from(Tables.STATS_GAME)
@@ -64,7 +65,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchDistinctPlayerSizes(): Set<Int> {
-		return MetricsRegistry.queryTime.labels("getDistinctPlayerSizes").startTimer().use {
+		return metricsService.queryTime.labels("getDistinctPlayerSizes").startTimer().use {
 			jooq
 				.selectDistinct(Tables.STATS_GAME.PLAYER_SIZE)
 				.from(Tables.STATS_GAME)
@@ -74,7 +75,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchDistinctPlayerSizesInGuild(guildId: Long): Set<Int> {
-		return MetricsRegistry.queryTime.labels("getDistinctPlayerSizesInGuild").startTimer().use {
+		return metricsService.queryTime.labels("getDistinctPlayerSizesInGuild").startTimer().use {
 			jooq
 				.selectDistinct(Tables.STATS_GAME.PLAYER_SIZE)
 				.from(Tables.STATS_GAME)
@@ -85,7 +86,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun countAlignmentWins(alignment: Alignments): Int {
-		return MetricsRegistry.queryTime.labels("countAlignmentWins").startTimer().use {
+		return metricsService.queryTime.labels("countAlignmentWins").startTimer().use {
 			jooq
 				.select(DSL.count())
 				.from(Tables.STATS_GAME)
@@ -100,7 +101,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun countAlignmentWinsInGuild(alignment: Alignments, guildId: Long): Int {
-		return MetricsRegistry.queryTime.labels("countAlignmentWinsInGuild").startTimer().use {
+		return metricsService.queryTime.labels("countAlignmentWinsInGuild").startTimer().use {
 			jooq
 				.select(DSL.count())
 				.from(Tables.STATS_GAME)
@@ -115,7 +116,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun countAlignmentWinsForPlayerSize(alignment: Alignments, playerSize: Int): Int {
-		return MetricsRegistry.queryTime.labels("countAlignmentWinsForPlayerSize").startTimer().use {
+		return metricsService.queryTime.labels("countAlignmentWinsForPlayerSize").startTimer().use {
 			jooq
 				.select(DSL.count())
 				.from(Tables.STATS_GAME)
@@ -130,7 +131,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun countAlignmentWinsForPlayerSizeInGuild(alignment: Alignments, playerSize: Int, guildId: Long): Int {
-		return MetricsRegistry.queryTime.labels("countAlignmentWinsForPlayerSizeInGuild").startTimer().use {
+		return metricsService.queryTime.labels("countAlignmentWinsForPlayerSizeInGuild").startTimer().use {
 			jooq
 				.select(DSL.count())
 				.from(Tables.STATS_GAME)
@@ -146,7 +147,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchGeneralUserStats(userId: Long): List<GeneralUserStats> {
-		return MetricsRegistry.queryTime.labels("getGeneralUserStats").startTimer().use {
+		return metricsService.queryTime.labels("getGeneralUserStats").startTimer().use {
 			jooq
 				.select(
 					Tables.STATS_PLAYER.TOTAL_POSTLENGTH,
@@ -170,7 +171,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchUserShots(userId: Long): List<Alignments> {
-		return MetricsRegistry.queryTime.labels("getUserShots").startTimer().use {
+		return metricsService.queryTime.labels("getUserShots").startTimer().use {
 			jooq
 				.select(Tables.STATS_PLAYER.ALIGNMENT)
 				.from(Tables.STATS_ACTION)
@@ -190,7 +191,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun findGameStats(gameId: Long): GameStats? {
-		return MetricsRegistry.queryTime.labels("findGameStats").startTimer().use {
+		return metricsService.queryTime.labels("findGameStats").startTimer().use {
 			val dsl = jooq
 			val gameRecord = dsl.selectFrom(Tables.STATS_GAME)
 				.where(Tables.STATS_GAME.GAME_ID.eq(gameId))
@@ -255,7 +256,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun insertGameStats(insertGameStats: InsertGameStats): GameStats {
-		return MetricsRegistry.queryTime.labels("insertGameStats").startTimer().use {
+		return metricsService.queryTime.labels("insertGameStats").startTimer().use {
 			jooq.transactionResult { config ->
 				val context = config.dsl()
 				val gameId = context
@@ -322,7 +323,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchAllGameStatsOfUser(userId: Long): List<PrivacyGame> {
-		return MetricsRegistry.queryTime.labels("getAllGameStatsOfUser").startTimer().use {
+		return metricsService.queryTime.labels("getAllGameStatsOfUser").startTimer().use {
 			jooq
 				.select(
 					Tables.STATS_GAME.GAME_ID,
@@ -358,7 +359,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun fetchAllActionStatsOfUser(userId: Long): Map<Long, List<PrivacyAction>> {
-		return MetricsRegistry.queryTime.labels("getAllActionStatsOfUser").startTimer().use {
+		return metricsService.queryTime.labels("getAllActionStatsOfUser").startTimer().use {
 			jooq
 				.select(
 					Tables.STATS_GAME.GAME_ID,
@@ -382,7 +383,7 @@ class StatsRepository internal constructor(
 	}
 
 	fun nullAllPlayerNicknamesofUser(userId: Long): Int {
-		return MetricsRegistry.queryTime.labels("nullAllPlayerNicknamesofUser").startTimer().use {
+		return metricsService.queryTime.labels("nullAllPlayerNicknamesofUser").startTimer().use {
 			jooq.transactionResult { config ->
 				config.dsl()
 					.update(Tables.STATS_PLAYER)

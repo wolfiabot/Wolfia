@@ -27,6 +27,7 @@ import space.npstr.wolfia.commands.PublicCommand;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.Conversation;
 import space.npstr.wolfia.system.EventWaiter;
+import space.npstr.wolfia.system.metrics.MetricsService;
 import space.npstr.wolfia.utils.discord.Emojis;
 
 @Command
@@ -38,13 +39,15 @@ public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
 
     private final StaffService staffService;
     private final EventWaiter eventWaiter;
+    private final MetricsService metricsService;
     private final StaffProfileConversation staffProfileConversation;
     private final StaffRoleConversation staffRoleConversation;
 
-    public StaffCommand(StaffService staffService, EventWaiter eventWaiter) {
+    public StaffCommand(StaffService staffService, EventWaiter eventWaiter, MetricsService metricsService) {
         this.staffService = staffService;
         this.eventWaiter = eventWaiter;
-        this.staffProfileConversation = new StaffProfileConversation(staffService, eventWaiter);
+        this.metricsService = metricsService;
+        this.staffProfileConversation = new StaffProfileConversation(staffService, eventWaiter, metricsService);
         this.staffRoleConversation = new StaffRoleConversation(eventWaiter);
     }
 
@@ -94,7 +97,7 @@ public class StaffCommand implements BaseCommand, Conversation, PublicCommand {
     }
 
     private boolean optionSelected(MessageReceivedEvent event) {
-        MessageContext context = new MessageContext(event);
+        MessageContext context = new MessageContext(event, metricsService);
         String rawContent = context.getMessage().getContentRaw();
 
         if (rawContent.toLowerCase().startsWith(OPTION_PROFILE)) {
