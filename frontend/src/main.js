@@ -31,6 +31,7 @@ if (import.meta.env.PROD) {
 		logErrors: true,
 		dsn: import.meta.env.VITE_APP_SENTRY_DSN,
 		release: import.meta.env.VITE_APP_VERSION,
+		integrations: [Sentry.browserTracingIntegration({ router })],
 	});
 }
 

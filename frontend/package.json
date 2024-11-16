@@ -9,9 +9,9 @@
 		"lint": "eslint --ext .js,.vue --ignore-path .gitignore"
 	},
 	"dependencies": {
-		"@sentry/browser": "^7.112.2",
+		"@sentry/browser": "^8.38.0",
 		"@sentry/integrations": "^7.112.2",
-		"@sentry/vue": "^7.112.2",
+		"@sentry/vue": "^8.38.0",
 		"bulma": "^0.9.3",
 		"bulma-switch": "^2.0.4",
 		"bulma-toast": "^2.4.4",
