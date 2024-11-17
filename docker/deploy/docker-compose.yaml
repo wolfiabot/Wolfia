@@ -18,7 +18,7 @@ services:
       - dockersock4traefik
 
   traefik:
-    image: traefik:v2.11
+    image: traefik:v3.2
     container_name: traefik
     restart: always
     ports:
@@ -52,7 +52,6 @@ services:
       - "--providers.docker.endpoint=tcp://dockerproxy:2375"
       - "--providers.docker.watch=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.swarmmode=false"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare"
       - "--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL}"
       - "--certificatesresolvers.letsencrypt.acme.storage=acme.json"
