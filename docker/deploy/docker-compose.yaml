@@ -37,7 +37,7 @@ services:
       - "traefik.http.middlewares.metrics-auth.basicauth.users=${METRICS_LOGIN}"
       - "traefik.http.middlewares.metrics-auth.basicauth.removeheader=true"
       - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_DASH_LOGIN}"
-      - "traefik.http.middlewares.whitelist.ipallowlist.sourcerange=${CF_WHITELIST},${UPTIMEROBOT_WHITELIST}"
+      - "traefik.http.middlewares.whitelist.ipallowlist.sourcerange=${CF_WHITELIST}"
       - "traefik.http.routers.api.rule=Host(`traefik.${DOMAIN}`)"
       - "traefik.http.routers.api.tls.certresolver=letsencrypt"
       - "traefik.http.routers.api.service=api@internal"
