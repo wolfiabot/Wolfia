@@ -4,6 +4,6 @@
 # 0  9  *   *   *     cd /home/foo/wolfia && ./docker-update.sh &>> logs/cron.log
 
 echo $(date)
-docker-compose pull
-docker-compose up -d --remove-orphans
+docker compose pull
+docker compose up -d --remove-orphans
 docker image prune --force

@@ -30,7 +30,7 @@ or
 #### Backend Setup
 - Install [Java 11+ using sdkman](https://sdkman.io/)
 - Install [docker](https://docs.docker.com/engine/install/)
-- Install [docker-compose](https://docs.docker.com/compose/install/)
+- Install [docker compose](https://docs.docker.com/compose/install/)
 - Fill out the [wolfia-secrets.example.yaml](../wolfia-secrets.example.yaml) file
 - Rename the [wolfia-secrets.example.yaml](../wolfia-secrets.example.yaml) to `wolfia-secrets.yaml`
 - Copy or move it to [src/main/resources/](../src/main/resources) (a symlink is also a great idea)
@@ -39,7 +39,7 @@ or
 #### Start Backend
 - Start docker containers with:
 ```shell script
-docker-compose -f docker/dev/docker-compose.yaml up -d
+docker compose -f docker/dev/docker-compose.yaml up -d
 ```
 - Start backend with:
 ```shell script
