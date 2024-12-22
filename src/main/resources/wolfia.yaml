@@ -104,12 +104,14 @@ management:
         enabled: true
   endpoint:
     health:
-      enabled: true
+      access: read-only
       show-details: always
     prometheus:
-      enabled: true
+      access: read-only
   endpoints:
-    enabled-by-default: false
+    access:
+      default: none
+      max-permitted: read-only
     web:
       exposure:
         include:

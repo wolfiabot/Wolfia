@@ -22,12 +22,12 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import space.npstr.wolfia.domain.UserCache;
 import space.npstr.wolfia.domain.oauth2.OAuth2Requester;
 import space.npstr.wolfia.domain.privacy.PrivacyBanService;
@@ -47,25 +47,25 @@ public abstract class ApplicationTest extends PostgresAndRedisContainers {
     @LocalServerPort
     protected int port;
 
-    @SpyBean
+    @MockitoSpyBean
     protected Clock clock;
 
-    @SpyBean
+    @MockitoSpyBean
     protected GameSetupService gameSetupService;
 
-    @SpyBean
+    @MockitoSpyBean
     protected UserCache userCache;
 
-    @SpyBean
+    @MockitoSpyBean
     protected PrivacyCommand privacyCommand;
 
-    @SpyBean
+    @MockitoSpyBean
     protected StatsService statsService;
 
-    @SpyBean
+    @MockitoSpyBean
     protected PrivacyBanService privacyBanService;
 
-    @MockBean
+    @MockitoBean
     protected OAuth2Requester oAuth2Requester;
 
     @Autowired // is actually a mock, see DiscordApiConfig
