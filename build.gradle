@@ -249,6 +249,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 
 configurations {
     flywayMigration
+    mockitoAgent
 
     // fucks with spring boot jar, we dont need it anyways
     // be VERY careful and test the produced jar if ever reenabled
@@ -337,8 +338,11 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers"
     testImplementation "org.testcontainers:selenium"
     testImplementation "com.codeborne:selenide:$selenideVersion"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
     testImplementation "org.awaitility:awaitility"
+
+    testImplementation "org.mockito:mockito-core"
+    mockitoAgent("org.mockito:mockito-core") { transitive = false }
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -544,6 +548,7 @@ generateJooq {
 }
 
 test {
+    jvmArgs("-javaagent:${configurations.mockitoAgent.asPath}")
     dependsOn(flywayMigrate)
     doLast {
         stopCodegenDbContainerPost.start()
