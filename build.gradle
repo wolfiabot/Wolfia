@@ -141,12 +141,12 @@ allprojects {
     repositories {
         mavenCentral()
         maven {
-            url 'https://m2.dv8tion.net/releases'
+            url = 'https://m2.dv8tion.net/releases'
             content { includeModule("net.dv8tion", "JDA") }
             content { includeGroup("club.minnced") }
         }
         maven {
-            url 'https://jitpack.io'
+            url = 'https://jitpack.io'
             content { includeGroup("space.npstr") }
         }
     }
@@ -162,8 +162,8 @@ allprojects {
     }
 
     testlogger {
-        theme 'mocha-parallel'
-        showFullStackTraces true
+        theme = 'mocha-parallel'
+        showFullStackTraces = true
     }
 
     jacocoTestReport {
@@ -286,8 +286,7 @@ dependencies {
     implementation(group: "io.netty", name: "netty-transport-native-epoll", classifier: "linux-x86_64")
     implementation(group: "io.netty", name: "netty-transport-native-kqueue", classifier: "osx-x86_64")
 
-    // not part of v1.3.2 BOM for some reason
-    implementation "io.prometheus:prometheus-metrics-instrumentation-caffeine:$prometheusClientVersion"
+    implementation "io.prometheus:prometheus-metrics-instrumentation-caffeine"
     implementation "io.prometheus:prometheus-metrics-instrumentation-jvm"
     implementation "space.npstr:prometheus_extensions:$prometheusExtensionsVersion"
     implementation "io.micrometer:micrometer-registry-prometheus"
