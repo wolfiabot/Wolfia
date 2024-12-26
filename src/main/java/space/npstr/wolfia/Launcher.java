@@ -64,11 +64,10 @@ public class Launcher implements ApplicationRunner {
             return;
         }
 
-        log.info(getVersionInfo());
-
         System.setProperty("spring.config.name", "wolfia");
         SpringApplication app = new SpringApplication(Launcher.class);
         app.setAdditionalProfiles("secrets");
+
         app.addListeners(event -> {
             if (event instanceof ApplicationEnvironmentPreparedEvent) {
                 log.info(getVersionInfo());
