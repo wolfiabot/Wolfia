@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Wolfia Dev" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <option name="ACTIVE_PROFILES" value="dev" />
+    <module name="wolfia.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="space.npstr.wolfia.Launcher" />
+    <option name="VM_PARAMETERS" value="-XX:+EnableDynamicAgentLoading" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="space.npstr.wolfia.config.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
