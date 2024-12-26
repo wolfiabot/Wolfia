@@ -54,7 +54,10 @@ class HstoreRepository(
 				.columns(Tables.HSTOREX.NAME, Tables.HSTOREX.HSTOREX_)
 				.values(name, map)
 				.onDuplicateKeyUpdate()
-				.set(Tables.HSTOREX.HSTOREX_, concat(Tables.HSTOREX.HSTOREX_, DSL.`val`(map)))
+				.set(
+					Tables.HSTOREX.HSTOREX_,
+					concat(Tables.HSTOREX.HSTOREX_, DSL.`val`(map, Tables.HSTOREX.HSTOREX_.dataType))
+				)
 				.returning()
 				.fetchSingle()
 		}
