@@ -150,7 +150,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
     @Test
     fun whenGet_identificationFails_return400() {
         oAuth2Requester.stub {
-            onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doThrow DiscordRequestFailedException("lol nope")
+			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doThrow DiscordRequestFailedException("test exception lol nope")
         }
 
         val authState = authState(TestUtil.uniqueLong())
@@ -169,7 +169,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
     @Test
     fun whenGet_randomException_return500() {
         oAuth2Requester.stub {
-            onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doThrow RuntimeException("lol nope")
+			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doThrow RuntimeException("test exception lol nope")
         }
 
         val authState = authState(TestUtil.uniqueLong())
