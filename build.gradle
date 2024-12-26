@@ -572,3 +572,12 @@ String versionTag() {
     println("Version: " + result)
     return result
 }
+
+idea {
+    module {
+        excludeDirs += [
+                file("logs"),
+                file("docker/**/postgres-data")
+        ]
+    }
+}
