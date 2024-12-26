@@ -110,8 +110,11 @@ tasks.register('resolveAndLockAll') {
     }
     doLast {
         configurations.configureEach {
-            resolutionStrategy {
-                componentSelection properReleasesOnlyOrUpdateNonStable()
+            if (it.name != "mockitoAgent") {
+                // Avoid "Cannot change resolution strategy of dependency configuration ':mockitoAgent' after it has been resolved."
+                resolutionStrategy {
+                    componentSelection properReleasesOnlyOrUpdateNonStable()
+                }
             }
         }
         configurations
