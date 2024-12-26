@@ -144,6 +144,7 @@ services:
       - -Xmx12g
       - -XX:HeapDumpPath=emergencydump.hprof
       - -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      - -XX:+EnableDynamicAgentLoading
       # Hotspot Options:
       - -XX:+HeapDumpOnOutOfMemoryError
       - -Xlog:gc*:logs/gc/gc-%t.log::filesize=1g
