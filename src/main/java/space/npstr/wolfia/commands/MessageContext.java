@@ -188,7 +188,12 @@ public class MessageContext implements Context {
             sample.stop(metricsService.commandResponseTime());
             Instant in = getMessage().getTimeCreated().toInstant();
             Instant out = m.getTimeCreated().toInstant();
-            metricsService.commandTotalTime().record(Duration.between(in, out));
+            Duration between = Duration.between(in, out);
+            if (between.isNegative()) {
+                //it has happened before...wtf
+                between = Duration.ZERO;
+            }
+            metricsService.commandTotalTime().record(between);
             if (onSuccess != null) {
                 onSuccess.accept(m);
             }
