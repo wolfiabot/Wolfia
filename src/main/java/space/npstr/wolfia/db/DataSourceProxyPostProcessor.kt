@@ -7,19 +7,23 @@ import net.ttddyy.dsproxy.listener.logging.DefaultQueryLogEntryCreator
 import net.ttddyy.dsproxy.listener.logging.SLF4JLogLevel.WARN
 import net.ttddyy.dsproxy.listener.logging.SLF4JSlowQueryListener
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder
+import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.config.BeanPostProcessor
 import org.springframework.stereotype.Component
 
 @Component
 class DataSourceProxyPostProcessor(
-	queryCountHolder: SingleQueryCountHolder,
+	// Use ObjectProvider to avoid warnings about this bean being initialized too early for post processing
+	queryCountHolder: ObjectProvider<SingleQueryCountHolder>,
 ) : BeanPostProcessor {
 
-	private val proxyDataSourceBuilder = ProxyDataSourceBuilder()
-		.listener(buildSlf4jSlowQueryListener())
-		.multiline()
-		.name("postgres")
-		.countQuery(queryCountHolder)
+	private val proxyDataSourceBuilder by lazy {
+		ProxyDataSourceBuilder()
+			.listener(buildSlf4jSlowQueryListener())
+			.multiline()
+			.name("postgres")
+			.countQuery(queryCountHolder.getObject())
+	}
 
 	override fun postProcessAfterInitialization(bean: Any, beanName: String): Any? {
 //		if (bean is HikariDataSource) {
