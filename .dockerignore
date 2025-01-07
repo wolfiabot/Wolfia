@@ -1,5 +1,4 @@
 **
 #ignore everything except the following files, they are used in the Dockerfile to build the image
 !Dockerfile
-!wolfia.jar
 !build/libs/wolfia.jar
