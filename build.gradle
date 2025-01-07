@@ -375,9 +375,8 @@ tasks.withType(SonarTask).configureEach {
 
 springBoot {
     buildInfo {
-        properties {
-            time = null
-        }
+        // for deterministic builds
+        excludes = ['time']
     }
 }
 
