@@ -588,7 +588,8 @@ idea {
     module {
         excludeDirs += [
                 file("logs"),
-                file("docker/**/postgres-data")
+                file("docker/**/logs"),
+                file("docker/**/postgres-data"),
         ]
     }
 }
