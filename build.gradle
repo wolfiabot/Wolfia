@@ -393,6 +393,10 @@ bootRun {
     }
 }
 
+jar {
+    onlyIf { false }
+}
+
 bootJar {
     archiveFileName = "wolfia.jar"
 }
