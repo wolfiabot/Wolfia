@@ -403,6 +403,13 @@ tasks.register('pullCodegenDbContainer', DockerPullImage) {
 }
 
 tasks.register('createCodegenDbContainer', DockerCreateContainer) {
+    // this runs intentionally during configuration phase
+    try {
+        // Workaround for rejected PR https://github.com/bmuschko/gradle-docker-plugin/pull/1146
+        mkdir project.layout.buildDirectory.dir(".docker")
+    } catch (ignored) {
+        // happens when directory already exists
+    }
     dependsOn pullCodegenDbContainer
     targetImageId(codegenDbImageName)
     containerName.set(codegenDbContainerName)
@@ -463,6 +470,7 @@ flyway {
         doFirst {
             // running these manually in a doFirst closure ensures that they are not executed all the time
             // currently there is no better way of running tasks optionally that another task depends on
+            // see also https://github.com/gradle/gradle/issues/1414
             pullCodegenDbContainer.start()
             stopCodegenDbContainerPre.start()
             createCodegenDbContainer.start()
