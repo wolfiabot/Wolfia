@@ -1,5 +1,4 @@
 networks:
-  traefik:
   dockersock4traefik:
 
 services:
@@ -27,7 +26,7 @@ services:
     expose:
       - 8080
     networks:
-      - traefik
+      - default
       - dockersock4traefik
     volumes:
       - ./acme.json:/acme.json:rw
@@ -102,10 +101,8 @@ services:
     environment:
       - REDIS_ADDR=redis://redis:6379
     networks:
-      - traefik
       - default
     labels:
-      - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.port=9121"
       - "traefik.http.routers.redis-exporter-prom.rule=Host(`redis.${DOMAIN}`) && PathPrefix(`/metrics`)"
@@ -116,10 +113,8 @@ services:
     image: napstr/wolfia:master
     restart: always
     networks:
-      - traefik
       - default
     labels:
-      - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.port=4567"
       - "traefik.http.routers.wolfia-metrics.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/metrics`)"
@@ -157,11 +152,10 @@ services:
     image: napstr/docker-nginx-redirect
     restart: always
     networks:
-      - traefik
+      - default
     expose:
       - 80
     labels:
-      - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.port=80"
       - "traefik.http.routers.wolfia-redirect-ideas.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/ideas`)"
@@ -177,11 +171,10 @@ services:
     image: napstr/docker-nginx-redirect
     restart: always
     networks:
-      - traefik
+      - default
     expose:
       - 80
     labels:
-      - "traefik.docker.network=wolfia_traefik"
       - "traefik.enable=true"
       - "traefik.port=80"
       - "traefik.http.routers.wolfia-redirect-join.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/join`)"
