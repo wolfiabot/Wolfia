@@ -3,6 +3,7 @@ networks:
 
 services:
 
+  # https://github.com/Tecnativa/docker-socket-proxy
   dockerproxy:
     image: tecnativa/docker-socket-proxy
     container_name: dockerproxy
