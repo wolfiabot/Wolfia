@@ -125,7 +125,6 @@ services:
       - "traefik.http.routers.bot.middlewares=whitelist@docker"
     ports:
       - 127.0.0.1:4567:4567   # Wolfia web server
-      - 127.0.0.1:8849:8849   # JProfiler
       - 127.0.0.1:5005:5005   # Remote debug
     volumes:
       - ./wolfia-secrets.yaml:/opt/wolfia/wolfia-secrets.yaml:ro
