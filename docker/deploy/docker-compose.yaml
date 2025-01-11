@@ -139,23 +139,16 @@ services:
     stop_grace_period: 7200s #should really be enough to finish all games
     entrypoint:
       - java
-      # Common JVM Options:
       - -Xms12g
       - -Xmx12g
       - -XX:HeapDumpPath=emergencydump.hprof
+      - -XX:+HeapDumpOnOutOfMemoryError
       - -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - -XX:+EnableDynamicAgentLoading
-      # Hotspot Options:
-      - -XX:+HeapDumpOnOutOfMemoryError
       - -Xlog:gc*:logs/gc/gc-%t.log::filesize=1g
       - -XX:+UseG1GC
       - -XX:+ParallelRefProcEnabled
       - -XX:+UseStringDeduplication
-      # OpenJ9 Options
-      #      - -XX:+HeapDumpOnOutOfMemory
-      #      - -Xgcpolicy:balanced
-      #      - -Xverbosegclog:logs/gc/gc-%Y-%m-%d_%H-%M-%S.xml
-      # The Jar
       - -jar
       - wolfia.jar
 
