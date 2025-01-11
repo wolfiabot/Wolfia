@@ -117,12 +117,22 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.port=4567"
+      # metrics
       - "traefik.http.routers.wolfia-metrics.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/metrics`)"
       - "traefik.http.routers.wolfia-metrics.tls.certresolver=letsencrypt"
       - "traefik.http.routers.wolfia-metrics.middlewares=metrics-auth@docker, whitelist@docker"
+      # ideas redirect
+      - "traefik.http.middlewares.ideas-redirect.redirectregex.regex=^https?://bot\\.${DOMAIN}/ideas.*"
+      - "traefik.http.middlewares.ideas-redirect.redirectregex.replacement=https://feedback.userreport.com/01987d31-0d58-48c6-a4d3-96f2ae42eb14"
+      - "traefik.http.middlewares.ideas-redirect.redirectregex.permanent=false"
+      # join redirect
+      - "traefik.http.middlewares.join-redirect.redirectregex.regex=^https?://bot\\.${DOMAIN}/join.*"
+      - "traefik.http.middlewares.join-redirect.redirectregex.replacement=https://discord.gg/nvcfX3q"
+      - "traefik.http.middlewares.join-redirect.redirectregex.permanent=false"
+      # bot
       - "traefik.http.routers.bot.rule=Host(`bot.${DOMAIN}`)"
       - "traefik.http.routers.bot.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.bot.middlewares=whitelist@docker"
+      - "traefik.http.routers.bot.middlewares=whitelist@docker, ideas-redirect, join-redirect"
     ports:
       - 127.0.0.1:4567:4567   # Wolfia web server
       - 127.0.0.1:5005:5005   # Remote debug
@@ -147,42 +157,3 @@ services:
       - -XX:+ZGenerational
       - -jar
       - wolfia.jar
-
-  # bunch of redirects cause traefik cant do them lol
-  redirect-ideas:
-    image: napstr/docker-nginx-redirect
-    restart: always
-    networks:
-      - default
-    expose:
-      - 80
-    labels:
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "traefik.http.routers.wolfia-redirect-ideas.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/ideas`)"
-      - "traefik.http.routers.wolfia-redirect-ideas.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.wolfia-redirect-ideas.middlewares=whitelist@docker"
-    environment:
-      - SERVER_REDIRECT=feedback.userreport.com
-      - SERVER_REDIRECT_PATH=/01987d31-0d58-48c6-a4d3-96f2ae42eb14
-      - SERVER_REDIRECT_SCHEME=https
-      - SERVER_REDIRECT_CODE=307
-
-  redirect-join:
-    image: napstr/docker-nginx-redirect
-    restart: always
-    networks:
-      - default
-    expose:
-      - 80
-    labels:
-      - "traefik.enable=true"
-      - "traefik.port=80"
-      - "traefik.http.routers.wolfia-redirect-join.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/join`)"
-      - "traefik.http.routers.wolfia-redirect-join.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.wolfia-redirect-join.middlewares=whitelist@docker"
-    environment:
-      - SERVER_REDIRECT=discord.gg
-      - SERVER_REDIRECT_PATH=/nvcfX3q
-      - SERVER_REDIRECT_SCHEME=https
-      - SERVER_REDIRECT_CODE=307
