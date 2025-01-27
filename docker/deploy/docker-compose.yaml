@@ -133,7 +133,7 @@ services:
       # bot
       - "traefik.http.routers.bot.rule=Host(`bot.${DOMAIN}`)"
       - "traefik.http.routers.bot.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.bot.middlewares=whitelist@docker, ideas-redirect, join-redirect"
+      - "traefik.http.routers.bot.middlewares=whitelist@docker, ideas-redirect@docker, join-redirect@docker"
     ports:
       - 127.0.0.1:4567:4567   # Wolfia web server
       - 127.0.0.1:5005:5005   # Remote debug
