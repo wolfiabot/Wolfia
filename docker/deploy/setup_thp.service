@@ -1,0 +1,15 @@
+[Unit]
+
+# See https://github.com/redis/redis/issues/3895
+# and https://netflixtechblog.com/bending-pause-times-to-your-will-with-generational-zgc-256629c9386b
+Description=Setup Transparent Huge Pages
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "/bin/echo 'madvise' > /sys/kernel/mm/transparent_hugepage/enabled"
+ExecStart=/bin/sh -c "/bin/echo 'advise' > /sys/kernel/mm/transparent_hugepage/shmem_enabled"
+ExecStart=/bin/sh -c "/bin/echo 'defer' > /sys/kernel/mm/transparent_hugepage/defrag"
+ExecStart=/bin/sh -c "/bin/echo '1' > /proc/sys/vm/overcommit_memory"
+
+[Install]
+WantedBy=multi-user.target
