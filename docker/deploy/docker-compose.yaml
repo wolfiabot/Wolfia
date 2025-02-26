@@ -47,9 +47,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.port=9121"
-      - "traefik.http.routers.redis-exporter-prom.rule=Host(`redis.${DOMAIN}`) && PathPrefix(`/metrics`)"
-      - "traefik.http.routers.redis-exporter-prom.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.redis-exporter-prom.middlewares=metrics-auth@docker, whitelist@docker"
+      - "traefik.http.routers.wolfia-redis-exporter-prom.rule=Host(`redis.${DOMAIN}`) && PathPrefix(`/metrics`)"
+      - "traefik.http.routers.wolfia-redis-exporter-prom.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wolfia-redis-exporter-prom.middlewares=metrics-auth@docker, whitelist@docker"
 
   bot:
     image: napstr/wolfia:master
@@ -64,17 +64,17 @@ services:
       - "traefik.http.routers.wolfia-metrics.tls.certresolver=letsencrypt"
       - "traefik.http.routers.wolfia-metrics.middlewares=metrics-auth@docker, whitelist@docker"
       # ideas redirect
-      - "traefik.http.middlewares.ideas-redirect.redirectregex.regex=^https?://bot\\.${DOMAIN}/ideas.*"
-      - "traefik.http.middlewares.ideas-redirect.redirectregex.replacement=https://feedback.userreport.com/01987d31-0d58-48c6-a4d3-96f2ae42eb14"
-      - "traefik.http.middlewares.ideas-redirect.redirectregex.permanent=false"
+      - "traefik.http.middlewares.wolfia-ideas-redirect.redirectregex.regex=^https?://bot\\.${DOMAIN}/ideas.*"
+      - "traefik.http.middlewares.wolfia-ideas-redirect.redirectregex.replacement=https://feedback.userreport.com/01987d31-0d58-48c6-a4d3-96f2ae42eb14"
+      - "traefik.http.middlewares.wolfia-ideas-redirect.redirectregex.permanent=false"
       # join redirect
-      - "traefik.http.middlewares.join-redirect.redirectregex.regex=^https?://bot\\.${DOMAIN}/join.*"
-      - "traefik.http.middlewares.join-redirect.redirectregex.replacement=https://discord.gg/nvcfX3q"
-      - "traefik.http.middlewares.join-redirect.redirectregex.permanent=false"
+      - "traefik.http.middlewares.wolfia-join-redirect.redirectregex.regex=^https?://bot\\.${DOMAIN}/join.*"
+      - "traefik.http.middlewares.wolfia-join-redirect.redirectregex.replacement=https://discord.gg/nvcfX3q"
+      - "traefik.http.middlewares.wolfia-join-redirect.redirectregex.permanent=false"
       # bot
-      - "traefik.http.routers.bot.rule=Host(`bot.${DOMAIN}`)"
-      - "traefik.http.routers.bot.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.bot.middlewares=whitelist@docker, ideas-redirect@docker, join-redirect@docker"
+      - "traefik.http.routers.wolfia-bot.rule=Host(`bot.${DOMAIN}`)"
+      - "traefik.http.routers.wolfia-bot.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wolfia-bot.middlewares=whitelist@docker, wolfia-ideas-redirect@docker, wolfia-join-redirect@docker"
     ports:
       - 127.0.0.1:4567:4567   # Wolfia web server
       - 127.0.0.1:5005:5005   # Remote debug
