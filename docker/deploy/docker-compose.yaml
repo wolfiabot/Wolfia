@@ -87,15 +87,17 @@ services:
       - java
       - -Xms12g
       - -Xmx12g
-      - -XX:HeapDumpPath=emergencydump.hprof
+      - -XX:+AlwaysPreTouch
       - -XX:+HeapDumpOnOutOfMemoryError
+      - -XX:HeapDumpPath=emergencydump.hprof
       - -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - -XX:+EnableDynamicAgentLoading
       - -Xlog:gc*:logs/gc/gc-%t.log::filesize=1g
-      #- -XX:+ParallelRefProcEnabled
-      #- -XX:+UseStringDeduplication
       #- -XX:+UseG1GC
+      #- -XX:+ParallelRefProcEnabled
       - -XX:+UseZGC
       - -XX:+ZGenerational
+      - -XX:+UseTransparentHugePages
+      - -XX:+UseStringDeduplication
       - -jar
       - wolfia.jar
