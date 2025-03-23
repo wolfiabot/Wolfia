@@ -12,7 +12,7 @@ services:
     restart: always
     environment:
       CONTAINERS: 1
-    ports:
+    expose:
       - 2375
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:z"
