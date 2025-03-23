@@ -1,12 +1,12 @@
 FROM eclipse-temurin:21-jdk
-MAINTAINER napster@npstr.space
+LABEL org.opencontainers.image.authors="napster@npstr.space"
 
 RUN groupadd -g 420 wolfia && \
 	useradd -r -u 420 -g wolfia wolfia
 
 USER wolfia:wolfia
 
-ENV ENV docker
+ENV ENV=docker
 
 WORKDIR /opt/wolfia
 
