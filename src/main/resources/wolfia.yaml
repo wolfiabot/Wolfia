@@ -51,7 +51,7 @@ spring:
     redis:
       url: "redis://localhost:6389/0"
   datasource:
-    # From the docker/dev/docker-compose file
+    # From the docker/dev/compose file
     url: "jdbc:postgresql://localhost:5442/wolfia?user=wolfia&password=wolfia"
     hikari:
       maximum-pool-size: 8

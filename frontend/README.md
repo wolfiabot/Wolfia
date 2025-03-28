@@ -39,7 +39,7 @@ or
 #### Start Backend
 - Start docker containers with:
 ```shell script
-docker compose -f docker/dev/docker-compose.yaml up -d
+docker compose -f docker/dev/compose.yaml up -d
 ```
 - Start backend with:
 ```shell script
