@@ -198,6 +198,16 @@ public class ManagedPrivateRoom {
                 () -> log.error("Could not create invite to private guild #{}, id {}", this.privateRoom.getNumber(), this.privateRoom.getGuildId()));
     }
 
+    public String getJumpUrl() {
+        Guild g = fetchThisGuild();
+        TextChannel channel = g.getTextChannelById(this.currentChannelId);
+        if (channel == null) {
+            log.error("Could not find channel {} in private guild #{}", this.currentChannelId, this.privateRoom.getNumber());
+            return "";
+        }
+        return channel.getJumpUrl();
+    }
+
     public long getChannelId() {
         return this.currentChannelId;
     }

@@ -175,9 +175,10 @@ public class Mafia extends Game {
         //inform each player about his role
         String inviteLink = TextchatUtils.getOrCreateInviteLinkForChannel(gameChannel);
         String wolfchatInvite = this.wolfChat.getInvite();
+        String wolfchatJumpUrl = this.wolfChat.getJumpUrl();
         StringBuilder mafiaTeamNames = new StringBuilder("Your team is:\n");
-        String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s%n", //invite that may be empty
-                gameChannel.getGuild().getName(), gameChannel.getName(), inviteLink);
+        String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s %s%n", //invite that may be empty
+                gameChannel.getGuild().getName(), gameChannel.getName(), gameChannel.getJumpUrl(), inviteLink);
 
         for (Player player : getWolves()) {
             mafiaTeamNames.append(player.bothNamesFormatted()).append("\n");
@@ -190,7 +191,8 @@ public class Mafia extends Game {
                     .append(player.role.rolePmBlock).append("\n");
             if (player.isBaddie()) {
                 rolePm.append(mafiaTeamNames);
-                rolePm.append("Wolfchat: ").append(wolfchatInvite).append("\n");
+                rolePm.append("Wolfchat: ").append(wolfchatJumpUrl).append("\n")
+                        .append(wolfchatInvite).append("\n");
                 addToBaddieGuild(player);
             }
             rolePm.append(guildChannelAndInvite);

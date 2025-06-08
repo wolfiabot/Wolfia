@@ -163,9 +163,10 @@ public class Popcorn extends Game {
         //inform each player about his role
         String inviteLink = TextchatUtils.getOrCreateInviteLinkForChannel(gameChannel);
         String wolfchatInvite = this.wolfChat != null ? "Wolfchat: " + this.wolfChat.getInvite() + "\n" : "";
+        String wolfchatJumpUrl = this.wolfChat != null ? this.wolfChat.getJumpUrl() + "\n" : "";
         StringBuilder wolfteamNames = new StringBuilder("Your team is:\n");
-        String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s%n", //invite that may be empty
-                gameChannel.getGuild().getName(), gameChannel.getName(), inviteLink);
+        String guildChannelAndInvite = String.format("Guild/Server: **%s**%nMain channel: **#%s** %s %s%n", //invite that may be empty
+                gameChannel.getGuild().getName(), gameChannel.getName(), gameChannel.getJumpUrl(), inviteLink);
 
         for (Player player : this.getWolves()) {
             wolfteamNames.append(player.bothNamesFormatted()).append("\n");
@@ -181,6 +182,7 @@ public class Popcorn extends Game {
             if (player.isBaddie()) {
                 rolePm.append("If you get shot, you will die. If all wolves get shot, you lose\n");
                 rolePm.append(wolfteamNames);
+                rolePm.append(wolfchatJumpUrl);
                 rolePm.append(wolfchatInvite);
                 if (this.mode != GameMode.WILD) {
                     addToBaddieGuild(player);
