@@ -590,6 +590,8 @@ idea {
                 file("logs"),
                 file("docker/**/logs"),
                 file("docker/**/postgres-data"),
+                file("frontend/.yarn"),
+                file("frontend/node"),
         ]
     }
 }
