@@ -18,6 +18,7 @@ package space.npstr.wolfia.domain.stats
 
 import kotlin.jvm.optionals.getOrNull
 import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.MessageEmbed
 import org.springframework.stereotype.Component
 import space.npstr.wolfia.commands.Context
 import space.npstr.wolfia.commands.MessageContext
@@ -40,7 +41,13 @@ class StatsRender(
 	private val userCache: UserCache,
 ) {
 
-	fun renderBotStats(context: Context, botstats: BotStats): EmbedBuilder {
+	companion object {
+		private const val MAX_FIELDS = 25
+	}
+
+	fun renderBotStats(context: Context, botstats: BotStats): List<MessageEmbed> {
+		val resultEmbeds = mutableListOf<MessageEmbed>()
+
 		val eb = MessageContext.getDefaultEmbedBuilder()
 		eb.setTitle("Wolfia stats:")
 		context.jda.shardManager?.shardCache?.firstOrNull()?.selfUser?.avatarUrl?.let { eb.setThumbnail(it) }
@@ -58,10 +65,28 @@ class StatsRender(
 		// stats by playersize
 		eb.addBlankField(false)
 		eb.addField("Stats by player size:", "", false)
-		return addStatsPerPlayerSize(eb, botstats.winStatsByPlayerSize)
+
+		var sortedWinStats: List<WinStats> = ArrayList(botstats.winStatsByPlayerSize)
+			.sortedWith(Comparator.comparingInt(WinStats::playerSize))
+
+		val takeFields = MAX_FIELDS - eb.fields.count()
+
+		addStatsPerPlayerSizeField(eb, sortedWinStats.take(takeFields))
+		resultEmbeds.add(eb.build())
+
+		sortedWinStats = sortedWinStats.drop(takeFields)
+		sortedWinStats.chunked(MAX_FIELDS).forEach { page ->
+			eb.clearFields()
+			addStatsPerPlayerSizeField(eb, page)
+			resultEmbeds.add(eb.build())
+		}
+
+		return resultEmbeds
 	}
 
-	fun renderGuildStats(context: Context, stats: GuildStats): EmbedBuilder {
+	fun renderGuildStats(context: Context, stats: GuildStats): List<MessageEmbed> {
+		val resultEmbeds = mutableListOf<MessageEmbed>()
+
 		val eb = MessageContext.getDefaultEmbedBuilder()
 		val shardManager = context.jda.shardManager
 		val guild = shardManager!!.getGuildById(stats.guildId)
@@ -73,7 +98,7 @@ class StatsRender(
 		val totalGames = stats.totalWinStats.totalGames
 		if (totalGames <= 0) {
 			eb.setTitle("There have no games been played in the guild (id `${stats.guildId}`).")
-			return eb
+			return listOf(eb.build())
 		}
 
 		// stats for all games in this guild
@@ -88,12 +113,26 @@ class StatsRender(
 		// stats by playersize in this guild
 		eb.addBlankField(false)
 		eb.addField("Stats by player size:", "", false)
-		return addStatsPerPlayerSize(eb, stats.winStatsByPlayerSize)
+
+		var sortedWinStats: List<WinStats> = ArrayList(stats.winStatsByPlayerSize)
+			.sortedWith(Comparator.comparingInt(WinStats::playerSize))
+
+		val takeFields = MAX_FIELDS - eb.fields.count()
+
+		addStatsPerPlayerSizeField(eb, sortedWinStats.take(takeFields))
+		resultEmbeds.add(eb.build())
+
+		sortedWinStats = sortedWinStats.drop(takeFields)
+		sortedWinStats.chunked(MAX_FIELDS).forEach { page ->
+			eb.clearFields()
+			addStatsPerPlayerSizeField(eb, page)
+			resultEmbeds.add(eb.build())
+		}
+
+		return resultEmbeds
 	}
 
-	private fun addStatsPerPlayerSize(eb: EmbedBuilder, winStatsList: List<WinStats>): EmbedBuilder {
-		val sortedWinStats: List<WinStats> = ArrayList(winStatsList)
-			.sortedWith(Comparator.comparingInt(WinStats::playerSize))
+	private fun addStatsPerPlayerSizeField(eb: EmbedBuilder, sortedWinStats: List<WinStats>): EmbedBuilder {
 		for ((playerSize, totalGames, goodieWins, baddieWins) in sortedWinStats) {
 			val baddieWinPercentage = TextchatUtils.percentFormat(TextchatUtils.divide(baddieWins, totalGames))
 			val goodieWinPercentage = TextchatUtils.percentFormat(TextchatUtils.divide(goodieWins, totalGames))

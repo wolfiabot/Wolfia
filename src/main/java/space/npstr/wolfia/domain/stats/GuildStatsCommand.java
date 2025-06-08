@@ -75,7 +75,7 @@ public class GuildStatsCommand implements BaseCommand, PublicCommand {
         }
 
         GuildStats guildStats = this.statsProvider.calculateGuildStats(guildId.get());
-        context.reply(this.render.renderGuildStats(context, guildStats).build());
+        context.reply(this.render.renderGuildStats(context, guildStats));
         return true;
     }
 }

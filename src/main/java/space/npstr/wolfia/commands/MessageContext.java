@@ -21,6 +21,7 @@ import io.micrometer.core.instrument.Timer;
 import java.awt.Color;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -117,6 +118,11 @@ public class MessageContext implements Context {
     // ********************************************************************************
     // NOTE: they all try to end up in the reply0 method for consistent behaviour
 
+    public void reply(List<MessageEmbed> embeds) {
+        for (MessageEmbed embed : embeds) {
+            reply(embed);
+        }
+    }
 
     public void reply(MessageEmbed embed) {
         reply0(RestActions.createFrom(embed), null);
