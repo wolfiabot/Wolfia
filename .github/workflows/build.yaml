@@ -50,28 +50,27 @@ jobs:
         with:
           distribution: "temurin"
           java-version: 21
-          cache: "gradle"
 
       - name: Print JDK info
         run: java -Xmx32m --version
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8379f6a1328ee0e06e2bb424dadb7b159856a326 # v4.4.0
+
+      - name: Print Gradle info
+        run: ./gradlew --version
+
       - name: Gradle Assemble
-        uses: burrunan/gradle-cache-action@4a07779efc8120348ea6dfd35314bc30a586eb0f # v3.0.1
-        with:
-          arguments: assemble --info -Pprod
+        run: ./gradlew assemble --info -Pprod
 
       - name: Sonar
-        uses: burrunan/gradle-cache-action@4a07779efc8120348ea6dfd35314bc30a586eb0f # v3.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          arguments: check sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=wolfiabot -Dsonar.token=${{ env.SONAR_TOKEN }}
+        run: ./gradlew check sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=wolfiabot -Dsonar.token=${{ env.SONAR_TOKEN }}
 
       - name: Gradle BootJar
-        uses: burrunan/gradle-cache-action@4a07779efc8120348ea6dfd35314bc30a586eb0f # v3.0.1
-        with:
-          arguments: bootJar --info -Pprod
+        run: ./gradlew bootJar --info -Pprod
 
       - name: Docker Build
         run: docker build -t "${{ env.BRANCH_TAG }}" -t "${{ env.GIT_HASH_TAG }}" -f docker/Dockerfile .
