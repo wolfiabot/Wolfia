@@ -18,7 +18,6 @@ package space.npstr.wolfia.domain.stats
 
 import kotlin.jvm.optionals.getOrNull
 import net.dv8tion.jda.api.EmbedBuilder
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import space.npstr.wolfia.commands.Context
 import space.npstr.wolfia.commands.MessageContext
@@ -31,6 +30,7 @@ import space.npstr.wolfia.game.definitions.Games
 import space.npstr.wolfia.game.definitions.Item
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder.ChunkingField
+import space.npstr.wolfia.system.logger
 import space.npstr.wolfia.utils.discord.Emojis
 import space.npstr.wolfia.utils.discord.TextchatUtils
 
@@ -89,6 +89,21 @@ class StatsRender(
 		eb.addBlankField(false)
 		eb.addField("Stats by player size:", "", false)
 		return addStatsPerPlayerSize(eb, stats.winStatsByPlayerSize)
+	}
+
+	private fun addStatsPerPlayerSize(eb: EmbedBuilder, winStatsList: List<WinStats>): EmbedBuilder {
+		val sortedWinStats: List<WinStats> = ArrayList(winStatsList)
+			.sortedWith(Comparator.comparingInt(WinStats::playerSize))
+		for ((playerSize, totalGames, goodieWins, baddieWins) in sortedWinStats) {
+			val baddieWinPercentage = TextchatUtils.percentFormat(TextchatUtils.divide(baddieWins, totalGames))
+			val goodieWinPercentage = TextchatUtils.percentFormat(TextchatUtils.divide(goodieWins, totalGames))
+			val content = "${Emojis.WOLF} win $baddieWinPercentage\n${Emojis.COWBOY} win $goodieWinPercentage"
+			eb.addField(
+				"$totalGames games with $playerSize players",
+				content, true,
+			)
+		}
+		return eb
 	}
 
 	fun renderUserStats(stats: UserStats): EmbedBuilder {
@@ -183,7 +198,7 @@ class StatsRender(
 		val winners = stats.startingTeams.firstOrNull(TeamStats::isWinner)
 		if (winners == null) {
 			//shouldn't happen lol
-			log.error("Game #{} has no winning team in the data", gameId)
+			logger().error("Game #{} has no winning team in the data", gameId)
 			winText = """
 				Game has no winning team ${Emojis.WOLFTHINK}
 				Replay must be borked. Error has been reported.
@@ -237,7 +252,7 @@ class StatsRender(
 			}
 		}
 		val message = "No such player $userId in this game ${gameStats.gameId}"
-		log.error(message, IllegalArgumentException(message))
+		logger().error(message, IllegalArgumentException(message))
 		return Player.UNKNOWN_NAME
 	}
 
@@ -256,23 +271,5 @@ class StatsRender(
 			.count()
 		val playerNumber = allPlayers.size - left + 1
 		return "Player#$playerNumber"
-	}
-
-	companion object {
-		private val log = LoggerFactory.getLogger(StatsRender::class.java)
-		private fun addStatsPerPlayerSize(eb: EmbedBuilder, winStatsList: List<WinStats>): EmbedBuilder {
-			val sortedWinStats: List<WinStats> = ArrayList(winStatsList)
-				.sortedWith(Comparator.comparingInt(WinStats::playerSize))
-			for ((playerSize, totalGames, goodieWins, baddieWins) in sortedWinStats) {
-				val baddieWinPercentage = TextchatUtils.divide(baddieWins, totalGames)
-				val goodieWinPercentage = TextchatUtils.divide(goodieWins, totalGames)
-				val content = "${Emojis.WOLF} win ${TextchatUtils.percentFormat(baddieWinPercentage)}\n${Emojis.COWBOY} win ${TextchatUtils.percentFormat(goodieWinPercentage)}"
-				eb.addField(
-					"$totalGames games with $playerSize players",
-					content, true,
-				)
-			}
-			return eb
-		}
 	}
 }
