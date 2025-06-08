@@ -56,12 +56,12 @@ jobs:
         run: java -Xmx32m --version
 
       - name: Gradle Assemble
-        uses: burrunan/gradle-cache-action@c15634bb25b7284dc084f38dff4e838048b7feaf # v1.22
+        uses: burrunan/gradle-cache-action@4a07779efc8120348ea6dfd35314bc30a586eb0f # v3.0.1
         with:
           arguments: assemble --info -Pprod
 
       - name: Sonar
-        uses: burrunan/gradle-cache-action@c15634bb25b7284dc084f38dff4e838048b7feaf # v1.22
+        uses: burrunan/gradle-cache-action@4a07779efc8120348ea6dfd35314bc30a586eb0f # v3.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
           arguments: check sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=wolfiabot -Dsonar.token=${{ env.SONAR_TOKEN }}
 
       - name: Gradle BootJar
-        uses: burrunan/gradle-cache-action@c15634bb25b7284dc084f38dff4e838048b7feaf # v1.22
+        uses: burrunan/gradle-cache-action@4a07779efc8120348ea6dfd35314bc30a586eb0f # v3.0.1
         with:
           arguments: bootJar --info -Pprod
 
