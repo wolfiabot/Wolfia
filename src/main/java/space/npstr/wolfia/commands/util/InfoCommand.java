@@ -69,13 +69,6 @@ public class InfoCommand implements BaseCommand, PublicCommand {
         ShardManager shardManager = requireNonNull(context.getJda().getShardManager());
         var appInfoProvider = new ApplicationInfoProvider(context.getJda().getShardManager());
         User owner = appInfoProvider.getOwner();
-        String maStats = "```\n";
-        maStats += "Reserved memory:        " + Runtime.getRuntime().totalMemory() / 1000000 + "MB\n";
-        maStats += "-> Of which is used:    " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1000000 + "MB\n";
-        maStats += "-> Of which is free:    " + Runtime.getRuntime().freeMemory() / 1000000 + "MB\n";
-        maStats += "Max reservable:         " + Runtime.getRuntime().maxMemory() / 1000000 + "MB\n";
-        maStats += "```";
-
 
         String botInfo = "```\n";
         botInfo += "Games being played:     " + this.gameRegistry.getRunningGamesCount() + "\n";
@@ -95,7 +88,6 @@ public class InfoCommand implements BaseCommand, PublicCommand {
         eb.setTitle(self.getName() + " General Stats", App.SITE_LINK);
         eb.setDescription(description);
         eb.addField("Bot info", botInfo, false);
-        eb.addField("Machine stats", maStats, false);
 
 
         context.reply(eb.build());
