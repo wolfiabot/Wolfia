@@ -392,16 +392,14 @@ public abstract class Game {
             }
             //lets not worry about things we arent even using currently and possibly never will
         });
-        if (!toAcquireInChannelScope.isEmpty()) {
-            //is the bot allowed to manage permissions for this channel?
-            if (!g.getSelfMember().hasPermission(gameChannel, Permission.MANAGE_PERMISSIONS)) {
-                throw new UserFriendlyException(String.format(
-                        "To run a %s game in %s mode in this channel, I need the permission to `%s` in this channel",
-                        Games.POPCORN.textRep, this.mode.name(), Permission.MANAGE_PERMISSIONS)
-                );
-            }
-            RoleAndPermissionUtils.acquireChannelPermissions(gameChannel, toAcquireInChannelScope.toArray(new Permission[0]));
+        //is the bot allowed to manage permissions for this channel?
+        if (!g.getSelfMember().hasPermission(gameChannel, Permission.MANAGE_PERMISSIONS)) {
+            throw new UserFriendlyException(String.format(
+                    "To run a %s game in %s mode in this channel, I need the permission to `%s` in this channel",
+                    Games.POPCORN.textRep, this.mode.name(), Permission.MANAGE_PERMISSIONS)
+            );
         }
+        RoleAndPermissionUtils.acquireChannelPermissions(gameChannel, toAcquireInChannelScope.toArray(new Permission[0]));
 
         if (moderated) {
             //is this a non-public channel, and if yes, has an existing access role been set?
