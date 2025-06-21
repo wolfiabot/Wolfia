@@ -57,7 +57,6 @@ spring:
       validation-timeout: 1_000
       connection-timeout: 1_000
       auto-commit: false
-      pool-name: "postgres-DefaultPool"
       data-source-properties:
         # allow postgres to cast strings (varchars) more freely to actual column types
         # source https://jdbc.postgresql.org/documentation/head/connect.html
