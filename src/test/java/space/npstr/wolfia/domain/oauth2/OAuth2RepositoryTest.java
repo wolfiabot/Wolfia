@@ -47,6 +47,7 @@ class OAuth2RepositoryTest extends ApplicationTest {
             assertThat(actual.refreshToken()).isEqualTo(data.refreshToken());
             assertThat(actual.expires()).isCloseTo(data.expires(), within(1, ChronoUnit.MILLIS));
             assertThat(actual.scopes()).containsExactlyInAnyOrderElementsOf(data.scopes());
+            assertThat(actual.createdAt()).isCloseTo(data.createdAt(), within(1, ChronoUnit.MILLIS));
         };
     }
 
@@ -77,8 +78,10 @@ class OAuth2RepositoryTest extends ApplicationTest {
     @Test
     void givenEntryPresent_whenFind_returnEntry() {
         long userId = uniqueLong();
-        OAuth2Data data = new OAuth2Data(userId, "foo", now().plusDays(30).toInstant(),
-                "bar", Set.of(OAuth2Scope.IDENTIFY));
+        var now = now();
+        Instant expires = now.plusDays(30).toInstant();
+        OAuth2Data data = new OAuth2Data(userId, "foo", expires,
+                "bar", Set.of(OAuth2Scope.IDENTIFY), now.toInstant());
 
         this.repository.save(data);
 
@@ -89,8 +92,10 @@ class OAuth2RepositoryTest extends ApplicationTest {
     @Test
     void givenNoEntry_whenSave_save() {
         long userId = uniqueLong();
-        OAuth2Data data = new OAuth2Data(userId, "foo", now().plusDays(30).toInstant(),
-                "bar", Set.of(OAuth2Scope.IDENTIFY));
+        var now = now();
+        Instant expires = now.plusDays(30).toInstant();
+        OAuth2Data data = new OAuth2Data(userId, "foo", expires,
+                "bar", Set.of(OAuth2Scope.IDENTIFY), now.toInstant());
 
         OAuth2Data saved = this.repository.save(data);
 
@@ -102,11 +107,14 @@ class OAuth2RepositoryTest extends ApplicationTest {
     @Test
     void givenEntryPresent_whenSave_overwrite() {
         long userId = uniqueLong();
-        OAuth2Data existing = new OAuth2Data(userId, "foo", now().plusDays(30).toInstant(),
-                "bar", Set.of(OAuth2Scope.IDENTIFY));
+        var now = now();
+        Instant expires = now.plusDays(30).toInstant();
+        OAuth2Data existing = new OAuth2Data(userId, "foo", expires,
+                "bar", Set.of(OAuth2Scope.IDENTIFY), now.toInstant());
         this.repository.save(existing);
-        OAuth2Data data = new OAuth2Data(userId, "foo", now().plusDays(14).toInstant(),
-                "baz", Set.of(OAuth2Scope.IDENTIFY, OAuth2Scope.GUILD_JOIN));
+        expires = now.plusDays(14).toInstant();
+        OAuth2Data data = new OAuth2Data(userId, "foo", expires,
+                "baz", Set.of(OAuth2Scope.IDENTIFY, OAuth2Scope.GUILD_JOIN), now.toInstant());
 
         OAuth2Data saved = this.repository.save(data);
 
@@ -169,8 +177,10 @@ class OAuth2RepositoryTest extends ApplicationTest {
     @Test
     void whenDelete_delete() {
         long userId = uniqueLong();
-        OAuth2Data existing = new OAuth2Data(userId, "foo", now().plusDays(30).toInstant(),
-                "bar", Set.of(OAuth2Scope.IDENTIFY));
+        var now = now();
+        Instant expires = now.plusDays(30).toInstant();
+        OAuth2Data existing = new OAuth2Data(userId, "foo", expires,
+                "bar", Set.of(OAuth2Scope.IDENTIFY), now.toInstant());
         this.repository.save(existing);
 
         int deleted = this.repository.delete(userId);
@@ -182,7 +192,7 @@ class OAuth2RepositoryTest extends ApplicationTest {
 
     private OAuth2Data expiringOn(Instant expiringOn) {
         return new OAuth2Data(uniqueLong(), "foo", expiringOn,
-                "bar", EnumSet.allOf(OAuth2Scope.class));
+                "bar", EnumSet.allOf(OAuth2Scope.class), Instant.now());
     }
 
 }

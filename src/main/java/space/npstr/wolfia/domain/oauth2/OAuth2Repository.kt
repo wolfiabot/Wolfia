@@ -56,13 +56,28 @@ class OAuth2Repository(
 		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.OAUTH2)
-				.columns(Tables.OAUTH2.USER_ID, Tables.OAUTH2.ACCESS_TOKEN, Tables.OAUTH2.EXPIRES, Tables.OAUTH2.REFRESH_TOKEN, Tables.OAUTH2.SCOPES)
-				.values(data.userId(), data.accessToken(), data.expires(), data.refreshToken(), scopes)
+				.columns(
+					Tables.OAUTH2.USER_ID,
+					Tables.OAUTH2.ACCESS_TOKEN,
+					Tables.OAUTH2.EXPIRES,
+					Tables.OAUTH2.REFRESH_TOKEN,
+					Tables.OAUTH2.SCOPES,
+					Tables.OAUTH2.CREATED_AT
+				)
+				.values(
+					data.userId(),
+					data.accessToken(),
+					data.expires(),
+					data.refreshToken(),
+					scopes,
+					data.createdAt()
+				)
 				.onDuplicateKeyUpdate()
 				.set(Tables.OAUTH2.ACCESS_TOKEN, data.accessToken())
 				.set(Tables.OAUTH2.EXPIRES, data.expires())
 				.set(Tables.OAUTH2.REFRESH_TOKEN, data.refreshToken())
 				.set(Tables.OAUTH2.SCOPES, scopes)
+				.set(Tables.OAUTH2.CREATED_AT, data.createdAt())
 				.returning()
 				.fetchSingle()
 				.into(OAuth2Data::class.java)

@@ -51,7 +51,7 @@ class OAuth2Service internal constructor(
 	suspend fun acceptCode(code: String): OAuth2Data {
 		val (accessToken, expires, refreshToken, scopes) = oAuth2Requester.fetchCodeResponse(code)
 		val userId = oAuth2Requester.identifyUser(accessToken)
-		return repository.save(OAuth2Data(userId, accessToken, expires, refreshToken, scopes))
+		return repository.save(OAuth2Data(userId, accessToken, expires, refreshToken, scopes, Instant.now()))
 	}
 
 	fun acceptCodeBlocking(code: String): OAuth2Data {

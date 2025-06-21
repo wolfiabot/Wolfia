@@ -148,7 +148,7 @@ class OAuth2Requester(
 
 		val response = refreshCallback.await()
 		val (accessToken, expires, refreshToken, scopes) = toAccessTokenResponse(response)
-		return OAuth2Data(old.userId(), accessToken, expires, refreshToken, scopes)
+		return OAuth2Data(old.userId(), accessToken, expires, refreshToken, scopes, Instant.now())
 	}
 
 	private fun toAccessTokenResponse(response: Response): AccessTokenResponse {

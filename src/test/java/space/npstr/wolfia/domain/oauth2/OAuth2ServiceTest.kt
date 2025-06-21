@@ -16,6 +16,7 @@
  */
 package space.npstr.wolfia.domain.oauth2
 
+import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 import java.util.EnumSet
@@ -75,7 +76,7 @@ internal class OAuth2ServiceTest : ApplicationTest() {
 		val accessToken = "foo"
 		val validOAuth2Data = OAuth2Data(
 			userId, accessToken, OffsetDateTime.now().plusDays(14).toInstant(),
-			"bar", EnumSet.allOf(OAuth2Scope::class.java)
+			"bar", EnumSet.allOf(OAuth2Scope::class.java), Instant.now()
 		)
 		repository.save(validOAuth2Data)
 		val fetched = service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY)
@@ -88,7 +89,7 @@ internal class OAuth2ServiceTest : ApplicationTest() {
 		val accessToken = "foo"
 		val validOAuth2Data = OAuth2Data(
 			userId, accessToken, OffsetDateTime.now().plusDays(14).toInstant(),
-			"bar", EnumSet.of(OAuth2Scope.IDENTIFY)
+			"bar", EnumSet.of(OAuth2Scope.IDENTIFY), Instant.now()
 		)
 		repository.save(validOAuth2Data)
 		val fetched = service.getAccessTokenForScope(userId, OAuth2Scope.GUILD_JOIN)
@@ -101,7 +102,7 @@ internal class OAuth2ServiceTest : ApplicationTest() {
 		val accessToken = "foo"
 		val validOAuth2Data = OAuth2Data(
 			userId, accessToken, OffsetDateTime.now().minusDays(1).toInstant(),
-			"bar", EnumSet.allOf(OAuth2Scope::class.java)
+			"bar", EnumSet.allOf(OAuth2Scope::class.java), Instant.now()
 		)
 		repository.save(validOAuth2Data)
 		val fetched = service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY)
