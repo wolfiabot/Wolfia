@@ -17,6 +17,9 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
+import java.util.function.Consumer;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import space.npstr.wolfia.commands.BaseCommand;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.PublicCommand;
@@ -51,8 +54,12 @@ public class AuthCommand implements BaseCommand, PublicCommand {
         String privateMessage = "Click the following link to connect with Wolfia. This will allow me to automatically "
                 + "add you to wolf chat or global games.\n" + this.requester.authorizationUrl(state);
 
-        context.replyPrivate(privateMessage, __ -> context.replyWithMention("check your direct messages!"),
-                t -> context.replyWithMention("I cannot send you a private message, please unblock me and/or adjust your discord privacy settings."));
+        Consumer<Message> onSuccess = null;
+        if (context.channel.getType() != ChannelType.PRIVATE) {
+            onSuccess = __ -> context.replyWithMention("check your direct messages!");
+        }
+        Consumer<Throwable> onFail = t -> context.replyWithMention("I cannot send you a private message, please unblock me and/or adjust your discord privacy settings.");
+        context.replyPrivate(privateMessage, onSuccess, onFail);
         return true;
     }
 
