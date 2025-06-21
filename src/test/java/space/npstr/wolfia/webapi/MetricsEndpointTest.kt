@@ -18,6 +18,7 @@ package space.npstr.wolfia.webapi
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.http.HttpStatus
 import space.npstr.wolfia.ApplicationTest
 
@@ -26,7 +27,7 @@ internal class MetricsEndpointTest : ApplicationTest() {
 	//NOTE: we are handling auth of this endpoint in the reverse proxy
 	@Test
 	fun whenGetMetrics_thenReturnMetrics() {
-		val response = restTemplate.getForEntity("/metrics", String::class.java)
+		val response = restTemplate.getForEntity<String>("/metrics")
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
 	}

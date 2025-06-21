@@ -19,6 +19,7 @@ package space.npstr.wolfia.webapi
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.http.HttpStatus
 import space.npstr.wolfia.App
 import space.npstr.wolfia.ApplicationTest
@@ -29,7 +30,7 @@ internal class InviteEndpointTest : ApplicationTest() {
 
 	@Test
 	fun whenGet_redirects() {
-		val response = restTemplate.getForEntity("/invite", String::class.java)
+		val response = restTemplate.getForEntity<String>("/invite")
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
 		assertThat(response.headers.location).satisfies(
@@ -53,7 +54,7 @@ internal class InviteEndpointTest : ApplicationTest() {
 	fun whenGetWithGuildId_redirectsWithGuildId() {
 		val guildId = TestUtil.uniqueLong()
 
-		val response = restTemplate.getForEntity("/invite?guild_id={guildId}", String::class.java, guildId)
+		val response = restTemplate.getForEntity<String>("/invite?guild_id={guildId}", guildId)
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
 		assertThat(response.headers.location).satisfies(
@@ -69,7 +70,7 @@ internal class InviteEndpointTest : ApplicationTest() {
 	fun whenGetWithCustomRedirectUri_redirectHasRedirectToCustomUri() {
 		val redirectUrl = "https://example.org/foo?bar=baz"
 
-		val response = restTemplate.getForEntity("/invite?redirect_uri={redirectUri}", String::class.java, redirectUrl)
+		val response = restTemplate.getForEntity<String>("/invite?redirect_uri={redirectUri}", redirectUrl)
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
 		assertThat(response.headers.location).satisfies(

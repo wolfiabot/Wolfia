@@ -20,6 +20,8 @@ import java.util.Base64
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.web.client.exchange
+import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -48,7 +50,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 
 	@Test
 	fun whenGet_withoutAuthentication_returnUnauthorized() {
-		val response = restTemplate.getForEntity("/$togglzConsolePath", Void::class.java)
+		val response = restTemplate.getForEntity<Unit>("/$togglzConsolePath")
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
 	}
@@ -58,12 +60,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 		val headers = HttpHeaders()
 		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.USER)))
 
-		val response = restTemplate.exchange(
-			"/$togglzConsolePath",
-			HttpMethod.GET,
-			HttpEntity<Void>(headers),
-			Void::class.java
-		)
+		val response = restTemplate.exchange<Unit>("/$togglzConsolePath", HttpMethod.GET, HttpEntity<Unit>(headers))
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
 	}
@@ -73,12 +70,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 		val headers = HttpHeaders()
 		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.OWNER)))
 
-		val response = restTemplate.exchange(
-			"/$togglzConsolePath",
-			HttpMethod.GET,
-			HttpEntity<Void>(headers),
-			Void::class.java
-		)
+		val response = restTemplate.exchange<Void>("/$togglzConsolePath", HttpMethod.GET, HttpEntity<Unit>(headers))
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
 	}

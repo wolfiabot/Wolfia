@@ -27,6 +27,7 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.stub
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.web.client.getForEntity
 import org.springframework.http.HttpStatus
 import org.springframework.web.util.UriComponentsBuilder
 import space.npstr.wolfia.ApplicationTest
@@ -75,7 +76,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 			.queryParam("state", stateParam)
 			.build().toUri()
 
-		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		val responseEntity = restTemplate.getForEntity<String>(uri)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
 		assertThat(responseEntity.headers.location).isEqualTo(URI.create(REDIRECT_URL))
 	}
@@ -89,7 +90,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 			.queryParam("state", stateParam)
 			.build().toUri()
 
-		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		val responseEntity = restTemplate.getForEntity<String>(uri)
 
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
 	}
@@ -100,7 +101,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 			.queryParam("code", CODE)
 			.build().toUri()
 
-		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		val responseEntity = restTemplate.getForEntity<String>(uri)
 
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
 		assertThat(responseEntity.body).contains(OAuth2Endpoint.GENERIC_ERROR_RESPONSE)
@@ -119,7 +120,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 			.queryParam("state", "42")
 			.build().toUri()
 
-		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		val responseEntity = restTemplate.getForEntity<String>(uri)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
 		assertThat(responseEntity.body).contains(OAuth2Endpoint.GENERIC_ERROR_RESPONSE)
 	}
@@ -142,7 +143,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 			.queryParam("state", stateParam)
 			.build().toUri()
 
-		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		val responseEntity = restTemplate.getForEntity<String>(uri)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
 		assertThat(responseEntity.body).contains(OAuth2Endpoint.WRONG_ACCOUNT_RESPONSE)
 	}
@@ -161,7 +162,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 			.queryParam("state", stateParam)
 			.build().toUri()
 
-		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		val responseEntity = restTemplate.getForEntity<String>(uri)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
 		assertThat(responseEntity.body).contains(OAuth2Endpoint.DISCORD_ISSUES)
 	}
@@ -180,7 +181,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 			.queryParam("state", stateParam)
 			.build().toUri()
 
-		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		val responseEntity = restTemplate.getForEntity<String>(uri)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
 		assertThat(responseEntity.body).contains(OAuth2Endpoint.GENERIC_ERROR_RESPONSE)
 	}
