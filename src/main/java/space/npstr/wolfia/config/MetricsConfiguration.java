@@ -35,7 +35,7 @@ public class MetricsConfiguration {
     //caffeine cache metrics
     @Bean
     public CacheMetricsCollector cacheMetrics(PrometheusRegistry registry) {
-        CacheMetricsCollector cacheMetricsCollector = new CacheMetricsCollector();
+        CacheMetricsCollector cacheMetricsCollector = CacheMetricsCollector.builder().build();
         registry.register(cacheMetricsCollector);
         return cacheMetricsCollector;
     }
