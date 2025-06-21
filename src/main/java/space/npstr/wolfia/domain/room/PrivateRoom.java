@@ -27,7 +27,7 @@ public class PrivateRoom {
     private final long guildId;
     private final int number;
 
-    @ConstructorProperties({"guildId", "nr"})
+    @ConstructorProperties({"guildId", "number"})
     public PrivateRoom(long guildId, int number) {
         this.guildId = guildId;
         this.number = number;

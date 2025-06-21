@@ -36,7 +36,7 @@ internal class PrivateRoomRepository(
 	fun findAll(): List<PrivateRoom> {
 		return jooq
 			.selectFrom(Tables.PRIVATE_ROOM)
-			.orderBy(Tables.PRIVATE_ROOM.NR.asc())
+			.orderBy(Tables.PRIVATE_ROOM.NUMBER.asc())
 			.fetchInto(PrivateRoom::class.java)
 	}
 
@@ -47,7 +47,7 @@ internal class PrivateRoomRepository(
 		return jooq.transactionResult { config ->
 			config.dsl()
 				.insertInto(Tables.PRIVATE_ROOM)
-				.columns(Tables.PRIVATE_ROOM.GUILD_ID, Tables.PRIVATE_ROOM.NR)
+				.columns(Tables.PRIVATE_ROOM.GUILD_ID, Tables.PRIVATE_ROOM.NUMBER)
 				.values(guildId, firstFreeNumber)
 				.onDuplicateKeyIgnore()
 				.returning()
@@ -64,14 +64,14 @@ internal class PrivateRoomRepository(
 		val a = Tables.PRIVATE_ROOM.`as`("a")
 		val b = Tables.PRIVATE_ROOM.`as`("b")
 		return jooq
-			.select(a.NR.add(1))
+			.select(a.NUMBER.add(1))
 			.from(a)
 			.whereNotExists(
 				jooq
 					.selectFrom(b)
-					.where(a.NR.add(1).eq(b.NR))
+					.where(a.NUMBER.add(1).eq(b.NUMBER))
 			)
-			.orderBy(a.NR.asc())
+			.orderBy(a.NUMBER.asc())
 			.limit(1)
 			.fetchSingle()
 			.component1()
@@ -81,7 +81,7 @@ internal class PrivateRoomRepository(
 		return jooq
 			.select(DSL.value(1))
 			.from(Tables.PRIVATE_ROOM)
-			.where(Tables.PRIVATE_ROOM.NR.eq(1))
+			.where(Tables.PRIVATE_ROOM.NUMBER.eq(1))
 			.fetchOptional()
 			.isPresent
 	}

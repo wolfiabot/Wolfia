@@ -148,7 +148,7 @@ class PrivateRoomRepositoryTest extends ApplicationTest {
 
         this.jooq.transactionResult(config -> config.dsl()
                 .insertInto(PRIVATE_ROOM)
-                .columns(PRIVATE_ROOM.GUILD_ID, PRIVATE_ROOM.NR)
+                .columns(PRIVATE_ROOM.GUILD_ID, PRIVATE_ROOM.NUMBER)
                 .values(guildId, number)
                 .execute()
         );
