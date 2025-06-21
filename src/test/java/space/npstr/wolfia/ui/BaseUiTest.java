@@ -93,7 +93,7 @@ abstract class BaseUiTest extends ApplicationTest {
     private synchronized void setupOnce() {
         if (started) return;
 
-        Testcontainers.exposeHostPorts(this.port);
+        Testcontainers.exposeHostPorts(this.getPort());
         CompletableFuture.allOf( // Start containers in parallel, saves 5-10 seconds per container each test suite run
                 CompletableFuture.runAsync(CHROME_CONTAINER::start),
                 CompletableFuture.runAsync(CHROME_MOBILE_CONTAINER::start),
@@ -105,7 +105,7 @@ abstract class BaseUiTest extends ApplicationTest {
         // but there is a different way to expose a host IP to the containers:
         // See https://github.com/testcontainers/testcontainers-java/issues/166
         // and https://github.com/testcontainers/testcontainers-java/releases/tag/1.9.0
-        Configuration.baseUrl = "http://host.testcontainers.internal:" + this.port;
+        Configuration.baseUrl = "http://host.testcontainers.internal:" + this.getPort();
         Configuration.headless = true;
 
         started = true;
