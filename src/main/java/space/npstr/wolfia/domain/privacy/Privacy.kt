@@ -14,25 +14,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.privacy
 
-package space.npstr.wolfia.domain.privacy;
-
-public class Privacy {
-
-    private final long userId;
-    private final boolean processData;
-
-    public Privacy(long userId, boolean processData) {
-        this.userId = userId;
-        this.processData = processData;
-    }
-
-    public long getUserId() {
-        return this.userId;
-    }
-
-    public boolean isProcessData() {
-        return this.processData;
-    }
-
-}
+data class Privacy(
+	val userId: Long,
+	val processData: Boolean,
+)

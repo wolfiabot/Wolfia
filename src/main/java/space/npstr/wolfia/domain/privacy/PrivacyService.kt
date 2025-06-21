@@ -27,7 +27,7 @@ class PrivacyService private constructor(
 ) {
 
 	fun isDataProcessingEnabled(userId: Long): Boolean {
-		return privacyRepository.findOne(userId)?.isProcessData ?: true
+		return privacyRepository.findOne(userId)?.processData ?: true
 	}
 
 	fun dataDelete(userId: Long) {

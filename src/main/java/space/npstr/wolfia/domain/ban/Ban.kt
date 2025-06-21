@@ -14,26 +14,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package space.npstr.wolfia.domain.ban
 
-package space.npstr.wolfia.domain.ban;
-
-import space.npstr.wolfia.game.definitions.Scope;
-
-public class Ban {
-
-    private final long userId;
-    private final Scope scope;
-
-    public Ban(long userId, Scope scope) {
-        this.userId = userId;
-        this.scope = scope;
-    }
-
-    public long getUserId() {
-        return this.userId;
-    }
-
-    public Scope getScope() {
-        return this.scope;
-    }
-}
+data class Ban(
+	val userId: Long,
+)

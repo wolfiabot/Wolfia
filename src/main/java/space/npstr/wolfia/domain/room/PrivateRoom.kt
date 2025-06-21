@@ -14,35 +14,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package space.npstr.wolfia.domain.room;
+package space.npstr.wolfia.domain.room
 
 /**
  * Represents private guilds or similar that can be used for wolf chat etc.
  */
-public class PrivateRoom {
-
-    private final long guildId;
-    private final int number;
-
-    public PrivateRoom(long guildId, int number) {
-        this.guildId = guildId;
-        this.number = number;
-    }
-
-    public long getGuildId() {
-        return guildId;
-    }
-
-    public int getNumber() {
-        return number;
-    }
-
-    @Override
-    public String toString() {
-        return "PrivateRoom{" +
-                "guildId=" + guildId +
-                ", number=" + number +
-                '}';
-    }
-}
+data class PrivateRoom(
+	val guildId: Long,
+	val number: Int,
+)
