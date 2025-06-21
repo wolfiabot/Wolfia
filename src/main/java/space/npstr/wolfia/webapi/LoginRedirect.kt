@@ -85,7 +85,7 @@ class LoginRedirect(
 	}
 
 	@DeleteMapping
-	fun logout(request: HttpServletRequest): ResponseEntity<Void> {
+	fun logout(request: HttpServletRequest): ResponseEntity<Unit> {
 		SecurityContextHolder.clearContext()
 		request.getSession(false)?.invalidate()
 		return ResponseEntity(HttpStatus.NO_CONTENT)
