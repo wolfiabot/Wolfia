@@ -17,6 +17,7 @@
 package space.npstr.wolfia.webapi
 
 import java.net.URI
+import net.dv8tion.jda.api.sharding.ShardManager
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,18 +26,21 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import space.npstr.wolfia.config.properties.WolfiaConfig
+import space.npstr.wolfia.db.type.OAuth2Scope
 import space.npstr.wolfia.domain.oauth2.AuthCommand
 import space.npstr.wolfia.domain.oauth2.AuthStateCache
 import space.npstr.wolfia.domain.oauth2.DiscordRequestFailedException
 import space.npstr.wolfia.domain.oauth2.OAuth2Data
 import space.npstr.wolfia.domain.oauth2.OAuth2Service
 import space.npstr.wolfia.system.logger
+import space.npstr.wolfia.utils.discord.RestActions
 
 @RestController
 @RequestMapping("/" + OAuth2Endpoint.CODE_GRANT_PATH)
 class OAuth2Endpoint(
 	private val service: OAuth2Service,
 	private val stateCache: AuthStateCache,
+	private val shardManager: ShardManager,
 ) {
 
 	companion object {
@@ -57,7 +61,7 @@ class OAuth2Endpoint(
 		if (authStateOpt.isEmpty) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GENERIC_ERROR_RESPONSE)
 		}
-		val (userId, redirectUrl) = authStateOpt.get()
+		val (userId, redirectUrl, guildJoinDm) = authStateOpt.get()
 		val data: OAuth2Data = try {
 			service.acceptCodeBlocking(code)
 		} catch (e: Exception) {
@@ -74,6 +78,18 @@ class OAuth2Endpoint(
 		}
 		val scopes = data.scopes().joinToString(", ") { it.name }
 		logger().info("User {} authorized with scopes {}", data.userId(), scopes)
+
+		if (guildJoinDm) {
+			val user = shardManager.getUserById(data.userId())
+			if (user != null) {
+				val message: String = if (data.scopes().contains(OAuth2Scope.GUILD_JOIN)) {
+					"You have successfully authorized Wolfia to automatically add you to wolf chat and global games!"
+				} else {
+					"You have completed the auth flow, but did not give the necessary rights to Wolfia to add you to wolf chat and global games. Please try again!"
+				}
+				RestActions.sendPrivateMessage(user, message, null, null)
+			}
+		}
 		val headers = HttpHeaders()
 		headers.location = URI.create(redirectUrl)
 		return ResponseEntity("", headers, HttpStatus.TEMPORARY_REDIRECT)

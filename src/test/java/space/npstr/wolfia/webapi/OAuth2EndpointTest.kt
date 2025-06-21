@@ -194,6 +194,6 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 	}
 
 	private fun authState(userId: Long): AuthState {
-		return AuthState(userId, REDIRECT_URL)
+		return AuthState(userId, REDIRECT_URL, true)
 	}
 }

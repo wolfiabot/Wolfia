@@ -47,7 +47,7 @@ class AuthStateCacheTest {
     void whenGetExistingAuthState_returnAuthState() {
         long userId = uniqueLong();
         String redirectUrl = "https://example.org";
-        AuthState authState = new AuthState(userId, redirectUrl);
+        AuthState authState = new AuthState(userId, redirectUrl, true);
 
         String state = cache.generateStateParam(authState);
 

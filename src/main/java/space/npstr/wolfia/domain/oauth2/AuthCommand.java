@@ -46,7 +46,7 @@ public class AuthCommand implements BaseCommand, PublicCommand {
 
         String jumpUrl = context.getMessage().getJumpUrl();
 
-        AuthState authState = new AuthState(context.getInvoker().getIdLong(), jumpUrl);
+        AuthState authState = new AuthState(context.getInvoker().getIdLong(), jumpUrl, true);
         String state = this.stateCache.generateStateParam(authState);
         String privateMessage = "Click the following link to connect with Wolfia. This will allow me to automatically "
                 + "add you to wolf chat or global games.\n" + this.requester.authorizationUrl(state);

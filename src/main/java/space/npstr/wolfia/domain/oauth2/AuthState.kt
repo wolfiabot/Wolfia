@@ -26,4 +26,8 @@ data class AuthState(
 	 * to the channel/message that the flow was started from in discord
 	 */
 	val redirectUrl: String,
+	/**
+	 * True if the user should be DMed on success if they added the GUILD_JOIN scope.
+	 */
+	val guildJoinDm: Boolean,
 )
