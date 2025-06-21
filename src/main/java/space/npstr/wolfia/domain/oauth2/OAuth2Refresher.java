@@ -18,6 +18,7 @@
 package space.npstr.wolfia.domain.oauth2;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -53,7 +54,9 @@ public class OAuth2Refresher {
             } catch (Exception e) {
                 log.warn("Failed to refresh token for user {}", old.userId(), e);
                 // TODO DM user about it?
-                this.repository.delete(old.userId());
+                if (old.expires().isBefore(Instant.now())) {
+                    this.repository.delete(old.userId());
+                }
             }
         }
     }
