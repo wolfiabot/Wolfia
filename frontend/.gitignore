@@ -19,5 +19,6 @@ yarn-error.log*
 # Gradle Frontend plugin install directories
 node/
 yarn/
+.frontend-gradle-plugin/
 .yarn
 .yarnrc.yml
