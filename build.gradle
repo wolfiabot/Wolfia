@@ -42,6 +42,7 @@ buildscript {
         classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
         classpath "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
         classpath "org.siouan.frontend-jdk21:org.siouan.frontend-jdk21.gradle.plugin:$frontendPluginVersion"
+        classpath "org.jetbrains.gradle.plugin.idea-ext:org.jetbrains.gradle.plugin.idea-ext.gradle.plugin:$ideaExtPluginVersion"
 
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlinVersion" //spring
@@ -74,6 +75,17 @@ configure(allprojects) {
         }
     }
 }
+
+apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
+
+idea.project.settings {
+    compiler {
+        javac {
+            javacAdditionalOptions = "-parameters"
+        }
+    }
+}
+
 
 apply plugin: 'com.github.ben-manes.versions'
 
@@ -354,11 +366,12 @@ dependencies {
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
     options.incremental = true
-    options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation' << '-Xmaxerrs' << '10000' << '-Xdiags:verbose'
+    options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation' << '-Xmaxerrs' << '10000' << '-Xdiags:verbose' << '-parameters'
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
     kotlinOptions.jvmTarget = javaVersion
+    compilerOptions.freeCompilerArgs.addAll('-java-parameters')
 }
 
 //required by spring boot configuration processor

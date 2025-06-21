@@ -56,7 +56,7 @@ class OAuth2Endpoint(
 
 
 	@GetMapping
-	fun codeGrant(@RequestParam("code") code: String, @RequestParam(name = "state", required = false) state: String?): ResponseEntity<String> {
+	fun codeGrant(@RequestParam code: String, @RequestParam(required = false) state: String?): ResponseEntity<String> {
 		val authStateOpt = stateCache.getAuthState(state)
 		if (authStateOpt.isEmpty) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(GENERIC_ERROR_RESPONSE)
