@@ -234,9 +234,9 @@ project(':frontend') {
     }
     tasks.named('checkFrontend').configure frontendBuildCacheConfig
 
-    tasks.register('setVersion', org.siouan.frontendgradleplugin.infrastructure.gradle.RunYarn) {
+    tasks.register('setVersion', org.siouan.frontendgradleplugin.infrastructure.gradle.RunYarnTaskType) {
         dependsOn tasks.named('installNode')
-        script.set("version --no-git-tag-version --new-version ${rootProject.version}")
+        args.set("version --no-git-tag-version --new-version ${rootProject.version}")
     }
 }
 
