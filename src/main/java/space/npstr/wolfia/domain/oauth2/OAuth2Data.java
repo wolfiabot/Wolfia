@@ -24,14 +24,14 @@ import java.util.EnumSet;
 import java.util.Set;
 import space.npstr.wolfia.db.type.OAuth2Scope;
 
-public class OAuth2Data {
-
-    private final long userId;
-    private final String accessToken;
-    private final Instant expires;
-    private final String refreshToken;
-    private final Set<OAuth2Scope> scopes;
-    private final Instant createdAt;
+public record OAuth2Data(
+        long userId,
+        String accessToken,
+        Instant expires,
+        String refreshToken,
+        Set<OAuth2Scope> scopes,
+        Instant createdAt
+) {
 
     @ConstructorProperties({"userId", "accessToken", "expires", "refreshToken", "scopes", "createdAt"})
     public OAuth2Data(long userId, String accessToken, Instant expires, String refreshToken, Set<OAuth2Scope> scopes, Instant createdAt) {
@@ -43,27 +43,8 @@ public class OAuth2Data {
         this.createdAt = createdAt;
     }
 
-    public long userId() {
-        return userId;
-    }
-
-    public String refreshToken() {
-        return refreshToken;
-    }
-
-    public String accessToken() {
-        return accessToken;
-    }
-
-    public Instant expires() {
-        return expires;
-    }
-
+    @Override
     public Set<OAuth2Scope> scopes() {
         return Collections.unmodifiableSet(this.scopes);
-    }
-
-    public Instant createdAt() {
-        return createdAt;
     }
 }
