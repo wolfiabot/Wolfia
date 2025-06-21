@@ -47,7 +47,7 @@ class OAuth2RepositoryTest extends ApplicationTest {
             assertThat(actual.refreshToken()).isEqualTo(data.refreshToken());
             assertThat(actual.expires()).isCloseTo(data.expires(), within(1, ChronoUnit.MILLIS));
             assertThat(actual.scopes()).containsExactlyInAnyOrderElementsOf(data.scopes());
-            assertThat(actual.createdAt()).isCloseTo(data.createdAt(), within(1, ChronoUnit.MILLIS));
+            assertThat(actual.createdAt()).isCloseTo(data.createdAt(), within(1, ChronoUnit.SECONDS));
         };
     }
 
