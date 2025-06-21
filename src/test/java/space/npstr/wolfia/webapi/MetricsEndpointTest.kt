@@ -23,11 +23,11 @@ import space.npstr.wolfia.ApplicationTest
 
 internal class MetricsEndpointTest : ApplicationTest() {
 
-    //NOTE: we are handling auth of this endpoint in the reverse proxy
-    @Test
-    fun whenGetMetrics_thenReturnMetrics() {
-        val response = restTemplate.getForEntity("/metrics", String::class.java)
+	//NOTE: we are handling auth of this endpoint in the reverse proxy
+	@Test
+	fun whenGetMetrics_thenReturnMetrics() {
+		val response = restTemplate.getForEntity("/metrics", String::class.java)
 
-        assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    }
+		assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+	}
 }

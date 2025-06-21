@@ -39,160 +39,160 @@ import space.npstr.wolfia.domain.oauth2.DiscordRequestFailedException
 
 internal class OAuth2EndpointTest : ApplicationTest() {
 
-    companion object {
-        private const val CODE_GRANT_PATH = "/" + OAuth2Endpoint.CODE_GRANT_PATH
-        private const val REDIRECT_URL = "https://example.org"
-        private const val ACCESS_TOKEN = "42"
-        private const val CODE = "69"
-    }
+	companion object {
+		private const val CODE_GRANT_PATH = "/" + OAuth2Endpoint.CODE_GRANT_PATH
+		private const val REDIRECT_URL = "https://example.org"
+		private const val ACCESS_TOKEN = "42"
+		private const val CODE = "69"
+	}
 
 
-    @Autowired
-    private lateinit var stateCache: AuthStateCache
+	@Autowired
+	private lateinit var stateCache: AuthStateCache
 
-    @BeforeEach
-    fun setup() {
-        val accessTokenResponse = accessTokenResponse()
-        oAuth2Requester.stub {
-            onBlocking { fetchCodeResponse(eq(CODE)) } doReturn accessTokenResponse
-        }
-    }
+	@BeforeEach
+	fun setup() {
+		val accessTokenResponse = accessTokenResponse()
+		oAuth2Requester.stub {
+			onBlocking { fetchCodeResponse(eq(CODE)) } doReturn accessTokenResponse
+		}
+	}
 
-    //ensure that this endpoint is accessible
-    @Test
-    fun whenGet_andSuccessful_redirect() {
-        val userId = TestUtil.uniqueLong()
+	//ensure that this endpoint is accessible
+	@Test
+	fun whenGet_andSuccessful_redirect() {
+		val userId = TestUtil.uniqueLong()
 
-        oAuth2Requester.stub {
-            onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doReturn userId
-        }
+		oAuth2Requester.stub {
+			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doReturn userId
+		}
 
-        val authState = authState(userId)
-        val stateParam = stateCache.generateStateParam(authState)
+		val authState = authState(userId)
+		val stateParam = stateCache.generateStateParam(authState)
 
-        val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
-            .queryParam("code", CODE)
-            .queryParam("state", stateParam)
-            .build().toUri()
+		val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
+			.queryParam("code", CODE)
+			.queryParam("state", stateParam)
+			.build().toUri()
 
-        val responseEntity = restTemplate.getForEntity(uri, String::class.java)
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
-        assertThat(responseEntity.headers.location).isEqualTo(URI.create(REDIRECT_URL))
-    }
+		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
+		assertThat(responseEntity.headers.location).isEqualTo(URI.create(REDIRECT_URL))
+	}
 
-    @Test
-    fun whenGet_noCodeParam_return400() {
-        val authState = authState(TestUtil.uniqueLong())
-        val stateParam = stateCache.generateStateParam(authState)
+	@Test
+	fun whenGet_noCodeParam_return400() {
+		val authState = authState(TestUtil.uniqueLong())
+		val stateParam = stateCache.generateStateParam(authState)
 
-        val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
-            .queryParam("state", stateParam)
-            .build().toUri()
+		val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
+			.queryParam("state", stateParam)
+			.build().toUri()
 
-        val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
 
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-    }
+		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+	}
 
-    @Test
-    fun whenGet_noStateParam_return400() {
-        val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
-            .queryParam("code", CODE)
-            .build().toUri()
+	@Test
+	fun whenGet_noStateParam_return400() {
+		val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
+			.queryParam("code", CODE)
+			.build().toUri()
 
-        val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
 
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-        assertThat(responseEntity.body).contains(OAuth2Endpoint.GENERIC_ERROR_RESPONSE)
-    }
+		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(responseEntity.body).contains(OAuth2Endpoint.GENERIC_ERROR_RESPONSE)
+	}
 
-    @Test
-    fun whenGet_noCachedState_return400() {
-        val userId = TestUtil.uniqueLong()
+	@Test
+	fun whenGet_noCachedState_return400() {
+		val userId = TestUtil.uniqueLong()
 
-        oAuth2Requester.stub {
-            onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doReturn userId
-        }
+		oAuth2Requester.stub {
+			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doReturn userId
+		}
 
-        val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
-            .queryParam("code", CODE)
-            .queryParam("state", "42")
-            .build().toUri()
+		val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
+			.queryParam("code", CODE)
+			.queryParam("state", "42")
+			.build().toUri()
 
-        val responseEntity = restTemplate.getForEntity(uri, String::class.java)
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-        assertThat(responseEntity.body).contains(OAuth2Endpoint.GENERIC_ERROR_RESPONSE)
-    }
+		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(responseEntity.body).contains(OAuth2Endpoint.GENERIC_ERROR_RESPONSE)
+	}
 
-    @Test
-    fun whenGet_differentUserId_return400() {
-        val userIdA = TestUtil.uniqueLong()
-        val userIdB = TestUtil.uniqueLong()
+	@Test
+	fun whenGet_differentUserId_return400() {
+		val userIdA = TestUtil.uniqueLong()
+		val userIdB = TestUtil.uniqueLong()
 
-        oAuth2Requester.stub {
-            onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doReturn userIdA
-        }
+		oAuth2Requester.stub {
+			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doReturn userIdA
+		}
 
-        val authState = authState(userIdB)
-        val stateParam = stateCache.generateStateParam(authState)
+		val authState = authState(userIdB)
+		val stateParam = stateCache.generateStateParam(authState)
 
 
-        val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
-            .queryParam("code", CODE)
-            .queryParam("state", stateParam)
-            .build().toUri()
+		val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
+			.queryParam("code", CODE)
+			.queryParam("state", stateParam)
+			.build().toUri()
 
-        val responseEntity = restTemplate.getForEntity(uri, String::class.java)
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-        assertThat(responseEntity.body).contains(OAuth2Endpoint.WRONG_ACCOUNT_RESPONSE)
-    }
+		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(responseEntity.body).contains(OAuth2Endpoint.WRONG_ACCOUNT_RESPONSE)
+	}
 
-    @Test
-    fun whenGet_identificationFails_return400() {
-        oAuth2Requester.stub {
+	@Test
+	fun whenGet_identificationFails_return400() {
+		oAuth2Requester.stub {
 			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doThrow DiscordRequestFailedException("test exception lol nope")
-        }
+		}
 
-        val authState = authState(TestUtil.uniqueLong())
-        val stateParam = stateCache.generateStateParam(authState)
+		val authState = authState(TestUtil.uniqueLong())
+		val stateParam = stateCache.generateStateParam(authState)
 
-        val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
-            .queryParam("code", CODE)
-            .queryParam("state", stateParam)
-            .build().toUri()
+		val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
+			.queryParam("code", CODE)
+			.queryParam("state", stateParam)
+			.build().toUri()
 
-        val responseEntity = restTemplate.getForEntity(uri, String::class.java)
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-        assertThat(responseEntity.body).contains(OAuth2Endpoint.DISCORD_ISSUES)
-    }
+		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
+		assertThat(responseEntity.body).contains(OAuth2Endpoint.DISCORD_ISSUES)
+	}
 
-    @Test
-    fun whenGet_randomException_return500() {
-        oAuth2Requester.stub {
+	@Test
+	fun whenGet_randomException_return500() {
+		oAuth2Requester.stub {
 			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doThrow RuntimeException("test exception lol nope")
-        }
+		}
 
-        val authState = authState(TestUtil.uniqueLong())
-        val stateParam = stateCache.generateStateParam(authState)
+		val authState = authState(TestUtil.uniqueLong())
+		val stateParam = stateCache.generateStateParam(authState)
 
-        val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
-            .queryParam("code", CODE)
-            .queryParam("state", stateParam)
-            .build().toUri()
+		val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
+			.queryParam("code", CODE)
+			.queryParam("state", stateParam)
+			.build().toUri()
 
-        val responseEntity = restTemplate.getForEntity(uri, String::class.java)
-        assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-        assertThat(responseEntity.body).contains(OAuth2Endpoint.GENERIC_ERROR_RESPONSE)
-    }
+		val responseEntity = restTemplate.getForEntity(uri, String::class.java)
+		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+		assertThat(responseEntity.body).contains(OAuth2Endpoint.GENERIC_ERROR_RESPONSE)
+	}
 
-    private fun accessTokenResponse(): AccessTokenResponse {
-        return AccessTokenResponse(
-            ACCESS_TOKEN, OffsetDateTime.now().plusMonths(1).toInstant(),
-            ACCESS_TOKEN, EnumSet.allOf(OAuth2Scope::class.java)
-        )
-    }
+	private fun accessTokenResponse(): AccessTokenResponse {
+		return AccessTokenResponse(
+			ACCESS_TOKEN, OffsetDateTime.now().plusMonths(1).toInstant(),
+			ACCESS_TOKEN, EnumSet.allOf(OAuth2Scope::class.java)
+		)
+	}
 
-    private fun authState(userId: Long): AuthState {
-        return AuthState(userId, REDIRECT_URL)
-    }
+	private fun authState(userId: Long): AuthState {
+		return AuthState(userId, REDIRECT_URL)
+	}
 }

@@ -17,27 +17,27 @@
 package space.npstr.wolfia.domain.setup.lastactive
 
 import io.lettuce.core.SetArgs
-import org.springframework.stereotype.Repository
-import space.npstr.wolfia.system.redis.Redis
 import java.time.Clock
 import java.time.Duration
+import org.springframework.stereotype.Repository
+import space.npstr.wolfia.system.redis.Redis
 
 @Repository
 class LastActiveRepository(
-    private val redis: Redis,
-    private val clock: Clock,
+	private val redis: Redis,
+	private val clock: Clock,
 ) {
 
-    private val redisKeyParser = RedisKeyParser()
+	private val redisKeyParser = RedisKeyParser()
 
-    fun recordActivity(userId: Long, timeout: Duration) {
-        val value = clock.millis().toString()
-        redis.connection.sync()
-            .set(redisKeyParser.toKey(userId), value, SetArgs.Builder.px(timeout.toMillis()))
-    }
+	fun recordActivity(userId: Long, timeout: Duration) {
+		val value = clock.millis().toString()
+		redis.connection.sync()
+			.set(redisKeyParser.toKey(userId), value, SetArgs.Builder.px(timeout.toMillis()))
+	}
 
-    fun wasActiveRecently(userId: Long): Boolean {
-        return redis.connection.sync()
-            .exists(redisKeyParser.toKey(userId)) != 0L
-    }
+	fun wasActiveRecently(userId: Long): Boolean {
+		return redis.connection.sync()
+			.exists(redisKeyParser.toKey(userId)) != 0L
+	}
 }

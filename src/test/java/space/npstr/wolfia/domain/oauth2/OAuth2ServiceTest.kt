@@ -33,78 +33,78 @@ import space.npstr.wolfia.db.type.OAuth2Scope
 
 internal class OAuth2ServiceTest : ApplicationTest() {
 
-    @Autowired
-    private lateinit var service: OAuth2Service
+	@Autowired
+	private lateinit var service: OAuth2Service
 
-    @Autowired
-    private lateinit var repository: OAuth2Repository
+	@Autowired
+	private lateinit var repository: OAuth2Repository
 
-    @Test
-    fun whenAcceptCode_requestFromDiscordAndSave() {
-        val userId = TestUtil.uniqueLong()
-        val accessToken = "foo"
-        val expires = OffsetDateTime.now().plusDays(14).toInstant()
-        val refreshToken = "bar"
-        val scopes: Set<OAuth2Scope> = EnumSet.allOf(OAuth2Scope::class.java)
-        val codeResponse = AccessTokenResponse(accessToken, expires, refreshToken, scopes)
+	@Test
+	fun whenAcceptCode_requestFromDiscordAndSave() {
+		val userId = TestUtil.uniqueLong()
+		val accessToken = "foo"
+		val expires = OffsetDateTime.now().plusDays(14).toInstant()
+		val refreshToken = "bar"
+		val scopes: Set<OAuth2Scope> = EnumSet.allOf(OAuth2Scope::class.java)
+		val codeResponse = AccessTokenResponse(accessToken, expires, refreshToken, scopes)
 
-        oAuth2Requester.stub {
-            onBlocking { fetchCodeResponse(any()) } doReturn codeResponse
-            onBlocking { identifyUser(any()) } doReturn userId
-        }
+		oAuth2Requester.stub {
+			onBlocking { fetchCodeResponse(any()) } doReturn codeResponse
+			onBlocking { identifyUser(any()) } doReturn userId
+		}
 
-        runBlocking { service.acceptCode("foo") }
+		runBlocking { service.acceptCode("foo") }
 
-        val oAuth2Data = repository.findOne(userId)!!
-        assertThat(oAuth2Data.userId()).isEqualTo(userId)
-        assertThat(oAuth2Data.accessToken()).isEqualTo(accessToken)
-        assertThat(oAuth2Data.expires()).isCloseTo(expires, within(1, ChronoUnit.MILLIS))
-        assertThat(oAuth2Data.refreshToken()).isEqualTo(refreshToken)
-        assertThat(oAuth2Data.scopes()).containsExactlyInAnyOrderElementsOf(scopes)
-    }
+		val oAuth2Data = repository.findOne(userId)!!
+		assertThat(oAuth2Data.userId()).isEqualTo(userId)
+		assertThat(oAuth2Data.accessToken()).isEqualTo(accessToken)
+		assertThat(oAuth2Data.expires()).isCloseTo(expires, within(1, ChronoUnit.MILLIS))
+		assertThat(oAuth2Data.refreshToken()).isEqualTo(refreshToken)
+		assertThat(oAuth2Data.scopes()).containsExactlyInAnyOrderElementsOf(scopes)
+	}
 
-    @Test
-    fun givenNoAccessToken_whenGetAccessTokenForScope_returnEmpty() {
-        val fetched = service.getAccessTokenForScope(TestUtil.uniqueLong(), OAuth2Scope.IDENTIFY)
-        assertThat(fetched).isNull()
-    }
+	@Test
+	fun givenNoAccessToken_whenGetAccessTokenForScope_returnEmpty() {
+		val fetched = service.getAccessTokenForScope(TestUtil.uniqueLong(), OAuth2Scope.IDENTIFY)
+		assertThat(fetched).isNull()
+	}
 
-    @Test
-    fun givenAccessTokenExists_whenGetAccessTokenForScope_returnAccessToken() {
-        val userId = TestUtil.uniqueLong()
-        val accessToken = "foo"
-        val validOAuth2Data = OAuth2Data(
-            userId, accessToken, OffsetDateTime.now().plusDays(14).toInstant(),
-            "bar", EnumSet.allOf(OAuth2Scope::class.java)
-        )
-        repository.save(validOAuth2Data)
-        val fetched = service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY)
-        assertThat(fetched).isEqualTo(accessToken)
-    }
+	@Test
+	fun givenAccessTokenExists_whenGetAccessTokenForScope_returnAccessToken() {
+		val userId = TestUtil.uniqueLong()
+		val accessToken = "foo"
+		val validOAuth2Data = OAuth2Data(
+			userId, accessToken, OffsetDateTime.now().plusDays(14).toInstant(),
+			"bar", EnumSet.allOf(OAuth2Scope::class.java)
+		)
+		repository.save(validOAuth2Data)
+		val fetched = service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY)
+		assertThat(fetched).isEqualTo(accessToken)
+	}
 
-    @Test
-    fun givenAccessTokenExistsWithWrongScope_whenGetAccessTokenForScope_returnEmpty() {
-        val userId = TestUtil.uniqueLong()
-        val accessToken = "foo"
-        val validOAuth2Data = OAuth2Data(
-            userId, accessToken, OffsetDateTime.now().plusDays(14).toInstant(),
-            "bar", EnumSet.of(OAuth2Scope.IDENTIFY)
-        )
-        repository.save(validOAuth2Data)
-        val fetched = service.getAccessTokenForScope(userId, OAuth2Scope.GUILD_JOIN)
-        assertThat(fetched).isNull()
-    }
+	@Test
+	fun givenAccessTokenExistsWithWrongScope_whenGetAccessTokenForScope_returnEmpty() {
+		val userId = TestUtil.uniqueLong()
+		val accessToken = "foo"
+		val validOAuth2Data = OAuth2Data(
+			userId, accessToken, OffsetDateTime.now().plusDays(14).toInstant(),
+			"bar", EnumSet.of(OAuth2Scope.IDENTIFY)
+		)
+		repository.save(validOAuth2Data)
+		val fetched = service.getAccessTokenForScope(userId, OAuth2Scope.GUILD_JOIN)
+		assertThat(fetched).isNull()
+	}
 
-    @Test
-    fun givenAccessTokenExistsOutdated_whenGetAccessTokenForScope_returnEmpty() {
-        val userId = TestUtil.uniqueLong()
-        val accessToken = "foo"
-        val validOAuth2Data = OAuth2Data(
-            userId, accessToken, OffsetDateTime.now().minusDays(1).toInstant(),
-            "bar", EnumSet.allOf(OAuth2Scope::class.java)
-        )
-        repository.save(validOAuth2Data)
-        val fetched = service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY)
-        assertThat(fetched).isNull()
-    }
+	@Test
+	fun givenAccessTokenExistsOutdated_whenGetAccessTokenForScope_returnEmpty() {
+		val userId = TestUtil.uniqueLong()
+		val accessToken = "foo"
+		val validOAuth2Data = OAuth2Data(
+			userId, accessToken, OffsetDateTime.now().minusDays(1).toInstant(),
+			"bar", EnumSet.allOf(OAuth2Scope::class.java)
+		)
+		repository.save(validOAuth2Data)
+		val fetched = service.getAccessTokenForScope(userId, OAuth2Scope.IDENTIFY)
+		assertThat(fetched).isNull()
+	}
 }

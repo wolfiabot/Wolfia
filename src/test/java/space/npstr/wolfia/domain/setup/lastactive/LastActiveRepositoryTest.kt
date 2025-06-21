@@ -16,43 +16,43 @@
  */
 package space.npstr.wolfia.domain.setup.lastactive
 
+import java.time.Duration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import space.npstr.wolfia.ApplicationTest
 import space.npstr.wolfia.TestUtil
-import java.time.Duration
 
 internal class LastActiveRepositoryTest : ApplicationTest() {
 
-    @Autowired
-    private lateinit var repository: LastActiveRepository
+	@Autowired
+	private lateinit var repository: LastActiveRepository
 
-    @Test
-    fun whenNotActive_returnFalse() {
-        val active = repository.wasActiveRecently(TestUtil.uniqueLong())
+	@Test
+	fun whenNotActive_returnFalse() {
+		val active = repository.wasActiveRecently(TestUtil.uniqueLong())
 
-        assertThat(active).isFalse
-    }
+		assertThat(active).isFalse
+	}
 
-    @Test
-    fun whenActive_returnTrue() {
-        val userId = TestUtil.uniqueLong()
-        repository.recordActivity(userId, Duration.ofHours(1))
+	@Test
+	fun whenActive_returnTrue() {
+		val userId = TestUtil.uniqueLong()
+		repository.recordActivity(userId, Duration.ofHours(1))
 
-        val active = repository.wasActiveRecently(userId)
+		val active = repository.wasActiveRecently(userId)
 
-        assertThat(active).isTrue
-    }
+		assertThat(active).isTrue
+	}
 
-    @Test
-    fun whenActive_returnFalseAfterTimeout() {
-        val userId = TestUtil.uniqueLong()
-        repository.recordActivity(userId, Duration.ofMillis(50))
-        TestUtil.sleep(Duration.ofMillis(60))
+	@Test
+	fun whenActive_returnFalseAfterTimeout() {
+		val userId = TestUtil.uniqueLong()
+		repository.recordActivity(userId, Duration.ofMillis(50))
+		TestUtil.sleep(Duration.ofMillis(60))
 
-        val active = repository.wasActiveRecently(userId)
+		val active = repository.wasActiveRecently(userId)
 
-        assertThat(active).isFalse
-    }
+		assertThat(active).isFalse
+	}
 }
