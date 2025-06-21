@@ -63,6 +63,10 @@ spring:
         stringtype: "unspecified"
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        connection:
+          provider_disables_autocommit: false
 
 togglz:
   enabled: true
