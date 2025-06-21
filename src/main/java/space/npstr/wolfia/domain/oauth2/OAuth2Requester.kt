@@ -89,7 +89,6 @@ class OAuth2Requester(
 			.add("grant_type", "authorization_code")
 			.add("code", code)
 			.add("redirect_uri", redirectUri())
-			.add("scope", scopesAsString(IDENTIFY, GUILD_JOIN))
 			.build()
 		val codeRequest: Request = Request.Builder()
 			.url(TOKEN_URL)
