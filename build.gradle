@@ -66,6 +66,7 @@ configure(allprojects) {
     }
     idea {
         module {
+            downloadSources = true
             sourceDirs += sourceSets.main.output.generatedSourcesDirs
             generatedSourceDirs += sourceSets.main.output.generatedSourcesDirs
             testSources.from(sourceSets.test.output.generatedSourcesDirs)
