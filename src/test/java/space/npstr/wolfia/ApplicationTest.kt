@@ -19,6 +19,7 @@ package space.npstr.wolfia
 import java.time.Clock
 import net.dv8tion.jda.api.sharding.ShardManager
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.http.client.ClientHttpRequestFactorySettings.Redirects
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
@@ -72,4 +73,8 @@ abstract class ApplicationTest : PostgresAndRedisContainers() {
 
 	@Autowired
 	protected lateinit var restTemplate: TestRestTemplate
+
+	protected val restTemplateNoRedirect by lazy {
+		restTemplate.withRedirects(Redirects.DONT_FOLLOW)
+	}
 }

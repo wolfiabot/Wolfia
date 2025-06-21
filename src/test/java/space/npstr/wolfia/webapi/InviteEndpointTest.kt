@@ -30,7 +30,7 @@ internal class InviteEndpointTest : ApplicationTest() {
 
 	@Test
 	fun whenGet_redirects() {
-		val response = restTemplate.getForEntity<String>("/invite")
+		val response = restTemplateNoRedirect.getForEntity<String>("/invite")
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
 		assertThat(response.headers.location).satisfies(
@@ -54,7 +54,7 @@ internal class InviteEndpointTest : ApplicationTest() {
 	fun whenGetWithGuildId_redirectsWithGuildId() {
 		val guildId = TestUtil.uniqueLong()
 
-		val response = restTemplate.getForEntity<String>("/invite?guild_id={guildId}", guildId)
+		val response = restTemplateNoRedirect.getForEntity<String>("/invite?guild_id={guildId}", guildId)
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
 		assertThat(response.headers.location).satisfies(
@@ -70,7 +70,7 @@ internal class InviteEndpointTest : ApplicationTest() {
 	fun whenGetWithCustomRedirectUri_redirectHasRedirectToCustomUri() {
 		val redirectUrl = "https://example.org/foo?bar=baz"
 
-		val response = restTemplate.getForEntity<String>("/invite?redirect_uri={redirectUri}", redirectUrl)
+		val response = restTemplateNoRedirect.getForEntity<String>("/invite?redirect_uri={redirectUri}", redirectUrl)
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
 		assertThat(response.headers.location).satisfies(

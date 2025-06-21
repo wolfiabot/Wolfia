@@ -76,7 +76,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 			.queryParam("state", stateParam)
 			.build().toUri()
 
-		val responseEntity = restTemplate.getForEntity<String>(uri)
+		val responseEntity = restTemplateNoRedirect.getForEntity<String>(uri)
 		assertThat(responseEntity.statusCode).isEqualTo(HttpStatus.TEMPORARY_REDIRECT)
 		assertThat(responseEntity.headers.location).isEqualTo(URI.create(REDIRECT_URL))
 	}
