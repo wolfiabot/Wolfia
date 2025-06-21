@@ -54,7 +54,6 @@ spring:
     # From the docker/dev/compose file
     url: "jdbc:postgresql://localhost:5442/wolfia?user=wolfia&password=wolfia"
     hikari:
-      maximum-pool-size: 8
       validation-timeout: 3000
       # 30 seconds, sometimes we time out after 10 on the new machine, but its not a leak.
       connection-timeout: 30_000
