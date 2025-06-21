@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.domain.oauth2;
 
-import java.beans.ConstructorProperties;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -33,7 +32,6 @@ public record OAuth2Data(
         Instant createdAt
 ) {
 
-    @ConstructorProperties({"userId", "accessToken", "expires", "refreshToken", "scopes", "createdAt"})
     public OAuth2Data(long userId, String accessToken, Instant expires, String refreshToken, Set<OAuth2Scope> scopes, Instant createdAt) {
         this.userId = userId;
         this.accessToken = accessToken;

@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.domain.settings;
 
-import java.beans.ConstructorProperties;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.lang.Nullable;
@@ -35,15 +34,14 @@ public class ChannelSettings {
     private final long tagLastUsed;
     private final Set<Long> tags;
 
-    @ConstructorProperties({"channelId", "accessRoleId", "autoOut", "isGameChannel", "tagCooldown", "tagLastUsed", "tags"})
     public ChannelSettings(long channelId, @Nullable Long accessRoleId, @Nullable Boolean autoOut, boolean isGameChannel,
-                           @Nullable Long tagCooldownMinutes, long tagLastUsed, Long[] tags) {
+                           @Nullable Long tagCooldown, long tagLastUsed, Long[] tags) {
 
         this.channelId = channelId;
         this.accessRoleId = Optional.ofNullable(accessRoleId);
         this.autoOut = Optional.ofNullable(autoOut);
         this.isGameChannel = isGameChannel;
-        this.tagCooldownMinutes = Optional.ofNullable(tagCooldownMinutes);
+        this.tagCooldownMinutes = Optional.ofNullable(tagCooldown);
         this.tagLastUsed = tagLastUsed;
         this.tags = Set.of(tags);
     }

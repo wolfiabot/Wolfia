@@ -15,25 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package space.npstr.wolfia.domain.ban;
+package space.npstr.wolfia.db
 
-import space.npstr.wolfia.game.definitions.Scope;
+import org.jooq.impl.DefaultConfiguration
+import org.springframework.boot.autoconfigure.jooq.DefaultConfigurationCustomizer
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
-public class Ban {
 
-    private final long userId;
-    private final Scope scope;
+@Configuration
+class JooqConfig {
 
-    public Ban(long userId, Scope scope) {
-        this.userId = userId;
-        this.scope = scope;
-    }
-
-    public long getUserId() {
-        return this.userId;
-    }
-
-    public Scope getScope() {
-        return this.scope;
-    }
+	@Bean
+	fun configurationCustomiser(): DefaultConfigurationCustomizer {
+		return DefaultConfigurationCustomizer { c: DefaultConfiguration ->
+			c.settings()
+				.withMapConstructorParameterNames(true)
+				.withMapRecordComponentParameterNames(true)
+		}
+	}
 }

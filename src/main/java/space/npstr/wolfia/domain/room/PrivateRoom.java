@@ -17,8 +17,6 @@
 
 package space.npstr.wolfia.domain.room;
 
-import java.beans.ConstructorProperties;
-
 /**
  * Represents private guilds or similar that can be used for wolf chat etc.
  */
@@ -27,7 +25,6 @@ public class PrivateRoom {
     private final long guildId;
     private final int number;
 
-    @ConstructorProperties({"guildId", "number"})
     public PrivateRoom(long guildId, int number) {
         this.guildId = guildId;
         this.number = number;

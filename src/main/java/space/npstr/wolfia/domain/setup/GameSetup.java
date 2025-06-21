@@ -17,14 +17,12 @@
 
 package space.npstr.wolfia.domain.setup;
 
-import space.npstr.wolfia.game.GameInfo;
-import space.npstr.wolfia.game.definitions.Games;
-
-import org.springframework.lang.Nullable;
-import java.beans.ConstructorProperties;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.lang.Nullable;
+import space.npstr.wolfia.game.GameInfo;
+import space.npstr.wolfia.game.definitions.Games;
 
 public class GameSetup {
 
@@ -37,15 +35,14 @@ public class GameSetup {
     private final Optional<GameInfo.GameMode> mode;
     private final Optional<Duration> dayLength;
 
-    @ConstructorProperties({"channelId", "innedUsers", "game", "mode", "dayLength"})
     public GameSetup(long channelId, Long[] innedUsers, @Nullable String game, @Nullable String mode,
-                     @Nullable Long dayLengthMillis) {
+                     @Nullable Long dayLength) {
 
         this.channelId = channelId;
         this.innedUsers = Set.of(innedUsers);
         this.game = Optional.ofNullable(game).map(Games::valueOf);
         this.mode = Optional.ofNullable(mode).map(GameInfo.GameMode::valueOf);
-        this.dayLength = Optional.ofNullable(dayLengthMillis).map(Duration::ofMillis);
+        this.dayLength = Optional.ofNullable(dayLength).map(Duration::ofMillis);
     }
 
     public long getChannelId() {

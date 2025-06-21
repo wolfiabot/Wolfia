@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.domain.settings;
 
-import java.beans.ConstructorProperties;
 import java.util.Optional;
 import org.springframework.lang.Nullable;
 
@@ -29,7 +28,6 @@ public class GuildSettings {
     private final Optional<String> name;
     private final Optional<String> iconId;
 
-    @ConstructorProperties({"guildId", "name", "iconId"})
     public GuildSettings(long guildId, @Nullable String name, @Nullable String iconId) {
         this.guildId = guildId;
         this.name = Optional.ofNullable(name);

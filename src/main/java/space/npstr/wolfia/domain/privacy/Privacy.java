@@ -17,14 +17,11 @@
 
 package space.npstr.wolfia.domain.privacy;
 
-import java.beans.ConstructorProperties;
-
 public class Privacy {
 
     private final long userId;
     private final boolean processData;
 
-    @ConstructorProperties({"userId", "processData"})
     public Privacy(long userId, boolean processData) {
         this.userId = userId;
         this.processData = processData;
