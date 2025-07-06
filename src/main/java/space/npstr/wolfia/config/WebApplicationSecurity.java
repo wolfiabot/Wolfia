@@ -22,11 +22,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.HttpUrl;
@@ -62,9 +60,7 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import space.npstr.wolfia.config.properties.OAuth2Config;
 import space.npstr.wolfia.domain.privacy.PrivacyService;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
@@ -104,24 +100,11 @@ public class WebApplicationSecurity {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-        // https://github.com/spring-projects/spring-security/issues/13568
-        MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
-        MvcRequestMatcher[] noAuthEndpoints = Stream.concat(Arrays.stream(MACHINE_ENDPOINTS), Arrays.stream(PUBLIC_ENDPOINTS))
-                .map(mvcMatcherBuilder::pattern)
-                .collect(Collectors.toSet())
-                .toArray(new MvcRequestMatcher[]{});
-
-        MvcRequestMatcher[] machineEndpoints = Arrays.stream(MACHINE_ENDPOINTS)
-                .map(mvcMatcherBuilder::pattern)
-                .collect(Collectors.toSet())
-                .toArray(new MvcRequestMatcher[]{});
-
-        MvcRequestMatcher[] securedEndpoints = Arrays.stream(SECURED_ENDPOINTS)
-                .map(mvcMatcherBuilder::pattern)
-                .collect(Collectors.toSet())
-                .toArray(new MvcRequestMatcher[]{});
-
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        PathPatternRequestMatcher.Builder matcherBuilder = PathPatternRequestMatcher.withDefaults();
+        String[] noAuthEndpoints = Stream.of(MACHINE_ENDPOINTS, PUBLIC_ENDPOINTS)
+                .flatMap(Stream::of)
+                .toArray(String[]::new);
 
         LoginRedirectHandler loginRedirectHandler = new LoginRedirectHandler(
                 this.oAuth2Config.getBaseRedirectUrl(),
@@ -134,18 +117,18 @@ public class WebApplicationSecurity {
 
         return http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers(machineEndpoints)
+                        .ignoringRequestMatchers(MACHINE_ENDPOINTS)
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                         .csrfTokenRequestHandler(requestHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(securedEndpoints).authenticated()
+                        .requestMatchers(SECURED_ENDPOINTS).authenticated()
                         .requestMatchers(noAuthEndpoints).permitAll()
                         .anyRequest().permitAll()
                 )
                 // To avoid redirects to the spring internal login page when unauthorized requests happen to machine endpoints
                 .exceptionHandling(ex -> ex
-                        .defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), new AntPathRequestMatcher("/api/**"))
+                        .defaultAuthenticationEntryPointFor(new Http403ForbiddenEntryPoint(), matcherBuilder.matcher("/api/**"))
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(loginRedirectHandler)

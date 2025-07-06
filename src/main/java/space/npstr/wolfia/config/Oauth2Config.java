@@ -76,12 +76,10 @@ public class Oauth2Config implements BeanClassLoaderAware {
             OAuth2AuthorizedClientRepository authorizedClientRepository
     ) {
 
-        @SuppressWarnings("deprecation") // dont care, original code does the same
         OAuth2AuthorizedClientProviderBuilder authorizedClientProviderBuilder =
                 OAuth2AuthorizedClientProviderBuilder.builder()
                         .authorizationCode()
                         .refreshToken()
-                        .password()
                         .clientCredentials();
         OAuth2AuthorizedClientProvider authorizedClientProvider = authorizedClientProviderBuilder.build();
         DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(
