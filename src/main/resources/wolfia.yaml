@@ -13,6 +13,9 @@ server:
   servlet:
     application-display-name: Wolfia
   compression.enabled: true
+  # proper parsing of e.g. request scheme behind our Traefik proxy and other proxies
+  # do not turn on when not running behind a proxy!
+  #forward-headers-strategy: native
   undertow:
     accesslog.enabled: true
     options.server:
