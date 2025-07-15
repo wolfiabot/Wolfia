@@ -12,6 +12,7 @@ server:
   port: 4567   # Port of Wolfia's API.
   servlet:
     application-display-name: Wolfia
+  compression.enabled: true
 
 spring:
   # Avoid warning at startup
