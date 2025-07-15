@@ -13,6 +13,10 @@ server:
   servlet:
     application-display-name: Wolfia
   compression.enabled: true
+  undertow:
+    accesslog.enabled: true
+    options.server:
+      record-request-start-time: true
 
 spring:
   # Avoid warning at startup
