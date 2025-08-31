@@ -213,6 +213,8 @@ allprojects {
 
     dependencies {
         globalPlatforms platform("org.springframework.boot:spring-boot-dependencies:$springBootVersion")
+        globalPlatforms enforcedPlatform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
+        globalPlatforms enforcedPlatform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:$coroutinesVersion")
         globalPlatforms platform("io.sentry:sentry-bom:$sentryVersion")
     }
 }
@@ -369,9 +371,14 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs << '-Xlint:unchecked' << '-Xlint:deprecation' << '-Xmaxerrs' << '10000' << '-Xdiags:verbose' << '-parameters'
 }
 
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-    kotlinOptions.jvmTarget = javaVersion
-    compilerOptions.freeCompilerArgs.addAll('-java-parameters')
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(javaVersion)
+        freeCompilerArgs.addAll(
+                "-java-parameters",
+                "-Xannotation-default-target=param-property", // future default. see https://youtrack.jetbrains.com/issue/KT-73255
+        )
+    }
 }
 
 //required by spring boot configuration processor
