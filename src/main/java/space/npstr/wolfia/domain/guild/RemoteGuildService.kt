@@ -60,7 +60,7 @@ class RemoteGuildService(
 		fun fetchAllGuilds(): List<GuildInfo> {
 			val partialGuilds = cache.get(webUser) {
 				discordRequester.fetchAllGuilds(it.accessToken.tokenValue)
-			} ?: listOf()
+			}
 
 			return partialGuilds.map { toGuildInfo(it, webUser.id) }
 		}
