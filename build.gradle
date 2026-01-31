@@ -271,6 +271,10 @@ configurations {
     compile.exclude module: 'opus-java'
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    dependsOn("jooqCodegen")
+}
+
 ext {
     codegenDbImageRepo = 'napstr/poggres'
     codegenDbImageTag = "$postgresVersion"
@@ -534,7 +538,7 @@ jooq {
     }
 }
 
-jooqCodegen {
+tasks.named("jooqCodegen").configure {
     inputs.dir(migrationsInput)
             .withPropertyName('jooqMigrationsInput')
             .withPathSensitivity(PathSensitivity.RELATIVE)
