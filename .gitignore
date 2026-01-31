@@ -126,3 +126,5 @@ acme.json
 postgres-data
 postgres-data.tar.gz
 redis-data
+
+.kotlin
