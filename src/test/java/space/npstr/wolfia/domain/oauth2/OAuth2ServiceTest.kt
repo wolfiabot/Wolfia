@@ -50,8 +50,8 @@ internal class OAuth2ServiceTest : ApplicationTest() {
 		val codeResponse = AccessTokenResponse(accessToken, expires, refreshToken, scopes)
 
 		oAuth2Requester.stub {
-			onBlocking { fetchCodeResponse(any()) } doReturn codeResponse
-			onBlocking { identifyUser(any()) } doReturn userId
+			on { fetchCodeResponse(any()) } doReturn codeResponse
+			on { identifyUser(any()) } doReturn userId
 		}
 
 		runBlocking { service.acceptCode("foo") }

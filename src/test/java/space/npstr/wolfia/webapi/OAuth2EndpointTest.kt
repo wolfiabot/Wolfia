@@ -55,7 +55,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 	fun setup() {
 		val accessTokenResponse = accessTokenResponse()
 		oAuth2Requester.stub {
-			onBlocking { fetchCodeResponse(eq(CODE)) } doReturn accessTokenResponse
+			on { fetchCodeResponse(eq(CODE)) } doReturn accessTokenResponse
 		}
 	}
 
@@ -65,7 +65,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 		val userId = TestUtil.uniqueLong()
 
 		oAuth2Requester.stub {
-			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doReturn userId
+			on { identifyUser(eq(ACCESS_TOKEN)) } doReturn userId
 		}
 
 		val authState = authState(userId)
@@ -112,7 +112,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 		val userId = TestUtil.uniqueLong()
 
 		oAuth2Requester.stub {
-			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doReturn userId
+			on { identifyUser(eq(ACCESS_TOKEN)) } doReturn userId
 		}
 
 		val uri = UriComponentsBuilder.fromPath(CODE_GRANT_PATH)
@@ -131,7 +131,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 		val userIdB = TestUtil.uniqueLong()
 
 		oAuth2Requester.stub {
-			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doReturn userIdA
+			on { identifyUser(eq(ACCESS_TOKEN)) } doReturn userIdA
 		}
 
 		val authState = authState(userIdB)
@@ -151,7 +151,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 	@Test
 	fun whenGet_identificationFails_return400() {
 		oAuth2Requester.stub {
-			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doThrow DiscordRequestFailedException("test exception lol nope")
+			on { identifyUser(eq(ACCESS_TOKEN)) } doThrow DiscordRequestFailedException("test exception lol nope")
 		}
 
 		val authState = authState(TestUtil.uniqueLong())
@@ -170,7 +170,7 @@ internal class OAuth2EndpointTest : ApplicationTest() {
 	@Test
 	fun whenGet_randomException_return500() {
 		oAuth2Requester.stub {
-			onBlocking { identifyUser(eq(ACCESS_TOKEN)) } doThrow RuntimeException("test exception lol nope")
+			on { identifyUser(eq(ACCESS_TOKEN)) } doThrow RuntimeException("test exception lol nope")
 		}
 
 		val authState = authState(TestUtil.uniqueLong())
