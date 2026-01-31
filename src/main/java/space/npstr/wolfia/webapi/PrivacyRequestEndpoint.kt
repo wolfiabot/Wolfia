@@ -16,9 +16,6 @@
  */
 package space.npstr.wolfia.webapi
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -28,6 +25,9 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 import space.npstr.wolfia.domain.privacy.PrivacyRequestService
 import space.npstr.wolfia.domain.privacy.PrivacyService
+import tools.jackson.databind.SerializationFeature
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.module.kotlin.jsonMapper
 
 @RestController
 @RequestMapping("/api/privacy")
@@ -35,9 +35,10 @@ class PrivacyRequestEndpoint(
 	private val privacyRequestService: PrivacyRequestService,
 	private val privacyService: PrivacyService,
 ) {
-	private val objectMapper: ObjectMapper = ObjectMapper()
-		.enable(SerializationFeature.INDENT_OUTPUT)
-		.registerModule(JavaTimeModule())
+	private val jsonMapper: JsonMapper = jsonMapper {
+		enable(SerializationFeature.INDENT_OUTPUT)
+	}
+
 
 	@GetMapping("/request")
 	fun request(user: WebUser?): ResponseEntity<String> {
@@ -45,7 +46,7 @@ class PrivacyRequestEndpoint(
 			throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
 		}
 		val response = privacyRequestService.request(user.id)
-		return ResponseEntity.ok(objectMapper.writeValueAsString(response))
+		return ResponseEntity.ok(jsonMapper.writeValueAsString(response))
 	}
 
 	@DeleteMapping("/delete")

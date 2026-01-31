@@ -17,8 +17,7 @@
 package space.npstr.wolfia.domain.discord
 
 import java.util.Objects
-import java.util.function.Supplier
-import org.springframework.boot.web.client.RestTemplateBuilder
+import org.springframework.boot.restclient.RestTemplateBuilder
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -47,7 +46,7 @@ class DiscordRequester {
 	}
 
 	private final val restTemplate: RestTemplate = RestTemplateBuilder()
-		.requestFactory(Supplier { JdkClientHttpRequestFactory() })
+		.requestFactory({ JdkClientHttpRequestFactory() })
 		.rootUri(DISCORD_API_URL)
 		.build()
 
@@ -65,7 +64,7 @@ class DiscordRequester {
 			throw handleUnauthorized()
 		}
 		val user = exchange.body
-		return Objects.requireNonNull(user, "fetched user is null")
+		return Objects.requireNonNull(user, "fetched user is null") as PartialUser
 	}
 
 	fun fetchAllGuilds(accessToken: String): List<PartialGuild> {
@@ -82,7 +81,7 @@ class DiscordRequester {
 			throw handleUnauthorized()
 		}
 		val guilds = exchange.body
-		return Objects.requireNonNull(guilds, "fetched guilds are null")
+		return Objects.requireNonNull(guilds, "fetched guilds are null") as List<PartialGuild>
 	}
 
 	private fun handleUnauthorized(): ResponseStatusException {

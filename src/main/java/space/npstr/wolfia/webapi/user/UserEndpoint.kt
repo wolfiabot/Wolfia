@@ -50,7 +50,7 @@ class UserEndpoint(
 
 	private fun filterAndCollectByPrefix(authorities: Collection<GrantedAuthority>, prefix: String): Set<String> {
 		return authorities
-			.map { it.authority }
+			.mapNotNull { it.authority }
 			.filter { it.startsWith(prefix) }
 			.map { it.substring(prefix.length) }
 			.toSet()

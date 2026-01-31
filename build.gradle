@@ -198,10 +198,6 @@ allprojects {
             canBeResolved = false
             canBeConsumed = false
         }
-
-        //we want to go with undertow which supports both webflux and servlets (togglz console is a servlet)
-        implementation.exclude module: "spring-boot-starter-reactor-netty"
-        implementation.exclude module: "spring-boot-starter-tomcat"
     }
 
     configurations.configureEach {
@@ -273,10 +269,6 @@ configurations {
     // fucks with spring boot jar, we dont need it anyways
     // be VERY careful and test the produced jar if ever reenabled
     compile.exclude module: 'opus-java'
-
-    // undertow master race
-    implementation.exclude module: 'spring-boot-starter-reactor-netty'
-    implementation.exclude module: 'spring-boot-starter-tomcat'
 }
 
 ext {
@@ -293,7 +285,7 @@ dependencies {
 
     implementation "ch.qos.logback:logback-classic"
     implementation "io.sentry:sentry-logback"
-    implementation "io.sentry:sentry-spring-boot-starter-jakarta"
+    implementation "io.sentry:sentry-spring-boot-4"
     implementation "io.sentry:sentry-kotlin-extensions"
 
     implementation "org.yaml:snakeyaml"
@@ -303,8 +295,8 @@ dependencies {
     implementation "org.openjdk.nashorn:nashorn-core:$nashornVersion"
 
     implementation "io.lettuce:lettuce-core"
-    implementation(group: "io.netty", name: "netty-transport-native-epoll", classifier: "linux-x86_64")
-    implementation(group: "io.netty", name: "netty-transport-native-kqueue", classifier: "osx-x86_64")
+    implementation "io.netty:netty-transport-native-epoll:linux-x86_64"
+    implementation "io.netty:netty-transport-native-kqueue:osx-x86_64"
 
     implementation "io.prometheus:prometheus-metrics-instrumentation-caffeine"
     implementation "io.prometheus:prometheus-metrics-instrumentation-jvm"
@@ -327,16 +319,21 @@ dependencies {
     implementation "org.togglz:togglz-console:$togglzVersion"
     implementation "org.togglz:togglz-spring-security:$togglzVersion"
 
-    implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "org.springframework.boot:spring-boot-starter-webmvc"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
     implementation "org.springframework.boot:spring-boot-starter-jdbc"
+    implementation "org.springframework.boot:spring-boot-starter-jooq"
+    implementation "org.springframework.boot:spring-boot-starter-flyway"
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-restclient"
+    implementation "org.springframework.boot:spring-boot-starter-data-redis"
+    implementation "org.springframework.boot:spring-boot-starter-session-data-redis"
     implementation "org.springframework.session:spring-session-data-redis"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin"
+    implementation "tools.jackson.module:jackson-module-kotlin"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     compileOnly("org.springframework.boot:spring-boot-devtools")
 
@@ -350,8 +347,9 @@ dependencies {
         exclude module: 'android-json' // json.org clone
     }
     testImplementation "org.springframework.security:spring-security-test"
+    testImplementation "org.springframework.boot:spring-boot-resttestclient"
     testImplementation "org.testcontainers:testcontainers"
-    testImplementation "org.testcontainers:selenium"
+    testImplementation "org.testcontainers:testcontainers-selenium"
     testImplementation "com.codeborne:selenide:$selenideVersion"
     testImplementation "org.awaitility:awaitility"
 

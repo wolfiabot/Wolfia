@@ -33,7 +33,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.utils.UserFriendlyException;

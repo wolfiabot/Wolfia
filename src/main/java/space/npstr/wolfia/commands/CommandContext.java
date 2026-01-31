@@ -23,7 +23,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import space.npstr.wolfia.system.metrics.MetricsService;
 import space.npstr.wolfia.utils.discord.RestActions;
 

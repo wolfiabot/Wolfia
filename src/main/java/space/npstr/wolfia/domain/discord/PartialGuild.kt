@@ -17,8 +17,8 @@
 package space.npstr.wolfia.domain.discord
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer
+import tools.jackson.databind.annotation.JsonSerialize
+import tools.jackson.databind.ser.std.ToStringSerializer
 
 /**
  * Guild fetched via OAuth2, see https://discord.com/developers/docs/resources/user#get-current-user-guilds-example-partial-guild

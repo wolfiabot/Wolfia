@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import space.npstr.wolfia.utils.Operation;
 
 /**

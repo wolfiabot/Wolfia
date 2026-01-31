@@ -23,7 +23,7 @@ import io.lettuce.core.event.connection.ConnectionActivatedEvent;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,7 +35,7 @@ public class Redis {
     private final StatefulRedisConnection<String, String> connection;
     private final StatefulRedisPubSubConnection<String, String> pubSub;
 
-    public Redis(RedisProperties redisProperties) {
+    public Redis(DataRedisProperties redisProperties) {
         this.client = RedisClient.create(redisProperties.getUrl());
         this.connection = this.client.connect();
         this.pubSub = this.client.connectPubSub();

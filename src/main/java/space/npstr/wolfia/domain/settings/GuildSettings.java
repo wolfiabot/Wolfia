@@ -18,7 +18,7 @@
 package space.npstr.wolfia.domain.settings;
 
 import java.util.Optional;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class GuildSettings {
 

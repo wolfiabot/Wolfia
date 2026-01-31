@@ -17,14 +17,13 @@
 
 package space.npstr.wolfia.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.lang.NonNull;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
@@ -32,6 +31,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * We need this to safe the oauth tokens across restarts.
@@ -52,15 +52,15 @@ public class Oauth2Config implements BeanClassLoaderAware {
 
     @Bean(name = "springSessionDefaultRedisSerializer")
     public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
-        return new GenericJackson2JsonRedisSerializer(objectMapper());
+        return new GenericJacksonJsonRedisSerializer(jsonMapper());
     }
 
-    private ObjectMapper objectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModules(SecurityJackson2Modules.getModules(this.loader));
-        // https://github.com/spring-projects/spring-security/issues/12294#issuecomment-1401987517
-        mapper.addMixIn(Long.class, LongMixin.class);
-        return mapper;
+    private JsonMapper jsonMapper() {
+        return JsonMapper.builder()
+                .addModules(SecurityJacksonModules.getModules(this.loader))
+                // https://github.com/spring-projects/spring-security/issues/12294#issuecomment-1401987517
+                .addMixIn(Long.class, LongMixin.class)
+                .build();
     }
 
     public abstract static class LongMixin {}

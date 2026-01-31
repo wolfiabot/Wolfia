@@ -19,7 +19,7 @@ package space.npstr.wolfia.domain.settings;
 
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public class ChannelSettings {
 

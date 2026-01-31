@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:25-jdk
 LABEL org.opencontainers.image.authors="napster@npstr.space"
 
 RUN groupadd -g 420 wolfia && \

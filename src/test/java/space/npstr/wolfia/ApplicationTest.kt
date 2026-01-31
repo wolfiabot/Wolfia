@@ -19,10 +19,10 @@ package space.npstr.wolfia
 import java.time.Clock
 import net.dv8tion.jda.api.sharding.ShardManager
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.http.client.ClientHttpRequestFactorySettings.Redirects
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.http.client.HttpRedirects
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestPropertySource
@@ -41,7 +41,7 @@ import space.npstr.wolfia.domain.stats.StatsService
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @TestPropertySource(properties = ["spring.config.name=wolfia"])
-@AutoConfigureMockMvc
+@AutoConfigureTestRestTemplate
 abstract class ApplicationTest : PostgresAndRedisContainers() {
 
 	@LocalServerPort
@@ -75,6 +75,6 @@ abstract class ApplicationTest : PostgresAndRedisContainers() {
 	protected lateinit var restTemplate: TestRestTemplate
 
 	protected val restTemplateNoRedirect by lazy {
-		restTemplate.withRedirects(Redirects.DONT_FOLLOW)
+		restTemplate.withRedirects(HttpRedirects.DONT_FOLLOW)
 	}
 }

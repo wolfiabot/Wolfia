@@ -17,7 +17,6 @@
 
 package space.npstr.wolfia.config;
 
-import io.undertow.util.Headers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -28,13 +27,14 @@ import java.util.Set;
 import java.util.stream.Stream;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.HttpUrl;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
-import org.springframework.lang.Nullable;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -66,6 +66,8 @@ import space.npstr.wolfia.domain.privacy.PrivacyService;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.webapi.Authorization;
 import space.npstr.wolfia.webapi.LoginRedirect;
+
+import static org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS;
 
 @Configuration
 public class WebApplicationSecurity {
@@ -100,7 +102,7 @@ public class WebApplicationSecurity {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) {
         PathPatternRequestMatcher.Builder matcherBuilder = PathPatternRequestMatcher.withDefaults();
         String[] noAuthEndpoints = Stream.of(MACHINE_ENDPOINTS, PUBLIC_ENDPOINTS)
                 .flatMap(Stream::of)
@@ -147,7 +149,7 @@ public class WebApplicationSecurity {
     private HeaderWriter allowTogglzIFrame() {
         return (request, response) -> {
             if (request.getRequestURI().startsWith("/api/togglz")) {
-                response.setHeader(Headers.X_FRAME_OPTIONS_STRING, XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN.name());
+                response.setHeader(X_FRAME_OPTIONS, XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN.name());
             }
         };
     }
@@ -161,7 +163,7 @@ public class WebApplicationSecurity {
     public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
         RestClientAuthorizationCodeTokenResponseClient client = new RestClientAuthorizationCodeTokenResponseClient();
 
-        client.addHeadersConverter(request -> {
+        client.addHeadersConverter(_ -> {
             var additionalHeaders = new HttpHeaders();
             additionalHeaders.add(HttpHeaders.USER_AGENT, DISCORD_BOT_USER_AGENT);
             return additionalHeaders;
@@ -223,6 +225,7 @@ public class WebApplicationSecurity {
     /**
      * Handle a potential login redirect target saved in the session.
      */
+    @NullMarked
     private static final class LoginRedirectHandler implements AuthenticationSuccessHandler, AuthenticationFailureHandler {
 
         private final String defaultTargetUrl;
@@ -237,7 +240,7 @@ public class WebApplicationSecurity {
         public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                             Authentication authentication) throws IOException {
 
-            if (authentication != null && (authentication.getPrincipal() instanceof OAuth2User principal)) {
+            if (authentication.getPrincipal() instanceof OAuth2User principal) {
                 String name = principal.getName();
                 try {
                     long userId = Long.parseLong(name);

@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import space.npstr.wolfia.utils.log.LogTheStackException;
 
 /**

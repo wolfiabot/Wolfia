@@ -35,7 +35,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import space.npstr.wolfia.system.ApplicationInfoProvider;
 import space.npstr.wolfia.system.metrics.MetricsService;
 import space.npstr.wolfia.utils.discord.RestActions;

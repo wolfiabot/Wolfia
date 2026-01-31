@@ -20,7 +20,7 @@ package space.npstr.wolfia.domain.setup;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.lang.Nullable;
+import org.jspecify.annotations.Nullable;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Games;
 

@@ -20,8 +20,8 @@ import java.util.Base64
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.web.client.exchange
-import org.springframework.boot.test.web.client.getForEntity
+import org.springframework.boot.resttestclient.exchange
+import org.springframework.boot.resttestclient.getForEntity
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -37,9 +37,6 @@ import org.springframework.session.Session
 import org.springframework.session.SessionRepository
 import space.npstr.wolfia.ApplicationTest
 
-/**
- * The Togglz Console is served by a Servlet, so we can't use MockMvc.
- */
 internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 
 	private final val togglzConsolePath = "/api/togglz/index"
@@ -50,7 +47,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 
 	@Test
 	fun whenGet_withoutAuthentication_returnUnauthorized() {
-		val response = restTemplate.getForEntity<Unit>("/$togglzConsolePath")
+		val response = restTemplate.getForEntity<Unit>(togglzConsolePath)
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
 	}
@@ -60,7 +57,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 		val headers = HttpHeaders()
 		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.USER)))
 
-		val response = restTemplate.exchange<Unit>("/$togglzConsolePath", HttpMethod.GET, HttpEntity<Unit>(headers))
+		val response = restTemplate.exchange<Unit>(togglzConsolePath, HttpMethod.GET, HttpEntity<Unit>(headers))
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
 	}
@@ -70,7 +67,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 		val headers = HttpHeaders()
 		headers.add(HttpHeaders.COOKIE, sessionCookie(generateHttpSession(Authorization.OWNER)))
 
-		val response = restTemplate.exchange<Void>("/$togglzConsolePath", HttpMethod.GET, HttpEntity<Unit>(headers))
+		val response = restTemplate.exchange<Void>(togglzConsolePath, HttpMethod.GET, HttpEntity<Unit>(headers))
 
 		assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
 	}

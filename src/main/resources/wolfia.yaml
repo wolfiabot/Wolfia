@@ -16,14 +16,12 @@ server:
   # proper parsing of e.g. request scheme behind our Traefik proxy and other proxies
   # do not turn on when not running behind a proxy!
   #forward-headers-strategy: native
-  undertow:
-    accesslog.enabled: true
-    options.server:
-      record-request-start-time: true
 
 spring:
-  # Avoid warning at startup
-  thymeleaf.check-template-location: false
+  autoconfigure:
+    exclude:
+      # see https://github.com/togglz/togglz/issues/1249
+      - org.togglz.spring.boot.actuate.autoconfigure.TogglzEndpointAutoConfiguration
   main:
     lazy-initialization: true
   output:
@@ -51,7 +49,7 @@ spring:
             # That is why we use the id here instead.
             user-name-attribute: id
   session:
-    redis:
+    data.redis:
       flush-mode: immediate
       repository-type: indexed
     timeout: 365d

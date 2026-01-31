@@ -27,7 +27,7 @@ import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.stub
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.web.client.getForEntity
+import org.springframework.boot.resttestclient.getForEntity
 import org.springframework.http.HttpStatus
 import org.springframework.web.util.UriComponentsBuilder
 import space.npstr.wolfia.ApplicationTest
