@@ -2,7 +2,7 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 com.adarshr:gradle-test-logger-plugin:4.0.0=classpath
-com.bmuschko:gradle-docker-plugin:9.4.0=classpath
+com.bmuschko:gradle-docker-plugin:10.0.0=classpath
 com.fasterxml.jackson.core:jackson-annotations:2.20=classpath
 com.fasterxml.jackson.core:jackson-core:2.19.1=classpath
 com.fasterxml.jackson.core:jackson-databind:2.19.1=classpath
