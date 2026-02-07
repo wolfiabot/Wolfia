@@ -93,8 +93,6 @@ services:
       - -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
       - -XX:+EnableDynamicAgentLoading
       - -Xlog:gc*:logs/gc/gc-%t.log::filesize=1g
-      #- -XX:+UseG1GC
-      #- -XX:+ParallelRefProcEnabled
       - -XX:+UseZGC
       - -XX:+ZGenerational
       - -XX:+UseTransparentHugePages
