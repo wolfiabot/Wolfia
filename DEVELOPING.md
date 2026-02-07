@@ -49,7 +49,7 @@ docker compose -f docker/dev/compose.yaml up -d
 
 #### Redis
 This project uses the [Redis](https://redis.io/) in-memory key-value database to store expiring data and caches.
-The currently used version can be found in the [dev docker compose](docker/dev/compose.yaml) file.
+The currently used version can be found in the [dev docker compose](docker/dev-wolfia/compose.yaml) file.
 Installing it is optional, running the development `docker compose` is recommended instead:
 ```shell script
 docker compose -f docker/dev/compose.yaml up -d

@@ -1,7 +1,7 @@
 # Required services to run Wolfia on a local machine
 
 services:
-  dev-postgres:
+  db:
     image: napstr/poggres:18
     restart: always
     ports:
@@ -15,7 +15,7 @@ services:
       - DB=wolfia
       - EXTENSIONS=hstore
 
-  dev-redis:
+  redis:
     image: redis:8.2
     restart: always
     entrypoint:
