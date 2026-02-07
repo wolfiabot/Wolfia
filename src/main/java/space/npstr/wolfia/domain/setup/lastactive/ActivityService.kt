@@ -16,10 +16,11 @@
  */
 package space.npstr.wolfia.domain.setup.lastactive
 
+import java.time.Duration
 import net.dv8tion.jda.api.entities.User
 import org.springframework.stereotype.Service
 import space.npstr.wolfia.config.properties.WolfiaConfig
-import java.time.Duration
+import space.npstr.wolfia.system.logger
 
 @Service
 class ActivityService(
@@ -41,7 +42,13 @@ class ActivityService(
         } else {
             DEFAULT_ACTIVITY_TIMEOUT
         }
-        repository.recordActivity(userId, activityTimeout)
+
+		// nonessential, continue with other stuff of this fails
+		try {
+			repository.recordActivity(userId, activityTimeout)
+		} catch (e: Exception) {
+			logger().warn("Failed to record activity for user {}", userId, e)
+		}
     }
 
     fun wasActiveRecently(user: User): Boolean {
