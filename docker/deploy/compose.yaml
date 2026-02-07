@@ -24,7 +24,7 @@ services:
       - BACKUP_APP_KEY=${B2_APP_KEY}
 
   redis:
-    image: redis:7-alpine
+    image: redis:8.2
     restart: always
     entrypoint:
       - redis-server
