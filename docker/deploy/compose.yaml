@@ -94,7 +94,6 @@ services:
       - -XX:+EnableDynamicAgentLoading
       - -Xlog:gc*:logs/gc/gc-%t.log::filesize=1g
       - -XX:+UseZGC
-      - -XX:+ZGenerational
       - -XX:+UseTransparentHugePages
       - -XX:+UseStringDeduplication
       - -jar
