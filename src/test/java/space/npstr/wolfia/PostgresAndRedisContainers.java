@@ -31,7 +31,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
  */
 public abstract class PostgresAndRedisContainers {
 
-    private static final GenericContainer<?> DB = new GenericContainer<>("napstr/poggres:17")
+    private static final GenericContainer<?> DB = new GenericContainer<>("napstr/poggres:18")
             .withLogConsumer(new Slf4jLogConsumer(containerLogger("Postgres")))
             .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust")
             .withEnv("ROLE", "wolfia_test")
