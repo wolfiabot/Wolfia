@@ -38,7 +38,9 @@ import space.npstr.wolfia.system.logger
  * Convenience resolver that allows us to use [WebUser] directly in rest controller methods.
  */
 @Component
-class WebUserArgumentResolver(private val auth2AuthorizedClientManager: OAuth2AuthorizedClientManager) : HandlerMethodArgumentResolver {
+class WebUserArgumentResolver(
+	private val auth2AuthorizedClientManager: OAuth2AuthorizedClientManager,
+) : HandlerMethodArgumentResolver {
 
 	override fun supportsParameter(parameter: MethodParameter): Boolean {
 		val methodParameter = parameter.nestedIfOptional()
@@ -77,10 +79,10 @@ class WebUserArgumentResolver(private val auth2AuthorizedClientManager: OAuth2Au
 		mergedAuthorities.addAll(authentication.authorities)
 		mergedAuthorities.addAll(principal.authorities)
 		principal = DefaultOAuth2User(mergedAuthorities, principal.attributes, "id")
-		val name = principal.getName()
+		val name = principal.name
 		val userId: Long = try {
 			name.toLong()
-		} catch (e: NumberFormatException) {
+		} catch (_: NumberFormatException) {
 			logger().warn("User id '{}' is not a valid snowflake!", name)
 			return null
 		}
