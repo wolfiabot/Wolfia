@@ -51,7 +51,7 @@ public class Oauth2Config implements BeanClassLoaderAware {
     }
 
     @Bean(name = "springSessionDefaultRedisSerializer")
-    public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
+    public RedisSerializer<@NonNull Object> springSessionDefaultRedisSerializer() {
         return new GenericJacksonJsonRedisSerializer(jsonMapper());
     }
 
@@ -60,6 +60,7 @@ public class Oauth2Config implements BeanClassLoaderAware {
                 .addModules(SecurityJacksonModules.getModules(this.loader))
                 // https://github.com/spring-projects/spring-security/issues/12294#issuecomment-1401987517
                 .addMixIn(Long.class, LongMixin.class)
+                .registerSubtypes(Long.class)
                 .build();
     }
 
