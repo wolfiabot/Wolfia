@@ -73,6 +73,10 @@ spring:
       hibernate:
         connection:
           provider_disables_autocommit: false
+  jackson:
+    deserialization:
+      FAIL_ON_NULL_FOR_PRIMITIVES: true
+      FAIL_ON_UNKNOWN_PROPERTIES: false
 
 togglz:
   enabled: true
