@@ -31,7 +31,6 @@ import space.npstr.wolfia.config.ShardManagerFactory;
 import space.npstr.wolfia.domain.game.GameRegistry;
 import space.npstr.wolfia.events.BotStatusLogger;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
-import space.npstr.wolfia.system.redis.Redis;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.Emojis;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -49,19 +48,17 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
     private final ExceptionLoggingExecutor executor;
     private final ShardManagerFactory shardManagerFactory;
     private final GameRegistry gameRegistry;
-    private final Redis redis;
     private final ScheduledExecutorService jdaThreadPool;
 
     private boolean shuttingDown = false;
 
     public ShutdownHandler(BotStatusLogger botStatusLogger, ExceptionLoggingExecutor executor,
                            ShardManagerFactory shardManagerFactory, GameRegistry gameRegistry,
-                           Redis redis, @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool) {
+                           @Qualifier("jdaThreadPool") ScheduledExecutorService jdaThreadPool) {
         this.botStatusLogger = botStatusLogger;
         this.executor = executor;
         this.shardManagerFactory = shardManagerFactory;
         this.gameRegistry = gameRegistry;
-        this.redis = redis;
         this.jdaThreadPool = jdaThreadPool;
     }
 
@@ -144,10 +141,6 @@ public class ShutdownHandler implements ApplicationListener<ContextClosedEvent> 
             log.warn("Interrupted while awaiting executors termination", e);
             Thread.currentThread().interrupt();
         }
-
-        //shutdown Redis connection
-        log.info("Shutting down redis connection");
-        redis.shutdown();
     }
 
     public void shutdown(int code) {

@@ -23,34 +23,6 @@ services:
       - BACKUP_ACCOUNT_ID=${B2_ACCOUNT_ID}
       - BACKUP_APP_KEY=${B2_APP_KEY}
 
-  redis:
-    image: redis:8.2
-    restart: always
-    entrypoint:
-      - redis-server
-      - --appendonly
-      - "yes"
-    ports:
-      - 127.0.0.1:6379:6379
-    volumes:
-      - ./redis-data:/data
-    sysctls:
-      - net.core.somaxconn=511   # container was spitting out a warning telling us to do this
-
-  redis-exporter:
-    image: oliver006/redis_exporter
-    restart: always
-    environment:
-      - REDIS_ADDR=redis://redis:6379
-    networks:
-      - default
-    labels:
-      - "traefik.enable=true"
-      - "traefik.port=9121"
-      - "traefik.http.routers.wolfia-redis-exporter-prom.rule=Host(`redis.${DOMAIN}`) && PathPrefix(`/metrics`)"
-      - "traefik.http.routers.wolfia-redis-exporter-prom.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.wolfia-redis-exporter-prom.middlewares=metrics-auth@docker, whitelist@docker"
-
   bot:
     image: napstr/wolfia:master
     restart: always

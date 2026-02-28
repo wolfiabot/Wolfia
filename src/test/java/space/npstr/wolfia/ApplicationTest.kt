@@ -42,7 +42,7 @@ import space.npstr.wolfia.domain.stats.StatsService
 @ActiveProfiles("test")
 @TestPropertySource(properties = ["spring.config.name=wolfia"])
 @AutoConfigureTestRestTemplate
-abstract class ApplicationTest : PostgresAndRedisContainers() {
+abstract class ApplicationTest : WolfiaTestContainers() {
 
 	@LocalServerPort
 	protected var port: Int = 0

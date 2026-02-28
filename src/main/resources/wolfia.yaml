@@ -50,9 +50,6 @@ spring:
       # we run our own flyway migration
       initialize-schema: never
     timeout: 365d
-  data:
-    redis:
-      url: "redis://localhost:6389/0"
   datasource:
     # From the docker/dev/compose file
     url: "jdbc:postgresql://localhost:5442/wolfia?user=wolfia&password=wolfia"

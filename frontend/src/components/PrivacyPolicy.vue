@@ -65,7 +65,7 @@
 
 			<h2 class="subtitle">How do we store your data?</h2>
 			<p>
-				The data is stored in databases such as PostgreSQL and Redis. The current datacenter location is
+				The data is stored a PostgreSQL database. The current datacenter location is
 				{{ serverLocation }}. Servers running the software as well as the databases are secured with industry
 				standard security measures.
 			</p>

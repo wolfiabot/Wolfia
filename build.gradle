@@ -333,7 +333,6 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-oauth2-client"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "org.springframework.boot:spring-boot-starter-restclient"
-    implementation "org.springframework.boot:spring-boot-starter-data-redis"
     implementation "org.springframework.boot:spring-boot-starter-session-jdbc"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
     implementation "tools.jackson.module:jackson-module-kotlin"

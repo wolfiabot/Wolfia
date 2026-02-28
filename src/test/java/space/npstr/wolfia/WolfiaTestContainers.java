@@ -27,9 +27,9 @@ import org.testcontainers.containers.wait.strategy.Wait;
 
 /**
  * Set up our testcontainers & pass their urls into the application config.
- * Yes, this is the recommended way to go about setting up containers that are shared by all tests.
+ * This is the recommended way to go about setting up containers that are shared by all tests.
  */
-public abstract class PostgresAndRedisContainers {
+public abstract class WolfiaTestContainers {
 
     private static final GenericContainer<?> DB = new GenericContainer<>("napstr/poggres:18")
             .withLogConsumer(new Slf4jLogConsumer(containerLogger("Postgres")))
@@ -47,19 +47,6 @@ public abstract class PostgresAndRedisContainers {
         int port = DB.getMappedPort(5432);
         String jdbcUrl = "jdbc:postgresql://" + host + ":" + port + "/wolfia_test?user=wolfia_test";
         System.setProperty("spring.datasource.url", jdbcUrl);
-    }
-
-
-    private static final GenericContainer<?> REDIS = new GenericContainer<>("redis:7-alpine")
-            .withLogConsumer(new Slf4jLogConsumer(containerLogger("Redis")))
-            .withExposedPorts(6379);
-
-    static {
-        REDIS.start();
-        String host = REDIS.getHost();
-        int port = REDIS.getMappedPort(6379);
-        String redisUrl = "redis://" + host + ":" + port + "/1";
-        System.setProperty("spring.data.redis.url", redisUrl);
     }
 
     protected static Logger containerLogger(String suffix) {
