@@ -27,6 +27,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.boot.context.event.ApplicationFailedEvent;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.events.BotStatusLogger;
@@ -40,6 +41,7 @@ import space.npstr.wolfia.utils.discord.TextchatUtils;
  *  //todo rename role pm/dm -> rolecard
  */
 @SpringBootApplication
+@EnableScheduling
 public class Launcher implements ApplicationRunner {
 
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Launcher.class);

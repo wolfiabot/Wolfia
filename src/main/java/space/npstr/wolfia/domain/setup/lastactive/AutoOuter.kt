@@ -16,50 +16,23 @@
  */
 package space.npstr.wolfia.domain.setup.lastactive
 
-import io.lettuce.core.pubsub.RedisPubSubAdapter
 import net.dv8tion.jda.api.sharding.ShardManager
+import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 import space.npstr.wolfia.domain.setup.GameSetupService
-import space.npstr.wolfia.system.redis.Redis
 
 /**
  * This component listens the keys expiring from [ActivityService] and takes action
- *
- *
- * Since we could lose the redis connection, or restart, or <insert any other reason to miss expiry events>,
- * a "manual" check when starting the game should still be performed.
-</insert> */
+ */
 @Component
 class AutoOuter(
-	redis: Redis,
 	private val gameSetupService: GameSetupService,
 	private val shardManager: ShardManager,
-) : RedisPubSubAdapter<String, String>() {
+) {
 
-	private val expireChannel = "__keyevent@*__:expired"
-	private val redisKeyParser = RedisKeyParser()
-
-	init {
-		redis.pubSub.let {
-			it.addListener(this)
-			it.sync().psubscribe(expireChannel)
-		}
-	}
-
-	override fun message(channel: String, message: String) {
-		if (expireChannel == channel) {
-			this.expired(message)
-		}
-	}
-
-	override fun message(pattern: String, channel: String, message: String) {
-		if (expireChannel == pattern || expireChannel == channel) {
-			this.expired(message)
-		}
-	}
-
-	private fun expired(key: String) {
-		redisKeyParser.fromKey(key)?.let { outUser(it) }
+	@EventListener
+	fun onUserBecameInactive(event: LastActiveRepository.UserBecameInactive) {
+		outUser(event.userId)
 	}
 
 	private fun outUser(userId: Long) {

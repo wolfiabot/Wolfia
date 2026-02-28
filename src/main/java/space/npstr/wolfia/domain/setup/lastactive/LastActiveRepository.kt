@@ -16,28 +16,64 @@
  */
 package space.npstr.wolfia.domain.setup.lastactive
 
-import io.lettuce.core.SetArgs
 import java.time.Clock
 import java.time.Duration
+import java.util.concurrent.TimeUnit.SECONDS
+import org.jooq.DSLContext
+import org.jooq.impl.DSL
+import org.jooq.impl.DSL.count
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Repository
-import space.npstr.wolfia.system.redis.Redis
+import space.npstr.wolfia.db.gen.Tables
 
 @Repository
 class LastActiveRepository(
-	private val redis: Redis,
 	private val clock: Clock,
+	private val jooq: DSLContext,
+	private val eventPublisher: ApplicationEventPublisher,
 ) {
 
-	private val redisKeyParser = RedisKeyParser()
+	data class UserBecameInactive(
+		val userId: Long,
+	)
+
+	@Scheduled(fixedDelay = 1, timeUnit = SECONDS, initialDelay = 1)
+	internal fun expire() {
+		val now = clock.millis()
+		jooq.transaction { config ->
+			DSL.using(config)
+				.deleteFrom(Tables.LAST_ACTIVE)
+				.where(Tables.LAST_ACTIVE.EXPIRES.lessThan(now))
+				.returning()
+				.fetch(Tables.LAST_ACTIVE.USER_ID)
+				.forEach { eventPublisher.publishEvent(UserBecameInactive(it)) }
+		}
+	}
 
 	fun recordActivity(userId: Long, timeout: Duration) {
-		val value = clock.millis().toString()
-		redis.connection.sync()
-			.set(redisKeyParser.toKey(userId), value, SetArgs.Builder.px(timeout.toMillis()))
+		val now = clock.instant()
+		val expires = now.plus(timeout)
+
+		jooq.transaction { config ->
+			DSL.using(config)
+				.insertInto(Tables.LAST_ACTIVE)
+				.columns(Tables.LAST_ACTIVE.USER_ID, Tables.LAST_ACTIVE.TIMESTAMP, Tables.LAST_ACTIVE.EXPIRES)
+				.values(userId, now.toEpochMilli(), expires.toEpochMilli())
+				.onDuplicateKeyUpdate()
+				.set(Tables.LAST_ACTIVE.TIMESTAMP, now.toEpochMilli())
+				.set(Tables.LAST_ACTIVE.EXPIRES, expires.toEpochMilli())
+				.execute()
+		}
 	}
 
 	fun wasActiveRecently(userId: Long): Boolean {
-		return redis.connection.sync()
-			.exists(redisKeyParser.toKey(userId)) != 0L
+		val now = clock.millis()
+		return jooq.select(count())
+			.from(Tables.LAST_ACTIVE)
+			.where(Tables.LAST_ACTIVE.USER_ID.eq(userId))
+			.and(Tables.LAST_ACTIVE.EXPIRES.greaterThan(now))
+			.fetchSingle()
+			.get(count()) > 0
 	}
 }

@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 
+import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.ONE_SECOND;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
@@ -39,14 +39,8 @@ class AutoOuterTest extends ApplicationTest {
         long userId = uniqueLong();
         lastActiveRepository.recordActivity(userId, ONE_HUNDRED_MILLISECONDS);
 
-        // There is a small chance that this verification might fail, because Redis is not exact when expiring keys
-        // See
-        // https://redis.io/commands/expire#how-redis-expires-keys
-        // and
-        // https://redis.io/topics/notifications#timing-of-expired-events
-        // Chances are good that this key will be expired though, because redis checks 20 random TTLd keys 10 times per
-        // second, and as of writing this, our tests do not create many redis keys.
-        verify(gameSetupService, timeout(ONE_SECOND.toMillis())).outUserDueToInactivity(eq(userId), any());
+        // expiration check scheduler runs every second
+        verify(gameSetupService, timeout(FIVE_SECONDS.toMillis())).outUserDueToInactivity(eq(userId), any());
     }
 
 }
