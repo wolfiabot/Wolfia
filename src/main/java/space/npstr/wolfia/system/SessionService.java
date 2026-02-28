@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.context.event.EventListener;
 import org.springframework.session.Session;
-import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.stereotype.Service;
 import space.npstr.wolfia.domain.privacy.PersonalDataDelete;
 
@@ -30,9 +30,9 @@ import static org.springframework.session.FindByIndexNameSessionRepository.PRINC
 @Service
 public class SessionService {
 
-    private final RedisIndexedSessionRepository sessionRepository;
+    private final JdbcIndexedSessionRepository sessionRepository;
 
-    public SessionService(RedisIndexedSessionRepository sessionRepository) {
+    public SessionService(JdbcIndexedSessionRepository sessionRepository) {
         this.sessionRepository = sessionRepository;
     }
 

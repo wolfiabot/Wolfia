@@ -17,13 +17,8 @@
 
 package space.npstr.wolfia.config;
 
-import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
@@ -31,40 +26,17 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
-import tools.jackson.databind.json.JsonMapper;
 
-/**
- * We need this to safe the oauth tokens across restarts.
- * See
- * https://github.com/spring-projects/spring-security/issues/7889
- * and
- * https://github.com/spring-projects/spring-session/tree/master/spring-session-samples/spring-session-sample-boot-redis-json
- */
 @Configuration
-public class Oauth2Config implements BeanClassLoaderAware {
+public class Oauth2Config {
 
-    private ClassLoader loader;
-
+    /**
+     * We need this to safe the oauth tokens across restarts.
+     */
     @Bean
     public OAuth2AuthorizedClientRepository authorizedClientRepository() {
         return new HttpSessionOAuth2AuthorizedClientRepository();
     }
-
-    @Bean(name = "springSessionDefaultRedisSerializer")
-    public RedisSerializer<@NonNull Object> springSessionDefaultRedisSerializer() {
-        return new GenericJacksonJsonRedisSerializer(jsonMapper());
-    }
-
-    private JsonMapper jsonMapper() {
-        return JsonMapper.builder()
-                .addModules(SecurityJacksonModules.getModules(this.loader))
-                // https://github.com/spring-projects/spring-security/issues/12294#issuecomment-1401987517
-                .addMixIn(Long.class, LongMixin.class)
-                .registerSubtypes(Long.class)
-                .build();
-    }
-
-    public abstract static class LongMixin {}
 
     /**
      * Copypasta from {@link org.springframework.security.config.annotation.web.configuration.OAuth2ClientConfiguration.OAuth2ClientWebMvcSecurityConfiguration}
@@ -88,10 +60,5 @@ public class Oauth2Config implements BeanClassLoaderAware {
         authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 
         return authorizedClientManager;
-    }
-
-    @Override
-    public void setBeanClassLoader(@NonNull ClassLoader classLoader) {
-        this.loader = classLoader;
     }
 }

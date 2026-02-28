@@ -45,9 +45,10 @@ spring:
             # That is why we use the id here instead.
             user-name-attribute: id
   session:
-    data.redis:
+    jdbc:
       flush-mode: immediate
-      repository-type: indexed
+      # we run our own flyway migration
+      initialize-schema: never
     timeout: 365d
   data:
     redis:
