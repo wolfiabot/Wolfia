@@ -1,3 +1,0 @@
-# TODO remove when Togglz merges and releases https://github.com/togglz/togglz/issues/878
-org.togglz.spring.boot.actuate.autoconfigure.TogglzAutoConfiguration
-org.togglz.spring.boot.actuate.autoconfigure.TogglzEndpointAutoConfiguration

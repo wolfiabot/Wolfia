@@ -18,10 +18,6 @@ server:
   #forward-headers-strategy: native
 
 spring:
-  autoconfigure:
-    exclude:
-      # see https://github.com/togglz/togglz/issues/1249
-      - org.togglz.spring.boot.actuate.autoconfigure.TogglzEndpointAutoConfiguration
   main:
     lazy-initialization: true
   output:
