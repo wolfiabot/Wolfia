@@ -25,11 +25,13 @@ import net.ttddyy.dsproxy.listener.SingleQueryCountHolder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import space.npstr.prometheus_extensions.QueryCountCollector;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.prometheus_extensions.jda.JdaMetrics;
 
 @Configuration
+@Lazy(false) // some of these need to be registered proactively!
 public class MetricsConfiguration {
 
     //caffeine cache metrics
