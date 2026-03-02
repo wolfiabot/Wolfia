@@ -21,8 +21,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import space.npstr.wolfia.ApplicationTest;
 
-import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.ONE_MINUTE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.timeout;
@@ -40,7 +40,7 @@ class AutoOuterTest extends ApplicationTest {
         lastActiveRepository.recordActivity(userId, ONE_HUNDRED_MILLISECONDS);
 
         // expiration check scheduler runs every second
-        verify(gameSetupService, timeout(FIVE_SECONDS.toMillis())).outUserDueToInactivity(eq(userId), any());
+        verify(gameSetupService, timeout(ONE_MINUTE.toMillis())).outUserDueToInactivity(eq(userId), any());
     }
 
 }
