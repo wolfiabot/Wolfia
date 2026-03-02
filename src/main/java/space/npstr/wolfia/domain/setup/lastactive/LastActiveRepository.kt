@@ -41,14 +41,13 @@ class LastActiveRepository(
 	@Scheduled(fixedDelay = 1, timeUnit = SECONDS, initialDelay = 1)
 	internal fun expire() {
 		val now = clock.millis()
-		jooq.transaction { config ->
+		jooq.transactionResult { config ->
 			DSL.using(config)
 				.deleteFrom(Tables.LAST_ACTIVE)
 				.where(Tables.LAST_ACTIVE.EXPIRES.lessThan(now))
 				.returning()
 				.fetch(Tables.LAST_ACTIVE.USER_ID)
-				.forEach { eventPublisher.publishEvent(UserBecameInactive(it)) }
-		}
+		}.forEach { eventPublisher.publishEvent(UserBecameInactive(it)) }
 	}
 
 	fun recordActivity(userId: Long, timeout: Duration) {
