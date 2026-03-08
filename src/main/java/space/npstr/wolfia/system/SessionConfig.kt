@@ -88,16 +88,16 @@ class SessionConfig : BeanClassLoaderAware {
 
 	companion object {
 		private val CREATE_SESSION_ATTRIBUTE_QUERY: String = """
-            INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES)
-            VALUES (?, ?, convert_from(?, 'UTF8')::jsonb)
-            """.trimIndent()
+			INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES)
+			VALUES (?, ?, convert_from(?, 'UTF8')::jsonb)
+			""".trimIndent()
 
 		private val UPDATE_SESSION_ATTRIBUTE_QUERY: String = """
-            UPDATE %TABLE_NAME%_ATTRIBUTES
-            SET ATTRIBUTE_BYTES = convert_from(?, 'UTF8')::jsonb
-            WHERE SESSION_PRIMARY_ID = ?
-            AND ATTRIBUTE_NAME = ?
-            """.trimIndent()
+			UPDATE %TABLE_NAME%_ATTRIBUTES
+			SET ATTRIBUTE_BYTES = convert_from(?, 'UTF8')::jsonb
+			WHERE SESSION_PRIMARY_ID = ?
+			AND ATTRIBUTE_NAME = ?
+			""".trimIndent()
 	}
 
 	@Bean

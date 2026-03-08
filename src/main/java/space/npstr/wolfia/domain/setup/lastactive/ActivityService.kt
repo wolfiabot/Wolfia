@@ -24,24 +24,24 @@ import space.npstr.wolfia.system.logger
 
 @Service
 class ActivityService(
-    private val repository: LastActiveRepository,
-    private val wolfiaConfig: WolfiaConfig,
+	private val repository: LastActiveRepository,
+	private val wolfiaConfig: WolfiaConfig,
 ) {
 
-    companion object {
-        private val DEFAULT_ACTIVITY_TIMEOUT = Duration.ofMinutes(20)
-    }
+	companion object {
+		private val DEFAULT_ACTIVITY_TIMEOUT = Duration.ofMinutes(20)
+	}
 
-    fun recordActivity(user: User) {
-        recordActivity(user.idLong)
-    }
+	fun recordActivity(user: User) {
+		recordActivity(user.idLong)
+	}
 
-    fun recordActivity(userId: Long) {
-        val activityTimeout = if (wolfiaConfig.isDebug) {
-            Duration.ofSeconds(30)
-        } else {
-            DEFAULT_ACTIVITY_TIMEOUT
-        }
+	fun recordActivity(userId: Long) {
+		val activityTimeout = if (wolfiaConfig.isDebug) {
+			Duration.ofSeconds(30)
+		} else {
+			DEFAULT_ACTIVITY_TIMEOUT
+		}
 
 		// nonessential, continue with other stuff of this fails
 		try {
@@ -49,13 +49,13 @@ class ActivityService(
 		} catch (e: Exception) {
 			logger().warn("Failed to record activity for user {}", userId, e)
 		}
-    }
+	}
 
-    fun wasActiveRecently(user: User): Boolean {
-        return wasActiveRecently(user.idLong)
-    }
+	fun wasActiveRecently(user: User): Boolean {
+		return wasActiveRecently(user.idLong)
+	}
 
-    fun wasActiveRecently(userId: Long): Boolean {
-        return repository.wasActiveRecently(userId)
-    }
+	fun wasActiveRecently(userId: Long): Boolean {
+		return repository.wasActiveRecently(userId)
+	}
 }
