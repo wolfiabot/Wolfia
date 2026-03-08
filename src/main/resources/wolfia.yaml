@@ -18,6 +18,8 @@ server:
   #forward-headers-strategy: native
 
 spring:
+  # Avoid warning at startup
+  thymeleaf.check-template-location: false
   main:
     lazy-initialization: true
   output:
