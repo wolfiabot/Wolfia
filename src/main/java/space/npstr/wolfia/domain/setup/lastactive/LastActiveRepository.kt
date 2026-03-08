@@ -51,18 +51,26 @@ class LastActiveRepository(
 	}
 
 	fun recordActivity(userId: Long, timeout: Duration) {
+		recordActivities(setOf(userId), timeout)
+	}
+
+	fun recordActivities(userIds: Set<Long>, timeout: Duration) {
+		if (userIds.isEmpty()) return
 		val now = clock.instant()
 		val expires = now.plus(timeout)
 
 		jooq.transaction { config ->
-			DSL.using(config)
-				.insertInto(Tables.LAST_ACTIVE)
-				.columns(Tables.LAST_ACTIVE.USER_ID, Tables.LAST_ACTIVE.TIMESTAMP, Tables.LAST_ACTIVE.EXPIRES)
-				.values(userId, now.toEpochMilli(), expires.toEpochMilli())
-				.onDuplicateKeyUpdate()
-				.set(Tables.LAST_ACTIVE.TIMESTAMP, now.toEpochMilli())
-				.set(Tables.LAST_ACTIVE.EXPIRES, expires.toEpochMilli())
-				.execute()
+			val context = DSL.using(config)
+			val queries = userIds.map { userId ->
+				context
+					.insertInto(Tables.LAST_ACTIVE)
+					.columns(Tables.LAST_ACTIVE.USER_ID, Tables.LAST_ACTIVE.TIMESTAMP, Tables.LAST_ACTIVE.EXPIRES)
+					.values(userId, now.toEpochMilli(), expires.toEpochMilli())
+					.onDuplicateKeyUpdate()
+					.set(Tables.LAST_ACTIVE.TIMESTAMP, now.toEpochMilli())
+					.set(Tables.LAST_ACTIVE.EXPIRES, expires.toEpochMilli())
+			}
+			context.batch(queries).execute()
 		}
 	}
 

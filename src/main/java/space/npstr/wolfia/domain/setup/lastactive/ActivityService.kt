@@ -17,7 +17,10 @@
 package space.npstr.wolfia.domain.setup.lastactive
 
 import java.time.Duration
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit.SECONDS
 import net.dv8tion.jda.api.entities.User
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import space.npstr.wolfia.config.properties.WolfiaConfig
 import space.npstr.wolfia.system.logger
@@ -32,22 +35,30 @@ class ActivityService(
 		private val DEFAULT_ACTIVITY_TIMEOUT = Duration.ofMinutes(20)
 	}
 
+	private val buffer: MutableSet<Long> = ConcurrentHashMap.newKeySet()
+
+	private val activityTimeout: Duration
+		get() = if (wolfiaConfig.isDebug) Duration.ofSeconds(30) else DEFAULT_ACTIVITY_TIMEOUT
+
 	fun recordActivity(user: User) {
 		recordActivity(user.idLong)
 	}
 
 	fun recordActivity(userId: Long) {
-		val activityTimeout = if (wolfiaConfig.isDebug) {
-			Duration.ofSeconds(30)
-		} else {
-			DEFAULT_ACTIVITY_TIMEOUT
-		}
+		buffer.add(userId)
+	}
 
-		// nonessential, continue with other stuff of this fails
+	@Scheduled(fixedDelay = 1, timeUnit = SECONDS, initialDelay = 1)
+	internal fun flush() {
+		if (buffer.isEmpty()) return
+
+		val snapshot = HashSet(buffer)
+		buffer.removeAll(snapshot)
+
 		try {
-			repository.recordActivity(userId, activityTimeout)
+			repository.recordActivities(snapshot, activityTimeout)
 		} catch (e: Exception) {
-			logger().warn("Failed to record activity for user {}", userId, e)
+			logger().warn("Failed to flush {} activity records", snapshot.size, e)
 		}
 	}
 
@@ -56,6 +67,9 @@ class ActivityService(
 	}
 
 	fun wasActiveRecently(userId: Long): Boolean {
+		if (buffer.contains(userId)) {
+			return true
+		}
 		return repository.wasActiveRecently(userId)
 	}
 }
