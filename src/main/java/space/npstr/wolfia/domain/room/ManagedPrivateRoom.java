@@ -31,8 +31,6 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import space.npstr.wolfia.utils.discord.RestActions;
 import space.npstr.wolfia.utils.discord.RoleAndPermissionUtils;
 import space.npstr.wolfia.utils.discord.TextchatUtils;
@@ -48,7 +46,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class ManagedPrivateRoom {
 
-    private static final Logger log = LoggerFactory.getLogger(ManagedPrivateRoom.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ManagedPrivateRoom.class);
 
     private static final String WOLF_ROLE_NAME = "Wolf";
     //using a static scope for the lock since entities, while representing the same data, may be distinct objects

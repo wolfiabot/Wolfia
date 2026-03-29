@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.Set;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.ShutdownHandler;
 import space.npstr.wolfia.commands.Context;
@@ -50,7 +48,7 @@ import static java.util.Objects.requireNonNull;
 @Component
 public class GameStarter {
 
-    private static final Logger log = LoggerFactory.getLogger(GameStarter.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(GameStarter.class);
 
     private final GameSetupService gameSetupService;
     private final MaintenanceService maintenanceService;

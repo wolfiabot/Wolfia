@@ -24,8 +24,6 @@ import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.system.metrics.MetricsService;
@@ -33,7 +31,7 @@ import space.npstr.wolfia.system.metrics.MetricsService;
 @Component
 public class PrivateRoomQueue {
 
-    private static final Logger log = LoggerFactory.getLogger(PrivateRoomQueue.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(PrivateRoomQueue.class);
 
     private final ShardManager shardManager;
     private final MetricsService metricsService;

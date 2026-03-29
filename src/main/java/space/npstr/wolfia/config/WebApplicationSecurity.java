@@ -29,8 +29,6 @@ import net.dv8tion.jda.api.sharding.ShardManager;
 import okhttp3.HttpUrl;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -72,7 +70,7 @@ import static org.springframework.security.web.server.header.XFrameOptionsServer
 @Configuration
 public class WebApplicationSecurity {
 
-    private static final Logger log = LoggerFactory.getLogger(WebApplicationSecurity.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(WebApplicationSecurity.class);
     private static final String DISCORD_BOT_USER_AGENT = "DiscordBot (https://github.com/wolfiabot/)";
 
     private static final String[] MACHINE_ENDPOINTS = {

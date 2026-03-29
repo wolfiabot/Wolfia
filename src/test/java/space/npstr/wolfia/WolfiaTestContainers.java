@@ -19,8 +19,6 @@ package space.npstr.wolfia;
 
 import com.github.dockerjava.api.model.HealthCheck;
 import java.time.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -49,7 +47,7 @@ public abstract class WolfiaTestContainers {
         System.setProperty("spring.datasource.url", jdbcUrl);
     }
 
-    protected static Logger containerLogger(String suffix) {
-        return LoggerFactory.getLogger("Container." + suffix);
+    protected static org.slf4j.Logger containerLogger(String suffix) {
+        return org.slf4j.LoggerFactory.getLogger("Container." + suffix);
     }
 }

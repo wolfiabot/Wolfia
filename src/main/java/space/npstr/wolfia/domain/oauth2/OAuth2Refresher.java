@@ -21,15 +21,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 @Component
 public class OAuth2Refresher {
 
-    private static final Logger log = LoggerFactory.getLogger(OAuth2Refresher.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(OAuth2Refresher.class);
 
     private static final Duration TWO_DAYS = Duration.ofDays(2);
 

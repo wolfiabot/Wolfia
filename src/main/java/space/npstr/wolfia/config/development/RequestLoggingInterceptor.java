@@ -21,13 +21,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.concurrent.atomic.AtomicLong;
 import org.jspecify.annotations.NonNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 public class RequestLoggingInterceptor implements HandlerInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(RequestLoggingInterceptor.class);
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(RequestLoggingInterceptor.class);
 
     private static final AtomicLong REQUEST_ID = new AtomicLong();
     private static final String REQUEST_ID_ATTRIBUTE = RequestLoggingInterceptor.class.getName() + ".REQUEST_ID";
