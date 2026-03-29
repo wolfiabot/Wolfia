@@ -55,14 +55,14 @@ public class MetricsService {
     }
 
     public Timer queryTime(String name) {
-        return Timer.builder("query.time")
+        return Timer.builder("wolfia.query.time")
                 .description("Time queries take")
                 .tag("name", name) //identifier of the query, for example "activeUsers"
                 .register(meterRegistry);
     }
 
     public Counter gamesPlayed(Games type, GameInfo.GameMode mode) {
-        return Counter.builder("games.played")
+        return Counter.builder("wolfia.games.played")
                 .description("Games Played")
                 .tag("type", type.name())
                 .tag("mode", mode.name())
@@ -70,13 +70,13 @@ public class MetricsService {
     }
 
     public Timer commandRetentionTime() {
-        return Timer.builder("command.retention")
+        return Timer.builder("wolfia.command.retention")
                 .description("Time it takes from receiving a command till processing is started")
                 .register(meterRegistry);
     }
 
     public Timer commandProcessTime(String command) {
-        return Timer.builder("command.process")
+        return Timer.builder("wolfia.command.process")
                 .description("Time the pure processing takes")
                 .tag("command", command) //simple class name of the command
                 .register(meterRegistry);
@@ -87,20 +87,20 @@ public class MetricsService {
      * ratelimited in a channel happens rather fast when users spam)
      */
     public Timer commandResponseTime() {
-        return Timer.builder("command.response")
+        return Timer.builder("wolfia.command.response")
                 .description("Time it takes from replying till the user actually receives the answer")
                 .register(meterRegistry);
     }
 
     public Timer commandTotalTime() {
-        return Timer.builder("command.total.time")
+        return Timer.builder("wolfia.command.total.time")
                 .description("Total time it takes from discord creation timestamp of the trigger message till"
                         + " discord creation timestamp of the answer message")
                 .register(meterRegistry);
     }
 
     public AtomicInteger availablePrivateRooms() {
-        return gauge("private.rooms.available", Tags.empty(), builder -> builder
+        return gauge("wolfia.private.rooms.available", Tags.empty(), builder -> builder
                 .description("Amount of available private rooms")
                 .register(meterRegistry)
         );
