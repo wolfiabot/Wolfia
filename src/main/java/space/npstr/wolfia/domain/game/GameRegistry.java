@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import space.npstr.wolfia.game.Game;
+import space.npstr.wolfia.system.metrics.MetricsService;
 
 /**
  * Keep track of ongoing games
@@ -32,6 +33,12 @@ import space.npstr.wolfia.game.Game;
 public class GameRegistry {
 
     private final Map<Long, Game> games = new ConcurrentHashMap<>();
+
+    private final MetricsService metricsService;
+
+    public GameRegistry(MetricsService metricsService) {
+        this.metricsService = metricsService;
+    }
 
     public Map<Long, Game> getAll() {
         return Collections.unmodifiableMap(this.games);
@@ -61,10 +68,12 @@ public class GameRegistry {
 
     public void remove(long channelId) {
         this.games.remove(channelId);
+        metricsService.ongoingGames().set(getRunningGamesCount());
     }
 
     public void set(Game game) {
         this.games.put(game.getChannelId(), game);
+        metricsService.ongoingGames().set(getRunningGamesCount());
     }
 
     public int getRunningGamesCount() {

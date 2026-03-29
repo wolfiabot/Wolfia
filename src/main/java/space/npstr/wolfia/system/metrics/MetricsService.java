@@ -105,4 +105,12 @@ public class MetricsService {
                 .register(meterRegistry)
         );
     }
+
+    public AtomicInteger ongoingGames() {
+        return gauge("wolfia.games.ongoing", Tags.empty(), builder -> builder
+                .description("Ongoing games")
+                .register(meterRegistry)
+        );
+    }
+
 }
