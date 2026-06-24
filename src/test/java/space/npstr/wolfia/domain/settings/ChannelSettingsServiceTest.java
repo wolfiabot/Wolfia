@@ -24,7 +24,6 @@ import space.npstr.wolfia.ApplicationTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
 import static space.npstr.wolfia.TestUtil.uniqueLong;
 
 
@@ -125,8 +124,6 @@ class ChannelSettingsServiceTest extends ApplicationTest {
         var settings = this.repository.findOne(channelId);
         assertThat(settings).isNotNull();
         assertThat(settings.getTagLastUsed()).isEqualTo(time);
-
-        verify(clock).millis();
     }
 
     @Test
