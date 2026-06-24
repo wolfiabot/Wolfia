@@ -19,12 +19,14 @@ package space.npstr.wolfia.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import space.npstr.prometheus_extensions.ThreadPoolCollector;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 
 @Configuration
 public class ExecutorConfig {
 
+    @Primary // important so it gets unambiguosly picked up for Springs @Scheduled tasks
     @Bean(destroyMethod = "")
     public ExceptionLoggingExecutor mainExceptionLoggingExecutor(ThreadPoolCollector poolMetrics) {
         var executor = new ExceptionLoggingExecutor(100, "main-scheduled-executor");
