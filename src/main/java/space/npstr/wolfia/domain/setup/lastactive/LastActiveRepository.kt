@@ -26,6 +26,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Repository
 import space.npstr.wolfia.db.gen.Tables
+import space.npstr.wolfia.system.logger
 
 @Repository
 class LastActiveRepository(
@@ -40,14 +41,20 @@ class LastActiveRepository(
 
 	@Scheduled(fixedDelay = 1, timeUnit = SECONDS, initialDelay = 1)
 	internal fun expire() {
-		val now = clock.millis()
-		jooq.transactionResult { config ->
-			DSL.using(config)
-				.deleteFrom(Tables.LAST_ACTIVE)
-				.where(Tables.LAST_ACTIVE.EXPIRES.lessThan(now))
-				.returning()
-				.fetch(Tables.LAST_ACTIVE.USER_ID)
-		}.forEach { eventPublisher.publishEvent(UserBecameInactive(it)) }
+		// Never let an exception escape: @Scheduled fixedDelay tasks are cancelled forever after a single
+		// uncaught throwable, which would permanently disable auto-outing until a restart.
+		try {
+			val now = clock.millis()
+			jooq.transactionResult { config ->
+				DSL.using(config)
+					.deleteFrom(Tables.LAST_ACTIVE)
+					.where(Tables.LAST_ACTIVE.EXPIRES.lessThan(now))
+					.returning()
+					.fetch(Tables.LAST_ACTIVE.USER_ID)
+			}.forEach { eventPublisher.publishEvent(UserBecameInactive(it)) }
+		} catch (e: Exception) {
+			logger().warn("Failed to expire inactive users", e)
+		}
 	}
 
 	fun recordActivity(userId: Long, timeout: Duration) {
