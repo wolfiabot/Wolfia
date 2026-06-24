@@ -65,13 +65,11 @@ class WebUserArgumentResolver(
 
 	private fun resolveArgument(webRequest: NativeWebRequest): WebUser? {
 		val authentication = SecurityContextHolder.getContext().authentication
-		if (authentication == null || authentication !is OAuth2AuthenticationToken
-			|| authentication.principal !is OAuth2User
-		) {
+		if (authentication == null || authentication !is OAuth2AuthenticationToken) {
 			logger().debug("Missing authentication or wrong types")
 			return null
 		}
-		var principal = authentication.principal as OAuth2User
+		var principal: OAuth2User = authentication.principal
 
 		// We need to rewrite the principal with merged authorities, otherwise it is missing our mapped authories which
 		// are only set on the token itself
@@ -108,11 +106,6 @@ class WebUserArgumentResolver(
 			return null
 		}
 		val accessToken = client.accessToken
-		if (accessToken == null) {
-			logger().debug("Missing OAuth2AccessToken")
-			return null
-		}
-
 		return WebUser(userId, principal, accessToken)
 	}
 }

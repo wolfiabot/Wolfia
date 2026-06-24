@@ -53,6 +53,5 @@ internal class PrivacyBanServiceTest : ApplicationTest() {
 		runBlocking { privacyBanService.privacyBanAll(listOf(userId.idLong)) }
 		verify(restAction).reason(eq("Privacy: Data Processing Denied"))
 		verify(wolfiaLounge).ban(eq(userId), eq(0), eq(SECONDS))
-		Unit
 	}
 }

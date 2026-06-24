@@ -47,7 +47,7 @@ class DiscordRequester {
 
 	private final val restTemplate: RestTemplate = RestTemplateBuilder()
 		.requestFactory({ JdkClientHttpRequestFactory() })
-		.rootUri(DISCORD_API_URL)
+		.baseUri(DISCORD_API_URL)
 		.build()
 
 	fun fetchUser(accessToken: String): PartialUser {

@@ -94,7 +94,7 @@ internal class TogglzEndpointTest<T : Session> : ApplicationTest() {
 		)
 		authenticationToken.details = authentication.details
 		val securityContext: SecurityContext = SecurityContextImpl(authentication)
-		val session = sessionRepository.createSession()!!
+		val session = sessionRepository.createSession()
 		session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext)
 		session.setAttribute("sessionId", session.id)
 		sessionRepository.save(session)

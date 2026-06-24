@@ -87,6 +87,7 @@ idea.project.settings {
 
 
 apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'org.ajoberstar.grgit'
 
 dependencyUpdates {
     checkConstraints = true
@@ -134,18 +135,17 @@ tasks.register('resolveAndLockAll') {
             }
         }
         configurations
-                .findAll { it.canBeResolved }
+                .matching { it.canBeResolved }
                 .each { it.resolve() }
     }
 }
 
+group = 'space.npstr.wolfia'
+version = "${versionTag()}".toString()
+
 allprojects {
-    apply plugin: 'org.ajoberstar.grgit'
     apply plugin: 'com.adarshr.test-logger'
     apply plugin: 'jacoco'
-
-    group = 'space.npstr.wolfia'
-    version = "${versionTag()}".toString()
 
     java {
         toolchain {
@@ -371,7 +371,6 @@ kotlin {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(javaVersion)
         freeCompilerArgs.addAll(
                 "-java-parameters",
-                "-Xannotation-default-target=param-property", // future default. see https://youtrack.jetbrains.com/issue/KT-73255
         )
     }
 }
