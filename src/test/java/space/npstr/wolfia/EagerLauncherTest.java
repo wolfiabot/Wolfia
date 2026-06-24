@@ -19,6 +19,7 @@ package space.npstr.wolfia;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.LazyInitializationBeanFactoryPostProcessor;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +27,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Ensure that the context loads eagerly. At least one eager test should help identify problems in loading the context
  * before they happen in prod.
+ *
+ * <p>This is the only test that runs in a second, separate application context (the "eager" profile). That context
+ * keeps its own {@code @Scheduled} pollers (e.g. {@link space.npstr.wolfia.domain.setup.lastactive.LastActiveRepository})
+ * running against the shared test database. Left cached, it races other contexts' schedulers over the same rows, which
+ * made {@code AutoOuterTest} flaky. Closing this context after the class keeps exactly one scheduler alive at a time.
  */
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("eager")
 class EagerLauncherTest extends LauncherTest {
 
