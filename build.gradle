@@ -21,7 +21,6 @@ import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStopContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
-import org.sonarqube.gradle.SonarTask
 import space.npstr.gradle.docker.DockerWaitHealthyContainer
 
 buildscript {
@@ -35,7 +34,6 @@ buildscript {
 
         classpath "com.gorylenko.gradle-git-properties:com.gorylenko.gradle-git-properties.gradle.plugin:$gradleGitVersion"
         classpath "org.ajoberstar.grgit:grgit-gradle:$grGitVersion"
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:$sonarVersion"
         classpath "org.jooq:jooq-codegen-gradle:$jooqVersion"
         classpath "com.github.ben-manes:gradle-versions-plugin:$versionsPluginVersion"
         classpath "com.bmuschko:gradle-docker-plugin:$dockerPluginVersion"
@@ -255,7 +253,6 @@ apply plugin: 'com.gorylenko.gradle-git-properties'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'org.jetbrains.kotlin.plugin.spring'
 apply plugin: 'kotlin'
-apply plugin: 'org.sonarqube'
 // db / codegen plugins
 apply plugin: 'org.flywaydb.flyway'
 apply plugin: 'org.jooq.jooq-codegen-gradle'
@@ -384,10 +381,6 @@ processResources {
     from(project(':frontend').layout.buildDirectory.dir('dist')) {
         into 'static'
     }
-}
-
-tasks.withType(SonarTask).configureEach {
-    dependsOn jacocoTestReport
 }
 
 springBoot {

@@ -147,7 +147,6 @@ source.
 - file layout
 - grouping by features
 - feature flags
-- sonar
 - testing
 - oauth2
 - metrics/prometheus/grafana/sentry
