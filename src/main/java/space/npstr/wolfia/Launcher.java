@@ -54,7 +54,7 @@ public class Launcher implements ApplicationRunner {
     private final ShardManager shardManager;
 
     @SuppressWarnings("squid:S106") // printing to sout is fine here
-    public static void main(String[] args) {
+    static void main(String[] args) {
         //just post the info to the console
         if (args.length > 0 &&
                 (args[0].equalsIgnoreCase("-v")
