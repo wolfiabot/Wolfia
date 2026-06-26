@@ -32,15 +32,15 @@ public class App {
     /**
      * See {@link space.npstr.wolfia.webapi.InviteEndpoint}
      */
-    public static final String INVITE_LINK = "https://bot.wolfia.party/invite";
+    public static final String INVITE_LINK = "https://wolfia.party/invite";
     /**
-     * Using https://bot.wolfia.party/join does not show the embed in Discord, so sometimes the direct link is helpful
+     * Using https://wolfia.party/join does not show the embed in Discord, so sometimes the direct link is helpful
      */
     public static final String WOLFIA_LOUNGE_INVITE = "https://discord.gg/nvcfX3q";
     public static final long WOLFIA_LOUNGE_ID = 315944983754571796L;
-    public static final String SITE_LINK = "https://bot.wolfia.party";
-    public static final String DOCS_LINK = "https://bot.wolfia.party";
-    public static final String PRIVACY_LINK = "https://bot.wolfia.party/privacy";
+    public static final String SITE_LINK = "https://wolfia.party";
+    public static final String DOCS_LINK = "https://wolfia.party";
+    public static final String PRIVACY_LINK = "https://wolfia.party/privacy";
     public static final String DATA_ACCESS_LINK = PRIVACY_LINK + "#access";
     public static final String GITHUB_LINK = "https://github.com/wolfiabot/wolfia";
     public static final String GAME_STATUS = WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER + " | " + SITE_LINK + " | Public β";

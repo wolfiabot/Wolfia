@@ -1,5 +1,0 @@
-apt install ruby-full
-gem install jekyll
-gem install bundler
-bundle install
-bundle exec jekyll serve

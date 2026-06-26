@@ -32,19 +32,27 @@ services:
       - "traefik.enable=true"
       - "traefik.port=4567"
       # metrics
-      - "traefik.http.routers.wolfia-metrics.rule=Host(`bot.${DOMAIN}`) && PathPrefix(`/metrics`)"
+      - "traefik.http.routers.wolfia-metrics.rule=Host(`${DOMAIN}`) && PathPrefix(`/metrics`)"
       - "traefik.http.routers.wolfia-metrics.tls.certresolver=letsencrypt"
       - "traefik.http.routers.wolfia-metrics.middlewares=metrics-auth@docker, whitelist@docker"
       # ideas redirect
-      - "traefik.http.middlewares.wolfia-ideas-redirect.redirectregex.regex=^https?://bot\\.${DOMAIN}/ideas.*"
+      - "traefik.http.middlewares.wolfia-ideas-redirect.redirectregex.regex=^https?://${DOMAIN}/ideas.*"
       - "traefik.http.middlewares.wolfia-ideas-redirect.redirectregex.replacement=https://feedback.userreport.com/01987d31-0d58-48c6-a4d3-96f2ae42eb14"
       - "traefik.http.middlewares.wolfia-ideas-redirect.redirectregex.permanent=false"
       # join redirect
-      - "traefik.http.middlewares.wolfia-join-redirect.redirectregex.regex=^https?://bot\\.${DOMAIN}/join.*"
+      - "traefik.http.middlewares.wolfia-join-redirect.redirectregex.regex=^https?://${DOMAIN}/join.*"
       - "traefik.http.middlewares.wolfia-join-redirect.redirectregex.replacement=https://discord.gg/nvcfX3q"
       - "traefik.http.middlewares.wolfia-join-redirect.redirectregex.permanent=false"
-      # bot
-      - "traefik.http.routers.wolfia-bot.rule=Host(`bot.${DOMAIN}`)"
+      # old bot. subdomain, redirect to apex.
+      - "traefik.http.routers.wolfia-bot-redirect.rule=Host(`bot.${DOMAIN}`)"
+      - "traefik.http.routers.wolfia-bot-redirect.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.wolfia-bot-redirect.middlewares=wolfia-apex-redirect@docker"
+      - "traefik.http.middlewares.wolfia-apex-redirect.redirectregex.regex=^https?://bot\\.${DOMAIN}/(.*)"
+      # $${1} so docker-compose passes a literal ${1} regex backreference through to Traefik
+      - "traefik.http.middlewares.wolfia-apex-redirect.redirectregex.replacement=https://${DOMAIN}/$${1}"
+      - "traefik.http.middlewares.wolfia-apex-redirect.redirectregex.permanent=false"
+      # apex
+      - "traefik.http.routers.wolfia-bot.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.wolfia-bot.tls.certresolver=letsencrypt"
       - "traefik.http.routers.wolfia-bot.middlewares=whitelist@docker, wolfia-ideas-redirect@docker, wolfia-join-redirect@docker"
     ports:

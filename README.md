@@ -8,15 +8,15 @@
 
 ## A Discord bot to play Mafia, Werewolf and similar games
 
-[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://bot.wolfia.party/invite)
+[![Invite the Wolfia bot to your server.](http://i.imgur.com/qEWSU6D.png)](https://wolfia.party/invite)
 
-[Click the banner above or this link](https://bot.wolfia.party/invite)
+[Click the banner above or this link](https://wolfia.party/invite)
 
 ## Commands and supported modes
 
 Wolfia is considered to be beta status. New games, modes and features are coming out regularly.
 
-Please check out https://bot.wolfia.party for a full list of commands and games!
+Please check out https://wolfia.party for a full list of commands and games!
 
 
 ## Support, feedback, roadmap and games in the Wolfia Lounge
