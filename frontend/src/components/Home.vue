@@ -1,5 +1,5 @@
 <!--
-  - Copyright (C) 2016-2025 the original author or authors
+  - Copyright (C) 2016-2026 the original author or authors
   -
   - This program is free software: you can redistribute it and/or modify
   - it under the terms of the GNU Affero General Public License as published
@@ -29,6 +29,16 @@
 					>See Commands</router-link
 				>
 			</div>
+			<div class="column is-one-quarter">
+				<a
+					class="button is-large is-primary"
+					id="lounge_button"
+					:href="loungeInvite"
+					target="_blank"
+					rel="noopener noreferrer"
+					>Join the Lounge</a
+				>
+			</div>
 		</div>
 	</div>
 </template>
@@ -36,6 +46,11 @@
 <script>
 export default {
 	name: "home",
+	data: function () {
+		return {
+			loungeInvite: import.meta.env.VITE_APP_SUPPORT_INVITE,
+		};
+	},
 };
 </script>
 <style scoped lang="scss">
@@ -49,6 +64,7 @@ export default {
 		width: 100%;
 		display: flex;
 		justify-content: center;
+		flex-wrap: wrap;
 	}
 }
 </style>

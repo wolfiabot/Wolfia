@@ -418,7 +418,7 @@ public abstract class Game {
                                     " Talk to an Admin/Moderator of your server to fix this or set the access role up with `%s`." +
                                     " Please refer to the documentation under %s",
                             Permission.MESSAGE_SEND.getName(), Permission.VIEW_CHANNEL.getName(),
-                            WolfiaConfig.DEFAULT_PREFIX + ChannelSettingsCommand.TRIGGER, App.DOCS_LINK
+                            WolfiaConfig.DEFAULT_PREFIX + ChannelSettingsCommand.TRIGGER, App.DOCS_LINK + "/setup"
                     ));
                 }
                 if (!accessRole.hasPermission(gameChannel, Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)) {
@@ -427,7 +427,7 @@ public abstract class Game {
                                     " Talk to an admin of your server to fix this." +
                                     " Please refer to the documentation under %s",
                             accessRole.getName(), Permission.MESSAGE_SEND.getName(),
-                            Permission.VIEW_CHANNEL.getName(), App.DOCS_LINK
+                            Permission.VIEW_CHANNEL.getName(), App.DOCS_LINK + "/setup"
                     ));
                 }
             }

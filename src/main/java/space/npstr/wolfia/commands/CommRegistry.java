@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 the original author or authors
+ * Copyright (C) 2016-2026 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,13 @@ public class CommRegistry {
     public CommRegistry(List<BaseCommand> comms, WolfiaConfig wolfiaConfig) {
         comms.forEach(this::registerCommand);
         registerCommand(new HelpCommand(this, wolfiaConfig));
+    }
+
+    /**
+     * @return all registered commands, including ones that are not Spring beans (e.g. the help command)
+     */
+    public List<BaseCommand> getCommands() {
+        return Collections.unmodifiableList(this.commands);
     }
 
     @Nullable

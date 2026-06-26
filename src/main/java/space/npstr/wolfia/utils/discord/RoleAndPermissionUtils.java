@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 the original author or authors
+ * Copyright (C) 2016-2026 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -110,7 +110,7 @@ public class RoleAndPermissionUtils {
                     || !hasPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_ROLES)) {
                 throw new UserFriendlyException(String.format("Please allow me to `%s` so I " +
                                 "can set myself up to play games and format my posts.%nWant to know what I need and why? Follow this link: %s",
-                        Permission.MANAGE_ROLES.getName(), App.DOCS_LINK + "#permissions"));
+                        Permission.MANAGE_ROLES.getName(), App.DOCS_LINK + "/setup"));
 
             } else {
                 //allow ourselves to edit permissions in this channel
@@ -124,7 +124,7 @@ public class RoleAndPermissionUtils {
                     while (!hasExplicitPermission(self, channel, Scope.CHANNEL, Permission.MANAGE_ROLES)) {
                         if (System.currentTimeMillis() - started > maxTimeToWait) {
                             throw new UserFriendlyException("I failed to give myself the required permissions. Please read "
-                                    + App.DOCS_LINK + "#permissions or reinvite me.");
+                                    + App.DOCS_LINK + "/setup or reinvite me.");
                         }
                         Thread.sleep(100);
                     }

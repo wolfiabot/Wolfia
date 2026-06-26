@@ -1,5 +1,5 @@
 <!--
-  - Copyright (C) 2016-2025 the original author or authors
+  - Copyright (C) 2016-2026 the original author or authors
   -
   - This program is free software: you can redistribute it and/or modify
   - it under the terms of the GNU Affero General Public License as published
@@ -21,13 +21,7 @@
 			<a :href="sourceCodeLink" target="_blank" rel="noopener noreferrer">Source Code</a>
 		</div>
 		<div class="level-item">
-			<p>
-				Created with lots of
-				<img src="../assets/coffee.svg" alt="coffee" /> by
-				<a :href="sourceCodeLink + '/graphs/contributors'" target="_blank" rel="noopener noreferrer"
-					>a pack of wolves</a
-				>
-			</p>
+			<router-link to="/credits">Credits</router-link>
 		</div>
 		<div class="level-item">
 			<router-link to="/privacy">Privacy Policy</router-link>

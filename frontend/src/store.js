@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 the original author or authors
+ * Copyright (C) 2016-2026 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -21,6 +21,8 @@ import { staffStore } from "@/components/staff/staff-store";
 import { guildStore } from "@/components/guild/guild-store";
 import { shardStore } from "@/components/status/shard-store";
 import { guildSettingsStore } from "@/components/guildsettings/guild-settings-store";
+import { commandsStore } from "@/components/commands/commands-store";
+import { gamemodesStore } from "@/components/gamemodes/gamemodes-store";
 
 export default createStore({
 	strict: import.meta.env.DEV, //see https://vuex.vuejs.org/guide/strict.html
@@ -30,6 +32,8 @@ export default createStore({
 		guild: guildStore,
 		guildSettings: guildSettingsStore,
 		shards: shardStore,
+		commands: commandsStore,
+		gamemodes: gamemodesStore,
 	},
 	state: {},
 	getters: {},

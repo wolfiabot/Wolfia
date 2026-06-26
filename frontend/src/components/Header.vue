@@ -1,5 +1,5 @@
 <!--
-  - Copyright (C) 2016-2025 the original author or authors
+  - Copyright (C) 2016-2026 the original author or authors
   -
   - This program is free software: you can redistribute it and/or modify
   - it under the terms of the GNU Affero General Public License as published
@@ -40,7 +40,8 @@
 				<hr class="navbar-divider" />
 
 				<router-link to="/commands" class="navbar-item">Commands</router-link>
-				<router-link to="/gamemodes" class="navbar-item"> Gamemodes</router-link>
+				<router-link to="/gamemodes" class="navbar-item">Game Modes</router-link>
+				<router-link to="/setup" class="navbar-item">Setup</router-link>
 				<router-link to="/dashboard" class="navbar-item">Dashboard</router-link>
 				<router-link to="/team" class="navbar-item">Team</router-link>
 				<router-link to="/status" class="navbar-item">Status</router-link>

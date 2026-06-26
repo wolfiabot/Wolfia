@@ -16,7 +16,7 @@
 
 Wolfia is considered to be beta status. New games, modes and features are coming out regularly.
 
-Please check out https://wolfia.party for a full list of commands and games!
+Please check out https://bot.wolfia.party for a full list of commands and games!
 
 
 ## Support, feedback, roadmap and games in the Wolfia Lounge

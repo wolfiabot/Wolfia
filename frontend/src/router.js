@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 the original author or authors
+ * Copyright (C) 2016-2026 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -33,6 +33,16 @@ const routes = [
 		path: "/gamemodes",
 		name: "gamemodes",
 		component: () => import("@/components/Gamemodes.vue"),
+	},
+	{
+		path: "/setup",
+		name: "setup",
+		component: () => import("@/components/Setup.vue"),
+	},
+	{
+		path: "/credits",
+		name: "credits",
+		component: () => import("@/components/Credits.vue"),
 	},
 	{
 		path: "/team",

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2025 the original author or authors
+ * Copyright (C) 2016-2026 the original author or authors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -21,33 +21,12 @@ import java.util.List;
 import net.dv8tion.jda.api.EmbedBuilder;
 import space.npstr.wolfia.App;
 import space.npstr.wolfia.commands.BaseCommand;
+import space.npstr.wolfia.commands.CommandCategory;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.MessageContext;
 import space.npstr.wolfia.commands.PublicCommand;
-import space.npstr.wolfia.commands.game.RolePmCommand;
-import space.npstr.wolfia.commands.game.StartCommand;
-import space.npstr.wolfia.commands.ingame.CheckCommand;
-import space.npstr.wolfia.commands.ingame.HohohoCommand;
-import space.npstr.wolfia.commands.ingame.ItemsCommand;
-import space.npstr.wolfia.commands.ingame.NightkillCommand;
-import space.npstr.wolfia.commands.ingame.OpenPresentCommand;
-import space.npstr.wolfia.commands.ingame.ShootCommand;
-import space.npstr.wolfia.commands.ingame.UnvoteCommand;
-import space.npstr.wolfia.commands.ingame.VoteCommand;
-import space.npstr.wolfia.commands.ingame.VoteCountCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
-import space.npstr.wolfia.domain.oauth2.AuthCommand;
-import space.npstr.wolfia.domain.privacy.PrivacyCommand;
-import space.npstr.wolfia.domain.settings.ChannelSettingsCommand;
-import space.npstr.wolfia.domain.setup.InCommand;
-import space.npstr.wolfia.domain.setup.OutCommand;
-import space.npstr.wolfia.domain.setup.SetupCommand;
-import space.npstr.wolfia.domain.setup.StatusCommand;
-import space.npstr.wolfia.domain.stats.BotStatsCommand;
-import space.npstr.wolfia.domain.stats.GuildStatsCommand;
-import space.npstr.wolfia.domain.stats.ReplayCommand;
-import space.npstr.wolfia.domain.stats.UserStatsCommand;
 
 @Command
 public class CommandsCommand implements BaseCommand, PublicCommand {
@@ -74,61 +53,20 @@ public class CommandsCommand implements BaseCommand, PublicCommand {
 
     @Override
     public boolean execute(CommandContext context) {
-        //@formatter:off
-        String gameCommands = ""
-                + WolfiaConfig.DEFAULT_PREFIX + InCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + OutCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + SetupCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + StartCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + RolePmCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + StatusCommand.TRIGGER + "\n"
-                ;
-
-        String ingameCommands = ""
-                + WolfiaConfig.DEFAULT_PREFIX + ShootCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + VoteCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + UnvoteCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + VoteCountCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + NightkillCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + CheckCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + HohohoCommand.TRIGGER + XMAS_MODE_ONLY + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + ItemsCommand.TRIGGER + XMAS_MODE_ONLY + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + OpenPresentCommand.TRIGGER + XMAS_MODE_ONLY + "\n"
-                ;
-
-        String settingsCommands =
-                  WolfiaConfig.DEFAULT_PREFIX + ChannelSettingsCommand.TRIGGER
-                ;
-
-        String statsCommands = ""
-                + WolfiaConfig.DEFAULT_PREFIX + UserStatsCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + GuildStatsCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + BotStatsCommand.TRIGGER + "\n"
-                ;
-
-        String otherCommands = ""
-                + WolfiaConfig.DEFAULT_PREFIX + AuthCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + CommandsCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + HelpCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + InfoCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + InviteCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + PrivacyCommand.TRIGGER  + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + RankCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + ReplayCommand.TRIGGER + "\n"
-                + WolfiaConfig.DEFAULT_PREFIX + TagCommand.TRIGGER + "\n"
-                ;
-        //@formatter:on
-
-
-        String link = App.DOCS_LINK + "#commands";
+        String link = App.DOCS_LINK + "/commands";
         EmbedBuilder eb = MessageContext.getDefaultEmbedBuilder()
-                .setTitle("Wolfia commands", link)
-                .addField("Starting a game", gameCommands, true)
-                .addField("Game actions", ingameCommands, true)
-                .addField("Settings", settingsCommands, true)
-                .addField("Statistics", statsCommands, true)
-                .addField("Other Commands", otherCommands, true)
-                .addBlankField(true)
+                .setTitle("Wolfia commands", link);
+
+        for (CommandCategory category : CommandCategory.values()) {
+            String commands = category.triggers().stream()
+                    .map(trigger -> WolfiaConfig.DEFAULT_PREFIX + trigger
+                            + (CommandCategory.isXmasOnly(trigger) ? XMAS_MODE_ONLY : ""))
+                    .reduce((a, b) -> a + "\n" + b)
+                    .orElse("");
+            eb.addField(category.displayName(), commands, true);
+        }
+
+        eb.addBlankField(true)
                 .addField("", "**Head over to** " + link + " **for the full commands reference" +
                         " or run **`w.help [command]`** for detailed information on a command.**", false);
 
