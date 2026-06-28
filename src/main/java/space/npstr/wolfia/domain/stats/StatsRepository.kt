@@ -45,6 +45,18 @@ class StatsRepository internal constructor(
 	private val metricsService: MetricsService,
 ) {
 
+	fun countGamesInGuild(guildId: Long): Int {
+		return metricsService.queryTime("countGamesInGuild").time {
+			val count = DSL.count(DSL.asterisk())
+			jooq
+				.select(count)
+				.from(Tables.STATS_GAME)
+				.where(Tables.STATS_GAME.GUILD_ID.eq(guildId))
+				.fetchSingle()
+				.get(count)
+		}
+	}
+
 	fun fetchAveragePlayerSize(): BigDecimal {
 		return metricsService.queryTime("getAveragePlayerSize").time {
 			jooq
