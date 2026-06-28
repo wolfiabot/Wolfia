@@ -47,21 +47,19 @@ class DeadServersCommand(
 					.isBefore(now - Duration.ofDays(30))
 			}
 
-		val oldest = deadGuilds.sortedBy {
-			it.selfMember.timeJoined
-		}.take(10)
-
-
-		val oldestStr = oldest.joinToString("\n") {
-			"- ${it.name} (${it.idLong}): ${it.memberCache.size()} Members"
-		}
-		context.reply("${deadGuilds.count()} guilds have played 0 games.\n$oldestStr")
-
-
 		if (context.rawArgs.contains("leave")) {
 			context.reply("Leaving... ${deadGuilds.size} dead guilds.")
 			deadGuilds.forEach { it.leave().complete() }
 			context.reply("Done leaving dead guilds.")
+		} else {
+			val oldest = deadGuilds.sortedBy {
+				it.selfMember.timeJoined
+			}.take(10)
+
+			val oldestStr = oldest.joinToString("\n") {
+				"- ${it.name} (${it.idLong}): ${it.memberCache.size()} Members"
+			}
+			context.reply("${deadGuilds.count()} dead guilds.\n$oldestStr")
 		}
 
 		return true
