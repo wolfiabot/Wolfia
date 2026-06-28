@@ -59,7 +59,9 @@ class DeadServersCommand(
 
 
 		if (context.rawArgs.contains("leave")) {
+			context.reply("Leaving... ${deadGuilds.size} dead guilds.")
 			deadGuilds.forEach { it.leave().complete() }
+			context.reply("Done leaving dead guilds.")
 		}
 
 		return true
