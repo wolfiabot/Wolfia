@@ -45,15 +45,15 @@ class StatsRepository internal constructor(
 	private val metricsService: MetricsService,
 ) {
 
-	fun countGamesInGuild(guildId: Long): Int {
+	fun countGamesByGuild(): Map<Long, Int> {
 		return metricsService.queryTime("countGamesInGuild").time {
 			val count = DSL.count(DSL.asterisk())
 			jooq
-				.select(count)
+				.select(Tables.STATS_GAME.GUILD_ID, count)
 				.from(Tables.STATS_GAME)
-				.where(Tables.STATS_GAME.GUILD_ID.eq(guildId))
-				.fetchSingle()
-				.get(count)
+				.groupBy(Tables.STATS_GAME.GUILD_ID)
+				.fetch()
+				.associate { it.get(Tables.STATS_GAME.GUILD_ID) to it.get(count) }
 		}
 	}
 

@@ -34,9 +34,11 @@ class DeadServersCommand(
 		val shardManager = context.jda.shardManager!!
 		val privateRooms = privateRoomService.findAll()
 
+		val gamesByGuild = statsRepository.countGamesByGuild()
+
 		val deadGuilds = shardManager.guildCache.asSet()
 			.filter { guild -> privateRooms.none { it.guildId == guild.idLong } }
-			.filter { statsRepository.countGamesInGuild(it.idLong) == 0 }
+			.filter { gamesByGuild[it.idLong] == null || gamesByGuild[it.idLong] == 0 }
 
 		val oldest = deadGuilds.sortedBy {
 			it.selfMember.timeJoined
