@@ -23,10 +23,15 @@
 			<h2 class="subtitle has-text-weight-light">Wolfia setup</h2>
 			<ul>
 				<li>Invite Wolfia to your server (see the big button on the home page).</li>
-				<li>Revoke Wolfia's write permission on channels where games should not be played.</li>
 				<li>
-					Set your channel settings: <code>tag cooldown</code> is how often someone can call the tag list,
-					and <code>auto-out</code> will automactally remove inactive players from the sign-up list.
+					Pick which channels games can run in. Open your server in the
+					<router-link :to="{ name: 'dashboard' }">dashboard</router-link>
+					and toggle channels under
+					<strong>Game Channels</strong>.
+				</li>
+				<li>
+					Set your channel settings: <code>tag cooldown</code> is how often someone can call the tag list, and
+					<code>auto-out</code> will automactally remove inactive players from the sign-up list.
 				</li>
 				<li>Set your game settings. See the Game Modes page for details on each game and mode.</li>
 				<li>Start playing!</li>
@@ -35,8 +40,8 @@
 			<p>A few notes:</p>
 			<ul>
 				<li>
-					Wolfia automatically mutes and unmutes players as necessary to prevent non-players and dead
-					players from talking during a game.
+					Wolfia automatically mutes and unmutes players as necessary to prevent non-players and dead players
+					from talking during a game.
 				</li>
 				<li>
 					Wolfia also runs private servers just for the Wolves/Mafia. Players receiving one of those roles
@@ -53,50 +58,19 @@
 		<section class="block content">
 			<h2 class="title has-text-weight-light is-size-3">Permissions</h2>
 			<p>
-				Wolfia requires some permissions to run games flawlessly. It will try to automatically set itself up
-				with what it needs, or ask you to give it the required permissions to do so.
+				Wolfia asks for the <strong>Administrator</strong> permission when you invite it. It used to request a
+				minimal set instead, but that broke often: Discord changes how permissions and channel overrides work,
+				the bot library doesn't always agree with Discord, and the setup tripped up a lot of admins.
+				Administrator avoids all of that.
 			</p>
 			<p>
-				Using the official invite link, or by running the <code>w.help</code> command to invite Wolfia to your
-				server, will have it request the required permissions. If permissions on your server are broken for
-				Wolfia or the required ones have been updated, kicking and reinviting should restore permissions to a
-				working state.
+				If permissions ever break, kick Wolfia and re-invite it with <strong>Administrator</strong> to fix it.
 			</p>
 			<p>
-				Nevertheless, and also for the control freaks among us, here is a comprehensive list of what is
-				required and why:
+				You decide where Wolfia plays: use the
+				<router-link :to="{ name: 'dashboard' }">dashboard</router-link>
+				to choose which channels games run in (see <strong>Game Channels</strong>).
 			</p>
-
-			<h3 class="subtitle has-text-weight-light is-size-5">Required</h3>
-			<dl>
-				<dt>Read Message History</dt>
-				<dd>Edit it's own messages after they have been sent</dd>
-				<dt>Use External Emojis</dt>
-				<dd>
-					The standarized emojis are not enough to display everything clearly, so Wolfia packs a bunch of
-					custom ones
-				</dd>
-				<dt>Embed Links</dt>
-				<dd>Formatting of messages</dd>
-				<dt>Add Reactions</dt>
-				<dd>Display vote counts</dd>
-				<dt>Manage Messages</dt>
-				<dd>Clearing reactions off of votecounts</dd>
-				<dt>Manage Roles</dt>
-				<dd>
-					Moderate the game channel with permission overrides (and just that; Wolfia does not create or
-					delete any roles for the players)
-				</dd>
-			</dl>
-
-			<h3 class="subtitle has-text-weight-light is-size-5">Optional</h3>
-			<dl>
-				<dt>Create Instant Invite</dt>
-				<dd>
-					Adds invites to the channel where the game is running to role pms and private chat servers which
-					makes for a smooth navigation for players during the game.
-				</dd>
-			</dl>
 		</section>
 	</div>
 </template>

@@ -43,7 +43,7 @@ internal class InviteEndpointTest : ApplicationTest() {
 				assertThat(httpUrl.pathSegments).containsExactly("oauth2", "authorize")
 				assertThat(httpUrl.queryParameter("client_id")).isEqualTo(DiscordApiConfig.SELF_ID.toString())
 				assertThat(httpUrl.queryParameter("scope")).isEqualTo("bot applications.commands")
-				assertThat(httpUrl.queryParameter("permissions")).isEqualTo("268787777")
+				assertThat(httpUrl.queryParameter("permissions")).isEqualTo("8")
 				assertThat(httpUrl.queryParameter("response_type")).isEqualTo("code")
 				assertThat(httpUrl.queryParameter("redirect_uri")).isEqualTo(App.WOLFIA_LOUNGE_INVITE)
 			},

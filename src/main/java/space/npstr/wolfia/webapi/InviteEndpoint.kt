@@ -42,7 +42,7 @@ class InviteEndpoint(
 
 	/**
 	 * Redirect should look something like
-	 * https://discord.com/oauth2/authorize?client_id=306583221565521921&scope=bot&permissions=268787777&response_type=code&redirect_uri=https%3A%2F%2Fdiscord.gg%2FnvcfX3q
+	 * https://discord.com/oauth2/authorize?client_id=306583221565521921&scope=bot&permissions=8&response_type=code&redirect_uri=https%3A%2F%2Fdiscord.gg%2FnvcfX3q
 	 */
 	@GetMapping
 	fun redirectToInvite(
@@ -70,15 +70,11 @@ class InviteEndpoint(
 	}
 
 	private fun permissions(): Long {
-		return (
-			Permission.MANAGE_ROLES.rawValue
-				or Permission.CREATE_INSTANT_INVITE.rawValue
-				or Permission.MESSAGE_MANAGE.rawValue
-				or Permission.MESSAGE_EMBED_LINKS.rawValue
-				or Permission.MESSAGE_HISTORY.rawValue
-				or Permission.MESSAGE_ADD_REACTION.rawValue
-				or Permission.MESSAGE_EXT_EMOJI.rawValue
-			)
+		// We request Administrator by default. Requesting a minimal set of permissions sounds nice in theory, but in
+		// practice it causes endless breakage: JDA's permission model disagrees with Discord's at the edges, Discord
+		// keeps changing how permissions and overrides behave, and server admins get confused setting it up. With
+		// Administrator the bot just works, and it can manage channel overrides as needed to run games.
+		return Permission.ADMINISTRATOR.rawValue
 	}
 
 	private fun botId(): Long {

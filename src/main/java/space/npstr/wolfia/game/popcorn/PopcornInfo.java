@@ -18,16 +18,12 @@
 package space.npstr.wolfia.game.popcorn;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.game.CharakterSetup;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Roles;
-import space.npstr.wolfia.game.definitions.Scope;
 
 /**
  * Static information about the popcorn game
@@ -45,22 +41,6 @@ public class PopcornInfo implements GameInfo {
     @Override
     public GameMode getDefaultMode() {
         return GameMode.WILD;
-    }
-
-    @Override
-    public Map<Permission, Scope> getRequiredPermissions(GameMode mode) {
-        Map<Permission, Scope> requiredPermissions = new LinkedHashMap<>();
-        requiredPermissions.put(Permission.MESSAGE_EMBED_LINKS, Scope.CHANNEL);
-        requiredPermissions.put(Permission.MESSAGE_EXT_EMOJI, Scope.CHANNEL);
-        switch (mode) {
-            case CLASSIC:
-                requiredPermissions.put(Permission.MESSAGE_MANAGE, Scope.CHANNEL); //prevent a bug where JDA will claim the bot has these permissions while it only has MANAGE_PERMISSIONS; request these first therefore and hope users give it both
-                break;
-            case WILD:
-            default:
-                break;
-        }
-        return requiredPermissions;
     }
 
     /**

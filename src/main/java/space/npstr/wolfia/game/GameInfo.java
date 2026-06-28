@@ -18,9 +18,6 @@
 package space.npstr.wolfia.game;
 
 import java.util.List;
-import java.util.Map;
-import net.dv8tion.jda.api.Permission;
-import space.npstr.wolfia.game.definitions.Scope;
 
 /**
  * Should provide some static information about a game.
@@ -55,12 +52,6 @@ public interface GameInfo {
     List<GameMode> getSupportedModes();
 
     GameMode getDefaultMode();
-
-    /**
-     * Smaller permissions need to be at the top of the returned Map to prevent bugs where JDA _thinks_ we have a
-     * permission to do something because we have a higher hierarchical permission but Discord disagrees.
-     */
-    Map<Permission, Scope> getRequiredPermissions(GameMode mode);
 
     String getAcceptablePlayerNumbers(GameMode mode);
 

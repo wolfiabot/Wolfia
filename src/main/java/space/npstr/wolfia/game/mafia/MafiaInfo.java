@@ -18,16 +18,12 @@
 package space.npstr.wolfia.game.mafia;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import net.dv8tion.jda.api.Permission;
 import space.npstr.wolfia.game.CharakterSetup;
 import space.npstr.wolfia.game.GameInfo;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.definitions.Roles;
-import space.npstr.wolfia.game.definitions.Scope;
 
 /**
  * Static information about the mafia game
@@ -46,25 +42,6 @@ public class MafiaInfo implements GameInfo {
     @Override
     public GameMode getDefaultMode() {
         return GameMode.LITE;
-    }
-
-    @Override
-    public Map<Permission, Scope> getRequiredPermissions(GameMode mode) {
-        Map<Permission, Scope> requiredPermissions = new LinkedHashMap<>();
-        requiredPermissions.put(Permission.MESSAGE_EMBED_LINKS, Scope.CHANNEL);
-        requiredPermissions.put(Permission.MESSAGE_EXT_EMOJI, Scope.CHANNEL);
-        requiredPermissions.put(Permission.MESSAGE_ADD_REACTION, Scope.CHANNEL);
-        requiredPermissions.put(Permission.MESSAGE_HISTORY, Scope.CHANNEL);
-        switch (mode) {
-            case XMAS:
-            case LITE:
-            case PURE:
-                requiredPermissions.put(Permission.MESSAGE_MANAGE, Scope.CHANNEL); //to delete reactions
-                break;
-            default:
-                break;
-        }
-        return requiredPermissions;
     }
 
     @Override

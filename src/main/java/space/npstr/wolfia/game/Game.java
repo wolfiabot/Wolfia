@@ -60,7 +60,6 @@ import space.npstr.wolfia.domain.stats.ReplayCommand;
 import space.npstr.wolfia.game.definitions.Actions;
 import space.npstr.wolfia.game.definitions.Alignments;
 import space.npstr.wolfia.game.definitions.Games;
-import space.npstr.wolfia.game.definitions.Scope;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.game.tools.ExceptionLoggingExecutor;
 import space.npstr.wolfia.game.tools.NiceEmbedBuilder;
@@ -367,90 +366,53 @@ public abstract class Game {
     }
 
     /**
-     * Calls this from your start() implementation after having checked and set the arguments
+     * Call this from your start() implementation after having checked and set the arguments
      * <p>
-     * Checks whether all required permissions for running the chosen game and mode are available to the bot
-     * <p>
-     * Prepares the channel for moderated games.
-     *
-     * @param moderated
-     *         moderated games require additional permissions
-     *
      * @throws UserFriendlyException
      *         if the bot is missing permissions to run the game in the channel
      */
-    protected void doPermissionCheckAndPrepareChannel(boolean moderated) {
+    protected void prepareChannelForModeration() {
         TextChannel gameChannel = fetchGameChannel();
         Guild g = gameChannel.getGuild();
 
-        //check permissions
-        Set<Permission> toAcquireInChannelScope = new HashSet<>();
-        Games.getInfo(this).getRequiredPermissions(this.mode).forEach((permission, scope) -> {
-
-            if (scope == Scope.CHANNEL) {
-                toAcquireInChannelScope.add(permission);
-            }
-            //lets not worry about things we arent even using currently and possibly never will
-        });
-        //is the bot allowed to manage permissions for this channel?
-        if (!g.getSelfMember().hasPermission(gameChannel, Permission.MANAGE_PERMISSIONS)) {
-            throw new UserFriendlyException(String.format(
-                    "To run a %s game in %s mode in this channel, I need the permission to `%s` in this channel",
-                    Games.POPCORN.textRep, this.mode.name(), Permission.MANAGE_PERMISSIONS)
-            );
-        }
-        RoleAndPermissionUtils.acquireChannelPermissions(gameChannel, toAcquireInChannelScope.toArray(new Permission[0]));
-
-        if (moderated) {
-            //is this a non-public channel, and if yes, has an existing access role been set?
-            boolean isChannelPublic = g.getPublicRole()
-                    .hasPermission(gameChannel, Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL);
-            if (isChannelPublic) {
-                this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
-            } else {
-                this.accessRoleId = resources.getChannelSettingsService()
-                        .channel(this.channelId).getOrDefault().getAccessRoleId().orElse(0L);
-                Role accessRole = g.getRoleById(this.accessRoleId);
-                if (accessRole == null) {
-                    throw new UserFriendlyException(String.format(
-                            "Non-public channel has been detected (`@everyone` is missing `%s` and/or `%s` permissions)." +
-                                    " The chosen game and mode requires the channel to be either public, or have an access role set up." +
-                                    " Talk to an Admin/Moderator of your server to fix this or set the access role up with `%s`." +
-                                    " Please refer to the documentation under %s",
-                            Permission.MESSAGE_SEND.getName(), Permission.VIEW_CHANNEL.getName(),
-                            WolfiaConfig.DEFAULT_PREFIX + ChannelSettingsCommand.TRIGGER, App.DOCS_LINK + "/setup"
-                    ));
-                }
-                if (!accessRole.hasPermission(gameChannel, Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)) {
-                    throw new UserFriendlyException(String.format(
-                            "The configured access role `%s` is missing `%s` and/or `%s` permissions in this channel." +
-                                    " Talk to an admin of your server to fix this." +
-                                    " Please refer to the documentation under %s",
-                            accessRole.getName(), Permission.MESSAGE_SEND.getName(),
-                            Permission.VIEW_CHANNEL.getName(), App.DOCS_LINK + "/setup"
-                    ));
-                }
-            }
-
-            //is the bot allowed to manage permissions for this channel?
-            if (!g.getSelfMember().hasPermission(gameChannel, Permission.MANAGE_PERMISSIONS)) {
+        //is this a non-public channel, and if yes, has an existing access role been set?
+        boolean isChannelPublic = g.getPublicRole()
+                .hasPermission(gameChannel, Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL);
+        if (isChannelPublic) {
+            this.accessRoleId = g.getIdLong(); //public role / @everyone, guaranteed to exist
+        } else {
+            this.accessRoleId = resources.getChannelSettingsService()
+                    .channel(this.channelId).getOrDefault().getAccessRoleId().orElse(0L);
+            Role accessRole = g.getRoleById(this.accessRoleId);
+            if (accessRole == null) {
                 throw new UserFriendlyException(String.format(
-                        "To run a %s game in %s mode in this channel, I need the permission to `%s` in this channel",
-                        Games.POPCORN.textRep, this.mode.name(), Permission.MANAGE_PERMISSIONS)
-                );
-            }
-
-
-            try {
-                prepareChannel();
-            } catch (PermissionException e) {
-                log.error("Could not prepare channel {}, id: {}, due to missing permission: {}", gameChannel.getName(),
-                        gameChannel.getId(), e.getPermission().getName(), e);
-                throw new UserFriendlyException(String.format(
-                        "The bot is missing the permission `%s` to run the selected game and mode in this channel.",
-                        e.getPermission().getName()
+                        "Non-public channel has been detected (`@everyone` is missing `%s` and/or `%s` permissions)." +
+                                " The chosen game and mode requires the channel to be either public, or have an access role set up." +
+                                " Talk to an Admin/Moderator of your server to fix this or set the access role up with `%s`." +
+                                " Please refer to the documentation under %s",
+                        Permission.MESSAGE_SEND.getName(), Permission.VIEW_CHANNEL.getName(),
+                        WolfiaConfig.DEFAULT_PREFIX + ChannelSettingsCommand.TRIGGER, App.DOCS_LINK + "/setup"
                 ));
             }
+            if (!accessRole.hasPermission(gameChannel, Permission.MESSAGE_SEND, Permission.VIEW_CHANNEL)) {
+                throw new UserFriendlyException(String.format(
+                        "The configured access role `%s` is missing `%s` and/or `%s` permissions in this channel." +
+                                " Talk to an admin of your server to fix this." +
+                                " Please refer to the documentation under %s",
+                        accessRole.getName(), Permission.MESSAGE_SEND.getName(),
+                        Permission.VIEW_CHANNEL.getName(), App.DOCS_LINK + "/setup"
+                ));
+            }
+        }
+
+        try {
+            // - no writing access and reaction adding for @everyone/access role in the game channel during the game
+            RoleAndPermissionUtils.deny(gameChannel, g.getRoleById(this.accessRoleId),
+                    Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION).queue(null, RestActions.defaultOnFail());
+        } catch (PermissionException e) {
+            log.error("Could not prepare channel {}, id: {}, due to missing permission: {}", gameChannel.getName(),
+                    gameChannel.getId(), e.getPermission().getName(), e);
+            throw new UserFriendlyException(RoleAndPermissionUtils.NEED_PERMISSIONS_MESSAGE, e);
         }
     }
 
@@ -496,26 +458,6 @@ public abstract class Game {
                         throw new UserFriendlyException("Could not allocate a private server.");
                     }
                 });
-    }
-
-    /**
-     * Prepares the channel for a moderated game
-     *
-     * @throws PermissionException
-     *         if the bot is missing permissions to edit permission overrides for members and roles
-     */
-    protected void prepareChannel() {
-        TextChannel gameChannel = fetchGameChannel();
-        Guild g = gameChannel.getGuild();
-
-        // - ensure write access for the bot in the game channel
-        // this can be done with complete() as most of the time (after the first game) it will already be in place
-        // and will prevent messages getting lost due to queue() sometimes taking a while
-        RoleAndPermissionUtils.grant(gameChannel, g.getSelfMember(), Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION).complete();
-
-        // - no writing access and reaction adding for @everyone/access role in the game channel during the game
-        RoleAndPermissionUtils.deny(gameChannel, g.getRoleById(this.accessRoleId),
-                Permission.MESSAGE_SEND, Permission.MESSAGE_ADD_REACTION).queue(null, RestActions.defaultOnFail());
     }
 
     /**

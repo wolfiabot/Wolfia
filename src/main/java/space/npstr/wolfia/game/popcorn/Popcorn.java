@@ -145,8 +145,9 @@ public class Popcorn extends Game {
             throw new UserFriendlyException(e.getMessage(), e);
         }
 
-        doPermissionCheckAndPrepareChannel(this.mode != GameMode.WILD);
-
+        if (this.mode != GameMode.WILD) {
+            prepareChannelForModeration(); // wild mode is unmoderated
+        }
 
         this.day = 0;
 

@@ -159,7 +159,7 @@ public class Mafia extends Game {
             throw new UserFriendlyException(e.getMessage(), e);
         }
 
-        doPermissionCheckAndPrepareChannel(true); //all werewolf games are moderated
+        prepareChannelForModeration(); //all werewolf games are moderated
 
         this.cycle = 0;
         this.phase = Phase.NIGHT;
