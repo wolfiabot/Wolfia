@@ -17,6 +17,8 @@
 
 package space.npstr.wolfia.commands.debug
 
+import java.time.Duration
+import java.time.Instant
 import space.npstr.wolfia.commands.BaseCommand
 import space.npstr.wolfia.commands.CommandContext
 import space.npstr.wolfia.domain.Command
@@ -34,11 +36,16 @@ class DeadServersCommand(
 		val shardManager = context.jda.shardManager!!
 		val privateRooms = privateRoomService.findAll()
 
+		val now = Instant.now()
 		val gamesByGuild = statsRepository.countGamesByGuild()
 
 		val deadGuilds = shardManager.guildCache.asSet()
 			.filter { guild -> privateRooms.none { it.guildId == guild.idLong } }
 			.filter { gamesByGuild[it.idLong] == null || gamesByGuild[it.idLong] == 0 }
+			.filter {
+				it.selfMember.timeJoined.toInstant()
+					.isBefore(now - Duration.ofDays(30))
+			}
 
 		val oldest = deadGuilds.sortedBy {
 			it.selfMember.timeJoined
