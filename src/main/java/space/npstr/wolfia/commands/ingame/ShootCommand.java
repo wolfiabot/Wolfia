@@ -18,6 +18,7 @@
 package space.npstr.wolfia.commands.ingame;
 
 import java.util.List;
+import net.dv8tion.jda.api.entities.User;
 import space.npstr.wolfia.commands.CommandContext;
 import space.npstr.wolfia.commands.GameCommand;
 import space.npstr.wolfia.commands.GuildCommandContext;
@@ -25,6 +26,9 @@ import space.npstr.wolfia.commands.util.HelpCommand;
 import space.npstr.wolfia.config.properties.WolfiaConfig;
 import space.npstr.wolfia.domain.Command;
 import space.npstr.wolfia.domain.game.GameRegistry;
+import space.npstr.wolfia.ecs.GameWorld;
+import space.npstr.wolfia.ecs.adapter.EcsGameBridge;
+import space.npstr.wolfia.ecs.popcorn.PopcornEvents.ShootEvent;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 
@@ -36,8 +40,11 @@ public class ShootCommand extends GameCommand {
 
     public static final String TRIGGER = "shoot";
 
-    public ShootCommand(GameRegistry gameRegistry) {
+    private final EcsGameBridge ecsGameBridge;
+
+    public ShootCommand(GameRegistry gameRegistry, EcsGameBridge ecsGameBridge) {
         super(gameRegistry);
+        this.ecsGameBridge = ecsGameBridge;
     }
 
     @Override
@@ -63,6 +70,13 @@ public class ShootCommand extends GameCommand {
 
         GuildCommandContext context = commandContext.requireGuild(false);
         if (context != null) { // find game through guild / textchannel
+
+            // ECS path: check if there's an ECS game in this channel
+            GameWorld ecsWorld = this.ecsGameBridge.get(context.textChannel.getIdLong());
+            if (ecsWorld != null) {
+                return handleEcsShoot(commandContext, ecsWorld);
+            }
+
             Game game = this.gameRegistry.get(context.textChannel);
             if (game == null) {
                 //private guild?
@@ -100,5 +114,20 @@ public class ShootCommand extends GameCommand {
             }
             return success;
         }
+    }
+
+    private boolean handleEcsShoot(CommandContext context, GameWorld world) {
+        long shooterId = context.getInvoker().getIdLong();
+
+        // Extract target from mentions
+        List<User> mentionedUsers = context.getMessage().getMentions().getUsers();
+        if (mentionedUsers.isEmpty()) {
+            context.replyWithMention("you need to mention a player to shoot! " + help());
+            return false;
+        }
+
+        long targetId = mentionedUsers.getFirst().getIdLong();
+        world.submit(new ShootEvent(shooterId, targetId));
+        return true;
     }
 }

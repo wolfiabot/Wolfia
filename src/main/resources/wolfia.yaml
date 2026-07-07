@@ -4,6 +4,7 @@
 ---
 wolfia:
   debug: true   # Some things are different. Set to false to properly run the bot.
+  ecs-enabled: true
 
 oauth2:
   base-redirect-url: "/"    # URL that should be redirected to after a successful authentication (usually the root).

@@ -27,6 +27,7 @@ public class WolfiaConfig {
     public static final String DEFAULT_PREFIX = "w.";
 
     private boolean debug = true;
+    private boolean ecsEnabled = false;
     private String discordToken = "";
     private String botstatusWebhook = "";
 
@@ -40,6 +41,14 @@ public class WolfiaConfig {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public boolean isEcsEnabled() {
+        return ecsEnabled;
+    }
+
+    public void setEcsEnabled(boolean ecsEnabled) {
+        this.ecsEnabled = ecsEnabled;
     }
 
     public String getDiscordToken() {

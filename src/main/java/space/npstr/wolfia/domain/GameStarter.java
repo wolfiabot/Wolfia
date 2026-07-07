@@ -33,8 +33,11 @@ import space.npstr.wolfia.domain.setup.GameSetupService;
 import space.npstr.wolfia.domain.setup.InCommand;
 import space.npstr.wolfia.domain.setup.StatusCommand;
 import space.npstr.wolfia.domain.setup.lastactive.ActivityService;
+import space.npstr.wolfia.ecs.adapter.EcsGameBridge;
+import space.npstr.wolfia.ecs.adapter.GameWorldFactory;
 import space.npstr.wolfia.game.Game;
 import space.npstr.wolfia.game.GameResources;
+import space.npstr.wolfia.game.definitions.Games;
 import space.npstr.wolfia.game.exceptions.IllegalGameStateException;
 import space.npstr.wolfia.utils.UserFriendlyException;
 import space.npstr.wolfia.utils.discord.RestActions;
@@ -57,11 +60,15 @@ public class GameStarter {
     private final ChannelSettingsService channelSettingsService;
     private final ShutdownHandler shutdownHandler;
     private final GameResources gameResources;
+    private final WolfiaConfig wolfiaConfig;
+    private final EcsGameBridge ecsGameBridge;
+    private final GameWorldFactory gameWorldFactory;
 
     public GameStarter(GameSetupService gameSetupService, MaintenanceService maintenanceService,
                        GameRegistry gameRegistry, ActivityService activityService,
                        ChannelSettingsService channelSettingsService, ShutdownHandler shutdownHandler,
-                       GameResources gameResources) {
+                       GameResources gameResources, WolfiaConfig wolfiaConfig,
+                       EcsGameBridge ecsGameBridge, GameWorldFactory gameWorldFactory) {
 
         this.gameSetupService = gameSetupService;
         this.maintenanceService = maintenanceService;
@@ -70,6 +77,9 @@ public class GameStarter {
         this.channelSettingsService = channelSettingsService;
         this.shutdownHandler = shutdownHandler;
         this.gameResources = gameResources;
+        this.wolfiaConfig = wolfiaConfig;
+        this.ecsGameBridge = ecsGameBridge;
+        this.gameWorldFactory = gameWorldFactory;
     }
 
     //needs to be synchronized so only one incoming command at a time can be in here
@@ -92,18 +102,11 @@ public class GameStarter {
         }
 
         //is there a game running already in this channel?
-        if (this.gameRegistry.get(setup.getChannelId()) != null) {
+        if (this.gameRegistry.get(setup.getChannelId()) != null
+                || this.ecsGameBridge.hasGame(setup.getChannelId())) {
             RestActions.sendMessage(channel, TextchatUtils.userAsMention(commandCallerId)
                     + ", there is already a game going on in this channel!");
             return false;
-        }
-
-        Game game;
-        try {
-            game = setup.getGame().constructor.apply(gameResources);
-        } catch (Exception e) {
-            log.error("Failed to invoke game constructor of {}", setup.getGame(), e);
-            throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
         }
 
         ShardManager shardManager = requireNonNull(context.getJda().getShardManager());
@@ -118,6 +121,33 @@ public class GameStarter {
         }
         setup = setupAction.cleanUpInnedPlayers(shardManager);
         Set<Long> inned = new HashSet<>(setup.getInnedUsers());
+
+        // ECS path for Popcorn when enabled
+        if (this.wolfiaConfig.isEcsEnabled() && setup.getGame() == Games.POPCORN) {
+            var popcornInfo = new space.npstr.wolfia.game.popcorn.PopcornInfo();
+            if (!popcornInfo.isAcceptablePlayerCount(inned.size(), setup.getMode())) {
+                RestActions.sendMessage(channel, String.format(
+                        "There aren't enough (or too many) players signed up! Please use `%s` for more information",
+                        WolfiaConfig.DEFAULT_PREFIX + StatusCommand.TRIGGER));
+                return false;
+            }
+
+            long guildId = context.getGuild().map(g -> g.getIdLong()).orElse(0L);
+            this.gameWorldFactory.createPopcornGame(
+                    setup.getChannelId(), guildId, inned, setup.getMode(), setup.getDayLength());
+            setupAction.clearInnedUsers();
+            return true;
+        }
+
+        // Legacy path
+        Game game;
+        try {
+            game = setup.getGame().constructor.apply(gameResources);
+        } catch (Exception e) {
+            log.error("Failed to invoke game constructor of {}", setup.getGame(), e);
+            throw new IllegalGameStateException("Internal error, could not create the specified game.", e);
+        }
+
         if (!game.isAcceptablePlayerCount(inned.size(), setup.getMode())) {
             RestActions.sendMessage(channel, String.format(
                     "There aren't enough (or too many) players signed up! Please use `%s` for more information",
